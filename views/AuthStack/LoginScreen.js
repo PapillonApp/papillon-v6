@@ -1,17 +1,20 @@
 import * as React from 'react';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, View, StatusBar } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 import { List } from 'react-native-paper';
+
+import { useColorScheme } from 'react-native';
 
 import packageJson from '../../package.json';
 
 function ServiceOption({ service, color, logo, identitifants, press }) {
   const theme = useTheme();
+  const scheme = useColorScheme();
 
   return (
     <List.Item
       title={"Connexion avec " + service}
-      titleStyle={{ fontWeight: 600, fontSize: 17 }}
+      titleStyle={{ fontWeight: 600, fontSize: 17, fontFamily: 'Papillon-Semibold' }}
       description={"avec des identifiants " + identitifants}
       descriptionStyle={{ fontWeight: 400, fontSize: 15 }}
       left={() => 
@@ -21,7 +24,7 @@ function ServiceOption({ service, color, logo, identitifants, press }) {
         <List.Icon icon="chevron-right" color={theme.colors.outline} />
       }
       onPress={press}
-      style={[styles.serviceOption, { backgroundColor: theme.colors.elevation.level1 }]}
+      style={[styles.serviceOption, { backgroundColor: theme.dark ? '#111' : '#fff', borderColor: theme.colors.outline, borderColor: theme.dark ? '#191919' : '#e5e5e5', borderWidth: theme.dark ? 1 : 0 }]}
     />
   );
 }
@@ -51,14 +54,16 @@ function LoginScreen({ navigation }) {
   ];
 
   function pressedService(service) {
-    if (service == 'Pronote') navigation.navigate('LoginPronote')
+    if (service == 'Pronote') navigation.navigate('LoginPronoteSelectEtab')
     else navigation.navigate('LoginUnavailable')
   }
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {  }]}>
 
-      <List.Section>
+      <StatusBar backgroundColor={theme.colors.background} barStyle={theme.dark ? 'light-content' : 'dark-content'} />
+
+      <List.Section style={styles.serviceOptionList}>
         <List.Subheader>Services scolaires disponibles</List.Subheader>
         
         {services.map((service, index) => (
@@ -99,6 +104,22 @@ const styles = StyleSheet.create({
     marginBottom: 8,
 
     marginHorizontal: 12,
+
+    borderWidth: 0,
+
+    overflow: 'hidden',
+  },
+  serviceOptionList: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+
+    elevation: 2,
+    zIndex: 9999,
   },
   serviceOptionLogo: {
     width: 38,

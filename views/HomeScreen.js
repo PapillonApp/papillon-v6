@@ -1,16 +1,28 @@
 import * as React from 'react';
-import { Button, View, Text } from 'react-native';
+import { View, ScrollView, StyleSheet, StatusBar } from 'react-native';
+import { useTheme, Button, Text } from 'react-native-paper';
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function HomeScreen({ navigation }) {
+  const theme = useTheme();
+
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Home Screen</Text>
-      <Button
-        title="Go to Details"
-        onPress={() => navigation.navigate('Login')}
-      />
-    </View>
+    <ScrollView style={[styles.container, {paddingTop: insets.top, paddingBottom: insets.bottom}]} contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
+      <StatusBar backgroundColor={theme.colors.background} barStyle={theme.dark ? 'light-content' : 'dark-content'} />
+
+
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+  },
+});
 
 export default HomeScreen;
