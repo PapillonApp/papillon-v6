@@ -1,14 +1,89 @@
-on: [push]
+name: Build and Test
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        type: choice
+        description: Build profile to use
+        options:
+          - development
+          - preview
+          - production
 jobs:
-  react_native_ci_job:
-    runs-on: ubuntu-latest
-    name: React Native CI Build
+  build-and-test:
+    strategy:
+      # If any of the following matrix element fails, the whole workflow fails
+      fail-fast: true
+      # We use a matrix to parallelise the execution of the build and test jobs
+      # Learn more about matrix here: https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
+      # The matrix defines the different platform to use
+      # ios apps can only be built on macos
+      # android apps can only be built on linux
+      matrix:
+        include:
+          - platform: "ios"
+            # At the moment we need to use macos-12 instead of macos-11 (macos-latest)
+            os: "macos-12"
+          - platform: "android"
+            os: "ubuntu-latest"
+
+    runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: React Native CI
-        uses: aslamanver/react-native-docker@v1
-      - name: Install NPM Dependencies
+      # the EXPO Token is used to authenticate with EAS to retrive the certificates
+      - name: Check for EXPO_TOKEN
+        run: |
+          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
+            echo "You must provide an EXPO_TOKEN secret linked to this project's Expo account in this repo's secrets. Learn more: https://docs.expo.dev/eas-update/github-actions"
+            exit 1
+          fi
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Trying to install dependecies from cache
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - if: ${{ steps.cache-npm.outputs.cache-hit == 'false' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+
+      - name: Install dependencies
         run: npm install
-      - name: Run Android Build
-        run: npx nx build-android mobile
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v7
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Setup EAS local builds
+        run: npm i -g eas-cli-local-build-plugin
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: |
+          eas build --local \
+            --non-interactive \
+            --output=./out \
+            --platform=${{ matrix.platform }} \
+            --profile=${{ github.event.inputs.profile }}
+      # Upload the app binaries to the artifact section of the workflow
+      # They can optionally be downloaded by the user later on or for example added to a release
+      - name: Upload binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: your-app-name-${{ matrix.platform }}
+          path: out
