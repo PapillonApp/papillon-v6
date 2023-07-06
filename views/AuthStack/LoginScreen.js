@@ -3,9 +3,13 @@ import { Image, ScrollView, StyleSheet, View, StatusBar } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 import { List } from 'react-native-paper';
 
+import { Info } from 'lucide-react-native';
+
 import { useColorScheme } from 'react-native';
 
 import packageJson from '../../package.json';
+
+import ListItem from '../../components/ListItem';
 
 function ServiceOption({ service, color, logo, identitifants, press }) {
   const theme = useTheme();
@@ -14,17 +18,14 @@ function ServiceOption({ service, color, logo, identitifants, press }) {
   return (
     <List.Item
       title={"Connexion avec " + service}
-      titleStyle={{ fontWeight: 600, fontSize: 17, fontFamily: 'Papillon-Semibold' }}
+      titleStyle={{ fontWeight: 600, fontSize: 17, fontFamily: 'Papillon-Semibold', color: '#fff' }}
       description={"avec des identifiants " + identitifants}
-      descriptionStyle={{ fontWeight: 400, fontSize: 15 }}
+      descriptionStyle={{ fontWeight: 400, fontSize: 15, color: '#fff', opacity: 0.6 }}
       left={() => 
         <Image source={logo} style={[styles.serviceOptionLogo, {}]} />
       }
-      right={() =>
-        <List.Icon icon="chevron-right" color={theme.colors.outline} />
-      }
       onPress={press}
-      style={[styles.serviceOption, { backgroundColor: theme.dark ? '#111' : '#fff', borderColor: theme.colors.outline, borderColor: theme.dark ? '#191919' : '#e5e5e5', borderWidth: theme.dark ? 1 : 0 }]}
+      style={[styles.serviceOption, { backgroundColor: color, borderColor: theme.colors.outline, borderColor: theme.dark ? '#191919' : '#e5e5e5', borderWidth: theme.dark ? 1 : 0 }]}
     />
   );
 }
@@ -61,7 +62,18 @@ function LoginScreen({ navigation }) {
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {  }]}>
 
-      <StatusBar backgroundColor={theme.colors.background} barStyle={theme.dark ? 'light-content' : 'dark-content'} />
+      {Platform.OS === 'android' ? (
+        <StatusBar backgroundColor={theme.colors.background} barStyle={theme.dark ? 'light-content' : 'dark-content'} />
+      ) : null}
+
+      <ListItem
+        title="Papillon est un client alternatif pour Pronote et d’autres services scolaires"
+        subtitle="Cette application est en bêta, certaines choses peuvent ne pas fonctionner normalement."
+        icon={<Info color="#29947A" />}
+        color="#29947A"
+        style={{ marginTop: 14 }}
+        isLarge={true}
+      />
 
       <List.Section style={styles.serviceOptionList}>
         <List.Subheader>Services scolaires disponibles</List.Subheader>
@@ -103,23 +115,14 @@ const styles = StyleSheet.create({
 
     marginBottom: 8,
 
-    marginHorizontal: 12,
+    marginHorizontal: 14,
 
     borderWidth: 0,
 
     overflow: 'hidden',
   },
   serviceOptionList: {
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-
-    elevation: 2,
-    zIndex: 9999,
+    
   },
   serviceOptionLogo: {
     width: 38,

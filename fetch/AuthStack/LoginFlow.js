@@ -1,4 +1,5 @@
 import consts from '../consts';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function getENTs(url) {
     // if url doesnt end with /, add it
@@ -41,4 +42,19 @@ function getToken(credentials) {
     });
 }
 
-export { getENTs, getInfo, getToken }
+function refreshToken() {
+    AsyncStorage.getItem('credentials').then((result) => {
+        const credentials = JSON.parse(result);
+
+        return getToken(credentials).then((result) => {
+            if(result.token != false || result.token != null) {
+                AsyncStorage.setItem('token', result.token);
+                console.log('Token refreshed : ' + result.token);
+
+                return result;
+            }
+        });
+    });
+};
+
+export { getENTs, getInfo, getToken, refreshToken }

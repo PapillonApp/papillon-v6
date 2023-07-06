@@ -1,22 +1,47 @@
 import * as React from 'react';
-import { ScrollView, View, StyleSheet, Platform, Alert } from 'react-native';
+import { ScrollView, View, StyleSheet, Platform, Alert, TextInput } from 'react-native';
 
 import { useColorScheme } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { useTheme, TextInput, Button, Text, Portal, Switch } from 'react-native-paper';
+import { useTheme, Button, Text, Portal, Switch } from 'react-native-paper';
 
 import { getENTs, getInfo, getToken } from '../../../fetch/AuthStack/LoginFlow';
 
 import { useState } from 'react';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
+import { School, UserCircle, KeyRound } from 'lucide-react-native';
+import ListItem from '../../../components/ListItem';
+
+function LoginTextInput({ label, icon, value, onChangeText, secureTextEntry, style }) {
+  const theme = useTheme();
+
+  return (
+    <View style={[styles.loginTextInput, { borderColor: theme.dark ? '#191919' : '#e5e5e5'}, style]}>
+      <>
+        {icon}
+      </>
+      <TextInput
+        style={[styles.loginTextInputText]}
+        placeholder={label}
+        value={value}
+        onChangeText={onChangeText}
+        secureTextEntry={secureTextEntry}
+      ></TextInput>
+    </View>
+  )
+}
+
 function LoginPronote({ route, navigation }) {
   const theme = useTheme();
   const scheme = useColorScheme();
 
   const { etab } = route.params;
+  const [etabName, setEtabName] = useState(etab.nomEtab);
+
+  const [useEduconnect, setUseEduconnect] = React.useState(false);
 
   const [isENTUsed, setIsENTUsed] = React.useState(false);
   const onToggleSwitch = () => setIsENTUsed(!isENTUsed);
@@ -37,6 +62,8 @@ function LoginPronote({ route, navigation }) {
         headerTitle: 'Se connecter à ' + result.nomEtab,
       });
 
+      setEtabName(result.nomEtab);
+
       const hostname = CAS.casURL.split('/')[2];
 
       getInfo().then((result) => {
@@ -45,6 +72,8 @@ function LoginPronote({ route, navigation }) {
         // find ent in ents where url = hostname
         const ent = ents.find(ent => ent.url === hostname);
         setENTs(ent);
+
+        setUseEduconnect(ent.educonnect);
       });
     });
   }, []);
@@ -88,44 +117,44 @@ function LoginPronote({ route, navigation }) {
   return (
     <ScrollView style={[styles.container, { }]}>
 
-        <View style={[styles.loginForm]}>
-            <TextInput
-                label="Identifiant"
-                mode="outlined"
-                style={[styles.input]}
-                outlineColor='transparent'
-                left={<TextInput.Icon icon="account-outline" />}
-                onChangeText={text => setUsername(text)}
-            />
+        <ListItem
+          title={"Connexion à l'établissement " + etabName}
+          subtitle={"Vous pouvez vous connecter à l’aide de vos identifiants " + (useEduconnect ? "EduConnect" : "Pronote") + "."}
+          icon={<School color="#29947A" />}
+          color="#29947A"
+          style={{ marginTop: 14 }}
+          isLarge={true}
+        />
 
-            <TextInput
+        <View style={[styles.loginForm]}>
+
+            <View style={[styles.loginGroup, { backgroundColor: theme.dark ? '#111' : '#fff', borderColor: theme.colors.outline, borderColor: theme.dark ? '#191919' : '#e5e5e5'}]}>
+              <LoginTextInput
+                label="Identifiant"
+                icon={<UserCircle style={styles.loginGroupIcon} color={theme.dark ? '#fff' : "#000"} />}
+                value={username}
+                onChangeText={text => setUsername(text)}
+                style={{borderBottomWidth: 1}}
+              />
+              <LoginTextInput
                 label="Mot de passe"
-                mode="outlined"
-                style={[styles.input]}
-                outlineColor='transparent'
-                left={<TextInput.Icon icon="lock-outline" />}
+                icon={<KeyRound style={styles.loginGroupIcon} color={theme.dark ? '#fff' : "#000"} />}
+                value={password}
                 secureTextEntry={true}
                 onChangeText={text => setPassword(text)}
-            />
-
-            {ENTs !== undefined && ENTs.length != 0 ? (
-              <View style={[styles.switchGroup]}>
-                <View style={{width: '80%'}}>
-                  <Text style={{opacity:0.5}}>Se connecter avec l'ENT</Text>
-                  <Text style={{fontSize:16, fontWeight: 500, maxWidth: '100%'}}>{ENTs.name}</Text>
+              />
+              {ENTs !== undefined && ENTs.length != 0 ? (
+                <View style={[styles.switchGroup, style={borderTopWidth: 1, borderColor: theme.dark ? '#191919' : '#e5e5e5'}]}>
+                  <View style={{width: '80%'}}>
+                    <Text style={{opacity:0.5}}>Se connecter avec l'ENT</Text>
+                    <Text style={{fontSize:16, fontWeight: 500, maxWidth: '100%'}}>{ENTs.name}</Text>
+                  </View>
+                  <Switch value={isENTUsed} onValueChange={onToggleSwitch} />
                 </View>
-                <Switch value={isENTUsed} onValueChange={onToggleSwitch} />
-              </View>
-            ) : null}
+              ) : null}
+            </View>
 
             <View style={[styles.buttons]}>
-                <Button
-                icon="help-circle-outline"
-                mode="contained-tonal"
-                style={[styles.button]}>
-                    Besoin d'aide ?
-                </Button>
-
                 <Button
                 icon="login"
                 mode="contained"
@@ -148,23 +177,30 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginHorizontal: 18,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      paddingBottom: 13,
+    },
+    loginGroup : {
+      marginHorizontal: 14,
       marginVertical: 14,
+      borderRadius: 12,
+      borderCurve: 'continuous',
+      borderWidth: 1,
+      overflow: 'hidden',
     },
-    input: {
-        marginHorizontal: 14,
-        marginBottom: 8,
-
-        shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
+    loginTextInput: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      flexDirection: 'row',
+      gap: 16,
     },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-
-    elevation: 2,
-    zIndex: 9999,
+    loginTextInputText: {
+      fontSize: 15,
+      flex: 1,
+    },
+    loginGroupIcon : {
+      opacity: 0.5,
     },
     buttons: {
         flexDirection: 'row',
@@ -175,6 +211,7 @@ const styles = StyleSheet.create({
     button: {
         flex: 1,
         marginTop: 8,
+        fontSize: 16,
     }
 });
 

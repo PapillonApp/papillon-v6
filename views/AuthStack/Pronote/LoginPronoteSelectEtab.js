@@ -4,6 +4,9 @@ import { StyleSheet } from 'react-native';
 import { useTheme, ActivityIndicator, List, Text, Avatar, Searchbar } from 'react-native-paper';
 import { useState } from 'react';
 
+import { School, Map, Backpack } from 'lucide-react-native';
+import ListItem from '../../../components/ListItem';
+
 import { useColorScheme } from 'react-native';
 
 import { getCoordsFromPostal, getPronoteEtabsFromCoords } from '../../../fetch/AuthStack/SearchEtabs';
@@ -78,10 +81,6 @@ function LoginPronoteSelectEtab({ navigation }) {
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic" style={{ flex: 1 }}>
 
-      {Platform.OS === 'ios' ? (
-            <StatusBar barStyle={'light-content'} />
-      ) : null}
-
       {Platform.OS === 'android' ? (
         <Searchbar
           placeholder="Entrez un code postal ou une ville"
@@ -95,15 +94,14 @@ function LoginPronoteSelectEtab({ navigation }) {
           <List.Subheader>Établissements disponibles</List.Subheader>
 
           {EtabList.map((item, index) => (
-            <List.Item 
+            <ListItem
               key={index}
-              style={[styles.etabItem, { backgroundColor: theme.dark ? '#111' : '#fff', borderColor: theme.colors.outline, borderColor: theme.dark ? '#191919' : '#e5e5e5', borderWidth: theme.dark ? 1 : 0 }]}
               title={item.nomEtab}
-              titleStyle={{ fontWeight: 600, fontSize: 17, fontFamily: 'Papillon-Semibold' }}
-              description={item.url}
-              descriptionStyle={{ fontWeight: 400, fontSize: 15 }}
-              left={() => <List.Icon icon="school-outline" />}
+              subtitle={item.url}
+              icon={<School color="#29947A" />}
+              color="#29947A"
               onPress={() => selectEtab(item)}
+              style={styles.etabItem}
             />
           ))}
         </List.Section>
@@ -111,7 +109,7 @@ function LoginPronoteSelectEtab({ navigation }) {
 
       {EtabList.length == 0 && searchQuery.trim() != "" && loading ? (
         <View style={{alignItems: 'center', marginTop:50}}>
-          <ActivityIndicator size={46} animating={true} color={theme.colors.primary} style={{marginBottom:20}} />
+          <ActivityIndicator size={36} animating={true} color={theme.colors.primary} style={{marginBottom:20}} />
           <Text variant="titleLarge" style={{fontWeight:500, marginBottom: 4, fontFamily: 'Papillon-Semibold'}} >Recherche des établissements</Text>
           <Text style={{opacity:0.6, marginBottom:50}} >Cela peut prendre quelques secondes.</Text>
         </View>
@@ -119,7 +117,10 @@ function LoginPronoteSelectEtab({ navigation }) {
 
       {EtabList.length == 0 && searchQuery.trim() != "" && !loading ? (
         <View style={{alignItems: 'center', marginTop:50}}>
-          <Avatar.Icon size={46} icon="school-outline" style={{backgroundColor:theme.colors.primary, marginBottom:16}} />
+          <View style={{backgroundColor:theme.colors.primary, marginBottom:14, borderRadius:50, padding: 10}}>
+            <Backpack color="#fff" size={28}/>
+          </View>
+
           <Text variant="titleLarge" style={{fontWeight:500, marginBottom: 4, fontFamily: 'Papillon-Semibold'}} >Aucun résultat</Text>
           <Text style={{opacity:0.6, marginBottom:50, textAlign: 'center', marginHorizontal:30}} >Rééssayez avec une autre recherche ou utilisez une autre méthode de connexion.</Text>
         </View>
@@ -127,7 +128,10 @@ function LoginPronoteSelectEtab({ navigation }) {
 
       {EtabList.length == 0 && searchQuery.trim() == "" ? (
         <View style={{alignItems: 'center', marginTop:50}}>
-          <Avatar.Icon size={46} icon="map-search-outline" style={{backgroundColor:theme.colors.primary, marginBottom:16}} />
+          <View style={{backgroundColor:theme.colors.primary, marginBottom:14, borderRadius:50, padding: 10}}>
+            <Map color="#fff" size={28}/>
+          </View>
+
           <Text variant="titleLarge" style={{fontWeight:500, marginBottom: 4, fontFamily: 'Papillon-Semibold'}} >Démarrez une recherche</Text>
           <Text style={{opacity:0.6, marginBottom:50, textAlign: 'center', marginHorizontal:30}} >Utilisez la barre de recherche pour rechercher une ville ou un code postal.</Text>
         </View>
@@ -139,31 +143,10 @@ function LoginPronoteSelectEtab({ navigation }) {
 
 const styles = StyleSheet.create({
   etabItem: {
-    borderRadius: 10,
-    overflow: 'hidden',
-
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-
-    marginBottom: 8,
-
-    marginHorizontal: 12,
-
-    borderWidth: 0,
-
-    overflow: 'hidden',
+    marginBottom: 5,
   },
   etabItemList: {
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-
-    elevation: 2,
-    zIndex: 9999,
+    
   },
 });
 

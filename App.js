@@ -24,7 +24,7 @@ import { Platform, useColorScheme } from 'react-native';
 
 import { useCallback, useState } from 'react';
 
-import { Home, CalendarRange, Book, LineChart } from 'lucide-react-native';
+import { Home, CalendarRange, BookOpen, BarChart3, UserCircle } from 'lucide-react-native';
 
 import {
   MD3LightTheme,
@@ -32,6 +32,7 @@ import {
 } from 'react-native-paper';
 
 import HomeScreen from './views/HomeScreen';
+import CoursScreen from './views/CoursScreen';
 import SettingsScreen from './views/SettingsScreen';
 
 import LoginScreen from './views/AuthStack/LoginScreen';
@@ -63,12 +64,57 @@ const CustomNavigationBar = ({ navigation, route, options, back }) => {
   );
 }
 
+const WrappedHomeScreen = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Vue d'ensemble"
+        component={HomeScreen}
+        options={{ 
+          headerLargeTitle: true,
+          headerLargeTitleStyle: {
+            fontFamily: 'Papillon-Semibold',
+          },
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+const WrappedSettings = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Compte"
+        component={SettingsScreen}
+        options={{ 
+          headerLargeTitle: true,
+          headerLargeTitleStyle: {
+            fontFamily: 'Papillon-Semibold',
+          },
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
+
 const AppStack = () => {
   return (
     <Tab.Navigator
       screenOptions={{
         header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
         elevated: false,
+        tabBarLabelStyle: {
+          fontFamily: 'Papillon-Semibold',
+          fontSize: 12.5,
+        },
+        tabBarBadgeStyle: {
+          fontFamily: 'Papillon-Medium',
+          fontSize: 13,
+        },
+        headerTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
       }}
 
       tabBar={Platform.OS !== 'ios' ? ({ navigation, state, descriptors, insets }) => (
@@ -113,17 +159,18 @@ const AppStack = () => {
     >
       <Tab.Screen
         name="Accueil"
-        component={HomeScreen}
+        component={WrappedHomeScreen}
         options={{
           tabBarLabel: 'Accueil',
           tabBarIcon: ({ color, size }) => {
             return <Home color={color} size={size} />;
           },
+          headerShown: false,
         }}
       />
       <Tab.Screen
         name="Cours"
-        component={HomeScreen}
+        component={CoursScreen}
         options={{
           tabBarLabel: 'Cours',
           tabBarIcon: ({ color, size }) => {
@@ -133,22 +180,34 @@ const AppStack = () => {
       />
       <Tab.Screen
         name="Devoirs"
-        component={SettingsScreen}
+        component={HomeScreen}
         options={{
           tabBarLabel: 'Devoirs',
           tabBarIcon: ({ color, size }) => {
-            return <Book color={color} size={size} />;
+            return <BookOpen color={color} size={size} />;
           },
         }}
       />
       <Tab.Screen
         name="Notes"
-        component={SettingsScreen}
+        component={HomeScreen}
         options={{
           tabBarLabel: 'Notes',
           tabBarIcon: ({ color, size }) => {
-            return <LineChart color={color} size={size} />;
+            return <BarChart3 color={color} size={size} />;
           },
+        }}
+      />
+      <Tab.Screen
+        name="Paramètres"
+        component={WrappedSettings}
+        options={{
+          tabBarLabel: 'Compte',
+          tabBarBadge: 1,
+          tabBarIcon: ({ color, size }) => {
+            return <UserCircle color={color} size={size} />;
+          },
+          headerShown: false,
         }}
       />
     </Tab.Navigator>
@@ -161,10 +220,10 @@ const AuthStack = () => {
       screenOptions={{
         header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
         headerTitleStyle: {
-          fontFamily: 'Papillon-Medium',
+          fontFamily: 'Papillon-Semibold',
         },
         headerBackTitleStyle: {
-          fontFamily: 'Papillon-Medium',
+          fontFamily: 'Papillon-Semibold',
         }
       }}
     >
@@ -172,7 +231,7 @@ const AuthStack = () => {
         name="Login"
         component={LoginScreen}
         options={{
-          title: 'Bienvenue',
+          title: 'Connexion',
           headerLargeTitleStyle: {
             color: baseColor,
           },
