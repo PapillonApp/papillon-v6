@@ -54,7 +54,7 @@ function PapillonAgendaCourse(item) {
 
 const weekViewRef = React.createRef()
 
-function PapillonAgenda({ events, dayPress }) {
+function PapillonAgenda({ events, dayPress, navigation }) {
   const theme = useTheme();
   const scheme = useColorScheme();
 
@@ -93,8 +93,58 @@ function PapillonAgenda({ events, dayPress }) {
     onRefresh();
   }, []);
 
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [rnDate, setRnDate] = useState(new Date());
+
+  // add button in header
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Button
+          onPress={() => openCalendar(currentDate)}
+          title="Aller à..."
+          color={theme.colors.primary}
+        />
+      ),
+    });
+  }, [navigation]);
+
+  function openCalendar() {
+    setRnDate(new Date(currentDate));
+    showDatePicker();
+  }
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date) => {
+    hideDatePicker();
+    
+    // remove 1 day to date
+    date.setDate(date.getDate() - 1);
+
+    dateChanged(date);
+    weekViewRef.current.goToDate(date);
+  };
+
   return (
     <>
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        date={rnDate}
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+
+        confirmTextIOS="Sélectionner"
+        cancelTextIOS="Annuler"
+      />
+
       <WeekView
         events={myEvents}
         selectedDate={currentDate}
@@ -124,7 +174,7 @@ function PapillonAgenda({ events, dayPress }) {
         onSwipeNext={dateChanged}
         onSwipePrev={dateChanged}
 
-        onDayPress={(date, formattedDate) => dayPress(date, formattedDate)}
+        onDayPress={openCalendar}
       />
     </>
   )
@@ -133,42 +183,9 @@ function PapillonAgenda({ events, dayPress }) {
 function CoursScreen({ navigation }) {
   const theme = useTheme();
 
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [rnDate, setRnDate] = useState(new Date());
-
-  function openCalendar(date) {
-    setRnDate(currentDate);
-    showDatePicker();
-  }
-
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-
-  const handleConfirm = (date) => {
-    hideDatePicker();
-    dateChanged(date);
-    weekViewRef.current.goToDate(date);
-  };
-
   return (
     <>
-      <PapillonAgenda dayPress={openCalendar} />
-
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
-        date={rnDate}
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-
-        confirmTextIOS="Sélectionner"
-        cancelTextIOS="Annuler"
-      />
+      <PapillonAgenda navigation={navigation} />
     </>
   );
 }
