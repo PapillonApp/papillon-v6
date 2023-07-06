@@ -1,5 +1,5 @@
 # papillon-v6
-Serait-ce début d'une nouvelle ère pour Papillon 👀
+Serait-ce le début d'une nouvelle ère pour Papillon 👀
 
 ## Roadmap
 - [ ] Structure
