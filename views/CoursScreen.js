@@ -67,7 +67,7 @@ function CoursItem({ event }) {
 
           <View style={[styles.coursDataDetails, {display: itemSize.height < 78 ? 'none' : 'flex'}]}>
             <Text numberOfLines={1} style={styles.coursDataRoom}>Salle {event.cours.rooms[0]}</Text>
-            <Text numberOfLines={1} style={[styles.coursDataTeacher, {display: itemSize.height < 90 ? 'none' : 'flex'}]}>{event.cours.teachers[0]}</Text>
+            <Text numberOfLines={1} style={[styles.coursDataTeacher, {display: itemSize.height < 95 ? 'none' : 'flex'}]}>{event.cours.teachers[0]}</Text>
           </View>
         </View>
       </View>
