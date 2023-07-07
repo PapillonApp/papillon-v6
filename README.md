@@ -5,12 +5,12 @@ Serait-ce le début d'une nouvelle ère pour Papillon 👀
 - [🍱 Composants](/components/README.md)
 
 ## Roadmap
-- [ ] Structure
+- [x] Structure
     - [x] Routage & Navigation
     - [x] Appels à l'API
     - [x] Données utilisateurs (équivalent LocalStorage)
     - [x] Framework UI (React Native Paper)
-- [ ] Connexion à un service scolaire *(Pronote pour le moment)*
+- [x] Connexion à un service scolaire *(Pronote pour le moment)*
     - [x] Interface de choix du service scolaire
     - [x] Interface de sélection de l'établissement
     - [x] Interface de connexion au service
