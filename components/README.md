@@ -2,9 +2,9 @@
 L'interface de Papillon est composée d'une multitude d'élements personnalisés : les composants. Voici leur liste et leurs paramètres
 
 ## Table des matières
-- [`<ListItem/>`](hey)
-- [`<PapillonButton/>`](hey)
-- [`<PapillonIcon/>`](hey)
+- [`<ListItem/>`](#listitem)
+- [`<PapillonButton/>`](#papillonbutton)
+- [`<PapillonIcon/>`](#papillonicon)
 
 ## `<ListItem/>`
 ### Aperçu

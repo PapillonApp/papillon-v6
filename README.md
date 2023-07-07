@@ -1,6 +1,9 @@
 # papillon-v6
 Serait-ce le début d'une nouvelle ère pour Papillon 👀
 
+## Pour les contributeurs
+- [🍱 Composants](/components/README.md)
+
 ## Roadmap
 - [ ] Structure
     - [x] Routage & Navigation
