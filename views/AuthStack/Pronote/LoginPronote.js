@@ -31,6 +31,7 @@ function LoginTextInput({ label, icon, value, onChangeText, secureTextEntry, sty
         value={value}
         onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}
+        placeholderTextColor={theme.dark ? '#ffffff55' : "#00000055"}
       ></TextInput>
     </View>
   )

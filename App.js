@@ -20,7 +20,7 @@ import { useMemo } from 'react';
 import { PaperProvider, configureFonts } from 'react-native-paper';
 
 import { DefaultTheme, DarkTheme } from '@react-navigation/native';
-import { Platform, useColorScheme } from 'react-native';
+import { Platform, useColorScheme, View } from 'react-native';
 
 import { useCallback, useState } from 'react';
 
@@ -319,11 +319,13 @@ function App() {
 
   // load fonts
   return (
-    <PaperProvider theme={paperTheme}>
-      <NavigationContainer theme={classicTheme}>
-        {loggedIn ? <AppStack /> : <AuthStack />}
-      </NavigationContainer>
-    </PaperProvider>
+    <View style={{flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff'}}>
+      <PaperProvider theme={paperTheme}>
+        <NavigationContainer theme={classicTheme}>
+          {loggedIn ? <AppStack /> : <AuthStack />}
+        </NavigationContainer>
+      </PaperProvider>
+    </View>
   );
 }
 
