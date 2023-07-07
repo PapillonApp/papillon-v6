@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { View, SafeAreaView, StyleSheet, StatusBar, Platform, Button } from 'react-native';
+import { View, Animated, Easing, SafeAreaView, StyleSheet, StatusBar, Platform, Button } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
 import { useState, useEffect } from 'react';
 import { getTimetable } from '../fetch/PronoteData/PronoteTimetable';
 
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { DatePickerModal, fr, registerTranslation } from 'react-native-paper-dates';
 
 import WeekView, { addLocale } from 'react-native-week-view';
 
@@ -19,6 +19,8 @@ addLocale('fr', {
   weekdays: 'dimanche_lundi_mardi_mercredi_jeudi_vendredi_samedi'.split('_'),
   weekdaysShort: 'dim._lun._mar._mer._jeu._ven._sam.'.split('_'),
 });
+
+registerTranslation('fr', fr);
 
 function loadCourses(currentEvents, date) {
   return getTimetable(date.toISOString().slice(0, 10)).then((result) => {
@@ -49,14 +51,43 @@ const weekViewRef = React.createRef()
 
 function CoursItem({ event }) {
   const [itemSize, setItemSize] = useState({});
+  const theme = useTheme();
 
   const onLayout=(event)=> {
     setItemSize(event.nativeEvent.layout)
   }
+  
+  // animation
+  const [fadeCours, setFadeCours] = useState(new Animated.Value(0));
+  const [animateCours, setAnimateCours] = useState(new Animated.Value(0.9));
+  const [translateCours, setTranslateCours] = useState(new Animated.Value(10));
+
+  useEffect(() => {
+    Animated.timing(fadeCours, {
+      toValue: 1,
+      duration: 100,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(animateCours, {
+      toValue: 1,
+      duration: 150,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(translateCours, {
+      toValue: 1,
+      duration: 150,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   return (
-    <View 
-      style={[styles.coursContainer]}
+    <Animated.View 
+      style={[styles.coursContainer, {backgroundColor: theme.dark ? '#111' : '#fff', opacity: fadeCours, transform: [{scale: animateCours}, {translateY: translateCours}]}]}
       onLayout={onLayout}
     >
       <View style={[styles.cours, {backgroundColor: event.color + '16'}]}>
@@ -71,7 +102,7 @@ function CoursItem({ event }) {
           </View>
         </View>
       </View>
-    </View>
+    </Animated.View>
   )
 }
 
@@ -114,38 +145,29 @@ function PapillonAgenda({ events, dayPress, navigation }) {
     onRefresh();
   }, []);
 
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [open, setOpen] = React.useState(false);
   const [rnDate, setRnDate] = useState(new Date());
-
-  // add button in header
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <Button
-          onPress={() => openCalendar(currentDate)}
-          title="Aller à..."
-          color={theme.colors.primary}
-        />
-      ),
-    });
-  }, [navigation]);
 
   function openCalendar() {
     setRnDate(new Date(currentDate));
-    showDatePicker();
+    setOpen(true);
   }
 
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
+  const onDismissSingle = React.useCallback(() => {
+    setOpen(false);
+  }, [setOpen]);
 
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
+  const onConfirmSingle = React.useCallback(
+    (params) => {
+      setOpen(false);
+      setRnDate(params.date);
+
+      handleConfirm(params.date);
+    },
+    [setOpen, setRnDate]
+  );
 
   const handleConfirm = (date) => {
-    hideDatePicker();
-    
     // remove 1 day to date
     date.setDate(date.getDate() - 1);
 
@@ -155,15 +177,15 @@ function PapillonAgenda({ events, dayPress, navigation }) {
 
   return (
     <>
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
+      <DatePickerModal
+        locale='fr'
+        mode="single"
+        visible={open}
+        onDismiss={onDismissSingle}
         date={rnDate}
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-
-        confirmTextIOS="Sélectionner"
-        cancelTextIOS="Annuler"
+        onConfirm={onConfirmSingle}
+        label="Sélectionner une date"
+        saveLabel="Valider"
       />
 
       <WeekView

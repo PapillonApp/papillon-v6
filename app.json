@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "papillonvex",
+    "name": "Papillon",
     "slug": "papillonvex",
-    "version": "1.0.0",
-    "orientation": "portrait",
+    "version": "6.0.0",
+    "orientation": "porttrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -20,7 +20,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#29947A"
       },
       "package": "xyz.getpapillon.papillonv6"
     },
