@@ -37,6 +37,7 @@ function loadCourses(currentEvents, date) {
         startDate: new Date(start),
         endDate: new Date(end),
         color: course.background_color,
+        cours: course,
       });
     });
 
@@ -44,15 +45,35 @@ function loadCourses(currentEvents, date) {
   });
 }
 
-function PapillonAgendaCourse(item) {
+const weekViewRef = React.createRef()
+
+function CoursItem({ event }) {
+  const [itemSize, setItemSize] = useState({});
+
+  const onLayout=(event)=> {
+    setItemSize(event.nativeEvent.layout)
+  }
+
   return (
-    <View>
-      <Text>{item.name}</Text>
+    <View 
+      style={[styles.coursContainer]}
+      onLayout={onLayout}
+    >
+      <View style={[styles.cours, {backgroundColor: event.color + '16'}]}>
+        <View style={[styles.coursColor, {backgroundColor: event.color}]}></View>
+        <View style={styles.coursData}>
+          <Text style={styles.coursDataTime}>{new Date(event.startDate).toLocaleDateString('fr', {hour: '2-digit', minute:'2-digit'}).split(" ")[1]}</Text>
+          <Text numberOfLines={1} style={styles.coursDataSubject}>{event.cours.subject.name}</Text>
+
+          <View style={[styles.coursDataDetails, {display: itemSize.height < 78 ? 'none' : 'flex'}]}>
+            <Text numberOfLines={1} style={styles.coursDataRoom}>Salle {event.cours.rooms[0]}</Text>
+            <Text numberOfLines={1} style={[styles.coursDataTeacher, {display: itemSize.height < 90 ? 'none' : 'flex'}]}>{event.cours.teachers[0]}</Text>
+          </View>
+        </View>
+      </View>
     </View>
   )
 }
-
-const weekViewRef = React.createRef()
 
 function PapillonAgenda({ events, dayPress, navigation }) {
   const theme = useTheme();
@@ -175,6 +196,8 @@ function PapillonAgenda({ events, dayPress, navigation }) {
         onSwipePrev={dateChanged}
 
         onDayPress={openCalendar}
+
+        EventComponent={CoursItem}
       />
     </>
   )
@@ -214,6 +237,63 @@ const styles = StyleSheet.create({
   },
   gridRow: {
     opacity: 0.25,
+  },
+  eventContainer: {
+    backgroundColor: 'transparent',
+  },
+
+  coursContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    overflow: 'hidden',
+    width: '100%',
+
+    height: '97%',
+  },
+  cours: {
+    flexDirection: 'row',
+    flex: 1,
+  },
+  coursColor: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+
+    width: 4,
+  },
+  coursData: {
+    marginHorizontal: 16,
+    marginVertical: 10,
+    flex: 1,
+  },
+
+  coursDataTime: {
+    fontSize: 13,
+    opacity: 0.6,
+  },
+  coursDataSubject: {
+    marginTop: 2,
+    fontSize: 17,
+    fontFamily: 'Papillon-Semibold',
+    flex: 1,
+  },
+
+  coursDataDetails: {
+    position: 'absolute',
+    bottom: 0,
+    flex : 1,
+  },
+
+  coursDataRoom: {
+    fontWeight: 500,
+    flex: 1,
+  },
+  coursDataTeacher: {
+    marginTop: 1,
+    fontWeight: 500,
+    opacity: 0.6,
+    flex: 1,
   },
 });
 

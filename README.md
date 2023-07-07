@@ -7,17 +7,17 @@ Serait-ce le début d'une nouvelle ère pour Papillon 👀
 ## Roadmap
 - [ ] Structure
     - [x] Routage & Navigation
-    - [ ] Appels à l'API
-    - [ ] Données utilisateurs (équivalent LocalStorage)
+    - [x] Appels à l'API
+    - [x] Données utilisateurs (équivalent LocalStorage)
     - [x] Framework UI (React Native Paper)
 - [ ] Connexion à un service scolaire *(Pronote pour le moment)*
     - [x] Interface de choix du service scolaire
-    - [ ] Interface de sélection de l'établissement
-    - [ ] Interface de connexion au service
-    - [ ] Appel à l'API pour se connecter et conservation de la session
+    - [x] Interface de sélection de l'établissement
+    - [x] Interface de connexion au service
+    - [x] Appel à l'API pour se connecter et conservation de la session
 - [ ] Affichage des données *(Pronote en priorité)*
     - [ ] Données utilisateur
-    - [ ] Emploi du temps
+    - [x] Emploi du temps
     - [ ] Devoirs
     - [ ] Notes
     - [ ] Compétences
