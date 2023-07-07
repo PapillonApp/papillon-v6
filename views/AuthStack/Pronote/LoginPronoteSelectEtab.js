@@ -145,9 +145,25 @@ function LoginPronoteSelectEtab({ navigation }) {
         />
       ) : null}
 
-      
+      <ListItem
+        title="Utiliser ma position"
+        subtitle="Rechercher les établissements à proximité"
+        icon={<Locate color="#159C5E" />}
+        color="#159C5E"
+        onPress={() => locateEtabs()}
+        style={{marginTop: 12}}
+      />
+
+      <ListItem
+        title="Utiliser une URL Pronote"
+        subtitle="Entrez l'URL de votre établissement"
+        icon={<Link color="#159C5E" />}
+        color="#159C5E"
+        onPress={() => searchURL()}
+        style={{marginTop: 8}}
+      />
         
-      {EtabList.length > 0 ? (
+      {EtabList.length > 0 && !loading ? (
         <List.Section style={styles.etabItemList}>
           <List.Subheader>Établissements disponibles</List.Subheader>
 
@@ -166,7 +182,7 @@ function LoginPronoteSelectEtab({ navigation }) {
       ) : null}
 
       {loading ? (
-        <View style={{alignItems: 'center', marginTop:50}}>
+        <View style={{alignItems: 'center', marginTop:30}}>
           <ActivityIndicator size={46} animating={true} color="#159C5E" style={{marginBottom:20}} />
           <Text variant="titleLarge" style={{fontWeight:500, marginBottom: 4, fontFamily: 'Papillon-Semibold'}} >Recherche des établissements</Text>
           <Text style={{opacity:0.6, marginBottom:50}} >Cela peut prendre quelques secondes.</Text>
@@ -174,7 +190,7 @@ function LoginPronoteSelectEtab({ navigation }) {
       ) : null}
 
       {EtabList.length == 0 && searchQuery.trim() != "" && !loading ? (
-        <View style={{alignItems: 'center', marginTop:50}}>
+        <View style={{alignItems: 'center', marginTop:30}}>
           <PapillonIcon
             icon={<Backpack color="#fff" size={28}/>}
             color="#159C5E"
@@ -190,24 +206,6 @@ function LoginPronoteSelectEtab({ navigation }) {
 
       {EtabList.length == 0 && searchQuery.trim() == "" && !loading ? (
         <>
-          <ListItem
-            title="Utiliser ma position"
-            subtitle="Rechercher les établissements à proximité"
-            icon={<Locate color="#159C5E" />}
-            color="#159C5E"
-            onPress={() => locateEtabs()}
-            style={{marginTop: 14}}
-          />
-
-          <ListItem
-            title="Utiliser une URL Pronote"
-            subtitle="Entrez l'URL de votre établissement"
-            icon={<Link color="#159C5E" />}
-            color="#159C5E"
-            onPress={() => searchURL()}
-            style={{marginTop: 8}}
-          />
-
           <View style={{alignItems: 'center', marginTop:30}}>
             <PapillonIcon
               icon={<Map color="#fff" size={28}/>}
