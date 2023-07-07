@@ -1,7 +1,7 @@
 import consts from '../consts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-function getENTs(url) {
+function fixURL(url) {
     url = url.toLowerCase();
 
     // remove everything after the last /
@@ -18,7 +18,11 @@ function getENTs(url) {
         url += 'pronote/';
     }
 
-    console.log(url);
+    return url;
+}
+
+function getENTs(url) {
+    url = fixURL(url);
 
     const infoMobileURL = url + 'infoMobileApp.json?id=0D264427-EEFC-4810-A9E9-346942A862A4';
 
@@ -42,6 +46,17 @@ function getInfo() {
 }
 
 function getToken(credentials) {
+    let loginTrue = false;
+    if (credentials.url.endsWith('?login=true')) {
+        loginTrue = true;
+    }
+
+    credentials.url = fixURL(credentials.url) + 'eleve.html';
+
+    if (loginTrue) {
+        credentials.url += '?login=true';
+    }
+
     return fetch(consts.API + '/generatetoken', {
         method: 'POST',
         headers: {
@@ -51,6 +66,8 @@ function getToken(credentials) {
     })
     .then((response) => response.json())
     .then((result) => {
+        console.log(credentials);
+        console.log(result);
         return result;
     });
 }

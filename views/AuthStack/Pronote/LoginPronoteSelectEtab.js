@@ -93,38 +93,33 @@ function LoginPronoteSelectEtab({ navigation }) {
   }
 
   async function searchURL(item) {
-    if(Platform.OS == 'ios') {
-      prompt(
-        'URL de connexion',
-        'Entrez l\'URL de connexion à Pronote de votre établissement',
-        [
-          {
-            text: 'Annuler',
-            style: 'cancel',
-          },
-          {
-            text: 'Valider',
-            isPreferred: true,
-            onPress: (url) => {
-              getENTs(url).then((result) => {
-                let etab = {
-                  nomEtab: result.nomEtab,
-                  url: url,
-                }
-
-                navigation.navigate('LoginPronote', { etab: etab });
-              });
-            },
-          },
-        ],
+    prompt(
+      'URL de connexion',
+      'Entrez l\'URL de connexion à Pronote de votre établissement',
+      [
         {
-          type: 'plain-text',
-        }
-      );
-    }
-    else {
+          text: 'Annuler',
+          style: 'cancel',
+        },
+        {
+          text: 'Valider',
+          isPreferred: true,
+          onPress: (url) => {
+            getENTs(url).then((result) => {
+              let etab = {
+                nomEtab: result.nomEtab,
+                url: url,
+              }
 
-    }
+              navigation.navigate('LoginPronote', { etab: etab });
+            });
+          },
+        },
+      ],
+      {
+        type: 'plain-text',
+      }
+    );
   }
 
   React.useLayoutEffect(() => {

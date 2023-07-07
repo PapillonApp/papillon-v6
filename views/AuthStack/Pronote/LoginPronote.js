@@ -104,13 +104,13 @@ function LoginPronote({ route, navigation }) {
     let credentials = {
       username: username,
       password: password,
-      url: etab.url.toLowerCase() + 'eleve.html',
+      url: etab.url.toLowerCase(),
       ent: isENTUsed ? ENTs.py : '',
     };
 
     console.log(ENTs);
 
-    if(!isENTUsed && ENTs !== undefined) {
+    if(!isENTUsed && ENTs !== undefined && ENTs.py !== undefined) {
       credentials.url += '?login=true';
     }
 
