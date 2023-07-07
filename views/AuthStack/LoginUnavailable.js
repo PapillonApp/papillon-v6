@@ -1,26 +1,62 @@
 import * as React from 'react';
-import { ScrollView, View, StatusBar, Platform } from 'react-native';
+import { ScrollView, View, Pressable, StyleSheet, Platform } from 'react-native';
 
-import { useTheme, Text, Avatar, Button } from 'react-native-paper';
+import { useTheme, Text } from 'react-native-paper';
 
-function LoginUnavailable({ navigation }) {
+import { AlertCircle } from 'lucide-react-native';
+import ListItem from '../../components/ListItem';
+
+import PapillonButton from '../../components/PapillonButton';
+
+function LoginUnavailable({ route, navigation }) {
   const theme = useTheme();
 
+  const { service, color } = route.params;
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: 'Connexion avec ' + service,
+    });
+  }, [navigation]);
+
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: theme.colors.background }} contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
+    <ScrollView style={{ flex: 1 }}>
 
-        <StatusBar barStyle={Platform.OS == 'ios' ? 'light-content' : 'dark-content'} />
+    <ListItem
+      title={"La connexion avec " + service + " n'est pas encore disponible."}
+      subtitle={service + " sera disponible prochainement, nous travaillons sur cette fonctionnalité."}
+      icon={<AlertCircle color={color} />}
+      color={color}
+      style={{ marginTop: 14 }}
+      isLarge={true}
+    />
 
-        <View style={{alignItems: 'center', marginTop:50}} >
-            <Avatar.Icon size={56} icon="alert" style={{backgroundColor:theme.colors.primary, marginBottom:16}} />
-            <Text variant="titleLarge" style={{fontWeight:500, marginBottom: 4, fontFamily: 'Papillon-Semibold'}} >Service indisponible</Text>
-            <Text style={{opacity:0.6, marginBottom:50}} >Ce service est indisponible pour le moment.</Text>
-
-            <Button mode="contained-tonal" onPress={() => {navigation.goBack()}} style={{width: 200, marginBottom: 16}} >Retour</Button>
-        </View>
+    <PapillonButton
+      title="Retour"
+      color={color}
+      onPress={() => navigation.goBack()}
+      style={{ marginTop: 14 }}
+    />
 
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  btnBack: {
+    padding: 14,
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    marginTop: 14,
+    marginHorizontal: 14,
+    alignContent: 'center',
+    alignItems: 'center',
+  },
+  btnBackText: {
+    color: '#fff',
+    fontFamily: 'Papillon-Medium',
+    fontSize: 16,
+  },
+});
 
 export default LoginUnavailable;

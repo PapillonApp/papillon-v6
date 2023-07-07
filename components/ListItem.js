@@ -17,7 +17,7 @@ function ListItem({ title, subtitle, left, icon, style, color, isLarge, onPress 
             : null }
 
             { icon ?
-                <View style={[styles.icon, {backgroundColor: color + "10"}]}>
+                <View style={[styles.icon, {backgroundColor: theme.dark ? "#ffffff10" : color + "10"}]}>
                     {icon}
                 </View>
             : null }

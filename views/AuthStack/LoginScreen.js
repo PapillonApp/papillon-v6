@@ -3,12 +3,11 @@ import { Image, ScrollView, StyleSheet, View, StatusBar } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 import { List } from 'react-native-paper';
 
-import { Info } from 'lucide-react-native';
-
 import { useColorScheme } from 'react-native';
 
 import packageJson from '../../package.json';
 
+import { Info } from 'lucide-react-native';
 import ListItem from '../../components/ListItem';
 
 function ServiceOption({ service, color, logo, identitifants, press }) {
@@ -54,9 +53,9 @@ function LoginScreen({ navigation }) {
     },
   ];
 
-  function pressedService(service) {
+  function pressedService(service, color) {
     if (service == 'Pronote') navigation.navigate('LoginPronoteSelectEtab')
-    else navigation.navigate('LoginUnavailable')
+    else navigation.navigate('LoginUnavailable', { service: service, color: color || '#A84700' })
   }
 
   return (
@@ -85,7 +84,7 @@ function LoginScreen({ navigation }) {
             color={service.color}
             logo={service.logo}
             identitifants={service.identitifants}
-            press={() => pressedService(service.name)}
+            press={() => pressedService(service.name, service.color)}
           />
         ))}
 
@@ -107,11 +106,12 @@ function LoginScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   serviceOption: {
-    borderRadius: 10,
+    borderRadius: 12,
+    borderCurve: 'continuous',
     overflow: 'hidden',
 
     paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingVertical: 7,
 
     marginBottom: 8,
 
@@ -125,8 +125,8 @@ const styles = StyleSheet.create({
     
   },
   serviceOptionLogo: {
-    width: 38,
-    height: 38,
+    width: 40,
+    height: 40,
 
     borderRadius: 300,
   },

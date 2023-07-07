@@ -4,6 +4,8 @@ import { StyleSheet } from 'react-native';
 import { useTheme, ActivityIndicator, List, Text, Avatar, Searchbar } from 'react-native-paper';
 import { useState } from 'react';
 
+import PapillonIcon from '../../../components/PapillonIcon';
+
 import { School, Map, Backpack } from 'lucide-react-native';
 import ListItem from '../../../components/ListItem';
 
@@ -109,7 +111,7 @@ function LoginPronoteSelectEtab({ navigation }) {
 
       {EtabList.length == 0 && searchQuery.trim() != "" && loading ? (
         <View style={{alignItems: 'center', marginTop:50}}>
-          <ActivityIndicator size={36} animating={true} color={theme.colors.primary} style={{marginBottom:20}} />
+          <ActivityIndicator size={46} animating={true} color="#29947a" style={{marginBottom:20}} />
           <Text variant="titleLarge" style={{fontWeight:500, marginBottom: 4, fontFamily: 'Papillon-Semibold'}} >Recherche des établissements</Text>
           <Text style={{opacity:0.6, marginBottom:50}} >Cela peut prendre quelques secondes.</Text>
         </View>
@@ -117,9 +119,13 @@ function LoginPronoteSelectEtab({ navigation }) {
 
       {EtabList.length == 0 && searchQuery.trim() != "" && !loading ? (
         <View style={{alignItems: 'center', marginTop:50}}>
-          <View style={{backgroundColor:theme.colors.primary, marginBottom:14, borderRadius:50, padding: 10}}>
-            <Backpack color="#fff" size={28}/>
-          </View>
+          <PapillonIcon
+            icon={<Backpack color="#fff" size={28}/>}
+            color="#29947A"
+            style={{marginBottom:14}}
+            fill={true}
+            small={true}
+          />
 
           <Text variant="titleLarge" style={{fontWeight:500, marginBottom: 4, fontFamily: 'Papillon-Semibold'}} >Aucun résultat</Text>
           <Text style={{opacity:0.6, marginBottom:50, textAlign: 'center', marginHorizontal:30}} >Rééssayez avec une autre recherche ou utilisez une autre méthode de connexion.</Text>
@@ -128,9 +134,12 @@ function LoginPronoteSelectEtab({ navigation }) {
 
       {EtabList.length == 0 && searchQuery.trim() == "" ? (
         <View style={{alignItems: 'center', marginTop:50}}>
-          <View style={{backgroundColor:theme.colors.primary, marginBottom:14, borderRadius:50, padding: 10}}>
-            <Map color="#fff" size={28}/>
-          </View>
+          <PapillonIcon
+            icon={<Map color="#fff" size={28}/>}
+            color="#29947A"
+            style={{marginBottom:14}}
+            fill={true}
+          />
 
           <Text variant="titleLarge" style={{fontWeight:500, marginBottom: 4, fontFamily: 'Papillon-Semibold'}} >Démarrez une recherche</Text>
           <Text style={{opacity:0.6, marginBottom:50, textAlign: 'center', marginHorizontal:30}} >Utilisez la barre de recherche pour rechercher une ville ou un code postal.</Text>
