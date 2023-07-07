@@ -26,7 +26,7 @@ function LoginTextInput({ label, icon, value, onChangeText, secureTextEntry, sty
         {icon}
       </>
       <TextInput
-        style={[styles.loginTextInputText]}
+        style={[styles.loginTextInputText, {color: theme.dark ? '#fff' : "#000"}]}
         placeholder={label}
         value={value}
         onChangeText={onChangeText}
@@ -57,6 +57,19 @@ function LoginPronote({ route, navigation }) {
   let CAS = null;
   const [ENTs, setENTs] = useState([]);
 
+  function removeSubdomain(hostname) {
+    let domain = hostname.split('.');
+
+    if(domain.length > 2) {
+      // remove everything except the last two parts
+      domain = domain.slice(domain.length - 2, domain.length);
+
+      return domain.join('.');
+    }
+
+    return hostname;
+  }
+
   React.useEffect(() => {
     getENTs(etab.url).then((result) => {
       CAS = result.CAS;
@@ -70,9 +83,12 @@ function LoginPronote({ route, navigation }) {
 
       getInfo().then((result) => {
         const ents = result.ent_list;
+
+        console.log(ents);
+        console.log(hostname);
         
         // find ent in ents where url = hostname
-        const ent = ents.find(ent => ent.url === hostname);
+        const ent = ents.find(ent => removeSubdomain(ent.url) === removeSubdomain(hostname));
         setENTs(ent);
 
         setUseEduconnect(ent.educonnect);
@@ -91,7 +107,9 @@ function LoginPronote({ route, navigation }) {
       ent: isENTUsed ? ENTs.py : '',
     };
 
-    if(!isENTUsed) {
+    console.log(ENTs);
+
+    if(!isENTUsed && ENTs !== undefined) {
       credentials.url += '?login=true';
     }
 

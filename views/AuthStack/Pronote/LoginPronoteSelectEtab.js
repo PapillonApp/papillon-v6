@@ -4,6 +4,8 @@ import { StyleSheet } from 'react-native';
 import { useTheme, ActivityIndicator, List, Text, Avatar, Searchbar } from 'react-native-paper';
 import { useState } from 'react';
 
+import prompt from 'react-native-prompt-android';
+
 import { getENTs } from '../../../fetch/AuthStack/LoginFlow';
 
 import * as Location from 'expo-location';
@@ -91,31 +93,38 @@ function LoginPronoteSelectEtab({ navigation }) {
   }
 
   async function searchURL(item) {
-    Alert.prompt(
-      'URL de connexion',
-      'Entrez l\'URL de connexion à Pronote de votre établissement',
-      [
-        {
-          text: 'Annuler',
-          style: 'cancel',
-        },
-        {
-          text: 'Valider',
-          isPreferred: true,
-          onPress: (url) => {
-            getENTs(url).then((result) => {
-              let etab = {
-                nomEtab: result.nomEtab,
-                url: url,
-              }
-
-              navigation.navigate('LoginPronote', { etab: etab });
-            });
+    if(Platform.OS == 'ios') {
+      prompt(
+        'URL de connexion',
+        'Entrez l\'URL de connexion à Pronote de votre établissement',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
           },
-        },
-      ],
-      'plain-text',
-    );
+          {
+            text: 'Valider',
+            isPreferred: true,
+            onPress: (url) => {
+              getENTs(url).then((result) => {
+                let etab = {
+                  nomEtab: result.nomEtab,
+                  url: url,
+                }
+
+                navigation.navigate('LoginPronote', { etab: etab });
+              });
+            },
+          },
+        ],
+        {
+          type: 'plain-text',
+        }
+      );
+    }
+    else {
+
+    }
   }
 
   React.useLayoutEffect(() => {
