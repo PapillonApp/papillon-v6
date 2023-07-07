@@ -224,7 +224,8 @@ const AuthStack = () => {
         },
         headerBackTitleStyle: {
           fontFamily: 'Papillon-Semibold',
-        }
+        },
+        animation: 'slide_from_right',
       }}
     >
       <Stack.Screen
