@@ -15,6 +15,8 @@ import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import { School, UserCircle, KeyRound } from 'lucide-react-native';
 import ListItem from '../../../components/ListItem';
 
+import PapillonButton from '../../../components/PapillonButton';
+
 function LoginTextInput({ label, icon, value, onChangeText, secureTextEntry, style }) {
   const theme = useTheme();
 
@@ -120,8 +122,8 @@ function LoginPronote({ route, navigation }) {
         <ListItem
           title={"Connexion à l'établissement " + etabName}
           subtitle={"Vous pouvez vous connecter à l’aide de vos identifiants " + (useEduconnect ? "EduConnect" : "Pronote") + "."}
-          icon={<School color="#29947A" />}
-          color="#29947A"
+          icon={<School color="#159C5E" />}
+          color="#159C5E"
           style={{ marginTop: 14 }}
           isLarge={true}
         />
@@ -155,13 +157,12 @@ function LoginPronote({ route, navigation }) {
             </View>
 
             <View style={[styles.buttons]}>
-                <Button
-                icon="login"
-                mode="contained"
-                onPress={() => login()}
-                style={[styles.button]}>
-                    Se connecter
-                </Button>
+                <PapillonButton
+                  title="Se connecter"
+                  color="#159C5E"
+                  onPress={() => login()}
+                  style={[styles.button]}
+                />
             </View>
         </View>
 
@@ -209,9 +210,8 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     button: {
-        flex: 1,
         marginTop: 8,
-        fontSize: 16,
+        flex: 1,
     }
 });
 

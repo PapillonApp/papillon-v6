@@ -2,9 +2,18 @@ import consts from '../consts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function getENTs(url) {
+    // remove everything after the last /
+    if (!url.endsWith('pronote/') && !url.endsWith('.fr') && !url.endsWith('.net')) {
+        url = url.substring(0, url.lastIndexOf('/') + 1);
+    }
+
     // if url doesnt end with /, add it
     if (!url.endsWith('/')) {
         url += '/';
+    }
+
+    if (!url.endsWith('pronote/')) {
+        url += 'pronote/';
     }
 
     const infoMobileURL = url + 'infoMobileApp.json?id=0D264427-EEFC-4810-A9E9-346942A862A4';

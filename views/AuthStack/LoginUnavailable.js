@@ -35,7 +35,7 @@ function LoginUnavailable({ route, navigation }) {
       title="Retour"
       color={color}
       onPress={() => navigation.goBack()}
-      style={{ marginTop: 14 }}
+      style={{ marginTop: 14, marginHorizontal: 14 }}
     />
 
     </ScrollView>
