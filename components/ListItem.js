@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
 
         borderRadius: 12,
         borderCurve: 'continuous',
-        borderWidth: 1,
+        borderWidth: 0,
     },
     listItemText : {
         gap: 2,

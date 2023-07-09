@@ -57,6 +57,9 @@ function getToken(credentials) {
         credentials.url += '?login=true';
     }
 
+
+    console.log(credentials);
+
     return fetch(consts.API + '/generatetoken', {
         method: 'POST',
         headers: {
@@ -64,10 +67,15 @@ function getToken(credentials) {
         },
         body: 'username=' + credentials.username + '&password=' + credentials.password + '&url=' + credentials.url + '&ent=' + credentials.ent
     })
-    .then((response) => response.json())
+    .then((response) => response.text())
     .then((result) => {
-        console.log(credentials);
         console.log(result);
+        
+        if (result.startsWith('A server error occurred.')) {
+            return { token: false };
+        }
+
+        result = JSON.parse(result);
         return result;
     });
 }

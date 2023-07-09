@@ -127,9 +127,7 @@ function PapillonAgenda({ events, dayPress, navigation }) {
     else {
       // if no, load courses for date
       currentDate = date;
-      onRefresh();
-      // add date to loadedDays
-      setLoadedDays([...loadedDays, date.toISOString().slice(0, 10)]);
+      onRefresh()
     }
   }
 
@@ -138,6 +136,9 @@ function PapillonAgenda({ events, dayPress, navigation }) {
     loadCourses(myEvents, currentDate).then((result) => {
       setMyEvents(result);
       setRefreshing(false);
+
+      // add currentDate to loadedDays
+      setLoadedDays([...loadedDays, currentDate.toISOString().slice(0, 10)]);
     });
   }
 
@@ -229,9 +230,9 @@ function CoursScreen({ navigation }) {
   const theme = useTheme();
 
   return (
-    <>
+    <View style={[styles.container]}>
       <PapillonAgenda navigation={navigation} />
-    </>
+    </View>
   );
 }
 
