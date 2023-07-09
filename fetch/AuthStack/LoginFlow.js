@@ -1,6 +1,8 @@
 import consts from '../consts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import Toast from 'react-native-toast-message';
+
 function fixURL(url) {
     url = url.toLowerCase();
 
@@ -81,7 +83,7 @@ function getToken(credentials) {
 }
 
 function refreshToken() {
-    AsyncStorage.getItem('credentials').then((result) => {
+    return AsyncStorage.getItem('credentials').then((result) => {
         const credentials = JSON.parse(result);
 
         return getToken(credentials).then((result) => {
@@ -89,10 +91,27 @@ function refreshToken() {
                 AsyncStorage.setItem('token', result.token);
                 console.log('Token refreshed : ' + result.token);
 
+                Toast.show({
+                    type: 'success',
+                    text1: 'Vous êtes reconnecté à Pronote!',
+                    text2: 'Votre session a été rétablie'
+                });
+
                 return result;
             }
         });
     });
 };
 
-export { getENTs, getInfo, getToken, refreshToken }
+function expireToken() {
+    AsyncStorage.setItem('token', 'expired');
+    console.log('Token expired');
+
+    Toast.show({
+        type: 'error',
+        text1: 'Le token a été supprimé',
+        text2: 'Vous êtes déconnecté de Pronote'
+    });
+}
+
+export { getENTs, getInfo, getToken, refreshToken, expireToken }

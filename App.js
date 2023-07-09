@@ -4,8 +4,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, BottomNavigation } from 'react-native-paper';
+import { BottomNavigation } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 
 const Tab = createBottomTabNavigator();
 
@@ -24,7 +26,9 @@ import { Platform, useColorScheme, View } from 'react-native';
 
 import { useCallback, useState } from 'react';
 
-import { Home, CalendarRange, BookOpen, BarChart3, UserCircle } from 'lucide-react-native';
+import { StyleSheet, Text } from 'react-native';
+
+import { Home, CalendarRange, BookOpen, BarChart3, UserCircle, CheckCircle, AlertCircle } from 'lucide-react-native';
 
 import {
   MD3LightTheme,
@@ -43,6 +47,7 @@ import LoginPronote from './views/AuthStack/Pronote/LoginPronote';
 
 const baseColor = '#29947a';
 
+// stack
 const Stack = createNativeStackNavigator();
 
 const CustomNavigationBar = ({ navigation, route, options, back }) => {
@@ -71,10 +76,21 @@ const WrappedHomeScreen = () => {
         name="Vue d'ensemble"
         component={HomeScreen}
         options={{ 
-          headerLargeTitle: true,
-          headerLargeTitleStyle: {
-            fontFamily: 'Papillon-Semibold',
-          },
+          headerShown: false,
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+const WrappedCoursScreen = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Cours"
+        component={CoursScreen}
+        options={{ 
+          headerShown: false,
         }}
       />
     </Stack.Navigator>
@@ -88,10 +104,7 @@ const WrappedSettings = () => {
         name="Compte"
         component={SettingsScreen}
         options={{ 
-          headerLargeTitle: true,
-          headerLargeTitleStyle: {
-            fontFamily: 'Papillon-Semibold',
-          },
+          headerShown: false,
         }}
       />
     </Stack.Navigator>
@@ -170,12 +183,13 @@ const AppStack = () => {
       />
       <Tab.Screen
         name="Cours"
-        component={CoursScreen}
+        component={WrappedCoursScreen}
         options={{
           tabBarLabel: 'Cours',
           tabBarIcon: ({ color, size }) => {
             return <CalendarRange color={color} size={size} />;
           },
+          headerShown: false,
         }}
       />
       <Tab.Screen
@@ -309,6 +323,84 @@ function App() {
     }
   };
 
+  // toasts
+  const toastConfig = {
+    success: ({ ...rest }) => (
+      <BaseToast
+        {...rest}
+        style={{ borderLeftColor: baseColor }}
+        contentContainerStyle={{ 
+          paddingHorizontal: 15,
+        }}
+        style={{
+          backgroundColor: scheme === 'dark' ? '#252525' : '#fff',
+          width: '90%',
+          marginTop: 10,
+          borderRadius: 10,
+          borderCurve: 'continuous',
+          borderLeftWidth: 0,
+          shadowColor: "#000",
+          shadowOffset: {
+            width: 0,
+            height: 1.5,
+          },
+          shadowOpacity: 0.25,
+          shadowRadius: 3,
+          elevation: 5,
+
+          borderLeftWidth: 3,
+          borderLeftColor: baseColor,
+        }}
+        text1Style={{
+          color: scheme === 'dark' ? '#fff' : '#000',
+          fontSize: 17,
+          fontFamily: 'Papillon-Semibold',
+        }}
+        text2Style={{
+          color: scheme === 'dark' ? '#fff' : '#000',
+          fontSize: 15,
+        }}
+      />
+    ),
+    error: ({ ...rest }) => (
+      <ErrorToast
+        {...rest}
+        style={{ borderLeftColor: baseColor }}
+        contentContainerStyle={{ 
+          paddingHorizontal: 15,
+        }}
+        style={{
+          backgroundColor: scheme === 'dark' ? '#252525' : '#fff',
+          width: '90%',
+          marginTop: 10,
+          borderRadius: 10,
+          borderCurve: 'continuous',
+          borderLeftWidth: 0,
+          shadowColor: "#000",
+          shadowOffset: {
+            width: 0,
+            height: 1.5,
+          },
+          shadowOpacity: 0.25,
+          shadowRadius: 3,
+          elevation: 5,
+
+          borderLeftWidth: 3,
+          borderLeftColor: "#A84700",
+        }}
+        text1Style={{
+          color: scheme === 'dark' ? '#fff' : '#000',
+          fontSize: 17,
+          fontFamily: 'Papillon-Semibold',
+        }}
+        text2Style={{
+          color: scheme === 'dark' ? '#fff' : '#000',
+          fontSize: 15,
+        }}
+      />
+    ),
+  };
+
   if (!IsReady) {
     // load fonts
     LoadFonts().then(() => {
@@ -326,8 +418,40 @@ function App() {
           {loggedIn ? <AppStack /> : <AuthStack />}
         </NavigationContainer>
       </PaperProvider>
+      <Toast config={toastConfig} />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  notification: {
+    marginTop: 10,
+
+    borderRadius: 10,
+    borderCurve: 'continuous',
+
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 2,
+
+    elevation: 5,
+
+    flexDirection: 'row',
+    gap: 10,
+    alignContent: 'center',
+    alignItems: 'center',
+  },
+  text1: {
+    fontFamily: 'Papillon-Medium',
+    fontSize: 17,
+  }
+});
 
 export default App;

@@ -2,6 +2,9 @@ import * as React from 'react';
 import { View, Animated, Easing, SafeAreaView, StyleSheet, StatusBar, Platform, Button } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
+import PapillonHeader from '../components/PapillonHeader';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { useState, useEffect } from 'react';
 import { getTimetable } from '../fetch/PronoteData/PronoteTimetable';
 
@@ -228,10 +231,18 @@ function PapillonAgenda({ events, dayPress, navigation }) {
 
 function CoursScreen({ navigation }) {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <View style={[styles.container]}>
-      <PapillonAgenda navigation={navigation} />
+      <PapillonHeader 
+        disbaleBlur={true}
+        insetTop={insets.top}
+        pageName="Cours"
+      />
+      <View style={[{flex: 1, paddingTop: insets.top + 52}]}>
+        <PapillonAgenda navigation={navigation} />
+      </View>
     </View>
   );
 }

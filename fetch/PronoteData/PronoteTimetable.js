@@ -12,13 +12,14 @@ function getTimetable(day) {
         })
         .then((response) => response.json())
         .then((result) => {
-            if (result == 'expired') {
-                refreshToken().then(() => {
+            if (result == 'expired' || result == 'notfound') {
+                return refreshToken().then(() => {
                     return getTimetable(day);
                 });
             }
-
-            return result;
+            else {
+                return result;
+            }
         });
     });
 }
