@@ -241,7 +241,9 @@ function CoursScreen({ navigation }) {
         pageName="Cours"
       />
       <View style={[{flex: 1, paddingTop: insets.top + 52}]}>
-        <PapillonAgenda navigation={navigation} />
+        <PapillonAgenda
+          navigation={navigation}
+        />
       </View>
     </View>
   );
@@ -329,6 +331,9 @@ const styles = StyleSheet.create({
     opacity: 0.6,
     flex: 1,
   },
+  dayButton: {
+    textAlign: 'right',
+  }
 });
 
 export default CoursScreen;

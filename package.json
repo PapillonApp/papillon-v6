@@ -44,7 +44,8 @@
     "react-native-toast-message": "^2.1.6",
     "react-native-vector-icons": "^9.2.0",
     "react-native-week-view": "^0.28.4",
-    "expo-blur": "~12.2.2"
+    "expo-blur": "~12.2.2",
+    "expo-web-browser": "~12.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

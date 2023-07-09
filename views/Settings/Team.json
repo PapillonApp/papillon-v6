@@ -1,0 +1,41 @@
+{
+    "lastupdated": "2023-07-09",
+    "team" : [
+        {
+            "name": "Vince (ecnivtwelve)",
+            "role": "CEO et développeur de Papillon",
+            "avatar": "https://avatars.githubusercontent.com/u/32978709?v=4?s=100",
+            "link": "https://github.com/ecnivtwelve"
+        },
+        {
+            "name": "Lucas (Tryon)",
+            "role": "Administrateur système",
+            "avatar": "https://avatars.githubusercontent.com/u/68423470?v=4?s=100",
+            "link": "https://tryon-lab.fr/"
+        },
+        {
+            "name": "Lucas (Luc'Hack)",
+            "role": "Développeur",
+            "avatar": "https://avatars.githubusercontent.com/u/39491773?v=4?s=100",
+            "link": "https://luchack.valbion.com/"
+        },
+        {
+            "name": "Yann (Astrow)",
+            "role": "Développeur",
+            "avatar": "https://avatars.githubusercontent.com/u/76118368?v=4?s=100",
+            "link": "https://github.com/Astrow25"
+        },
+        {
+            "name": "Nicolas (andronedev)",
+            "role": "Développeur",
+            "avatar": "https://avatars.githubusercontent.com/u/31452517?v=4?s=100",
+            "link": "https://androne.dev/"
+        },
+        {
+            "name": "Eris (Mizu)",
+            "role": "Développeur",
+            "avatar": "https://avatars.githubusercontent.com/u/40831463?v=4?s=100",
+            "link": "https://mizuofficial.carrd.co/"
+        }
+    ]
+}

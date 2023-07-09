@@ -11,11 +11,12 @@ import { getUser } from '../fetch/PronoteData/PronoteUser';
 function PapillonHeader ({insetTop, pageName, rightButton, flat, disbaleBlur}) {
     const theme = useTheme();
     const [userData, setUserData] = React.useState({});
+    const [profilePicture, setProfilePicture] = React.useState("");
 
     useEffect(() => {
         getUser(false).then((result) => {
             setUserData(result);
-            console.log(result);
+            setProfilePicture(result.profile_picture);
         });
     }, []);
 
@@ -23,8 +24,11 @@ function PapillonHeader ({insetTop, pageName, rightButton, flat, disbaleBlur}) {
     if(disbaleBlur) transparency = "ff";
 
     return (
-        <BlurView intensity={80} style={[styles.header, { backgroundColor: theme.dark ? '#111111'+transparency : '#ffffff'+transparency, borderColor: theme.colors.outline, borderColor: theme.dark ? '#353535' : '#c5c5c5', paddingTop:insetTop + 8}, flat ? styles.headerFlat : undefined]}>
-            <Image style={styles.profilePicture} source={{uri: userData.profile_picture}} />
+        <BlurView intensity={80} tint={theme.dark ? '#000' : undefined} style={[styles.header, { backgroundColor: theme.dark ? '#111111'+transparency : '#ffffff'+transparency, borderColor: theme.dark ? '#353535' : '#c5c5c5', paddingTop:insetTop + 8}, flat ? styles.headerFlat : undefined]}>
+            { profilePicture !== "" ? 
+            <Image style={styles.profilePicture} source={{uri: profilePicture}} />
+            : null }
+
             <Text style={[styles.headerText]}>{pageName}</Text>
 
             <View style={[styles.right, {flex: 1}]}>
@@ -38,7 +42,10 @@ const styles = StyleSheet.create({
     header: {
         width: '100%',
         paddingBottom: 12,
-        paddingHorizontal: 29,
+
+        paddingLeft: 29,
+        paddingRight: 20,
+
         borderBottomWidth: 0.5,
         flexDirection: 'row',
         alignItems: 'center',

@@ -18,6 +18,10 @@ function getUser(force = false) {
             if (userCacheDate.getTime() == today.getTime()) {
                 return user_cache.user;
             }
+            else {
+                AsyncStorage.removeItem('user_cache');
+                return getUser(true);
+            }
         }
         else {
             // obtenir le token
@@ -26,7 +30,7 @@ function getUser(force = false) {
                 return fetch(consts.API + '/user' + '?token=' + token, {
                     method: 'GET'
                 })
-                .then((response) => response.text())
+                .then((response) => response.json())
                 .then((result) => {
                     if (result == 'expired' || result == 'notfound') {
                         return refreshToken().then(() => {
@@ -34,7 +38,6 @@ function getUser(force = false) {
                         });
                     }
                     else {
-                        result = JSON.parse(result);
                         saveUser(result);
                         return result;
                     }
@@ -53,13 +56,13 @@ function saveUser(user) {
         reader.onloadend = function() {
             var base64data = reader.result;                
             user.profile_picture = base64data;
-        }
 
-        // save user
-        AsyncStorage.setItem('user_cache', JSON.stringify({
-            date: new Date(),
-            user: user
-        }));
+            // save user
+            AsyncStorage.setItem('user_cache', JSON.stringify({
+                date: new Date(),
+                user: user
+            }));
+        }
     });
 }
 

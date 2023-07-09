@@ -37,7 +37,10 @@ import {
 
 import HomeScreen from './views/HomeScreen';
 import CoursScreen from './views/CoursScreen';
+
 import SettingsScreen from './views/SettingsScreen';
+import AboutScreen from './views/Settings/AboutScreen';
+import ProfileScreen from './views/Settings/ProfileScreen';
 
 import LoginScreen from './views/AuthStack/LoginScreen';
 import LoginUnavailable from './views/AuthStack/LoginUnavailable';
@@ -105,6 +108,23 @@ const WrappedSettings = () => {
         component={SettingsScreen}
         options={{ 
           headerShown: false,
+          headerTitle: 'Paramètres',
+        }}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ 
+          headerTitle: 'Mon profil',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="About"
+        component={AboutScreen}
+        options={{ 
+          headerTitle: 'A propos de Papillon',
+          presentation: 'modal',
         }}
       />
     </Stack.Navigator>
@@ -171,7 +191,7 @@ const AppStack = () => {
       ): undefined}
     >
       <Tab.Screen
-        name="Accueil"
+        name="AccueilHandler"
         component={WrappedHomeScreen}
         options={{
           tabBarLabel: 'Accueil',
@@ -182,7 +202,7 @@ const AppStack = () => {
         }}
       />
       <Tab.Screen
-        name="Cours"
+        name="CoursHandler"
         component={WrappedCoursScreen}
         options={{
           tabBarLabel: 'Cours',
@@ -193,27 +213,29 @@ const AppStack = () => {
         }}
       />
       <Tab.Screen
-        name="Devoirs"
+        name="DevoirsHandler"
         component={HomeScreen}
         options={{
           tabBarLabel: 'Devoirs',
           tabBarIcon: ({ color, size }) => {
             return <BookOpen color={color} size={size} />;
           },
+          headerShown: false,
         }}
       />
       <Tab.Screen
-        name="Notes"
+        name="NotesHandler"
         component={HomeScreen}
         options={{
           tabBarLabel: 'Notes',
           tabBarIcon: ({ color, size }) => {
             return <BarChart3 color={color} size={size} />;
           },
+          headerShown: false,
         }}
       />
       <Tab.Screen
-        name="Paramètres"
+        name="ParamètresHandler"
         component={WrappedSettings}
         options={{
           tabBarLabel: 'Compte',
