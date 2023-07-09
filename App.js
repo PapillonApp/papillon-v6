@@ -41,6 +41,7 @@ import CoursScreen from './views/CoursScreen';
 import SettingsScreen from './views/SettingsScreen';
 import AboutScreen from './views/Settings/AboutScreen';
 import ProfileScreen from './views/Settings/ProfileScreen';
+import OfficialServer from './views/Settings/OfficialServer';
 
 import LoginScreen from './views/AuthStack/LoginScreen';
 import LoginUnavailable from './views/AuthStack/LoginUnavailable';
@@ -116,6 +117,14 @@ const WrappedSettings = () => {
         component={ProfileScreen}
         options={{ 
           headerTitle: 'Mon profil',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="OfficialServer"
+        component={OfficialServer}
+        options={{ 
+          headerTitle: 'Serveur officiel',
           presentation: 'modal',
         }}
       />

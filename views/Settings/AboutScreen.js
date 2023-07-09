@@ -49,6 +49,31 @@ function AboutScreen({ navigation }) {
     });
   }, []);
 
+  const knownServers = [
+    "api.getpapillon.xyz",
+    "just-tryon.tech"
+  ];
+
+  let knownServer = "";
+
+  function checkKnownServers() {
+    // if consts.API contains a known server
+    for(let i = 0; i < knownServers.length; i++) {
+      if(consts.API.includes(knownServers[i])) {
+        knownServer = knownServers[i]
+        return true;
+      }
+    }
+
+    knownServer = consts.API.split("/")[2];
+    return false;
+  }
+
+  let serverTag = "Serveur non vérifié";
+  if(checkKnownServers()) {
+    serverTag = "Serveur vérifié";
+  }
+
   const [versionTaps, setVersionTaps] = useState(0);
 
   function addVersionTap() {
@@ -57,6 +82,15 @@ function AboutScreen({ navigation }) {
     if(versionTaps >= 7) {
       setVersionTaps(0);
       WebBrowser.openBrowserAsync("https://matias.ma/nsfw");
+    }
+  }
+
+  function openServer() {
+    if(checkKnownServers()) {
+      navigation.navigate('OfficialServer', { official: true, server: knownServer });
+    }
+    else {
+      navigation.navigate('OfficialServer', { official: false, server: knownServer });
     }
   }
 
@@ -71,25 +105,26 @@ function AboutScreen({ navigation }) {
           <Text style={styles.ListTitle}>Serveur</Text>
 
           <ListItem
-            title="Serveur"
+            title={serverTag}
             subtitle={serverInfo.server + " v" + serverInfo.version}
             color="#29947A"
             left={
               <>
                 <PapillonIcon
-                  icon={<Server size={24} color="#29947A" />}
-                  color="#29947A"
+                  icon={<Server size={24} color={checkKnownServers() ? "#29947A" : "#0065A8"} />}
+                  color={checkKnownServers() ? "#29947A" : "#0065A8"}
                   size={24}
                   small
                 />
 
-                { consts.API.endsWith("getpapillon.xyz") ?
+                { checkKnownServers() ?
                 <View style={[styles.certif, {borderColor: theme.dark ? '#111' : '#fff'}]}>
                   <Check size={16} color="#ffffff" />
                 </View>
                 : null }
               </>
             }
+            onPress={() => openServer()}
           />
         </View>
 
