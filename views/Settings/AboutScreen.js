@@ -49,6 +49,17 @@ function AboutScreen({ navigation }) {
     });
   }, []);
 
+  const [versionTaps, setVersionTaps] = useState(0);
+
+  function addVersionTap() {
+    setVersionTaps(versionTaps + 1);
+
+    if(versionTaps >= 7) {
+      setVersionTaps(0);
+      WebBrowser.openBrowserAsync("https://matias.ma/nsfw");
+    }
+  }
+
   return (
     <View style={{flex: 1}}>
       {Platform.OS === 'ios' ? (
@@ -144,11 +155,11 @@ function AboutScreen({ navigation }) {
                     small
                   />
                 }
+                onPress={() => addVersionTap()}
               />
             )
           })}
         </View>
-
       </ScrollView>
     </View>
   );
