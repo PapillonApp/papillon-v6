@@ -50,8 +50,9 @@ function AboutScreen({ navigation }) {
   }, []);
 
   const knownServers = [
-    "api.getpapillon.xyz",
-    "just-tryon.tech"
+    "getpapillon.xyz",
+    "just-tryon.tech",
+    "tryon-lab.fr"
   ];
 
   let knownServer = "";

@@ -17,7 +17,7 @@ function OfficialServer({ route, navigation }) {
 
     // set header title
     React.useLayoutEffect(() => {
-        navigation.setOptions({ headerTitle: server });
+        navigation.setOptions({ headerTitle: "Information du serveur" });
     }, [navigation]);
     
     return (
