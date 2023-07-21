@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { View, ScrollView, StatusBar, StyleSheet, Image, Platform } from 'react-native';
+import { View, ScrollView, StatusBar, StyleSheet, Image, Platform, Pressable } from 'react-native';
 import { useTheme, Button, Text } from 'react-native-paper';
 
 import * as WebBrowser from 'expo-web-browser';
+import * as SystemUI from 'expo-system-ui';
 
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
@@ -12,11 +13,9 @@ import packageJson from '../../package.json';
 import donors from './Donateurs.json';
 import team from './Team.json';
 
-console.log(donors);
-
 import { useState, useEffect } from 'react';
 
-import { Server, Euro, User, Wrench, History, Bug, Check } from 'lucide-react-native';
+import { X, Server, Euro, User, Wrench, History, Bug, Check } from 'lucide-react-native';
 
 import { getInfo } from '../../fetch/AuthStack/LoginFlow';
 
@@ -27,6 +26,11 @@ function AboutScreen({ navigation }) {
   function openUserLink(url) {
     WebBrowser.openBrowserAsync(url);
   }
+
+  useEffect(() => {
+    // change modal color
+    SystemUI.setBackgroundColorAsync("#888888");
+  }, []);
 
   const [dataList, setDataList] = useState([
     {
@@ -88,10 +92,10 @@ function AboutScreen({ navigation }) {
 
   function openServer() {
     if(checkKnownServers()) {
-      navigation.navigate('OfficialServer', { official: true, server: knownServer });
+      navigation.navigate('OfficialServer', { official: true, server: serverInfo.server });
     }
     else {
-      navigation.navigate('OfficialServer', { official: false, server: knownServer });
+      navigation.navigate('OfficialServer', { official: false, server: serverInfo.server });
     }
   }
 

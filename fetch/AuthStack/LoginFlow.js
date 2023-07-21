@@ -59,9 +59,6 @@ function getToken(credentials) {
         credentials.url += '?login=true';
     }
 
-
-    console.log(credentials);
-
     return fetch(consts.API + '/generatetoken', {
         method: 'POST',
         headers: {
@@ -71,8 +68,6 @@ function getToken(credentials) {
     })
     .then((response) => response.text())
     .then((result) => {
-        console.log(result);
-        
         if (result.startsWith('A server error occurred.')) {
             return { token: false };
         }
@@ -105,8 +100,6 @@ function refreshToken() {
 
 function expireToken() {
     AsyncStorage.setItem('token', 'expired');
-    console.log('Token expired');
-
     Toast.show({
         type: 'error',
         text1: 'Le token a été supprimé',

@@ -8,6 +8,8 @@ import { useEffect } from 'react';
 
 import { getUser } from '../fetch/PronoteData/PronoteUser';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 function PapillonHeader ({insetTop, pageName, rightButton, flat, disbaleBlur}) {
     const theme = useTheme();
     const [userData, setUserData] = React.useState({});
@@ -18,6 +20,14 @@ function PapillonHeader ({insetTop, pageName, rightButton, flat, disbaleBlur}) {
             setUserData(result);
             setProfilePicture(result.profile_picture);
         });
+
+        setInterval(() => {
+            AsyncStorage.getItem('custom_profile_picture').then((value) => {
+                if(value !== null) {
+                    setProfilePicture(value);
+                }
+            });
+        }, 1000);
     }, []);
 
     let transparency = "99";

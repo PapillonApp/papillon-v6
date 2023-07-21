@@ -13,11 +13,9 @@ function OfficialServer({ route, navigation }) {
     const official = route.params.official;
     const server = route.params.server;
 
-    console.log(route.params)
-
     // set header title
     React.useLayoutEffect(() => {
-        navigation.setOptions({ headerTitle: "Information du serveur" });
+        navigation.setOptions({ headerTitle: server });
     }, [navigation]);
     
     return (

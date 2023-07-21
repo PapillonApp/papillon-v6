@@ -16,7 +16,7 @@ function getUser(force = false) {
             today.setHours(0, 0, 0, 0);
             
             if (userCacheDate.getTime() == today.getTime()) {
-                return user_cache.user;
+                return editUser(user_cache.user);
             }
             else {
                 AsyncStorage.removeItem('user_cache');
@@ -31,7 +31,7 @@ function getUser(force = false) {
                     method: 'GET'
                 })
                 .then((response) => response.json())
-                .then((result) => {
+                .then(async (result) => {
                     if (result == 'expired' || result == 'notfound') {
                         return refreshToken().then(() => {
                             return getUser();
@@ -39,11 +39,41 @@ function getUser(force = false) {
                     }
                     else {
                         saveUser(result);
-                        return result;
+                        return editUser(result);
                     }
+                })
+                .catch((error) => {
+                    console.error(error);
                 });
+            })
+            .catch((error) => {
+                console.error(error);
             });
         }
+    });
+}
+
+function editUser(profile) {
+    let user = profile;
+
+    return AsyncStorage.getItem('custom_profile_picture').then((custom_profile_picture) => {
+        if (custom_profile_picture) {
+            user.profile_picture = custom_profile_picture;
+        }
+        
+        return AsyncStorage.getItem('custom_name').then((custom_name) => {
+            if (custom_name) {
+                user.name = custom_name;
+            }
+
+            // set last word of user.name first
+            let name = user.name.split(' ');
+            user.name = name[name.length - 1] + ' ' + name.slice(0, name.length - 1).join(' ');
+
+            console.log(user);
+            return user;
+            
+        });
     });
 }
 

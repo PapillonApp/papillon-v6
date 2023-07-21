@@ -9,19 +9,23 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#32AB8E"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "xyz.getpapillon.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#29947A"
+      },
+      "splash": {
+        "backgroundColor": "#32AB8E",
+        "resizeMode": "contain"
       },
       "package": "xyz.getpapillon.papillonv6",
       "permissions": [
@@ -43,6 +47,82 @@
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "On utilise ton emplacement pour trouver des établissements autour de toi."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "On utilise ta pellicule pour personnaliser ton profil et ton expérience."
+        }
+      ],
+      [
+        "expo-dynamic-app-icon",
+        {
+          // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles
+          "3d": {
+            "image": "./assets/customicons/3d.png",
+            "prerendered": true 
+          },
+          "beta": {
+            "image": "./assets/customicons/beta.png",
+            "prerendered": true 
+          },
+          "black": {
+            "image": "./assets/customicons/black.png",
+            "prerendered": true 
+          },
+          "chip": {
+            "image": "./assets/customicons/chip.png",
+            "prerendered": true 
+          },
+          "cutted": {
+            "image": "./assets/customicons/cutted.png",
+            "prerendered": true 
+          },
+          "classic": {
+            "image": "./assets/customicons/classic.png",
+            "prerendered": true 
+          },
+          "gold": {
+            "image": "./assets/customicons/gold.png",
+            "prerendered": true 
+          },
+          "gradient": {
+            "image": "./assets/customicons/gradient.png",
+            "prerendered": true 
+          },
+          "metal": {
+            "image": "./assets/customicons/metal.png",
+            "prerendered": true 
+          },
+          "neon": {
+            "image": "./assets/customicons/neon.png",
+            "prerendered": true 
+          },
+          "pride": {
+            "image": "./assets/customicons/pride.png",
+            "prerendered": true 
+          },
+          "purple": {
+            "image": "./assets/customicons/purple.png",
+            "prerendered": true 
+          },
+          "rays-purple": {
+            "image": "./assets/customicons/rays-purple.png",
+            "prerendered": true 
+          },
+          "rays": {
+            "image": "./assets/customicons/rays.png",
+            "prerendered": true 
+          },
+          "retro": {
+            "image": "./assets/customicons/retro.png",
+            "prerendered": true 
+          },
+          "sparkles": {
+            "image": "./assets/customicons/sparkles.png",
+            "prerendered": true 
+          }
         }
       ]
     ],

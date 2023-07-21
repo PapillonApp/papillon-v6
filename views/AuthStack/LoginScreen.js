@@ -10,6 +10,9 @@ import packageJson from '../../package.json';
 import { Info } from 'lucide-react-native';
 import ListItem from '../../components/ListItem';
 
+import { useState, useEffect } from 'react';
+import * as SystemUI from 'expo-system-ui';
+
 function ServiceOption({ service, color, logo, identitifants, press }) {
   const theme = useTheme();
   const scheme = useColorScheme();
@@ -31,6 +34,11 @@ function ServiceOption({ service, color, logo, identitifants, press }) {
 
 function LoginScreen({ navigation }) {
   const theme = useTheme();
+
+  useEffect(() => {
+      // change modal color
+      SystemUI.setBackgroundColorAsync("#000000");
+  }, []);
 
   const services = [
     {

@@ -22,7 +22,7 @@ import { useMemo } from 'react';
 import { PaperProvider, configureFonts } from 'react-native-paper';
 
 import { DefaultTheme, DarkTheme } from '@react-navigation/native';
-import { Platform, useColorScheme, View } from 'react-native';
+import { Platform, useColorScheme, View, Pressable } from 'react-native';
 
 import { useCallback, useState } from 'react';
 
@@ -42,6 +42,11 @@ import SettingsScreen from './views/SettingsScreen';
 import AboutScreen from './views/Settings/AboutScreen';
 import ProfileScreen from './views/Settings/ProfileScreen';
 import OfficialServer from './views/Settings/OfficialServer';
+import AppearanceScreen from './views/Settings/AppearanceScreen';
+import SettingsScreen2 from './views/Settings/SettingsScreen';
+import IconsScreen from './views/Settings/IconsScreen';
+
+import GradesScreen from './views/GradesScreen';
 
 import LoginScreen from './views/AuthStack/LoginScreen';
 import LoginUnavailable from './views/AuthStack/LoginUnavailable';
@@ -101,15 +106,35 @@ const WrappedCoursScreen = () => {
   );
 };
 
-const WrappedSettings = () => {
+const WrappedGradesScreen = () => {
   return (
     <Stack.Navigator>
+      <Stack.Screen
+        name="Cours"
+        component={GradesScreen}
+        options={{ 
+          headerShown: false,
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+const WrappedSettings = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+      }}
+    >
       <Stack.Screen
         name="Compte"
         component={SettingsScreen}
         options={{ 
           headerShown: false,
-          headerTitle: 'Paramètres',
+          headerTitle: 'Compte',
         }}
       />
       <Stack.Screen
@@ -136,6 +161,30 @@ const WrappedSettings = () => {
           presentation: 'modal',
         }}
       />
+      <Stack.Screen
+        name="Appearance"
+        component={AppearanceScreen}
+        options={{ 
+          headerTitle: 'Apparence',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="Icons"
+        component={IconsScreen}
+        options={{ 
+          headerTitle: 'Icône de l\'application',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen2}
+        options={{
+          headerTitle: 'Réglages',
+          presentation: 'modal',
+        }}
+      />
     </Stack.Navigator>
   );
 };
@@ -146,17 +195,13 @@ const AppStack = () => {
       screenOptions={{
         header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
         elevated: false,
-        tabBarLabelStyle: {
-          fontFamily: 'Papillon-Semibold',
-          fontSize: 12.5,
-        },
-        tabBarBadgeStyle: {
-          fontFamily: 'Papillon-Medium',
-          fontSize: 13,
-        },
-        headerTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          height: 82,
+          paddingLeft: 10,
+          paddingRight: 10,
+          paddingTop: 2,
+        }
       }}
 
       tabBar={Platform.OS !== 'ios' ? ({ navigation, state, descriptors, insets }) => (
@@ -234,7 +279,7 @@ const AppStack = () => {
       />
       <Tab.Screen
         name="NotesHandler"
-        component={HomeScreen}
+        component={WrappedGradesScreen}
         options={{
           tabBarLabel: 'Notes',
           tabBarIcon: ({ color, size }) => {
@@ -248,7 +293,6 @@ const AppStack = () => {
         component={WrappedSettings}
         options={{
           tabBarLabel: 'Compte',
-          tabBarBadge: 1,
           tabBarIcon: ({ color, size }) => {
             return <UserCircle color={color} size={size} />;
           },

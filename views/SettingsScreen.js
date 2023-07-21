@@ -30,7 +30,7 @@ function SettingsScreen({ navigation }) {
         insetTop={insets.top}
         pageName="Compte"
         rightButton={
-          <Pressable>
+          <Pressable onPress={() => navigation.navigate('Settings')}>
             <Settings size={24} color={theme.colors.onSurface} />
           </Pressable>
         }
@@ -70,6 +70,7 @@ function SettingsScreen({ navigation }) {
                 small
               />
             }
+            onPress={() => navigation.navigate('Settings')}
           />
 
           <ListItem
@@ -85,6 +86,7 @@ function SettingsScreen({ navigation }) {
                 small
               />
             }
+            onPress={() => navigation.navigate('Appearance')}
           />
 
           <ListItem
