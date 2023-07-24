@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform, Settings, Appearance, Alert } from 'react-native';
+import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform, Settings, ActivityIndicator, Alert } from 'react-native';
 import { useTheme, Button, Text } from 'react-native-paper';
 
 import { useState, useEffect } from 'react';
@@ -11,77 +11,8 @@ import { setAppIcon } from "expo-dynamic-app-icon";
 
 import { Grid } from 'lucide-react-native';
 
-function AppearanceScreen({ navigation }) {
-    const theme = useTheme();
-
-    // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles
-    const icons = [
-        {
-            coverName : 'Par défaut',
-            name: 'classic',
-            icon: require('../../assets/customicons/classic.png')
-        },
-        {
-            name: '3d',
-            icon: require('../../assets/customicons/3d.png')
-        },
-        {
-            name: 'beta',
-            icon: require('../../assets/customicons/beta.png')
-        },
-        {
-            name: 'black',
-            icon: require('../../assets/customicons/black.png')
-        },
-        {
-            name: 'chip',
-            icon: require('../../assets/customicons/chip.png')
-        },
-        {
-            name: 'cutted',
-            icon: require('../../assets/customicons/cutted.png')
-        },
-        {
-            name: 'gold',
-            icon: require('../../assets/customicons/gold.png')
-        },
-        {
-            name: 'gradient',
-            icon: require('../../assets/customicons/gradient.png')
-        },
-        {
-            name: 'metal',
-            icon: require('../../assets/customicons/metal.png')
-        },
-        {
-            name: 'neon',
-            icon: require('../../assets/customicons/neon.png')
-        },
-        {
-            name: 'pride',
-            icon: require('../../assets/customicons/pride.png')
-        },
-        {
-            name: 'purple',
-            icon: require('../../assets/customicons/purple.png')
-        },
-        {
-            name: 'rays-purple',
-            icon: require('../../assets/customicons/rays-purple.png')
-        },
-        {
-            name: 'rays',
-            icon: require('../../assets/customicons/rays.png')
-        },
-        {
-            name: 'retro',
-            icon: require('../../assets/customicons/retro.png')
-        },
-        {
-            name: 'sparkles',
-            icon: require('../../assets/customicons/sparkles.png')
-        },
-    ]
+function IconItem({ icon, index }) {
+    const [isLoaded, setIsLoaded] = useState(false);
 
     function applyIcon(name) {
         let icon = setAppIcon(name);
@@ -99,31 +30,123 @@ function AppearanceScreen({ navigation }) {
             );      
         }
     }
+
+    return (
+        <ListItem
+            title={icon.coverName ? icon.coverName : icon.name}
+            subtitle={"Appliquer l'icône " + icon.name}
+            color="#A84700"
+            style={styles.iconElem}
+            left={
+                <>
+                    { !isLoaded && <ActivityIndicator size="small" style={{position: 'absolute', left: 0, right: 0, top: 0, bottom: 0}} /> }
+
+                    <Image
+                        source={icon.icon}
+                        style={[styles.icon, {opacity: isLoaded ? 1 : 0}]}
+                        onLoad={() => setIsLoaded(true)}
+                    />
+                </>
+            }
+            onPress={() => applyIcon(icon.name)}
+        />
+    )
+}
+
+function AppearanceScreen({ navigation }) {
+    const theme = useTheme();
+
+    // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles
+    const icons = [
+        {
+            coverName : 'Par défaut',
+            name: 'classic',
+            icon: require('../../assets/customicons/classic.png')
+        },
+        {
+            coverName : 'Papillon 3D',
+            name: '3d',
+            icon: require('../../assets/customicons/3d.png')
+        },
+        {
+            coverName : 'Version bêta',
+            name: 'beta',
+            icon: require('../../assets/customicons/beta.png')
+        },
+        {
+            coverName : 'Icône sombre',
+            name: 'black',
+            icon: require('../../assets/customicons/black.png')
+        },
+        {
+            coverName : 'Processeur',
+            name: 'chip',
+            icon: require('../../assets/customicons/chip.png')
+        },
+        {
+            coverName : 'Icône brodée',
+            name: 'cutted',
+            icon: require('../../assets/customicons/cutted.png')
+        },
+        {
+            coverName : 'Icône en or',
+            name: 'gold',
+            icon: require('../../assets/customicons/gold.png')
+        },
+        {
+            coverName : 'Icône dégradée',
+            name: 'gradient',
+            icon: require('../../assets/customicons/gradient.png')
+        },
+        {
+            coverName : 'Icône en métal',
+            name: 'metal',
+            icon: require('../../assets/customicons/metal.png')
+        },
+        {
+            coverName : 'Icône néon',
+            name: 'neon',
+            icon: require('../../assets/customicons/neon.png')
+        },
+        {
+            coverName : 'Pride 2023',
+            name: 'pride',
+            icon: require('../../assets/customicons/pride.png')
+        },
+        {
+            coverName : 'Icône violette',
+            name: 'purple',
+            icon: require('../../assets/customicons/purple.png')
+        },
+        {
+            coverName : 'Icône violette (rayons)',
+            name: 'rays-purple',
+            icon: require('../../assets/customicons/rays-purple.png')
+        },
+        {
+            coverName : 'Icône verte (rayons)',
+            name: 'rays',
+            icon: require('../../assets/customicons/rays.png')
+        },
+        {
+            coverName : 'Icône rétro',
+            name: 'retro',
+            icon: require('../../assets/customicons/retro.png')
+        },
+        {
+            coverName : 'Icône brillante',
+            name: 'sparkles',
+            icon: require('../../assets/customicons/sparkles.png')
+        },
+    ]
         
     return (
         <ScrollView contentInsetAdjustmentBehavior="automatic"  style={{flex: 1}}>
-            {Platform.OS === 'ios' ? (
-                <StatusBar animated backgroundColor="#000" barStyle={'light-content'} />
-            ) : null}
-
             <View style={{gap: 9, paddingVertical: 24}}>
                 <Text style={styles.ListTitle}>Application</Text>
 
                 { icons.map((icon, index) => (
-                    <ListItem
-                        key={index}
-                        title={icon.coverName ? icon.coverName : icon.name}
-                        subtitle={"Appliquer l'icône " + icon.name}
-                        color="#A84700"
-                        style={styles.iconElem}
-                        left={
-                            <Image
-                                source={icon.icon}
-                                style={styles.icon}
-                            />
-                        }
-                        onPress={() => applyIcon(icon.name)}
-                    />
+                    <IconItem icon={icon} key={index} />
                 )) }
 
 

@@ -17,6 +17,7 @@ L'interface de Papillon est composée d'une multitude d'élements personnalisés
 | `title` | **string** | ` ` |
 | `subtitle` | **string** | ` ` |
 | `color` | **string** (hex) | ` ` |
+| `fill` | **string** (hex) | ` ` | Met le fond de la couleur de `color` |
 | `icon` | **`<Component/>`** | ` ` | Utilisez préférablement une icone de `lucide-react-native` |
 | `left` | **`<Component/>`** | ` ` | **Ne pas combiner avec `icon`** |
 | `isLarge` | **boolean** | `false` | Agrandit l'espace entre `title` et `subtitle` : à utiliser pour une info non cliquable |
@@ -48,5 +49,6 @@ L'interface de Papillon est composée d'une multitude d'élements personnalisés
 | `icon` | **`<Component/>`** | ` ` | Utilisez préférablement une icone de `lucide-react-native` |
 | `color` | **string** (hex) | ` ` |
 | `fill` | **boolean** | `false` | Définit si l'icône est remplie ou non |
+| `plain` | **boolean** | `false` | Retire le fond de l'icône |
 | `small` | **boolean** | `false` | Permet d'afficher l'icone en taille réduite |
 | `style` | **StyleSheet** | ` ` |

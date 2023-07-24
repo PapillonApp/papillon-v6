@@ -5,6 +5,8 @@ import { useTheme, Text } from 'react-native-paper';
 import PapillonHeader from '../components/PapillonHeader';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import formatCoursName from '../utils/FormatCoursName';
+
 import { useState, useEffect } from 'react';
 import { getTimetable } from '../fetch/PronoteData/PronoteTimetable';
 
@@ -59,6 +61,23 @@ function CoursItem({ event }) {
   const onLayout=(event)=> {
     setItemSize(event.nativeEvent.layout)
   }
+
+  // make a copy of event
+  let finalEvent = JSON.parse(JSON.stringify(event));
+
+  let cancelled = false;
+
+  if(!finalEvent.cours.rooms[0].startsWith("Salle")) {
+    finalEvent.cours.rooms[0] = "Salle " + finalEvent.cours.rooms[0];
+  }
+
+  if(finalEvent.cours.is_cancelled) {
+    finalEvent.cours.color = '#B42828';
+    finalEvent.cours.status = '';
+    cancelled = true;
+  }
+
+  let textColor = theme.dark ? '#fff' : '#000';
   
   // animation
   const [fadeCours, setFadeCours] = useState(new Animated.Value(0));
@@ -93,15 +112,17 @@ function CoursItem({ event }) {
       style={[styles.coursContainer, {backgroundColor: theme.dark ? '#111' : '#fff', opacity: fadeCours, transform: [{scale: animateCours}, {translateY: translateCours}]}]}
       onLayout={onLayout}
     >
-      <View style={[styles.cours, {backgroundColor: event.color + '16'}]}>
-        <View style={[styles.coursColor, {backgroundColor: event.color}]}></View>
+      <View style={[styles.cours, {backgroundColor: !cancelled ? finalEvent.color + '18' : '#B4282800'}]}>
+        <View style={[styles.coursColor, {backgroundColor: !cancelled ? finalEvent.color : '#B42828'}]}></View>
         <View style={styles.coursData}>
-          <Text style={styles.coursDataTime}>{new Date(event.startDate).toLocaleDateString('fr', {hour: '2-digit', minute:'2-digit'}).split(" ")[1]}</Text>
-          <Text numberOfLines={1} style={styles.coursDataSubject}>{event.cours.subject.name}</Text>
+          <Text style={styles.coursDataTime}>{new Date(finalEvent.startDate).toLocaleDateString('fr', {hour: '2-digit', minute:'2-digit'}).split(" ")[1]}</Text>
+          <Text numberOfLines={1} style={[styles.coursDataSubject, {opacity: cancelled ? 0.5 : 1}]}>{formatCoursName(finalEvent.cours.subject.name)}</Text>
+
+          <Text numberOfLines={1} style={[styles.coursDataStatus, {display: itemSize.width < 180 ? 'none' : 'flex'}]}>{finalEvent.cours.status}</Text>
 
           <View style={[styles.coursDataDetails, {display: itemSize.height < 78 ? 'none' : 'flex'}]}>
-            <Text numberOfLines={1} style={styles.coursDataRoom}>Salle {event.cours.rooms[0]}</Text>
-            <Text numberOfLines={1} style={[styles.coursDataTeacher, {display: itemSize.height < 95 ? 'none' : 'flex'}]}>{event.cours.teachers[0]}</Text>
+            <Text numberOfLines={1} style={[styles.coursDataRoom, {color : cancelled ? '#B42828' : textColor}]}>{cancelled ? "Cours annulé" : finalEvent.cours.rooms[0]}</Text>
+            <Text numberOfLines={1} style={[styles.coursDataTeacher, {display: itemSize.height < 90 ? 'none' : 'flex'}]}>{finalEvent.cours.teachers[0]}</Text>
           </View>
         </View>
       </View>
@@ -155,6 +176,10 @@ function PapillonAgenda({ events, dayPress, navigation }) {
   function openCalendar() {
     setRnDate(new Date(currentDate));
     setOpen(true);
+  }
+
+  function eventPressed(e) {
+    navigation.navigate('Lesson', { event: e.cours });
   }
 
   const onDismissSingle = React.useCallback(() => {
@@ -223,6 +248,8 @@ function PapillonAgenda({ events, dayPress, navigation }) {
 
         onDayPress={openCalendar}
 
+        onEventPress={(event) => {eventPressed(event)}}
+
         EventComponent={CoursItem}
       />
     </>
@@ -234,13 +261,8 @@ function CoursScreen({ navigation }) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.container]}>
-      <PapillonHeader 
-        disbaleBlur={true}
-        insetTop={insets.top}
-        pageName="Cours"
-      />
-      <View style={[{flex: 1, paddingTop: insets.top + 52}]}>
+    <View contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? '#050505' : '#F2F2F7'}]}>
+      <View style={[{flex: 1}]}>
         <PapillonAgenda
           navigation={navigation}
         />
@@ -251,7 +273,7 @@ function CoursScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
   },
 
   header: {
@@ -272,7 +294,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 0,
   },
   gridRow: {
-    opacity: 0.25,
+    opacity: 0.15,
   },
   eventContainer: {
     backgroundColor: 'transparent',
@@ -280,11 +302,22 @@ const styles = StyleSheet.create({
 
   coursContainer: {
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 0,
     overflow: 'hidden',
-    width: '100%',
 
-    height: '97%',
+    width: '108.5%',
+    marginLeft: '8.5%',
+
+    height: '100%',
+
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: .5,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   cours: {
     flexDirection: 'row',
@@ -299,8 +332,8 @@ const styles = StyleSheet.create({
     width: 4,
   },
   coursData: {
-    marginHorizontal: 16,
-    marginVertical: 10,
+    marginHorizontal: 14,
+    marginVertical: 8,
     flex: 1,
   },
 
@@ -309,10 +342,18 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   coursDataSubject: {
-    marginTop: 2,
+    marginTop: 1,
     fontSize: 17,
     fontFamily: 'Papillon-Semibold',
     flex: 1,
+  },
+  coursDataStatus: {
+    fontSize: 13,
+    opacity: 0.5,
+    fontWeight: 400,
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
 
   coursDataDetails: {
@@ -324,12 +365,14 @@ const styles = StyleSheet.create({
   coursDataRoom: {
     fontWeight: 500,
     flex: 1,
+    fontSize: 13,
   },
   coursDataTeacher: {
     marginTop: 1,
     fontWeight: 500,
     opacity: 0.6,
     flex: 1,
+    fontSize: 13,
   },
   dayButton: {
     textAlign: 'right',

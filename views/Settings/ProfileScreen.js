@@ -114,24 +114,15 @@ function ProfileScreen({ navigation }) {
         AsyncStorage.setItem('custom_name', name);
         setUserData({...userData, name: name});
     }
-
-    useEffect(() => {
-        // change modal color
-        SystemUI.setBackgroundColorAsync("#29947A");
-    }, []);
     
     return (
         <ScrollView style={{flex: 1}}>
-            {Platform.OS === 'ios' ? (
-                <StatusBar animated backgroundColor="#000" barStyle={'light-content'} />
-            ) : null}
-
             <View style={styles.profileContainer}>
                 { profilePicture !== "" ?
                     <Pressable style={({ pressed }) => [styles.profilePictureContainer, {opacity: pressed ? 0.6 : 1 }]} onPress={() => EditProfilePicture()}>
                         <Image style={styles.profilePicture} source={{uri: profilePicture}} />
 
-                        <View style={[styles.profilePictureEdit, {borderColor: theme.colors.background}]}>
+                        <View style={[styles.profilePictureEdit]}>
                             <Pencil size={18} color="#fff" />
                         </View>
                     </Pressable>
@@ -250,7 +241,6 @@ const styles = StyleSheet.create({
     },
     userData: {
         fontSize: 15,
-        fontFamily: 'Papillon-Regular',
         marginBottom: 4,
         opacity: 0.6,
     },
@@ -262,13 +252,14 @@ const styles = StyleSheet.create({
     },
     profilePictureEdit: {
         position: 'absolute',
-        bottom: 12,
+        bottom: 14,
         right: -3,
         backgroundColor: '#29947A',
         borderRadius: 100,
         padding: 6,
         elevation: 2,
-        borderWidth: 2,
+        borderColor: '#ffffff20',
+        borderWidth: 1,
     },
 });
 

@@ -12,7 +12,7 @@ function getGrades(day) {
         })
         .then((response) => response.text())
         .then((result) => {
-            console.log(result);
+            // console.log(result);
             if (result == 'expired' || result == 'notfound') {
                 return refreshToken().then(() => {
                     return getGrades(day);

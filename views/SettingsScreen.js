@@ -25,21 +25,9 @@ function SettingsScreen({ navigation }) {
   }
 
   return (
-    <View style={{flex: 1}}>
-      <PapillonHeader 
-        insetTop={insets.top}
-        pageName="Compte"
-        rightButton={
-          <Pressable onPress={() => navigation.navigate('Settings')}>
-            <Settings size={24} color={theme.colors.onSurface} />
-          </Pressable>
-        }
-      />
-      <ScrollView style={[{paddingTop: insets.top + 52}]} contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
-        <StatusBar animated backgroundColor={theme.colors.background} barStyle={theme.dark ? 'light-content' : 'dark-content'} />
-
+    <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
         <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>Options du compte</Text>
+          <Text style={styles.ListTitle}>Mon profil</Text>
 
           <ListItem
             title="Profil"
@@ -56,6 +44,10 @@ function SettingsScreen({ navigation }) {
             }
             onPress={() => navigation.navigate('Profile')}
           />
+        </View>
+
+        <View style={styles.optionsList}>
+          <Text style={styles.ListTitle}>Options de l'application</Text>
 
           <ListItem
             title="Réglages"
@@ -88,15 +80,19 @@ function SettingsScreen({ navigation }) {
             }
             onPress={() => navigation.navigate('Appearance')}
           />
+        </View>
+
+        <View style={styles.optionsList}>
+          <Text style={styles.ListTitle}>A propos</Text>
 
           <ListItem
             title="A propos"
             subtitle={"Papillon version " + packageJson.version}
-            color="#888"
+            color="#888888"
             left={
               <PapillonIcon
                 icon={<Info size={24} color="#fff" />}
-                color="#888"
+                color="#888888"
                 size={24}
                 fill
                 small
@@ -106,8 +102,7 @@ function SettingsScreen({ navigation }) {
           />
         </View>
 
-      </ScrollView>
-    </View>
+    </ScrollView>
   );
 }
 

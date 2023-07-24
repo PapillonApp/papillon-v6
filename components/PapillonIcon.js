@@ -2,11 +2,19 @@ import * as React from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { Text } from 'react-native-paper';
 
-function PapillonIcon({ icon, color, style, fill, small }) {
+function PapillonIcon({ icon, color, style, fill, small, plain }) {
     console.log(fill);
 
+    let opacity = "10";
+    if (fill) {
+        opacity = "FF";
+    }
+    if (plain) {
+        opacity = "00";
+    }
+
     return (
-        <View style={[styles.icon, {backgroundColor: fill? color : color + "10"}, style, small ? styles.iconSmall : null]}>
+        <View style={[styles.icon, {backgroundColor: color + opacity}, style, small ? styles.iconSmall : null]}>
             {icon}
         </View>
     )

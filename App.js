@@ -28,6 +28,8 @@ import { useCallback, useState } from 'react';
 
 import { StyleSheet, Text } from 'react-native';
 
+import { PressableScale } from 'react-native-pressable-scale';
+
 import { Home, CalendarRange, BookOpen, BarChart3, UserCircle, CheckCircle, AlertCircle } from 'lucide-react-native';
 
 import {
@@ -36,7 +38,9 @@ import {
 } from 'react-native-paper';
 
 import HomeScreen from './views/HomeScreen';
+
 import CoursScreen from './views/CoursScreen';
+import LessonScreen from './views/Cours/LessonScreen';
 
 import SettingsScreen from './views/SettingsScreen';
 import AboutScreen from './views/Settings/AboutScreen';
@@ -80,12 +84,22 @@ const CustomNavigationBar = ({ navigation, route, options, back }) => {
 
 const WrappedHomeScreen = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+        headerLargeTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+      }}
+    >
       <Stack.Screen
         name="Vue d'ensemble"
         component={HomeScreen}
         options={{ 
-          headerShown: false,
+          headerShown: true,
+          headerLargeTitle: true,
         }}
       />
     </Stack.Navigator>
@@ -94,12 +108,30 @@ const WrappedHomeScreen = () => {
 
 const WrappedCoursScreen = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+        headerLargeTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+      }}
+    >
       <Stack.Screen
         name="Cours"
         component={CoursScreen}
         options={{ 
-          headerShown: false,
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="Lesson"
+        component={LessonScreen}
+        options={{ 
+          headerShown: true,
+          headerTitle: 'Cours',
+          presentation: 'modal',
         }}
       />
     </Stack.Navigator>
@@ -108,12 +140,22 @@ const WrappedCoursScreen = () => {
 
 const WrappedGradesScreen = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+        headerLargeTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+      }}
+    >
       <Stack.Screen
-        name="Cours"
+        name="Notes"
         component={GradesScreen}
         options={{ 
-          headerShown: false,
+          headerShown: true,
+          headerLargeTitle: true,
         }}
       />
     </Stack.Navigator>
@@ -127,13 +169,16 @@ const WrappedSettings = () => {
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
+        headerLargeTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
       }}
     >
       <Stack.Screen
         name="Compte"
         component={SettingsScreen}
         options={{ 
-          headerShown: false,
+          headerLargeTitle: true,
           headerTitle: 'Compte',
         }}
       />
@@ -142,7 +187,6 @@ const WrappedSettings = () => {
         component={ProfileScreen}
         options={{ 
           headerTitle: 'Mon profil',
-          presentation: 'modal',
         }}
       />
       <Stack.Screen
@@ -150,7 +194,6 @@ const WrappedSettings = () => {
         component={OfficialServer}
         options={{ 
           headerTitle: 'Serveur officiel',
-          presentation: 'modal',
         }}
       />
       <Stack.Screen
@@ -158,7 +201,6 @@ const WrappedSettings = () => {
         component={AboutScreen}
         options={{ 
           headerTitle: 'A propos de Papillon',
-          presentation: 'modal',
         }}
       />
       <Stack.Screen
@@ -166,7 +208,6 @@ const WrappedSettings = () => {
         component={AppearanceScreen}
         options={{ 
           headerTitle: 'Apparence',
-          presentation: 'modal',
         }}
       />
       <Stack.Screen
@@ -182,7 +223,6 @@ const WrappedSettings = () => {
         component={SettingsScreen2}
         options={{
           headerTitle: 'Réglages',
-          presentation: 'modal',
         }}
       />
     </Stack.Navigator>
@@ -195,13 +235,35 @@ const AppStack = () => {
       screenOptions={{
         header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
         elevated: false,
+        tabBarLabelStyle: {
+          fontFamily: 'Papillon-Medium',
+          fontSize: 12.5,
+          letterSpacing: 0.2,
+        },
+        tabBarBadgeStyle: {
+          fontFamily: 'Papillon-Medium',
+          fontSize: 13,
+        },
+        headerTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
         tabBarShowLabel: false,
         tabBarStyle: {
-          height: 82,
           paddingLeft: 10,
           paddingRight: 10,
           paddingTop: 2,
-        }
+        },
+        tabBarButton: (props) => (
+          <PressableScale
+            {...props}
+            activeScale={0.7}
+            weight='light'
+          >
+            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+              {props.children}
+            </View>
+          </PressableScale>
+        ),
       }}
 
       tabBar={Platform.OS !== 'ios' ? ({ navigation, state, descriptors, insets }) => (
@@ -262,17 +324,6 @@ const AppStack = () => {
           tabBarLabel: 'Cours',
           tabBarIcon: ({ color, size }) => {
             return <CalendarRange color={color} size={size} />;
-          },
-          headerShown: false,
-        }}
-      />
-      <Tab.Screen
-        name="DevoirsHandler"
-        component={HomeScreen}
-        options={{
-          tabBarLabel: 'Devoirs',
-          tabBarIcon: ({ color, size }) => {
-            return <BookOpen color={color} size={size} />;
           },
           headerShown: false,
         }}

@@ -3,30 +3,55 @@ import { View, Pressable, StyleSheet } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 import { useColorScheme, Platform } from 'react-native';
 
-function ListItem({ title, subtitle, left, icon, style, color, isLarge, onPress }) {
+import { useRef } from 'react';
+import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
+
+import { PressableScale } from 'react-native-pressable-scale';
+import * as Haptics from 'expo-haptics'
+
+function ListItem({ title, subtitle, left, icon, style, color, isLarge, onPress, fill }) {
     const theme = useTheme();
     const scheme = useColorScheme();
 
+    let bgColor = theme.dark ? '#111' : '#fff';
+    let textColor = theme.dark ? '#fff' : '#000';
+    if(fill) {
+        bgColor = color;
+        textColor = '#fff';
+    }
+
+    function onPressActive() {
+        if(onPress) {
+            onPress();
+        }
+
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+
     return (
-        <Pressable onPress={onPress} style={({ pressed }) => [styles.listItem, { backgroundColor: theme.dark ? '#111' : '#fff', borderColor: theme.colors.outline, borderColor: theme.dark ? '#191919' : '#e5e5e5', opacity: pressed && Platform.OS === 'ios' ? 0.6 : 1 }, style]} android_ripple={true}>
-            
-            { left ?
-                <View style={[styles.left]}>
-                    {left}
-                </View>
-            : null }
+        <PressableScale onPress={onPressActive} weight="light" activeScale="0.89" style={{flex: 1}}>
+            <View style={[styles.listItem, { backgroundColor: bgColor, borderColor: theme.colors.outline, borderColor: theme.dark ? '#191919' : '#e5e5e5'}, style]}>
+                { left ?
+                    <View style={[styles.left]}>
+                        {left}
+                    </View>
+                : null }
 
-            { icon ?
-                <View style={[styles.icon, {backgroundColor: theme.dark ? "#ffffff10" : color + "10"}]}>
-                    {icon}
-                </View>
-            : null }
+                { icon ?
+                    <View style={[styles.icon, {backgroundColor: theme.dark ? "#ffffff10" : color + "10"}]}>
+                        {icon}
+                    </View>
+                : null }
 
-            <View style={[styles.listItemText, {gap : isLarge ? 8 : 2}]}>
-                <Text style={[styles.listItemTextTitle]}>{title}</Text>
-                <Text style={[styles.listItemTextSubtitle]}>{subtitle}</Text>
+                <View style={[styles.listItemText, {gap : isLarge ? 8 : 2}]}>
+                    <Text style={[styles.listItemTextTitle, {color: textColor}]}>{title}</Text>
+
+                    { subtitle ? 
+                        <Text style={[styles.listItemTextSubtitle, {color: textColor}]}>{subtitle}</Text>
+                    : null }
+                </View>
             </View>
-        </Pressable>
+        </PressableScale>
     );
 }
 
@@ -44,6 +69,7 @@ const styles = StyleSheet.create({
     listItemText : {
         gap: 2,
         flex: 1,
+        justifyContent: 'center',
     },
     listItemTextTitle: {
         fontSize: 17,

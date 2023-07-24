@@ -21,28 +21,16 @@ function HomeScreen({ navigation }) {
 
   React.useEffect(() => {
     getGrades().then((grades) => {
-      console.log(grades);
+      /* console.log(grades); */
     });
   }, []);
 
   return (
-    <View style={{flex: 1}}>
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} />
-      ) : null}
-
-      <PapillonHeader 
-        insetTop={insets.top}
-        pageName="Notes"
-      />
-
-      <ScrollView style={[styles.container, {paddingTop: insets.top + 52}]} contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
-        {Platform.OS === 'android' ? (
-          <StatusBar backgroundColor={theme.colors.background} barStyle={theme.dark ? 'light-content' : 'dark-content'} />
-        ) : null}
+    <>
+      <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container]} contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
       
       </ScrollView>
-    </View>
+    </>
   );
 }
 

@@ -8,35 +8,25 @@ import * as SystemUI from 'expo-system-ui';
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
-import { Grid } from 'lucide-react-native';
+import { Maximize } from 'lucide-react-native';
 
 function AppearanceScreen({ navigation }) {
     const theme = useTheme();
-
-    useEffect(() => {
-        // change modal color
-        SystemUI.setBackgroundColorAsync("#A84700");
-    }, []);
     
     return (
         <ScrollView style={{flex: 1}}>
-            {Platform.OS === 'ios' ? (
-                <StatusBar animated backgroundColor="#000" barStyle={'light-content'} />
-            ) : null}
-
             <View style={{gap: 9, marginTop: 24}}>
                 <Text style={styles.ListTitle}>Application</Text>
                 <ListItem
                     title="Icône de l'application"
                     subtitle="Changer l'icône de l'application"
-                    color="#A84700"
+                    color="#29947A"
                     left={
                         <PapillonIcon
-                            icon={<Grid size={24} color="#FFF" />}
-                            color="#A84700"
+                            icon={<Maximize size={24} color="#29947A" />}
+                            color="#29947A"
                             size={24}
                             small
-                            fill
                         />
                     }
                     onPress={() => navigation.navigate('Icons')}

@@ -5,6 +5,8 @@ import { useTheme, Button, Text } from 'react-native-paper';
 import * as WebBrowser from 'expo-web-browser';
 import * as SystemUI from 'expo-system-ui';
 
+import Animated from 'react-native-reanimated';
+
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
@@ -27,23 +29,18 @@ function AboutScreen({ navigation }) {
     WebBrowser.openBrowserAsync(url);
   }
 
-  useEffect(() => {
-    // change modal color
-    SystemUI.setBackgroundColorAsync("#888888");
-  }, []);
-
   const [dataList, setDataList] = useState([
     {
       title: 'Version de Papillon',
       subtitle: packageJson.version,
-      color: '#888',
-      icon: <History size={24} color="#888" />
+      color: '#888888',
+      icon: <History size={24} color="#888888" />
     },
     {
       title: 'Canal de distribution',
       subtitle: packageJson.canal,
-      color: '#888',
-      icon: <Bug size={24} color="#888" />
+      color: '#888888',
+      icon: <Bug size={24} color="#888888" />
     }
   ]);
 
@@ -101,9 +98,6 @@ function AboutScreen({ navigation }) {
 
   return (
     <View style={{flex: 1}}>
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated backgroundColor="#000" barStyle={'light-content'} />
-      ) : null}
       <ScrollView contentInsetAdjustmentBehavior="automatic">
 
         <View style={[styles.optionsList]}>
@@ -123,7 +117,7 @@ function AboutScreen({ navigation }) {
                 />
 
                 { checkKnownServers() ?
-                <View style={[styles.certif, {borderColor: theme.dark ? '#111' : '#fff'}]}>
+                <View style={[styles.certif, {borderColor: theme.dark ? '#111' : '#fff'}]} sharedTransitionTag="serverCheck">
                   <Check size={16} color="#ffffff" />
                 </View>
                 : null }
@@ -209,7 +203,8 @@ const styles = StyleSheet.create({
   optionsList: {
     width: '100%',
     gap: 9,
-    marginTop: 21,
+    marginTop: 16,
+    marginBottom: 12,
   },
   ListTitle: {
     paddingLeft: 29,

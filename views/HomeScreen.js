@@ -20,28 +20,12 @@ function HomeScreen({ navigation }) {
   }, []);
 
   return (
-    <View style={{flex: 1}}>
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} />
-      ) : null}
-
-      <PapillonHeader 
-        insetTop={insets.top}
-        pageName="Vue d'ensemble"
-        rightButton={
-          <Pressable>
-            <ListFilter size={24} color={theme.colors.onSurface} />
-          </Pressable>
-        }
-      />
-
-      <ScrollView style={[styles.container, {paddingTop: insets.top + 52}]} contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
-        {Platform.OS === 'android' ? (
-          <StatusBar backgroundColor={theme.colors.background} barStyle={theme.dark ? 'light-content' : 'dark-content'} />
-        ) : null}
+    <>
+      <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container]} contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
+        
       
       </ScrollView>
-    </View>
+    </>
   );
 }
 

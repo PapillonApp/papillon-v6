@@ -2,6 +2,8 @@ import * as React from 'react';
 import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform } from 'react-native';
 import { useTheme, Button, Text } from 'react-native-paper';
 
+import Animated from 'react-native-reanimated';
+
 import { BadgeCheck, PackageOpen, ShieldCheck, Eye, BadgeHelp, HelpCircle } from 'lucide-react-native';
 
 import PapillonIcon from '../../components/PapillonIcon';
@@ -15,15 +17,13 @@ function OfficialServer({ route, navigation }) {
 
     // set header title
     React.useLayoutEffect(() => {
-        navigation.setOptions({ headerTitle: server });
+        navigation.setOptions({ 
+            headerTitle: server,
+        });
     }, [navigation]);
     
     return (
         <ScrollView contentInsetAdjustmentBehavior="automatic" style={{flex: 1}}>
-            {Platform.OS === 'ios' ? (
-                <StatusBar animated backgroundColor="#000" barStyle={'light-content'} />
-            ) : null}
-
             { official ?
             <View style={styles.certifContainer}>
                 <PapillonIcon
