@@ -37,6 +37,11 @@ function getTimetable(day) {
                 });
             }
             else {
+                // sort the timetable by start
+                result.sort((a, b) => {
+                    return a.start.localeCompare(b.start);
+                });
+                
                 return result;
             }
         });

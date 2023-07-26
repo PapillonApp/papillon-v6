@@ -221,7 +221,7 @@ function CoursPage({ cours, navigation }) {
                 <Text style={[styles.coursProf]}>{cours.teachers[0]}</Text>
 
                 { cours.status && !cours.is_cancelled ? (
-                  <View style={[styles.coursStatus, {backgroundColor: theme.dark ? '#ffffff16' : "#00000016"}]}>
+                  <View style={[styles.coursStatus, {backgroundColor: cours.background_color + "22"}]}>
                     <Info size={20} color={theme.dark ? '#ffffff' : "#000000"} />
                     <Text style={[styles.coursStatusText]}>{cours.status}</Text>
                   </View>

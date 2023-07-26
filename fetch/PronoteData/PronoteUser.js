@@ -66,10 +66,6 @@ function editUser(profile) {
                 user.name = custom_name;
             }
 
-            // set last word of user.name first
-            let name = user.name.split(' ');
-            user.name = name[name.length - 1] + ' ' + name.slice(0, name.length - 1).join(' ');
-
             console.log(user);
             return user;
             

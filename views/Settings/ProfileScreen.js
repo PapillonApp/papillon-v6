@@ -6,7 +6,11 @@ import prompt from 'react-native-prompt-android';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { ContextMenuView, ContextMenuButton } from 'react-native-ios-context-menu';
+import * as Clipboard from 'expo-clipboard';
+
 import * as ImagePicker from 'expo-image-picker';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 import { useState, useEffect } from 'react';
 import * as SystemUI from 'expo-system-ui';
@@ -16,7 +20,7 @@ import { getUser } from '../../fetch/PronoteData/PronoteUser';
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
-import { Mail, Phone, Edit, Pencil, Trash2, Contact2 } from 'lucide-react-native';
+import { Mail, Phone, Edit, Pencil, Trash2, Contact2, Lock } from 'lucide-react-native';
 
 function ProfileScreen({ navigation }) {
     const theme = useTheme();
@@ -24,12 +28,35 @@ function ProfileScreen({ navigation }) {
     const [userData, setUserData] = React.useState({});
     const [profilePicture, setProfilePicture] = React.useState("");
 
+    const [shownINE, setShownINE] = React.useState("");
+
     useEffect(() => {
         getUser(false).then((result) => {
             setUserData(result);
             setProfilePicture(result.profile_picture);
+
+            if(Platform.OS === 'android') {
+                shownINE = userData.ine;
+            }
         })
     }, []);
+
+    async function getINE() {
+        if (shownINE == "") {
+            let result = await LocalAuthentication.authenticateAsync({
+                promptMessage: 'Veuillez vous authentifier pour afficher votre INE',
+                cancelLabel: 'Annuler',
+                disableDeviceFallback: true,
+            });
+
+            if (result.success) {
+                setShownINE(userData.ine);
+            }
+        }
+        else {
+            setShownINE("");
+        }
+    }
 
     async function EditProfilePicture() {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -133,13 +160,14 @@ function ProfileScreen({ navigation }) {
             </View>
 
             { userData.email !== "" & userData.phone !== "" ?
-                <View style={{gap: 9}}>
-                    <Text style={styles.ListTitle}>Données de contact</Text>
+                <View style={{gap: 9, paddingHorizontal:14}}>
+                    <Text style={styles.ListTitle2}>Données de contact</Text>
                     { userData.email !== "" ?
                         <ListItem
                             title="Adresse e-mail"
                             subtitle={userData.email}
                             color="#565EA3"
+                            width
                             left={
                                 <PapillonIcon
                                     icon={<Mail size={24} color="#565EA3" />}
@@ -155,6 +183,7 @@ function ProfileScreen({ navigation }) {
                             title="Téléphone"
                             subtitle={userData.phone}
                             color="#B9670F"
+                            width
                             left={
                                 <PapillonIcon
                                     icon={<Phone size={24} color="#B9670F" />}
@@ -166,19 +195,69 @@ function ProfileScreen({ navigation }) {
                         />
                     : null }
                     { userData.ine !== "" ?
-                        <ListItem
-                            title="Numéro INE"
-                            subtitle={userData.ine}
-                            color="#0065A8"
-                            left={
-                                <PapillonIcon
-                                    icon={<Contact2 size={24} color="#0065A8" />}
-                                    color="#0065A8"
-                                    size={24}
-                                    small
-                                />
-                            }
-                        />
+                        <ContextMenuButton
+                            isMenuPrimaryAction={true}
+                            menuConfig={{
+                                menuTitle: '',
+                                menuItems: [
+                                    {
+                                        actionKey: 'reveal',
+                                        actionTitle: shownINE == "" ? 'Révéler' : 'Cacher',
+                                        icon: {
+                                            type: 'IMAGE_SYSTEM',
+                                            imageValue: {
+                                                systemName: shownINE == "" ? 'eye' : 'eye.slash',
+                                            }
+                                        }
+                                    },
+                                    {
+                                        actionKey: 'copy',
+                                        actionTitle: 'Copier',
+                                        icon: {
+                                            type: 'IMAGE_SYSTEM',
+                                            imageValue: {
+                                                systemName: 'doc.on.doc',
+                                            }
+                                        }
+                                    }
+                                ],
+                            }}
+                            onPressMenuItem={({nativeEvent}) => {
+                                if (nativeEvent.actionKey === 'copy') {
+                                    Clipboard.setString(userData.ine);
+                                }
+                                else if (nativeEvent.actionKey === 'reveal') {
+                                    getINE();
+                                }
+                            }}
+                            previewConfig={{
+                                borderRadius: 12,
+                            }}
+                        >
+                            <ListItem
+                                title="Numéro INE"
+                                subtitle={shownINE}
+                                color="#0065A8"
+                                width
+                                left={
+                                    <>
+                                        <PapillonIcon
+                                            icon={<Contact2 size={24} color="#0065A8" />}
+                                            color="#0065A8"
+                                            size={24}
+                                            small
+                                        />
+
+                                        { shownINE == "" ?
+                                            <View style={[styles.infoLocked]}>
+                                                <Lock color='#fff' size={16} />
+                                            </View>
+                                        : null }
+                                    </>
+                                }
+                                onPress={() => {}}
+                            />
+                        </ContextMenuButton>
                     : null }
                 </View>
             : null }
@@ -250,6 +329,12 @@ const styles = StyleSheet.create({
         fontFamily: 'Papillon-Medium',
         opacity: 0.5,
     },
+    ListTitle2: {
+        paddingLeft: 15,
+        fontSize: 15,
+        fontFamily: 'Papillon-Medium',
+        opacity: 0.5,
+    },
     profilePictureEdit: {
         position: 'absolute',
         bottom: 14,
@@ -261,6 +346,15 @@ const styles = StyleSheet.create({
         borderColor: '#ffffff20',
         borderWidth: 1,
     },
+
+    infoLocked: {
+        position: 'absolute',
+        bottom: -4,
+        right: -4,
+        backgroundColor: '#B42828',
+        borderRadius: 70,
+        padding: 4,
+    }
 });
 
 export default ProfileScreen;

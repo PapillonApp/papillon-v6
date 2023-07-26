@@ -117,11 +117,17 @@ function LessonScreen({ route, navigation }) {
 
                     <ContextMenuView
                         menuConfig={{
-                            menuTitle: 'Date du cours',
+                            menuTitle: '',
                             menuItems: [
                                 {
                                     actionKey: 'copy',
                                     actionTitle: 'Copier',
+                                    icon: {
+                                        type: 'IMAGE_SYSTEM',
+                                        imageValue: {
+                                            systemName: 'doc.on.doc',
+                                        }
+                                    }
                                 }
                             ]
                         }}

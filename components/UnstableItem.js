@@ -9,7 +9,7 @@ function UnstableItem({ text }) {
 
     return (
         <View style={[styles.unstable]}>
-            <AlertTriangle size={20} color={'#fff'} />
+            <AlertTriangle size={20} color={'#A84700'} />
             <Text style={[styles.unstableText]}>{text}</Text>
         </View>
     )
@@ -24,11 +24,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         paddingVertical: 4,
         borderRadius: 30,
-        backgroundColor: '#A84700',
+        backgroundColor: '#A8470022',
     },
     unstableText: {
         fontSize: 15,
-        color: '#fff',
+        color: '#A84700',
     }
 });
 
