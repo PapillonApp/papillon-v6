@@ -2,6 +2,8 @@ import * as React from 'react';
 import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform } from 'react-native';
 import { useTheme, Button, Text } from 'react-native-paper';
 
+import { ContextMenuView } from 'react-native-ios-context-menu';
+
 import { X, DoorOpen, User2, Clock4, Info, Calendar, Hourglass, Clock8 } from 'lucide-react-native';
 
 import { LightenDarkenColor } from 'lighten-darken-color';
@@ -12,9 +14,20 @@ import ListItem from '../../components/ListItem';
 import { useEffect } from 'react';
 import * as SystemUI from 'expo-system-ui';
 
+import * as ExpoCalendar from 'expo-calendar';
+
 import formatCoursName from '../../utils/FormatCoursName';
 
-function OfficialServer({ route, navigation }) {
+import * as Clipboard from 'expo-clipboard';
+
+const calendars = [];
+
+async function getDefaultCalendarSource() {
+    const defaultCalendar = await Calendar.getDefaultCalendarAsync();
+    return defaultCalendar.source;
+}
+
+function LessonScreen({ route, navigation }) {
     const theme = useTheme();
     const lesson = route.params.event;
 
@@ -63,6 +76,7 @@ function OfficialServer({ route, navigation }) {
                         left={
                             <DoorOpen size={24} color={mainColor} />
                         }
+                        width
                     />
                     <ListItem
                         title="Professeur"
@@ -71,16 +85,18 @@ function OfficialServer({ route, navigation }) {
                         left={
                             <User2 size={24} color={mainColor} />
                         }
+                        width
                     />
                     { lesson.status !== null ? (
                         <ListItem
                             title="Statut du cours"
-                            subtitle={lesson.is_cancelled ? 'Cours annulé' : lesson.status}
+                            subtitle={lesson.status}
                             color={!lesson.is_cancelled ? mainColor : '#B42828'}
                             left={
                                 <Info size={24} color={!lesson.is_cancelled ? mainColor : '#ffffff'} />
                             }
                             fill={lesson.is_cancelled ? true : false}
+                            width
                         />
                     ) : null }
                 </View>
@@ -88,6 +104,7 @@ function OfficialServer({ route, navigation }) {
                 <View style={styles.optionsList}>
                     <Text style={styles.ListTitle}>Horaires</Text>
 
+                    
                     <ListItem
                         title="Durée du cours"
                         subtitle={lengthString}
@@ -95,16 +112,42 @@ function OfficialServer({ route, navigation }) {
                         left={
                             <Hourglass size={24} color={mainColor} />
                         }
+                        width
                     />
-                    <ListItem
-                        title="Date du cours"
-                        subtitle={dateCours}
-                        color={mainColor}
-                        left={
-                            <Calendar size={24} color={mainColor} />
-                        }
-                    />
-                    <View style={{flexDirection: 'row', marginHorizontal: 14, gap: 9}}>
+
+                    <ContextMenuView
+                        menuConfig={{
+                            menuTitle: 'Date du cours',
+                            menuItems: [
+                                {
+                                    actionKey: 'copy',
+                                    actionTitle: 'Copier',
+                                }
+                            ]
+                        }}
+                        onPressMenuItem={({nativeEvent}) => {
+                            if (nativeEvent.actionKey === 'copy') {
+                                Clipboard.setString(dateCours);
+                            }
+                        }}
+                        previewConfig={{
+                            previewType: 'RECT',
+                            backgroundColor: theme.colors.surface,
+                            borderRadius: 12,
+                        }}
+                    >
+                        <ListItem
+                            title="Date du cours"
+                            subtitle={dateCours}
+                            color={mainColor}
+                            left={
+                                <Calendar size={24} color={mainColor} />
+                            }
+                            width
+                        />
+                    </ContextMenuView>
+
+                    <View style={{flexDirection: 'row', gap: 9}}>
                         <ListItem
                             title="Début"
                             subtitle={startStr}
@@ -133,9 +176,9 @@ function OfficialServer({ route, navigation }) {
 
 const styles = StyleSheet.create({
     optionsList: {
-        width: '100%',
         gap: 9,
         marginTop: 16,
+        marginHorizontal: 14,
     },
     ListTitle: {
         paddingLeft: 29,
@@ -163,4 +206,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default OfficialServer;
+export default LessonScreen;

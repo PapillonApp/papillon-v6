@@ -56,6 +56,18 @@
         }
       ],
       [
+        "expo-calendar",
+        {
+          "calendarPermission": "On utilise ton calendrier pour ajouter des cours à celui-ci."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Autorisez Papillon à utiliser Face ID."
+        }
+      ],
+      [
         "expo-dynamic-app-icon",
         {
           // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles

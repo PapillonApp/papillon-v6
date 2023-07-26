@@ -4,6 +4,25 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { refreshToken } from '../AuthStack/LoginFlow';
 
 function getTimetable(day) {
+    // TEMPORARY : remove 1 month
+    day = new Date(day);
+
+    // date = '2021-09-13' (YYYY-MM-DD)
+    let date = new Date(day);
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let dayOfMonth = date.getDate();
+
+    if (month < 10) {
+        month = '0' + month;
+    }
+
+    if (dayOfMonth < 10) {
+        dayOfMonth = '0' + dayOfMonth;
+    }
+
+    day = year + '-' + month + '-' + dayOfMonth;
+
     // obtenir le token
     return AsyncStorage.getItem('token').then((token) => {
         // fetch le timetable

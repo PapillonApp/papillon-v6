@@ -9,6 +9,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 
+import Animated from 'react-native-reanimated';
+
 const Tab = createBottomTabNavigator();
 
 import useFonts from './hooks/useFonts';
