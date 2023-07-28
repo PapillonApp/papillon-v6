@@ -29,7 +29,7 @@ Serait-ce le début d'une nouvelle ère pour Papillon 👀
 
 
 ## Le projet
-> J'avais parlé de la possibilité d'une future réécriture de Papillon en React Native pendant les vacances pour une sortie possible à la rentrée 2023. Maintentant, je passe enfin à l'action -  Vince (@ecnivtwelve), 2023
+> J'avais parlé de la possibilité d'une future réécriture de Papillon en React Native pendant les vacances pour une sortie possible à la rentrée 2023. Maintenant, je passe enfin à l'action -  Vince (@ecnivtwelve), 2023
 
 La v6 de Papillon serait donc une **réécriture** de la v5, dans le sens ou celle ci doit garder les mêmes concepts de structure et d'organisation interne, afin de faciliter la transition des APIs. Cependant, l'interface de l'app sera entièrement nouvelle.
 
