@@ -86,12 +86,6 @@ function refreshToken() {
                 AsyncStorage.setItem('token', result.token);
                 console.log('Token refreshed : ' + result.token);
 
-                Toast.show({
-                    type: 'success',
-                    text1: 'Vous êtes reconnecté à Pronote!',
-                    text2: 'Votre session a été rétablie'
-                });
-
                 return result;
             }
         });
@@ -100,11 +94,6 @@ function refreshToken() {
 
 function expireToken() {
     AsyncStorage.setItem('token', 'expired');
-    Toast.show({
-        type: 'error',
-        text1: 'Le token a été supprimé',
-        text2: 'Vous êtes déconnecté de Pronote'
-    });
 }
 
 export { getENTs, getInfo, getToken, refreshToken, expireToken }

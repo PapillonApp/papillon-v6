@@ -94,46 +94,59 @@ function CoursScreen({ navigation }) {
 
   const [allCours, setAllCours] = useState({});
 
+  const newDateOffset = (date, offset) => {
+    let newDate = new Date(date);
+    newDate.setDate(newDate.getDate() + offset);
+    return newDate;
+  }
+
   const PageSelected = (event) => {
+    // [redirect] to PageScroll()
     PageScroll(event);
   }
 
   const PageScroll = (event) => {
-    // calculate direction
+    // Reacts to page scroll
+
+    // Calculate new date
     let position = event.nativeEvent.position;
     let direction = position - 2;
 
-    // move dates
+    // Calculate new date preview
+    let newDate = new Date(newDateOffset(currentDate.current, direction));
+
+    // If this is the same date as the current one, do nothing
+    if(newDate.toLocaleDateString() == currentDate.current.toLocaleDateString()) {
+      return;
+    }
+
+    // Modify values
     moveDate(direction);
 
-    let day0 = new Date(currentDate.current);
-    let day1 = new Date(currentDate.current);
-    let day2 = new Date(currentDate.current);
-    let day3 = new Date(currentDate.current);
+    // Create new dates
+    let day0 = new Date(newDateOffset(currentDate.current, -1));
+    let day1 = new Date(newDateOffset(currentDate.current, 0));
+    let day2 = new Date(newDateOffset(currentDate.current, 1));
+    let day3 = new Date(newDateOffset(currentDate.current, 2));
 
-    day0.setDate(day0.getDate() - 1);
-    day1.setDate(day1.getDate());
-    day2.setDate(day2.getDate() + 1);
-    day3.setDate(day3.getDate() + 2);
+    console.log(day1.toLocaleDateString());
 
+    // Move back to main page (2 bc of 0 and 1 being the previous page)
+    pagerViewRef.current.setPageWithoutAnimation(2);
+
+    // Fetch new dates
     if(!allCours[day0.toLocaleDateString()]) {
       GetCours(day0);
     }
-
     if(!allCours[day1.toLocaleDateString()]) {
       GetCours(day1);
     }
-
     if(!allCours[day2.toLocaleDateString()]) {
       GetCours(day2);
     }
-
     if(!allCours[day3.toLocaleDateString()]) {
       GetCours(day3);
     }
-
-    // move page
-    pagerViewRef.current.setPageWithoutAnimation(2);
   };
 
   const GetCours = (date) => {
@@ -157,30 +170,40 @@ function CoursScreen({ navigation }) {
           ref={pagerViewRef}
         >
           <View style={styles.page} key="1">
+            <Text>Page -1 (1)</Text>
+            <Text>{currentDate.previous.toLocaleDateString()}</Text>
             {allCours[currentDate.previous.toLocaleDateString()] ? (
               <CoursPage cours={allCours[currentDate.previous.toLocaleDateString()]} navigation={navigation} />
             ) : null}
           </View>
 
           <View style={styles.page} key="2">
+            <Text>Page -1 (2)</Text>
+            <Text>{currentDate.previous.toLocaleDateString()}</Text>
             {allCours[currentDate.previous.toLocaleDateString()] ? (
               <CoursPage cours={allCours[currentDate.previous.toLocaleDateString()]} navigation={navigation} />
             ) : null}
           </View>
 
           <View style={styles.page} key="3">
+            <Text>Page 0 (3)</Text>
+            <Text>{currentDate.current.toLocaleDateString()}</Text>
             {allCours[currentDate.current.toLocaleDateString()] ? (
               <CoursPage cours={allCours[currentDate.current.toLocaleDateString()]} navigation={navigation} />
             ) : null}
           </View>
 
           <View style={styles.page} key="4">
+            <Text>Page 1 (4)</Text>
+            <Text>{currentDate.next.toLocaleDateString()}</Text>
             {allCours[currentDate.next.toLocaleDateString()] ? (
               <CoursPage cours={allCours[currentDate.next.toLocaleDateString()]} navigation={navigation} />
             ) : null}
           </View>
 
           <View style={styles.page} key="5">
+            <Text>Page 1 (5)</Text>
+            <Text>{currentDate.next.toLocaleDateString()}</Text>
             {allCours[currentDate.next.toLocaleDateString()] ? (
               <CoursPage cours={allCours[currentDate.next.toLocaleDateString()]} navigation={navigation} />
             ) : null}

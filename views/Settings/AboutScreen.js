@@ -53,7 +53,8 @@ function AboutScreen({ navigation }) {
   const knownServers = [
     "getpapillon.xyz",
     "just-tryon.tech",
-    "tryon-lab.fr"
+    "tryon-lab.fr",
+    "vincelinise.com"
   ];
 
   let knownServer = "";
