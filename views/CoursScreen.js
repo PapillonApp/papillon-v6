@@ -1,12 +1,13 @@
 import * as React from 'react';
-import { View, ScrollView, StyleSheet, StatusBar, Platform, Pressable } from 'react-native';
+import { useCallback } from 'react';
+import { View, ScrollView, StyleSheet, StatusBar, Platform, Pressable, ActivityIndicator } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { PressableScale } from 'react-native-pressable-scale';
+import { PressableScale, NativePressableScale } from 'react-native-pressable-scale';
 
-import PagerView from 'react-native-pager-view';
+import InfinitePager from 'react-native-infinite-pager'
 import {getTimetable} from '../fetch/PronoteData/PronoteTimetable';
 
 import {useState, useEffect, useRef} from 'react';
@@ -17,23 +18,28 @@ import formatCoursName from '../utils/FormatCoursName';
 
 import UnstableItem from '../components/UnstableItem';
 
-import { Info } from 'lucide-react-native';
+import { Activity, Info } from 'lucide-react-native';
+
+const calcDate = (date, days) => {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
 
 function CoursScreen({ navigation }) {
   const theme = useTheme();
 
-  // setting dates
-  const previousDate = new Date();
-  previousDate.setDate(previousDate.getDate() - 1);
+  // global date
+  const [today, setToday] = useState(new Date());
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const nextDate = new Date();
-  nextDate.setDate(nextDate.getDate() + 1);
+  // calendar date
+  const [calendarDate, setCalendarDate] = useState(new Date());
 
-  const [currentDate, setCurrentDate] = useState({
-    previous : previousDate,
-    current : new Date(),
-    next : nextDate,
-  });
+  // cours 
+  const [cours, setCours] = useState({});
+
+  const pagerRef = useRef(null);
 
   // add datetime picker to headerRight on iOS
   React.useLayoutEffect(() => {
@@ -44,234 +50,221 @@ function CoursScreen({ navigation }) {
       headerRight: () => (
         Platform.OS === 'ios' ? (
           <DateTimePicker 
-            value={new Date(currentDate.current)}
+            value={calendarDate}
             locale='fr-FR'
             mode='date'
             display='compact'
             onChange={(event, date) => {
-              if (date) {
-                let newPreviousDate = new Date(date);
-                let newCurrentDate = new Date(date);
-                let newNextDate = new Date(date);
-                newPreviousDate.setDate(newPreviousDate.getDate() - 1);
-                newCurrentDate.setDate(newCurrentDate.getDate());
-                newNextDate.setDate(newNextDate.getDate() + 1);
-                setCurrentDate({
-                  previous : newPreviousDate,
-                  current : newCurrentDate,
-                  next : newNextDate,
-                });
-                GetCours(newCurrentDate);
-                GetCours(newPreviousDate);
-                GetCours(newNextDate);
+              setCalendarDate(date);
+              setToday(date);
+
+              pagerRef.current.setPage(0);
+
+              if(currentIndex == 0) {
+                setCurrentIndex(1);
+                setTimeout(() => {
+                  setCurrentIndex(0);
+                }, 10);
               }
             }}
           />
         ) : null
       ),
     });
-  }, [navigation, currentDate]);
+  }, [navigation, calendarDate, today, pagerRef]);
 
-  // ref
-  const pagerViewRef = useRef(null);
+  const todayRef = useRef(today);
+  const coursRef = useRef(cours);
 
-  // move dates
-  function moveDate(direction) {
-    let newPreviousDate = new Date(currentDate.previous);
-    let newCurrentDate = new Date(currentDate.current);
-    let newNextDate = new Date(currentDate.next);
+  const handlePageChange = (page) => {
+    const newDate = calcDate(todayRef.current, page);
+    setCurrentIndex(page);
+    setCalendarDate(newDate);
 
-    newPreviousDate.setDate(newPreviousDate.getDate() + direction);
-    newCurrentDate.setDate(newCurrentDate.getDate() + direction);
-    newNextDate.setDate(newNextDate.getDate() + direction);
-
-    setCurrentDate({
-      previous : new Date(newPreviousDate),
-      current : new Date(newCurrentDate),
-      next : new Date(newNextDate),
-    });
-  }
-
-  const [allCours, setAllCours] = useState({});
-
-  const newDateOffset = (date, offset) => {
-    let newDate = new Date(date);
-    newDate.setDate(newDate.getDate() + offset);
-    return newDate;
-  }
-
-  const PageSelected = (event) => {
-    // [redirect] to PageScroll()
-    PageScroll(event);
-  }
-
-  const PageScroll = (event) => {
-    // Reacts to page scroll
-
-    // Calculate new date
-    let position = event.nativeEvent.position;
-    let direction = position - 2;
-
-    // Calculate new date preview
-    let newDate = new Date(newDateOffset(currentDate.current, direction));
-
-    // If this is the same date as the current one, do nothing
-    if(newDate.toLocaleDateString() == currentDate.current.toLocaleDateString()) {
-      return;
+    if(!cours[calcDate(newDate, -2).toLocaleDateString()]) {
+      getTimetable(calcDate(newDate, -2)).then((result) => {
+        setCours((cours) => {
+          cours[calcDate(newDate, -2).toLocaleDateString()] = result;
+          return cours;
+        });
+      });
     }
 
-    // Modify values
-    moveDate(direction);
-
-    // Create new dates
-    let day0 = new Date(newDateOffset(currentDate.current, -1));
-    let day1 = new Date(newDateOffset(currentDate.current, 0));
-    let day2 = new Date(newDateOffset(currentDate.current, 1));
-    let day3 = new Date(newDateOffset(currentDate.current, 2));
-
-    console.log(day1.toLocaleDateString());
-
-    // Move back to main page (2 bc of 0 and 1 being the previous page)
-    pagerViewRef.current.setPageWithoutAnimation(2);
-
-    // Fetch new dates
-    if(!allCours[day0.toLocaleDateString()]) {
-      GetCours(day0);
+    if(!cours[calcDate(newDate, -1).toLocaleDateString()]) {
+      getTimetable(calcDate(newDate, -1)).then((result) => {
+        setCours((cours) => {
+          cours[calcDate(newDate, -1).toLocaleDateString()] = result;
+          return cours;
+        });
+      });
     }
-    if(!allCours[day1.toLocaleDateString()]) {
-      GetCours(day1);
+
+    if(!cours[calcDate(newDate, 0).toLocaleDateString()]) {
+      getTimetable(calcDate(newDate, 0)).then((result) => {
+        setCours((cours) => {
+          cours[calcDate(newDate, 0).toLocaleDateString()] = result;
+          return cours;
+        });
+      });
     }
-    if(!allCours[day2.toLocaleDateString()]) {
-      GetCours(day2);
+
+    if(!cours[calcDate(newDate, 1).toLocaleDateString()]) {
+      getTimetable(calcDate(newDate, 1)).then((result) => {
+        setCours((cours) => {
+          cours[calcDate(newDate, 1).toLocaleDateString()] = result;
+          return cours;
+        });
+      });
     }
-    if(!allCours[day3.toLocaleDateString()]) {
-      GetCours(day3);
+
+    if(!cours[calcDate(newDate, 2).toLocaleDateString()]) {
+      getTimetable(calcDate(newDate, 2)).then((result) => {
+        setCours((cours) => {
+          cours[calcDate(newDate, 2).toLocaleDateString()] = result;
+          return cours;
+        });
+      });
     }
   };
 
-  const GetCours = (date) => {
-    let newDate = new Date(date);
-
-    getTimetable(newDate).then((result) => {
-      let newAllCours = allCours;
-      newAllCours[newDate.toLocaleDateString()] = result;
-      setAllCours(newAllCours);
-    });
-  }
+  useEffect(() => {
+    todayRef.current = today;
+    coursRef.current = cours;
+  }, [today]);
 
   return (
     <>
       <View contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
-        <PagerView 
-          style={styles.viewPager}
-          initialPage={2}
-          overdrag={false}
-          onPageSelected={PageSelected}
-          ref={pagerViewRef}
-        >
-          <View style={styles.page} key="1">
-            <Text>Page -1 (1)</Text>
-            <Text>{currentDate.previous.toLocaleDateString()}</Text>
-            {allCours[currentDate.previous.toLocaleDateString()] ? (
-              <CoursPage cours={allCours[currentDate.previous.toLocaleDateString()]} navigation={navigation} />
-            ) : null}
-          </View>
-
-          <View style={styles.page} key="2">
-            <Text>Page -1 (2)</Text>
-            <Text>{currentDate.previous.toLocaleDateString()}</Text>
-            {allCours[currentDate.previous.toLocaleDateString()] ? (
-              <CoursPage cours={allCours[currentDate.previous.toLocaleDateString()]} navigation={navigation} />
-            ) : null}
-          </View>
-
-          <View style={styles.page} key="3">
-            <Text>Page 0 (3)</Text>
-            <Text>{currentDate.current.toLocaleDateString()}</Text>
-            {allCours[currentDate.current.toLocaleDateString()] ? (
-              <CoursPage cours={allCours[currentDate.current.toLocaleDateString()]} navigation={navigation} />
-            ) : null}
-          </View>
-
-          <View style={styles.page} key="4">
-            <Text>Page 1 (4)</Text>
-            <Text>{currentDate.next.toLocaleDateString()}</Text>
-            {allCours[currentDate.next.toLocaleDateString()] ? (
-              <CoursPage cours={allCours[currentDate.next.toLocaleDateString()]} navigation={navigation} />
-            ) : null}
-          </View>
-
-          <View style={styles.page} key="5">
-            <Text>Page 1 (5)</Text>
-            <Text>{currentDate.next.toLocaleDateString()}</Text>
-            {allCours[currentDate.next.toLocaleDateString()] ? (
-              <CoursPage cours={allCours[currentDate.next.toLocaleDateString()]} navigation={navigation} />
-            ) : null}
-          </View>
-        </PagerView>
+        <InfinitePager
+          style={[styles.viewPager]}
+          pageWrapperStyle={[styles.pageWrapper]}
+          onPageChange={handlePageChange}
+          ref={pagerRef}
+          pageBuffer={4}
+          renderPage={
+            ({ index }) => (
+              <>
+                { cours[calcDate(today, index).toLocaleDateString()] ?
+                <CoursPage cours={cours[calcDate(today, index).toLocaleDateString()] || []} navigation={navigation} theme={theme} />
+                : 
+                <View style={[styles.coursContainer]}>
+                  <ActivityIndicator size="small" />
+                </View>
+                }
+              </>
+            )
+          }
+        />
       </View>
     </>
   );
 }
 
-function CoursPage({ cours, navigation }) {
-  const theme = useTheme();
+const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
+  const formattedStartTime = useCallback(
+    () => new Date(cours.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    [cours.start]
+  );
 
-  const CoursPressed = (cours) => {
-    navigation.navigate('Lesson', {event: cours});
-  }
+  const formattedEndTime = useCallback(
+    () => new Date(cours.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    [cours.end]
+  );
+
+  const handleCoursPressed = useCallback(() => {
+    CoursPressed(cours);
+  }, [CoursPressed, cours]);
+
+  return (
+    <View style={[styles.fullCours]}>
+      <View style={[styles.coursTimeContainer]}>
+        <Text style={[styles.ctStart]}>{formattedStartTime()}</Text>
+        <Text style={[styles.ctEnd]}>{formattedEndTime()}</Text>
+      </View>
+      <PressableScale
+        weight="light"
+        delayLongPress={100}
+        style={[
+          styles.coursItemContainer,
+          { backgroundColor: theme.dark ? '#111111' : '#ffffff' },
+        ]}
+        onLongPress={handleCoursPressed}
+      >
+        <View
+          style={[
+            styles.coursItem,
+            { backgroundColor: cours.background_color + '22' },
+          ]}
+        >
+          <View style={[styles.coursColor, { backgroundColor: cours.background_color }]} />
+          <View style={[styles.coursInfo]}>
+            <Text style={[styles.coursTime]}>{formattedStartTime()}</Text>
+            <Text style={[styles.coursMatiere]}>{formatCoursName(cours.subject.name)}</Text>
+
+            <Text style={[styles.coursSalle]}>Salle {cours.rooms[0]}</Text>
+            <Text style={[styles.coursProf]}>{cours.teachers[0]}</Text>
+
+            {cours.status && (
+              <View
+                style={[
+                  styles.coursStatus, { backgroundColor: cours.background_color + '22' },
+                  cours.is_cancelled ? styles.coursStatusCancelled : null
+                ]}
+              >
+                {cours.is_cancelled ? (
+                <Info size={20} color={'#ffffff'} />
+                ) : (
+                <Info size={20} color={theme.dark ? '#ffffff' : '#000000'} />
+                )}
+
+                <Text style={[styles.coursStatusText, {color: theme.dark ? '#ffffff' : '#000000'}, cours.is_cancelled ? styles.coursStatusCancelledText : null]}>
+                  {cours.status}
+                </Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </PressableScale>
+    </View>
+  );
+});
+
+const CoursPage = ({ cours, navigation, theme }) => {
+  const CoursPressed = useCallback(
+    (cours) => {
+      navigation.navigate('Lesson', { event: cours });
+    },
+    [navigation]
+  );
 
   return (
     <ScrollView style={[styles.coursContainer]}>
-      {cours.length == 0 ? (
-        <Text style={[styles.ctEnd, {textAlign: 'center'}]}>Aucun cours</Text>
+      {cours.length === 0 ? (
+        <Text style={[styles.ctEnd, { textAlign: 'center' }]}>Aucun cours</Text>
       ) : null}
 
       {cours.map((cours, index) => (
-        <View key={index} style={[styles.fullCours]}>
-          <View style={[styles.coursTimeContainer]}>
-            <Text style={[styles.ctStart]}>{new Date(cours.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</Text>
-            <Text style={[styles.ctEnd]}>{new Date(cours.end).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</Text>
-          </View>
-          <PressableScale weight="light" activeScale={0.89} style={[styles.coursItemContainer, {backgroundColor: theme.dark ? "#111111" : "#ffffff"}]} onPress={() => {CoursPressed(cours)}}>
-            <View key={index} style={[styles.coursItem, {backgroundColor: cours.background_color + "22"}]}>
-              <View style={[styles.coursColor, {backgroundColor: cours.background_color}]}></View>
-              <View style={[styles.coursInfo]}>
-                <Text style={[styles.coursTime]}>{new Date(cours.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</Text>
-                <Text style={[styles.coursMatiere]}>{formatCoursName(cours.subject.name)}</Text>
-
-                <Text style={[styles.coursSalle]}>Salle {cours.rooms[0]}</Text>
-                <Text style={[styles.coursProf]}>{cours.teachers[0]}</Text>
-
-                { cours.status && !cours.is_cancelled ? (
-                  <View style={[styles.coursStatus, {backgroundColor: cours.background_color + "22"}]}>
-                    <Info size={20} color={theme.dark ? '#ffffff' : "#000000"} />
-                    <Text style={[styles.coursStatusText]}>{cours.status}</Text>
-                  </View>
-                ) : null }
-
-                { cours.status && cours.is_cancelled ? (
-                  <View style={[styles.coursStatus, styles.coursStatusCancelled]}>
-                    <Info size={20} color="#fff" />
-                    <Text style={[styles.coursStatusText, styles.coursStatusCancelledText]}>{cours.status}</Text>
-                  </View>
-                ) : null }
-              </View>
-            </View>
-          </PressableScale>
-        </View>
+        <CoursItem
+          key={index}
+          cours={cours}
+          theme={theme}
+          CoursPressed={CoursPressed}
+        />
       ))}
 
-      <View style={{height: 12}}></View>
+      <View style={{ height: 12 }} />
     </ScrollView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   viewPager: {
+    flex: 1,
+  },
+  pageWrapper: {
     flex: 1,
   },
 

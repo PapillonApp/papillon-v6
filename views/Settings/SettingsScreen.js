@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform, Settings, Alert } from 'react-native';
+import { View, ScrollView, Pressable, StyleSheet, Image, ActivityIndicator, Platform, Settings, Alert } from 'react-native';
 import { useTheme, Button, Text } from 'react-native-paper';
 
 import { useState, useEffect } from 'react';
@@ -37,8 +37,12 @@ function SettingsScreen({ navigation }) {
         );
     }
 
+    const [tokenLoading, setTokenLoading] = useState(false);
+
     function TokenAction() {
+        setTokenLoading(true);
         refreshToken().then((token) => {
+            setTokenLoading(false);
             Alert.alert(
                 'Token regénéré',
                 'Le token de votre compte a été regénéré avec succès !',
@@ -61,6 +65,7 @@ function SettingsScreen({ navigation }) {
                     title="Regénerer le token"
                     subtitle="Regénerer le token de votre compte"
                     color="#B42828"
+                    center
                     left={
                         <PapillonIcon
                             icon={<RefreshCw size={24} color="#565EA3" />}
@@ -69,12 +74,18 @@ function SettingsScreen({ navigation }) {
                             small
                         />
                     }
+                    right={
+                        tokenLoading ?
+                            <ActivityIndicator size="small" />
+                        : null
+                    }
                     onPress={() => TokenAction()}
                 />
                 <ListItem
                     title="Déconnexion"
                     subtitle="Se déconnecter de votre compte"
                     color="#B42828"
+                    center
                     left={
                         <PapillonIcon
                             icon={<LogOut size={24} color="#B42828" />}

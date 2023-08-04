@@ -168,6 +168,7 @@ function ProfileScreen({ navigation }) {
                             subtitle={userData.email}
                             color="#565EA3"
                             width
+                            center
                             left={
                                 <PapillonIcon
                                     icon={<Mail size={24} color="#565EA3" />}
@@ -184,6 +185,7 @@ function ProfileScreen({ navigation }) {
                             subtitle={userData.phone}
                             color="#B9670F"
                             width
+                            center
                             left={
                                 <PapillonIcon
                                     icon={<Phone size={24} color="#B9670F" />}
@@ -239,6 +241,7 @@ function ProfileScreen({ navigation }) {
                                 subtitle={shownINE}
                                 color="#0065A8"
                                 width
+                                center
                                 left={
                                     <>
                                         <PapillonIcon
@@ -283,6 +286,7 @@ function ProfileScreen({ navigation }) {
                     title="Réinitialiser la photo de profil"
                     subtitle="Utilise la photo de profil par défaut"
                     color="#B42828"
+                    center
                     left={
                         <PapillonIcon
                             icon={<Trash2 size={24} color="#FFF" />}

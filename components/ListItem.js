@@ -9,7 +9,7 @@ import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanima
 import { PressableScale } from 'react-native-pressable-scale';
 import * as Haptics from 'expo-haptics'
 
-function ListItem({ title, subtitle, left, icon, style, color, isLarge, onPress, fill, width }) {
+function ListItem({ title, subtitle, left, right, icon, style, color, isLarge, onPress, fill, width, center }) {
     const theme = useTheme();
     const scheme = useColorScheme();
 
@@ -38,7 +38,7 @@ function ListItem({ title, subtitle, left, icon, style, color, isLarge, onPress,
 
     return (
         <PressableScale onPress={onPressActive} weight="light" activeScale={pressScale} style={{flex: 1}}>
-            <View style={[styles.listItem, { backgroundColor: bgColor, borderColor: theme.colors.outline, borderColor: theme.dark ? '#191919' : '#e5e5e5', marginHorizontal : width ? 0 : 14, flex: width ? 1 : undefined}, style]}>
+            <View style={[styles.listItem, { backgroundColor: bgColor, borderColor: theme.colors.outline, borderColor: theme.dark ? '#191919' : '#e5e5e5', marginHorizontal : width ? 0 : 14, flex: width ? 1 : undefined, alignItems : center ? 'center' : undefined}, style]}>
                 { left ?
                     <View style={[styles.left]}>
                         {left}
@@ -58,6 +58,12 @@ function ListItem({ title, subtitle, left, icon, style, color, isLarge, onPress,
                         <Text style={[styles.listItemTextSubtitle, {color: textColor}]}>{subtitle}</Text>
                     : null }
                 </View>
+
+                { right ?
+                    <View style={[styles.right]}>
+                        {right}
+                    </View>
+                : null }
             </View>
         </PressableScale>
     );
@@ -89,6 +95,10 @@ const styles = StyleSheet.create({
     },
     left: {
         marginRight: 14,
+    },
+    right: {
+        marginLeft: 14,
+        marginRight: 4,
     },
     icon: {
         marginRight: 14,

@@ -64,9 +64,9 @@ function AppearanceScreen({ navigation }) {
             icon: require('../../assets/customicons/classic.png')
         },
         {
-            coverName : 'Papillon 3D',
-            name: '3d',
-            icon: require('../../assets/customicons/3d.png')
+            coverName : 'Papillon en relief',
+            name: 'relief',
+            icon: require('../../assets/customicons/relief.png')
         },
         {
             coverName : 'Version bêta',
@@ -120,8 +120,8 @@ function AppearanceScreen({ navigation }) {
         },
         {
             coverName : 'Icône violette (rayons)',
-            name: 'rays-purple',
-            icon: require('../../assets/customicons/rays-purple.png')
+            name: 'rayspurple',
+            icon: require('../../assets/customicons/rayspurple.png')
         },
         {
             coverName : 'Icône verte (rayons)',

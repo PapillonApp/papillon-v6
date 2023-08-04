@@ -249,7 +249,7 @@ const AppStack = () => {
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
         tabBarStyle: {
           paddingLeft: 10,
           paddingRight: 10,
@@ -326,6 +326,17 @@ const AppStack = () => {
           tabBarLabel: 'Cours',
           tabBarIcon: ({ color, size }) => {
             return <CalendarRange color={color} size={size} />;
+          },
+          headerShown: false,
+        }}
+      />
+      <Tab.Screen
+        name="DevoirsHandler"
+        component={WrappedHomeScreen}
+        options={{
+          tabBarLabel: 'Devoirs',
+          tabBarIcon: ({ color, size }) => {
+            return <BookOpen color={color} size={size} />;
           },
           headerShown: false,
         }}

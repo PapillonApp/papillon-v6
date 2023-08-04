@@ -39,7 +39,7 @@
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>
-    <activity-alias android:name="xyz.getpapillon.papillonv6.MainActivity3d" android:enabled="false" android:exported="true" android:icon="@mipmap/3d" android:targetActivity=".MainActivity">
+    <activity-alias android:name="xyz.getpapillon.papillonv6.MainActivityrelief" android:enabled="false" android:exported="true" android:icon="@mipmap/relief" android:targetActivity=".MainActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
@@ -111,7 +111,7 @@
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
     </activity-alias>
-    <activity-alias android:name="xyz.getpapillon.papillonv6.MainActivityrays-purple" android:enabled="false" android:exported="true" android:icon="@mipmap/rays-purple" android:targetActivity=".MainActivity">
+    <activity-alias android:name="xyz.getpapillon.papillonv6.MainActivityrayspurple" android:enabled="false" android:exported="true" android:icon="@mipmap/rayspurple" android:targetActivity=".MainActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>

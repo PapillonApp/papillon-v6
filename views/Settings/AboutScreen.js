@@ -26,7 +26,11 @@ function AboutScreen({ navigation }) {
   const [serverInfo, setServerInfo] = useState({});
 
   function openUserLink(url) {
-    WebBrowser.openBrowserAsync(url);
+    WebBrowser.openBrowserAsync(url, {
+      dismissButtonStyle: 'done',
+      presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
+      controlsColor: '#29947A',
+    });
   }
 
   const [dataList, setDataList] = useState([
@@ -138,6 +142,7 @@ function AboutScreen({ navigation }) {
                 title={item.name}
                 subtitle={item.role}
                 color="#565EA3"
+                center
                 left={
                   <Image
                     source={{uri: item.avatar}}
@@ -160,6 +165,7 @@ function AboutScreen({ navigation }) {
                 title={item.name}
                 subtitle={item.name + " à donné " + item.times + " fois"}
                 color="#565EA3"
+                center
                 left={
                   <PapillonIcon
                     icon={<Euro size={24} color="#565EA3" />}
@@ -182,6 +188,7 @@ function AboutScreen({ navigation }) {
                 title={item.title}
                 subtitle={item.subtitle}
                 color={item.color}
+                center
                 left={
                   <PapillonIcon
                     icon={item.icon}

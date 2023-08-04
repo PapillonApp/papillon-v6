@@ -12,11 +12,11 @@
     <dict>
       <key>CFBundleAlternateIcons</key>
       <dict>
-        <key>3d</key>
+        <key>relief</key>
         <dict>
           <key>CFBundleIconFiles</key>
           <array>
-            <string>3d-Icon-60x60</string>
+            <string>relief-Icon-60x60</string>
           </array>
           <key>UIPrerenderedIcon</key>
           <true/>
@@ -120,11 +120,11 @@
           <key>UIPrerenderedIcon</key>
           <true/>
         </dict>
-        <key>rays-purple</key>
+        <key>rayspurple</key>
         <dict>
           <key>CFBundleIconFiles</key>
           <array>
-            <string>rays-purple-Icon-60x60</string>
+            <string>rayspurple-Icon-60x60</string>
           </array>
           <key>UIPrerenderedIcon</key>
           <true/>
@@ -169,11 +169,11 @@
     <dict>
       <key>CFBundleAlternateIcons</key>
       <dict>
-        <key>3d</key>
+        <key>relief</key>
         <dict>
           <key>CFBundleIconFiles</key>
           <array>
-            <string>3d-Icon-60x60</string>
+            <string>relief-Icon-60x60</string>
           </array>
           <key>UIPrerenderedIcon</key>
           <true/>
@@ -277,11 +277,11 @@
           <key>UIPrerenderedIcon</key>
           <true/>
         </dict>
-        <key>rays-purple</key>
+        <key>rayspurple</key>
         <dict>
           <key>CFBundleIconFiles</key>
           <array>
-            <string>rays-purple-Icon-60x60</string>
+            <string>rayspurple-Icon-60x60</string>
           </array>
           <key>UIPrerenderedIcon</key>
           <true/>

@@ -71,8 +71,8 @@
         "expo-dynamic-app-icon",
         {
           // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles
-          "3d": {
-            "image": "./assets/customicons/3d.png",
+          "relief": {
+            "image": "./assets/customicons/relief.png",
             "prerendered": true 
           },
           "beta": {
@@ -119,8 +119,8 @@
             "image": "./assets/customicons/purple.png",
             "prerendered": true 
           },
-          "rays-purple": {
-            "image": "./assets/customicons/rays-purple.png",
+          "rayspurple": {
+            "image": "./assets/customicons/rayspurple.png",
             "prerendered": true 
           },
           "rays": {
