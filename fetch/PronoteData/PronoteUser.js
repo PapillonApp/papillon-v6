@@ -66,7 +66,6 @@ function editUser(profile) {
                 user.name = custom_name;
             }
 
-            console.log(user);
             return user;
             
         });

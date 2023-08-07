@@ -9,6 +9,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+
 import Animated from 'react-native-reanimated';
 
 const Tab = createBottomTabNavigator();
@@ -553,9 +555,11 @@ function App() {
   return (
     <View style={{flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff'}}>
       <PaperProvider theme={paperTheme}>
-        <NavigationContainer theme={classicTheme}>
-          {loggedIn ? <AppStack /> : <AuthStack />}
-        </NavigationContainer>
+        <ActionSheetProvider>
+          <NavigationContainer theme={classicTheme}>
+            {loggedIn ? <AppStack /> : <AuthStack />}
+          </NavigationContainer>
+        </ActionSheetProvider>
       </PaperProvider>
       <Toast config={toastConfig} />
     </View>

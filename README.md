@@ -16,10 +16,10 @@ Serait-ce le début d'une nouvelle ère pour Papillon 👀
     - [x] Interface de connexion au service
     - [x] Appel à l'API pour se connecter et conservation de la session
 - [ ] Affichage des données *(Pronote en priorité)*
-    - [ ] Données utilisateur
+    - [x] Données utilisateur
     - [x] Emploi du temps
     - [ ] Devoirs
-    - [ ] Notes
+    - [x] Notes
     - [ ] Compétences
     - [ ] Contenu des cours
     - [ ] Fichiers

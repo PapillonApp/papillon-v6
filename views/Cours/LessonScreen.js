@@ -6,7 +6,7 @@ import { ContextMenuView } from 'react-native-ios-context-menu';
 
 import { X, DoorOpen, User2, Clock4, Info, Calendar, Hourglass, Clock8 } from 'lucide-react-native';
 
-import { LightenDarkenColor } from 'lighten-darken-color';
+import getClosestColor from '../../utils/ColorCoursName';
 
 import PapillonIcon from '../../components/PapillonIcon';
 import ListItem from '../../components/ListItem';

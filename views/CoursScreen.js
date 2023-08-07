@@ -15,6 +15,7 @@ import {useState, useEffect, useRef} from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import formatCoursName from '../utils/FormatCoursName';
+import getClosestColor from '../utils/ColorCoursName';
 
 import UnstableItem from '../components/UnstableItem';
 
@@ -193,10 +194,10 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
         <View
           style={[
             styles.coursItem,
-            { backgroundColor: cours.background_color + '22' },
+            { backgroundColor: getClosestColor(cours.background_color) + '22' },
           ]}
         >
-          <View style={[styles.coursColor, { backgroundColor: cours.background_color }]} />
+          <View style={[styles.coursColor, { backgroundColor: getClosestColor(cours.background_color) }]} />
           <View style={[styles.coursInfo]}>
             <Text style={[styles.coursTime]}>{formattedStartTime()}</Text>
             <Text style={[styles.coursMatiere]}>{formatCoursName(cours.subject.name)}</Text>
@@ -207,7 +208,7 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
             {cours.status && (
               <View
                 style={[
-                  styles.coursStatus, { backgroundColor: cours.background_color + '22' },
+                  styles.coursStatus, { backgroundColor: getClosestColor(cours.background_color) + '22' },
                   cours.is_cancelled ? styles.coursStatusCancelled : null
                 ]}
               >
