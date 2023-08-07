@@ -240,7 +240,7 @@ function GradesScreen({ navigation }) {
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.latestGradesList]}>
           {latestGrades.map((grade, index) => {
               return (
-                <PressableScale weight="light" activeScale={0.89} key={index} style={[styles.smallGradeContainer, {backgroundColor: theme.dark ? '#222' : '#fff'}]}>
+                <PressableScale weight="light" activeScale={0.89} key={index} style={[styles.smallGradeContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]}>
                   <View style={[styles.smallGradeSubjectContainer, {backgroundColor: grade.color}]}>
                     <Text style={[styles.smallGradeEmoji]}>{getClosestGradeEmoji(grade.subject.name)}</Text>
                     <Text style={[styles.smallGradeSubject]}>{formatCoursName(grade.subject.name)}</Text>
@@ -264,9 +264,9 @@ function GradesScreen({ navigation }) {
         <View style={[styles.smallSubjectList]}>
           <Text style={styles.smallListTitle}>Moyennes</Text>
           <View style={[styles.averagesList]}>
-            <View style={[styles.averageContainer, {backgroundColor: theme.dark ? '#222' : '#fff'}]}>
+            <View style={[styles.averageContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]}>
               <PapillonIcon
-                icon={<User2 color="#21826A" style={[styles.averageIcon, {color: !theme.dark ? '#222' : '#fff'}]} />}
+                icon={<User2 color="#21826A" style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
                 color="#21826A"
                 style={[styles.averageIcon]}
                 small
@@ -279,9 +279,9 @@ function GradesScreen({ navigation }) {
                 </View>
               </View>
             </View>
-            <View style={[styles.averageContainer, {backgroundColor: theme.dark ? '#222' : '#fff'}]}>
+            <View style={[styles.averageContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]}>
               <PapillonIcon
-                icon={<Users2 color="#21826A" style={[styles.averageIcon, {color: !theme.dark ? '#222' : '#fff'}]} />}
+                icon={<Users2 color="#21826A" style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
                 color="#21826A"
                 style={[styles.averageIcon]}
                 small
@@ -295,9 +295,9 @@ function GradesScreen({ navigation }) {
               </View>
             </View>
             <View style={[styles.averagesClassContainer]}>
-              <View style={[styles.averageContainer, {backgroundColor: theme.dark ? '#222' : '#fff'}]}>
+              <View style={[styles.averageContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]}>
                 <PapillonIcon
-                  icon={<TrendingDown color="#21826A" style={[styles.averageIcon, {color: !theme.dark ? '#222' : '#fff'}]} />}
+                  icon={<TrendingDown color="#21826A" style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
                   color="#21826A"
                   style={[styles.averageIcon]}
                   small
@@ -310,9 +310,9 @@ function GradesScreen({ navigation }) {
                   </View>
                 </View>
               </View>
-              <View style={[styles.averageContainer, {backgroundColor: theme.dark ? '#222' : '#fff'}]}>
+              <View style={[styles.averageContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]}>
                 <PapillonIcon
-                  icon={<TrendingUp color="#21826A" style={[styles.averageIcon, {color: !theme.dark ? '#222' : '#fff'}]} />}
+                  icon={<TrendingUp color="#21826A" style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
                   color="#21826A"
                   style={[styles.averageIcon]}
                   small
@@ -334,7 +334,7 @@ function GradesScreen({ navigation }) {
         <Text style={styles.ListTitle}>Liste des matières</Text>
           {subjectsList.map((subject, index) => {
             return (
-              <View key={index} style={[styles.subjectContainer, {backgroundColor: theme.dark ? '#222' : '#fff'}]}>
+              <View key={index} style={[styles.subjectContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]}>
                 <Pressable style={[styles.subjectNameContainer, {backgroundColor: subject.averages.color}]}>
                   <Text style={[styles.subjectName]}>{formatCoursName(subject.name)}</Text>
                   <View style={[styles.subjectAverageContainer]}>

@@ -46,6 +46,8 @@ import HomeScreen from './views/HomeScreen';
 import CoursScreen from './views/CoursScreen';
 import LessonScreen from './views/Cours/LessonScreen';
 
+import DevoirsScreen from './views/DevoirsScreen';
+
 import SettingsScreen from './views/SettingsScreen';
 import AboutScreen from './views/Settings/AboutScreen';
 import ProfileScreen from './views/Settings/ProfileScreen';
@@ -136,6 +138,30 @@ const WrappedCoursScreen = () => {
           headerShown: true,
           headerTitle: 'Cours',
           presentation: 'modal',
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+const WrappedDevoirsScreen = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+        headerLargeTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+      }}
+    >
+      <Stack.Screen
+        name="Travail à faire"
+        component={DevoirsScreen}
+        options={{ 
+          headerShown: true,
+          headerLargeTitle: true,
         }}
       />
     </Stack.Navigator>
@@ -334,7 +360,7 @@ const AppStack = () => {
       />
       <Tab.Screen
         name="DevoirsHandler"
-        component={WrappedHomeScreen}
+        component={WrappedDevoirsScreen}
         options={{
           tabBarLabel: 'Devoirs',
           tabBarIcon: ({ color, size }) => {
@@ -469,7 +495,6 @@ function App() {
     success: ({ ...rest }) => (
       <BaseToast
         {...rest}
-        style={{ borderLeftColor: baseColor }}
         contentContainerStyle={{ 
           paddingHorizontal: 15,
         }}
@@ -506,7 +531,6 @@ function App() {
     error: ({ ...rest }) => (
       <ErrorToast
         {...rest}
-        style={{ borderLeftColor: baseColor }}
         contentContainerStyle={{ 
           paddingHorizontal: 15,
         }}
