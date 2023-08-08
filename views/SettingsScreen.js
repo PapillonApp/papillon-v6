@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, ScrollView, Pressable, StyleSheet, StatusBar } from 'react-native';
+import { View, ScrollView, Pressable, StyleSheet, StatusBar, Image } from 'react-native';
 import { useTheme, Button, Text } from 'react-native-paper';
 
 import PapillonHeader from '../components/PapillonHeader';
@@ -12,8 +12,10 @@ import PapillonIcon from '../components/PapillonIcon';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { useState, useEffect } from 'react';
 import { Settings, User2, Palette, Info } from 'lucide-react-native';
 
+import { getUser } from '../fetch/PronoteData/PronoteUser';
 import {refreshToken, expireToken} from '../fetch/AuthStack/LoginFlow';
 
 function SettingsScreen({ navigation }) {
@@ -117,7 +119,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'Papillon-Medium',
     opacity: 0.5,
-  }
+  },
 });
 
 export default SettingsScreen;

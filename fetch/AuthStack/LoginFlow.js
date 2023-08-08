@@ -1,7 +1,7 @@
 import consts from '../consts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import Toast from 'react-native-toast-message';
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 function fixURL(url) {
     url = url.toLowerCase();
@@ -86,14 +86,36 @@ function refreshToken() {
                 AsyncStorage.setItem('token', result.token);
                 console.log('Token refreshed : ' + result.token);
 
+                showMessage({
+                    message: "Token regénéré",
+                    description: "Token : " + result.token,
+                    type: "info",
+                    icon: "auto",
+                    floating: true,
+                });
+
                 return result;
             }
         });
     });
 };
 
-function expireToken() {
+function expireToken(reason) {
     AsyncStorage.setItem('token', 'expired');
+
+    let reasonMessage = "";
+
+    if (reason) {
+        reasonMessage = " (" + reason + ")";
+    }
+
+    showMessage({
+        message: "Token supprimé",
+        description: "Le token a expiré" + reasonMessage,
+        type: "warning",
+        icon: "auto",
+        floating: true,
+    });
 }
 
 export { getENTs, getInfo, getToken, refreshToken, expireToken }

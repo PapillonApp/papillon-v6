@@ -8,6 +8,7 @@ import { BottomNavigation } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import FlashMessage from "react-native-flash-message";
 
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
@@ -57,6 +58,7 @@ import SettingsScreen2 from './views/Settings/SettingsScreen';
 import IconsScreen from './views/Settings/IconsScreen';
 
 import GradesScreen from './views/GradesScreen';
+import GradeView from './views/Grades/GradeView';
 
 import LoginScreen from './views/AuthStack/LoginScreen';
 import LoginUnavailable from './views/AuthStack/LoginUnavailable';
@@ -188,6 +190,14 @@ const WrappedGradesScreen = () => {
           headerLargeTitle: true,
         }}
       />
+      <Stack.Screen
+        name="Grade"
+        component={GradeView}
+        options={{ 
+          headerShown: true,
+          headerLargeTitle: false,
+        }}
+      />
     </Stack.Navigator>
   );
 };
@@ -202,6 +212,7 @@ const WrappedSettings = () => {
         headerLargeTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
+        headerTruncatedBackTitle: 'translated back label',
       }}
     >
       <Stack.Screen
@@ -264,6 +275,7 @@ const AppStack = () => {
     <Tab.Navigator
       screenOptions={{
         header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
+        headerTruncatedBackTitle: 'Retour',
         elevated: false,
         tabBarLabelStyle: {
           fontFamily: 'Papillon-Medium',
@@ -586,6 +598,7 @@ function App() {
         </ActionSheetProvider>
       </PaperProvider>
       <Toast config={toastConfig} />
+      <FlashMessage position="top" />
     </View>
   );
 }

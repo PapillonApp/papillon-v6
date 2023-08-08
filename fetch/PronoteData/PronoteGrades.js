@@ -31,9 +31,9 @@ function getGrades(force = false) {
                 })
                 .then((response) => response.text())
                 .then((result) => {
-                    if (result == 'expired' || result == 'notfound' || result == '"\"notfound\""') {
+                    if (result == 'expired' || result == 'notfound' || result == '"notfound"') {
                         return refreshToken().then(() => {
-                            return getGrades(day);
+                            return getGrades();
                         });
                     }
                     else {

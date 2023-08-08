@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform, Settings, Appearance } from 'react-native';
+import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform, Settings, Appearance, Switch } from 'react-native';
 import { useTheme, Button, Text } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useState, useEffect } from 'react';
 import * as SystemUI from 'expo-system-ui';
@@ -8,7 +9,7 @@ import * as SystemUI from 'expo-system-ui';
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
-import { Maximize } from 'lucide-react-native';
+import { Layout, Maximize } from 'lucide-react-native';
 
 function AppearanceScreen({ navigation }) {
     const theme = useTheme();
@@ -30,6 +31,7 @@ function AppearanceScreen({ navigation }) {
                         />
                     }
                     onPress={() => navigation.navigate('Icons')}
+                    center
                 />
             </View>
         </ScrollView>

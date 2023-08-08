@@ -5,14 +5,14 @@ import { useTheme, Button, Text } from 'react-native-paper';
 import { useState, useEffect } from 'react';
 import * as SystemUI from 'expo-system-ui';
 
-import { refreshToken } from '../../fetch/AuthStack/LoginFlow';
+import { refreshToken, expireToken } from '../../fetch/AuthStack/LoginFlow';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
-import { LogOut, RefreshCw } from 'lucide-react-native';
+import { LogOut, RefreshCw, Trash2 } from 'lucide-react-native';
 
 function SettingsScreen({ navigation }) {
     const theme = useTheme();
@@ -55,6 +55,10 @@ function SettingsScreen({ navigation }) {
             );
         });
     }
+
+    function ExpireAction() {
+        expireToken("expireAction");
+    }
     
     return (
         <ScrollView style={{flex: 1}}>
@@ -80,6 +84,26 @@ function SettingsScreen({ navigation }) {
                         : null
                     }
                     onPress={() => TokenAction()}
+                />
+                <ListItem
+                    title="Forcer l'expiration du token"
+                    subtitle="Regénerer le token de votre compte"
+                    color="#B42828"
+                    center
+                    left={
+                        <PapillonIcon
+                            icon={<Trash2 size={24} color="#565EA3" />}
+                            color="#565EA3"
+                            size={24}
+                            small
+                        />
+                    }
+                    right={
+                        tokenLoading ?
+                            <ActivityIndicator size="small" />
+                        : null
+                    }
+                    onPress={() => ExpireAction()}
                 />
                 <ListItem
                     title="Déconnexion"
