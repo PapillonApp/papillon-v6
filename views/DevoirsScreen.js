@@ -12,7 +12,7 @@ function DevoirsScreen({ navigation }) {
 
   React.useEffect(() => {
     // change background color
-    SystemUI.setBackgroundColorAsync("#000000");
+    
   }, []);
 
   return (

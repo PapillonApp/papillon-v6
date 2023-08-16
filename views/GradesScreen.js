@@ -41,7 +41,7 @@ function GradesScreen({ navigation }) {
 
   React.useEffect(() => {
     // change background color
-    SystemUI.setBackgroundColorAsync("#000000");
+    
   }, []);
 
   // add button to header

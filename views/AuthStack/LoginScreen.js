@@ -37,7 +37,7 @@ function LoginScreen({ navigation }) {
 
   useEffect(() => {
       // change modal color
-      SystemUI.setBackgroundColorAsync("#000000");
+      
   }, []);
 
   const services = [
