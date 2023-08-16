@@ -78,11 +78,6 @@ function SettingsScreen({ navigation }) {
                             small
                         />
                     }
-                    right={
-                        tokenLoading ?
-                            <ActivityIndicator size="small" />
-                        : null
-                    }
                     onPress={() => TokenAction()}
                 />
                 <ListItem

@@ -127,42 +127,40 @@ function GradesScreen({ navigation }) {
     loadGrades(true);
   }
 
-  function calculateAverages(grades, moy) {
-    let student_average = 0;
-    let class_average = 0;
-    let min_average = 0;
-    let max_average = 0;
+  function calculateAverages(averages) {
+    console.log(averages);
 
-    let skipNb = 0;
+    let student_averages = 0;
+    let student_average_count = 0;
 
-    // for each grade
-    grades.forEach((grade) => {
-      if(grade.is_bonus) return;
-      if(grade.is_optional) return;
+    let class_averages = 0;
+    let class_average_count = 0;
 
-      grade.grade.value = grade.grade.value / grade.grade.out_of * 20;
-      grade.grade.average = grade.grade.average / grade.grade.out_of * 20;
-      grade.grade.min = grade.grade.min / grade.grade.out_of * 20;
-      grade.grade.max = grade.grade.max / grade.grade.out_of * 20;
+    let min_averages = 0;
+    let min_average_count = 0;
+    
+    let max_averages = 0;
+    let max_average_count = 0;
 
-      if(grade.grade.significant == 0) {
-        student_average += grade.grade.value * grade.grade.coefficient;
-      }
-      else {
-        skipNb++;
-      }
+    // for each average
+    averages.forEach((average) => {
+      student_averages += average.average / average.out_of * 20;
+      student_average_count++;
 
-      class_average += grade.grade.average * grade.grade.coefficient;
-      min_average += grade.grade.min * grade.grade.coefficient;
-      max_average += grade.grade.max * grade.grade.coefficient;
+      class_averages += average.class_average / average.out_of * 20;
+      class_average_count++;
+
+      min_averages += average.min / average.out_of * 20;
+      min_average_count++;
+
+      max_averages += average.max / average.out_of * 20;
+      max_average_count++;
     });
 
-    student_average = student_average / grades.length - skipNb;
-    class_average = class_average / grades.length;
-    min_average = min_average / grades.length;
-    max_average = max_average / grades.length;
-
-    if(moy) student_average = moy;
+    let student_average = student_averages / student_average_count;
+    let class_average = class_averages / class_average_count;
+    let min_average = min_averages / min_average_count;
+    let max_average = max_averages / max_average_count;
 
     setAveragesData({
       student_average: student_average.toFixed(2),
@@ -230,7 +228,7 @@ function GradesScreen({ navigation }) {
       });
 
       // calculate averages
-      calculateAverages(gradesList, JSON.parse(grades).overall_average);
+      calculateAverages(averagesList);
 
       // sort subjects by name
       subjects.sort((a, b) => a.name.localeCompare(b.name));
@@ -280,11 +278,16 @@ function GradesScreen({ navigation }) {
                   <PressableScale weight="light" activeScale={0.89} key={index} style={[styles.smallGradeContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]} onPress={() => showGrade(grade)}>
                     <View style={[styles.smallGradeSubjectContainer, {backgroundColor: grade.color}]}>
                       <Text style={[styles.smallGradeEmoji]}>{getClosestGradeEmoji(grade.subject.name)}</Text>
-                      <Text style={[styles.smallGradeSubject]}>{formatCoursName(grade.subject.name)}</Text>
+                      <Text style={[styles.smallGradeSubject]} numberOfLines={1} ellipsizeMode='tail'>{formatCoursName(grade.subject.name)}</Text>
                     </View>
 
                     <View style={[styles.smallGradeNameContainer]}>
-                      <Text style={[styles.smallGradeName]}>{grade.description}</Text>
+                      { grade.description ?
+                      <Text style={[styles.smallGradeName]} numberOfLines={3} ellipsizeMode='tail'>{grade.description}</Text>
+                      :
+                      <Text style={[styles.smallGradeName]}>Note en {formatCoursName(grade.subject.name)}</Text>
+                      }
+
                       <Text style={[styles.smallGradeDate]}>{new Date(grade.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' })}</Text>
                     </View>
 
@@ -402,7 +405,7 @@ function GradesScreen({ navigation }) {
                               { grade.description ?
                                 <Text style={[styles.gradeName]}>{grade.description}</Text>
                                 :
-                                <Text style={[styles.gradeName]}>Note en {grade.subject.name}</Text>
+                                <Text style={[styles.gradeName]}>Note en {formatCoursName(grade.subject.name)}</Text>
                               }
 
                               <Text style={[styles.gradeDate]}>{new Date(grade.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' })}</Text>
@@ -595,6 +598,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'Papillon-Semibold',
     color: '#FFFFFF',
+    width: '82%',
   },
 
   smallGradeNameContainer: {

@@ -68,6 +68,9 @@ function getToken(credentials) {
     })
     .then((response) => response.text())
     .then((result) => {
+        console.log('Tentative de connexion :');
+        console.log(result);
+
         if (result.startsWith('A server error occurred.')) {
             return { token: false };
         }

@@ -6,9 +6,12 @@ const formatExceptions = {
     'education civique': 'Éducation civique',
     'education musicale': 'Éducation musicale',
     'education physique et sportive': 'Éducation physique et sportive',
+    'sciences de la vie et de la terre': 'Sciences de la vie et de la terre',
+    'histoire-geographie': 'Histoire-Géographie',
+    'sciences economiques et sociales': 'Sciences économiques et sociales',
 }
 
-const lengthExceptions = ['vie', 'de']
+const lengthExceptions = ['vie', 'de', 'et']
 
 function formatCoursName(name) {
     // return name with capitalized words only if they are longer than 3 characters

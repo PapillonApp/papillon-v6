@@ -42,6 +42,11 @@ function GradeView({ route, navigation }) {
         description = 'Aucune description';
     }
 
+    // correct class averages
+    grade.grade.average = (grade.grade.average / 20) * grade.grade.out_of;
+    grade.grade.max = (grade.grade.max / 20) * grade.grade.out_of;
+    grade.grade.min = (grade.grade.min / 20) * grade.grade.out_of;
+
     // change header title component
     useEffect(() => {
         navigation.setOptions({
