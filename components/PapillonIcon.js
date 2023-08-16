@@ -3,7 +3,7 @@ import { View, StyleSheet, Platform } from 'react-native';
 import { Text } from 'react-native-paper';
 
 function PapillonIcon({ icon, color, style, fill, small, plain }) {
-    console.log(fill);
+    
 
     let opacity = "10";
     if (fill) {

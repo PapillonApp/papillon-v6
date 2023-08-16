@@ -85,8 +85,8 @@ function LoginPronote({ route, navigation }) {
       getInfo().then((result) => {
         const ents = result.ent_list;
 
-        console.log(ents);
-        console.log(hostname);
+        
+        
         
         // find ent in ents where url = hostname
         const ent = ents.find(ent => removeSubdomain(ent.url) === removeSubdomain(hostname));
@@ -108,7 +108,7 @@ function LoginPronote({ route, navigation }) {
       ent: isENTUsed ? ENTs.py : '',
     };
 
-    console.log(ENTs);
+    
 
     if(!isENTUsed && ENTs !== undefined && ENTs.py !== undefined) {
       credentials.url += '?login=true';

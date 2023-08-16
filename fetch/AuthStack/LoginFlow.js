@@ -68,8 +68,8 @@ function getToken(credentials) {
     })
     .then((response) => response.text())
     .then((result) => {
-        console.log('Tentative de connexion :');
-        console.log(result);
+        
+        
 
         if (result.startsWith('A server error occurred.')) {
             return { token: false };
@@ -87,7 +87,7 @@ function refreshToken() {
         return getToken(credentials).then((result) => {
             if(result.token != false || result.token != null) {
                 AsyncStorage.setItem('token', result.token);
-                console.log('Token refreshed : ' + result.token);
+                
 
                 showMessage({
                     message: "Token regénéré",

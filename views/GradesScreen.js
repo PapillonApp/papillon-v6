@@ -128,7 +128,7 @@ function GradesScreen({ navigation }) {
   }
 
   function calculateAverages(averages) {
-    console.log(averages);
+    
 
     let student_averages = 0;
     let student_average_count = 0;

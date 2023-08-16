@@ -31,7 +31,7 @@ function LessonScreen({ route, navigation }) {
     const theme = useTheme();
     const lesson = route.params.event;
 
-    console.log(lesson);
+    
 
     // calculate length of lesson
     const start = new Date(lesson.start);
@@ -51,7 +51,7 @@ function LessonScreen({ route, navigation }) {
 
     // format cours name
     const coursName = formatCoursName(lesson.subject.name);
-    console.log(coursName);
+    
 
     // change title
     React.useLayoutEffect(() => {
