@@ -11,7 +11,7 @@ const formatExceptions = {
     'sciences economiques et sociales': 'Sciences économiques et sociales',
 }
 
-const lengthExceptions = ['vie', 'de', 'et']
+const lengthExceptions = ['vie', 'de', 'et', 'la']
 
 function formatCoursName(name) {
     // return name with capitalized words only if they are longer than 3 characters
