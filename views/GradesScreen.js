@@ -266,7 +266,7 @@ function GradesScreen({ navigation }) {
         <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#000' : '#fff'} />
 
         { subjectsList.length == 0 && !isLoading ?
-          <Text style={[styles.infoText]}>Aucune note à afficher.</Text>
+          <Text style={[styles.noGrades]}>Aucune note à afficher.</Text>
         : null }
 
         { latestGrades.length > 0 ?
@@ -680,6 +680,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.5,
     marginVertical: 14,
+  },
+
+  noGrades: {
+    fontSize: 17,
+    fontWeight: 400,
+    fontFamily: 'Papillon-Medium',
+    opacity: 0.5,
+    textAlign: 'center',
+    marginTop: 12,
   },
 });
 

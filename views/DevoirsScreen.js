@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, ScrollView, StyleSheet, StatusBar, Platform, Pressable, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, StatusBar, Platform, Pressable, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
 import * as SystemUI from 'expo-system-ui';
@@ -44,11 +44,11 @@ function DevoirsScreen({ navigation }) {
   const insets = useSafeAreaInsets();
 
   // global date
-  const [today, setToday] = useState(new Date(2022, 10, 28));
+  const [today, setToday] = useState(new Date());
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // calendar date
-  const [calendarDate, setCalendarDate] = useState(new Date(2022, 10, 28));
+  const [calendarDate, setCalendarDate] = useState(new Date());
 
   // homeworks 
   const [homeworks, setHomeworks] = useState({});
@@ -116,7 +116,6 @@ function DevoirsScreen({ navigation }) {
       getHomeworks(calcDate(newDate, 0)).then((result) => {
         setHomeworks((homeworks) => {
           homeworks[calcDate(newDate, 0).toLocaleDateString()] = result;
-          console.log(homeworks);
           return homeworks;
         });
       });
@@ -141,6 +140,18 @@ function DevoirsScreen({ navigation }) {
     }
   };
 
+  const forceRefresh = () => {
+    const newDate = calcDate(todayRef.current, 0);
+
+    return getHomeworks(calcDate(newDate, 0)).then((result) => {
+      setHomeworks((homeworks) => {
+        homeworks[calcDate(newDate, 0).toLocaleDateString()] = result;
+        return homeworks;
+      });
+    });
+  }
+    
+
   useEffect(() => {
     todayRef.current = today;
     hwRef.current = homeworks;
@@ -159,7 +170,7 @@ function DevoirsScreen({ navigation }) {
             ({ index }) => (
               <>
                 { homeworks[calcDate(today, index).toLocaleDateString()] ?
-                  <Hwpage homeworks={homeworks[calcDate(today, index).toLocaleDateString()] || []} navigation={navigation} theme={theme} />
+                  <Hwpage homeworks={homeworks[calcDate(today, index).toLocaleDateString()] || []} navigation={navigation} theme={theme} forceRefresh={forceRefresh} />
                 : 
                   <View style={[styles.homeworksContainer]}>
                     <ActivityIndicator size="small" />
@@ -174,9 +185,25 @@ function DevoirsScreen({ navigation }) {
   );
 }
 
-const Hwpage = ({ homeworks, navigation, theme }) => {
+const Hwpage = ({ homeworks, navigation, theme, forceRefresh }) => {
+  const [isHeadLoading, setIsHeadLoading] = useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setIsHeadLoading(true);
+
+    forceRefresh().then(() => {
+      setIsHeadLoading(false);
+    });
+  }, []);
+
   return (
-    <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.homeworksContainer]}>
+    <ScrollView 
+      contentInsetAdjustmentBehavior="automatic"
+      style={[styles.homeworksContainer]}
+      refreshControl={
+        <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} />
+      }
+    >
       { homeworks.length == 0 ? (
         <Text style={styles.noHomework}>Aucun devoir pour cette date.</Text>
       ) : null }

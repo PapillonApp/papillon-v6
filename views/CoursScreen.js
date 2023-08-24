@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useCallback } from 'react';
-import { View, ScrollView, StyleSheet, StatusBar, Platform, Pressable, ActivityIndicator } from 'react-native';
+import { View, ScrollView, StyleSheet, StatusBar, Platform, Pressable, ActivityIndicator, RefreshControl } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -128,6 +128,17 @@ function CoursScreen({ navigation }) {
     }
   };
 
+  const forceRefresh = () => {
+    const newDate = calcDate(todayRef.current, 0);
+
+    return getTimetable(calcDate(newDate, 0)).then((result) => {
+      setCours((cours) => {
+        cours[calcDate(newDate, 0).toLocaleDateString()] = result;
+        return cours;
+      });
+    });
+  };
+
   useEffect(() => {
     todayRef.current = today;
     coursRef.current = cours;
@@ -146,7 +157,7 @@ function CoursScreen({ navigation }) {
             ({ index }) => (
               <>
                 { cours[calcDate(today, index).toLocaleDateString()] ?
-                <CoursPage cours={cours[calcDate(today, index).toLocaleDateString()] || []} navigation={navigation} theme={theme} />
+                <CoursPage cours={cours[calcDate(today, index).toLocaleDateString()] || []} navigation={navigation} theme={theme} forceRefresh={forceRefresh} />
                 : 
                 <View style={[styles.coursContainer]}>
                   <ActivityIndicator size="small" />
@@ -230,7 +241,7 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
   );
 });
 
-const CoursPage = ({ cours, navigation, theme }) => {
+const CoursPage = ({ cours, navigation, theme, forceRefresh }) => {
   const CoursPressed = useCallback(
     (cours) => {
       navigation.navigate('Lesson', { event: cours });
@@ -238,8 +249,23 @@ const CoursPage = ({ cours, navigation, theme }) => {
     [navigation]
   );
 
+  const [isHeadLoading, setIsHeadLoading] = useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setIsHeadLoading(true);
+
+    forceRefresh().then(() => {
+      setIsHeadLoading(false);
+    });
+  }, []);
+
   return (
-    <ScrollView style={[styles.coursContainer]}>
+    <ScrollView 
+      style={[styles.coursContainer]}
+      refreshControl={
+        <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} />
+      }
+    >
       {cours.length === 0 ? (
         <Text style={[styles.noCourses]}>Aucun cours</Text>
       ) : null}
