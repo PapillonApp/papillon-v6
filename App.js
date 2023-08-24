@@ -279,7 +279,7 @@ const AppStack = () => {
         elevated: false,
         tabBarLabelStyle: {
           fontFamily: 'Papillon-Medium',
-          fontSize: 12.5,
+          fontSize: 13,
           letterSpacing: 0.2,
         },
         tabBarBadgeStyle: {
@@ -291,8 +291,8 @@ const AppStack = () => {
         },
         tabBarShowLabel: true,
         tabBarStyle: {
-          paddingLeft: 10,
-          paddingRight: 10,
+          paddingLeft: 12,
+          paddingRight: 12,
           paddingTop: 2,
         },
         tabBarButton: (props) => (
