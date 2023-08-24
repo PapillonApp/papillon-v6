@@ -159,11 +159,11 @@ const WrappedDevoirsScreen = () => {
       }}
     >
       <Stack.Screen
-        name="Travail à faire"
+        name="Devoirs"
         component={DevoirsScreen}
         options={{ 
           headerShown: true,
-          headerLargeTitle: true,
+          headerLargeTitle: false,
         }}
       />
     </Stack.Navigator>

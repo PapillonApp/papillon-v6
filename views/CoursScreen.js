@@ -241,7 +241,7 @@ const CoursPage = ({ cours, navigation, theme }) => {
   return (
     <ScrollView style={[styles.coursContainer]}>
       {cours.length === 0 ? (
-        <Text style={[styles.ctEnd, { textAlign: 'center' }]}>Aucun cours</Text>
+        <Text style={[styles.noCourses]}>Aucun cours</Text>
       ) : null}
 
       {cours.map((cours, index) => (
@@ -360,6 +360,15 @@ const styles = StyleSheet.create({
   },
   coursStatusCancelledText: {
     color: '#fff',
+  },
+
+  noCourses: {
+    fontSize: 17,
+    fontWeight: 400,
+    fontFamily: 'Papillon-Medium',
+    opacity: 0.5,
+    textAlign: 'center',
+    marginTop: 12,
   },
 });
 
