@@ -394,8 +394,6 @@ PODS:
     - glog
   - react-native-actions-shortcuts (1.0.1):
     - React
-  - react-native-image-generator (0.3.1):
-    - React-Core
   - react-native-ios-context-menu (1.15.3):
     - React-Core
   - react-native-menu (0.8.0):
@@ -592,7 +590,6 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-actions-shortcuts (from `../node_modules/react-native-actions-shortcuts`)
-  - react-native-image-generator (from `../node_modules/react-native-image-generator`)
   - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -729,8 +726,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   react-native-actions-shortcuts:
     :path: "../node_modules/react-native-actions-shortcuts"
-  react-native-image-generator:
-    :path: "../node_modules/react-native-image-generator"
   react-native-ios-context-menu:
     :path: "../node_modules/react-native-ios-context-menu"
   react-native-menu:
@@ -840,7 +835,6 @@ SPEC CHECKSUMS:
   React-jsinspector: c712f9e3bb9ba4122d6b82b4f906448b8a281580
   React-logger: 342f358b8decfbf8f272367f4eacf4b6154061be
   react-native-actions-shortcuts: 5d9cf0c9c308333dfcc1e05c3f9afa8c428e2533
-  react-native-image-generator: fdbf5671bd21c5af3ac9ab439888119064cd2ae3
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
   react-native-menu: 5b9b82dabcc779cebde15d292ccbcba4469ff311
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc

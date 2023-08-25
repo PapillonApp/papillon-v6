@@ -66,6 +66,8 @@ function LessonScreen({ route, navigation }) {
     return (
         <>
             <ScrollView contentInsetAdjustmentBehavior="automatic" style={{flex: 1, backgroundColor: theme.dark ? '#050505' : '#f2f2f7'}}>
+                <StatusBar animated barStyle={'light-content'} />
+                
                 <View style={styles.optionsList}>
                     <Text style={styles.ListTitle}>A propos</Text>
 
@@ -187,7 +189,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 14,
     },
     ListTitle: {
-        paddingLeft: 29,
+        paddingLeft: 19,
         fontSize: 15,
         fontFamily: 'Papillon-Medium',
         opacity: 0.5,

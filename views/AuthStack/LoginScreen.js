@@ -69,10 +69,6 @@ function LoginScreen({ navigation }) {
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {  }]}>
 
-      {Platform.OS === 'android' ? (
-        <StatusBar backgroundColor={theme.colors.background} barStyle={theme.dark ? 'light-content' : 'dark-content'} />
-      ) : null}
-
       <ListItem
         title="Papillon est un client alternatif pour Pronote et d’autres services scolaires"
         subtitle="Cette application est en bêta, certaines choses peuvent ne pas fonctionner normalement."

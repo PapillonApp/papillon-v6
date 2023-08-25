@@ -266,6 +266,8 @@ const CoursPage = ({ cours, navigation, theme, forceRefresh }) => {
         <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} />
       }
     >
+      <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} />
+      
       {cours.length === 0 ? (
         <Text style={[styles.noCourses]}>Aucun cours</Text>
       ) : null}

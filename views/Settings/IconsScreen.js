@@ -7,36 +7,19 @@ import { useState, useEffect } from 'react';
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
-import { setAppIcon } from "expo-dynamic-app-icon";
+import { setAppIcon, getAppIcon } from "expo-dynamic-app-icon";
 
 import { Grid } from 'lucide-react-native';
 
-function IconItem({ icon, index }) {
+function IconItem({ icon, index, applyIcon, current }) {
     const [isLoaded, setIsLoaded] = useState(false);
-
-    function applyIcon(name) {
-        let icon = setAppIcon(name);
-
-        if(icon == name) {
-            Alert.alert(
-                "Icône appliquée",
-                "L'icône " + name + " à été appliquée avec succès !",
-                [
-                    {
-                        text: "OK",
-                        style: "cancel"
-                    }
-                ]
-            );      
-        }
-    }
 
     return (
         <ListItem
             title={icon.coverName ? icon.coverName : icon.name}
             subtitle={"Appliquer l'icône " + icon.name}
             color="#A84700"
-            style={styles.iconElem}
+            style={[styles.iconElem, current ? styles.iconElemCurrent : {}]}
             left={
                 <>
                     { !isLoaded && <ActivityIndicator size="small" style={{position: 'absolute', left: 0, right: 0, top: 0, bottom: 0}} /> }
@@ -57,7 +40,7 @@ function AppearanceScreen({ navigation }) {
     const theme = useTheme();
 
     // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles
-    const icons = [
+    const papillonIcons = [
         {
             coverName : 'Par défaut',
             name: 'classic',
@@ -139,14 +122,30 @@ function AppearanceScreen({ navigation }) {
             icon: require('../../assets/customicons/sparkles.png')
         },
     ]
+
+    const [currentIcon, setCurrentIcon] = useState(null);
+
+    useEffect(() => {
+        setCurrentIcon(getAppIcon() || 'classic');
+    }, []);
+
+    function applyIcon(name) {
+        let icon = setAppIcon(name);
+
+        if(icon == name) {
+            setCurrentIcon(name);    
+        }
+    }
         
     return (
         <ScrollView contentInsetAdjustmentBehavior="automatic"  style={{flex: 1}}>
+            <StatusBar animated barStyle={'light-content'} />
+            
             <View style={{gap: 9, paddingVertical: 24}}>
-                <Text style={styles.ListTitle}>Application</Text>
+                <Text style={styles.ListTitle}>Icônes Papillon</Text>
 
-                { icons.map((icon, index) => (
-                    <IconItem icon={icon} key={index} />
+                { papillonIcons.map((icon, index) => (
+                    <IconItem icon={icon} key={index} current={currentIcon == icon.name} applyIcon={applyIcon} />
                 )) }
 
 
@@ -166,6 +165,15 @@ const styles = StyleSheet.create({
         width: 38,
         height: 38,
         borderRadius: 9,
+    },
+
+    iconElem: {
+        borderColor: '#00000000',
+        borderWidth: 2,
+    },
+    iconElemCurrent: {
+        borderColor: '#29947A',
+        borderWidth: 2,
     },
 });
 

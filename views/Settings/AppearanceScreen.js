@@ -16,6 +16,8 @@ function AppearanceScreen({ navigation }) {
     
     return (
         <ScrollView style={{flex: 1}}>
+            <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} />
+
             <View style={{gap: 9, marginTop: 24}}>
                 <Text style={styles.ListTitle}>Application</Text>
                 <ListItem

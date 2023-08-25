@@ -196,6 +196,7 @@ const WrappedGradesScreen = () => {
         options={{ 
           headerShown: true,
           headerLargeTitle: false,
+          presentation: 'modal',
         }}
       />
     </Stack.Navigator>

@@ -28,7 +28,7 @@ import { Check, File, Link } from 'lucide-react-native';
 const openURL = (url) => {
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
-    presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
+    presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
     controlsColor: '#29947A',
   });
 };
