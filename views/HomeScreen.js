@@ -45,8 +45,14 @@ function HomeScreen({ navigation }) {
 
   // refresh
   React.useEffect(() => {
+    let forceReload = false;
+
+    if (isHeadLoading) {
+      forceReload = true;
+    }
+
     // get recap
-    getRecap(currentDate).then((result) => {
+    getRecap(currentDate, forceReload).then((result) => {
       setIsHeadLoading(false);
 
       setTimetable(result[0]);
