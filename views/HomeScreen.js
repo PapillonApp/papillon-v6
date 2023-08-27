@@ -252,7 +252,7 @@ function HomeHeader({ props, navigation, timetable, user }) {
           ( leftCourses && timetable.length > 1 ?
             <Text style={styles.headerCoursesText}>Il te reste {leftCourses.length + 1} cours dans {"\n"}ta journée.</Text>
           :
-            <Text style={styles.headerCoursesText}>Tu as aucun cours {"\n"}restant aujourd'hui.</Text>
+            <Text style={styles.headerCoursesText}>Tu n'as aucun cours {"\n"}restant aujourd'hui.</Text>
           )
         :
           <Text></Text>
@@ -388,6 +388,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontFamily: 'Papillon-Medium',
     color: '#ffffff99',
+    maxWidth: '85%',
   },
   headerCoursesText: {
     fontSize: 26.5,
@@ -396,6 +397,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 2,
     letterSpacing: -0.1,
+    maxWidth: '85%',
   },
 
   nextCoursContainer: {
