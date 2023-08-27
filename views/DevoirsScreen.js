@@ -155,7 +155,7 @@ function DevoirsScreen({ navigation }) {
   useEffect(() => {
     todayRef.current = today;
     hwRef.current = homeworks;
-  }, [today]);
+  }, [today, homeworks, todayRef, hwRef]);
 
   return (
     <>

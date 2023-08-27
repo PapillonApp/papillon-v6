@@ -143,7 +143,7 @@ function CoursScreen({ navigation }) {
   useEffect(() => {
     todayRef.current = today;
     coursRef.current = cours;
-  }, [today]);
+  }, [today, cours, todayRef, coursRef]);
 
   return (
     <>
