@@ -61,7 +61,10 @@
     "react-native-svg": "13.4.0",
     "react-native-toast-message": "^2.1.6",
     "react-native-vector-icons": "^9.2.0",
-    "react-native-view-shot": "3.5.0"
+    "react-native-view-shot": "3.5.0",
+    "react-dom": "18.2.0",
+    "react-native-web": "~0.18.10",
+    "@expo/webpack-config": "^18.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
