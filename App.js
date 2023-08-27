@@ -107,7 +107,15 @@ const WrappedHomeScreen = () => {
         component={HomeScreen}
         options={{ 
           headerShown: true,
-          headerLargeTitle: true,
+        }}
+      />
+      <Stack.Screen
+        name="Lesson"
+        component={LessonScreen}
+        options={{ 
+          headerShown: true,
+          headerTitle: 'Cours',
+          presentation: 'modal',
         }}
       />
     </Stack.Navigator>
@@ -196,7 +204,6 @@ const WrappedGradesScreen = () => {
         options={{ 
           headerShown: true,
           headerLargeTitle: false,
-          presentation: 'modal',
         }}
       />
     </Stack.Navigator>

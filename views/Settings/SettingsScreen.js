@@ -61,7 +61,7 @@ function SettingsScreen({ navigation }) {
     }
     
     return (
-        <ScrollView style={{flex: 1}}>
+        <ScrollView style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
             <View style={{gap: 9, marginTop: 16}}>
                 <Text style={styles.ListTitle}>Mon compte</Text>
 
@@ -78,6 +78,11 @@ function SettingsScreen({ navigation }) {
                             small
                         />
                     }
+                    right={
+                        tokenLoading ?
+                            <ActivityIndicator size="small" />
+                        : null
+                    }
                     onPress={() => TokenAction()}
                 />
                 <ListItem
@@ -92,11 +97,6 @@ function SettingsScreen({ navigation }) {
                             size={24}
                             small
                         />
-                    }
-                    right={
-                        tokenLoading ?
-                            <ActivityIndicator size="small" />
-                        : null
                     }
                     onPress={() => ExpireAction()}
                 />

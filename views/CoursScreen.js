@@ -104,6 +104,7 @@ function CoursScreen({ navigation }) {
       getTimetable(calcDate(newDate, 0)).then((result) => {
         setCours((cours) => {
           cours[calcDate(newDate, 0).toLocaleDateString()] = result;
+          console.log(cours);
           return cours;
         });
       });

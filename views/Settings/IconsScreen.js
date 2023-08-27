@@ -138,7 +138,7 @@ function AppearanceScreen({ navigation }) {
     }
         
     return (
-        <ScrollView contentInsetAdjustmentBehavior="automatic"  style={{flex: 1}}>
+        <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
             <StatusBar animated barStyle={'light-content'} />
             
             <View style={{gap: 9, paddingVertical: 24}}>

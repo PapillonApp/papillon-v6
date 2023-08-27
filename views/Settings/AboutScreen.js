@@ -103,7 +103,7 @@ function AboutScreen({ navigation }) {
 
   return (
     <View style={{flex: 1}}>
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
+      <ScrollView style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]} contentInsetAdjustmentBehavior="automatic">
 
         <View style={[styles.optionsList]}>
           <Text style={styles.ListTitle}>Serveur</Text>

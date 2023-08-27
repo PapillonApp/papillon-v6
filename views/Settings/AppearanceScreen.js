@@ -15,7 +15,7 @@ function AppearanceScreen({ navigation }) {
     const theme = useTheme();
     
     return (
-        <ScrollView style={{flex: 1}}>
+        <ScrollView style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
             <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} />
 
             <View style={{gap: 9, marginTop: 24}}>

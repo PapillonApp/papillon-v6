@@ -27,7 +27,7 @@ function SettingsScreen({ navigation }) {
   }
 
   return (
-    <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
+    <ScrollView style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]} contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
         <View style={styles.optionsList}>
           <Text style={styles.ListTitle}>Mon profil</Text>
 
