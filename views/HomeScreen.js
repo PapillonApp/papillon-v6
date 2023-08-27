@@ -255,7 +255,7 @@ function HomeHeader({ props, navigation, timetable, user }) {
             <Text style={styles.headerCoursesText}>Tu n'as aucun cours {"\n"}restant aujourd'hui.</Text>
           )
         :
-          <Text></Text>
+          <Text style={styles.headerCoursesText}>Tu n'as aucun cours {"\n"}restant aujourd'hui.</Text>
         }
 
         { user ?
