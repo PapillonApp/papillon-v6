@@ -22,8 +22,9 @@ import PapillonIcon from '../../components/PapillonIcon';
 
 import { Mail, Phone, Edit, Pencil, Trash2, Contact2, Lock } from 'lucide-react-native';
 
-function ProfileScreen({ navigation }) {
+function ProfileScreen({ route, navigation }) {
     const theme = useTheme();
+    const isModal = route.params.isModal;
 
     const [userData, setUserData] = React.useState({});
     const [profilePicture, setProfilePicture] = React.useState("");
@@ -144,6 +145,10 @@ function ProfileScreen({ navigation }) {
     
     return (
         <ScrollView style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
+            { isModal ?
+                <StatusBar animated barStyle={'light-content'} />
+            : null }
+            
             <View style={styles.profileContainer}>
                 { profilePicture !== "" ?
                     <Pressable style={({ pressed }) => [styles.profilePictureContainer, {opacity: pressed ? 0.6 : 1 }]} onPress={() => EditProfilePicture()}>

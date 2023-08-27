@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, ScrollView, StyleSheet, StatusBar, Platform, Pressable, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, ScrollView, StyleSheet, StatusBar, Platform, Pressable, TouchableOpacity, ActivityIndicator, RefreshControl, Image } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
 import { useIsFocused } from '@react-navigation/native';
@@ -100,6 +100,7 @@ function HomeScreen({ navigation }) {
       refreshControl={
         <RefreshControl progressViewOffset={28} refreshing={isHeadLoading} onRefresh={onRefresh} />
       }>
+
         {/* next classes */}
         { nextClasses ?
           <View style={[styles.nextClassesList, {backgroundColor : theme.dark ? '#151515' : '#ffffff'}]}>
@@ -256,6 +257,12 @@ function HomeHeader({ props, navigation, timetable, user }) {
         :
           <Text></Text>
         }
+
+        { user ?
+          <TouchableOpacity style={[styles.headerPfpContainer]} onPress={() => navigation.navigate('Profile', { isModal: true })}>
+            <Image source={{ uri: user.profile_picture }} style={[styles.headerPfp]} />
+          </TouchableOpacity>
+        : null }
       </View>
 
       { nextCourse && nextCourse.id !== null ?
@@ -548,6 +555,20 @@ const styles = StyleSheet.create({
     fontSize: 15,
     opacity: 0.5,
     marginLeft: 10,
+  },
+
+  headerPfpContainer: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  headerPfp: {
+    width: 36,
+    height: 36,
+    borderRadius: 24,
+    backgroundColor: '#ffffff10',
+    borderColor: '#ffffff25',
+    borderWidth: 1,
   },
 });
 

@@ -118,6 +118,14 @@ const WrappedHomeScreen = () => {
           presentation: 'modal',
         }}
       />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ 
+          headerTitle: 'Mon profil',
+          presentation: 'modal',
+        }}
+      />
     </Stack.Navigator>
   );
 };

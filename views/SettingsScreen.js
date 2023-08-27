@@ -44,7 +44,7 @@ function SettingsScreen({ navigation }) {
                 small
               />
             }
-            onPress={() => navigation.navigate('Profile')}
+            onPress={() => navigation.navigate('Profile', {isModal: false})}
           />
         </View>
 
