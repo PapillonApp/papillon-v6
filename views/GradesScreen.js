@@ -24,6 +24,7 @@ import { sub } from 'react-native-reanimated';
 import { PressableScale } from 'react-native-pressable-scale';
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import { useIsFocused } from '@react-navigation/native';
 
 function GradesScreen({ navigation }) {
   const theme = useTheme();
@@ -254,6 +255,8 @@ function GradesScreen({ navigation }) {
     navigation.navigate('Grade', { grade: grade });
   }
 
+  const isFocused = useIsFocused();
+
   return (
     <>
       <ScrollView 
@@ -262,8 +265,6 @@ function GradesScreen({ navigation }) {
         refreshControl={
           <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} />
         }>
-
-        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#000' : '#fff'} />
 
         { subjectsList.length == 0 && !isLoading ?
           <Text style={[styles.noGrades]}>Aucune note à afficher.</Text>

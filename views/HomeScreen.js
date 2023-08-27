@@ -1,6 +1,8 @@
 import * as React from 'react';
-import { View, ScrollView, StyleSheet, StatusBar, Platform, Pressable, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, ScrollView, StyleSheet, StatusBar, Platform, Pressable, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
+
+import { useIsFocused } from '@react-navigation/native';
 
 import * as SystemUI from 'expo-system-ui';
 
@@ -16,6 +18,7 @@ import PapillonHeader from '../components/PapillonHeader';
 import { PressableScale } from 'react-native-pressable-scale';
 
 import { getRecap } from '../fetch/PronoteData/PronoteRecap';
+import { getUser } from '../fetch/PronoteData/PronoteUser';
 import { set } from 'react-native-reanimated';
 
 function HomeScreen({ navigation }) {
@@ -28,47 +31,74 @@ function HomeScreen({ navigation }) {
   const [timetable, setTimetable] = React.useState(null);
   const [homeworks, setHomeworks] = React.useState(null);
   const [grades, setGrades] = React.useState(null);
+  const [user, setUser] = React.useState(null);
   
   // change header text and size
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      header: props => <HomeHeader props={props} timetable={timetable} navigation={navigation} />,
+      header: props => <HomeHeader props={props} user={user} timetable={timetable} navigation={navigation} />,
     });
-  }, [navigation, timetable]);
+  }, [navigation, timetable, user]);
+
+  const [refreshCount, setRefreshCount] = React.useState(0);
+  const [isHeadLoading, setIsHeadLoading] = React.useState(false);
 
   // refresh
   React.useEffect(() => {
     // get recap
     getRecap(currentDate).then((result) => {
-      console.log(result);
+      setIsHeadLoading(false);
 
       setTimetable(result[0]);
       setHomeworks(result[1]);
       setGrades(result[2]);
 
       // get next classes
-      const nextClasses = getNextCours(result[0]).nextClasses;
+      const nextClasses2 = getNextCours(result[0]).nextClasses;
 
-      setNextClasses(nextClasses);
+      setNextClasses(nextClasses2);
 
       const interval = setInterval(() => {
-        const nextClasses = getNextCours(result[0]).nextClasses;
-        setNextClasses(nextClasses);
+        const nextClasses2 = getNextCours(result[0]).nextClasses;
+        setNextClasses(nextClasses2);
       }, 300);
       return () => clearInterval(interval);
     });
+
+    // get user
+    getUser().then((result) => {
+      setUser(result);
+    });
+  }, [refreshCount]);
+
+  const isFocused = useIsFocused();
+  
+  const onRefresh = React.useCallback(() => {
+    setIsHeadLoading(true);
+    setRefreshCount(refreshCount + 1);
+
+    const tmt = setTimeout(() => {
+      setIsHeadLoading(false);
+    }, 4000);
+
+    return () => clearTimeout(tmt);
   }, []);
 
   return (
     <>
-      <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]} contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
-        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'}/>
+      { isFocused ?
+        <StatusBar barStyle={'light-content'}/>
+      : null }
 
+      <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]} contentContainerStyle={{alignItems: 'center', justifyContent: 'center', paddingTop: 12}}
+      refreshControl={
+        <RefreshControl progressViewOffset={28} refreshing={isHeadLoading} onRefresh={onRefresh} />
+      }>
         {/* next classes */}
         { nextClasses ?
           <View style={[styles.nextClassesList, {backgroundColor : theme.dark ? '#151515' : '#ffffff'}]}>
-            { nextClasses.slice(0,2).map((cours, index) => (
-              <View key={index} style={[styles.nextClassesListItemContainer, {borderBottomWidth: (index != nextClasses.slice(0,2).length - 1) ? 1 : 0, borderBottomColor: theme.dark ? '#ffffff10' : '#00000010' }]}>
+            { nextClasses.map((cours, index) => (
+              <View key={index} style={[styles.nextClassesListItemContainer, {borderBottomWidth: (index != nextClasses.length - 1) ? 1 : 0, borderBottomColor: theme.dark ? '#ffffff10' : '#00000010' }]}>
                 <TouchableOpacity style={[styles.nextClassesListItem]} onPress={() => navigation.navigate('Lesson', { event: cours })}>
                   <Text numberOfLines={1} style={[styles.nextClassesListItemEmoji]}>{getClosestGradeEmoji(cours.subject.name)}</Text>
 
@@ -128,11 +158,39 @@ function getNextCours(classes) {
   };
 }
 
-function HomeHeader({ props, navigation, timetable }) {
+const lightenDarkenColor = (color, amount) => {
+  let colorWithoutHash = color.replace("#", "")
+  if (colorWithoutHash.length === 3) {
+    colorWithoutHash = colorWithoutHash
+      .split("")
+      .map(c => `${c}${c}`)
+      .join("")
+  }
+
+  const getColorChannel = substring => {
+    let colorChannel = parseInt(substring, 16) + amount
+    colorChannel = Math.max(Math.min(255, colorChannel), 0).toString(16)
+
+    if (colorChannel.length < 2) {
+      colorChannel = `0${colorChannel}`
+    }
+
+    return colorChannel
+  }
+
+  const colorChannelRed = getColorChannel(colorWithoutHash.substring(0, 2))
+  const colorChannelGreen = getColorChannel(colorWithoutHash.substring(2, 4))
+  const colorChannelBlue = getColorChannel(colorWithoutHash.substring(4, 6))
+
+  return `#${colorChannelRed}${colorChannelGreen}${colorChannelBlue}`
+}
+
+function HomeHeader({ props, navigation, timetable, user }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
   const [nextCourse, setNextCourse] = React.useState(null);
+  const [leftCourses, setLeftCourses] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
 
   // refresh
@@ -141,6 +199,7 @@ function HomeHeader({ props, navigation, timetable }) {
       setLoading(false);
       const nextCours = getNextCours(timetable).next;
       setNextCourse(nextCours);
+      setLeftCourses(getNextCours(timetable).nextClasses);
     }
 
     const interval = setInterval(() => {
@@ -148,15 +207,49 @@ function HomeHeader({ props, navigation, timetable }) {
         setLoading(false);
         const nextCours = getNextCours(timetable).next;
         setNextCourse(nextCours);
+        setLeftCourses(getNextCours(timetable).nextClasses);
       }
     }, 300);
     return () => clearInterval(interval);
   }, [timetable]);
+
+  function getColorCoursBg(color) {
+    const bg = getClosestColor(color);
+    return lightenDarkenColor(bg, -20);
+  }
+
+  function getPrenom(name) {
+    // find the latest word which is capitalized
+    const words = name.split(' ');
+    let prenom = words[words.length - 1];
+
+    for (let i = 1; i < words.length; i++) {
+      if (words[i][0] === words[i][0].toUpperCase()) {
+        prenom = words[i];
+      }
+    }
+
+    return prenom;
+  }
   
   return (
-    <View style={[styles.header, {backgroundColor: theme.dark ? '#151515' : '#ffffff', paddingTop: insets.top + 13, borderColor: theme.dark ? '#ffffff15' : '#00000032', borderBottomWidth: 1}]}>
+    <View style={[styles.header, {backgroundColor: nextCourse ? getColorCoursBg(nextCourse.background_color) : '#29947A', paddingTop: insets.top + 13, borderColor: theme.dark ? '#ffffff15' : '#00000032', borderBottomWidth: 1}]}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Vue d'ensemble</Text>
+        { user ?
+          <Text style={styles.headerNameText}>Bonjour, {getPrenom(user.name)} !</Text>
+        :
+          <Text style={styles.headerNameText}>Bonjour !</Text>
+        }
+
+        { timetable ?
+          ( leftCourses && timetable.length > 1 ?
+            <Text style={styles.headerCoursesText}>Il te reste {leftCourses.length + 1} cours dans {"\n"}ta journée.</Text>
+          :
+            <Text style={styles.headerCoursesText}>Tu as aucun cours {"\n"}restant aujourd'hui.</Text>
+          )
+        :
+          <Text></Text>
+        }
       </View>
 
       { nextCourse && nextCourse.id !== null ?
@@ -171,7 +264,7 @@ function HomeHeader({ props, navigation, timetable }) {
       : null }
 
       { !loading && !nextCourse ?
-        <PressableScale style={[styles.nextCoursContainer, {backgroundColor: theme.dark ? '#222222' : '#ffffff'}, styles.nextCoursLoading]}>
+        <PressableScale style={[styles.nextCoursContainer, {backgroundColor: theme.dark ? '#222222' : '#ffffff'}, styles.nextCoursLoading]} onPress={() => navigation.navigate('CoursHandler')}>
           <Text style={[styles.nextCoursLoadingText]}>Pas de prochain cours</Text>
         </PressableScale>
       : null }
@@ -265,19 +358,31 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+
+    backgroundColor: '#29947A',
   },
 
   headerContainer: {
     marginBottom: 12,
     display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
 
     width: '92%',
   },
-  headerText: {
+
+  headerNameText: {
     fontSize: 17,
-    fontFamily: 'Papillon-Semibold',
+    fontFamily: 'Papillon-Medium',
+    color: '#ffffff99',
+  },
+  headerCoursesText: {
+    fontSize: 26.5,
+    fontFamily: 'Papillon-Regular',
+    color: '#ffffff',
+    marginTop: 10,
+    marginBottom: 2,
+    letterSpacing: -0.1,
   },
 
   nextCoursContainer: {
@@ -408,7 +513,6 @@ const styles = StyleSheet.create({
 
   nextClassesList: {
     width: '92%',
-    marginTop: 12,
 
     borderRadius: 12,
     borderCurve: 'continuous',
