@@ -29,25 +29,18 @@ const calcDate = (date, days) => {
 
 function CoursScreen({ navigation }) {
   const theme = useTheme();
-
-  // global date
-  const [today, setToday] = useState(new Date());
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  // calendar date
-  const [calendarDate, setCalendarDate] = useState(new Date());
-
-  // cours 
-  const [cours, setCours] = useState({});
-
   const pagerRef = useRef(null);
 
-  // add datetime picker to headerRight on iOS
+  const [today, setToday] = useState(new Date());
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [calendarDate, setCalendarDate] = useState(today);
+  const [cours, setCours] = useState({});
+  const todayRef = useRef(today);
+  const coursRef = useRef(cours);
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (
-        <UnstableItem text="Instable" />
-      ),
+      headerLeft: () => <UnstableItem text="Instable" />,
       headerRight: () => (
         Platform.OS === 'ios' ? (
           <DateTimePicker 
@@ -56,12 +49,9 @@ function CoursScreen({ navigation }) {
             mode='date'
             display='compact'
             onChange={(event, date) => {
-              setCalendarDate(date);
-              setToday(date);
-
+              setCalendarAndToday(date);
               pagerRef.current.setPage(0);
-
-              if(currentIndex == 0) {
+              if (currentIndex === 0) {
                 setCurrentIndex(1);
                 setTimeout(() => {
                   setCurrentIndex(0);
@@ -72,78 +62,47 @@ function CoursScreen({ navigation }) {
         ) : null
       ),
     });
-  }, [navigation, calendarDate, today, pagerRef]);
+  }, [navigation, calendarDate]);
 
-  const todayRef = useRef(today);
-  const coursRef = useRef(cours);
+  const setCalendarAndToday = (date) => {
+    setCalendarDate(date);
+    setToday(date);
+  };
+
+  const updateCoursForDate = async (dateOffset) => {
+    const newDate = calcDate(todayRef.current, dateOffset);
+    if (!coursRef.current[newDate.toLocaleDateString()]) {
+      const result = await getTimetable(newDate);
+      setCours((prevCours) => ({
+        ...prevCours,
+        [newDate.toLocaleDateString()]: result,
+      }));
+    }
+  };
 
   const handlePageChange = (page) => {
     const newDate = calcDate(todayRef.current, page);
     setCurrentIndex(page);
     setCalendarDate(newDate);
 
-    if(!cours[calcDate(newDate, -2).toLocaleDateString()]) {
-      getTimetable(calcDate(newDate, -2)).then((result) => {
-        setCours((cours) => {
-          cours[calcDate(newDate, -2).toLocaleDateString()] = result;
-          return cours;
-        });
-      });
-    }
-
-    if(!cours[calcDate(newDate, -1).toLocaleDateString()]) {
-      getTimetable(calcDate(newDate, -1)).then((result) => {
-        setCours((cours) => {
-          cours[calcDate(newDate, -1).toLocaleDateString()] = result;
-          return cours;
-        });
-      });
-    }
-
-    if(!cours[calcDate(newDate, 0).toLocaleDateString()]) {
-      getTimetable(calcDate(newDate, 0)).then((result) => {
-        setCours((cours) => {
-          cours[calcDate(newDate, 0).toLocaleDateString()] = result;
-          console.log(cours);
-          return cours;
-        });
-      });
-    }
-
-    if(!cours[calcDate(newDate, 1).toLocaleDateString()]) {
-      getTimetable(calcDate(newDate, 1)).then((result) => {
-        setCours((cours) => {
-          cours[calcDate(newDate, 1).toLocaleDateString()] = result;
-          return cours;
-        });
-      });
-    }
-
-    if(!cours[calcDate(newDate, 2).toLocaleDateString()]) {
-      getTimetable(calcDate(newDate, 2)).then((result) => {
-        setCours((cours) => {
-          cours[calcDate(newDate, 2).toLocaleDateString()] = result;
-          return cours;
-        });
-      });
+    for (let i = -2; i <= 2; i++) {
+      updateCoursForDate(i);
     }
   };
 
-  const forceRefresh = () => {
+  const forceRefresh = async () => {
     const newDate = calcDate(todayRef.current, 0);
-
-    return getTimetable(calcDate(newDate, 0)).then((result) => {
-      setCours((cours) => {
-        cours[calcDate(newDate, 0).toLocaleDateString()] = result;
-        return cours;
-      });
-    });
+    const result = await getTimetable(newDate);
+    setCours((prevCours) => ({
+      ...prevCours,
+      [newDate.toLocaleDateString()]: result,
+    }));
   };
 
   useEffect(() => {
     todayRef.current = today;
     coursRef.current = cours;
-  }, [today, cours, todayRef, coursRef]);
+  }, [today, cours]);
 
   return (
     <>
