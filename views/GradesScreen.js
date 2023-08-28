@@ -4,6 +4,8 @@ import { useTheme, Text } from 'react-native-paper';
 
 import * as SystemUI from 'expo-system-ui';
 
+import Fade from 'react-native-fade';
+
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import getClosestColor from '../utils/ColorCoursName';
@@ -50,9 +52,11 @@ function GradesScreen({ navigation }) {
     navigation.setOptions({
       headerLeft: () => (isLoading ? <ActivityIndicator /> : null),
       headerRight: () => (
-        <TouchableOpacity onPress={newPeriod} style={styles.periodButtonContainer}>
-          <Text style={styles.periodButtonText}>{selectedPeriod?.name || ""}</Text>
-        </TouchableOpacity>
+        <Fade visible={selectedPeriod} direction="up" duration={200}>
+          <TouchableOpacity onPress={newPeriod} style={styles.periodButtonContainer}>
+            <Text style={styles.periodButtonText}>{selectedPeriod?.name || ""}</Text>
+          </TouchableOpacity>
+        </Fade>
       ),
     });
   }, [navigation, selectedPeriod, isLoading]);
