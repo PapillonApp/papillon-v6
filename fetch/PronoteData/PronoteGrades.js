@@ -20,7 +20,7 @@ function getGrades(force = false) {
             }
             else {
                 AsyncStorage.removeItem('grades_cache');
-                return getUser(true);
+                return getGrades(true);
             }
         }
         else {
@@ -42,6 +42,54 @@ function getGrades(force = false) {
                             grades : result
                         };
                         AsyncStorage.setItem('grades_cache', JSON.stringify(cachedGrades));
+                    
+                        return result;
+                    }
+                });
+            });
+        }
+    });
+}
+
+function getEvaluations(force = false) {
+    // obtenir le token
+    return AsyncStorage.getItem('evaluations_cache').then((evaluations_cache) => {
+        if (evaluations_cache && !force) {
+            evaluations_cache = JSON.parse(evaluations_cache);
+
+            let userCacheDate = new Date(evaluations_cache.date);
+            let today = new Date();
+
+            userCacheDate.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+            
+            if (userCacheDate.getTime() == today.getTime()) {
+                return evaluations_cache.evaluations;
+            }
+            else {
+                AsyncStorage.removeItem('evaluations_cache');
+                return getEvaluations(true);
+            }
+        }
+        else {
+            return AsyncStorage.getItem('token').then((token) => {
+                // fetch le timetable
+                return fetch(consts.API + '/evaluations' + '?token=' + token, {
+                    method: 'GET'
+                })
+                .then((response) => response.text())
+                .then((result) => {
+                    if (result == 'expired' || result == 'notfound' || result == '"notfound"') {
+                        return refreshToken().then(() => {
+                            return getEvaluations();
+                        });
+                    }
+                    else {
+                        let cachedEvaluations = {
+                            date : new Date(),
+                            evaluations : result
+                        };
+                        AsyncStorage.setItem('evaluations_cache', JSON.stringify(cachedEvaluations));
                     
                         return result;
                     }
@@ -75,4 +123,4 @@ function changePeriod(selectedPeriod) {
     });
 }
 
-export { getGrades, changePeriod };
+export { getGrades, getEvaluations, changePeriod };

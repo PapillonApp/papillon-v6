@@ -34,6 +34,7 @@ function relativeDate(date) {
 
 function NewsScreen({ navigation }) {
     const [news, setNews] = useState([]);
+    let finalNews = [];
 
     function editNews(news) {
         // invert the news array
@@ -45,6 +46,7 @@ function NewsScreen({ navigation }) {
     useEffect(() => {
         getNews().then((news) => {
             setNews(editNews(JSON.parse(news)));
+            finalNews = editNews(JSON.parse(news));
         });
     }, []);
 
@@ -54,9 +56,43 @@ function NewsScreen({ navigation }) {
         setIsHeadLoading(true);
         getNews(true).then((news) => {
             setNews(editNews(JSON.parse(news)));
+            finalNews = editNews(JSON.parse(news));
             setIsHeadLoading(false);
         });
     }, []);
+
+    function normalizeText(text) {
+        // remove accents and render in lowercase
+        return text.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
+    // add search bar in the header
+    React.useLayoutEffect(() => {
+        navigation.setOptions({
+            headerSearchBarOptions: {
+                placeholder: 'Rechercher une actualité',
+                cancelButtonText : 'Annuler',
+                onChangeText: (event) => {
+                    let text = event.nativeEvent.text.trim();
+
+                    if (text.length > 2) {
+                        let newNews = [];
+
+                        finalNews.forEach((item) => {
+                            if (normalizeText(item.title).includes(normalizeText(text)) || normalizeText(item.content).includes(normalizeText(text))) {
+                                newNews.push(item);
+                            }
+                        });
+
+                        setNews(newNews);
+                    }
+                    else {
+                        setNews((finalNews));
+                    }
+                }
+            }
+        });
+    }, [navigation]);
 
     return (
       <ScrollView style={styles.container} contentInsetAdjustmentBehavior='automatic'

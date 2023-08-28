@@ -71,6 +71,10 @@ import NewsItem from './views/News/NewsItem';
 
 import SchoolLifeScreen from './views/SchoolLifeScreen';
 
+import ConversationsScreen from './views/ConversationsScreen';
+
+import EvaluationsScreen from './views/EvaluationsScreen';
+
 const baseColor = '#29947a';
 
 // stack
@@ -103,6 +107,9 @@ const InsetNewsScreen = () => {
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
+        headerLargeStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
       }}
     >
       <Stack.Screen
@@ -133,6 +140,9 @@ const InsetSchoolLifeScreen = () => {
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
+        headerLargeStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
       }}
     >
       <Stack.Screen
@@ -142,6 +152,58 @@ const InsetSchoolLifeScreen = () => {
             headerShown: true,
             headerLargeTitle: true,
             headerTitle: 'Vie scolaire',
+          }}
+        />
+    </Stack.Navigator>
+  )
+};
+
+const InsetConversationsScreen = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
+        headerTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+        headerLargeStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+      }}
+    >
+      <Stack.Screen
+          name="Conversations"
+          component={ConversationsScreen}
+          options={{
+            headerShown: true,
+            headerLargeTitle: true,
+            headerTitle: 'Conversations',
+          }}
+        />
+    </Stack.Navigator>
+  )
+};
+
+const InsetEvaluationsScreen = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
+        headerTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+        headerLargeStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+      }}
+    >
+      <Stack.Screen
+          name="Evaluations"
+          component={EvaluationsScreen}
+          options={{
+            headerShown: true,
+            headerLargeTitle: true,
+            headerTitle: 'Compétences',
           }}
         />
     </Stack.Navigator>
@@ -179,6 +241,22 @@ const WrappedHomeScreen = () => {
       <Stack.Screen
         name="InsetSchoollife"
         component={InsetSchoolLifeScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="InsetConversations"
+        component={InsetConversationsScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="InsetEvaluations"
+        component={InsetEvaluationsScreen}
         options={{
           headerShown: false,
           presentation: 'modal',

@@ -20,7 +20,7 @@ function getNews(force = false) {
             }
             else {
                 AsyncStorage.removeItem('news_cache');
-                return getUser(true);
+                return getNews(true);
             }
         }
         else {

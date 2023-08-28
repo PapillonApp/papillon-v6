@@ -146,11 +146,11 @@ function HomeScreen({ navigation }) {
             </PressableScale>
           </View>
           <View style={[styles.tabRow]}>
-            <PressableScale style={[styles.tab, {backgroundColor: theme.dark ? '#151515' : '#ffffff'}]} weight="light" activeScale={0.9}>
+            <PressableScale style={[styles.tab, {backgroundColor: theme.dark ? '#151515' : '#ffffff'}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetConversations')}>
               <MessagesSquare size={24} color={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabText]}>Conversations</Text>
             </PressableScale>
-            <PressableScale style={[styles.tab, {backgroundColor: theme.dark ? '#151515' : '#ffffff'}]} weight="light" activeScale={0.9}>
+            <PressableScale style={[styles.tab, {backgroundColor: theme.dark ? '#151515' : '#ffffff'}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetEvaluations')}>
               <CheckCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabText]}>Compétences</Text>
             </PressableScale>

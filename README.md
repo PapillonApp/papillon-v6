@@ -20,12 +20,12 @@ Serait-ce le début d'une nouvelle ère pour Papillon 👀
     - [x] Emploi du temps
     - [x] Devoirs
     - [x] Notes
-    - [ ] Compétences
-    - [x] Contenu des cours
+    - [x] Compétences
+    - [ ] Contenu des cours
     - [x] Fichiers
-    - [ ] Actualités
+    - [x] Actualités
     - [ ] Conversations
-    - [ ] Vie scolaire
+    - [x] Vie scolaire
 
 
 ## Le projet
