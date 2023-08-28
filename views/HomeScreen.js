@@ -498,9 +498,16 @@ function NextCours({ cours, navigation }) {
             <Text numberOfLines={1} style={styles.nextCoursLeftDataText}>
               {formatCoursName(cours.subject.name)}
             </Text>
+
+            { cours.status == null ? (
             <Text numberOfLines={1} style={styles.nextCoursLeftDataTextRoom}>
               salle {cours.rooms[0]} - avec {cours.teachers[0]}
             </Text>
+            ) : (
+            <Text numberOfLines={1} style={styles.nextCoursLeftDataTextRoom}>
+              {cours.status} - salle {cours.rooms[0]} - avec {cours.teachers[0]}
+            </Text>
+            ) }
           </View>
         </View>
         <View style={styles.nextCoursRight}>
