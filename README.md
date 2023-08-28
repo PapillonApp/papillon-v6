@@ -18,11 +18,11 @@ Serait-ce le début d'une nouvelle ère pour Papillon 👀
 - [ ] Affichage des données *(Pronote en priorité)*
     - [x] Données utilisateur
     - [x] Emploi du temps
-    - [ ] Devoirs
+    - [x] Devoirs
     - [x] Notes
     - [ ] Compétences
-    - [ ] Contenu des cours
-    - [ ] Fichiers
+    - [x] Contenu des cours
+    - [x] Fichiers
     - [ ] Actualités
     - [ ] Conversations
     - [ ] Vie scolaire
