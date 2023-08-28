@@ -32,7 +32,7 @@ function HomeScreen({ navigation }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
-  const currentDate = new Date(2022, 8, 22);
+  const currentDate = new Date();
 
   const [nextClasses, setNextClasses] = React.useState(null);
   const [timetable, setTimetable] = React.useState(null);
@@ -291,7 +291,7 @@ function getNextCours(classes) {
     };
   }
 
-  const now = new Date(2022, 8, 22);
+  const now = new Date();
 
   const activeClasses = classes.filter(classInfo => !classInfo.is_cancelled);
 
@@ -453,7 +453,7 @@ function NextCours({ cours, navigation }) {
   };
 
   const calculateTimeLeft = date => {
-    const now = new Date(2022, 8, 22);
+    const now = new Date();
     const start = new Date(date);
     const diff = start - now;
 
