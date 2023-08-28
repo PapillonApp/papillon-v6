@@ -396,6 +396,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 12,
     marginTop: 24,
+    color: '#000',
   },
 
   qrModalText: {
@@ -404,6 +405,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     textAlign: 'center',
     marginHorizontal: 30,
+    color: '#000',
   },
 
   qrBtn: {
@@ -447,10 +449,12 @@ const styles = StyleSheet.create({
   detectedEtabText: {
     fontSize: 17,
     fontWeight: 'bold',
+    color: '#000',
   },
   detectedEtabDescription: {
     fontSize: 15,
     opacity: 0.6,
+    color: '#000',
   },
 });
 
