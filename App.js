@@ -126,6 +126,15 @@ const WrappedHomeScreen = () => {
           presentation: 'modal',
         }}
       />
+      <Stack.Screen
+        name="Grade"
+        component={GradeView}
+        options={{ 
+          headerShown: true,
+          headerLargeTitle: false,
+          presentation: 'modal',
+        }}
+      />
     </Stack.Navigator>
   );
 };
