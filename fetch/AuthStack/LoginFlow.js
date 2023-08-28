@@ -87,16 +87,6 @@ function refreshToken() {
         return getToken(credentials).then((result) => {
             if(result.token != false || result.token != null) {
                 AsyncStorage.setItem('token', result.token);
-                
-
-                showMessage({
-                    message: "Token regénéré",
-                    description: "Token : " + result.token,
-                    type: "info",
-                    icon: "auto",
-                    floating: true,
-                });
-
                 return result;
             }
         });

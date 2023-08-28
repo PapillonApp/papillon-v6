@@ -150,8 +150,8 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
   return (
     <View style={[styles.fullCours]}>
       <View style={[styles.coursTimeContainer]}>
-        <Text style={[styles.ctStart]}>{formattedStartTime()}</Text>
-        <Text style={[styles.ctEnd]}>{formattedEndTime()}</Text>
+        <Text numberOfLines={1} style={[styles.ctStart]}>{formattedStartTime()}</Text>
+        <Text numberOfLines={1} style={[styles.ctEnd]}>{formattedEndTime()}</Text>
       </View>
       <PressableScale
         weight="light"

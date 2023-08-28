@@ -29,8 +29,12 @@ function SettingsScreen({ navigation }) {
                 {
                     text: 'Déconnexion',
                     style: 'destructive',
-                    onPress: () => {
-                        AsyncStorage.clear();
+                    onPress: async () => {
+                        AsyncStorage.getItem('credentials').then((result) => {
+                            const URL = JSON.parse(result).url;
+                            AsyncStorage.clear();
+                            AsyncStorage.setItem('old_login', JSON.stringify({ url: URL }));
+                        });
                     }
                 }
             ]

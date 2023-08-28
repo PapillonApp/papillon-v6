@@ -68,6 +68,7 @@ function LoginScreen({ navigation }) {
 
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {  }]}>
+      <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} />
 
       <ListItem
         title="Papillon est un client alternatif pour Pronote et d’autres services scolaires"
@@ -100,7 +101,7 @@ function LoginScreen({ navigation }) {
         </Text>
 
         <Text style={styles.versionText}>
-          Cette application est une preview technique. Elle peut ne pas faire partie de la v6 finale. Il peut même ne pas y avoir de v6 du tout. Il s'agit uniquement d'une exploration technique pour le moment.
+          Cette application est une preview technique. Elle peut contenir de nombreux bugs et ne pas fonctionner correctement.
         </Text>
       </View>
 

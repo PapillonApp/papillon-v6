@@ -9,12 +9,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#32AB8E",
-      "dark": {
-        "image": "./assets/splash-dark.png",
-        "resizeMode": "contain",
-        "backgroundColor": "#151515"
-      }
+      "backgroundColor": "#34AC90"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -51,25 +46,31 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "On utilise ton emplacement pour trouver des établissements autour de toi."
+          "locationAlwaysAndWhenInUsePermission": "Papillon utilise ton emplacement pour trouver des établissements autour de toi."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "On utilise ta pellicule pour personnaliser ton profil et ton expérience."
+          "photosPermission": "Papillon utilise ta pellicule pour personnaliser ton profil et ton expérience."
         }
       ],
       [
         "expo-calendar",
         {
-          "calendarPermission": "On utilise ton calendrier pour ajouter des cours à celui-ci."
+          "calendarPermission": "Papillon utilise ton calendrier pour ajouter des cours à celui-ci."
         }
       ],
       [
         "expo-local-authentication",
         {
           "faceIDPermission": "Autorisez Papillon à utiliser Face ID."
+        }
+      ],
+      [
+        "expo-barcode-scanner",
+        {
+          "cameraPermission": "Papillon utilise ta caméra pour personnaliser ton compte ou scanner un QR-Code."
         }
       ],
       [

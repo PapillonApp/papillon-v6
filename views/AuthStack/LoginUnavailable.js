@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, View, Pressable, StyleSheet, Platform } from 'react-native';
+import { ScrollView, View, Pressable, StyleSheet, Platform, StatusBar } from 'react-native';
 
 import { useTheme, Text } from 'react-native-paper';
 
@@ -21,6 +21,7 @@ function LoginUnavailable({ route, navigation }) {
 
   return (
     <ScrollView style={{ flex: 1 }}>
+      <StatusBar animated barStyle='light-content' />
 
     <ListItem
       title={"La connexion avec " + service + " n'est pas encore disponible."}

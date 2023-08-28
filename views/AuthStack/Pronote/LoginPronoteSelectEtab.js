@@ -1,8 +1,16 @@
 import * as React from 'react';
-import { ScrollView, View, StatusBar, Platform, Alert } from 'react-native';
+import { ScrollView, View, StatusBar, Platform, Alert, Modal } from 'react-native';
 import { StyleSheet } from 'react-native';
 import { useTheme, ActivityIndicator, List, Text, Avatar, Searchbar } from 'react-native-paper';
 import { useState } from 'react';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import Fade from 'react-native-fade';
+
+import { Button as RNButton } from 'react-native';
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import prompt from 'react-native-prompt-android';
 
@@ -12,16 +20,21 @@ import * as Location from 'expo-location';
 
 import PapillonIcon from '../../../components/PapillonIcon';
 
-import { School, Map, Backpack, Locate, Link } from 'lucide-react-native';
+import { BarCodeScanner } from 'expo-barcode-scanner';
+
+import { School, Map, Backpack, Locate, Link, QrCode, Clock3 } from 'lucide-react-native';
 import ListItem from '../../../components/ListItem';
 
 import { useColorScheme } from 'react-native';
 
 import { getCoordsFromPostal, getPronoteEtabsFromCoords } from '../../../fetch/AuthStack/SearchEtabs';
+import { PressableScale } from 'react-native-pressable-scale';
 
 function LoginPronoteSelectEtab({ navigation }) {
   const theme = useTheme();
   const scheme = useColorScheme();
+
+  const insets = useSafeAreaInsets();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [EtabList, setEtabList] = useState([]);
@@ -138,14 +151,141 @@ function LoginPronoteSelectEtab({ navigation }) {
     navigation.navigate('LoginPronote', { etab: item });
   }
 
+  const [oldLoginEtab, setOldLoginEtab] = useState(null);
+
+  React.useEffect(() => {
+    AsyncStorage.getItem('old_login').then((result) => {
+      if(result != null) {
+        let url = JSON.parse(result).url;
+        getENTs(url).then((result) => {
+          let etab = {
+            nomEtab: result.nomEtab,
+            url: url,
+          }
+  
+          setOldLoginEtab(etab);
+        });
+      }
+    });
+  }, [oldLoginEtab]);
+
+  const [qrModalVisible, setQrModalVisible] = useState(false);
+  const [qrEtabDetected, setQrEtabDetected] = useState(false);
+
+  async function scanQR() {
+    const { status } = await BarCodeScanner.requestPermissionsAsync();
+
+    if (status !== 'granted') {
+      Alert.alert('Erreur', 'Vous devez autoriser l\'application à accéder à votre caméra pour utiliser cette fonctionnalité.');
+      return;
+    }
+
+    setQrModalVisible(true);
+  }
+
+  function IsJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+  }
+
+  const [currentEtabName, setCurrentEtabName] = useState('');
+  const [currentEtabURL, setCurrentEtabURL] = useState('');
+
+  function qrScanned(event) {
+    let url = JSON.parse(event.data).url;
+
+    getENTs(url).then((result) => {
+      let etab = {
+        nomEtab: result.nomEtab,
+        url: url,
+      }
+
+      setCurrentEtabName(result.nomEtab);
+      setCurrentEtabURL(url);
+      
+      setTimeout(() => {
+        setQrEtabDetected(true);
+      }, 300);
+    });
+  }
+
+  function closeModal() {
+    setQrModalVisible(false);
+    setCurrentEtabName('');
+    setCurrentEtabURL('');
+    setQrEtabDetected(false);
+  }
+
+  function openEtab() {
+    closeModal();
+    navigation.navigate('LoginPronote', { etab: {
+      nomEtab: currentEtabName,
+      url: currentEtabURL,
+    } });
+  }
+
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic" style={{ flex: 1 }}>
+      <StatusBar animated barStyle='light-content' />
+
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={qrModalVisible}
+        presentationStyle="pageSheet"
+        onRequestClose={() => {
+          closeModal();
+        }}
+      >
+        <View style={[styles.qrModal, {marginBottom: insets.bottom + 6}]}>
+          <Text style={[styles.qrModalTitle]} >Scanner un QR Code</Text>
+          <Text style={[styles.qrModalText]} >Scannez le QR Code de votre établissement pour vous connecter.</Text>
+
+          <View style={[styles.qrModalScannerContainer]} >
+            { qrModalVisible ? (
+            <BarCodeScanner
+              onBarCodeScanned={(event) => {
+                qrScanned(event);
+              }}
+              style={[styles.qrModalScanner]}
+            />
+            ) : null }
+            
+            <Fade visible={qrEtabDetected} direction="up" duration={200}>
+              <PressableScale style={[styles.detectedEtab]} onPress={() => openEtab()}>
+                <School color="#159C5E" />
+                <View style={[styles.detectedEtabData]}>
+                  <Text style={[styles.detectedEtabText]}>{currentEtabName}</Text>
+                  <Text style={[styles.detectedEtabDescription]}>{currentEtabURL}</Text>
+                </View>
+              </PressableScale>
+            </Fade>
+          </View>
+
+          <RNButton title="Annuler" onPress={() => closeModal()} color="#159C5E" style={[styles.qrBtn]} />
+        </View>
+      </Modal>
 
       {Platform.OS === 'android' ? (
         <Searchbar
           placeholder="Entrez un code postal ou une ville"
           onChangeText={androidSearchEtabs}
           style={{ marginHorizontal: 12, marginTop: 12 }}
+        />
+      ) : null}
+
+      {oldLoginEtab ? (
+        <ListItem
+          title="Se connecter avec l'établissement utilisé précédemment"
+          subtitle={oldLoginEtab.nomEtab}
+          icon={<Clock3 color="#159C5E" />}
+          color="#159C5E"
+          onPress={() => selectEtab(oldLoginEtab)}
+          style={{marginTop: 12}}
         />
       ) : null}
 
@@ -164,6 +304,15 @@ function LoginPronoteSelectEtab({ navigation }) {
         icon={<Link color="#159C5E" />}
         color="#159C5E"
         onPress={() => searchURL()}
+        style={{marginTop: 8}}
+      />
+
+      <ListItem
+        title="Scanner un QR Code"
+        subtitle="Scannez le QR Code de votre établissement"
+        icon={<QrCode color="#159C5E" />}
+        color="#159C5E"
+        onPress={() => scanQR()}
         style={{marginTop: 8}}
       />
         
@@ -234,6 +383,74 @@ const styles = StyleSheet.create({
   },
   etabItemList: {
     
+  },
+
+  qrModal: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  qrModalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    marginTop: 24,
+  },
+
+  qrModalText: {
+    fontSize: 16,
+    opacity: 0.6,
+    marginBottom: 24,
+    textAlign: 'center',
+    marginHorizontal: 30,
+  },
+
+  qrBtn: {
+    width: '95%',
+  },
+
+  qrModalScannerContainer: {
+    width: '95%',
+    flex: 1,
+    marginBottom: 12,
+
+    borderRadius: 8,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+  },
+
+  qrModalScanner: {
+    flex: 1,
+  },
+
+  detectedEtab: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+    padding: 12,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    margin: 12,
+    gap: 16,
+  },
+
+  detectedEtabData: {
+    flex: 1,
+  },
+
+  detectedEtabText: {
+    fontSize: 17,
+    fontWeight: 'bold',
+  },
+  detectedEtabDescription: {
+    fontSize: 15,
+    opacity: 0.6,
   },
 });
 

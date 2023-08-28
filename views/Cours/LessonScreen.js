@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform } from 'react-native';
+import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform, TouchableOpacity } from 'react-native';
 import { useTheme, Button, Text } from 'react-native-paper';
 
 import { ContextMenuView } from 'react-native-ios-context-menu';
@@ -19,6 +19,7 @@ import * as ExpoCalendar from 'expo-calendar';
 import formatCoursName from '../../utils/FormatCoursName';
 
 import * as Clipboard from 'expo-clipboard';
+import { PressableScale } from 'react-native-pressable-scale';
 
 const calendars = [];
 
@@ -51,20 +52,13 @@ function LessonScreen({ route, navigation }) {
 
     // format cours name
     const coursName = formatCoursName(lesson.subject.name);
-    
-
-    // change title
-    React.useLayoutEffect(() => {
-        navigation.setOptions({
-            headerTitle: coursName,
-        });
-    }, [navigation]);
 
     // main color
     const mainColor = theme.dark ? '#ffffff' : '#444444';
     
     return (
         <>
+            <CoursHeader cours={lesson} navigation={navigation} />
             <ScrollView contentInsetAdjustmentBehavior="automatic" style={{flex: 1, backgroundColor: theme.dark ? '#050505' : '#f2f2f7'}}>
                 <StatusBar animated barStyle={'light-content'} />
                 
@@ -182,6 +176,19 @@ function LessonScreen({ route, navigation }) {
     );
 }
 
+function CoursHeader({ cours, navigation }) {
+    return (
+        <View style={[styles.coursHeader, {backgroundColor: getClosestColor(cours.background_color)}]}>
+            <TouchableOpacity style={styles.coursHeaderClose} onPress={() => navigation.goBack()}>
+                <X size={22} color="#ffffff" />
+            </TouchableOpacity>
+
+
+            <Text style={styles.coursNameHeader}>{formatCoursName(cours.subject.name)}</Text>
+        </View>
+    );
+}
+
 const styles = StyleSheet.create({
     optionsList: {
         gap: 9,
@@ -211,7 +218,32 @@ const styles = StyleSheet.create({
     coursDateText: {
         fontSize: 15,
         color: '#ffffff99',
-    }
+    },
+
+    coursHeader: {
+        height: 150,
+        width: '100%',
+    },
+    coursNameHeader: {
+        position: 'absolute',
+        bottom: 18,
+        left: 20,
+        color: '#fff',
+
+        fontSize: 24,
+        fontFamily: 'Papillon-Semibold',
+    },
+
+    coursHeaderClose: {
+        position: 'absolute',
+        top: 20,
+        right: 20,
+        zIndex: 1,
+        padding: 6,
+        borderRadius: 120,
+        backgroundColor: '#ffffff33',
+        opacity: 0.8,
+    },
 });
 
 export default LessonScreen;

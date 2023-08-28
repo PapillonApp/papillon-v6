@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, View, StyleSheet, Platform, Alert, TextInput } from 'react-native';
+import { ScrollView, View, StyleSheet, Platform, Alert, TextInput, StatusBar } from 'react-native';
 
 import { useColorScheme } from 'react-native';
 
@@ -59,6 +59,8 @@ function LoginPronote({ route, navigation }) {
   const [ENTs, setENTs] = useState([]);
 
   function removeSubdomain(hostname) {
+    if (!hostname) return;
+
     let domain = hostname.split('.');
 
     if(domain.length > 2) {
@@ -84,15 +86,21 @@ function LoginPronote({ route, navigation }) {
 
       getInfo().then((result) => {
         const ents = result.ent_list;
-
-        
-        
         
         // find ent in ents where url = hostname
         const ent = ents.find(ent => removeSubdomain(ent.url) === removeSubdomain(hostname));
         setENTs(ent);
 
-        setUseEduconnect(ent.educonnect);
+        if(ent.educonnect) {
+          setUseEduconnect(ent.educonnect);
+        }
+        else {
+          setUseEduconnect(false);
+        }
+
+        if (ent) {
+          setIsENTUsed(true);
+        }
       });
     });
   }, []);
@@ -137,6 +145,7 @@ function LoginPronote({ route, navigation }) {
 
   return (
     <ScrollView style={[styles.container, { }]}>
+        <StatusBar animated barStyle='light-content' />
 
         <ListItem
           title={"Connexion à l'établissement " + etabName}

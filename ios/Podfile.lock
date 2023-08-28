@@ -3,6 +3,11 @@ PODS:
   - DoubleConversion (1.1.6)
   - EXApplication (5.1.1):
     - ExpoModulesCore
+  - EXBarCodeScanner (12.3.2):
+    - EXImageLoader
+    - ExpoModulesCore
+    - ZXingObjC/OneD
+    - ZXingObjC/PDF417
   - EXCalendar (11.1.1):
     - ExpoModulesCore
   - EXConstants (14.2.1):
@@ -535,11 +540,17 @@ PODS:
   - RNVectorIcons (9.2.0):
     - React-Core
   - Yoga (1.14.0)
+  - ZXingObjC/Core (3.6.5)
+  - ZXingObjC/OneD (3.6.5):
+    - ZXingObjC/Core
+  - ZXingObjC/PDF417 (3.6.5):
+    - ZXingObjC/Core
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - EXApplication (from `../node_modules/expo-application/ios`)
+  - EXBarCodeScanner (from `../node_modules/expo-barcode-scanner/ios`)
   - EXCalendar (from `../node_modules/expo-calendar/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
   - EXFileSystem (from `../node_modules/expo-file-system/ios`)
@@ -622,6 +633,7 @@ SPEC REPOS:
   trunk:
     - fmt
     - libevent
+    - ZXingObjC
 
 EXTERNAL SOURCES:
   boost:
@@ -630,6 +642,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
   EXApplication:
     :path: "../node_modules/expo-application/ios"
+  EXBarCodeScanner:
+    :path: "../node_modules/expo-barcode-scanner/ios"
   EXCalendar:
     :path: "../node_modules/expo-calendar/ios"
   EXConstants:
@@ -785,6 +799,7 @@ SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   EXApplication: d8f53a7eee90a870a75656280e8d4b85726ea903
+  EXBarCodeScanner: 8e23fae8d267dbef9f04817833a494200f1fce35
   EXCalendar: 7d68f53f0f3df241d3af203c94082aee93cd1c93
   EXConstants: f348da07e21b23d2b085e270d7b74f282df1a7d9
   EXFileSystem: 844e86ca9b5375486ecc4ef06d3838d5597d895d
@@ -862,6 +877,7 @@ SPEC CHECKSUMS:
   RNSVG: 07dbd870b0dcdecc99b3a202fa37c8ca163caec2
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   Yoga: 065f0b74dba4832d6e328238de46eb72c5de9556
+  ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
 
 PODFILE CHECKSUM: f7b51229b527f13435b1645aecc605219978a8f6
 
