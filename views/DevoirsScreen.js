@@ -42,38 +42,30 @@ const calcDate = (date, days) => {
 function DevoirsScreen({ navigation }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const pagerRef = useRef(null);
 
-  // global date
   const [today, setToday] = useState(new Date());
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  // calendar date
-  const [calendarDate, setCalendarDate] = useState(new Date());
-
-  // homeworks 
+  const [calendarDate, setCalendarDate] = useState(today);
   const [homeworks, setHomeworks] = useState({});
-
-  const pagerRef = useRef(null);
+  const todayRef = useRef(today);
+  const hwRef = useRef(homeworks);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (
-        <UnstableItem text="Instable" />
-      ),
+      headerLeft: () => <UnstableItem text="Instable" />,
       headerRight: () => (
         Platform.OS === 'ios' ? (
-          <DateTimePicker 
+          <DateTimePicker
             value={calendarDate}
-            locale='fr-FR'
-            mode='date'
-            display='compact'
+            locale="fr-FR"
+            mode="date"
+            display="compact"
             onChange={(event, date) => {
               setCalendarDate(date);
               setToday(date);
-
               pagerRef.current.setPage(0);
-
-              if(currentIndex == 0) {
+              if (currentIndex === 0) {
                 setCurrentIndex(1);
                 setTimeout(() => {
                   setCurrentIndex(0);
@@ -84,78 +76,46 @@ function DevoirsScreen({ navigation }) {
         ) : null
       ),
     });
-  }, [navigation, calendarDate, today, pagerRef]);
+  }, [navigation, calendarDate]);
 
-  const todayRef = useRef(today);
-  const hwRef = useRef(homeworks);
+  const updateHomeworksForDate = async (dateOffset) => {
+    const newDate = calcDate(todayRef.current, dateOffset);
+    if (!hwRef.current[newDate.toLocaleDateString()]) {
+      const result = await getHomeworks(newDate);
+      setHomeworks((prevHomeworks) => ({
+        ...prevHomeworks,
+        [newDate.toLocaleDateString()]: result,
+      }));
+    }
+  };
 
   const handlePageChange = (page) => {
     const newDate = calcDate(todayRef.current, page);
     setCurrentIndex(page);
     setCalendarDate(newDate);
 
-    if(!homeworks[calcDate(newDate, -2).toLocaleDateString()]) {
-      getHomeworks(calcDate(newDate, -2)).then((result) => {
-        setHomeworks((homeworks) => {
-          homeworks[calcDate(newDate, -2).toLocaleDateString()] = result;
-          return homeworks;
-        });
-      });
-    }
-
-    if(!homeworks[calcDate(newDate, -1).toLocaleDateString()]) {
-      getHomeworks(calcDate(newDate, -1)).then((result) => {
-        setHomeworks((homeworks) => {
-          homeworks[calcDate(newDate, -1).toLocaleDateString()] = result;
-          return homeworks;
-        });
-      });
-    }
-
-    if(!homeworks[calcDate(newDate, 0).toLocaleDateString()]) {
-      getHomeworks(calcDate(newDate, 0)).then((result) => {
-        setHomeworks((homeworks) => {
-          homeworks[calcDate(newDate, 0).toLocaleDateString()] = result;
-          return homeworks;
-        });
-      });
-    }
-
-    if(!homeworks[calcDate(newDate, 1).toLocaleDateString()]) {
-      getHomeworks(calcDate(newDate, 1)).then((result) => {
-        setHomeworks((homeworks) => {
-          homeworks[calcDate(newDate, 1).toLocaleDateString()] = result;
-          return homeworks;
-        });
-      });
-    }
-
-    if(!homeworks[calcDate(newDate, 2).toLocaleDateString()]) {
-      getHomeworks(calcDate(newDate, 2)).then((result) => {
-        setHomeworks((cours) => {
-          homeworks[calcDate(newDate, 2).toLocaleDateString()] = result;
-          return homeworks;
-        });
-      });
+    for (let i = -2; i <= 2; i++) {
+      updateHomeworksForDate(i);
     }
   };
 
-  const forceRefresh = () => {
+  const forceRefresh = async () => {
     const newDate = calcDate(todayRef.current, 0);
-
-    return getHomeworks(calcDate(newDate, 0)).then((result) => {
-      setHomeworks((homeworks) => {
-        homeworks[calcDate(newDate, 0).toLocaleDateString()] = result;
-        return homeworks;
-      });
-    });
-  }
-    
+    const result = await getHomeworks(newDate);
+    setHomeworks((prevHomeworks) => ({
+      ...prevHomeworks,
+      [newDate.toLocaleDateString()]: result,
+    }));
+  };
 
   useEffect(() => {
     todayRef.current = today;
     hwRef.current = homeworks;
-  }, [today, homeworks, todayRef, hwRef]);
+  }, [today, homeworks]);
+
+  for (let i = -2; i <= 2; i++) {
+    updateHomeworksForDate(i);
+  }
 
   return (
     <>
