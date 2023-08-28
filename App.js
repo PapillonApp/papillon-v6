@@ -66,6 +66,11 @@ import LoginUnavailable from './views/AuthStack/LoginUnavailable';
 import LoginPronoteSelectEtab from './views/AuthStack/Pronote/LoginPronoteSelectEtab';
 import LoginPronote from './views/AuthStack/Pronote/LoginPronote';
 
+import NewsScreen from './views/NewsScreen';
+import NewsItem from './views/News/NewsItem';
+
+import SchoolLifeScreen from './views/SchoolLifeScreen';
+
 const baseColor = '#29947a';
 
 // stack
@@ -90,6 +95,59 @@ const CustomNavigationBar = ({ navigation, route, options, back }) => {
   );
 }
 
+const InsetNewsScreen = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
+        headerTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+      }}
+    >
+      <Stack.Screen
+        name="News"
+        component={NewsScreen}
+        options={{ 
+          headerShown: true,
+          headerLargeTitle: true,
+          headerTitle: 'Actualités',
+        }}
+      />
+      <Stack.Screen
+        name="NewsDetails"
+        component={NewsItem}
+        options={{
+          headerShown: true,
+        }}
+      />
+    </Stack.Navigator>
+  )
+};
+
+const InsetSchoolLifeScreen = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
+        headerTitleStyle: {
+          fontFamily: 'Papillon-Semibold',
+        },
+      }}
+    >
+      <Stack.Screen
+          name="Schoollife"
+          component={SchoolLifeScreen}
+          options={{ 
+            headerShown: true,
+            headerLargeTitle: true,
+            headerTitle: 'Vie scolaire',
+          }}
+        />
+    </Stack.Navigator>
+  )
+};
+
 const WrappedHomeScreen = () => {
   return (
     <Stack.Navigator
@@ -99,7 +157,7 @@ const WrappedHomeScreen = () => {
         },
         headerLargeTitleStyle: {
           fontFamily: 'Papillon-Semibold',
-        },
+        }
       }}
     >
       <Stack.Screen
@@ -109,6 +167,24 @@ const WrappedHomeScreen = () => {
           headerShown: true,
         }}
       />
+
+      <Stack.Screen
+        name="InsetNews"
+        component={InsetNewsScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="InsetSchoollife"
+        component={InsetSchoolLifeScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+
       <Stack.Screen
         name="Lesson"
         component={LessonScreen}

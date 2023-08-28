@@ -10,7 +10,7 @@ import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import getClosestColor from '../utils/ColorCoursName';
 
-import { ListFilter } from 'lucide-react-native';
+import { CheckCircle, Gavel, ListFilter, MessagesSquare, Newspaper } from 'lucide-react-native';
 
 import {useState, useEffect, useRef} from 'react';
 
@@ -18,6 +18,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import PapillonHeader from '../components/PapillonHeader';
 import { PressableScale } from 'react-native-pressable-scale';
+
+import PapillonIcon from '../components/PapillonIcon';
 
 import { getRecap } from '../fetch/PronoteData/PronoteRecap';
 import { getUser } from '../fetch/PronoteData/PronoteUser';
@@ -131,6 +133,30 @@ function HomeScreen({ navigation }) {
           </View>
         : null }
 
+        {/* tabs */}
+        <View style={[styles.tabsContainer]}>
+          <View style={[styles.tabRow]}>
+            <PressableScale style={[styles.tab, {backgroundColor: theme.dark ? '#151515' : '#ffffff'}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetSchoollife')}>
+              <Gavel size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <Text style={[styles.tabText]}>Vie scolaire</Text>
+            </PressableScale>
+            <PressableScale style={[styles.tab, {backgroundColor: theme.dark ? '#151515' : '#ffffff'}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetNews')}>
+              <Newspaper size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <Text style={[styles.tabText]}>Actualités</Text>
+            </PressableScale>
+          </View>
+          <View style={[styles.tabRow]}>
+            <PressableScale style={[styles.tab, {backgroundColor: theme.dark ? '#151515' : '#ffffff'}]} weight="light" activeScale={0.9}>
+              <MessagesSquare size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <Text style={[styles.tabText]}>Conversations</Text>
+            </PressableScale>
+            <PressableScale style={[styles.tab, {backgroundColor: theme.dark ? '#151515' : '#ffffff'}]} weight="light" activeScale={0.9}>
+              <CheckCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <Text style={[styles.tabText]}>Compétences</Text>
+            </PressableScale>
+          </View>
+        </View>
+
         {/* homeworks */}
         { homeworks && homeworks.length > 0 ?
           <>
@@ -206,7 +232,7 @@ const Hwitem = ({ index, homework, homeworks, navigation, theme }) => {
   };
 
   return (
-    <PressableScale style={[styles.homeworkItemContainer, {backgroundColor: theme.dark ? "#191919" : "#ffffff"}]}>
+    <PressableScale style={[styles.homeworkItemContainer]}>
       <View style={[styles.homeworkItem]}>
         <View style={[styles.checkboxContainer]}>
           <HwCheckbox checked={thisHwChecked} theme={theme} pressed={() => {
@@ -890,6 +916,45 @@ const styles = StyleSheet.create({
   smallGradeOutOf: {
     fontSize: 15,
     opacity: 0.5,
+  },
+
+  tabsContainer: {
+    width: '92%',
+    marginTop: 24,
+
+    gap: 6,
+  },
+  tabRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 6,
+  },
+
+  tab: {
+    borderRadius: 12,
+    borderCurve: 'continuous',
+
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    gap: 5,
+
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 0.5,
+    },
+    shadowOpacity: .15,
+    shadowRadius: 1,
+  },
+
+  tabText: {
+    fontSize: 15,
+    fontFamily: 'Papillon-Semibold',
   },
 });
 
