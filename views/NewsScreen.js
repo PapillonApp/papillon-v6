@@ -35,10 +35,16 @@ function relativeDate(date) {
 function NewsScreen({ navigation }) {
     const [news, setNews] = useState([]);
 
+    function editNews(news) {
+        // invert the news array
+        let newNews = news.reverse();
+
+        return newNews;
+    }
+
     useEffect(() => {
         getNews().then((news) => {
-            console.log(JSON.parse(news));
-            setNews(JSON.parse(news));
+            setNews(editNews(JSON.parse(news)));
         });
     }, []);
 
@@ -47,7 +53,7 @@ function NewsScreen({ navigation }) {
     const onRefresh = React.useCallback(() => {
         setIsHeadLoading(true);
         getNews(true).then((news) => {
-            setNews(JSON.parse(news));
+            setNews(editNews(JSON.parse(news)));
             setIsHeadLoading(false);
         });
     }, []);
