@@ -90,7 +90,7 @@ function HomeScreen({ navigation }) {
     const interval = setInterval(() => {
       const nextClasses2 = getNextCours(timetable).nextClasses;
       setNextClasses(nextClasses2);
-    }, 300);
+    }, 2000);
     return () => {
       clearInterval(interval);
     };
@@ -353,7 +353,7 @@ function HomeHeader({ navigation, timetable, user }) {
     };
 
     fetchNextCourses();
-    const interval = setInterval(fetchNextCourses, 300);
+    const interval = setInterval(fetchNextCourses, 2000);
     return () => clearInterval(interval);
   }, [timetable]);
 

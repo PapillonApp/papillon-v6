@@ -42,220 +42,189 @@ function GradesScreen({ navigation }) {
 
   React.useEffect(() => {
     // change background color
-    
+    // This effect doesn't contain any code, you can remove it if not needed.
   }, []);
 
   // add button to header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft : () => (
-        isLoading ? <ActivityIndicator /> : <></>
-      ),
+      headerLeft: () => (isLoading ? <ActivityIndicator /> : null),
       headerRight: () => (
-        <TouchableOpacity onPress={() => newPeriod()} style={[styles.periodButtonContainer]}>
-          <Text style={[styles.periodButtonText]}>{selectedPeriod ? selectedPeriod.name : ""}</Text>
+        <TouchableOpacity onPress={newPeriod} style={styles.periodButtonContainer}>
+          <Text style={styles.periodButtonText}>{selectedPeriod?.name || ""}</Text>
         </TouchableOpacity>
       ),
     });
   }, [navigation, selectedPeriod, isLoading]);
 
   function newPeriod() {
-    const options = [];
-
-    periodsList.forEach((period) => {
-      options.push(period.name);
-    });
-
+    const options = periodsList.map(period => period.name);
     options.push("Annuler");
-    const cancelButtonIndex = options.length - 1;
 
-    showActionSheetWithOptions({
-      title: "Changer de période",
-      message: "Sélectionnez la période de votre choix",
-      options,
-      cancelButtonIndex,
-      }, (selectedIndex) => {
-        if(selectedIndex === cancelButtonIndex) return;
-
-        setSelectedPeriod(periodsList[selectedIndex]);
-        changePeriodPronote(periodsList[selectedIndex]);
-      });
+    showActionSheetWithOptions(
+      {
+        title: "Changer de période",
+        message: "Sélectionnez la période de votre choix",
+        options,
+        cancelButtonIndex: options.length - 1,
+      },
+      selectedIndex => {
+        if (selectedIndex === options.length - 1) return;
+        const selectedPeriod = periodsList[selectedIndex];
+        setSelectedPeriod(selectedPeriod);
+        changePeriodPronote(selectedPeriod);
+      }
+    );
   }
 
-  function changePeriodPronote(period) {
+  async function changePeriodPronote(period) {
     setIsLoading(true);
-    changePeriod(period.name).then((result) => {
-      getUser(true);
-      loadGrades(true);
-    });
-  }
-
-  function getPeriods() {
-    getUser(false).then((result) => {
-      const userData = result;
-      const allPeriods = userData.periods;
-
-      let periods = [];
-
-      let actualPeriod = allPeriods.find(period => period.actual == true);
-
-      if (actualPeriod.name.toLowerCase().includes("trimestre")) {
-        for (let i = 0; i < allPeriods.length; i++) {
-          if (allPeriods[i].name.toLowerCase().includes("trimestre")) {
-            periods.push(allPeriods[i]);
-          }
-        }
-      }
-
-      // if first period contains "Semestre", add all semesters
-      if (actualPeriod.name.toLowerCase().includes("semestre")) {
-        for (let i = 0; i < allPeriods.length; i++) {
-          if (allPeriods[i].name.toLowerCase().includes("semestre")) {
-            periods.push(allPeriods[i]);
-          }
-        }
-      }
-
-      setPeriodsList(periods);
-      setSelectedPeriod(actualPeriod);
-    });
-  }
-
-  function onRefresh() {
-    setHeadLoading(true);
-    setHeadLoading(false);
-
+    await changePeriod(period.name);
+    getUser(true);
     loadGrades(true);
+    setIsLoading(false);
   }
 
-  function calculateAverages(averages) {
-    
+  async function getPeriods() {
+    const result = await getUser(false);
+    const userData = result;
+    const allPeriods = userData.periods;
 
-    let student_averages = 0;
-    let student_average_count = 0;
+    const actualPeriod = allPeriods.find(period => period.actual === true);
+    let periods = [];
 
-    let class_averages = 0;
-    let class_average_count = 0;
+    if (actualPeriod.name.toLowerCase().includes("trimestre")) {
+      periods = allPeriods.filter(period => period.name.toLowerCase().includes("trimestre"));
+    } else if (actualPeriod.name.toLowerCase().includes("semestre")) {
+      periods = allPeriods.filter(period => period.name.toLowerCase().includes("semestre"));
+    }
 
-    let min_averages = 0;
-    let min_average_count = 0;
-    
-    let max_averages = 0;
-    let max_average_count = 0;
-
-    // for each average
-    averages.forEach((average) => {
-      student_averages += average.average / average.out_of * 20;
-      student_average_count++;
-
-      class_averages += average.class_average / average.out_of * 20;
-      class_average_count++;
-
-      min_averages += average.min / average.out_of * 20;
-      min_average_count++;
-
-      max_averages += average.max / average.out_of * 20;
-      max_average_count++;
-    });
-
-    let student_average = student_averages / student_average_count;
-    let class_average = class_averages / class_average_count;
-    let min_average = min_averages / min_average_count;
-    let max_average = max_averages / max_average_count;
-
-    setAveragesData({
-      student_average: student_average.toFixed(2),
-      class_average: class_average.toFixed(2),
-      min_average: min_average.toFixed(2),
-      max_average: max_average.toFixed(2)
-    });
+    setPeriodsList(periods);
+    setSelectedPeriod(actualPeriod);
   }
 
-  function loadGrades(force = false) {
+  async function loadGrades(force = false) {
     setIsLoading(true);
-    getGrades(force).then((grades) => {
-      let gradesList = JSON.parse(grades).grades;
-      let subjects = [];
+    const grades = await getGrades(force);
+    const gradesList = JSON.parse(grades).grades;
 
-      // invert gradesList
-      gradesList = gradesList.reverse();
+    // invert gradeslist
+    gradesList.reverse();
 
-      // [TEMP] for each grade, scale it to original value
-      gradesList.forEach((grade) => {
-        grade.grade.value = grade.grade.value / 20 * grade.grade.out_of;
+    const scaledGrades = gradesList.map(grade => ({
+      ...grade,
+      grade: {
+        ...grade.grade,
+        value: (grade.grade.value / grade.grade.out_of) * 20,
+      },
+    }));
+
+    const latestGrades = scaledGrades.slice(0, 10);
+    const subjects = [];
+
+    function calculateAverages(averages) {
+      let student_averages = 0;
+      let student_average_count = 0;
+  
+      let class_averages = 0;
+      let class_average_count = 0;
+  
+      let min_averages = 0;
+      let min_average_count = 0;
+      
+      let max_averages = 0;
+      let max_average_count = 0;
+  
+      // for each average
+      averages.forEach((average) => {
+        student_averages += average.average / average.out_of * 20;
+        student_average_count++;
+  
+        class_averages += average.class_average / average.out_of * 20;
+        class_average_count++;
+  
+        min_averages += average.min / average.out_of * 20;
+        min_average_count++;
+  
+        max_averages += average.max / average.out_of * 20;
+        max_average_count++;
       });
+  
+      let student_average = student_averages / student_average_count;
+      let class_average = class_averages / class_average_count;
+      let min_average = min_averages / min_average_count;
+      let max_average = max_averages / max_average_count;
+  
+      setAveragesData({
+        student_average: student_average.toFixed(2),
+        class_average: class_average.toFixed(2),
+        min_average: min_average.toFixed(2),
+        max_average: max_average.toFixed(2)
+      });
+    }
 
-      let latestGrades = [];
-
-      // get 10 latest grades
-      for (let i = 0; i < 10; i++) {
-        latestGrades.push(gradesList[i]);
+    scaledGrades.forEach(grade => {
+      const subjectIndex = subjects.findIndex(subject => subject.name === grade.subject.name);
+      if (subjectIndex !== -1) {
+        subjects[subjectIndex].grades.push(grade);
+      } else {
+        subjects.push({
+          name: grade.subject.name,
+          grades: [grade],
+        });
       }
-
-      // for each grade, check if subject.name exists in subjects and add the grade
-      gradesList.forEach((grade) => {
-        let subject = subjects.find((subject) => subject.name === grade.subject.name);
-        if (subject) {
-          subject.grades.push(grade);
-        } else {
-          subjects.push({
-            name: grade.subject.name,
-            grades: [grade]
-          });
-        }
-      });
-
-      let averagesList = JSON.parse(grades).averages;
-
-      // for each average, add it to the subject with the same subject.name
-      averagesList.forEach((average) => {
-        let subject = subjects.find((subject) => subject.name === average.subject.name);
-        if (subject) {
-          average.color = getClosestColor(average.color);
-          subject.averages = average;
-
-          // set color on latest grades
-          latestGrades.forEach((grade) => {
-            if (grade.subject.name === subject.name) {
-              grade.color = average.color;
-            }
-          });
-
-          // set color on all grades
-          subject.grades.forEach((grade) => {
-            grade.color = average.color;
-          });
-        }
-      });
-
-      // calculate averages
-      calculateAverages(averagesList);
-
-      // sort subjects by name
-      subjects.sort((a, b) => a.name.localeCompare(b.name));
-
-      setSubjectsList(subjects);
-      setLatestGrades(latestGrades);
-
-      setIsLoading(false);
     });
+
+    const averagesList = JSON.parse(grades).averages;
+
+    averagesList.forEach(average => {
+      const subject = subjects.find(subject => subject.name === average.subject.name);
+      if (subject) {
+        const closestColor = getClosestColor(average.color);
+        average.color = closestColor;
+        subject.averages = average;
+        
+        latestGrades.forEach(grade => {
+          if (grade.subject.name === subject.name) {
+            grade.color = average.color;
+          }
+        });
+
+        subject.grades.forEach(grade => {
+          grade.color = average.color;
+        });
+      }
+    });
+
+    calculateAverages(averagesList);
+    subjects.sort((a, b) => a.name.localeCompare(b.name));
+
+    setSubjectsList(subjects);
+    setLatestGrades(latestGrades);
+    setIsLoading(false);
   }
 
   React.useEffect(() => {
-    if(periodsList.length == 0) {
+    if (periodsList.length === 0) {
       getPeriods();
     }
 
-    if (subjectsList.length == 0) {
+    if (subjectsList.length === 0) {
       loadGrades();
     }
   }, []);
 
   function showGrade(grade) {
-    navigation.navigate('Grade', { grade: grade });
+    navigation.navigate('Grade', { grade });
   }
 
   const isFocused = useIsFocused();
+
+  const onRefresh = React.useCallback(() => {
+    setHeadLoading(true);
+    loadGrades(true);
+    setHeadLoading(false);
+  }, []);
 
   return (
     <>
