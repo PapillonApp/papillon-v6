@@ -37,7 +37,7 @@ function ProfileScreen({ route, navigation }) {
             setProfilePicture(result.profile_picture);
 
             if(Platform.OS === 'android') {
-                shownINE = userData.ine;
+                // setShownINE(userData.ine);
             }
         })
     }, []);
@@ -56,6 +56,12 @@ function ProfileScreen({ route, navigation }) {
         }
         else {
             setShownINE("");
+        }
+    }
+
+    function showIneIfAndroid() {
+        if (Platform.OS === 'android') {
+            getINE();
         }
     }
 
@@ -145,9 +151,11 @@ function ProfileScreen({ route, navigation }) {
     
     return (
         <ScrollView style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
-            { isModal ?
+            { isModal && Platform.OS === 'ios' ?
                 <StatusBar animated barStyle={'light-content'} />
-            : null }
+            :
+                <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
+            }
             
             <View style={styles.profileContainer}>
                 { profilePicture !== "" ?
@@ -263,7 +271,7 @@ function ProfileScreen({ route, navigation }) {
                                         : null }
                                     </>
                                 }
-                                onPress={() => {}}
+                                onPress={() => showIneIfAndroid()}
                             />
                         </ContextMenuButton>
                     : null }
@@ -304,6 +312,8 @@ function ProfileScreen({ route, navigation }) {
                     onPress={() => ResetProfilePic()}
                 />
             </View>
+
+            <View style={{height: 20}}></View>
         </ScrollView>
     );
 }

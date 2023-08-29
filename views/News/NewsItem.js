@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Button, ScrollView, StatusBar, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, Button, ScrollView, StatusBar, useWindowDimensions, Platform } from 'react-native';
 
 import { Text, useTheme } from 'react-native-paper';
 
@@ -37,7 +37,11 @@ function NewsItem({ route, navigation }) {
 
     return (
       <ScrollView style={styles.container}>
-        <StatusBar animated barStyle={'light-content'} />
+        { Platform.OS === 'ios' ?
+            <StatusBar animated barStyle={'light-content'} />
+        :
+            <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
+        }
 
         { news.survey ?
             <ListItem

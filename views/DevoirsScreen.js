@@ -23,7 +23,7 @@ import UnstableItem from '../components/UnstableItem';
 
 import * as WebBrowser from 'expo-web-browser';
 
-import { Check, File, Link } from 'lucide-react-native';
+import { Calendar, Check, File, Link } from 'lucide-react-native';
 
 const openURL = (url) => {
   WebBrowser.openBrowserAsync(url, {
@@ -51,9 +51,10 @@ function DevoirsScreen({ navigation }) {
   const todayRef = useRef(today);
   const hwRef = useRef(homeworks);
 
+  const [calendarModalOpen, setCalendarModalOpen] = useState(false);
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => <UnstableItem text="Instable" />,
       headerRight: () => (
         Platform.OS === 'ios' ? (
           <DateTimePicker
@@ -73,7 +74,12 @@ function DevoirsScreen({ navigation }) {
               }
             }}
           />
-        ) : null
+        ) : (
+          <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 2}} onPress={() => setCalendarModalOpen(true)}>
+            <Calendar size={20} color={theme.dark ? '#ffffff' : '#000000'} style={{}} />
+            <Text style={{fontSize: 15, fontFamily: 'Papillon-Medium'}}>{new Date(calendarDate).toLocaleDateString('fr', {weekday: 'short', day: '2-digit', month:'short'})}</Text>
+          </TouchableOpacity>
+        )
       ),
     });
   }, [navigation, calendarDate]);
@@ -119,7 +125,36 @@ function DevoirsScreen({ navigation }) {
 
   return (
     <>
+      <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
+
       <View contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
+      { Platform.OS === 'android' && calendarModalOpen ? (
+              <DateTimePicker 
+                value={calendarDate}
+                locale='fr-FR'
+                mode='date'
+                display='calendar'
+                onChange={(event, date) => {
+                  if(event.type === 'dismissed') {
+                    setCalendarModalOpen(false);
+                    return;
+                  }
+
+                  setCalendarModalOpen(false);
+
+                  setCalendarDate(date);
+                  setToday(date);
+                  pagerRef.current.setPage(0);
+                  if (currentIndex === 0) {
+                    setCurrentIndex(1);
+                    setTimeout(() => {
+                      setCurrentIndex(0);
+                    }, 10);
+                  }
+                }}
+              />
+          ) : null }
+        
         <InfinitePager
           style={[styles.viewPager]}
           pageWrapperStyle={[styles.pageWrapper]}

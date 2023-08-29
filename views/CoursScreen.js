@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { useCallback } from 'react';
-import { View, ScrollView, StyleSheet, StatusBar, Platform, Pressable, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, StyleSheet, StatusBar, Platform, Pressable, ActivityIndicator, RefreshControl, Modal } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
+
+import { ScrollView } from 'react-native-gesture-handler';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -19,7 +21,9 @@ import getClosestColor from '../utils/ColorCoursName';
 
 import UnstableItem from '../components/UnstableItem';
 
-import { Activity, Info } from 'lucide-react-native';
+import { Activity, Calendar, Info } from 'lucide-react-native';
+import { TouchableOpacity } from 'react-native-web';
+import { set } from 'react-native-reanimated';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -38,9 +42,10 @@ function CoursScreen({ navigation }) {
   const todayRef = useRef(today);
   const coursRef = useRef(cours);
 
+  const [calendarModalOpen, setCalendarModalOpen] = useState(false);
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => <UnstableItem text="Instable" />,
       headerRight: () => (
         Platform.OS === 'ios' ? (
           <DateTimePicker 
@@ -59,7 +64,12 @@ function CoursScreen({ navigation }) {
               }
             }}
           />
-        ) : null
+        ) : (
+          <Pressable style={{flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 2}} onPress={() => setCalendarModalOpen(true)}>
+            <Calendar size={20} color={theme.dark ? '#ffffff' : '#000000'} style={{}} />
+            <Text style={{fontSize: 15, fontFamily: 'Papillon-Medium'}}>{new Date(calendarDate).toLocaleDateString('fr', {weekday: 'short', day: '2-digit', month:'short'})}</Text>
+          </Pressable>
+        )
       ),
     });
   }, [navigation, calendarDate]);
@@ -107,12 +117,39 @@ function CoursScreen({ navigation }) {
   return (
     <>
       <View contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
+        { Platform.OS === 'android' && calendarModalOpen ? (
+              <DateTimePicker 
+                value={calendarDate}
+                locale='fr-FR'
+                mode='date'
+                display='calendar'
+                onChange={(event, date) => {
+                  if(event.type === 'dismissed') {
+                    setCalendarModalOpen(false);
+                    return;
+                  }
+
+                  setCalendarModalOpen(false);
+
+                  setCalendarAndToday(date);
+                  pagerRef.current.setPage(0);
+                  if (currentIndex === 0) {
+                    setCurrentIndex(1);
+                    setTimeout(() => {
+                      setCurrentIndex(0);
+                    }, 10);
+                  }
+                }}
+              />
+          ) : null }
+
         <InfinitePager
           style={[styles.viewPager]}
           pageWrapperStyle={[styles.pageWrapper]}
           onPageChange={handlePageChange}
           ref={pagerRef}
           pageBuffer={4}
+          gesturesDisabled={false}
           renderPage={
             ({ index }) => (
               <>
@@ -222,11 +259,12 @@ const CoursPage = ({ cours, navigation, theme, forceRefresh }) => {
   return (
     <ScrollView 
       style={[styles.coursContainer]}
+      nestedScrollEnabled={true}
       refreshControl={
         <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} />
       }
     >
-      <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} />
+      <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
       
       {cours.length === 0 ? (
         <Text style={[styles.noCourses]}>Aucun cours</Text>

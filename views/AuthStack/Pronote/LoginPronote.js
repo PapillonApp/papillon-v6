@@ -145,7 +145,11 @@ function LoginPronote({ route, navigation }) {
 
   return (
     <ScrollView style={[styles.container, { }]}>
-        <StatusBar animated barStyle='light-content' />
+        { Platform.OS === 'ios' ?
+          <StatusBar animated barStyle={'light-content'} />
+        :
+          <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
+        }
 
         <ListItem
           title={"Connexion à l'établissement " + etabName}

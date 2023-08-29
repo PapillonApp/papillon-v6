@@ -50,7 +50,7 @@ function GradesScreen({ navigation }) {
   // add button to header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (isLoading ? <ActivityIndicator /> : null),
+      headerLeft: () => (isLoading ? () => <ActivityIndicator style={{marginRight: Platform.OS == 'android' ? 10 : 0}} /> : null),
       headerRight: () => (
         <Fade visible={selectedPeriod} direction="up" duration={200}>
           <TouchableOpacity onPress={newPeriod} style={styles.periodButtonContainer}>
@@ -238,6 +238,8 @@ function GradesScreen({ navigation }) {
         refreshControl={
           <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} />
         }>
+
+        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
 
         { subjectsList.length == 0 && !isLoading ?
           <Text style={[styles.noGrades]}>Aucune note à afficher.</Text>

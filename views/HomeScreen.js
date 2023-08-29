@@ -107,10 +107,6 @@ function HomeScreen({ navigation }) {
 
   return (
     <>
-      { isFocused ?
-        <StatusBar barStyle={'light-content'}/>
-      : null }
-
       <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]} contentContainerStyle={{alignItems: 'center', justifyContent: 'center', paddingTop: 12}}
       refreshControl={
         <RefreshControl progressViewOffset={28} refreshing={isHeadLoading} onRefresh={onRefresh} />
@@ -368,6 +364,8 @@ function HomeHeader({ navigation, timetable, user }) {
   const [leftCourses, setLeftCourses] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
 
+  const isFocused = useIsFocused();
+
   React.useEffect(() => {
     const fetchNextCourses = () => {
       if (timetable !== null) {
@@ -417,6 +415,10 @@ function HomeHeader({ navigation, timetable, user }) {
 
   return (
     <View style={[styles.header, { backgroundColor: nextCourse ? getColorCoursBg(nextCourse.background_color) : '#29947A', paddingTop: insets.top + 13, borderColor: theme.dark ? '#ffffff15' : '#00000032', borderBottomWidth: 1 }]}>
+      { isFocused ?
+        <StatusBar barStyle={'light-content'} backgroundColor={nextCourse ? getColorCoursBg(nextCourse.background_color) : '#29947A'} />
+      : null }
+
       <View style={styles.headerContainer}>
         <Text style={styles.headerNameText}>Bonjour{user ? ', ' + getPrenom(user.name) + ' !' : ' !'}</Text>
         <Text style={styles.headerCoursesText}>{timetable && leftCourses && timetable.length > 1 ? `Il te reste ${leftCourses.length + 1} cours dans ta journée.` : 'Tu n\'as aucun cours restant aujourd\'hui.'}</Text>

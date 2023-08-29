@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Button, ScrollView, StatusBar } from 'react-native';
+import { StyleSheet, View, Button, ScrollView, StatusBar, Platform } from 'react-native';
 
 import { Text, useTheme } from 'react-native-paper';
 import { useEffect, useState } from 'react';
@@ -22,7 +22,11 @@ function SchoolLifeScreen({ navigation }) {
 
   return (
     <ScrollView style={styles.container} contentInsetAdjustmentBehavior='automatic'>
-      <StatusBar animated barStyle={'light-content'} />
+      { Platform.OS === 'ios' ?
+        <StatusBar animated barStyle={'light-content'} />
+      :
+        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
+      }
       
       { viesco ? (
         <>

@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyleSheet, View, Button, ScrollView, StatusBar, RefreshControl } from 'react-native';
+import { StyleSheet, View, Button, ScrollView, StatusBar, RefreshControl, Platform } from 'react-native';
 
-import { Text } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 
 import { useEffect, useState } from 'react';
 
@@ -33,6 +33,8 @@ function relativeDate(date) {
 }
 
 function NewsScreen({ navigation }) {
+    const theme = useTheme();
+
     const [news, setNews] = useState([]);
     let finalNews = [];
 
@@ -99,7 +101,11 @@ function NewsScreen({ navigation }) {
       refreshControl={
         <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} />
       }>
-        <StatusBar animated barStyle={'light-content'} />
+        { Platform.OS === 'ios' ?
+            <StatusBar animated barStyle={'light-content'} />
+        :
+            <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
+        }
         
         { news.length > 0 ?
             <View style={styles.newsList}>

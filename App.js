@@ -103,7 +103,6 @@ const InsetNewsScreen = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
@@ -136,7 +135,6 @@ const InsetSchoolLifeScreen = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
@@ -162,7 +160,6 @@ const InsetConversationsScreen = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
@@ -188,7 +185,6 @@ const InsetEvaluationsScreen = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
@@ -214,12 +210,14 @@ const WrappedHomeScreen = () => {
   return (
     <Stack.Navigator
       screenOptions={{
+        animation: Platform.OS === 'android' ? 'fade_from_bottom' : null,
+        navigationBarColor: '#00000000',
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
         headerLargeTitleStyle: {
           fontFamily: 'Papillon-Semibold',
-        }
+        },
       }}
     >
       <Stack.Screen
@@ -296,6 +294,8 @@ const WrappedCoursScreen = () => {
   return (
     <Stack.Navigator
       screenOptions={{
+        animation: Platform.OS === 'android' ? 'fade_from_bottom' : null,
+        navigationBarColor: '#00000000',
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
@@ -327,6 +327,8 @@ const WrappedDevoirsScreen = () => {
   return (
     <Stack.Navigator
       screenOptions={{
+        animation: Platform.OS === 'android' ? 'fade_from_bottom' : null,
+        navigationBarColor: '#00000000',
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
@@ -351,6 +353,8 @@ const WrappedGradesScreen = () => {
   return (
     <Stack.Navigator
       screenOptions={{
+        animation: Platform.OS === 'android' ? 'fade_from_bottom' : null,
+        navigationBarColor: '#00000000',
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
@@ -383,6 +387,8 @@ const WrappedSettings = () => {
   return (
     <Stack.Navigator
       screenOptions={{
+        animation: Platform.OS === 'android' ? 'fade_from_bottom' : null,
+        navigationBarColor: '#00000000',
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
@@ -451,7 +457,6 @@ const AppStack = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
         headerTruncatedBackTitle: 'Retour',
         elevated: false,
         tabBarLabelStyle: {
@@ -484,46 +489,6 @@ const AppStack = () => {
           </PressableScale>
         ),
       }}
-
-      tabBar={Platform.OS !== 'ios' ? ({ navigation, state, descriptors, insets }) => (
-        <BottomNavigation.Bar
-          navigationState={state}
-          compact={true}
-          safeAreaInsets={insets}
-          onTabPress={({ route, preventDefault }) => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
-
-            if (event.defaultPrevented) {
-              preventDefault();
-            } else {
-             navigation.navigate(route.name);
-            }
-          }}
-          renderIcon={({ route, focused, color }) => {
-            const { options } = descriptors[route.key];
-            if (options.tabBarIcon) {
-              return options.tabBarIcon({ focused, color, size: 24 });
-            }
-
-            return null;
-          }}
-          getLabelText={({ route }) => {
-            const { options } = descriptors[route.key];
-            const label =
-              options.tabBarLabel !== undefined
-                ? options.tabBarLabel
-                : options.title !== undefined
-                ? options.title
-                : route.title;
-
-            return label;
-          }}
-        />
-      ): undefined}
     >
       <Tab.Screen
         name="AccueilHandler"
@@ -588,7 +553,8 @@ const AuthStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        header: Platform.OS === 'ios' ? undefined : CustomNavigationBar,
+        animation: Platform.OS === 'android' ? 'fade_from_bottom' : null,
+        navigationBarColor: '#00000000',
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
@@ -627,6 +593,8 @@ const AuthStack = () => {
     </Stack.Navigator>
   );
 };
+
+import * as NavigationBar from 'expo-navigation-bar';
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false); 

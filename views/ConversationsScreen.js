@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Button, ScrollView, StatusBar } from 'react-native';
+import { StyleSheet, View, Button, ScrollView, StatusBar, Platform } from 'react-native';
 
 import { Text, useTheme } from 'react-native-paper';
 import { useEffect, useState } from 'react';
@@ -16,7 +16,11 @@ function ConversationsScreen({ navigation }) {
 
   return (
     <ScrollView style={styles.container} contentInsetAdjustmentBehavior='automatic'>
-      <StatusBar animated barStyle={'light-content'} />
+      { Platform.OS === 'ios' ?
+        <StatusBar animated barStyle={'light-content'} />
+      :
+        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
+      }
       
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 20, marginHorizontal: 20}}>
         <Text style={{fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginTop: 20}}>Ça arrive, t'inquiètes...</Text>

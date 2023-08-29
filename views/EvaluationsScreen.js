@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Button, ScrollView, StatusBar, Pressable, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
+import { StyleSheet, View, Button, ScrollView, StatusBar, Pressable, ActivityIndicator, TouchableOpacity, RefreshControl, Platform } from 'react-native';
 
 import Fade from 'react-native-fade';
 
@@ -136,7 +136,11 @@ function EvaluationsScreen({ navigation }) {
     refreshControl={
       <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} />
     }>
-      <StatusBar animated barStyle={'light-content'} />
+      { Platform.OS === 'ios' ?
+        <StatusBar animated barStyle={'light-content'} />
+      :
+        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
+      }
       
       { evaluations.length > 0 ?
         evaluations.map((subject, index) => {

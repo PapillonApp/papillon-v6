@@ -5,6 +5,9 @@
       "distribution": "internal"
     },
     "preview": {
+      "android": {
+        "buildType": "apk"
+      },
       "ios": {
         "developmentClient": false,
         "simulator": true

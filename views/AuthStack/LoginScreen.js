@@ -68,7 +68,7 @@ function LoginScreen({ navigation }) {
 
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {  }]}>
-      <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} />
+      <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
 
       <ListItem
         title="Papillon est un client alternatif pour Pronote et d’autres services scolaires"
