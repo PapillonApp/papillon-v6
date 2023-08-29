@@ -2,13 +2,11 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal",
-      "ios": {
-        "simulator": true
-      }
+      "distribution": "internal"
     },
     "preview": {
       "ios": {
+        "developmentClient": false,
         "simulator": true
       }
     },

@@ -8,7 +8,7 @@
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#34AC90"
     },
     "assetBundlePatterns": [
@@ -24,8 +24,8 @@
         "backgroundColor": "#29947A"
       },
       "splash": {
-        "backgroundColor": "#32AB8E",
-        "resizeMode": "contain"
+        "backgroundColor": "#34AC90",
+        "resizeMode": "cover"
       },
       "package": "xyz.getpapillon.papillonv6",
       "permissions": [
@@ -139,6 +139,30 @@
           },
           "sparkles": {
             "image": "./assets/customicons/sparkles.png",
+            "prerendered": true 
+          },
+          "backtoschool": {
+            "image": "./assets/customicons/backtoschool.png",
+            "prerendered": true 
+          },
+          "barbie": {
+            "image": "./assets/customicons/barbie.png",
+            "prerendered": true 
+          },
+          "betterneon": {
+            "image": "./assets/customicons/betterneon.png",
+            "prerendered": true 
+          },
+          "macos": {
+            "image": "./assets/customicons/macos.png",
+            "prerendered": true 
+          },
+          "oldios": {
+            "image": "./assets/customicons/oldios.png",
+            "prerendered": true 
+          },
+          "verscinq": {
+            "image": "./assets/customicons/verscinq.png",
             "prerendered": true 
           }
         }

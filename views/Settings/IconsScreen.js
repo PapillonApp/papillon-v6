@@ -11,13 +11,18 @@ import { setAppIcon, getAppIcon } from "expo-dynamic-app-icon";
 
 import { Grid } from 'lucide-react-native';
 
-function IconItem({ icon, index, applyIcon, current }) {
+function IconItem({ icon, index, applyIcon, current, subtitle }) {
     const [isLoaded, setIsLoaded] = useState(false);
+
+    let subt = "par l'équipe Papillon";
+    if (icon.author) {
+        subt = "Concours 2023 - par " + icon.author;
+    }
 
     return (
         <ListItem
             title={icon.coverName ? icon.coverName : icon.name}
-            subtitle={"Appliquer l'icône " + icon.name}
+            subtitle={subt}
             color="#A84700"
             style={[styles.iconElem, current ? styles.iconElemCurrent : {}]}
             left={
@@ -123,6 +128,46 @@ function AppearanceScreen({ navigation }) {
         },
     ]
 
+    // backtoschool, barbie, betterneon, macos, oldios, verscinq
+    const communityIcons = [
+        {
+            coverName : 'Back to School 2023',
+            author: 'Alokation',
+            name: 'backtoschool',
+            icon: require('../../assets/customicons/backtoschool.png')
+        },
+        {
+            coverName : 'Barbie Edition',
+            author: 'Tryon',
+            name: 'barbie',
+            icon: require('../../assets/customicons/barbie.png')
+        },
+        {
+            coverName : 'Better Neon',
+            author: 'Astrow',
+            name: 'betterneon',
+            icon: require('../../assets/customicons/betterneon.png')
+        },
+        {
+            coverName : 'Style macOS',
+            author: 'Ahhj',
+            name: 'macos',
+            icon: require('../../assets/customicons/macos.png')
+        },
+        {
+            coverName : 'Style iOS 6',
+            author: 'Alokation',
+            name: 'oldios',
+            icon: require('../../assets/customicons/oldios.png')
+        },
+        {
+            coverName : 'Style v5',
+            author: 'Alokation',
+            name: 'verscinq',
+            icon: require('../../assets/customicons/verscinq.png')
+        },
+    ]
+
     const [currentIcon, setCurrentIcon] = useState(null);
 
     useEffect(() => {
@@ -145,6 +190,12 @@ function AppearanceScreen({ navigation }) {
                 <Text style={styles.ListTitle}>Icônes Papillon</Text>
 
                 { papillonIcons.map((icon, index) => (
+                    <IconItem icon={icon} key={index} current={currentIcon == icon.name} applyIcon={applyIcon} />
+                )) }
+
+                <Text style={[styles.ListTitle, {marginTop: 24}]}>Icônes de la communauté</Text>
+
+                { communityIcons.map((icon, index) => (
                     <IconItem icon={icon} key={index} current={currentIcon == icon.name} applyIcon={applyIcon} />
                 )) }
 

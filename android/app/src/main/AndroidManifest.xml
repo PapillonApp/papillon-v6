@@ -136,5 +136,41 @@
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
     </activity-alias>
+    <activity-alias android:name="xyz.getpapillon.papillonv6.MainActivitybacktoschool" android:enabled="false" android:exported="true" android:icon="@mipmap/backtoschool" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="xyz.getpapillon.papillonv6.MainActivitybarbie" android:enabled="false" android:exported="true" android:icon="@mipmap/barbie" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="xyz.getpapillon.papillonv6.MainActivitybetterneon" android:enabled="false" android:exported="true" android:icon="@mipmap/betterneon" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="xyz.getpapillon.papillonv6.MainActivitymacos" android:enabled="false" android:exported="true" android:icon="@mipmap/macos" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="xyz.getpapillon.papillonv6.MainActivityoldios" android:enabled="false" android:exported="true" android:icon="@mipmap/oldios" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="xyz.getpapillon.papillonv6.MainActivityverscinq" android:enabled="false" android:exported="true" android:icon="@mipmap/verscinq" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
   </application>
 </manifest>
