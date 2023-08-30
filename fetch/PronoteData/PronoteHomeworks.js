@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { refreshToken } from '../AuthStack/LoginFlow';
 
-const currentLoadings = 0;
+let currentLoadings = 0;
 
 function getHomeworks(day) {
     // TEMPORARY : remove 1 month
