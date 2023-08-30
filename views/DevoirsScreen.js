@@ -125,7 +125,7 @@ function DevoirsScreen({ navigation }) {
 
   return (
     <>
-      <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
+      <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
 
       <View contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
       { Platform.OS === 'android' && calendarModalOpen ? (

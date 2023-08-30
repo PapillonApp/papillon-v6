@@ -28,7 +28,7 @@ function SettingsScreen({ navigation }) {
 
   return (
     <ScrollView style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]} contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
-        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
+        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
         
         <View style={styles.optionsList}>
           <Text style={styles.ListTitle}>Mon profil</Text>

@@ -60,6 +60,8 @@ import IconsScreen from './views/Settings/IconsScreen';
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
 
+import WelcomeScreen from './views/AuthStack/WelcomeScreen';
+
 import LoginScreen from './views/AuthStack/LoginScreen';
 import LoginUnavailable from './views/AuthStack/LoginUnavailable';
 
@@ -566,6 +568,14 @@ const AuthStack = () => {
         animation: 'slide_from_right',
       }}
     >
+      <Stack.Screen
+        name="Welcome"
+        component={WelcomeScreen}
+        options={{
+          title: 'Bienvenue !',
+        }}
+      />
+
       <Stack.Screen
         name="Login"
         component={LoginScreen}

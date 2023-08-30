@@ -154,7 +154,7 @@ function ProfileScreen({ route, navigation }) {
             { isModal && Platform.OS === 'ios' ?
                 <StatusBar animated barStyle={'light-content'} />
             :
-                <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
+                <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
             }
             
             <View style={styles.profileContainer}>

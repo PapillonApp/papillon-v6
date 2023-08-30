@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Image, ScrollView, StyleSheet, View, StatusBar } from 'react-native';
+import { Image, ScrollView, StyleSheet, View, StatusBar, Platform } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 import { List } from 'react-native-paper';
 
@@ -35,6 +35,13 @@ function ServiceOption({ service, color, logo, identitifants, press }) {
 function LoginScreen({ navigation }) {
   const theme = useTheme();
 
+  // hide back button on ios
+  React.useLayoutEffect(() => {
+    if (Platform.OS == 'ios') {
+      navigation.setOptions({ headerLeft: () => <View></View> });
+    }
+  }, [navigation]);
+
   useEffect(() => {
       // change modal color
       
@@ -68,7 +75,7 @@ function LoginScreen({ navigation }) {
 
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {  }]}>
-      <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
+      <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
 
       <ListItem
         title="Papillon est un client alternatif pour Pronote et d’autres services scolaires"

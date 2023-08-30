@@ -237,7 +237,7 @@ function GradesScreen({ navigation }) {
           <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
         }>
 
-        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
+        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
 
         { subjectsList.length == 0 && !isLoading ?
           <Text style={[styles.noGrades]}>Aucune note à afficher.</Text>

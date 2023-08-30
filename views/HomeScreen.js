@@ -416,7 +416,7 @@ function HomeHeader({ navigation, timetable, user }) {
   return (
     <View style={[styles.header, { backgroundColor: nextCourse ? getColorCoursBg(nextCourse.background_color) : '#29947A', paddingTop: insets.top + 13, borderColor: theme.dark ? '#ffffff15' : '#00000032', borderBottomWidth: 1 }]}>
       { isFocused ?
-        <StatusBar barStyle={'light-content'} backgroundColor={nextCourse ? getColorCoursBg(nextCourse.background_color) : '#29947A'} />
+        <StatusBar barStyle={'light-content'} backgroundColor={'transparent'} />
       : null }
 
       <View style={styles.headerContainer}>
