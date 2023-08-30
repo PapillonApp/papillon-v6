@@ -70,7 +70,7 @@ function OfficialServer({ route, navigation }) {
 
                 <ListItem
                     title="Vérifié par l'équipe Papillon"
-                    subtitle="Ce serveur à été vérifié par les membres de l'équipe Papillon. Nous nous sommes assurés qu'il ne contient pas de contenu malveillant."
+                    subtitle="Ce serveur a été vérifié par les membres de l'équipe Papillon. Nous nous sommes assurés qu'il ne contient pas de contenu malveillant."
                     color="#29947A"
                     icon={<Eye size={24} color="#29947A" />}
                 />
