@@ -76,7 +76,7 @@ function DevoirsScreen({ navigation }) {
           />
         ) : (
           <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 2}} onPress={() => setCalendarModalOpen(true)}>
-            <Calendar size={20} color={theme.dark ? '#ffffff' : '#000000'} style={{}} />
+            <Calendar size={20} color={theme.dark ? '#ffffff' : '#000000'} />
             <Text style={{fontSize: 15, fontFamily: 'Papillon-Medium'}}>{new Date(calendarDate).toLocaleDateString('fr', {weekday: 'short', day: '2-digit', month:'short'})}</Text>
           </TouchableOpacity>
         )

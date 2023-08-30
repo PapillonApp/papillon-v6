@@ -544,6 +544,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
 
     backgroundColor: '#29947A',
+
+    elevation: 1,
   },
 
   ListTitle: {

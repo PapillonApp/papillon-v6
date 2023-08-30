@@ -118,7 +118,7 @@ const InsetNewsScreen = () => {
         component={NewsScreen}
         options={{ 
           headerShown: true,
-          headerLargeTitle: true,
+          headerLargeTitle: false,
           headerTitle: 'Actualités',
         }}
       />
@@ -150,7 +150,7 @@ const InsetSchoolLifeScreen = () => {
           component={SchoolLifeScreen}
           options={{ 
             headerShown: true,
-            headerLargeTitle: true,
+            headerLargeTitle: false,
             headerTitle: 'Vie scolaire',
           }}
         />
@@ -175,7 +175,7 @@ const InsetConversationsScreen = () => {
           component={ConversationsScreen}
           options={{
             headerShown: true,
-            headerLargeTitle: true,
+            headerLargeTitle: false,
             headerTitle: 'Conversations',
           }}
         />
@@ -200,7 +200,7 @@ const InsetEvaluationsScreen = () => {
           component={EvaluationsScreen}
           options={{
             headerShown: true,
-            headerLargeTitle: true,
+            headerLargeTitle: false,
             headerTitle: 'Compétences',
           }}
         />

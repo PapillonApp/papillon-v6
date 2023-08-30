@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform, TouchableOpacity, Alert } from 'react-native';
 import { useTheme, Button, Text } from 'react-native-paper';
 
 import Animated from 'react-native-reanimated';
@@ -24,12 +24,13 @@ function GradeView({ route, navigation }) {
     const grade = route.params.grade;
 
     function shareGrade() {
-        showMessage({
-            message: "Partager une note",
-            description: "Le partage sera disponible ultérieurement.",
-            type: "info",
-            icon: "auto",
-        });
+        Alert.alert(
+            'Partager la note',
+            'Le partage de la note n\'est pas encore disponible.',
+            [
+                { text: 'OK' }
+            ]
+        );
     }
 
     let mainColor = "#888888";

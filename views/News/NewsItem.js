@@ -12,7 +12,7 @@ function NewsHeader({ news }) {
     const theme = useTheme();
 
     return (
-        <View style={[Platform.OS === 'iOS' ? styles.newsHeader : styles.newsHeaderAndroid]}>
+        <View style={[Platform.OS === 'ios' ? styles.newsHeader : styles.newsHeaderAndroid]}>
             <Text style={[styles.newsTitle]}>{news.title}</Text>
             <Text style={[styles.newsDate]}>{new Date(news.date).toLocaleDateString('fr', {weekday: 'long', day: '2-digit', month: 'short'})} - {news.author}</Text>
         </View>
@@ -28,6 +28,7 @@ function NewsItem({ route, navigation }) {
     React.useLayoutEffect(() => {
         navigation.setOptions({
             headerTitle: (props) => <NewsHeader {...props} news={news} />,
+            headerBackTitleVisible: false,
         });
     }, [navigation, news]);
 
