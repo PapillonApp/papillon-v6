@@ -3,6 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { refreshToken } from '../AuthStack/LoginFlow';
 
+const currentLoadings = 0;
+
 function getHomeworks(day) {
     // TEMPORARY : remove 1 month
     day = new Date(day);
@@ -25,14 +27,26 @@ function getHomeworks(day) {
 
     console.log(day);
 
+    if (currentLoadings > 3) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve(getHomeworks(day));
+            }, 1500);
+        });
+    }
+
     // obtenir le token
     return AsyncStorage.getItem('token').then((token) => {
+        currentLoadings++;
+
         // fetch les devoirs
         return fetch(consts.API + '/homework' + '?token=' + token + '&dateFrom=' + day + '&dateTo=' + day, {
             method: 'GET'
         })
         .then((response) => response.json())
         .then((result) => {
+            currentLoadings--;
+
             if (result == 'expired' || result == 'notfound') {
                 return refreshToken().then(() => {
                     return getHomeworks(day);

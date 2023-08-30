@@ -100,7 +100,7 @@ function DevoirsScreen({ navigation }) {
     setCurrentIndex(page);
     setCalendarDate(newDate);
 
-    for (let i = -2; i <= 2; i++) {
+    for (let i = -1; i <= 1; i++) {
       updateHomeworksForDate(i, newDate);
     }
   };

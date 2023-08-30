@@ -27,7 +27,7 @@ import { useMemo } from 'react';
 import { PaperProvider, configureFonts } from 'react-native-paper';
 
 import { DefaultTheme, DarkTheme } from '@react-navigation/native';
-import { Platform, useColorScheme, View, Pressable } from 'react-native';
+import { Platform, useColorScheme, View, Pressable, TouchableNativeFeedback } from 'react-native';
 
 import { useCallback, useState } from 'react';
 
@@ -475,22 +475,34 @@ const AppStack = () => {
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
-        tabBarShowLabel: true,
+        tabBarShowLabel: Platform.OS === 'android' ? false : true,
         tabBarStyle: {
           paddingLeft: 12,
           paddingRight: 12,
           paddingTop: 2,
         },
         tabBarButton: (props) => (
-          <PressableScale
-            {...props}
-            activeScale={0.7}
-            weight='light'
-          >
-            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-              {props.children}
+          ( Platform.OS === 'ios' ? (
+            <PressableScale
+              {...props}
+              activeScale={0.7}
+              weight='light'
+            >
+              <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                {props.children}
+              </View>
+            </PressableScale>
+          ) : (
+            <View style={{flex: 1, borderRadius: 20, overflow: 'hidden', marginVertical: 4}}>
+              <TouchableNativeFeedback
+                {...props}
+              >
+                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                  {props.children}
+                </View>
+              </TouchableNativeFeedback>
             </View>
-          </PressableScale>
+          ))
         ),
       }}
     >
