@@ -45,14 +45,16 @@ function NewsScreen({ navigation }) {
         return newNews;
     }
 
+    const [isHeadLoading, setIsHeadLoading] = useState(false);
+
     useEffect(() => {
+        setIsHeadLoading(true);
         getNews().then((news) => {
+            setIsHeadLoading(false);
             setNews(editNews(JSON.parse(news)));
             finalNews = editNews(JSON.parse(news));
         });
     }, []);
-
-    const [isHeadLoading, setIsHeadLoading] = useState(false);
 
     const onRefresh = React.useCallback(() => {
         setIsHeadLoading(true);
@@ -99,7 +101,7 @@ function NewsScreen({ navigation }) {
     return (
       <ScrollView style={styles.container} contentInsetAdjustmentBehavior='automatic'
       refreshControl={
-        <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} />
+        <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
       }>
         { Platform.OS === 'ios' ?
             <StatusBar animated barStyle={'light-content'} />

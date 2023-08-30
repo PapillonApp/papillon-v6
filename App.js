@@ -418,6 +418,8 @@ const WrappedSettings = () => {
         component={OfficialServer}
         options={{ 
           headerTitle: 'Serveur officiel',
+
+          headerBackTitle: 'Retour',
         }}
       />
       <Stack.Screen

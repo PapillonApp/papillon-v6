@@ -171,6 +171,8 @@ function LessonScreen({ route, navigation }) {
                     </View>
                 </View>
 
+                <View style={{height: 20}}></View>
+
             </ScrollView>
         </>
     );

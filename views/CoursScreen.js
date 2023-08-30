@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useCallback } from 'react';
-import { View, StyleSheet, StatusBar, Platform, Pressable, ActivityIndicator, RefreshControl, Modal } from 'react-native';
+import { View, StyleSheet, StatusBar, Platform, Pressable, ActivityIndicator, RefreshControl, Modal, TouchableOpacity } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
 import { ScrollView } from 'react-native-gesture-handler';
@@ -22,7 +22,6 @@ import getClosestColor from '../utils/ColorCoursName';
 import UnstableItem from '../components/UnstableItem';
 
 import { Activity, Calendar, Info } from 'lucide-react-native';
-import { TouchableOpacity } from 'react-native-web';
 import { set } from 'react-native-reanimated';
 
 const calcDate = (date, days) => {
@@ -65,10 +64,10 @@ function CoursScreen({ navigation }) {
             }}
           />
         ) : (
-          <Pressable style={{flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 2}} onPress={() => setCalendarModalOpen(true)}>
+          <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 2}} onPress={() => setCalendarModalOpen(true)}>
             <Calendar size={20} color={theme.dark ? '#ffffff' : '#000000'} style={{}} />
             <Text style={{fontSize: 15, fontFamily: 'Papillon-Medium'}}>{new Date(calendarDate).toLocaleDateString('fr', {weekday: 'short', day: '2-digit', month:'short'})}</Text>
-          </Pressable>
+          </TouchableOpacity>
         )
       ),
     });
@@ -142,6 +141,8 @@ function CoursScreen({ navigation }) {
                 }}
               />
           ) : null }
+
+        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
 
         <InfinitePager
           style={[styles.viewPager]}
@@ -261,11 +262,9 @@ const CoursPage = ({ cours, navigation, theme, forceRefresh }) => {
       style={[styles.coursContainer]}
       nestedScrollEnabled={true}
       refreshControl={
-        <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} />
+        <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
       }
     >
-      <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
-      
       {cours.length === 0 ? (
         <Text style={[styles.noCourses]}>Aucun cours</Text>
       ) : null}
@@ -330,6 +329,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderCurve: 'continuous',
     overflow: 'hidden',
+    elevation: 1,
   },
   coursItem: {
     flex: 1,

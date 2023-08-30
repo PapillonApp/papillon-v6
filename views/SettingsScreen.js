@@ -115,6 +115,7 @@ const styles = StyleSheet.create({
     width: '100%',
     gap: 9,
     marginTop: 21,
+    paddingBottom: 2,
   },
   ListTitle: {
     paddingLeft: 29,

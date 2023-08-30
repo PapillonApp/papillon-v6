@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Button, ScrollView, StatusBar, Platform } from 'react-native';
+import { StyleSheet, View, Button, ScrollView, StatusBar, Platform, RefreshControl } from 'react-native';
 
 import { Text, useTheme } from 'react-native-paper';
 import { useEffect, useState } from 'react';
@@ -14,14 +14,29 @@ function SchoolLifeScreen({ navigation }) {
   const [viesco, setViesco] = useState(null);
   const theme = useTheme();
 
+  const  [isHeadLoading, setIsHeadLoading] = useState(false);
+
   useEffect(() => {
+    setIsHeadLoading(true);
     getViesco().then((viesco) => {
+      setIsHeadLoading(false);
+      setViesco(viesco);
+    });
+  }, []);
+
+  const onRefresh = React.useCallback(() => {
+    setIsHeadLoading(true);
+    getViesco(true).then((viesco) => {
+      setIsHeadLoading(false);
       setViesco(viesco);
     });
   }, []);
 
   return (
-    <ScrollView style={styles.container} contentInsetAdjustmentBehavior='automatic'>
+    <ScrollView style={styles.container} contentInsetAdjustmentBehavior='automatic'
+    refreshControl={
+      <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
+    }>
       { Platform.OS === 'ios' ?
         <StatusBar animated barStyle={'light-content'} />
       :

@@ -234,7 +234,7 @@ function GradesScreen({ navigation }) {
         contentInsetAdjustmentBehavior="automatic"
         style={[styles.container]}
         refreshControl={
-          <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} />
+          <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
         }>
 
         <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
@@ -433,6 +433,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderCurve: 'continuous',
     overflow: 'hidden',
+    elevation: 1,
   },
   subjectNameContainer: {
     width: '100%',
@@ -547,6 +548,7 @@ const styles = StyleSheet.create({
   latestGradesList: {
     gap: 14,
     paddingHorizontal: 14,
+    paddingBottom: 2,
   },
 
   smallGradeContainer: {
@@ -555,6 +557,7 @@ const styles = StyleSheet.create({
     width: 220,
     paddingBottom: 42,
     overflow: 'hidden',
+    elevation: 2,
   },
 
   smallGradeSubjectContainer: {
@@ -623,6 +626,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderCurve: 'continuous',
     overflow: 'hidden',
+    elevation: 1,
   },
   averagesClassContainer: {
     flexDirection: 'row',

@@ -31,7 +31,6 @@ function EvaluationsScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (isLoading ? <ActivityIndicator /> : null),
       headerRight: () => (
         <Fade visible={selectedPeriod} direction="up" duration={200}>
           <TouchableOpacity onPress={newPeriod} style={styles.periodButtonContainer}>
@@ -95,8 +94,12 @@ function EvaluationsScreen({ navigation }) {
   }, []);
 
   useEffect(() => {
-    setIsLoading(true);
-    getEvaluations().then((evaluations) => {
+    setIsHeadLoading(true);
+
+    isForced = false;
+    if (refreshCount > 0) isForced = true;
+
+    getEvaluations(isForced).then((evaluations) => {
       setIsLoading(false);
       let evals = JSON.parse(evaluations);
       
@@ -120,21 +123,20 @@ function EvaluationsScreen({ navigation }) {
 
       console.log(finalEvals);
       setEvaluations(finalEvals);
+      setIsHeadLoading(false);
     });
   }, [refreshCount]);
 
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
   const onRefresh = React.useCallback(() => {
-    setIsHeadLoading(true);
     setRefreshCount(refreshCount + 1);
-    setIsHeadLoading(false);
   }, []);
 
   return (
     <ScrollView style={styles.container} contentInsetAdjustmentBehavior='automatic'
     refreshControl={
-      <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} />
+      <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
     }>
       { Platform.OS === 'ios' ?
         <StatusBar animated barStyle={'light-content'} />

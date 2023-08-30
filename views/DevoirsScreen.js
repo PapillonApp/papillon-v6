@@ -196,7 +196,7 @@ const Hwpage = ({ homeworks, navigation, theme, forceRefresh }) => {
       contentInsetAdjustmentBehavior="automatic"
       style={[styles.homeworksContainer]}
       refreshControl={
-        <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} />
+        <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
       }
     >
       { homeworks.length == 0 ? (

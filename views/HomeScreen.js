@@ -109,7 +109,7 @@ function HomeScreen({ navigation }) {
     <>
       <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]} contentContainerStyle={{alignItems: 'center', justifyContent: 'center', paddingTop: 12}}
       refreshControl={
-        <RefreshControl progressViewOffset={28} refreshing={isHeadLoading} onRefresh={onRefresh} />
+        <RefreshControl progressViewOffset={28} refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
       }>
 
         {/* next classes */}
@@ -600,6 +600,8 @@ const styles = StyleSheet.create({
     shadowOpacity: .15,
     shadowRadius: 1,
 
+    elevation: 3,
+
     flexDirection: 'row',
   },
 
@@ -868,6 +870,7 @@ const styles = StyleSheet.create({
     gap: 14,
     paddingHorizontal: 16,
     marginTop: 12,
+    paddingBottom: 2,
   },
   smallGradeContainer: {
     borderRadius: 14,
@@ -875,6 +878,7 @@ const styles = StyleSheet.create({
     width: 220,
     paddingBottom: 42,
     overflow: 'hidden',
+    elevation: 1,
   },
 
   smallGradeSubjectContainer: {
@@ -959,6 +963,8 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: .15,
     shadowRadius: 1,
+
+    elevation: 1,
   },
 
   tabText: {
