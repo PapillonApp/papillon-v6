@@ -595,6 +595,7 @@ const AuthStack = () => {
 };
 
 import * as NavigationBar from 'expo-navigation-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false); 
@@ -737,9 +738,11 @@ function App() {
     <View style={{flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff'}}>
       <PaperProvider theme={paperTheme}>
         <ActionSheetProvider>
-          <NavigationContainer theme={classicTheme}>
-            {loggedIn ? <AppStack /> : <AuthStack />}
-          </NavigationContainer>
+          <GestureHandlerRootView style={{flex: 1}}>
+            <NavigationContainer theme={classicTheme}>
+              {loggedIn ? <AppStack /> : <AuthStack />}
+            </NavigationContainer>
+          </GestureHandlerRootView>
         </ActionSheetProvider>
       </PaperProvider>
       <Toast config={toastConfig} />

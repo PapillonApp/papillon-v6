@@ -12,7 +12,7 @@ function NewsHeader({ news }) {
     const theme = useTheme();
 
     return (
-        <View style={styles.newsHeader}>
+        <View style={[Platform.OS === 'iOS' ? styles.newsHeader : styles.newsHeaderAndroid]}>
             <Text style={[styles.newsTitle]}>{news.title}</Text>
             <Text style={[styles.newsDate]}>{new Date(news.date).toLocaleDateString('fr', {weekday: 'long', day: '2-digit', month: 'short'})} - {news.author}</Text>
         </View>
@@ -59,7 +59,7 @@ function NewsItem({ route, navigation }) {
                 <RenderHtml
                     contentWidth={width}
                     source={source}
-                    baseStyle={styles.baseStyle}
+                    baseStyle={theme.dark ? styles.baseStyleDark : styles.baseStyle}
                 />
             : null }
         </View>
@@ -99,13 +99,22 @@ const styles = StyleSheet.create({
     baseStyle: {
         fontSize: 16,
     },
+    baseStyleDark: {
+        fontSize: 16,
+        color: '#ffffff',
+    },
 
     newsHeader: {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        minWidth: '70%',
         gap: 2,
+    },
+    newsHeaderAndroid: {
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        gap: 0,
     },
     newsTitle: {
         fontSize: 16,

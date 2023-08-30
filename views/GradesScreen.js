@@ -50,7 +50,6 @@ function GradesScreen({ navigation }) {
   // add button to header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (isLoading ? () => <ActivityIndicator style={{marginRight: Platform.OS == 'android' ? 10 : 0}} /> : null),
       headerRight: () => (
         <Fade visible={selectedPeriod} direction="up" duration={200}>
           <TouchableOpacity onPress={newPeriod} style={styles.periodButtonContainer}>
@@ -108,7 +107,7 @@ function GradesScreen({ navigation }) {
   }
 
   async function loadGrades(force = false) {
-    setIsLoading(true);
+    setHeadLoading(true);
     const grades = await getGrades(force);
     const gradesList = JSON.parse(grades).grades;
 
@@ -205,7 +204,7 @@ function GradesScreen({ navigation }) {
 
     setSubjectsList(subjects);
     setLatestGrades(latestGrades);
-    setIsLoading(false);
+    setHeadLoading(false);
   }
 
   React.useEffect(() => {
@@ -227,7 +226,6 @@ function GradesScreen({ navigation }) {
   const onRefresh = React.useCallback(() => {
     setHeadLoading(true);
     loadGrades(true);
-    setHeadLoading(false);
   }, []);
 
   return (

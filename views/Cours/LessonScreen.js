@@ -60,7 +60,7 @@ function LessonScreen({ route, navigation }) {
         <>
             <CoursHeader cours={lesson} navigation={navigation} />
             <ScrollView contentInsetAdjustmentBehavior="automatic" style={{flex: 1, backgroundColor: theme.dark ? '#050505' : '#f2f2f7'}}>
-                <StatusBar animated barStyle={'light-content'} />
+                <StatusBar animated barStyle={'light-content'} backgroundColor={getClosestColor(lesson.background_color)} />
                 
                 <View style={styles.optionsList}>
                     <Text style={styles.ListTitle}>A propos</Text>
@@ -179,7 +179,7 @@ function LessonScreen({ route, navigation }) {
 function CoursHeader({ cours, navigation }) {
     return (
         <View style={[styles.coursHeader, {backgroundColor: getClosestColor(cours.background_color)}]}>
-            <TouchableOpacity style={styles.coursHeaderClose} onPress={() => navigation.goBack()}>
+            <TouchableOpacity style={[styles.coursHeaderClose, {top : Platform.OS === 'android' ? 36 : 20}]} onPress={() => navigation.goBack()}>
                 <X size={22} color="#ffffff" />
             </TouchableOpacity>
 
