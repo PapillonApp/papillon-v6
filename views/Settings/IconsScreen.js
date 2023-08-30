@@ -184,9 +184,22 @@ function AppearanceScreen({ navigation }) {
         
     return (
         <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
-            <StatusBar animated barStyle={'light-content'} />
+            { Platform.OS === 'ios' ?
+                <StatusBar animated barStyle={'light-content'} />
+            :
+                <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.dark ? '#121212' : '#ffffff'} />
+            }
             
-            <View style={{gap: 9, paddingVertical: 24}}>
+            { Platform.OS === 'android' ?
+                <ListItem
+                    title="Icône de l'application"
+                    subtitle="Cette fonctionnalité n'est pas encore disponible sur Android."
+                    color="#A84700"
+                    style={{marginTop: 14}}
+                />
+            : null }
+
+            <View style={[{gap: 9, paddingVertical: 24}, Platform.OS === 'android' ? {opacity: 0.5} : {}]} pointerEvents={Platform.OS === 'android' ? 'none' : 'auto'}>
                 <Text style={styles.ListTitle}>Icônes Papillon</Text>
 
                 { papillonIcons.map((icon, index) => (
