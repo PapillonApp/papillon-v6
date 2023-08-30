@@ -119,9 +119,11 @@ function DevoirsScreen({ navigation }) {
     hwRef.current = homeworks;
   }, [today, homeworks]);
 
-  for (let i = -2; i <= 2; i++) {
-    updateHomeworksForDate(i);
-  }
+  useEffect(() => {
+    for (let i = -2; i <= 2; i++) {
+      updateHomeworksForDate(i);
+    }
+  }, []);
 
   return (
     <>
