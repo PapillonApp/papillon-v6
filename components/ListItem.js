@@ -12,7 +12,7 @@ import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanima
 import { PressableScale } from 'react-native-pressable-scale';
 import * as Haptics from 'expo-haptics'
 
-function ListItem({ title, subtitle, left, right, icon, style, color, isLarge, onPress, fill, width, center }) {
+function ListItem({ title, subtitle, left, right, icon, style, color, isLarge, onPress, onLongPress, fill, width, center }) {
     const theme = useTheme();
     const scheme = useColorScheme();
 
@@ -41,7 +41,7 @@ function ListItem({ title, subtitle, left, right, icon, style, color, isLarge, o
 
     return (
         ( Platform.OS === 'ios' ?
-            <PressableScale onPress={onPressActive} weight="light" activeScale={pressScale} style={{flex: 1}}>
+            <PressableScale onPress={onPressActive} weight="light" activeScale={pressScale} style={{flex: 1}} onLongPress={onLongPress}>
                 <View style={[styles.listItem, { backgroundColor: bgColor, borderColor: theme.colors.outline, borderColor: theme.dark ? '#191919' : '#e5e5e5', marginHorizontal : width ? 0 : 14, flex: width ? 1 : undefined, alignItems : center ? 'center' : undefined}, style]}>
                     { left ?
                         <View style={[styles.left]}>
@@ -72,7 +72,7 @@ function ListItem({ title, subtitle, left, right, icon, style, color, isLarge, o
             </PressableScale>
         :
         <View style={[styles.listItemContainer, { flex: 1, borderRadius: 10, overflow: 'hidden' }, { backgroundColor: bgColor, borderColor: theme.colors.outline, borderColor: theme.dark ? '#191919' : '#e5e5e5', marginHorizontal : width ? 0 : 14, flex: width ? 1 : undefined, alignItems : center ? 'center' : undefined}, style]}>            
-            <TouchableNativeFeedback style={{flex: 1, borderRadius: 12, overflow: 'hidden'}} onPress={onPressActive}>
+            <TouchableNativeFeedback style={{flex: 1, borderRadius: 12, overflow: 'hidden'}} onPress={onPressActive} onLongPress={onLongPress}>
                 <View style={[styles.listItemChild]}>
                     { left ?
                         <View style={[styles.left]}>

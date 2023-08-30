@@ -78,8 +78,9 @@ function CoursScreen({ navigation }) {
     setToday(date);
   };
 
-  const updateCoursForDate = async (dateOffset) => {
-    const newDate = calcDate(todayRef.current, dateOffset);
+  const updateCoursForDate = async (dateOffset, setDate) => {
+    const newDate = calcDate(setDate, dateOffset);
+    console.log("Update cours" + newDate.toLocaleDateString());
     if (!coursRef.current[newDate.toLocaleDateString()]) {
       const result = await getTimetable(newDate);
       setCours((prevCours) => ({
@@ -95,7 +96,7 @@ function CoursScreen({ navigation }) {
     setCalendarDate(newDate);
 
     for (let i = -2; i <= 2; i++) {
-      updateCoursForDate(i);
+      updateCoursForDate(i, newDate);
     }
   };
 

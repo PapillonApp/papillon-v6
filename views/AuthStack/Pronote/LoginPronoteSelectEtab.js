@@ -44,6 +44,34 @@ function LoginPronoteSelectEtab({ navigation }) {
     searchEtabs(event);
   }
 
+  function useDemo() {
+    Alert.alert(
+      'Utiliser le compte démo',
+      'Voulez-vous vraiment utiliser le compte démo ?',
+      [
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
+        {
+          text: 'Se connecter',
+          isPreferred: true,
+          onPress: () => {
+            let url = 'https://demo.index-education.net/pronote/eleve.html';
+            getENTs(url).then((result) => {
+              let etab = {
+                nomEtab: result.nomEtab,
+                url: url,
+              }
+
+              navigation.navigate('LoginPronote', { etab: etab, useDemo: true });
+            });
+          },
+        }
+      ],
+    );
+  }
+
   function searchEtabs(text) {
     setEtabList([]);
     setSearchQuery('');
@@ -308,6 +336,7 @@ function LoginPronoteSelectEtab({ navigation }) {
         icon={<Link color="#159C5E" />}
         color="#159C5E"
         onPress={() => searchURL()}
+        onLongPress={() => useDemo()}
         style={{marginTop: 8}}
       />
 

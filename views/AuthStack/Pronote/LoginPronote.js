@@ -41,7 +41,7 @@ function LoginPronote({ route, navigation }) {
   const theme = useTheme();
   const scheme = useColorScheme();
 
-  const { etab } = route.params;
+  const { etab, useDemo } = route.params;
   const [etabName, setEtabName] = useState(etab.nomEtab);
 
   const [useEduconnect, setUseEduconnect] = React.useState(false);
@@ -142,6 +142,13 @@ function LoginPronote({ route, navigation }) {
       }
     });
   }
+
+  React.useEffect(() => {
+    if(useDemo) {
+      setUsername('demonstration');
+      setPassword('pronotevs');
+    }
+  }, []);
 
   return (
     <ScrollView style={[styles.container, { }]}>

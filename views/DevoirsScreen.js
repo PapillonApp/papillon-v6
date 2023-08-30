@@ -84,8 +84,8 @@ function DevoirsScreen({ navigation }) {
     });
   }, [navigation, calendarDate]);
 
-  const updateHomeworksForDate = async (dateOffset) => {
-    const newDate = calcDate(todayRef.current, dateOffset);
+  const updateHomeworksForDate = async (dateOffset, setDate) => {
+    const newDate = calcDate(setDate, dateOffset);
     if (!hwRef.current[newDate.toLocaleDateString()]) {
       const result = await getHomeworks(newDate);
       setHomeworks((prevHomeworks) => ({
@@ -101,7 +101,7 @@ function DevoirsScreen({ navigation }) {
     setCalendarDate(newDate);
 
     for (let i = -2; i <= 2; i++) {
-      updateHomeworksForDate(i);
+      updateHomeworksForDate(i, newDate);
     }
   };
 
