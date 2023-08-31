@@ -73,4 +73,4 @@ Les leaders de la communauté suivront ces Lignes Directrices d'Impact sur la Co
 
 **Conséquence** : Une exclusion permanente de toute interaction publique au sein de la communauté.
 
-*Ce code de conduite est spécifiquement adapté pour le projet Papillon, en prenant en compte des éléments d'inclusion, de collaboration et de respect mutuel.
+> *Ce code de conduite est spécifiquement adapté pour le projet Papillon, en prenant en compte des éléments d'inclusion, de collaboration et de respect mutuel.
