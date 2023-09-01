@@ -195,13 +195,13 @@ function AppearanceScreen({ navigation }) {
             { Platform.OS === 'android' ?
                 <ListItem
                     title="Icône de l'application"
-                    subtitle="Cette fonctionnalité n'est pas encore disponible sur Android."
+                    subtitle="Cette fonctionnalité sous Android peut provoquer une duplication de l'application dans le menu d'applications de votre téléphone en cas de changements trop rapide."
                     color="#A84700"
                     style={{marginTop: 14}}
                 />
             : null }
 
-            <View style={[{gap: 9, paddingVertical: 24}, Platform.OS === 'android' ? {opacity: 0.5} : {}]} pointerEvents={Platform.OS === 'android' ? 'none' : 'auto'}>
+            <View style={[{gap: 9, paddingVertical: 24}]}>
                 <Text style={styles.ListTitle}>Icônes Papillon</Text>
 
                 { papillonIcons.map((icon, index) => (
