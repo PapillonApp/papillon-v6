@@ -376,33 +376,37 @@ function LoginPronoteSelectEtab({ navigation }) {
         />
       ) : null}
 
-      <ListItem
-        title="Utiliser ma position"
-        subtitle="Rechercher les établissements à proximité"
-        icon={<Locate color="#159C5E" />}
-        color="#159C5E"
-        onPress={() => locateEtabs()}
-        style={{marginTop: 12}}
-      />
+      { searchQuery.trim() == "" ? (
+      <>
+        <ListItem
+          title="Utiliser ma position"
+          subtitle="Rechercher les établissements à proximité"
+          icon={<Locate color="#159C5E" />}
+          color="#159C5E"
+          onPress={() => locateEtabs()}
+          style={{marginTop: 12}}
+        />
 
-      <ListItem
-        title="Utiliser une URL Pronote"
-        subtitle="Entrez l'URL de votre établissement"
-        icon={<Link color="#159C5E" />}
-        color="#159C5E"
-        onPress={() => searchURL()}
-        onLongPress={() => useDemo()}
-        style={{marginTop: 8}}
-      />
+        <ListItem
+          title="Utiliser une URL Pronote"
+          subtitle="Entrez l'URL de votre établissement"
+          icon={<Link color="#159C5E" />}
+          color="#159C5E"
+          onPress={() => searchURL()}
+          onLongPress={() => useDemo()}
+          style={{marginTop: 8}}
+        />
 
-      <ListItem
-        title="Scanner un QR Code"
-        subtitle="Scannez le QR Code de votre établissement"
-        icon={<QrCode color="#159C5E" />}
-        color="#159C5E"
-        onPress={() => scanQR()}
-        style={{marginTop: 8}}
-      />
+        <ListItem
+          title="Scanner un QR Code"
+          subtitle="Scannez le QR Code de votre établissement"
+          icon={<QrCode color="#159C5E" />}
+          color="#159C5E"
+          onPress={() => scanQR()}
+          style={{marginTop: 8}}
+        />
+      </>
+      ) : null}
         
       {EtabList.length > 0 && !loading ? (
         <List.Section style={styles.etabItemList}>
@@ -422,7 +426,7 @@ function LoginPronoteSelectEtab({ navigation }) {
         </List.Section>
       ) : null}
 
-      {loading ? (
+      {loading && searchQuery.trim() != "" ? (
         <View style={{alignItems: 'center', marginTop:30}}>
           <ActivityIndicator size={46} animating={true} color="#159C5E" style={{marginBottom:20}} />
           <Text variant="titleLarge" style={{fontWeight:500, marginBottom: 4, fontFamily: 'Papillon-Semibold'}} >Recherche des établissements</Text>
@@ -443,22 +447,6 @@ function LoginPronoteSelectEtab({ navigation }) {
           <Text variant="titleLarge" style={{fontWeight:500, marginBottom: 4, fontFamily: 'Papillon-Semibold'}} >Aucun résultat</Text>
           <Text style={{opacity:0.6, marginBottom:50, textAlign: 'center', marginHorizontal:30}} >Rééssayez avec une autre recherche ou utilisez une autre méthode de connexion.</Text>
         </View>
-      ) : null}
-
-      {EtabList.length == 0 && searchQuery.trim() == "" && !loading ? (
-        <>
-          <View style={{alignItems: 'center', marginTop:30}}>
-            <PapillonIcon
-              icon={<Map color="#fff" size={28}/>}
-              color="#159C5E"
-              style={{marginBottom:14}}
-              fill={true}
-            />
-
-            <Text variant="titleLarge" style={{fontWeight:500, marginBottom: 4, fontFamily: 'Papillon-Semibold'}} >Démarrez une recherche</Text>
-            <Text style={{opacity:0.6, marginBottom:50, textAlign: 'center', marginHorizontal:30}} >Utilisez la barre de recherche pour rechercher une ville ou un code postal.</Text>
-          </View>
-        </>
       ) : null}
 
     </ScrollView>
