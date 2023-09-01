@@ -56,4 +56,4 @@ Une chose que la v6 doit prendre en compte, c'est le flop de la v4. Pourquoi ? C
 Comment ne pas reproduire cela ? En gardant une idée claire en tête : **la structuration**. Le principal problème de la v4 était son manque de structure claire et le manque d'outils adaptés au développement mobile. La v6 résout ces 2 problèmes en basant sa structure sur celle de la v5 qui fonctionne bien, et en se basant sur un framework complet et reconnu : `react-native-papers`, avec la possibilité de s'en détacher à tout instant.
 
 ## License
-Distribué sous licence MIT. Rendez vous sur [LICENSE](licence.md) pour plus d'informations.
+Distribué sous licence MIT. Rendez-vous sur [LICENSE](licence.md) pour plus d'informations.
