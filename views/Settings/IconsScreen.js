@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform, Settings, ActivityIndicator, Alert, Switch } from 'react-native';
-import { useTheme, Button, Text } from 'react-native-paper';
+import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform, Settings, ActivityIndicator, Alert } from 'react-native';
+import { useTheme, Button, Text, Switch } from 'react-native-paper';
 
 import { useState, useEffect } from 'react';
 

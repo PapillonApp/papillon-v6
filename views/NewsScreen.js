@@ -125,7 +125,7 @@ function NewsScreen({ navigation }) {
                             title={item.title}
                             subtitle={content}
                             icon={<Newspaper color={UIColors.primary} size={24} />}
-                            color={UIColors.primary}
+                            color={theme.colors.primary}
                             onPress={() => navigation.navigate('NewsDetails', {news: item})}
                             right={<Text style={{fontSize: 13, opacity: 0.5}}>il y a {relativeDate(new Date(item.date))}</Text>}
                         />

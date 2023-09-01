@@ -51,7 +51,7 @@ function GetUIColors() {
         background: background,
         element: element,
         text: text,
-        primary: primary,
+        primary: primaryBackground,
         primaryBackground: primaryBackground,
     }
 }
