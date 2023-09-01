@@ -36,7 +36,7 @@ function EvaluationsScreen({ navigation }) {
       headerRight: () => (
         <Fade visible={selectedPeriod} direction="up" duration={200}>
           <TouchableOpacity onPress={newPeriod} style={styles.periodButtonContainer}>
-            <Text style={styles.periodButtonText}>{selectedPeriod?.name || ""}</Text>
+            <Text style={[styles.periodButtonText, {color: UIColors.primary}]}>{selectedPeriod?.name || ""}</Text>
           </TouchableOpacity>
         </Fade>
       ),
