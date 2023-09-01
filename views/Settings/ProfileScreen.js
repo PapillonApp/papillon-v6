@@ -172,7 +172,7 @@ function ProfileScreen({ route, navigation }) {
                 <Text style={styles.userData}>{userData.class} - {userData.establishment}</Text>
             </View>
 
-            { userData.email !== "" & userData.phone !== "" ?
+            { userData.email !== "" && userData.phone !== "" ?
                 <View style={{gap: 9, paddingHorizontal:14}}>
                     <Text style={styles.ListTitle2}>Données de contact</Text>
                     { userData.email !== "" ?
