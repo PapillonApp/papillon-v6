@@ -328,8 +328,9 @@ function LoginPronoteSelectEtab({ navigation }) {
         onRequestClose={() => {
           closeModal();
         }}
+        style={{margin: 0, backgroundColor: UIColors.background}}
       >
-        <View style={[styles.qrModal, {marginBottom: insets.bottom + 6}]}>
+        <View style={[styles.qrModal, {paddingBottom: insets.bottom + 6, backgroundColor: UIColors.background}]}>
           <Text style={[styles.qrModalTitle]} >Scanner un QR Code</Text>
           <Text style={[styles.qrModalText]} >Scannez le QR Code de votre établissement pour vous connecter.</Text>
 
@@ -344,7 +345,7 @@ function LoginPronoteSelectEtab({ navigation }) {
             ) : null }
             
             <Fade visible={qrEtabDetected} direction="up" duration={200}>
-              <PressableScale style={[styles.detectedEtab]} onPress={() => openEtab()}>
+              <PressableScale style={[styles.detectedEtab, {backgroundColor: UIColors.element}]} onPress={() => openEtab()}>
                 <School color="#159C5E" />
                 <View style={[styles.detectedEtabData]}>
                   <Text style={[styles.detectedEtabText]}>{currentEtabName}</Text>
@@ -353,8 +354,6 @@ function LoginPronoteSelectEtab({ navigation }) {
               </PressableScale>
             </Fade>
           </View>
-
-          <RNButton title="Annuler" onPress={() => closeModal()} color="#159C5E" style={[styles.qrBtn]} />
         </View>
       </Modal>
 
@@ -485,7 +484,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 12,
     marginTop: 24,
-    color: '#000',
   },
 
   qrModalText: {
@@ -494,7 +492,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     textAlign: 'center',
     marginHorizontal: 30,
-    color: '#000',
   },
 
   qrBtn: {
@@ -513,13 +510,13 @@ const styles = StyleSheet.create({
 
   qrModalScanner: {
     flex: 1,
+    borderRadius: 8,
   },
 
   detectedEtab: {
     position: 'absolute',
     bottom: 0,
     left: 0,
-    backgroundColor: '#fff',
     borderRadius: 8,
     borderCurve: 'continuous',
     overflow: 'hidden',
@@ -538,12 +535,10 @@ const styles = StyleSheet.create({
   detectedEtabText: {
     fontSize: 17,
     fontWeight: 'bold',
-    color: '#000',
   },
   detectedEtabDescription: {
     fontSize: 15,
     opacity: 0.6,
-    color: '#000',
   },
 });
 

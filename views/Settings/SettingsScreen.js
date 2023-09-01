@@ -32,11 +32,16 @@ function SettingsScreen({ navigation }) {
                     text: 'Déconnexion',
                     style: 'destructive',
                     onPress: async () => {
-                        AsyncStorage.getItem('credentials').then((result) => {
-                            const URL = JSON.parse(result).url;
-                            AsyncStorage.clear();
-                            AsyncStorage.setItem('old_login', JSON.stringify({ url: URL }));
-                        });
+                        try {
+                            AsyncStorage.getItem('credentials').then((result) => {
+                                const URL = JSON.parse(result).url;
+                                AsyncStorage.setItem('old_login', JSON.stringify({ url: URL }));
+                            });
+                        }
+                        catch (e) {
+                        }
+
+                        AsyncStorage.clear();
                     }
                 }
             ]

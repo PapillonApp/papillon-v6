@@ -648,6 +648,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false); 
+  const [loggedInLoaded, setLoggedInLoaded] = useState(false);
 
   // check if the user is logged in or not
   AsyncStorage.getItem('token').then((value) => {
@@ -655,6 +656,7 @@ function App() {
       // user is logged in
       setLoggedIn(true);
     }
+    setLoggedInLoaded(true);
   });
 
   // while not logged in, check if the user is logged in
@@ -668,6 +670,7 @@ function App() {
         // user is not logged in
         setLoggedIn(false);
       }
+      setLoggedInLoaded(true);
     });
   }, 1000);
 
@@ -789,7 +792,11 @@ function App() {
         <ActionSheetProvider>
           <GestureHandlerRootView style={{flex: 1}}>
             <NavigationContainer theme={classicTheme}>
-              {loggedIn ? <AppStack /> : <AuthStack />}
+              { loggedInLoaded ?
+                <View style={{flex: 1}}>
+                  {loggedIn ? <AppStack /> : <AuthStack />}
+                </View>
+              : null }
             </NavigationContainer>
           </GestureHandlerRootView>
         </ActionSheetProvider>
