@@ -165,7 +165,7 @@ function EvaluationsScreen({ navigation }) {
                           <Text style={[styles.competenceDate]}>{new Date(evaluation.date).toLocaleDateString('fr', {weekday: 'long', day: '2-digit', month: 'short'})}</Text>
                         </View>
                         <View style={styles.competenceGradeContainer}>
-                          { evaluation.acquisitions.map((acquisition, index) => {
+                          { evaluation.acquisitions.slice(0,3).map((acquisition, index) => {
                             const abbreviationColors = {
                               'A' : '#1C7B64',
                               'A+' : '#1C7B64',
@@ -187,6 +187,12 @@ function EvaluationsScreen({ navigation }) {
                               </View>
                             )
                           })}
+
+                          { evaluation.acquisitions.length > 3 ?
+                            <View style={[styles.competenceGrade, {backgroundColor: '#888'}]}>
+                              <Text style={styles.competenceGradeText}>...</Text>
+                            </View>
+                          : null }
                         </View>
                       </PressableScale>
                     </View>
