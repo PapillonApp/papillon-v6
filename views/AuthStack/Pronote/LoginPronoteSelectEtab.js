@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { ScrollView, View, StatusBar, Platform, Alert, Modal } from 'react-native';
+import { ScrollView, View, StatusBar, Platform, Alert, Modal, Keyboard } from 'react-native';
 import { StyleSheet } from 'react-native';
-import { useTheme, ActivityIndicator, List, Text, Avatar, Searchbar } from 'react-native-paper';
+import { useTheme, ActivityIndicator, List, Text, Avatar, Searchbar, Dialog, TextInput, Portal, Button as PaperButton } from 'react-native-paper';
 import { useState } from 'react';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,8 +11,6 @@ import Fade from 'react-native-fade';
 import { Button as RNButton } from 'react-native';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import prompt from 'react-native-prompt-android';
 
 import { getENTs } from '../../../fetch/AuthStack/LoginFlow';
 
@@ -29,6 +27,7 @@ import { useColorScheme } from 'react-native';
 
 import { getCoordsFromPostal, getPronoteEtabsFromCoords } from '../../../fetch/AuthStack/SearchEtabs';
 import { PressableScale } from 'react-native-pressable-scale';
+import { set } from 'react-native-reanimated';
 
 function LoginPronoteSelectEtab({ navigation }) {
   const theme = useTheme();
@@ -133,34 +132,40 @@ function LoginPronoteSelectEtab({ navigation }) {
     });
   }
 
-  async function searchURL(item) {
-    prompt(
-      'URL de connexion',
-      'Entrez l\'URL de connexion à Pronote de votre établissement',
-      [
-        {
-          text: 'Annuler',
-          style: 'cancel',
-        },
-        {
-          text: 'Valider',
-          isPreferred: true,
-          onPress: (url) => {
-            getENTs(url).then((result) => {
-              let etab = {
-                nomEtab: result.nomEtab,
-                url: url,
-              }
+  const [isSearchingUrlAndroid, setIsSearchingUrlAndroid] = useState(false);
+  const [urlAndroid, setUrlAndroid] = useState('');
 
-              navigation.navigate('LoginPronote', { etab: etab });
-            });
+  async function searchURL(item) {
+    if (Platform.OS === 'ios') {
+      Alert.prompt(
+        'URL de connexion',
+        'Entrez l\'URL de connexion à Pronote de votre établissement',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
           },
-        },
-      ],
-      {
-        type: 'plain-text',
-      }
-    );
+          {
+            text: 'Valider',
+            isPreferred: true,
+            onPress: (url) => {
+              getENTs(url).then((result) => {
+                let etab = {
+                  nomEtab: result.nomEtab,
+                  url: url,
+                }
+
+                navigation.navigate('LoginPronote', { etab: etab });
+              });
+            },
+          },
+        ],
+        'plain-text',
+      );
+    }
+    else {
+      setIsSearchingUrlAndroid(true);
+    }
   }
 
   React.useLayoutEffect(() => {
@@ -256,6 +261,25 @@ function LoginPronoteSelectEtab({ navigation }) {
     } });
   }
 
+  const [bottom, setBottom] = React.useState(0)
+
+  React.useEffect(() => {
+    function onKeyboardChange(e) {
+      setBottom(e.endCoordinates.height / 2)
+    }
+
+    if (Platform.OS === "ios") {
+      const subscription = Keyboard.addListener("keyboardWillChangeFrame", onKeyboardChange)
+      return () => subscription.remove()
+    }
+
+    const subscriptions = [
+      Keyboard.addListener("keyboardDidHide", onKeyboardChange),
+      Keyboard.addListener("keyboardDidShow", onKeyboardChange),
+    ]
+    return () => subscriptions.forEach((subscription) => subscription.remove())
+  }, [])
+
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic" style={{ flex: 1 }}>
       { Platform.OS === 'ios' ?
@@ -263,6 +287,34 @@ function LoginPronoteSelectEtab({ navigation }) {
       :
         <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
       }
+
+
+        <Portal>
+          <Dialog style={{ bottom }} visible={isSearchingUrlAndroid} onDismiss={() => setIsSearchingUrlAndroid(false)}>
+            <Dialog.Title>URL de connexion</Dialog.Title>
+            <Dialog.Content>
+              <TextInput
+                label="Entrez l'URL de connexion à Pronote de votre établissement"
+                value={urlAndroid}
+                onChangeText={text => setUrlAndroid(text)}
+              />
+            </Dialog.Content>
+            <Dialog.Actions>
+              <PaperButton onPress={() => setIsSearchingUrlAndroid(false)}>Annuler</PaperButton>
+              <PaperButton onPress={() => {
+                getENTs(urlAndroid).then((result) => {
+                  let etab = {
+                    nomEtab: result.nomEtab,
+                    url: urlAndroid,
+                  }
+
+                  navigation.navigate('LoginPronote', { etab: etab });
+                  setIsSearchingUrlAndroid(false);
+                });
+              }}>Se connecter</PaperButton>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
 
       <Modal
         animationType="slide"
