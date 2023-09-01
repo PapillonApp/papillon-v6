@@ -117,7 +117,7 @@ function HomeScreen({ navigation }) {
 
         {/* next classes */}
         { nextClasses ?
-          <View style={[styles.nextClassesList, {backgroundColor : theme.dark ? '#151515' : '#ffffff'}]}>
+          <View style={[styles.nextClassesList, {backgroundColor : UIColors.element}]}>
             { nextClasses.map((cours, index) => (
               <View key={index} style={[styles.nextClassesListItemContainer, {borderBottomWidth: (index != nextClasses.length - 1) ? 1 : 0, borderBottomColor: theme.dark ? '#ffffff10' : '#00000010' }]}>
                 <TouchableOpacity style={[styles.nextClassesListItem]} onPress={() => navigation.navigate('Lesson', { event: cours })}>
@@ -160,7 +160,7 @@ function HomeScreen({ navigation }) {
         { homeworks && homeworks.length > 0 ?
           <>
             <Text style={styles.ListTitle}>Travail à faire</Text>
-            <View style={[styles.hwList, {backgroundColor : theme.dark ? '#151515' : '#ffffff'}]}>
+            <View style={[styles.hwList, {backgroundColor : UIColors.element}]}>
               { homeworks.map((homework, index) => (
                 <Hwitem key={index} index={index} homework={homework} homeworks={homeworks} navigation={navigation} theme={theme} />
               )) }
@@ -175,7 +175,7 @@ function HomeScreen({ navigation }) {
             <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.latestGradesList]}>
             {latestGrades.map((grade, index) => {
                 return (
-                  <PressableScale weight="light" activeScale={0.89} key={index} style={[styles.smallGradeContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]} onPress={() => navigation.navigate('Grade', { grade: grade })}>
+                  <PressableScale weight="light" activeScale={0.89} key={index} style={[styles.smallGradeContainer, {backgroundColor: UIColors.element}]} onPress={() => navigation.navigate('Grade', { grade: grade })}>
                     <View style={[styles.smallGradeSubjectContainer, {backgroundColor: grade.color}]}>
                       <Text style={[styles.smallGradeEmoji]}>{getClosestGradeEmoji(grade.subject.name)}</Text>
                       <Text style={[styles.smallGradeSubject]} numberOfLines={1} ellipsizeMode='tail'>{formatCoursName(grade.subject.name)}</Text>
@@ -438,11 +438,11 @@ function HomeHeader({ navigation, timetable, user }) {
       {nextCourse && nextCourse.id !== null && <NextCours cours={nextCourse} navigation={navigation} />}
 
       {!loading && !nextCourse ? (
-        <PressableScale style={[styles.nextCoursContainer, { backgroundColor: theme.dark ? '#151515' : '#ffffff' }, styles.nextCoursLoading]} onPress={openNextCours}>
+        <PressableScale style={[styles.nextCoursContainer, { backgroundColor: UIColors.elementHigh }, styles.nextCoursLoading]} onPress={openNextCours}>
           <Text style={[styles.nextCoursLoadingText]}>Pas de prochain cours</Text>
         </PressableScale>
       ) : loading ? (
-        <PressableScale style={[styles.nextCoursContainer, { backgroundColor: theme.dark ? '#151515' : '#ffffff' }, styles.nextCoursLoading]}>
+        <PressableScale style={[styles.nextCoursContainer, { backgroundColor: UIColors.elementHigh }, styles.nextCoursLoading]}>
           <ActivityIndicator size={12} />
           <Text style={[styles.nextCoursLoadingText]}>Chargement du prochain cours</Text>
         </PressableScale>

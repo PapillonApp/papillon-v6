@@ -16,12 +16,15 @@ function GetUIColors() {
 
     // element
     let element = '';
+    let elementHigh = '';
 
     if (Platform.OS === 'ios') {
-        element = theme.dark ? "#151515" : "#fff";
+        element = theme.dark ? "#151515" : "#ffffff";
+        elementHigh = theme.dark ? "#151515" : "#ffffff";
     }
     else {
         element = theme.colors.elevation.level1;
+        elementHigh = theme.colors.elevation.level2;
     }
 
     // text
@@ -50,6 +53,7 @@ function GetUIColors() {
     return {
         background: background,
         element: element,
+        elementHigh : elementHigh,
         text: text,
         primary: primaryBackground,
         primaryBackground: primaryBackground,

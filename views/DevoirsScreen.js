@@ -245,8 +245,10 @@ const Hwitem = ({ homework, navigation, theme }) => {
     });
   };
 
+  const UIColors = GetUIColors();
+
   return (
-    <PressableScale style={[styles.homeworkItemContainer, {backgroundColor: theme.dark ? "#191919" : "#ffffff"}]} >
+    <PressableScale style={[styles.homeworkItemContainer, {backgroundColor: UIColors.elementHigh}]} >
       <View style={[styles.homeworkItem]}>
         <View style={[styles.checkboxContainer]}>
           <HwCheckbox checked={thisHwChecked} theme={theme} pressed={() => {

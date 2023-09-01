@@ -251,7 +251,7 @@ function GradesScreen({ navigation }) {
             <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.latestGradesList]}>
             {latestGrades.map((grade, index) => {
                 return (
-                  <PressableScale weight="light" activeScale={0.89} key={index} style={[styles.smallGradeContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]} onPress={() => showGrade(grade)}>
+                  <PressableScale weight="light" activeScale={0.89} key={index} style={[styles.smallGradeContainer, {backgroundColor: UIColors.elementHigh}]} onPress={() => showGrade(grade)}>
                     <View style={[styles.smallGradeSubjectContainer, {backgroundColor: grade.color}]}>
                       <Text style={[styles.smallGradeEmoji]}>{getClosestGradeEmoji(grade.subject.name)}</Text>
                       <Text style={[styles.smallGradeSubject]} numberOfLines={1} ellipsizeMode='tail'>{formatCoursName(grade.subject.name)}</Text>
@@ -360,7 +360,7 @@ function GradesScreen({ navigation }) {
           <Text style={styles.ListTitle}>Liste des matières</Text>
             {subjectsList.map((subject, index) => {
               return (
-                <View key={index} style={[styles.subjectContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]}>
+                <View key={index} style={[styles.subjectContainer, {backgroundColor: UIColors.element}]}>
                   <Pressable style={[styles.subjectNameContainer, {backgroundColor: subject.averages.color}]}>
                     <Text style={[styles.subjectName]}>{formatCoursName(subject.name)}</Text>
                     <View style={[styles.subjectAverageContainer]}>
