@@ -16,6 +16,7 @@ import { School, UserCircle, KeyRound } from 'lucide-react-native';
 import ListItem from '../../../components/ListItem';
 
 import PapillonButton from '../../../components/PapillonButton';
+import GetUIColors from '../../../utils/GetUIColors';
 
 function LoginTextInput({ label, icon, value, onChangeText, secureTextEntry, style }) {
   const theme = useTheme();
@@ -150,8 +151,10 @@ function LoginPronote({ route, navigation }) {
     }
   }, []);
 
+  const UIColors = GetUIColors();
+
   return (
-    <ScrollView style={[styles.container, { }]}>
+    <ScrollView style={[styles.container, {backgroundColor: UIColors.background}]}>
         { Platform.OS === 'ios' ?
           <StatusBar animated barStyle={'light-content'} />
         :

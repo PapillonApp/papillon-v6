@@ -12,6 +12,7 @@ import ListItem from '../../components/ListItem';
 
 import { useState, useEffect } from 'react';
 import * as SystemUI from 'expo-system-ui';
+import GetUIColors from '../../utils/GetUIColors';
 
 function ServiceOption({ service, color, logo, identitifants, press }) {
   const theme = useTheme();
@@ -73,8 +74,10 @@ function LoginScreen({ navigation }) {
     else navigation.navigate('LoginUnavailable', { service: service, color: color || '#A84700' })
   }
 
+  const UIColors = GetUIColors();
+
   return (
-    <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {  }]}>
+    <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, { backgroundColor: UIColors.background }]}>
       <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
 
       <ListItem

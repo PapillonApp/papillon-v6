@@ -28,10 +28,12 @@ import { useColorScheme } from 'react-native';
 import { getCoordsFromPostal, getPronoteEtabsFromCoords } from '../../../fetch/AuthStack/SearchEtabs';
 import { PressableScale } from 'react-native-pressable-scale';
 import { set } from 'react-native-reanimated';
+import GetUIColors from '../../../utils/GetUIColors';
 
 function LoginPronoteSelectEtab({ navigation }) {
   const theme = useTheme();
   const scheme = useColorScheme();
+  const UIColors = GetUIColors();
 
   const insets = useSafeAreaInsets();
 
@@ -169,15 +171,17 @@ function LoginPronoteSelectEtab({ navigation }) {
   }
 
   React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerSearchBarOptions: {
-        placeholder: 'Entrez un code postal ou une ville',
-        cancelButtonText: 'Annuler',
-        hideWhenScrolling: false,
-        hideNavigationBar: false,
-        onChangeText: event => searchEtabs(event.nativeEvent.text),
-      },
-    });
+    if (Platform.OS == 'ios') {
+      navigation.setOptions({
+        headerSearchBarOptions: {
+          placeholder: 'Entrez un code postal ou une ville',
+          cancelButtonText: 'Annuler',
+          hideWhenScrolling: false,
+          hideNavigationBar: false,
+          onChangeText: event => searchEtabs(event.nativeEvent.text),
+        },
+      });
+    }
   }, [navigation]);
 
   function selectEtab(item) {
@@ -281,7 +285,7 @@ function LoginPronoteSelectEtab({ navigation }) {
   }, [])
 
   return (
-    <ScrollView contentInsetAdjustmentBehavior="automatic" style={{ flex: 1 }}>
+    <ScrollView contentInsetAdjustmentBehavior="automatic" style={{ flex: 1, backgroundColor: UIColors.background }}>
       { Platform.OS === 'ios' ?
         <StatusBar animated barStyle={'light-content'} />
       :

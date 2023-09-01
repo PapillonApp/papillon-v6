@@ -596,17 +596,12 @@ const AppStack = () => {
 const AuthStack = () => {
   return (
     <Stack.Navigator
-      screenOptions={{
-        animation: Platform.OS === 'android' ? 'fade_from_bottom' : null,
-        navigationBarColor: '#00000000',
-        headerTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-        headerBackTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-        animation: 'slide_from_right',
-      }}
+      screenOptions={
+        Platform.OS === 'android' ? {
+          navigationBarColor: '#00000000',
+          header: (props) => <CustomNavigationBar {...props} />,
+        } : null
+      }
     >
       <Stack.Screen
         name="Welcome"

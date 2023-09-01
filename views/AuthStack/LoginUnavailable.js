@@ -7,6 +7,7 @@ import { AlertCircle } from 'lucide-react-native';
 import ListItem from '../../components/ListItem';
 
 import PapillonButton from '../../components/PapillonButton';
+import GetUIColors from '../../utils/GetUIColors';
 
 function LoginUnavailable({ route, navigation }) {
   const theme = useTheme();
@@ -19,8 +20,10 @@ function LoginUnavailable({ route, navigation }) {
     });
   }, [navigation]);
 
+  const UIColors = GetUIColors();
+
   return (
-    <ScrollView style={{ flex: 1 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: UIColors.background }}>
       { Platform.OS === 'ios' ?
         <StatusBar animated barStyle={'light-content'} />
       :
