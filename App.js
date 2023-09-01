@@ -366,10 +366,12 @@ const WrappedGradesScreen = () => {
       <Stack.Screen
         name="Notes"
         component={GradesScreen}
-        options={{ 
-          headerShown: true,
-          headerLargeTitle: Platform.OS == 'iOS' ? true : false,
-        }}
+        options={
+          Platform.OS === 'ios' ? { 
+            headerShown: true,
+            headerLargeTitle: true,
+          } : null
+        }
       />
       <Stack.Screen
         name="Grade"
@@ -398,7 +400,7 @@ const WrappedSettings = () => {
         name="Compte"
         component={SettingsScreen}
         options={{ 
-          headerLargeTitle: Platform.OS == 'iOS' ? true : false,
+          headerLargeTitle: Platform.OS == 'ios' ? true : false,
           headerTitle: 'Compte',
         }}
       />
