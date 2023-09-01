@@ -138,7 +138,7 @@ function EvaluationsScreen({ navigation }) {
   return (
     <ScrollView style={[styles.container, {backgroundColor: UIColors.background}]} contentInsetAdjustmentBehavior='automatic'
     refreshControl={
-      <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
+      <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? UIColors.primary : null]} />
     }>
       { Platform.OS === 'ios' ?
         <StatusBar animated barStyle={'light-content'} />
@@ -150,7 +150,7 @@ function EvaluationsScreen({ navigation }) {
         evaluations.map((subject, index) => {
           return (
             <View key={index} style={[styles.subjectContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]}>
-              <Pressable style={[styles.subjectNameContainer]}>
+              <Pressable style={[styles.subjectNameContainer, {backgroundColor: UIColors.primary}]}>
                 <Text style={[styles.subjectName]}>{formatCoursName(subject.subject.name)}</Text>
                 <Text>{JSON.stringify}</Text>
               </Pressable>
@@ -171,11 +171,11 @@ function EvaluationsScreen({ navigation }) {
                             const abbreviationColors = {
                               'A' : '#1C7B64',
                               'A+' : '#1C7B64',
-                              'B' : '#29947A',
+                              'B' : UIColors.primary,
                               'C' : '#A84700',
                               'D' : '#B42828',
                               '1' : '#1C7B64',
-                              '2' : '#29947A',
+                              '2' : UIColors.primary,
                               '3' : '#A84700',
                               '4' : '#B42828',
                             }
@@ -224,7 +224,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#29947A'
   },
   subjectName: {
     fontSize: 16,

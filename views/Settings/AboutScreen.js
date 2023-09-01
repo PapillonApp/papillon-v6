@@ -24,13 +24,14 @@ import GetUIColors from '../../utils/GetUIColors';
 
 function AboutScreen({ navigation }) {
   const theme = useTheme();
+  const UIColors = GetUIColors();
   const [serverInfo, setServerInfo] = useState({});
 
   function openUserLink(url) {
     WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
       presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
-      controlsColor: '#29947A',
+      controlsColor: UIColors.primary,
     });
   }
 
@@ -101,8 +102,6 @@ function AboutScreen({ navigation }) {
       navigation.navigate('OfficialServer', { official: false, server: serverInfo.server });
     }
   }
-
-  const UIColors = GetUIColors();
 
   return (
     <View style={{flex: 1}}>

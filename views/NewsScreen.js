@@ -103,7 +103,7 @@ function NewsScreen({ navigation }) {
     return (
       <ScrollView style={[styles.container, {backgroundColor: UIColors.background}]} contentInsetAdjustmentBehavior='automatic'
       refreshControl={
-        <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
+        <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? UIColors.primary : null]} />
       }>
         { Platform.OS === 'ios' ?
             <StatusBar animated barStyle={'light-content'} />
@@ -124,8 +124,8 @@ function NewsScreen({ navigation }) {
                             key={index}
                             title={item.title}
                             subtitle={content}
-                            icon={<Newspaper color='#29947A' size={24} />}
-                            color='#29947A'
+                            icon={<Newspaper color={UIColors.primary} size={24} />}
+                            color={UIColors.primary}
                             onPress={() => navigation.navigate('NewsDetails', {news: item})}
                             right={<Text style={{fontSize: 13, opacity: 0.5}}>il y a {relativeDate(new Date(item.date))}</Text>}
                         />

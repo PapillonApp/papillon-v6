@@ -112,7 +112,7 @@ function HomeScreen({ navigation }) {
     <>
       <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: UIColors.background}]} contentContainerStyle={{alignItems: 'center', justifyContent: 'center', paddingTop: 12}}
       refreshControl={
-        <RefreshControl progressViewOffset={28} refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
+        <RefreshControl progressViewOffset={28} refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? UIColors.primary : null]} />
       }>
 
         {/* next classes */}
@@ -416,8 +416,10 @@ function HomeHeader({ navigation, timetable, user }) {
     }
   };
 
+  const UIColors = GetUIColors();
+
   return (
-    <View style={[styles.header, { backgroundColor: nextCourse ? getColorCoursBg(nextCourse.background_color) : '#29947A', paddingTop: insets.top + 13, borderColor: theme.dark ? '#ffffff15' : '#00000032', borderBottomWidth: 1 }]}>
+    <View style={[styles.header, { backgroundColor: nextCourse ? getColorCoursBg(nextCourse.background_color) : UIColors.primary, paddingTop: insets.top + 13, borderColor: theme.dark ? '#ffffff15' : '#00000032', borderBottomWidth: 1 }]}>
       { isFocused ?
         <StatusBar barStyle={'light-content'} backgroundColor={'transparent'} />
       : null }

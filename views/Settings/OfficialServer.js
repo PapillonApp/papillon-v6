@@ -30,7 +30,7 @@ function OfficialServer({ route, navigation }) {
             <View style={styles.certifContainer}>
                 <PapillonIcon
                     icon={<BadgeCheck size={36} color="#fff" />}
-                    color="#29947A"
+                    color={UIColors.primary}
                     size={128}
                     fill
                 />
@@ -59,22 +59,22 @@ function OfficialServer({ route, navigation }) {
                 <ListItem
                     title="Open-source"
                     subtitle="Ce serveur est basé sur un code open-source non altéré. Vous pouvez le consulter sur GitHub."
-                    color="#29947A"
-                    icon={<PackageOpen size={24} color="#29947A" />}
+                    color={UIColors.primary}
+                    icon={<PackageOpen size={24} color={UIColors.primary} />}
                 />
 
                 <ListItem
                     title="Respecte votre vie privée"
                     subtitle="Ce serveur ne collecte aucune donnée personnelle et ne vous traque pas."
-                    color="#29947A"
-                    icon={<ShieldCheck size={24} color="#29947A" />}
+                    color={UIColors.primary}
+                    icon={<ShieldCheck size={24} color={UIColors.primary} />}
                 />
 
                 <ListItem
                     title="Vérifié par l'équipe Papillon"
                     subtitle="Ce serveur a été vérifié par les membres de l'équipe Papillon. Nous nous sommes assurés qu'il ne contient pas de contenu malveillant."
-                    color="#29947A"
-                    icon={<Eye size={24} color="#29947A" />}
+                    color={UIColors.primary}
+                    icon={<Eye size={24} color={UIColors.primary} />}
                 />
             </View>
             :

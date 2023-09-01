@@ -27,10 +27,12 @@ import { Calendar, Check, File, Link } from 'lucide-react-native';
 import GetUIColors from '../utils/GetUIColors';
 
 const openURL = (url) => {
+  const UIColors = GetUIColors();
+
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
     presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
-    controlsColor: '#29947A',
+    controlsColor: UIColors.primary,
   });
 };
 
