@@ -15,8 +15,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": false,
-      "bundleIdentifier": "xyz.getpapillon.app"
+      "supportsTablet": true,
+      "bundleIdentifier": "plus.pronote.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -28,7 +28,7 @@
         "backgroundColor": "#34AC90",
         "resizeMode": "cover"
       },
-      "package": "xyz.getpapillon.papillonv6",
+      "package": "plus.pronote.app",
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",

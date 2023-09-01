@@ -113,12 +113,12 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace 'xyz.getpapillon.papillonv6'
+    namespace 'plus.pronote.app'
     defaultConfig {
-        applicationId 'xyz.getpapillon.papillonv6'
+        applicationId 'plus.pronote.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
+        versionCode 6004
         versionName "6.0.0"
     }
 
