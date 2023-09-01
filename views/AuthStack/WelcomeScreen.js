@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     textContainer: {
         marginHorizontal: 24,
         gap: 4,
-        marginBottom: 8,
+        marginBottom: 20,
         marginTop: -28,
     },
     mainText: {
