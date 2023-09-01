@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     },
     slide: {
         flex: 1,
-        justifyContent: 'flex-start',
+        justifyContent: 'flex-end',
         alignItems: 'center',
         flexDirection: 'column',
 
@@ -163,6 +163,8 @@ const styles = StyleSheet.create({
     },
 
     welcome_image: {
+        position: "absolute",
+        top: 0,
         width: '100%',
         height: '70%',
         resizeMode: 'cover',
@@ -171,7 +173,7 @@ const styles = StyleSheet.create({
     textContainer: {
         marginHorizontal: 24,
         gap: 4,
-
+        marginBottom: 8,
         marginTop: -28,
     },
     mainText: {
@@ -188,8 +190,8 @@ const styles = StyleSheet.create({
         width: '100%',
         gap: 6,
 
-        position: 'absolute',
-        bottom: 0,
+        /* position: 'absolute',
+        bottom: 0, */
     },
 
     button: {
