@@ -54,7 +54,7 @@ function SchoolLifeScreen({ navigation }) {
               {viesco.absences.map((absence, index) => {
                 return (
                   <PressableScale key={index} style={[styles.absenceItem, {
-                    backgroundColor: theme.dark ? '#151515' : '#FFFFFF',
+                    backgroundColor: UIColors.element,
                   }]}>
                     <PapillonIcon
                       icon={<UserX size={24} color={'#A84700'} />}
@@ -89,7 +89,7 @@ function SchoolLifeScreen({ navigation }) {
               {viesco.delays.map((delay, index) => {
                 return (
                   <PressableScale key={index} style={[styles.absenceItem, {
-                    backgroundColor: theme.dark ? '#151515' : '#FFFFFF',
+                    backgroundColor: UIColors.element,
                   }]}>
                     <PapillonIcon
                       icon={<Clock3 size={24} color={'#565EA3'} />}
@@ -118,6 +118,8 @@ function SchoolLifeScreen({ navigation }) {
           ) : null }
         </>
       ) : null }
+
+      <View style={{height: 20}}></View>
     </ScrollView>
   );
 }

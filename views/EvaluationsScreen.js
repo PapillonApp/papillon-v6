@@ -149,7 +149,7 @@ function EvaluationsScreen({ navigation }) {
       { evaluations.length > 0 ?
         evaluations.map((subject, index) => {
           return (
-            <View key={index} style={[styles.subjectContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]}>
+            <View key={index} style={[styles.subjectContainer, {backgroundColor: UIColors.element}]}>
               <Pressable style={[styles.subjectNameContainer, {backgroundColor: UIColors.primary}]}>
                 <Text style={[styles.subjectName]}>{formatCoursName(subject.subject.name)}</Text>
                 <Text>{JSON.stringify}</Text>
@@ -205,6 +205,8 @@ function EvaluationsScreen({ navigation }) {
           )
         })
       : null }
+
+      <View style={{height: 20}}></View>
     </ScrollView>
   );
 }
