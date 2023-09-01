@@ -425,8 +425,8 @@ function HomeHeader({ navigation, timetable, user }) {
       : null }
 
       <View style={styles.headerContainer}>
-        <Text style={styles.headerNameText}>Bonjour{user ? ', ' + getPrenom(user.name) + ' !' : ' !'}</Text>
-        <Text style={styles.headerCoursesText}>{timetable && leftCourses && timetable.length > 1 ? `Il te reste ${leftCourses.length + 1} cours dans ta journée.` : 'Tu n\'as aucun cours restant aujourd\'hui.'}</Text>
+        <Text style={[styles.headerNameText, {color: timetable.length == 0 ? UIColors.textOnPrimary : undefined}]}>Bonjour{user ? ', ' + getPrenom(user.name) + ' !' : ' !'}</Text>
+        <Text style={[styles.headerCoursesText, {color: timetable.length == 0 ? UIColors.textOnPrimary : undefined}]}>{timetable && leftCourses && timetable.length > 1 ? `Il te reste ${leftCourses.length + 1} cours dans ta journée.` : 'Tu n\'as aucun cours restant aujourd\'hui.'}</Text>
 
         {user && (
           <TouchableOpacity style={[styles.headerPfpContainer]} onPress={openProfile}>
@@ -575,7 +575,8 @@ const styles = StyleSheet.create({
   headerNameText: {
     fontSize: 17,
     fontFamily: 'Papillon-Medium',
-    color: '#ffffff99',
+    color: '#ffffff',
+    opacity: 0.6,
     maxWidth: '85%',
   },
   headerCoursesText: {

@@ -37,6 +37,13 @@ function GetUIColors() {
         primary = theme.colors.primary;
     }
 
+    // textOnPrimary
+    let textOnPrimary = "#ffffff";
+
+    if (Platform.OS === 'android') {
+        textOnPrimary = theme.colors.onPrimary;
+    }
+
     return {
         background: background,
         element: element,
