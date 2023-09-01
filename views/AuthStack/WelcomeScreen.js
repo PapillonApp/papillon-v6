@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     },
 
     button: {
-        flex: 1,
+        //flex: 1,
         borderRadius: 12,
         borderCurve: 'continuous',
         paddingVertical: 14,
