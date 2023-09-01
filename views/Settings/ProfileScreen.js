@@ -1,8 +1,6 @@
 import * as React from 'react';
-import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform, Alert } from 'react-native';
-import { useTheme, Button, Text } from 'react-native-paper';
-
-import prompt from 'react-native-prompt-android';
+import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform, Alert, Keyboard } from 'react-native';
+import { useTheme, Button as PaperButton, Text, Portal, Dialog, TextInput } from 'react-native-paper';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -121,21 +119,28 @@ function ProfileScreen({ route, navigation }) {
         });
     }
 
+    const [androidNamePromptVisible, setAndroidNamePromptVisible] = React.useState(false);
+    const [androidNamePrompt, setAndroidNamePrompt] = React.useState(false);
+
     function EditName() {
-        prompt(
-            'Modifier le nom utilisé',
-            'Utilisez un prénom ou un pseudonyme différent dans l\'app Papillon',
-            [
-                {text: 'Modifier', isPreferred: true, onPress: name => ModifyName(name)},
-                {text: 'Réinitialiser', style: 'destructive' , onPress: () => ResetName()},
-                {text: 'Annuler', style: 'cancel'},
-            ],
-            {
-                type: 'plain-text',
-                defaultValue: userData ? userData.name : '',
-                placeholder: 'Prénom'
-            }
-        );
+        setAndroidNamePrompt(userData ? userData.name : '');
+
+        if (Platform.OS === 'ios') {
+            Alert.prompt(
+                'Modifier le nom utilisé',
+                'Utilisez un prénom ou un pseudonyme différent dans l\'app Papillon',
+                [
+                    {text: 'Modifier', isPreferred: true, onPress: name => ModifyName(name)},
+                    {text: 'Réinitialiser', style: 'destructive' , onPress: () => ResetName()},
+                    {text: 'Annuler', style: 'cancel'},
+                ],
+                'plain-text',
+                userData ? userData.name : '',
+            );
+        }
+        else {
+            setAndroidNamePromptVisible(true);
+        }
     }
 
     function ModifyName(name) {
@@ -148,6 +153,25 @@ function ProfileScreen({ route, navigation }) {
         AsyncStorage.setItem('custom_name', name);
         setUserData({...userData, name: name});
     }
+
+    const [bottom, setBottom] = React.useState(0)
+
+    React.useEffect(() => {
+        function onKeyboardChange(e) {
+            setBottom(e.endCoordinates.height / 2)
+        }
+
+        if (Platform.OS === "ios") {
+            const subscription = Keyboard.addListener("keyboardWillChangeFrame", onKeyboardChange)
+            return () => subscription.remove()
+        }
+
+        const subscriptions = [
+            Keyboard.addListener("keyboardDidHide", onKeyboardChange),
+            Keyboard.addListener("keyboardDidShow", onKeyboardChange),
+        ]
+        return () => subscriptions.forEach((subscription) => subscription.remove())
+    }, [])
     
     return (
         <ScrollView style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
@@ -156,6 +180,30 @@ function ProfileScreen({ route, navigation }) {
             :
                 <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
             }
+
+            <Portal>
+            <Dialog style={{ bottom }} visible={androidNamePromptVisible} onDismiss={() => setIsSearchingUrlAndroid(false)}>
+                <Dialog.Title>Modifier le nom utilisé</Dialog.Title>
+                <Dialog.Content>
+                <TextInput
+                    label="Entrez un prénom ou un pseudonyme"
+                    value={androidNamePrompt}
+                    onChangeText={text => setAndroidNamePrompt(text)}
+                />
+                </Dialog.Content>
+                <Dialog.Actions>
+                <PaperButton onPress={() => setAndroidNamePromptVisible(false)}>Annuler</PaperButton>
+                <PaperButton onPress={() => {
+                    ResetName();
+                    setAndroidNamePromptVisible(false);
+                }}>Réinitialiser</PaperButton>
+                <PaperButton onPress={() => {
+                    ModifyName(androidNamePrompt);
+                    setAndroidNamePromptVisible(false);
+                }}>Modifier</PaperButton>
+                </Dialog.Actions>
+            </Dialog>
+            </Portal>
             
             <View style={styles.profileContainer}>
                 { profilePicture !== "" ?
