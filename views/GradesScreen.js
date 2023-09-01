@@ -27,10 +27,12 @@ import { PressableScale } from 'react-native-pressable-scale';
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useIsFocused } from '@react-navigation/native';
+import GetUIColors from '../utils/GetUIColors';
 
 function GradesScreen({ navigation }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const UIColors = GetUIColors();
   const { showActionSheetWithOptions } = useActionSheet();
 
   const [subjectsList, setSubjectsList] = useState([]);
@@ -232,9 +234,9 @@ function GradesScreen({ navigation }) {
     <>
       <ScrollView 
         contentInsetAdjustmentBehavior="automatic"
-        style={[styles.container]}
+        style={[styles.container, {backgroundColor : UIColors.background}]}
         refreshControl={
-          <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
+          <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? UIColors.primary : null]} />
         }>
 
         <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
@@ -286,10 +288,10 @@ function GradesScreen({ navigation }) {
           <View style={[styles.smallSubjectList]}>
             <Text style={styles.smallListTitle}>Moyennes</Text>
             <View style={[styles.averagesList]}>
-              <PressableScale style={[styles.averageContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]}>
+              <PressableScale style={[styles.averageContainer, {backgroundColor: UIColors.element}]}>
                 <PapillonIcon
-                  icon={<User2 color="#21826A" style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
-                  color="#21826A"
+                  icon={<User2 color={UIColors.primary} style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
+                  color={UIColors.primary}
                   style={[styles.averageIcon]}
                   small
                 />
@@ -301,10 +303,10 @@ function GradesScreen({ navigation }) {
                   </View>
                 </View>
               </PressableScale>
-              <PressableScale style={[styles.averageContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]}>
+              <PressableScale style={[styles.averageContainer, {backgroundColor: UIColors.element}]}>
                 <PapillonIcon
-                  icon={<Users2 color="#21826A" style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
-                  color="#21826A"
+                  icon={<Users2 color={UIColors.primary} style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
+                  color={UIColors.primary}
                   style={[styles.averageIcon]}
                   small
                 />
@@ -317,10 +319,10 @@ function GradesScreen({ navigation }) {
                 </View>
               </PressableScale>
               <View style={[styles.averagesClassContainer]}>
-                <PressableScale style={[styles.averageContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]}>
+                <PressableScale style={[styles.averageContainer, {backgroundColor: UIColors.element}]}>
                   <PapillonIcon
-                    icon={<TrendingDown color="#21826A" style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
-                    color="#21826A"
+                    icon={<TrendingDown color={UIColors.primary} style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
+                    color={UIColors.primary}
                     style={[styles.averageIcon]}
                     small
                   />
@@ -332,10 +334,10 @@ function GradesScreen({ navigation }) {
                     </View>
                   </View>
                 </PressableScale>
-                <PressableScale style={[styles.averageContainer, {backgroundColor: theme.dark ? '#151515' : '#fff'}]}>
+                <PressableScale style={[styles.averageContainer, {backgroundColor: UIColors.element}]}>
                   <PapillonIcon
-                    icon={<TrendingUp color="#21826A" style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
-                    color="#21826A"
+                    icon={<TrendingUp color={UIColors.primary} style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
+                    color={UIColors.primary}
                     style={[styles.averageIcon]}
                     small
                   />
@@ -626,7 +628,6 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderCurve: 'continuous',
     overflow: 'hidden',
-    elevation: 1,
   },
   averagesClassContainer: {
     flexDirection: 'row',

@@ -19,9 +19,11 @@ import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
 import { Mail, Phone, Edit, Pencil, Trash2, Contact2, Lock } from 'lucide-react-native';
+import GetUIColors from '../../utils/GetUIColors';
 
 function ProfileScreen({ route, navigation }) {
     const theme = useTheme();
+    const UIColors = GetUIColors();
     const isModal = route.params.isModal;
 
     const [userData, setUserData] = React.useState({});
@@ -174,7 +176,7 @@ function ProfileScreen({ route, navigation }) {
     }, [])
     
     return (
-        <ScrollView style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
+        <ScrollView style={[styles.container, {backgroundColor: UIColors.background}]}>
             { isModal && Platform.OS === 'ios' ?
                 <StatusBar animated barStyle={'light-content'} />
             :

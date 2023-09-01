@@ -24,6 +24,7 @@ import UnstableItem from '../components/UnstableItem';
 import * as WebBrowser from 'expo-web-browser';
 
 import { Calendar, Check, File, Link } from 'lucide-react-native';
+import GetUIColors from '../utils/GetUIColors';
 
 const openURL = (url) => {
   WebBrowser.openBrowserAsync(url, {
@@ -76,7 +77,7 @@ function DevoirsScreen({ navigation }) {
           />
         ) : (
           <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 2}} onPress={() => setCalendarModalOpen(true)}>
-            <Calendar size={20} color={theme.dark ? '#ffffff' : '#000000'} />
+            <Calendar size={20} color={UIColors.text} />
             <Text style={{fontSize: 15, fontFamily: 'Papillon-Medium'}}>{new Date(calendarDate).toLocaleDateString('fr', {weekday: 'short', day: '2-digit', month:'short'})}</Text>
           </TouchableOpacity>
         )
@@ -125,11 +126,13 @@ function DevoirsScreen({ navigation }) {
     }
   }, []);
 
+  const UIColors = GetUIColors();
+
   return (
     <>
       <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
 
-      <View contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
+      <View contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: UIColors.background}]}>
       { Platform.OS === 'android' && calendarModalOpen ? (
               <DateTimePicker 
                 value={calendarDate}

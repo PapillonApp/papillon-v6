@@ -23,6 +23,8 @@ function ListItem({ title, subtitle, left, right, icon, style, color, isLarge, o
         textColor = '#fff';
     }
 
+    let bgMaterial = theme.colors.elevation.level1;
+
     function onPressActive() {
         if(onPress) {
             onPress();
@@ -71,8 +73,8 @@ function ListItem({ title, subtitle, left, right, icon, style, color, isLarge, o
                 </View>
             </PressableScale>
         :
-        <View style={[styles.listItemContainer, { flex: 1, borderRadius: 10, overflow: 'hidden' }, { backgroundColor: bgColor, borderColor: theme.colors.outline, borderColor: theme.dark ? '#191919' : '#e5e5e5', marginHorizontal : width ? 0 : 14, flex: width ? 1 : undefined, alignItems : center ? 'center' : undefined}, style]}>            
-            <TouchableNativeFeedback style={{flex: 1, borderRadius: 12, overflow: 'hidden'}} onPress={onPressActive} onLongPress={onLongPress}>
+        <View style={[styles.listItemContainer, { flex: 1, borderRadius: 10, overflow: 'hidden' }, { backgroundColor: bgMaterial, borderColor: theme.colors.outline, borderColor: theme.dark ? '#191919' : '#e5e5e5', marginHorizontal : width ? 0 : 14, flex: width ? 1 : undefined, alignItems : center ? 'center' : undefined}, style]}>            
+            <TouchableNativeFeedback style={{flex: 1, borderRadius: 12, overflow: 'hidden'}} onPress={onPressActive} onLongPress={onLongPress} background={TouchableNativeFeedback.Ripple(theme.colors.surfaceDisabled, true)}>
                 <View style={[styles.listItemChild]}>
                     { left ?
                         <View style={[styles.left]}>
@@ -122,9 +124,6 @@ const styles = StyleSheet.create({
 
         borderRadius: 10,
         borderWidth: 0,
-
-        elevation: 1.4,
-        shadowColor: 'rgba(0, 0, 0, 0.4)',
     },
     listItemChild: {
         padding: 14,

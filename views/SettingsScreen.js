@@ -17,17 +17,19 @@ import { Settings, User2, Palette, Info } from 'lucide-react-native';
 
 import { getUser } from '../fetch/PronoteData/PronoteUser';
 import {refreshToken, expireToken} from '../fetch/AuthStack/LoginFlow';
+import GetUIColors from '../utils/GetUIColors';
 
 function SettingsScreen({ navigation }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const UIColors = GetUIColors();
 
   const logout = () => {
     AsyncStorage.removeItem('token');
   }
 
   return (
-    <ScrollView style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]} contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
+    <ScrollView style={[styles.container, {backgroundColor: UIColors.background}]} contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
         <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
         
         <View style={styles.optionsList}>

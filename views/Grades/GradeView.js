@@ -18,10 +18,12 @@ import * as SystemUI from 'expo-system-ui';
 
 import formatCoursName from '../../utils/FormatCoursName';
 import { PressableScale } from 'react-native-pressable-scale';
+import GetUIColors from '../../utils/GetUIColors';
 
 function GradeView({ route, navigation }) {
     const theme = useTheme();
     const grade = route.params.grade;
+    const UIColors = GetUIColors();
 
     function shareGrade() {
         Alert.alert(
@@ -56,6 +58,7 @@ function GradeView({ route, navigation }) {
                 backgroundColor: mainColor,
             },
             headerShadowVisible: false,
+            mdTitleColor: '#fff',
             headerTintColor: '#fff',
             headerRight: () => (
                 <TouchableOpacity onPress={() => shareGrade()}>
@@ -93,19 +96,19 @@ function GradeView({ route, navigation }) {
                     <Text style={[styles.gradeHeaderGradeScale]}>/{grade.grade.out_of}</Text>
                 </View>
             </View>
-            <ScrollView contentInsetAdjustmentBehavior="automatic" style={{flex: 1, backgroundColor: theme.dark ? '#050505' : '#f2f2f7'}}>
+            <ScrollView contentInsetAdjustmentBehavior="automatic" style={{flex: 1, backgroundColor: UIColors.background}}>
                 
                 <View style={styles.optionsList}>
                     <Text style={styles.ListTitle}>Détails de la note</Text>
                     
-                    <PressableScale style={[styles.gradeDetail, { backgroundColor: theme.dark ? '#151515' : '#fff', borderColor: theme.dark ? '#191919' : '#e5e5e5'}]}>
+                    <PressableScale style={[styles.gradeDetail, { backgroundColor: UIColors.element, borderColor: theme.dark ? '#191919' : '#e5e5e5'}]}>
                         <SquareAsterisk color={!theme.dark ? '#000' : '#fff'} style={[styles.averageIcon]} />
 
                         <Text style={[styles.gradeDetailTitle]}>Coeff.</Text>
                         <Text style={[styles.gradeDetailValue]}>x {parseFloat(grade.grade.coefficient).toFixed(2)}</Text>
                     </PressableScale>
                     { grade.grade.significant == 0 && grade.grade.out_of !== 20 ?
-                        <PressableScale style={[styles.gradeDetail, { backgroundColor: theme.dark ? '#151515' : '#fff', borderColor: theme.dark ? '#191919' : '#e5e5e5'}]}>
+                        <PressableScale style={[styles.gradeDetail, { backgroundColor: UIColors.element, borderColor: theme.dark ? '#191919' : '#e5e5e5'}]}>
                             <GraduationCap color={!theme.dark ? '#000' : '#fff'} style={[styles.averageIcon]} />
                             <Text style={[styles.gradeDetailTitle]}>Remis sur /20</Text>
                             <View style={[styles.gradeDetailRight]}>
@@ -119,7 +122,7 @@ function GradeView({ route, navigation }) {
                 <View style={styles.optionsList}>
                     <Text style={styles.ListTitle}>Moyennes</Text>
                     
-                    <PressableScale style={[styles.gradeDetail, { backgroundColor: theme.dark ? '#151515' : '#fff', borderColor: theme.dark ? '#191919' : '#e5e5e5'}]}>
+                    <PressableScale style={[styles.gradeDetail, { backgroundColor: UIColors.element, borderColor: theme.dark ? '#191919' : '#e5e5e5'}]}>
                         <Users2 color={!theme.dark ? '#000' : '#fff'} style={[styles.averageIcon]} />
                         <Text style={[styles.gradeDetailTitle]}>Classe</Text>
                         <View style={[styles.gradeDetailRight]}>
@@ -127,7 +130,7 @@ function GradeView({ route, navigation }) {
                             <Text style={[styles.gradeDetailValueSub]}>/{grade.grade.out_of}</Text>
                         </View>
                     </PressableScale>
-                    <PressableScale style={[styles.gradeDetail, { backgroundColor: theme.dark ? '#151515' : '#fff', borderColor: theme.dark ? '#191919' : '#e5e5e5'}]}>
+                    <PressableScale style={[styles.gradeDetail, { backgroundColor: UIColors.element, borderColor: theme.dark ? '#191919' : '#e5e5e5'}]}>
                         <UserPlus color={!theme.dark ? '#000' : '#fff'} style={[styles.averageIcon]} />
                         <Text style={[styles.gradeDetailTitle]}>Max.</Text>
                         <View style={[styles.gradeDetailRight]}>
@@ -135,7 +138,7 @@ function GradeView({ route, navigation }) {
                             <Text style={[styles.gradeDetailValueSub]}>/{grade.grade.out_of}</Text>
                         </View>
                     </PressableScale>
-                    <PressableScale style={[styles.gradeDetail, { backgroundColor: theme.dark ? '#151515' : '#fff', borderColor: theme.dark ? '#191919' : '#e5e5e5'}]}>
+                    <PressableScale style={[styles.gradeDetail, { backgroundColor: UIColors.element, borderColor: theme.dark ? '#191919' : '#e5e5e5'}]}>
                         <UserMinus color={!theme.dark ? '#000' : '#fff'} style={[styles.averageIcon]} />
                         <Text style={[styles.gradeDetailTitle]}>Min.</Text>
                         <View style={[styles.gradeDetailRight]}>

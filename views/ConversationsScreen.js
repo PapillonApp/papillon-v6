@@ -4,18 +4,20 @@ import { StyleSheet, View, Button, ScrollView, StatusBar, Platform } from 'react
 import { Text, useTheme } from 'react-native-paper';
 import { useEffect, useState } from 'react';
 import { PressableScale } from 'react-native-pressable-scale';
+import GetUIColors from '../utils/GetUIColors';
 
 
 
 function ConversationsScreen({ navigation }) {
   const theme = useTheme();
+  const UIColors = GetUIColors();
 
   useEffect(() => {
     
   }, []);
 
   return (
-    <ScrollView style={styles.container} contentInsetAdjustmentBehavior='automatic'>
+    <ScrollView style={[styles.container, {backgroundColor: UIColors.background}]} contentInsetAdjustmentBehavior='automatic'>
       { Platform.OS === 'ios' ?
         <StatusBar animated barStyle={'light-content'} />
       :

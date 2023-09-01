@@ -10,12 +10,14 @@ import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
 import { Layout, Maximize } from 'lucide-react-native';
+import GetUIColors from '../../utils/GetUIColors';
 
 function AppearanceScreen({ navigation }) {
     const theme = useTheme();
+    const UIColors = GetUIColors();
     
     return (
-        <ScrollView style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
+        <ScrollView style={[styles.container, {backgroundColor: UIColors.background}]}>
             <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} />
 
             <View style={{gap: 9, marginTop: 24}}>

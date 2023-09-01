@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BottomNavigation } from 'react-native-paper';
+import { BottomNavigation, useTheme } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
@@ -90,13 +90,27 @@ const CustomNavigationBar = ({ navigation, route, options, back }) => {
     titleMode = 'large';
   }
 
+  let titleColor = options.headerTintColor;
+  if (options.mdTitleColor) {
+    titleColor = options.mdTitleColor;
+  }
+
   return (
     <Appbar.Header
       mode={titleMode}
       elevated={options.elevated}
+      style={{
+        ...options.headerStyle,
+      }}
     >
-      {back ? <Appbar.BackAction onPress={navigation.goBack} /> : null}
-      <Appbar.Content title={title} titleStyle={{fontFamily: 'Papillon-Medium'}} />
+      {back ? <Appbar.BackAction color={titleColor} onPress={navigation.goBack} /> : null}
+      <Appbar.Content title={title} titleStyle={{fontFamily: 'Papillon-Medium'}} color={titleColor} />
+      
+      {options.headerRight ?
+        <View style={{paddingEnd: 16}}>
+          {options.headerRight ? options.headerRight() : null}
+        </View>
+      : null}
     </Appbar.Header>
   );
 }
@@ -104,14 +118,13 @@ const CustomNavigationBar = ({ navigation, route, options, back }) => {
 const InsetNewsScreen = () => {
   return (
     <Stack.Navigator
-      screenOptions={{
-        headerTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-        headerLargeStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-      }}
+      screenOptions={
+        Platform.OS === 'android' ? {
+          animation: 'fade_from_bottom',
+          navigationBarColor: '#00000000',
+          header: (props) => <CustomNavigationBar {...props} />,
+        } : null
+      }
     >
       <Stack.Screen
         name="News"
@@ -136,14 +149,13 @@ const InsetNewsScreen = () => {
 const InsetSchoolLifeScreen = () => {
   return (
     <Stack.Navigator
-      screenOptions={{
-        headerTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-        headerLargeStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-      }}
+      screenOptions={
+        Platform.OS === 'android' ? {
+          animation: 'fade_from_bottom',
+          navigationBarColor: '#00000000',
+          header: (props) => <CustomNavigationBar {...props} />,
+        } : null
+      }
     >
       <Stack.Screen
           name="Schoollife"
@@ -161,14 +173,13 @@ const InsetSchoolLifeScreen = () => {
 const InsetConversationsScreen = () => {
   return (
     <Stack.Navigator
-      screenOptions={{
-        headerTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-        headerLargeStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-      }}
+      screenOptions={
+        Platform.OS === 'android' ? {
+          animation: 'fade_from_bottom',
+          navigationBarColor: '#00000000',
+          header: (props) => <CustomNavigationBar {...props} />,
+        } : null
+      }
     >
       <Stack.Screen
           name="Conversations"
@@ -186,14 +197,13 @@ const InsetConversationsScreen = () => {
 const InsetEvaluationsScreen = () => {
   return (
     <Stack.Navigator
-      screenOptions={{
-        headerTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-        headerLargeStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-      }}
+      screenOptions={
+        Platform.OS === 'android' ? {
+          animation: 'fade_from_bottom',
+          navigationBarColor: '#00000000',
+          header: (props) => <CustomNavigationBar {...props} />,
+        } : null
+      }
     >
       <Stack.Screen
           name="Evaluations"
@@ -211,16 +221,13 @@ const InsetEvaluationsScreen = () => {
 const WrappedHomeScreen = () => {
   return (
     <Stack.Navigator
-      screenOptions={{
-        animation: Platform.OS === 'android' ? 'fade_from_bottom' : null,
-        navigationBarColor: '#00000000',
-        headerTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-        headerLargeTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-      }}
+      screenOptions={
+        Platform.OS === 'android' ? {
+          animation: 'fade_from_bottom',
+          navigationBarColor: '#00000000',
+          header: (props) => <CustomNavigationBar {...props} />,
+        } : null
+      }
     >
       <Stack.Screen
         name="Vue d'ensemble"
@@ -295,16 +302,13 @@ const WrappedHomeScreen = () => {
 const WrappedCoursScreen = () => {
   return (
     <Stack.Navigator
-      screenOptions={{
-        animation: Platform.OS === 'android' ? 'fade_from_bottom' : null,
-        navigationBarColor: '#00000000',
-        headerTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-        headerLargeTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-      }}
+      screenOptions={
+        Platform.OS === 'android' ? {
+          animation: 'fade_from_bottom',
+          navigationBarColor: '#00000000',
+          header: (props) => <CustomNavigationBar {...props} />,
+        } : null
+      }
     >
       <Stack.Screen
         name="Cours"
@@ -328,16 +332,13 @@ const WrappedCoursScreen = () => {
 const WrappedDevoirsScreen = () => {
   return (
     <Stack.Navigator
-      screenOptions={{
-        animation: Platform.OS === 'android' ? 'fade_from_bottom' : null,
-        navigationBarColor: '#00000000',
-        headerTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-        headerLargeTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-      }}
+      screenOptions={
+        Platform.OS === 'android' ? {
+          animation: 'fade_from_bottom',
+          navigationBarColor: '#00000000',
+          header: (props) => <CustomNavigationBar {...props} />,
+        } : null
+      }
     >
       <Stack.Screen
         name="Devoirs"
@@ -354,23 +355,20 @@ const WrappedDevoirsScreen = () => {
 const WrappedGradesScreen = () => {
   return (
     <Stack.Navigator
-      screenOptions={{
-        animation: Platform.OS === 'android' ? 'fade_from_bottom' : null,
-        navigationBarColor: '#00000000',
-        headerTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-        headerLargeTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-      }}
+      screenOptions={
+        Platform.OS === 'android' ? {
+          animation: 'fade_from_bottom',
+          navigationBarColor: '#00000000',
+          header: (props) => <CustomNavigationBar {...props} />,
+        } : null
+      }
     >
       <Stack.Screen
         name="Notes"
         component={GradesScreen}
         options={{ 
           headerShown: true,
-          headerLargeTitle: true,
+          headerLargeTitle: Platform.OS == 'iOS' ? true : false,
         }}
       />
       <Stack.Screen
@@ -388,23 +386,19 @@ const WrappedGradesScreen = () => {
 const WrappedSettings = () => {
   return (
     <Stack.Navigator
-      screenOptions={{
-        animation: Platform.OS === 'android' ? 'fade_from_bottom' : null,
-        navigationBarColor: '#00000000',
-        headerTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-        headerLargeTitleStyle: {
-          fontFamily: 'Papillon-Semibold',
-        },
-        headerTruncatedBackTitle: 'translated back label',
-      }}
+      screenOptions={
+        Platform.OS === 'android' ? {
+          animation: 'fade_from_bottom',
+          navigationBarColor: '#00000000',
+          header: (props) => <CustomNavigationBar {...props} />,
+        } : null
+      }
     >
       <Stack.Screen
         name="Compte"
         component={SettingsScreen}
         options={{ 
-          headerLargeTitle: true,
+          headerLargeTitle: Platform.OS == 'iOS' ? true : false,
           headerTitle: 'Compte',
         }}
       />
@@ -458,8 +452,54 @@ const WrappedSettings = () => {
 };
 
 const AppStack = () => {
+  const theme = useTheme();
+
   return (
     <Tab.Navigator
+      tabBar={Platform.OS !== 'ios' ? ({ navigation, state, descriptors, insets }) => (
+        <BottomNavigation.Bar
+          navigationState={state}
+          compact={false}
+          shifting={false}
+          safeAreaInsets={{
+            ...insets,
+            right: 12,
+            left: 12,
+          }}
+          onTabPress={({ route, preventDefault }) => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (event.defaultPrevented) {
+              preventDefault();
+            } else {
+            navigation.navigate(route.name);
+            }
+          }}
+          renderIcon={({ route, focused, color }) => {
+            const { options } = descriptors[route.key];
+            if (options.tabBarIcon) {
+              return options.tabBarIcon({ focused, color, size: 24 });
+            }
+
+            return null;
+          }}
+          getLabelText={({ route }) => {
+            const { options } = descriptors[route.key];
+            const label =
+              options.tabBarLabel !== undefined
+                ? options.tabBarLabel
+                : options.title !== undefined
+                ? options.title
+                : route.title;
+
+            return label;
+          }}
+        />
+      ): undefined}
       screenOptions={{
         headerTruncatedBackTitle: 'Retour',
         elevated: false,
@@ -482,7 +522,6 @@ const AppStack = () => {
           paddingTop: 2,
         },
         tabBarButton: (props) => (
-          ( Platform.OS === 'ios' ? (
             <PressableScale
               {...props}
               activeScale={0.7}
@@ -492,17 +531,6 @@ const AppStack = () => {
                 {props.children}
               </View>
             </PressableScale>
-          ) : (
-            <View style={{flex: 1, borderRadius: 20, overflow: 'hidden', marginVertical: 4}}>
-              <TouchableNativeFeedback
-                {...props}
-              >
-                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                  {props.children}
-                </View>
-              </TouchableNativeFeedback>
-            </View>
-          ))
         ),
       }}
     >
@@ -596,7 +624,7 @@ const AuthStack = () => {
           headerLargeTitleStyle: {
             color: baseColor,
           },
-          headerLargeTitle: true,
+          headerLargeTitle: Platform.OS == 'iOS' ? true : false,
           headerLargeTitleStyle: {
             fontFamily: 'Papillon-Semibold',
           },

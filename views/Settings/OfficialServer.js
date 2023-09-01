@@ -8,9 +8,11 @@ import { BadgeCheck, PackageOpen, ShieldCheck, Eye, BadgeHelp, HelpCircle } from
 
 import PapillonIcon from '../../components/PapillonIcon';
 import ListItem from '../../components/ListItem';
+import GetUIColors from '../../utils/GetUIColors';
 
 function OfficialServer({ route, navigation }) {
     const theme = useTheme();
+    const UIColors = GetUIColors();
 
     const official = route.params.official;
     const server = route.params.server;
@@ -23,7 +25,7 @@ function OfficialServer({ route, navigation }) {
     }, [navigation]);
     
     return (
-        <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
+        <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: UIColors.background}]}>
             { official ?
             <View style={styles.certifContainer}>
                 <PapillonIcon

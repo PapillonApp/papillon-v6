@@ -20,6 +20,7 @@ import formatCoursName from '../../utils/FormatCoursName';
 
 import * as Clipboard from 'expo-clipboard';
 import { PressableScale } from 'react-native-pressable-scale';
+import GetUIColors from '../../utils/GetUIColors';
 
 const calendars = [];
 
@@ -31,7 +32,7 @@ async function getDefaultCalendarSource() {
 function LessonScreen({ route, navigation }) {
     const theme = useTheme();
     const lesson = route.params.event;
-
+    const UIColors = GetUIColors();
     
 
     // calculate length of lesson
@@ -59,7 +60,7 @@ function LessonScreen({ route, navigation }) {
     return (
         <>
             <CoursHeader cours={lesson} navigation={navigation} />
-            <ScrollView contentInsetAdjustmentBehavior="automatic" style={{flex: 1, backgroundColor: theme.dark ? '#050505' : '#f2f2f7'}}>
+            <ScrollView contentInsetAdjustmentBehavior="automatic" style={{flex: 1, backgroundColor: UIColors.background}}>
                 <StatusBar animated barStyle={'light-content'} backgroundColor={getClosestColor(lesson.background_color)} />
                 
                 <View style={styles.optionsList}>

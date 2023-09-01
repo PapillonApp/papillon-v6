@@ -16,9 +16,11 @@ import { getUser } from '../fetch/PronoteData/PronoteUser';
 
 import { getEvaluations, changePeriod } from '../fetch/PronoteData/PronoteGrades';
 import { set } from 'react-native-reanimated';
+import GetUIColors from '../utils/GetUIColors';
 
 function EvaluationsScreen({ navigation }) {
   const theme = useTheme();
+  const UIColors = GetUIColors();
   const { showActionSheetWithOptions } = useActionSheet();
 
   const [evaluations, setEvaluations] = useState([]);
@@ -134,7 +136,7 @@ function EvaluationsScreen({ navigation }) {
   }, []);
 
   return (
-    <ScrollView style={styles.container} contentInsetAdjustmentBehavior='automatic'
+    <ScrollView style={[styles.container, {backgroundColor: UIColors.background}]} contentInsetAdjustmentBehavior='automatic'
     refreshControl={
       <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
     }>

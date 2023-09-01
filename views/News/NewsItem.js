@@ -7,6 +7,7 @@ import RenderHtml from 'react-native-render-html';
 
 import ListItem from '../../components/ListItem';
 import { BarChart4, Link, File } from 'lucide-react-native';
+import GetUIColors from '../../utils/GetUIColors';
 
 function NewsHeader({ news }) {
     const theme = useTheme();
@@ -22,6 +23,7 @@ function NewsHeader({ news }) {
 function NewsItem({ route, navigation }) {
     const { news } = route.params;
     const theme = useTheme();
+    const UIColors = GetUIColors();
     const { width } = useWindowDimensions();
 
     // change the header of the screen
@@ -37,7 +39,7 @@ function NewsItem({ route, navigation }) {
     }
 
     return (
-      <ScrollView style={styles.container}>
+      <ScrollView style={[styles.container, {backgroundColor: UIColors.background}]}>
         { Platform.OS === 'ios' ?
             <StatusBar animated barStyle={'light-content'} />
         :

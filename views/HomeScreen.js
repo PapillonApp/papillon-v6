@@ -27,6 +27,7 @@ import { changeHomeworkState } from '../fetch/PronoteData/PronoteHomeworks';
 import { set } from 'react-native-reanimated';
 
 import { Link, File, Check } from 'lucide-react-native';
+import GetUIColors from '../utils/GetUIColors';
 
 function HomeScreen({ navigation }) {
   const theme = useTheme();
@@ -105,9 +106,11 @@ function HomeScreen({ navigation }) {
     setIsHeadLoading(false);
   }, []);
 
+  const UIColors = GetUIColors();
+
   return (
     <>
-      <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]} contentContainerStyle={{alignItems: 'center', justifyContent: 'center', paddingTop: 12}}
+      <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: UIColors.background}]} contentContainerStyle={{alignItems: 'center', justifyContent: 'center', paddingTop: 12}}
       refreshControl={
         <RefreshControl progressViewOffset={28} refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
       }>
@@ -132,21 +135,21 @@ function HomeScreen({ navigation }) {
         {/* tabs */}
         <View style={[styles.tabsContainer]}>
           <View style={[styles.tabRow]}>
-            <PressableScale style={[styles.tab, {backgroundColor: theme.dark ? '#151515' : '#ffffff'}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetSchoollife')}>
+            <PressableScale style={[styles.tab, {backgroundColor: UIColors.element}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetSchoollife')}>
               <Gavel size={24} color={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabText]}>Vie scolaire</Text>
             </PressableScale>
-            <PressableScale style={[styles.tab, {backgroundColor: theme.dark ? '#151515' : '#ffffff'}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetNews')}>
+            <PressableScale style={[styles.tab, {backgroundColor: UIColors.element}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetNews')}>
               <Newspaper size={24} color={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabText]}>Actualités</Text>
             </PressableScale>
           </View>
           <View style={[styles.tabRow]}>
-            <PressableScale style={[styles.tab, {backgroundColor: theme.dark ? '#151515' : '#ffffff'}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetConversations')}>
+            <PressableScale style={[styles.tab, {backgroundColor: UIColors.element}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetConversations')}>
               <MessagesSquare size={24} color={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabText]}>Conversations</Text>
             </PressableScale>
-            <PressableScale style={[styles.tab, {backgroundColor: theme.dark ? '#151515' : '#ffffff'}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetEvaluations')}>
+            <PressableScale style={[styles.tab, {backgroundColor: UIColors.element}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetEvaluations')}>
               <CheckCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabText]}>Compétences</Text>
             </PressableScale>
@@ -966,7 +969,7 @@ const styles = StyleSheet.create({
     shadowOpacity: .15,
     shadowRadius: 1,
 
-    elevation: 1,
+    elevation: 0,
   },
 
   tabText: {

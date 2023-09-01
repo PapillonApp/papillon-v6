@@ -20,6 +20,7 @@ import { useState, useEffect } from 'react';
 import { X, Server, Euro, User, Wrench, History, Bug, Check } from 'lucide-react-native';
 
 import { getInfo } from '../../fetch/AuthStack/LoginFlow';
+import GetUIColors from '../../utils/GetUIColors';
 
 function AboutScreen({ navigation }) {
   const theme = useTheme();
@@ -101,9 +102,11 @@ function AboutScreen({ navigation }) {
     }
   }
 
+  const UIColors = GetUIColors();
+
   return (
     <View style={{flex: 1}}>
-      <ScrollView style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]} contentInsetAdjustmentBehavior="automatic">
+      <ScrollView style={[styles.container, {backgroundColor: UIColors.background}]} contentInsetAdjustmentBehavior="automatic">
 
         <View style={[styles.optionsList]}>
           <Text style={styles.ListTitle}>Serveur</Text>

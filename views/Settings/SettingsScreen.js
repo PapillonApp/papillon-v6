@@ -13,9 +13,11 @@ import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
 import { LogOut, RefreshCw, Trash2 } from 'lucide-react-native';
+import GetUIColors from '../../utils/GetUIColors';
 
 function SettingsScreen({ navigation }) {
     const theme = useTheme();
+    const UIColors = GetUIColors();
 
     function LogOutAction() {
         Alert.alert(
@@ -65,7 +67,7 @@ function SettingsScreen({ navigation }) {
     }
     
     return (
-        <ScrollView style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
+        <ScrollView style={[styles.container, {backgroundColor: UIColors.background}]}>
             <View style={{gap: 9, marginTop: 16}}>
                 <Text style={styles.ListTitle}>Mon compte</Text>
 

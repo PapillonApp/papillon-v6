@@ -10,6 +10,7 @@ import PapillonIcon from '../../components/PapillonIcon';
 import { setAppIcon, getAppIcon } from "expo-dynamic-app-icon";
 
 import { Grid } from 'lucide-react-native';
+import GetUIColors from '../../utils/GetUIColors';
 
 function IconItem({ icon, index, applyIcon, current, subtitle }) {
     const [isLoaded, setIsLoaded] = useState(false);
@@ -43,6 +44,7 @@ function IconItem({ icon, index, applyIcon, current, subtitle }) {
 
 function AppearanceScreen({ navigation }) {
     const theme = useTheme();
+    const UIColors = GetUIColors();
 
     // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles
     const papillonIcons = [
@@ -183,7 +185,7 @@ function AppearanceScreen({ navigation }) {
     }
         
     return (
-        <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: theme.dark ? "#000000" : "#f2f2f7"}]}>
+        <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: UIColors.background}]}>
             { Platform.OS === 'ios' ?
                 <StatusBar animated barStyle={'light-content'} />
             :

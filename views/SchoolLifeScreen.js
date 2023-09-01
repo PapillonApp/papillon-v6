@@ -9,10 +9,12 @@ import { PressableScale } from 'react-native-pressable-scale';
 import { Clock3, UserX } from 'lucide-react-native';
 
 import PapillonIcon from '../components/PapillonIcon';
+import GetUIColors from '../utils/GetUIColors';
 
 function SchoolLifeScreen({ navigation }) {
   const [viesco, setViesco] = useState(null);
   const theme = useTheme();
+  const UIColors = GetUIColors();
 
   const  [isHeadLoading, setIsHeadLoading] = useState(false);
 
@@ -33,7 +35,7 @@ function SchoolLifeScreen({ navigation }) {
   }, []);
 
   return (
-    <ScrollView style={styles.container} contentInsetAdjustmentBehavior='automatic'
+    <ScrollView style={[styles.container, {backgroundColor: UIColors.background}]} contentInsetAdjustmentBehavior='automatic'
     refreshControl={
       <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
     }>
