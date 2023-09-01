@@ -54,3 +54,6 @@ La **v4** est née de la volonté de partir d'une vraie nouvelle base, en quitta
 Une chose que la v6 doit prendre en compte, c'est le flop de la v4. Pourquoi ? Celle-ci est née dans les mêmes conditions : un changement majeur de technologie dans la volonté d'obtenir de meilleures performances. Cependant, le manque de connaissances en Vue.js de l'époque a conduit la v4 à devenir une "version test", déjà amenée à s'éteindre.
 
 Comment ne pas reproduire cela ? En gardant une idée claire en tête : **la structuration**. Le principal problème de la v4 était son manque de structure claire et le manque d'outils adaptés au développement mobile. La v6 résout ces 2 problèmes en basant sa structure sur celle de la v5 qui fonctionne bien, et en se basant sur un framework complet et reconnu : `react-native-papers`, avec la possibilité de s'en détacher à tout instant.
+
+## License
+Distribué sous licence MIT. Rendez vous sur [LICENSE](licence.md) pour plus d'informations.
