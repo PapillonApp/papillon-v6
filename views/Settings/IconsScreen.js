@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform, Settings, ActivityIndicator, Alert } from 'react-native';
+import { View, ScrollView, Pressable, StyleSheet, Image, StatusBar, Platform, Settings, ActivityIndicator, Alert, Switch } from 'react-native';
 import { useTheme, Button, Text } from 'react-native-paper';
 
 import { useState, useEffect } from 'react';
@@ -45,6 +45,8 @@ function IconItem({ icon, index, applyIcon, current, subtitle }) {
 function AppearanceScreen({ navigation }) {
     const theme = useTheme();
     const UIColors = GetUIColors();
+
+    const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
     // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles
     const papillonIcons = [
@@ -174,6 +176,11 @@ function AppearanceScreen({ navigation }) {
 
     useEffect(() => {
         setCurrentIcon(getAppIcon() || 'classic');
+
+        // if getappicon is not null
+        if (getAppIcon() !== 'DEFAULT') {
+            setIsSwitchOn(true);
+        }
     }, []);
 
     function applyIcon(name) {
@@ -183,6 +190,22 @@ function AppearanceScreen({ navigation }) {
             setCurrentIcon(name);    
         }
     }
+
+    // add switch in header
+    React.useLayoutEffect(() => {
+        if (Platform.OS === 'android') {
+            navigation.setOptions({
+                headerRight: () => (
+                    <Switch
+                        value={isSwitchOn}
+                        onValueChange={() => {
+                            setIsSwitchOn(!isSwitchOn);
+                        }}
+                    />
+                ),
+            });
+        }
+    }, [navigation, isSwitchOn]);
         
     return (
         <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: UIColors.background}]}>
@@ -195,13 +218,13 @@ function AppearanceScreen({ navigation }) {
             { Platform.OS === 'android' ?
                 <ListItem
                     title="Icône de l'application"
-                    subtitle="Cette fonctionnalité sous Android peut provoquer une duplication de l'application dans le menu d'applications de votre téléphone en cas de changements trop rapide."
+                    subtitle="Cette fonctionnalité est instable sous Android et elle peut provoquer des comportements innatendus dans votre lanceur d'applications."
                     color="#A84700"
                     style={{marginTop: 14}}
                 />
             : null }
 
-            <View style={[{gap: 9, paddingVertical: 24}]}>
+            <View style={[{gap: 9, paddingVertical: 24}, Platform.OS === 'android' && !isSwitchOn ? {opacity: 0.5} : undefined]} pointerEvents={Platform.OS === 'android' && !isSwitchOn ? 'none' : 'auto'}>
                 <Text style={styles.ListTitle}>Icônes Papillon</Text>
 
                 { papillonIcons.map((icon, index) => (
