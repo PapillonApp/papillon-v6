@@ -29,12 +29,15 @@ function GetUIColors() {
 
     // main
     let primary = '';
+    let primaryBackground = '';
 
     if (Platform.OS === 'ios') {
         primary = '#29947A';
+        primaryBackground = '#29947A';
     }
     else {
         primary = theme.colors.primary;
+        primaryBackground = theme.dark ? theme.colors.primaryContainer : theme.colors.primary;
     }
 
     // textOnPrimary
@@ -48,7 +51,8 @@ function GetUIColors() {
         background: background,
         element: element,
         text: text,
-        primary: primary
+        primary: primary,
+        primaryBackground: primaryBackground,
     }
 }
 

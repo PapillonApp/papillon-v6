@@ -419,7 +419,7 @@ function HomeHeader({ navigation, timetable, user }) {
   const UIColors = GetUIColors();
 
   return (
-    <View style={[styles.header, { backgroundColor: nextCourse ? getColorCoursBg(nextCourse.background_color) : UIColors.primary, paddingTop: insets.top + 13, borderColor: theme.dark ? '#ffffff15' : '#00000032', borderBottomWidth: 1 }]}>
+    <View style={[styles.header, { backgroundColor: nextCourse ? getColorCoursBg(nextCourse.background_color) : UIColors.primaryBackground, paddingTop: insets.top + 13, borderColor: theme.dark ? '#ffffff15' : '#00000032', borderBottomWidth: 1 }]}>
       { isFocused ?
         <StatusBar barStyle={'light-content'} backgroundColor={'transparent'} />
       : null }
