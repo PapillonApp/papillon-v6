@@ -1,15 +1,17 @@
-# papillon-v6
-Serait-ce le début d'une nouvelle ère pour Papillon 👀
+# Papillon v6
+Bienvenue à l'aube d'une nouvelle ère pour Papillon 👀
 
 ## Pour les contributeurs
+Vous souhaitez contribuer à Papillon ? Voici quelques ressources pour vous aider à démarrer :
 - [🍱 Composants](/components/README.md)
 
-## Roadmap
+## Feuille de route
+Voici un aperçu de ce que nous avons accompli jusqu'à présent et de ce qui reste à faire :
 - [x] Structure
     - [x] Routage & Navigation
     - [x] Appels à l'API
-    - [x] Données utilisateurs (équivalent LocalStorage)
-    - [x] Framework UI (React Native Paper)
+    - [x] Gestion des données utilisateurs (équivalent LocalStorage)
+    - [x] Intégration du Framework UI (React Native Paper)
 - [x] Connexion à un service scolaire *(Pronote pour le moment)*
     - [x] Interface de choix du service scolaire
     - [x] Interface de sélection de l'établissement
@@ -28,32 +30,33 @@ Serait-ce le début d'une nouvelle ère pour Papillon 👀
     - [x] Vie scolaire
 
 
-## Le projet
-> J'avais parlé de la possibilité d'une future réécriture de Papillon en React Native pendant les vacances pour une sortie possible à la rentrée 2023. Maintenant, je passe enfin à l'action -  Vince (@ecnivtwelve), 2023
+## À propos du projet
+> "J'avais parlé de la possibilité d'une future réécriture de Papillon en React Native pendant les vacances pour une sortie possible à la rentrée 2023. Maintenant, je passe enfin à l'action." - Vince (@ecnivtwelve), 2023
 
-La v6 de Papillon serait donc une **réécriture** de la v5, dans le sens ou celle ci doit garder les mêmes concepts de structure et d'organisation interne, afin de faciliter la transition des APIs. Cependant, l'interface de l'app sera entièrement nouvelle.
+La v6 de Papillon est une **réécriture** de la v5. Notre objectif est de conserver les mêmes concepts de structure et d'organisation interne pour faciliter la transition des APIs, tout en proposant une interface entièrement nouvelle.
 
-L'idée derrière la notion de réécriture est de ne pas réinventer la roue et de pouvoir réutiliser ce sur quoi nous avons travaillé pendant plusieurs mois.
+Nous avons appris de nos erreurs passées et nous nous efforçons de ne pas les répéter. Notre but est de créer une application qui soit à la fois performante et agréable à utiliser.
 
-### Encore une nouvelle version ?
-Revenons en arrière dans la chronologie de Papillon.
+### L'histoire de Papillon
+Papillon a parcouru un long chemin depuis sa première version. Voici un aperçu de notre parcours :
 
-La **version 1**, encore appelée `pronoteplus-app` fonctionnait de manière très primaire avec Ionic Framework et du JS vanilla. Un changement majeur de back-end à conduit à une nouvelle version.
+La **version 1**, encore appelée `pronoteplus-app`, était une application très basique construite avec Ionic Framework et du JS vanilla. Un changement majeur de back-end a conduit à une nouvelle version.
 
-La **version 2.0** est donc née à partir d'une nouvelle API bien plus efficace, mais celle ci à été remplacée à cause d'une structure de code trop compliquée.
+La **version 2.0** a été créée à partir d'une nouvelle API plus efficace, mais a dû être remplacée en raison d'une structure de code trop complexe.
 
-La **v3** (la plus populaire) à été la première à porter comme nom de code `Papillon`. Cette version avait 2 objectifs majeurs : simplifier la structure du code et améliorer l'interface utilisateur. Celle ci à été remplacée, devenue trop lente à cause d'un code devenu trop lourd et d'un manque de structure solide.
+La **v3**, la plus populaire à ce jour, a été la première à porter le nom de code `Papillon`. Cette version avait deux objectifs principaux : simplifier la structure du code et améliorer l'interface utilisateur. Cependant, elle a dû être remplacée car elle était devenue trop lente en raison d'un code trop lourd et d'un manque de structure solide.
 
-La **v4** est née de la volonté de partir d'une vraie nouvelle base, en quittant le JS vanilla pour le framework Vue.js. Mais celle-ci à été vite remplacée par l'arrivée d'un projet plus ambitieux et plus intéressant, la v5.
+La **v4** a été créée dans le but de partir d'une nouvelle base, en passant du JS vanilla au framework Vue.js. Cependant, elle a été rapidement remplacée par l'arrivée d'un projet plus ambitieux et plus intéressant, la v5.
 
-**Papillon v5** est la dernière version en date. Celle ci est partie d'une volonté : celle de ne pas reproduire encore et encore les mêmes erreurs. Plusieurs mois après : le pari est réussi. Mais il se pose une limite à la v5, et une limite majeure : ses performances. L'app est lente, et elle le devient de plus en plus avec le temps. La cause : l'usage d'une technologie web inadaptée aux appareils les plus anciens et causant des problèmes de performances.
+**Papillon v5**, la dernière version en date, est née d'une volonté : celle de ne pas reproduire les mêmes erreurs. Plusieurs mois après : le pari est réussi. Cependant, la v5 a atteint ses limites, notamment en termes de performances. L'application est lente et le devient de plus en plus avec le temps. La cause : l'utilisation d'une technologie web inadaptée aux appareils les plus anciens et causant des problèmes de performances.
 
-**Papillon v6** a pris des notes des erreurs du passé, en essayant d'avancer vers l'avenir. Pour la première fois, Papillon quitte le statut de webapp et devient une application native. Cela va permettre un gain de stabilité et de performances très intéressant.
+**Papillon v6** a pris note des erreurs du passé et s'efforce d'avancer vers l'avenir. Pour la première fois, Papillon quitte le statut de webapp pour devenir une application native. Cela devrait permettre un gain significatif en termes de stabilité et de performances.
 
-### Le risque & la solution
-Une chose que la v6 doit prendre en compte, c'est le flop de la v4. Pourquoi ? Celle-ci est née dans les mêmes conditions : un changement majeur de technologie dans la volonté d'obtenir de meilleures performances. Cependant, le manque de connaissances en Vue.js de l'époque a conduit la v4 à devenir une "version test", déjà amenée à s'éteindre.
+### Les défis et les solutions
+Un des défis majeurs que la v6 doit relever est d'éviter le flop de la v4. Pourquoi ? La v4 a été créée dans les mêmes conditions : un changement majeur de technologie dans le but d'obtenir de meilleures performances. Cependant, le manque de connaissances en Vue.js à l'époque a conduit la v4 à devenir une "version test", déjà vouée à l'obsolescence.
 
-Comment ne pas reproduire cela ? En gardant une idée claire en tête : **la structuration**. Le principal problème de la v4 était son manque de structure claire et le manque d'outils adaptés au développement mobile. La v6 résout ces 2 problèmes en basant sa structure sur celle de la v5 qui fonctionne bien, et en se basant sur un framework complet et reconnu : `react-native-papers`, avec la possibilité de s'en détacher à tout instant.
+Comment éviter de reproduire cela ? En gardant une idée claire en tête : **la structuration**. Le principal problème de la v4 était son manque de structure claire et le manque d'outils adaptés au développement mobile. La v6 résout ces deux problèmes en basant sa structure sur celle de la v5 qui fonctionne bien, et en utilisant un framework complet et reconnu : `react-native-papers`, avec la possibilité de s'en détacher à tout moment.
 
-## License
-Distribué sous licence MIT. Rendez-vous sur [LICENSE](licence.md) pour plus d'informations.
+## Licence
+Papillon est distribué sous licence MIT. Pour plus d'informations, veuillez consulter le fichier [LICENSE](licence.md).
+
