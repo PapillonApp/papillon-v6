@@ -392,13 +392,6 @@ function HomeHeader({ navigation, timetable, user }) {
     const words = name.split(' ');
     let prenom = words[words.length - 1];
 
-    for (let i = 1; i < words.length; i++) {
-      if (words[i][0] === words[i][0].toUpperCase()) {
-        prenom = words[i];
-        break; // No need to continue
-      }
-    }
-
     return prenom;
   };
 
