@@ -27,7 +27,8 @@ import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import * as LocalAuthentication from 'expo-local-authentication';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import * as SystemUI from 'expo-system-ui';
 
 import {
   Mail,
@@ -38,7 +39,7 @@ import {
   Contact2,
   Lock,
 } from 'lucide-react-native';
-import { getUser } from '../../fetch/PronoteData/PronoteUser';
+import { getUser } from '../../fetch/IndexData';
 
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';

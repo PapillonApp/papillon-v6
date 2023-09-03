@@ -173,6 +173,7 @@ function LoginPronote({ route, navigation }) {
       } else {
         AsyncStorage.setItem('token', token);
         AsyncStorage.setItem('credentials', JSON.stringify(credentials));
+        AsyncStorage.setItem('service', "Pronote");
 
         showMessage({
           message: 'Connecté avec succès',
