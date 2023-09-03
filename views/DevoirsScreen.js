@@ -1,29 +1,32 @@
 import * as React from 'react';
-import { View, ScrollView, StyleSheet, StatusBar, Platform, Pressable, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  StatusBar,
+  Platform,
+  ActivityIndicator,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import * as SystemUI from 'expo-system-ui';
+import { useState, useEffect, useRef } from 'react';
 
-import {getHomeworks, changeHomeworkState} from '../fetch/PronoteData/PronoteHomeworks';
+import { PressableScale } from 'react-native-pressable-scale';
 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import {useState, useEffect, useRef} from 'react';
-
-import { PressableScale, NativePressableScale } from 'react-native-pressable-scale';
-
-import InfinitePager from 'react-native-infinite-pager'
+import InfinitePager from 'react-native-infinite-pager';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import formatCoursName from '../utils/FormatCoursName';
+import * as WebBrowser from 'expo-web-browser';
+import { Calendar, Check, File, Link } from 'lucide-react-native';
 import getClosestColor from '../utils/ColorCoursName';
 
-import UnstableItem from '../components/UnstableItem';
-
-import * as WebBrowser from 'expo-web-browser';
-
-import { Calendar, Check, File, Link } from 'lucide-react-native';
+import {
+  getHomeworks,
+  changeHomeworkState,
+} from '../fetch/PronoteData/PronoteHomeworks';
 import GetUIColors from '../utils/GetUIColors';
 
 const openURL = (url) => {
@@ -40,11 +43,10 @@ const calcDate = (date, days) => {
   const result = new Date(date);
   result.setDate(result.getDate() + days);
   return result;
-}
+};
 
 function DevoirsScreen({ navigation }) {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const pagerRef = useRef(null);
 
   const [today, setToday] = useState(new Date());
@@ -58,7 +60,7 @@ function DevoirsScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
+      headerRight: () =>
         Platform.OS === 'ios' ? (
           <DateTimePicker
             value={calendarDate}
@@ -78,12 +80,25 @@ function DevoirsScreen({ navigation }) {
             }}
           />
         ) : (
-          <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 2}} onPress={() => setCalendarModalOpen(true)}>
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+              marginRight: 2,
+            }}
+            onPress={() => setCalendarModalOpen(true)}
+          >
             <Calendar size={20} color={UIColors.text} />
-            <Text style={{fontSize: 15, fontFamily: 'Papillon-Medium'}}>{new Date(calendarDate).toLocaleDateString('fr', {weekday: 'short', day: '2-digit', month:'short'})}</Text>
+            <Text style={{ fontSize: 15, fontFamily: 'Papillon-Medium' }}>
+              {new Date(calendarDate).toLocaleDateString('fr', {
+                weekday: 'short',
+                day: '2-digit',
+                month: 'short',
+              })}
+            </Text>
           </TouchableOpacity>
-        )
-      ),
+        ),
     });
   }, [navigation, calendarDate]);
 
@@ -132,53 +147,63 @@ function DevoirsScreen({ navigation }) {
 
   return (
     <>
-      <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
+      <StatusBar
+        animated
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor="transparent"
+      />
 
-      <View contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: UIColors.background}]}>
-      { Platform.OS === 'android' && calendarModalOpen ? (
-              <DateTimePicker 
-                value={calendarDate}
-                locale='fr-FR'
-                mode='date'
-                display='calendar'
-                onChange={(event, date) => {
-                  if(event.type === 'dismissed') {
-                    setCalendarModalOpen(false);
-                    return;
-                  }
+      <View
+        contentInsetAdjustmentBehavior="automatic"
+        style={[styles.container, { backgroundColor: UIColors.background }]}
+      >
+        {Platform.OS === 'android' && calendarModalOpen ? (
+          <DateTimePicker
+            value={calendarDate}
+            locale="fr-FR"
+            mode="date"
+            display="calendar"
+            onChange={(event, date) => {
+              if (event.type === 'dismissed') {
+                setCalendarModalOpen(false);
+                return;
+              }
 
-                  setCalendarModalOpen(false);
+              setCalendarModalOpen(false);
 
-                  setCalendarDate(date);
-                  setToday(date);
-                  pagerRef.current.setPage(0);
-                  if (currentIndex === 0) {
-                    setCurrentIndex(1);
-                    setTimeout(() => {
-                      setCurrentIndex(0);
-                    }, 10);
-                  }
-                }}
-              />
-          ) : null }
-        
+              setCalendarDate(date);
+              setToday(date);
+              pagerRef.current.setPage(0);
+              if (currentIndex === 0) {
+                setCurrentIndex(1);
+                setTimeout(() => {
+                  setCurrentIndex(0);
+                }, 10);
+              }
+            }}
+          />
+        ) : null}
+
         <InfinitePager
           style={[styles.viewPager]}
           pageWrapperStyle={[styles.pageWrapper]}
           onPageChange={handlePageChange}
           ref={pagerRef}
           pageBuffer={4}
-          renderPage={
-            ({ index }) => (
-              <>
-                { homeworks[calcDate(today, index).toLocaleDateString()] ?
-                  <Hwpage homeworks={homeworks[calcDate(today, index).toLocaleDateString()] || []} navigation={navigation} theme={theme} forceRefresh={forceRefresh} />
-                : 
-                  <View style={[styles.homeworksContainer]}>
-                    <ActivityIndicator size="small" />
-                  </View>
+          renderPage={({ index }) =>
+            homeworks[calcDate(today, index).toLocaleDateString()] ? (
+              <Hwpage
+                homeworks={
+                  homeworks[calcDate(today, index).toLocaleDateString()] || []
                 }
-              </>
+                navigation={navigation}
+                theme={theme}
+                forceRefresh={forceRefresh}
+              />
+            ) : (
+              <View style={[styles.homeworksContainer]}>
+                <ActivityIndicator size="small" />
+              </View>
             )
           }
         />
@@ -187,7 +212,7 @@ function DevoirsScreen({ navigation }) {
   );
 }
 
-const Hwpage = ({ homeworks, navigation, theme, forceRefresh }) => {
+function Hwpage({ homeworks, navigation, theme, forceRefresh }) {
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
   const onRefresh = React.useCallback(() => {
@@ -199,45 +224,61 @@ const Hwpage = ({ homeworks, navigation, theme, forceRefresh }) => {
   }, []);
 
   return (
-    <ScrollView 
+    <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       style={[styles.homeworksContainer]}
       refreshControl={
-        <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
+        <RefreshControl
+          refreshing={isHeadLoading}
+          onRefresh={onRefresh}
+          colors={[Platform.OS === 'android' ? '#29947A' : null]}
+        />
       }
     >
-      { homeworks.length == 0 ? (
+      {homeworks.length === 0 ? (
         <Text style={styles.noHomework}>Aucun devoir pour cette date.</Text>
-      ) : null }
+      ) : null}
 
       <View style={styles.hwList}>
-        { homeworks.map((homework, index) => (
-          <Hwitem homework={homework} navigation={navigation} theme={theme} key={index} />
-        )) }
+        {homeworks.map((homework, index) => (
+          <Hwitem
+            homework={homework}
+            navigation={navigation}
+            theme={theme}
+            key={index}
+          />
+        ))}
       </View>
     </ScrollView>
   );
-};
+}
 
-const HwCheckbox = ({ checked, theme, pressed }) => {
+function HwCheckbox({ checked, theme, pressed }) {
   return (
-    <PressableScale style={[styles.checkContainer, {borderColor: theme.dark ? "#333333" : "#c5c5c5"}, checked ? styles.checkChecked : null]} weight="light" activeScale={0.7} onPress={pressed}>
-      { checked ? (
-        <Check size={20} color="#ffffff" />
-      ) : null }
+    <PressableScale
+      style={[
+        styles.checkContainer,
+        { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
+        checked ? styles.checkChecked : null,
+      ]}
+      weight="light"
+      activeScale={0.7}
+      onPress={pressed}
+    >
+      {checked ? <Check size={20} color="#ffffff" /> : null}
     </PressableScale>
   );
-};
+}
 
-const Hwitem = ({ homework, navigation, theme }) => {
+function Hwitem({ homework, theme }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
 
   const changeHwState = () => {
-    console.log('change ' + homework.date + ' : ' + homework.id);
+    console.log(`change ${homework.date} : ${homework.id}`);
     changeHomeworkState(homework.date, homework.id).then((result) => {
       console.log(result);
 
-      if (result.status == "not found") {
+      if (result.status === 'not found') {
         setTimeout(() => {
           setThisHwChecked(homework.done);
         }, 100);
@@ -248,46 +289,91 @@ const Hwitem = ({ homework, navigation, theme }) => {
   const UIColors = GetUIColors();
 
   return (
-    <PressableScale style={[styles.homeworkItemContainer, {backgroundColor: UIColors.elementHigh}]} >
+    <PressableScale
+      style={[
+        styles.homeworkItemContainer,
+        { backgroundColor: UIColors.elementHigh },
+      ]}
+    >
       <View style={[styles.homeworkItem]}>
         <View style={[styles.checkboxContainer]}>
-          <HwCheckbox checked={thisHwChecked} theme={theme} pressed={() => {
-            setThisHwChecked(!thisHwChecked);
-            changeHwState();
-          }} />
+          <HwCheckbox
+            checked={thisHwChecked}
+            theme={theme}
+            pressed={() => {
+              setThisHwChecked(!thisHwChecked);
+              changeHwState();
+            }}
+          />
         </View>
         <View style={[styles.hwItem]}>
           <View style={[styles.hwItemHeader]}>
-            <View style={[styles.hwItemColor, {backgroundColor: getClosestColor(homework.background_color)}]}></View>
-            <Text style={[styles.hwItemTitle, {color: theme.dark ? "#ffffff" : "#000000"}]}>{homework.subject.name}</Text>
+            <View
+              style={[
+                styles.hwItemColor,
+                { backgroundColor: getClosestColor(homework.background_color) },
+              ]}
+            />
+            <Text
+              style={[
+                styles.hwItemTitle,
+                { color: theme.dark ? '#ffffff' : '#000000' },
+              ]}
+            >
+              {homework.subject.name}
+            </Text>
           </View>
-          <Text style={[styles.hwItemDescription, {color: theme.dark ? "#ffffff" : "#000000"}]}>{homework.description}</Text>
+          <Text
+            style={[
+              styles.hwItemDescription,
+              { color: theme.dark ? '#ffffff' : '#000000' },
+            ]}
+          >
+            {homework.description}
+          </Text>
         </View>
       </View>
 
-      { homework.files.length > 0 ? (
+      {homework.files.length > 0 ? (
         <View style={[styles.homeworkFiles]}>
-          { homework.files.map((file, index) => (
-            <View style={[styles.homeworkFileContainer, {borderColor: theme.dark ? '#ffffff10' : '#00000010'}]} key={index}>
-              <PressableScale style={[styles.homeworkFile]} weight="light" activeScale={0.9} onPress={() => openURL(file.url)}>
-                { file.type == 0 ? (
-                  <Link size={20} color={theme.dark ? "#ffffff" : "#000000"} />
+          {homework.files.map((file, index) => (
+            <View
+              style={[
+                styles.homeworkFileContainer,
+                { borderColor: theme.dark ? '#ffffff10' : '#00000010' },
+              ]}
+              key={index}
+            >
+              <PressableScale
+                style={[styles.homeworkFile]}
+                weight="light"
+                activeScale={0.9}
+                onPress={() => openURL(file.url)}
+              >
+                {file.type === 0 ? (
+                  <Link size={20} color={theme.dark ? '#ffffff' : '#000000'} />
                 ) : (
-                  <File size={20} color={theme.dark ? "#ffffff" : "#000000"} />
-                ) }
+                  <File size={20} color={theme.dark ? '#ffffff' : '#000000'} />
+                )}
 
                 <View style={[styles.homeworkFileData]}>
                   <Text style={[styles.homeworkFileText]}>{file.name}</Text>
-                  <Text numberOfLines={1} ellipsizeMode='tail' style={[styles.homeworkFileUrl]}>{file.url}</Text>
+                  <Text
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    style={[styles.homeworkFileUrl]}
+                  >
+                    {file.url}
+                  </Text>
                 </View>
               </PressableScale>
             </View>
-          )) }
+          ))}
         </View>
-      ) : null }
+      ) : null}
     </PressableScale>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -323,9 +409,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
 
-  checkboxContainer: {
-    
-  },
+  checkboxContainer: {},
   checkContainer: {
     width: 26,
     height: 26,

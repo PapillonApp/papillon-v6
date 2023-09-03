@@ -1,21 +1,29 @@
-import React from 'react';
-import { StyleSheet, View, Button, ScrollView, StatusBar, Pressable, ActivityIndicator, TouchableOpacity, RefreshControl, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  StatusBar,
+  Pressable,
+  TouchableOpacity,
+  RefreshControl,
+  Platform,
+} from 'react-native';
 
 import Fade from 'react-native-fade';
 
+import { Text, useTheme } from 'react-native-paper';
+import { PressableScale } from 'react-native-pressable-scale';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
-import getClosestColor from '../utils/ColorCoursName';
 
-import { Text, useTheme } from 'react-native-paper';
-import { useEffect, useState } from 'react';
-import { PressableScale } from 'react-native-pressable-scale';
-
-import { useActionSheet } from '@expo/react-native-action-sheet';
 import { getUser } from '../fetch/PronoteData/PronoteUser';
 
-import { getEvaluations, changePeriod } from '../fetch/PronoteData/PronoteGrades';
-import { set } from 'react-native-reanimated';
+import {
+  getEvaluations,
+  changePeriod,
+} from '../fetch/PronoteData/PronoteGrades';
 import GetUIColors from '../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -37,8 +45,15 @@ function EvaluationsScreen({ navigation }) {
     navigation.setOptions({
       headerRight: () => (
         <Fade visible={selectedPeriod} direction="up" duration={200}>
-          <TouchableOpacity onPress={newPeriod} style={styles.periodButtonContainer}>
-            <Text style={[styles.periodButtonText, {color: UIColors.primary}]}>{selectedPeriod?.name || ""}</Text>
+          <TouchableOpacity
+            onPress={newPeriod}
+            style={styles.periodButtonContainer}
+          >
+            <Text
+              style={[styles.periodButtonText, { color: UIColors.primary }]}
+            >
+              {selectedPeriod?.name || ''}
+            </Text>
           </TouchableOpacity>
         </Fade>
       ),
@@ -46,13 +61,13 @@ function EvaluationsScreen({ navigation }) {
   }, [navigation, selectedPeriod, isLoading]);
 
   function newPeriod() {
-    const options = periodsList.map(period => period.name);
-    options.push("Annuler");
+    const options = periodsList.map((period) => period.name);
+    options.push('Annuler');
 
     showActionSheetWithOptions(
       {
-        title: "Changer de période",
-        message: "Sélectionnez la période de votre choix",
+        title: 'Changer de période',
+        message: 'Sélectionnez la période de votre choix',
         options,
         cancelButtonIndex: options.length - 1,
         containerStyle: {
@@ -70,11 +85,11 @@ function EvaluationsScreen({ navigation }) {
           color: UIColors.text,
         }
       },
-      selectedIndex => {
+      (selectedIndex) => {
         if (selectedIndex === options.length - 1) return;
-        const selectedPeriod = periodsList[selectedIndex];
-        setSelectedPeriod(selectedPeriod);
-        changePeriodPronote(selectedPeriod);
+        const selectedPeri = periodsList[selectedIndex];
+        setSelectedPeriod(selectedPeri);
+        changePeriodPronote(selectedPeri);
       }
     );
   }
@@ -92,13 +107,17 @@ function EvaluationsScreen({ navigation }) {
     const userData = result;
     const allPeriods = userData.periods;
 
-    const actualPeriod = allPeriods.find(period => period.actual === true);
+    const actualPeriod = allPeriods.find((period) => period.actual === true);
     let periods = [];
 
-    if (actualPeriod.name.toLowerCase().includes("trimestre")) {
-      periods = allPeriods.filter(period => period.name.toLowerCase().includes("trimestre"));
-    } else if (actualPeriod.name.toLowerCase().includes("semestre")) {
-      periods = allPeriods.filter(period => period.name.toLowerCase().includes("semestre"));
+    if (actualPeriod.name.toLowerCase().includes('trimestre')) {
+      periods = allPeriods.filter((period) =>
+        period.name.toLowerCase().includes('trimestre')
+      );
+    } else if (actualPeriod.name.toLowerCase().includes('semestre')) {
+      periods = allPeriods.filter((period) =>
+        period.name.toLowerCase().includes('semestre')
+      );
     }
 
     setPeriodsList(periods);
@@ -114,27 +133,28 @@ function EvaluationsScreen({ navigation }) {
   useEffect(() => {
     setIsHeadLoading(true);
 
-    isForced = false;
+    let isForced = false;
     if (refreshCount > 0) isForced = true;
 
-    getEvaluations(isForced).then((evaluations) => {
+    getEvaluations(isForced).then((_evals) => {
       setIsLoading(false);
-      let evals = JSON.parse(evaluations);
-      
-      let finalEvals = [];
+      const evals = JSON.parse(_evals);
+
+      const finalEvals = [];
 
       // for each eval, sort by subject
       evals.forEach((item) => {
-        let subject = item.subject;
-        let subjectEvals = finalEvals.find((subjectEval) => subjectEval.subject.name == subject.name);
+        const { subject } = item;
+        const subjectEvals = finalEvals.find(
+          (subjectEval) => subjectEval.subject.name === subject.name
+        );
 
         if (subjectEvals) {
           subjectEvals.evals.push(item);
-        }
-        else {
+        } else {
           finalEvals.push({
-            subject : subject,
-            evals : [item]
+            subject,
+            evals: [item],
           });
         }
       });
@@ -152,77 +172,137 @@ function EvaluationsScreen({ navigation }) {
   }, []);
 
   return (
-    <ScrollView style={[styles.container, {backgroundColor: UIColors.background}]} contentInsetAdjustmentBehavior='automatic'
-    refreshControl={
-      <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? UIColors.primary : null]} />
-    }>
-      { Platform.OS === 'ios' ?
-        <StatusBar animated barStyle={'light-content'} />
-      :
-        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
+    <ScrollView
+      style={[styles.container, { backgroundColor: UIColors.background }]}
+      contentInsetAdjustmentBehavior="automatic"
+      refreshControl={
+        <RefreshControl
+          refreshing={isHeadLoading}
+          onRefresh={onRefresh}
+          colors={[Platform.OS === 'android' ? UIColors.primary : null]}
+        />
       }
-      
-      { evaluations.length > 0 ?
-        evaluations.map((subject, index) => {
-          return (
-            <View key={index} style={[styles.subjectContainer, {backgroundColor: UIColors.element}]}>
-              <Pressable style={[styles.subjectNameContainer, {backgroundColor: UIColors.primary}]}>
-                <Text style={[styles.subjectName]}>{formatCoursName(subject.subject.name)}</Text>
+    >
+      {Platform.OS === 'ios' ? (
+        <StatusBar animated barStyle="light-content" />
+      ) : (
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
+      )}
+
+      {evaluations.length > 0
+        ? evaluations.map((subject, index) => (
+            <View
+              key={index}
+              style={[
+                styles.subjectContainer,
+                { backgroundColor: UIColors.element },
+              ]}
+            >
+              <Pressable
+                style={[
+                  styles.subjectNameContainer,
+                  { backgroundColor: UIColors.primary },
+                ]}
+              >
+                <Text style={[styles.subjectName]}>
+                  {formatCoursName(subject.subject.name)}
+                </Text>
                 <Text>{JSON.stringify}</Text>
               </Pressable>
               <View style={[styles.competencesList]}>
-                { subject.evals.map((evaluation, index) => {
-                  return (
-                    <View key={index} style={[styles.competenceContainer, {borderColor: theme.dark ? '#ffffff20' : '#00000015', borderBottomWidth: index != subject.evals.length - 1 ? 1 : 0}]}>
-                      <PressableScale style={[styles.competence]}>
-                        <View style={styles.competenceEmojiContainer}>
-                          <Text style={[styles.competenceEmoji]}>{getClosestGradeEmoji(evaluation.subject.name)}</Text>
-                        </View>
-                        <View style={styles.competenceNameContainer}>
-                          <Text style={[styles.competenceName]}>{formatCoursName(evaluation.name)}</Text>
-                          <Text style={[styles.competenceDate]}>{new Date(evaluation.date).toLocaleDateString('fr', {weekday: 'long', day: '2-digit', month: 'short'})}</Text>
-                        </View>
-                        <View style={styles.competenceGradeContainer}>
-                          { evaluation.acquisitions.slice(0,3).map((acquisition, index) => {
+                {subject.evals.map((evaluation, id) => (
+                  <View
+                    key={id}
+                    style={[
+                      styles.competenceContainer,
+                      {
+                        borderColor: theme.dark ? '#ffffff20' : '#00000015',
+                        borderBottomWidth:
+                          id !== subject.evals.length - 1 ? 1 : 0,
+                      },
+                    ]}
+                  >
+                    <PressableScale style={[styles.competence]}>
+                      <View style={styles.competenceEmojiContainer}>
+                        <Text style={[styles.competenceEmoji]}>
+                          {getClosestGradeEmoji(evaluation.subject.name)}
+                        </Text>
+                      </View>
+                      <View style={styles.competenceNameContainer}>
+                        <Text style={[styles.competenceName]}>
+                          {formatCoursName(evaluation.name)}
+                        </Text>
+                        <Text style={[styles.competenceDate]}>
+                          {new Date(evaluation.date).toLocaleDateString('fr', {
+                            weekday: 'long',
+                            day: '2-digit',
+                            month: 'short',
+                          })}
+                        </Text>
+                      </View>
+                      <View style={styles.competenceGradeContainer}>
+                        {evaluation.acquisitions
+                          .slice(0, 3)
+                          .map((acquisition, i) => {
                             const abbreviationColors = {
-                              'A' : '#1C7B64',
-                              'A+' : '#1C7B64',
-                              'B' : UIColors.primary,
-                              'C' : '#A84700',
-                              'D' : '#B42828',
-                              '1' : '#1C7B64',
-                              '2' : UIColors.primary,
-                              '3' : '#A84700',
-                              '4' : '#B42828',
-                            }
+                              A: '#1C7B64',
+                              'A+': '#1C7B64',
+                              B: UIColors.primary,
+                              C: '#A84700',
+                              D: '#B42828',
+                              1: '#1C7B64',
+                              2: UIColors.primary,
+                              3: '#A84700',
+                              4: '#B42828',
+                            };
 
                             let text = acquisition.abbreviation;
-                            if(acquisition.abbreviation == 'A+') text = '+';
-                            
+                            if (acquisition.abbreviation === 'A+') text = '+';
+
                             return (
-                              <View style={[styles.competenceGrade, {backgroundColor: abbreviationColors[acquisition.abbreviation]}]} key={index}>
-                                <Text style={styles.competenceGradeText}>{text}</Text>
+                              <View
+                                style={[
+                                  styles.competenceGrade,
+                                  {
+                                    backgroundColor:
+                                      abbreviationColors[
+                                        acquisition.abbreviation
+                                      ],
+                                  },
+                                ]}
+                                key={i}
+                              >
+                                <Text style={styles.competenceGradeText}>
+                                  {text}
+                                </Text>
                               </View>
-                            )
+                            );
                           })}
 
-                          { evaluation.acquisitions.length > 3 ?
-                            <View style={[styles.competenceGrade, {backgroundColor: '#888'}]}>
-                              <Text style={styles.competenceGradeText}>...</Text>
-                            </View>
-                          : null }
-                        </View>
-                      </PressableScale>
-                    </View>
-                  )
-                })}
+                        {evaluation.acquisitions.length > 3 ? (
+                          <View
+                            style={[
+                              styles.competenceGrade,
+                              { backgroundColor: '#888' },
+                            ]}
+                          >
+                            <Text style={styles.competenceGradeText}>...</Text>
+                          </View>
+                        ) : null}
+                      </View>
+                    </PressableScale>
+                  </View>
+                ))}
               </View>
             </View>
-          )
-        })
-      : null }
+          ))
+        : null}
 
-      <View style={{height: 20}}></View>
+      <View style={{ height: 20 }} />
     </ScrollView>
   );
 }
@@ -233,7 +313,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 14,
     borderRadius: 12,
     borderCurve: 'continuous',
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
 
   subjectNameContainer: {
@@ -246,13 +326,13 @@ const styles = StyleSheet.create({
   subjectName: {
     fontSize: 16,
     fontFamily: 'Papillon-Semibold',
-    color: '#fff'
+    color: '#fff',
   },
 
   competencesList: {
     flexDirection: 'column',
     alignItems: 'stretch',
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
   },
 
   competenceContainer: {
@@ -282,7 +362,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'center',
-    flex: 1
+    flex: 1,
   },
 
   competenceName: {
@@ -295,8 +375,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
 
-  competenceEmojiContainer: {
-  },
+  competenceEmojiContainer: {},
   competenceEmoji: {
     fontSize: 24,
   },
@@ -324,7 +403,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginLeft: 1,
     opacity: 0.7,
-  }
+  },
 });
 
 export default EvaluationsScreen;

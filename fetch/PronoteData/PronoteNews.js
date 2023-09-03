@@ -1,54 +1,51 @@
-import consts from '../consts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import consts from '../consts.json';
 
 import { refreshToken } from '../AuthStack/LoginFlow';
 
 function getNews(force = false) {
-    // obtenir le token
-    return AsyncStorage.getItem('news_cache').then((news_cache) => {
-        if (news_cache && !force) {
-            news_cache = JSON.parse(news_cache);
+  // obtenir le token
+  return AsyncStorage.getItem('newsCache').then((newsCache) => {
+    if (newsCache && !force) {
+      newsCache = JSON.parse(newsCache);
 
-            let userCacheDate = new Date(news_cache.date);
-            let today = new Date();
+      const userCacheDate = new Date(newsCache.date);
+      const today = new Date();
 
-            userCacheDate.setHours(0, 0, 0, 0);
-            today.setHours(0, 0, 0, 0);
-            
-            if (userCacheDate.getTime() == today.getTime()) {
-                return news_cache.news;
-            }
-            else {
-                AsyncStorage.removeItem('news_cache');
-                return getNews(true);
-            }
-        }
-        else {
-            return AsyncStorage.getItem('token').then((token) => {
-                // fetch le timetable
-                return fetch(consts.API + '/news' + '?token=' + token, {
-                    method: 'GET'
-                })
-                .then((response) => response.text())
-                .then((result) => {
-                    if (result == 'expired' || result == '"expired"' || result == 'notfound' || result == '"notfound"') {
-                        return refreshToken().then(() => {
-                            return getNews();
-                        });
-                    }
-                    else {
-                        let cachedNews = {
-                            date : new Date(),
-                            news : result
-                        };
-                        AsyncStorage.setItem('news_cache', JSON.stringify(cachedNews));
-                    
-                        return result;
-                    }
-                });
-            });
-        }
-    });
+      userCacheDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+
+      if (userCacheDate.getTime() === today.getTime()) {
+        return newsCache.news;
+      }
+      AsyncStorage.removeItem('newsCache');
+      return getNews(true);
+    }
+    return AsyncStorage.getItem('token').then((token) =>
+      // fetch le timetable
+      fetch(`${consts.API}/news?token=${token}`, {
+        method: 'GET',
+      })
+        .then((response) => response.text())
+        .then((result) => {
+          if (
+            result === 'expired' ||
+            result === '"expired"' ||
+            result === 'notfound' ||
+            result === '"notfound"'
+          ) {
+            return refreshToken().then(() => getNews());
+          }
+          const cachedNews = {
+            date: new Date(),
+            news: result,
+          };
+          AsyncStorage.setItem('newsCache', JSON.stringify(cachedNews));
+
+          return result;
+        })
+    );
+  });
 }
 
 export { getNews };

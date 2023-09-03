@@ -4,8 +4,6 @@ Votre emploi du temps 📅, votre agenda 📓, vos notes 📝, vos news 📰 et 
 
 **📚 [Voir la documentation](https://github.com/PapillonApp/Papillon/wiki)**
 
-
-
 ## 🚀 Sommaire
 
 * [À propos du projet](#-à-propos-du-projet)
@@ -77,27 +75,12 @@ git clone https://github.com/PapillonApp/Papillon.git
 
 2. Installez les packages NPM
 ```sh
-npm i
+yarn install
 ```
 
-## � Développement
+## 🎮 Usage
 
-Pour lancer l'application en mode développement, vous devez installer l'application prebuild (un mini expo go qui permet de charger l'application depuis votre PC avec un live reload)
-Attention, cette partie est valable pour Android uniquement !
-Requis : Android Studio
-
-Pour commencer :
-1. Modifiez le fichier `app.json` afin de modifier le nom de l'application ainsi que son package, pour éviter de remplacer la vraie appli.
-2. Exécutez `npx expo prebuild`
-3. Ouvrir Android Studio et ouvrir le dossier Android
-4. Attendre que Android Studio ai terminé ses processus (visible en bas à droite)
-5. Si le graddle sync ne s'est pas automatiquement exécuté, le faire via Files > Sync project with graddle Files
-6. Connectez votre téléphone À votre PC et vérifiez qu'il soit accessible (il doit apparaître en haut à droite, à côté du marteau vert) (le mode débogage est requis)
-7. Appuyer sur l'îcone "play" en haut à droite à côté du nom de votre téléphone pour démarrer le build et l'installer automatiquement sur votre téléphone.
-8. Sur le PC, exécuter `npx expo start --dev-client --tunnel`
-9. Lancer l'appli de dev sur le téléphone. Le serveur doit automatiquement s'afficher en haut, cliquez dessus pour commencer le chargement. Si ce n'est pas le cas, vérifiez que :
-- Le wifi du PC est en mode privé (visible via les paramètres réseaux)
-- Le téléphone et le PC sont connectés au même réseau
+Après l'installation, vous pouvez lancer l'application avec [expo start](file:///d%3A/Documents/Code/Papillon/package.json#6%2C15-6%2C15).
 
 ## 📈 Avancement
 
