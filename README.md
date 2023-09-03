@@ -1,8 +1,8 @@
-# 🦋 Papillon — Votre assistant de vie scolaire
+# 🦋 Papillon — Votre vie scolaire
 
 Votre emploi du temps 📅, votre agenda 📓, vos notes 📝, vos news 📰 et bien plus encore en un clin d’œil grâce à l'application Papillon.
 
-**📚 [Voir la documentation](https://github.com/PapillonApp/Papillon/wiki)**
+**📚 [Voir la documentation]([https://github.com/PapillonApp/Papillon/wiki](https://docs.getpapillon.xyz/))**
 
 ## 🚀 Sommaire
 
@@ -48,11 +48,6 @@ Voici un aperçu de ce que nous avons accompli jusqu'à présent et de ce qui re
 
 Papillon est une application mobile qui vise à simplifier la vie scolaire des étudiants en France.
 
-## 📸 Screenshots
-
-![Screenshot1](screenshot1.png)
-![Screenshot2](screenshot2.png)
-
 ## 🛠 Développé avec
 
 - React Native
@@ -79,16 +74,31 @@ git clone https://github.com/PapillonApp/Papillon.git
 2. Installez les packages NPM
 
 ```sh
-yarn install
+npm i
 ```
 
-## 🎮 Usage
+## 💻 Développement
 
-Après l'installation, vous pouvez lancer l'application avec [expo start](file:///d%3A/Documents/Code/Papillon/package.json#6%2C15-6%2C15).
+Pour lancer l'application en mode développement, vous devez installer l'application prebuild (un mini expo go qui permet de charger l'application depuis votre PC avec un live reload)
+Attention, cette partie est valable pour Android uniquement !
+Requis : Android Studio
+
+Pour commencer :
+1. Modifiez le fichier `app.json` afin de modifier le nom de l'application ainsi que son package, pour éviter de remplacer la vraie appli.
+2. Exécutez `npx expo prebuild`
+3. Ouvrir Android Studio et ouvrir le dossier Android
+4. Attendre que Android Studio ai terminé ses processus (visible en bas à droite)
+5. Si le graddle sync ne s'est pas automatiquement exécuté, le faire via Files > Sync project with graddle Files
+6. Connectez votre téléphone À votre PC et vérifiez qu'il soit accessible (il doit apparaître en haut à droite, à côté du marteau vert) (le mode débogage est requis)
+7. Appuyer sur l'îcone "play" en haut à droite à côté du nom de votre téléphone pour démarrer le build et l'installer automatiquement sur votre téléphone.
+8. Sur le PC, exécuter `npx expo start --dev-client --tunnel`
+9. Lancer l'appli de dev sur le téléphone. Le serveur doit automatiquement s'afficher en haut, cliquez dessus pour commencer le chargement. Si ce n'est pas le cas, vérifiez que :
+- Le wifi du PC est en mode privé (visible via les paramètres réseaux)
+- Le téléphone et le PC sont connectés au même réseau
 
 ## 📈 Avancement
 
-Nous travaillons actuellement sur la version 1.0.0 de l'application.
+Nous travaillons actuellement sur la version 6.0.0 de l'application.
 
 ## 👥 Contribuer
 
