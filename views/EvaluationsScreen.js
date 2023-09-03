@@ -17,9 +17,11 @@ import { getUser } from '../fetch/PronoteData/PronoteUser';
 import { getEvaluations, changePeriod } from '../fetch/PronoteData/PronoteGrades';
 import { set } from 'react-native-reanimated';
 import GetUIColors from '../utils/GetUIColors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function EvaluationsScreen({ navigation }) {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const UIColors = GetUIColors();
   const { showActionSheetWithOptions } = useActionSheet();
 
@@ -53,6 +55,20 @@ function EvaluationsScreen({ navigation }) {
         message: "Sélectionnez la période de votre choix",
         options,
         cancelButtonIndex: options.length - 1,
+        containerStyle: {
+          paddingBottom: insets.bottom,
+          backgroundColor: UIColors.elementHigh,
+        },
+        textStyle: {
+          color: UIColors.text
+        },
+        titleTextStyle: {
+          color: UIColors.text,
+          fontWeight: 'bold',
+        },
+        messageTextStyle: {
+          color: UIColors.text,
+        }
       },
       selectedIndex => {
         if (selectedIndex === options.length - 1) return;
