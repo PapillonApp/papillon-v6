@@ -1,0 +1,16 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+let service = AsyncStorage.getItem("service")
+
+//[Service]Grades.js
+
+export function getGrades(force = false) {
+    if(service === "Pronote") return require(`./PronoteData/PronoteGrades.js`).getGrades(force)
+}
+
+export function getEvaluations(force = false) {
+    if(service === "Pronote") return require(`./PronoteData/PronoteGrades.js`).getEvaluations(force)
+}
+
+export function changePeriod(period) {
+    if(service === "Pronote") return require(`./PronoteData/PronoteGrades.js`).changePeriod(period)
+}
