@@ -7,12 +7,7 @@ AsyncStorage.getItem("service").then((value) => {
 //[Service]Grades.js
 
 export async function getGrades(force = false) {
-    console.log("Service : " + service)
-    if(service === "Pronote") {
-        let result = await require(`./PronoteData/PronoteGrades.js`).getGrades(force)
-        console.log("Résultat : " + result)
-        return result;
-    }
+    if(service === "Pronote") return require(`./PronoteData/PronoteGrades.js`).getGrades(force)
 }
 
 export function getEvaluations(force = false) {
