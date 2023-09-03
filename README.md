@@ -1,15 +1,34 @@
-# papillon-v6
-Serait-ce le début d'une nouvelle ère pour Papillon 👀
+# 🦋 Papillon — Votre assistant de vie scolaire
 
-## Pour les contributeurs
-- [🍱 Composants](/components/README.md)
+Votre emploi du temps 📅, votre agenda 📓, vos notes 📝, vos news 📰 et bien plus encore en un clin d’œil grâce à l'application Papillon.
 
-## Roadmap
+**📚 [Voir la documentation](https://github.com/PapillonApp/Papillon/wiki)**
+
+
+
+## 🚀 Sommaire
+
+* [À propos du projet](#-à-propos-du-projet)
+* [Screenshots](#-screenshots)
+* [Développé avec](#-développé-avec)
+* [Pour commencer](#-pour-commencer)
+   * [Prérequis](#prérequis)
+   * [Installation](#installation)
+* [Usage](#-usage)
+* [Avancement](#-avancement)
+* [Contribuer](#-contribuer)
+   * [Créer une Pull Request](#créer-une-pull-request)
+* [License](#-license)
+* [Auteurs](#-auteurs)
+* [Remerciements](#-remerciements)
+
+## Feuille de route
+Voici un aperçu de ce que nous avons accompli jusqu'à présent et de ce qui reste à faire :
 - [x] Structure
     - [x] Routage & Navigation
     - [x] Appels à l'API
-    - [x] Données utilisateurs (équivalent LocalStorage)
-    - [x] Framework UI (React Native Paper)
+    - [x] Gestion des données utilisateurs (équivalent LocalStorage)
+    - [x] Intégration du Framework UI (React Native Paper)
 - [x] Connexion à un service scolaire *(Pronote pour le moment)*
     - [x] Interface de choix du service scolaire
     - [x] Interface de sélection de l'établissement
@@ -27,33 +46,69 @@ Serait-ce le début d'une nouvelle ère pour Papillon 👀
     - [ ] Conversations
     - [x] Vie scolaire
 
+## 📖 À propos du projet
 
-## Le projet
-> J'avais parlé de la possibilité d'une future réécriture de Papillon en React Native pendant les vacances pour une sortie possible à la rentrée 2023. Maintenant, je passe enfin à l'action -  Vince (@ecnivtwelve), 2023
+Papillon est une application mobile qui vise à simplifier la vie scolaire des étudiants en France.
 
-La v6 de Papillon serait donc une **réécriture** de la v5, dans le sens ou celle ci doit garder les mêmes concepts de structure et d'organisation interne, afin de faciliter la transition des APIs. Cependant, l'interface de l'app sera entièrement nouvelle.
+## 📸 Screenshots
 
-L'idée derrière la notion de réécriture est de ne pas réinventer la roue et de pouvoir réutiliser ce sur quoi nous avons travaillé pendant plusieurs mois.
+![Screenshot1](screenshot1.png)
+![Screenshot2](screenshot2.png)
 
-### Encore une nouvelle version ?
-Revenons en arrière dans la chronologie de Papillon.
+## 🛠 Développé avec
 
-La **version 1**, encore appelée `pronoteplus-app` fonctionnait de manière très primaire avec Ionic Framework et du JS vanilla. Un changement majeur de back-end à conduit à une nouvelle version.
+- React Native
+- Expo
+- Node.js
 
-La **version 2.0** est donc née à partir d'une nouvelle API bien plus efficace, mais celle ci à été remplacée à cause d'une structure de code trop compliquée.
+## 🎓 Pour commencer
 
-La **v3** (la plus populaire) à été la première à porter comme nom de code `Papillon`. Cette version avait 2 objectifs majeurs : simplifier la structure du code et améliorer l'interface utilisateur. Celle ci à été remplacée, devenue trop lente à cause d'un code devenu trop lourd et d'un manque de structure solide.
+### Prérequis
 
-La **v4** est née de la volonté de partir d'une vraie nouvelle base, en quittant le JS vanilla pour le framework Vue.js. Mais celle-ci à été vite remplacée par l'arrivée d'un projet plus ambitieux et plus intéressant, la v5.
+- Node.js
+- Yarn
+- Expo CLI
 
-**Papillon v5** est la dernière version en date. Celle ci est partie d'une volonté : celle de ne pas reproduire encore et encore les mêmes erreurs. Plusieurs mois après : le pari est réussi. Mais il se pose une limite à la v5, et une limite majeure : ses performances. L'app est lente, et elle le devient de plus en plus avec le temps. La cause : l'usage d'une technologie web inadaptée aux appareils les plus anciens et causant des problèmes de performances.
+### Installation
 
-**Papillon v6** a pris des notes des erreurs du passé, en essayant d'avancer vers l'avenir. Pour la première fois, Papillon quitte le statut de webapp et devient une application native. Cela va permettre un gain de stabilité et de performances très intéressant.
+1. Clonez le repo
+```sh
+git clone https://github.com/PapillonApp/Papillon.git
+```
 
-### Le risque & la solution
-Une chose que la v6 doit prendre en compte, c'est le flop de la v4. Pourquoi ? Celle-ci est née dans les mêmes conditions : un changement majeur de technologie dans la volonté d'obtenir de meilleures performances. Cependant, le manque de connaissances en Vue.js de l'époque a conduit la v4 à devenir une "version test", déjà amenée à s'éteindre.
+2. Installez les packages NPM
+```sh
+yarn install
+```
 
-Comment ne pas reproduire cela ? En gardant une idée claire en tête : **la structuration**. Le principal problème de la v4 était son manque de structure claire et le manque d'outils adaptés au développement mobile. La v6 résout ces 2 problèmes en basant sa structure sur celle de la v5 qui fonctionne bien, et en se basant sur un framework complet et reconnu : `react-native-papers`, avec la possibilité de s'en détacher à tout instant.
+## 🎮 Usage
 
-## License
-Distribué sous licence MIT. Rendez-vous sur [LICENSE](licence.md) pour plus d'informations.
+Après l'installation, vous pouvez lancer l'application avec [expo start](file:///d%3A/Documents/Code/Papillon/package.json#6%2C15-6%2C15).
+
+## 📈 Avancement
+
+Nous travaillons actuellement sur la version 1.0.0 de l'application.
+
+## 👥 Contribuer
+
+Nous accueillons les contributions de tous. Veuillez lire notre [guide de contribution](CONTRIBUTING.md) pour commencer.
+
+### Créer une Pull Request
+
+1. Forkez le projet
+2. Créez votre branche (`git checkout -b feature/AmazingFeature`)
+3. Committez vos changements (`git commit -m 'Add some AmazingFeature'`)
+4. Poussez vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrez une Pull Request
+
+## 📄 License
+
+Distribué sous la licence MIT. Voir `LICENSE` pour plus d'informations.
+
+## 👤 Auteurs
+
+- [@ecnivtwelve]()
+
+## 🙏 Remerciements
+
+- [@ecnivtwelve]()
