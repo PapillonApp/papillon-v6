@@ -1,17 +1,17 @@
 {
-    "lastupdated": "2023-07-09",
-    "donors" : [
-        {
-            "name": "Sivelswhy",
-            "times": 1
-        },
-        {
-            "name": "MXNSER",
-            "times": 1
-        },
-        {
-            "name": "Léo L-P",
-            "times": 4
-        }
-    ]
+  "lastupdated": "2023-07-09",
+  "donors": [
+    {
+      "name": "Sivelswhy",
+      "times": 1
+    },
+    {
+      "name": "MXNSER",
+      "times": 1
+    },
+    {
+      "name": "Léo L-P",
+      "times": 4
+    }
+  ]
 }

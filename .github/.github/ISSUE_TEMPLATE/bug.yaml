@@ -1,6 +1,6 @@
 name: 🐛 Signaler un bug
 description: Signalez un bug pour nous aider à améliorer Papillon
-title: "[Bug]: "
+title: '[Bug]: '
 labels: [🪱 bug]
 body:
   - type: textarea
@@ -12,13 +12,13 @@ body:
   - type: textarea
     attributes:
       label: Etapes à reproduire
-      description: "Étapes pour reproduire le bug :"
+      description: 'Étapes pour reproduire le bug :'
       placeholder: |
         1. [ex: Etape 1]
         2. [ex: Etape 1]
       value: |
         1. 
-        2. 
+        2.
     validations:
       required: true
   - type: textarea
@@ -42,8 +42,8 @@ body:
   - type: input
     attributes:
       label: Version
-      placeholder: "5.0.17 beta"
-      value: "5.0."
+      placeholder: '5.0.17 beta'
+      value: '5.0.'
     validations:
       required: true
   - type: dropdown

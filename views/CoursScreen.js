@@ -1,35 +1,35 @@
 import * as React from 'react';
-import { useCallback } from 'react';
-import { View, StyleSheet, StatusBar, Platform, Pressable, ActivityIndicator, RefreshControl, Modal, TouchableOpacity } from 'react-native';
+import { useCallback, useState, useEffect, useRef } from 'react';
+import {
+  View,
+  StyleSheet,
+  StatusBar,
+  Platform,
+  ActivityIndicator,
+  RefreshControl,
+  TouchableOpacity,
+} from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { PressableScale } from 'react-native-pressable-scale';
 
-import { PressableScale, NativePressableScale } from 'react-native-pressable-scale';
-
-import InfinitePager from 'react-native-infinite-pager'
-import {getTimetable} from '../fetch/PronoteData/PronoteTimetable';
-
-import {useState, useEffect, useRef} from 'react';
-
+import InfinitePager from 'react-native-infinite-pager';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Calendar, Info } from 'lucide-react-native';
+import { getTimetable } from '../fetch/PronoteData/PronoteTimetable';
 
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestColor from '../utils/ColorCoursName';
 
-import UnstableItem from '../components/UnstableItem';
-
-import { Activity, Calendar, Info } from 'lucide-react-native';
-import { set } from 'react-native-reanimated';
 import GetUIColors from '../utils/GetUIColors';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
   result.setDate(result.getDate() + days);
   return result;
-}
+};
 
 function CoursScreen({ navigation }) {
   const theme = useTheme();
@@ -46,13 +46,13 @@ function CoursScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
+      headerRight: () =>
         Platform.OS === 'ios' ? (
-          <DateTimePicker 
+          <DateTimePicker
             value={calendarDate}
-            locale='fr-FR'
-            mode='date'
-            display='compact'
+            locale="fr-FR"
+            mode="date"
+            display="compact"
             onChange={(event, date) => {
               setCalendarAndToday(date);
               pagerRef.current.setPage(0);
@@ -65,12 +65,25 @@ function CoursScreen({ navigation }) {
             }}
           />
         ) : (
-          <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 2}} onPress={() => setCalendarModalOpen(true)}>
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+              marginRight: 2,
+            }}
+            onPress={() => setCalendarModalOpen(true)}
+          >
             <Calendar size={20} color={UIColors.text} />
-            <Text style={{fontSize: 15, fontFamily: 'Papillon-Medium'}}>{new Date(calendarDate).toLocaleDateString('fr', {weekday: 'short', day: '2-digit', month:'short'})}</Text>
+            <Text style={{ fontSize: 15, fontFamily: 'Papillon-Medium' }}>
+              {new Date(calendarDate).toLocaleDateString('fr', {
+                weekday: 'short',
+                day: '2-digit',
+                month: 'short',
+              })}
+            </Text>
           </TouchableOpacity>
-        )
-      ),
+        ),
     });
   }, [navigation, calendarDate]);
 
@@ -117,70 +130,84 @@ function CoursScreen({ navigation }) {
   const UIColors = GetUIColors();
 
   return (
-    <>
-      <View contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: UIColors.background}]}>
-        { Platform.OS === 'android' && calendarModalOpen ? (
-              <DateTimePicker 
-                value={calendarDate}
-                locale='fr-FR'
-                mode='date'
-                display='calendar'
-                onChange={(event, date) => {
-                  if(event.type === 'dismissed') {
-                    setCalendarModalOpen(false);
-                    return;
-                  }
+    <View
+      contentInsetAdjustmentBehavior="automatic"
+      style={[styles.container, { backgroundColor: UIColors.background }]}
+    >
+      {Platform.OS === 'android' && calendarModalOpen ? (
+        <DateTimePicker
+          value={calendarDate}
+          locale="fr-FR"
+          mode="date"
+          display="calendar"
+          onChange={(event, date) => {
+            if (event.type === 'dismissed') {
+              setCalendarModalOpen(false);
+              return;
+            }
 
-                  setCalendarModalOpen(false);
+            setCalendarModalOpen(false);
 
-                  setCalendarAndToday(date);
-                  pagerRef.current.setPage(0);
-                  if (currentIndex === 0) {
-                    setCurrentIndex(1);
-                    setTimeout(() => {
-                      setCurrentIndex(0);
-                    }, 10);
-                  }
-                }}
-              />
-          ) : null }
-
-        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
-
-        <InfinitePager
-          style={[styles.viewPager]}
-          pageWrapperStyle={[styles.pageWrapper]}
-          onPageChange={handlePageChange}
-          ref={pagerRef}
-          pageBuffer={4}
-          gesturesDisabled={false}
-          renderPage={
-            ({ index }) => (
-              <>
-                { cours[calcDate(today, index).toLocaleDateString()] ?
-                <CoursPage cours={cours[calcDate(today, index).toLocaleDateString()] || []} navigation={navigation} theme={theme} forceRefresh={forceRefresh} />
-                : 
-                <View style={[styles.coursContainer]}>
-                  <ActivityIndicator size="small" />
-                </View>
-                }
-              </>
-            )
-          }
+            setCalendarAndToday(date);
+            pagerRef.current.setPage(0);
+            if (currentIndex === 0) {
+              setCurrentIndex(1);
+              setTimeout(() => {
+                setCurrentIndex(0);
+              }, 10);
+            }
+          }}
         />
-      </View>
-    </>
+      ) : null}
+
+      <StatusBar
+        animated
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor="transparent"
+      />
+
+      <InfinitePager
+        style={[styles.viewPager]}
+        pageWrapperStyle={[styles.pageWrapper]}
+        onPageChange={handlePageChange}
+        ref={pagerRef}
+        pageBuffer={4}
+        gesturesDisabled={false}
+        renderPage={({ index }) =>
+          cours[calcDate(today, index).toLocaleDateString()] ? (
+            <CoursPage
+              cours={cours[calcDate(today, index).toLocaleDateString()] || []}
+              navigation={navigation}
+              theme={theme}
+              forceRefresh={forceRefresh}
+            />
+          ) : (
+            <View style={[styles.coursContainer]}>
+              <ActivityIndicator size="small" />
+            </View>
+          )
+        }
+      />
+    </View>
   );
 }
 
 const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
   const formattedStartTime = useCallback(
-    () => new Date(cours.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    () =>
+      new Date(cours.start).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     [cours.start]
   );
 
   const formattedEndTime = useCallback(
-    () => new Date(cours.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    () =>
+      new Date(cours.end).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     [cours.end]
   );
 
@@ -191,8 +218,12 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
   return (
     <View style={[styles.fullCours]}>
       <View style={[styles.coursTimeContainer]}>
-        <Text numberOfLines={1} style={[styles.ctStart]}>{formattedStartTime()}</Text>
-        <Text numberOfLines={1} style={[styles.ctEnd]}>{formattedEndTime()}</Text>
+        <Text numberOfLines={1} style={[styles.ctStart]}>
+          {formattedStartTime()}
+        </Text>
+        <Text numberOfLines={1} style={[styles.ctEnd]}>
+          {formattedEndTime()}
+        </Text>
       </View>
       <PressableScale
         weight="light"
@@ -206,13 +237,20 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
         <View
           style={[
             styles.coursItem,
-            { backgroundColor: getClosestColor(cours.background_color) + '22' },
+            { backgroundColor: `${getClosestColor(cours.background_color)}22` },
           ]}
         >
-          <View style={[styles.coursColor, { backgroundColor: getClosestColor(cours.background_color) }]} />
+          <View
+            style={[
+              styles.coursColor,
+              { backgroundColor: getClosestColor(cours.background_color) },
+            ]}
+          />
           <View style={[styles.coursInfo]}>
             <Text style={[styles.coursTime]}>{formattedStartTime()}</Text>
-            <Text style={[styles.coursMatiere]}>{formatCoursName(cours.subject.name)}</Text>
+            <Text style={[styles.coursMatiere]}>
+              {formatCoursName(cours.subject.name)}
+            </Text>
 
             <Text style={[styles.coursSalle]}>Salle {cours.rooms[0]}</Text>
             <Text style={[styles.coursProf]}>{cours.teachers[0]}</Text>
@@ -220,17 +258,28 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
             {cours.status && (
               <View
                 style={[
-                  styles.coursStatus, { backgroundColor: getClosestColor(cours.background_color) + '22' },
-                  cours.is_cancelled ? styles.coursStatusCancelled : null
+                  styles.coursStatus,
+                  {
+                    backgroundColor: `${getClosestColor(
+                      cours.background_color
+                    )}22`,
+                  },
+                  cours.is_cancelled ? styles.coursStatusCancelled : null,
                 ]}
               >
                 {cours.is_cancelled ? (
-                <Info size={20} color={'#ffffff'} />
+                  <Info size={20} color="#ffffff" />
                 ) : (
-                <Info size={20} color={theme.dark ? '#ffffff' : '#000000'} />
+                  <Info size={20} color={theme.dark ? '#ffffff' : '#000000'} />
                 )}
 
-                <Text style={[styles.coursStatusText, {color: theme.dark ? '#ffffff' : '#000000'}, cours.is_cancelled ? styles.coursStatusCancelledText : null]}>
+                <Text
+                  style={[
+                    styles.coursStatusText,
+                    { color: theme.dark ? '#ffffff' : '#000000' },
+                    cours.is_cancelled ? styles.coursStatusCancelledText : null,
+                  ]}
+                >
                   {cours.status}
                 </Text>
               </View>
@@ -242,10 +291,10 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
   );
 });
 
-const CoursPage = ({ cours, navigation, theme, forceRefresh }) => {
+function CoursPage({ cours, navigation, theme, forceRefresh }) {
   const CoursPressed = useCallback(
-    (cours) => {
-      navigation.navigate('Lesson', { event: cours });
+    (_cours) => {
+      navigation.navigate('Lesson', { event: _cours });
     },
     [navigation]
   );
@@ -261,21 +310,25 @@ const CoursPage = ({ cours, navigation, theme, forceRefresh }) => {
   }, []);
 
   return (
-    <ScrollView 
+    <ScrollView
       style={[styles.coursContainer]}
-      nestedScrollEnabled={true}
+      nestedScrollEnabled
       refreshControl={
-        <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
+        <RefreshControl
+          refreshing={isHeadLoading}
+          onRefresh={onRefresh}
+          colors={[Platform.OS === 'android' ? '#29947A' : null]}
+        />
       }
     >
       {cours.length === 0 ? (
         <Text style={[styles.noCourses]}>Aucun cours</Text>
       ) : null}
 
-      {cours.map((cours, index) => (
+      {cours.map((_cours, index) => (
         <CoursItem
           key={index}
-          cours={cours}
+          cours={_cours}
           theme={theme}
           CoursPressed={CoursPressed}
         />
@@ -284,7 +337,7 @@ const CoursPage = ({ cours, navigation, theme, forceRefresh }) => {
       <View style={{ height: 12 }} />
     </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -326,7 +379,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     fontFamily: 'Papillon-Regular',
   },
-  
+
   coursItemContainer: {
     flex: 1,
     borderRadius: 12,

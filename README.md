@@ -1,41 +1,45 @@
 # papillon-v6
+
 Serait-ce le début d'une nouvelle ère pour Papillon 👀
 
 ## Pour les contributeurs
+
 - [🍱 Composants](/components/README.md)
 
 ## Roadmap
-- [x] Structure
-    - [x] Routage & Navigation
-    - [x] Appels à l'API
-    - [x] Données utilisateurs (équivalent LocalStorage)
-    - [x] Framework UI (React Native Paper)
-- [x] Connexion à un service scolaire *(Pronote pour le moment)*
-    - [x] Interface de choix du service scolaire
-    - [x] Interface de sélection de l'établissement
-    - [x] Interface de connexion au service
-    - [x] Appel à l'API pour se connecter et conservation de la session
-- [ ] Affichage des données *(Pronote en priorité)*
-    - [x] Données utilisateur
-    - [x] Emploi du temps
-    - [x] Devoirs
-    - [x] Notes
-    - [x] Compétences
-    - [ ] Contenu des cours
-    - [x] Fichiers
-    - [x] Actualités
-    - [ ] Conversations
-    - [x] Vie scolaire
 
+- [x] Structure
+  - [x] Routage & Navigation
+  - [x] Appels à l'API
+  - [x] Données utilisateurs (équivalent LocalStorage)
+  - [x] Framework UI (React Native Paper)
+- [x] Connexion à un service scolaire _(Pronote pour le moment)_
+  - [x] Interface de choix du service scolaire
+  - [x] Interface de sélection de l'établissement
+  - [x] Interface de connexion au service
+  - [x] Appel à l'API pour se connecter et conservation de la session
+- [ ] Affichage des données _(Pronote en priorité)_
+  - [x] Données utilisateur
+  - [x] Emploi du temps
+  - [x] Devoirs
+  - [x] Notes
+  - [x] Compétences
+  - [ ] Contenu des cours
+  - [x] Fichiers
+  - [x] Actualités
+  - [ ] Conversations
+  - [x] Vie scolaire
 
 ## Le projet
-> J'avais parlé de la possibilité d'une future réécriture de Papillon en React Native pendant les vacances pour une sortie possible à la rentrée 2023. Maintenant, je passe enfin à l'action -  Vince (@ecnivtwelve), 2023
+
+> J'avais parlé de la possibilité d'une future réécriture de Papillon en React Native pendant les vacances pour une sortie possible à la rentrée 2023. Maintenant, je passe enfin à l'action - Vince (@ecnivtwelve), 2023
 
 La v6 de Papillon serait donc une **réécriture** de la v5, dans le sens ou celle ci doit garder les mêmes concepts de structure et d'organisation interne, afin de faciliter la transition des APIs. Cependant, l'interface de l'app sera entièrement nouvelle.
 
 L'idée derrière la notion de réécriture est de ne pas réinventer la roue et de pouvoir réutiliser ce sur quoi nous avons travaillé pendant plusieurs mois.
 
 ### Encore une nouvelle version ?
+
 Revenons en arrière dans la chronologie de Papillon.
 
 La **version 1**, encore appelée `pronoteplus-app` fonctionnait de manière très primaire avec Ionic Framework et du JS vanilla. Un changement majeur de back-end à conduit à une nouvelle version.
@@ -51,9 +55,11 @@ La **v4** est née de la volonté de partir d'une vraie nouvelle base, en quitta
 **Papillon v6** a pris des notes des erreurs du passé, en essayant d'avancer vers l'avenir. Pour la première fois, Papillon quitte le statut de webapp et devient une application native. Cela va permettre un gain de stabilité et de performances très intéressant.
 
 ### Le risque & la solution
+
 Une chose que la v6 doit prendre en compte, c'est le flop de la v4. Pourquoi ? Celle-ci est née dans les mêmes conditions : un changement majeur de technologie dans la volonté d'obtenir de meilleures performances. Cependant, le manque de connaissances en Vue.js de l'époque a conduit la v4 à devenir une "version test", déjà amenée à s'éteindre.
 
 Comment ne pas reproduire cela ? En gardant une idée claire en tête : **la structuration**. Le principal problème de la v4 était son manque de structure claire et le manque d'outils adaptés au développement mobile. La v6 résout ces 2 problèmes en basant sa structure sur celle de la v5 qui fonctionne bien, et en se basant sur un framework complet et reconnu : `react-native-papers`, avec la possibilité de s'en détacher à tout instant.
 
 ## License
+
 Distribué sous licence MIT. Rendez-vous sur [LICENSE](licence.md) pour plus d'informations.
