@@ -11,7 +11,7 @@ import {
 import { Text, useTheme } from 'react-native-paper';
 
 import { Newspaper } from 'lucide-react-native';
-import { getNews } from '../fetch/PronoteData/PronoteNews';
+import { getNews } from '../fetch/IndexData';
 import ListItem from '../components/ListItem';
 
 import GetUIColors from '../utils/GetUIColors';
