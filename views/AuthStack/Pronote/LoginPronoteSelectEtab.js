@@ -250,7 +250,18 @@ function LoginPronoteSelectEtab({ navigation }) {
   const [currentEtabURL, setCurrentEtabURL] = useState('');
 
   function qrScanned(event) {
-    const { url } = JSON.parse(event.data);
+
+    try {
+      let url = JSON.parse(event.data)?.url;
+    } catch(e) {
+      Alert.alert('Erreur', 'Le QR Code scanné n\'est pas valide.');
+      return;
+    }
+    
+    if(!url || !IsJsonString(event.data)) {
+      Alert.alert('Erreur', 'Le QR Code scanné n\'est pas valide.');
+      return;
+    }
 
     getENTs(url).then((result) => {
       setCurrentEtabName(result.nomEtab);
