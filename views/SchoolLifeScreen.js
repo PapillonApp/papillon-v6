@@ -12,7 +12,7 @@ import { Text, useTheme } from 'react-native-paper';
 
 import { Clock3, UserX } from 'lucide-react-native';
 import { PressableScale } from 'react-native-pressable-scale';
-import { getViesco } from '../fetch/IndexData';
+import { IndexData } from '../fetch/IndexData';
 
 import PapillonIcon from '../components/PapillonIcon';
 import GetUIColors from '../utils/GetUIColors';
@@ -26,7 +26,7 @@ function SchoolLifeScreen() {
 
   useEffect(() => {
     setIsHeadLoading(true);
-    getViesco().then((v) => {
+    IndexData.getViesco().then((v) => {
       setIsHeadLoading(false);
       setViesco(v);
     });
@@ -34,7 +34,7 @@ function SchoolLifeScreen() {
 
   const onRefresh = React.useCallback(() => {
     setIsHeadLoading(true);
-    getViesco(true).then((v) => {
+    IndexData.getViesco(true).then((v) => {
       setIsHeadLoading(false);
       setViesco(v);
     });

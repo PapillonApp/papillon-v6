@@ -27,8 +27,7 @@ import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import * as LocalAuthentication from 'expo-local-authentication';
 
-import { useState, useEffect } from 'react';
-import * as SystemUI from 'expo-system-ui';
+import { useEffect } from 'react';
 
 import {
   Mail,
@@ -39,7 +38,7 @@ import {
   Contact2,
   Lock,
 } from 'lucide-react-native';
-import { getUser } from '../../fetch/IndexData';
+import { IndexData } from '../../fetch/IndexData';
 
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
@@ -57,7 +56,7 @@ function ProfileScreen({ route }) {
   const [shownINE, setShownINE] = React.useState('');
 
   useEffect(() => {
-    getUser(false).then((result) => {
+    IndexData.getUser(false).then((result) => {
       setUserData(result);
       setProfilePicture(result.profile_picture);
 

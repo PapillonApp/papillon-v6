@@ -18,12 +18,12 @@ import { PressableScale } from 'react-native-pressable-scale';
 import InfinitePager from 'react-native-infinite-pager';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Calendar, Info } from 'lucide-react-native';
-import { getTimetable } from '../fetch/IndexData';
 
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestColor from '../utils/ColorCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
+import { IndexData } from '../fetch/IndexData';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -95,7 +95,7 @@ function CoursScreen({ navigation }) {
   const updateCoursForDate = async (dateOffset, setDate) => {
     const newDate = calcDate(setDate, dateOffset);
     if (!coursRef.current[newDate.toLocaleDateString()]) {
-      const result = await getTimetable(newDate);
+      const result = await IndexData.getTimetable(newDate);
       setCours((prevCours) => ({
         ...prevCours,
         [newDate.toLocaleDateString()]: result,
@@ -115,7 +115,7 @@ function CoursScreen({ navigation }) {
 
   const forceRefresh = async () => {
     const newDate = calcDate(todayRef.current, 0);
-    const result = await getTimetable(newDate);
+    const result = await IndexData.getTimetable(newDate);
     setCours((prevCours) => ({
       ...prevCours,
       [newDate.toLocaleDateString()]: result,

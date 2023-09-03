@@ -36,6 +36,11 @@
     "consistent-return": "off",
     "no-return-assign": "off",
     "import/prefer-default-export": "off",
-    "[object Object]": 0
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      }
+    ]
   }
 }

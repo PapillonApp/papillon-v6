@@ -23,11 +23,8 @@ import * as WebBrowser from 'expo-web-browser';
 import { Calendar, Check, File, Link } from 'lucide-react-native';
 import getClosestColor from '../utils/ColorCoursName';
 
-import {
-  getHomeworks,
-  changeHomeworkState,
-} from '../fetch/IndexData';
 import GetUIColors from '../utils/GetUIColors';
+import { IndexData } from '../fetch/IndexData';
 
 const openURL = (url) => {
   const UIColors = GetUIColors();
@@ -105,7 +102,7 @@ function DevoirsScreen({ navigation }) {
   const updateHomeworksForDate = async (dateOffset, setDate) => {
     const newDate = calcDate(setDate, dateOffset);
     if (!hwRef.current[newDate.toLocaleDateString()]) {
-      const result = await getHomeworks(newDate);
+      const result = await IndexData.getHomeworks(newDate);
       setHomeworks((prevHomeworks) => ({
         ...prevHomeworks,
         [newDate.toLocaleDateString()]: result,
@@ -125,7 +122,7 @@ function DevoirsScreen({ navigation }) {
 
   const forceRefresh = async () => {
     const newDate = calcDate(todayRef.current, 0);
-    const result = await getHomeworks(newDate);
+    const result = await IndexData.getHomeworks(newDate);
     setHomeworks((prevHomeworks) => ({
       ...prevHomeworks,
       [newDate.toLocaleDateString()]: result,
@@ -275,7 +272,7 @@ function Hwitem({ homework, theme }) {
 
   const changeHwState = () => {
     console.log(`change ${homework.date} : ${homework.id}`);
-    changeHomeworkState(homework.date, homework.id).then((result) => {
+    IndexData.changeHomeworkState(homework.date, homework.id).then((result) => {
       console.log(result);
 
       if (result.status === 'not found') {

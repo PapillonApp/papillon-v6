@@ -18,13 +18,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
-
-import { getUser } from '../fetch/IndexData';
-
-import {
-  getEvaluations,
-  changePeriod,
-} from '../fetch/IndexData';
+import { IndexData } from '../fetch/IndexData';
 import GetUIColors from '../utils/GetUIColors';
 
 function EvaluationsScreen({ navigation }) {
@@ -96,14 +90,14 @@ function EvaluationsScreen({ navigation }) {
 
   async function changePeriodPronote(period) {
     setIsLoading(true);
-    await changePeriod(period.name);
-    getUser(true);
+    await IndexData.changePeriod(period.name);
+    IndexData.getUser(true);
     setRefreshCount(refreshCount + 1);
     setIsLoading(false);
   }
 
   async function getPeriods() {
-    const result = await getUser(false);
+    const result = await IndexData.getUser(false);
     const userData = result;
     const allPeriods = userData.periods;
 
@@ -136,7 +130,7 @@ function EvaluationsScreen({ navigation }) {
     let isForced = false;
     if (refreshCount > 0) isForced = true;
 
-    getEvaluations(isForced).then((_evals) => {
+    IndexData.getEvaluations(isForced).then((_evals) => {
       setIsLoading(false);
       const evals = JSON.parse(_evals);
 

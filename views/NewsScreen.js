@@ -11,7 +11,7 @@ import {
 import { Text, useTheme } from 'react-native-paper';
 
 import { Newspaper } from 'lucide-react-native';
-import { getNews } from '../fetch/IndexData';
+import { IndexData } from '../fetch/IndexData';
 import ListItem from '../components/ListItem';
 
 import GetUIColors from '../utils/GetUIColors';
@@ -59,7 +59,7 @@ function NewsScreen({ navigation }) {
 
   useEffect(() => {
     setIsHeadLoading(true);
-    getNews().then((n) => {
+    IndexData.getNews().then((n) => {
       setIsHeadLoading(false);
       setNews(editNews(JSON.parse(n)));
       finalNews = editNews(JSON.parse(n));
@@ -68,7 +68,7 @@ function NewsScreen({ navigation }) {
 
   const onRefresh = React.useCallback(() => {
     setIsHeadLoading(true);
-    getNews(true).then((n) => {
+    IndexData.getNews(true).then((n) => {
       setNews(editNews(JSON.parse(n)));
       finalNews = editNews(JSON.parse(n));
       setIsHeadLoading(false);
