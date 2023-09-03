@@ -19,8 +19,6 @@ Votre emploi du temps 📅, votre agenda 📓, vos notes 📝, vos news 📰 et 
 * [Contribuer](#-contribuer)
    * [Créer une Pull Request](#créer-une-pull-request)
 * [License](#-license)
-* [Auteurs](#-auteurs)
-* [Remerciements](#-remerciements)
 
 ## Feuille de route
 Voici un aperçu de ce que nous avons accompli jusqu'à présent et de ce qui reste à faire :
@@ -58,6 +56,7 @@ Papillon est une application mobile qui vise à simplifier la vie scolaire des �
 ## 🛠 Développé avec
 
 - React Native
+- React Native Paper
 - Expo
 - Node.js
 
@@ -104,11 +103,3 @@ Nous accueillons les contributions de tous. Veuillez lire notre [guide de contri
 ## 📄 License
 
 Distribué sous la licence MIT. Voir `LICENSE` pour plus d'informations.
-
-## 👤 Auteurs
-
-- [@ecnivtwelve]()
-
-## 🙏 Remerciements
-
-- [@ecnivtwelve]()
