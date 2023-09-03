@@ -3,6 +3,7 @@
 ## Pull request checklist
 
 Please check if your PR fulfills the following requirements:
+
 - [ ] You can **build successfully** the whole project with your changes locally
 - [ ] You use the coding conventions and the **naming conventions** of the project
 - [ ] You use **tabs** for indentation
@@ -16,15 +17,16 @@ Please check if your PR fulfills the following requirements:
 
 ## Explain changes
 
-
 ## Proposed changelog
 
-| Français `fr` |
-| --- |
+| Français `fr`                            |
+| ---------------------------------------- |
 | Proposez un changelog en français ici... |
 
 ### Note
+
 Before merging this PR, you will need the approval of at least one of the following people:
+
 - @ecnivtwelve
 - @lucas-luchack
 

@@ -1,93 +1,89 @@
-import consts from '../consts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import consts from '../consts.json';
 
 import { refreshToken } from '../AuthStack/LoginFlow';
 
 function getUser(force = false) {
-    // return cached user if from today and exists
-    return AsyncStorage.getItem('user_cache').then((user_cache) => {
-        if (user_cache && !force) {
-            user_cache = JSON.parse(user_cache);
+  // return cached user if from today and exists
+  return AsyncStorage.getItem('userCache').then((userCache) => {
+    if (userCache && !force) {
+      userCache = JSON.parse(userCache);
 
-            let userCacheDate = new Date(user_cache.date);
-            let today = new Date();
+      const userCacheDate = new Date(userCache.date);
+      const today = new Date();
 
-            userCacheDate.setHours(0, 0, 0, 0);
-            today.setHours(0, 0, 0, 0);
-            
-            if (userCacheDate.getTime() == today.getTime()) {
-                return editUser(user_cache.user);
+      userCacheDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+
+      if (userCacheDate.getTime() === today.getTime()) {
+        return editUser(userCache.user);
+      }
+      AsyncStorage.removeItem('userCache');
+      return getUser(true);
+    }
+    // obtenir le token
+    return AsyncStorage.getItem('token')
+      .then((token) =>
+        // fetch le timetable
+        fetch(`${consts.API}/user?token=${token}`, {
+          method: 'GET',
+        })
+          .then((response) => response.json())
+          .then(async (result) => {
+            if (result === 'expired' || result === 'notfound') {
+              return refreshToken().then(() => getUser());
             }
-            else {
-                AsyncStorage.removeItem('user_cache');
-                return getUser(true);
-            }
-        }
-        else {
-            // obtenir le token
-            return AsyncStorage.getItem('token').then((token) => {
-                // fetch le timetable
-                return fetch(consts.API + '/user' + '?token=' + token, {
-                    method: 'GET'
-                })
-                .then((response) => response.json())
-                .then(async (result) => {
-                    if (result == 'expired' || result == 'notfound') {
-                        return refreshToken().then(() => {
-                            return getUser();
-                        });
-                    }
-                    else {
-                        saveUser(result);
-                        return editUser(result);
-                    }
-                })
-                .catch((error) => {
-                    
-                });
-            })
-            .catch((error) => {
-                
-            });
-        }
-    });
+            saveUser(result);
+            return editUser(result);
+          })
+          .catch(() => {})
+      )
+      .catch(() => {});
+  });
 }
 
 function editUser(profile) {
-    let user = profile;
+  const user = profile;
 
-    return AsyncStorage.getItem('custom_profile_picture').then((custom_profile_picture) => {
-        if (custom_profile_picture) {
-            user.profile_picture = custom_profile_picture;
+  return AsyncStorage.getItem('customProfilePicture').then(
+    (customProfilePicture) => {
+      if (customProfilePicture) {
+        user.profile_picture = customProfilePicture;
+      }
+
+      return AsyncStorage.getItem('customName').then((customName) => {
+        if (customName) {
+          user.name = customName;
         }
-        
-        return AsyncStorage.getItem('custom_name').then((custom_name) => {
-            if (custom_name) {
-                user.name = custom_name;
-            }
 
-            return user;
-            
-        });
-    });
+        return user;
+      });
+    }
+  );
 }
 
 function saveUser(user) {
-    // fetch profile picture
-    fetch(user.profile_picture).then((response) => response.blob()).then((blob) => {
-        // save as base64 url
-        var reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = function() {
-            var base64data = reader.result;                
-            user.profile_picture = base64data;
+  // fetch profile picture
+  fetch(user.profile_picture)
+    .then((response) => response.blob())
+    .then((blob) => {
+      // save as base64 url
+      // eslint-disable-next-line no-undef
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        user.profile_picture = base64data;
 
-            // save user
-            AsyncStorage.setItem('user_cache', JSON.stringify({
-                date: new Date(),
-                user: user
-            }));
-        }
+        // save user
+        AsyncStorage.setItem(
+          'userCache',
+          JSON.stringify({
+            date: new Date(),
+            user,
+          })
+        );
+      };
     });
 }
 

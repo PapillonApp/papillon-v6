@@ -1,56 +1,68 @@
 import * as React from 'react';
-import { View, ScrollView, StyleSheet, StatusBar, Platform, Pressable, TouchableOpacity, ActivityIndicator, RefreshControl, Image } from 'react-native';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  StatusBar,
+  Platform,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+  Image,
+} from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
 import { useIsFocused } from '@react-navigation/native';
 
-import * as SystemUI from 'expo-system-ui';
-
+import {
+  CheckCircle,
+  Gavel,
+  MessagesSquare,
+  Newspaper,
+  Link,
+  File,
+  Check,
+} from 'lucide-react-native';
+import { useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { PressableScale } from 'react-native-pressable-scale';
+import { openURL } from 'expo-linking';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import getClosestColor from '../utils/ColorCoursName';
 
-import { CheckCircle, Gavel, ListFilter, MessagesSquare, Newspaper } from 'lucide-react-native';
-
-import {useState, useEffect, useRef} from 'react';
-
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import PapillonHeader from '../components/PapillonHeader';
-import { PressableScale } from 'react-native-pressable-scale';
-
-import PapillonIcon from '../components/PapillonIcon';
-
 import { getRecap } from '../fetch/PronoteData/PronoteRecap';
 import { getUser } from '../fetch/PronoteData/PronoteUser';
 import { changeHomeworkState } from '../fetch/PronoteData/PronoteHomeworks';
-import { set } from 'react-native-reanimated';
 
-import { Link, File, Check } from 'lucide-react-native';
 import GetUIColors from '../utils/GetUIColors';
 
 function HomeScreen({ navigation }) {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
 
   const currentDate = new Date();
 
   const [nextClasses, setNextClasses] = React.useState(null);
   const [timetable, setTimetable] = React.useState(null);
   const [homeworks, setHomeworks] = React.useState(null);
-  const [grades, setGrades] = React.useState(null);
+  const [, setGrades] = React.useState(null);
   const [user, setUser] = React.useState(null);
   const [latestGrades, setLatestGrades] = React.useState(null);
 
   const [refreshCount, setRefreshCount] = React.useState(0);
   const [isHeadLoading, setIsHeadLoading] = React.useState(true);
 
-  const isFocused = useIsFocused();
-
   // change header text and size
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      header: props => <HomeHeader props={props} user={user} timetable={timetable} navigation={navigation} />,
+      header: (props) => (
+        <HomeHeader
+          props={props}
+          user={user}
+          timetable={timetable}
+          navigation={navigation}
+        />
+      ),
     });
   }, [navigation, timetable, user]);
 
@@ -62,31 +74,37 @@ function HomeScreen({ navigation }) {
     }
 
     // Fetch recap data
-    getRecap(currentDate, forceReload).then(([timetableData, homeworksData, gradesData]) => {
-      setIsHeadLoading(false);
+    getRecap(currentDate, forceReload).then(
+      ([timetableData, homeworksData, gradesData]) => {
+        setIsHeadLoading(false);
 
-      setTimetable(timetableData);
-      setHomeworks(homeworksData);
-      setGrades(gradesData);
+        setTimetable(timetableData);
+        setHomeworks(homeworksData);
+        setGrades(gradesData);
 
-      const nextClasses2 = getNextCours(timetable).nextClasses;
-      setNextClasses(nextClasses2);
+        const nextClasses2 = getNextCours(timetable).nextClasses;
+        setNextClasses(nextClasses2);
 
-      // Calculate grade colors
-      const updatedGrades = JSON.parse(gradesData).grades.reverse().map(grade => {
-        const average = JSON.parse(gradesData).averages.find(average => average.subject.name === grade.subject.name);
-        return {
-          ...grade,
-          color: average ? getClosestColor(average.color) : undefined,
-        };
-      });
+        // Calculate grade colors
+        const updatedGrades = JSON.parse(gradesData)
+          .grades.reverse()
+          .map((grade) => {
+            const average = JSON.parse(gradesData).averages.find(
+              (av) => av.subject.name === grade.subject.name
+            );
+            return {
+              ...grade,
+              color: average ? getClosestColor(average.color) : undefined,
+            };
+          });
 
-      const latestGrades2 = updatedGrades.slice(0, 10);
-      setLatestGrades(latestGrades2);
-    });
+        const latestGrades2 = updatedGrades.slice(0, 10);
+        setLatestGrades(latestGrades2);
+      }
+    );
 
     // Fetch user data
-    getUser().then(result => {
+    getUser().then((result) => {
       setUser(result);
     });
 
@@ -102,127 +120,244 @@ function HomeScreen({ navigation }) {
   // Refresh function
   const onRefresh = React.useCallback(() => {
     setIsHeadLoading(true);
-    setRefreshCount(prevCount => prevCount + 1);
+    setRefreshCount((prevCount) => prevCount + 1);
     setIsHeadLoading(false);
   }, []);
 
   const UIColors = GetUIColors();
 
   return (
-    <>
-      <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, {backgroundColor: UIColors.background}]} contentContainerStyle={{alignItems: 'center', justifyContent: 'center', paddingTop: 12}}
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      style={[styles.container, { backgroundColor: UIColors.background }]}
+      contentContainerStyle={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: 12,
+      }}
       refreshControl={
-        <RefreshControl progressViewOffset={28} refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? UIColors.primary : null]} />
-      }>
+        <RefreshControl
+          progressViewOffset={28}
+          refreshing={isHeadLoading}
+          onRefresh={onRefresh}
+          colors={[Platform.OS === 'android' ? UIColors.primary : null]}
+        />
+      }
+    >
+      {/* next classes */}
+      {nextClasses ? (
+        <View
+          style={[
+            styles.nextClassesList,
+            { backgroundColor: UIColors.element },
+          ]}
+        >
+          {nextClasses.map((cours, index) => (
+            <View
+              key={index}
+              style={[
+                styles.nextClassesListItemContainer,
+                {
+                  borderBottomWidth: index !== nextClasses.length - 1 ? 1 : 0,
+                  borderBottomColor: theme.dark ? '#ffffff10' : '#00000010',
+                },
+              ]}
+            >
+              <TouchableOpacity
+                style={[styles.nextClassesListItem]}
+                onPress={() => navigation.navigate('Lesson', { event: cours })}
+              >
+                <Text
+                  numberOfLines={1}
+                  style={[styles.nextClassesListItemEmoji]}
+                >
+                  {getClosestGradeEmoji(cours.subject.name)}
+                </Text>
 
-        {/* next classes */}
-        { nextClasses ?
-          <View style={[styles.nextClassesList, {backgroundColor : UIColors.element}]}>
-            { nextClasses.map((cours, index) => (
-              <View key={index} style={[styles.nextClassesListItemContainer, {borderBottomWidth: (index != nextClasses.length - 1) ? 1 : 0, borderBottomColor: theme.dark ? '#ffffff10' : '#00000010' }]}>
-                <TouchableOpacity style={[styles.nextClassesListItem]} onPress={() => navigation.navigate('Lesson', { event: cours })}>
-                  <Text numberOfLines={1} style={[styles.nextClassesListItemEmoji]}>{getClosestGradeEmoji(cours.subject.name)}</Text>
+                <Text
+                  numberOfLines={1}
+                  style={[styles.nextClassesListItemText]}
+                >
+                  {formatCoursName(cours.subject.name)}
+                </Text>
 
-                  <Text numberOfLines={1} style={[styles.nextClassesListItemText]}>{formatCoursName(cours.subject.name)}</Text>
+                <Text
+                  numberOfLines={1}
+                  style={[styles.nextClassesListItemTime]}
+                >
+                  {new Date(cours.start).toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      ) : null}
 
-                  <Text numberOfLines={1} style={[styles.nextClassesListItemTime]}>{new Date(cours.start).toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</Text>
-                </TouchableOpacity>
-              </View>
+      {/* tabs */}
+      <View style={[styles.tabsContainer]}>
+        <View style={[styles.tabRow]}>
+          <PressableScale
+            style={[styles.tab, { backgroundColor: UIColors.element }]}
+            weight="light"
+            activeScale={0.9}
+            onPress={() => navigation.navigate('InsetSchoollife')}
+          >
+            <Gavel size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+            <Text style={[styles.tabText]}>Vie scolaire</Text>
+          </PressableScale>
+          <PressableScale
+            style={[styles.tab, { backgroundColor: UIColors.element }]}
+            weight="light"
+            activeScale={0.9}
+            onPress={() => navigation.navigate('InsetNews')}
+          >
+            <Newspaper size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+            <Text style={[styles.tabText]}>Actualités</Text>
+          </PressableScale>
+        </View>
+        <View style={[styles.tabRow]}>
+          <PressableScale
+            style={[styles.tab, { backgroundColor: UIColors.element }]}
+            weight="light"
+            activeScale={0.9}
+            onPress={() => navigation.navigate('InsetConversations')}
+          >
+            <MessagesSquare
+              size={24}
+              color={theme.dark ? '#ffffff' : '#000000'}
+            />
+            <Text style={[styles.tabText]}>Conversations</Text>
+          </PressableScale>
+          <PressableScale
+            style={[styles.tab, { backgroundColor: UIColors.element }]}
+            weight="light"
+            activeScale={0.9}
+            onPress={() => navigation.navigate('InsetEvaluations')}
+          >
+            <CheckCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+            <Text style={[styles.tabText]}>Compétences</Text>
+          </PressableScale>
+        </View>
+      </View>
+
+      {/* homeworks */}
+      {homeworks && homeworks.length > 0 ? (
+        <>
+          <Text style={styles.ListTitle}>Travail à faire</Text>
+          <View style={[styles.hwList, { backgroundColor: UIColors.element }]}>
+            {homeworks.map((homework, index) => (
+              <Hwitem
+                key={index}
+                index={index}
+                homework={homework}
+                homeworks={homeworks}
+                navigation={navigation}
+                theme={theme}
+              />
             ))}
           </View>
-        : null }
+        </>
+      ) : null}
 
-        {/* tabs */}
-        <View style={[styles.tabsContainer]}>
-          <View style={[styles.tabRow]}>
-            <PressableScale style={[styles.tab, {backgroundColor: UIColors.element}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetSchoollife')}>
-              <Gavel size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-              <Text style={[styles.tabText]}>Vie scolaire</Text>
-            </PressableScale>
-            <PressableScale style={[styles.tab, {backgroundColor: UIColors.element}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetNews')}>
-              <Newspaper size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-              <Text style={[styles.tabText]}>Actualités</Text>
-            </PressableScale>
-          </View>
-          <View style={[styles.tabRow]}>
-            <PressableScale style={[styles.tab, {backgroundColor: UIColors.element}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetConversations')}>
-              <MessagesSquare size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-              <Text style={[styles.tabText]}>Conversations</Text>
-            </PressableScale>
-            <PressableScale style={[styles.tab, {backgroundColor: UIColors.element}]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetEvaluations')}>
-              <CheckCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-              <Text style={[styles.tabText]}>Compétences</Text>
-            </PressableScale>
-          </View>
-        </View>
+      {/* grades */}
+      {latestGrades && latestGrades.length > 0 ? (
+        <>
+          <Text style={styles.ListTitle}>Dernières notes</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={[styles.latestGradesList]}
+          >
+            {latestGrades.map((grade, index) => (
+              <PressableScale
+                weight="light"
+                activeScale={0.89}
+                key={index}
+                style={[
+                  styles.smallGradeContainer,
+                  { backgroundColor: UIColors.element },
+                ]}
+                onPress={() => navigation.navigate('Grade', { grade })}
+              >
+                <View
+                  style={[
+                    styles.smallGradeSubjectContainer,
+                    { backgroundColor: grade.color },
+                  ]}
+                >
+                  <Text style={[styles.smallGradeEmoji]}>
+                    {getClosestGradeEmoji(grade.subject.name)}
+                  </Text>
+                  <Text
+                    style={[styles.smallGradeSubject]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {formatCoursName(grade.subject.name)}
+                  </Text>
+                </View>
 
-        {/* homeworks */}
-        { homeworks && homeworks.length > 0 ?
-          <>
-            <Text style={styles.ListTitle}>Travail à faire</Text>
-            <View style={[styles.hwList, {backgroundColor : UIColors.element}]}>
-              { homeworks.map((homework, index) => (
-                <Hwitem key={index} index={index} homework={homework} homeworks={homeworks} navigation={navigation} theme={theme} />
-              )) }
-            </View>
-          </>
-        : null }
+                <View style={[styles.smallGradeNameContainer]}>
+                  {grade.description ? (
+                    <Text
+                      style={[styles.smallGradeName]}
+                      numberOfLines={3}
+                      ellipsizeMode="tail"
+                    >
+                      {grade.description}
+                    </Text>
+                  ) : (
+                    <Text style={[styles.smallGradeName]}>
+                      Note en {formatCoursName(grade.subject.name)}
+                    </Text>
+                  )}
 
-        {/* grades */}
-        { latestGrades && latestGrades.length > 0 ?
-          <>
-            <Text style={styles.ListTitle}>Dernières notes</Text>
-            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.latestGradesList]}>
-            {latestGrades.map((grade, index) => {
-                return (
-                  <PressableScale weight="light" activeScale={0.89} key={index} style={[styles.smallGradeContainer, {backgroundColor: UIColors.element}]} onPress={() => navigation.navigate('Grade', { grade: grade })}>
-                    <View style={[styles.smallGradeSubjectContainer, {backgroundColor: grade.color}]}>
-                      <Text style={[styles.smallGradeEmoji]}>{getClosestGradeEmoji(grade.subject.name)}</Text>
-                      <Text style={[styles.smallGradeSubject]} numberOfLines={1} ellipsizeMode='tail'>{formatCoursName(grade.subject.name)}</Text>
-                    </View>
+                  <Text style={[styles.smallGradeDate]}>
+                    {new Date(grade.date).toLocaleDateString('fr-FR', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </Text>
+                </View>
 
-                    <View style={[styles.smallGradeNameContainer]}>
-                      { grade.description ?
-                      <Text style={[styles.smallGradeName]} numberOfLines={3} ellipsizeMode='tail'>{grade.description}</Text>
-                      :
-                      <Text style={[styles.smallGradeName]}>Note en {formatCoursName(grade.subject.name)}</Text>
-                      }
+                <View style={[styles.smallGradeValueContainer]}>
+                  {grade.grade.significant === 0 ? (
+                    <Text style={[styles.smallGradeValue]}>
+                      {parseFloat(grade.grade.value).toFixed(2)}
+                    </Text>
+                  ) : grade.grade.significant === 3 ? (
+                    <Text style={[styles.smallGradeValue]}>Abs.</Text>
+                  ) : (
+                    <Text style={[styles.smallGradeValue]}>N.not</Text>
+                  )}
+                  <Text style={[styles.smallGradeOutOf]}>
+                    /{grade.grade.out_of}
+                  </Text>
+                </View>
+              </PressableScale>
+            ))}
+          </ScrollView>
+        </>
+      ) : null}
 
-                      <Text style={[styles.smallGradeDate]}>{new Date(grade.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' })}</Text>
-                    </View>
-
-                    <View style={[styles.smallGradeValueContainer]}>
-                      { grade.grade.significant == 0 ?
-                        <Text style={[styles.smallGradeValue]}>{parseFloat(grade.grade.value).toFixed(2)}</Text>
-                      : grade.grade.significant == 3 ?
-                        <Text style={[styles.smallGradeValue]}>Abs.</Text>
-                      :
-                        <Text style={[styles.smallGradeValue]}>N.not</Text>
-                      }
-                      <Text style={[styles.smallGradeOutOf]}>/{grade.grade.out_of}</Text>
-                    </View>
-                  </PressableScale>
-                );
-              })}
-            </ScrollView>
-          </>
-        : null }
-
-        <View style={{height: 50}}></View>
-      </ScrollView>
-    </>
+      <View style={{ height: 50 }} />
+    </ScrollView>
   );
 }
 
-const Hwitem = ({ index, homework, homeworks, navigation, theme }) => {
+function Hwitem({ homework, theme }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
 
   const changeHwState = () => {
-    console.log('change ' + homework.date + ' : ' + homework.id);
+    console.log(`change ${homework.date} : ${homework.id}`);
     changeHomeworkState(homework.date, homework.id).then((result) => {
       console.log(result);
 
-      if (result.status == "not found") {
+      if (result.status === 'not found') {
         setTimeout(() => {
           setThisHwChecked(homework.done);
         }, 100);
@@ -234,53 +369,101 @@ const Hwitem = ({ index, homework, homeworks, navigation, theme }) => {
     <PressableScale style={[styles.homeworkItemContainer]}>
       <View style={[styles.homeworkItem]}>
         <View style={[styles.checkboxContainer]}>
-          <HwCheckbox checked={thisHwChecked} theme={theme} pressed={() => {
-            setThisHwChecked(!thisHwChecked);
-            changeHwState();
-          }} />
+          <HwCheckbox
+            checked={thisHwChecked}
+            theme={theme}
+            pressed={() => {
+              setThisHwChecked(!thisHwChecked);
+              changeHwState();
+            }}
+          />
         </View>
         <View style={[styles.hwItem]}>
           <View style={[styles.hwItemHeader]}>
-            <View style={[styles.hwItemColor, {backgroundColor: getClosestColor(homework.background_color)}]}></View>
-            <Text style={[styles.hwItemTitle, {color: theme.dark ? "#ffffff" : "#000000"}]}>{homework.subject.name}</Text>
+            <View
+              style={[
+                styles.hwItemColor,
+                { backgroundColor: getClosestColor(homework.background_color) },
+              ]}
+            />
+            <Text
+              style={[
+                styles.hwItemTitle,
+                { color: theme.dark ? '#ffffff' : '#000000' },
+              ]}
+            >
+              {homework.subject.name}
+            </Text>
           </View>
-          <Text numberOfLines={4} style={[styles.hwItemDescription, {color: theme.dark ? "#ffffff" : "#000000"}]}>{homework.description}</Text>
+          <Text
+            numberOfLines={4}
+            style={[
+              styles.hwItemDescription,
+              { color: theme.dark ? '#ffffff' : '#000000' },
+            ]}
+          >
+            {homework.description}
+          </Text>
         </View>
       </View>
 
-      { homework.files.length > 0 ? (
+      {homework.files.length > 0 ? (
         <View style={[styles.homeworkFiles]}>
-          { homework.files.map((file, index) => (
-            <View style={[styles.homeworkFileContainer, {borderColor: theme.dark ? '#ffffff10' : '#00000010'}]} key={index}>
-              <PressableScale style={[styles.homeworkFile]} weight="light" activeScale={0.9} onPress={() => openURL(file.url)}>
-                { file.type == 0 ? (
-                  <Link size={20} color={theme.dark ? "#ffffff" : "#000000"} />
+          {homework.files.map((file, i) => (
+            <View
+              style={[
+                styles.homeworkFileContainer,
+                { borderColor: theme.dark ? '#ffffff10' : '#00000010' },
+              ]}
+              key={i}
+            >
+              <PressableScale
+                style={[styles.homeworkFile]}
+                weight="light"
+                activeScale={0.9}
+                onPress={() => openURL(file.url)}
+              >
+                {file.type === 0 ? (
+                  <Link size={20} color={theme.dark ? '#ffffff' : '#000000'} />
                 ) : (
-                  <File size={20} color={theme.dark ? "#ffffff" : "#000000"} />
-                ) }
+                  <File size={20} color={theme.dark ? '#ffffff' : '#000000'} />
+                )}
 
                 <View style={[styles.homeworkFileData]}>
                   <Text style={[styles.homeworkFileText]}>{file.name}</Text>
-                  <Text numberOfLines={1} ellipsizeMode='tail' style={[styles.homeworkFileUrl]}>{file.url}</Text>
+                  <Text
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    style={[styles.homeworkFileUrl]}
+                  >
+                    {file.url}
+                  </Text>
                 </View>
               </PressableScale>
             </View>
-          )) }
+          ))}
         </View>
-      ) : null }
+      ) : null}
     </PressableScale>
   );
-};
+}
 
-const HwCheckbox = ({ checked, theme, pressed }) => {
+function HwCheckbox({ checked, theme, pressed }) {
   return (
-    <PressableScale style={[styles.checkContainer, {borderColor: theme.dark ? "#333333" : "#c5c5c5"}, checked ? styles.checkChecked : null]} weight="light" activeScale={0.7} onPress={pressed}>
-      { checked ? (
-        <Check size={20} color="#ffffff" />
-      ) : null }
+    <PressableScale
+      style={[
+        styles.checkContainer,
+        { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
+        checked ? styles.checkChecked : null,
+      ]}
+      weight="light"
+      activeScale={0.7}
+      onPress={pressed}
+    >
+      {checked ? <Check size={20} color="#ffffff" /> : null}
     </PressableScale>
   );
-};
+}
 
 function getNextCours(classes) {
   if (!classes || classes.length === 0) {
@@ -292,7 +475,7 @@ function getNextCours(classes) {
 
   const now = new Date();
 
-  const activeClasses = classes.filter(classInfo => !classInfo.is_cancelled);
+  const activeClasses = classes.filter((classInfo) => !classInfo.is_cancelled);
 
   let currentOrNextClass = null;
   let minTimeDiff = Infinity;
@@ -321,43 +504,43 @@ function getNextCours(classes) {
     };
   }
 
-  const nextClasses = activeClasses.filter(classInfo => {
+  const nextClasses = activeClasses.filter((classInfo) => {
     const startTime = new Date(classInfo.start);
     return startTime > new Date(currentOrNextClass.start);
   });
 
   return {
     next: currentOrNextClass,
-    nextClasses: nextClasses,
+    nextClasses,
   };
 }
 
 const lightenDarkenColor = (color, amount) => {
-  let colorWithoutHash = color.replace("#", "")
+  let colorWithoutHash = color.replace('#', '');
   if (colorWithoutHash.length === 3) {
     colorWithoutHash = colorWithoutHash
-      .split("")
-      .map(c => `${c}${c}`)
-      .join("")
+      .split('')
+      .map((c) => `${c}${c}`)
+      .join('');
   }
 
-  const getColorChannel = substring => {
-    let colorChannel = parseInt(substring, 16) + amount
-    colorChannel = Math.max(Math.min(255, colorChannel), 0).toString(16)
+  const getColorChannel = (substring) => {
+    let colorChannel = parseInt(substring, 16) + amount;
+    colorChannel = Math.max(Math.min(255, colorChannel), 0).toString(16);
 
     if (colorChannel.length < 2) {
-      colorChannel = `0${colorChannel}`
+      colorChannel = `0${colorChannel}`;
     }
 
-    return colorChannel
-  }
+    return colorChannel;
+  };
 
-  const colorChannelRed = getColorChannel(colorWithoutHash.substring(0, 2))
-  const colorChannelGreen = getColorChannel(colorWithoutHash.substring(2, 4))
-  const colorChannelBlue = getColorChannel(colorWithoutHash.substring(4, 6))
+  const colorChannelRed = getColorChannel(colorWithoutHash.substring(0, 2));
+  const colorChannelGreen = getColorChannel(colorWithoutHash.substring(2, 4));
+  const colorChannelBlue = getColorChannel(colorWithoutHash.substring(4, 6));
 
-  return `#${colorChannelRed}${colorChannelGreen}${colorChannelBlue}`
-}
+  return `#${colorChannelRed}${colorChannelGreen}${colorChannelBlue}`;
+};
 
 function HomeHeader({ navigation, timetable, user }) {
   const theme = useTheme();
@@ -384,13 +567,12 @@ function HomeHeader({ navigation, timetable, user }) {
     return () => clearInterval(interval);
   }, [timetable]);
 
-  const getColorCoursBg = color => {
-    return lightenDarkenColor(getClosestColor(color), -20);
-  };
+  const getColorCoursBg = (color) =>
+    lightenDarkenColor(getClosestColor(color), -20);
 
-  const getPrenom = name => {
+  const getPrenom = (name) => {
     const words = name.split(' ');
-    let prenom = words[words.length - 1];
+    const prenom = words[words.length - 1];
 
     return prenom;
   };
@@ -412,32 +594,75 @@ function HomeHeader({ navigation, timetable, user }) {
   const UIColors = GetUIColors();
 
   return (
-    <View style={[styles.header, { backgroundColor: nextCourse ? getColorCoursBg(nextCourse.background_color) : UIColors.primaryBackground, paddingTop: insets.top + 13, borderColor: theme.dark ? '#ffffff15' : '#00000032', borderBottomWidth: 1 }]}>
-      { isFocused ?
-        <StatusBar barStyle={'light-content'} backgroundColor={'transparent'} />
-      : null }
+    <View
+      style={[
+        styles.header,
+        {
+          backgroundColor: nextCourse
+            ? getColorCoursBg(nextCourse.background_color)
+            : UIColors.primaryBackground,
+          paddingTop: insets.top + 13,
+          borderColor: theme.dark ? '#ffffff15' : '#00000032',
+          borderBottomWidth: 1,
+        },
+      ]}
+    >
+      {isFocused ? (
+        <StatusBar barStyle="light-content" backgroundColor="transparent" />
+      ) : null}
 
       <View style={styles.headerContainer}>
-        <Text style={[styles.headerNameText]}>Bonjour{user ? ', ' + getPrenom(user.name) + ' !' : ' !'}</Text>
-        <Text style={[styles.headerCoursesText]}>{timetable && leftCourses && timetable.length > 1 ? `Il te reste ${leftCourses.length + 1} cours dans ta journée.` : 'Tu n\'as aucun cours restant aujourd\'hui.'}</Text>
+        <Text style={[styles.headerNameText]}>
+          Bonjour{user ? `, ${getPrenom(user.name)} !` : ' !'}
+        </Text>
+        <Text style={[styles.headerCoursesText]}>
+          {timetable && leftCourses && timetable.length > 1
+            ? `Il te reste ${leftCourses.length + 1} cours dans ta journée.`
+            : "Tu n'as aucun cours restant aujourd'hui."}
+        </Text>
 
         {user && (
-          <TouchableOpacity style={[styles.headerPfpContainer]} onPress={openProfile}>
-            <Image source={{ uri: user.profile_picture }} style={[styles.headerPfp]} />
+          <TouchableOpacity
+            style={[styles.headerPfpContainer]}
+            onPress={openProfile}
+          >
+            <Image
+              source={{ uri: user.profile_picture }}
+              style={[styles.headerPfp]}
+            />
           </TouchableOpacity>
         )}
       </View>
 
-      {nextCourse && nextCourse.id !== null && <NextCours cours={nextCourse} navigation={navigation} />}
+      {nextCourse && nextCourse.id !== null && (
+        <NextCours cours={nextCourse} navigation={navigation} />
+      )}
 
       {!loading && !nextCourse ? (
-        <PressableScale style={[styles.nextCoursContainer, { backgroundColor: UIColors.elementHigh }, styles.nextCoursLoading]} onPress={openNextCours}>
-          <Text style={[styles.nextCoursLoadingText]}>Pas de prochain cours</Text>
+        <PressableScale
+          style={[
+            styles.nextCoursContainer,
+            { backgroundColor: UIColors.elementHigh },
+            styles.nextCoursLoading,
+          ]}
+          onPress={openNextCours}
+        >
+          <Text style={[styles.nextCoursLoadingText]}>
+            Pas de prochain cours
+          </Text>
         </PressableScale>
       ) : loading ? (
-        <PressableScale style={[styles.nextCoursContainer, { backgroundColor: UIColors.elementHigh }, styles.nextCoursLoading]}>
+        <PressableScale
+          style={[
+            styles.nextCoursContainer,
+            { backgroundColor: UIColors.elementHigh },
+            styles.nextCoursLoading,
+          ]}
+        >
           <ActivityIndicator size={12} />
-          <Text style={[styles.nextCoursLoadingText]}>Chargement du prochain cours</Text>
+          <Text style={[styles.nextCoursLoadingText]}>
+            Chargement du prochain cours
+          </Text>
         </PressableScale>
       ) : null}
     </View>
@@ -445,14 +670,11 @@ function HomeHeader({ navigation, timetable, user }) {
 }
 
 function NextCours({ cours, navigation }) {
-  const theme = useTheme();
-  const [time, setTime] = React.useState("...");
+  const [time, setTime] = React.useState('...');
 
-  const lz = (number) => {
-    return number < 10 ? '0' + number : number;
-  };
+  const lz = (number) => (number < 10 ? `0${number}` : number);
 
-  const calculateTimeLeft = date => {
+  const calculateTimeLeft = (date) => {
     const now = new Date();
     const start = new Date(date);
     const diff = start - now;
@@ -463,12 +685,10 @@ function NextCours({ cours, navigation }) {
 
       if (diffMinutes < 20) {
         return `dans ${lz(diffMinutes)} min ${lz(diffSeconds)} sec`;
-      } else {
-        return `dans ${Math.ceil(diffMinutes / 60)}h ${lz(diffMinutes % 60)} min`;
       }
-    } else {
-      return "maintenant";
+      return `dans ${Math.ceil(diffMinutes / 60)}h ${lz(diffMinutes % 60)} min`;
     }
+    return 'maintenant';
   };
 
   React.useEffect(() => {
@@ -485,34 +705,47 @@ function NextCours({ cours, navigation }) {
     navigation.navigate('Lesson', { event: cours });
   };
 
-  const isTimeSet = time !== "...";
+  const isTimeSet = time !== '...';
 
   return (
     cours && (
-      <PressableScale style={[styles.nextCoursContainer, { backgroundColor: getClosestColor(cours.background_color) }]} onPress={openCours}>
+      <PressableScale
+        style={[
+          styles.nextCoursContainer,
+          { backgroundColor: getClosestColor(cours.background_color) },
+        ]}
+        onPress={openCours}
+      >
         <View style={styles.nextCoursLeft}>
           <View style={styles.nextCoursEmoji}>
-            <Text style={styles.nextCoursEmojiText}>{getClosestGradeEmoji(cours.subject.name)}</Text>
+            <Text style={styles.nextCoursEmojiText}>
+              {getClosestGradeEmoji(cours.subject.name)}
+            </Text>
           </View>
           <View style={styles.nextCoursLeftData}>
             <Text numberOfLines={1} style={styles.nextCoursLeftDataText}>
               {formatCoursName(cours.subject.name)}
             </Text>
 
-            { cours.status == null ? (
-            <Text numberOfLines={1} style={styles.nextCoursLeftDataTextRoom}>
-              salle {cours.rooms[0]} - avec {cours.teachers[0]}
-            </Text>
+            {cours.status === null ? (
+              <Text numberOfLines={1} style={styles.nextCoursLeftDataTextRoom}>
+                salle {cours.rooms[0]} - avec {cours.teachers[0]}
+              </Text>
             ) : (
-            <Text numberOfLines={1} style={styles.nextCoursLeftDataTextRoom}>
-              {cours.status} - salle {cours.rooms[0]} - avec {cours.teachers[0]}
-            </Text>
-            ) }
+              <Text numberOfLines={1} style={styles.nextCoursLeftDataTextRoom}>
+                {cours.status} - salle {cours.rooms[0]} - avec{' '}
+                {cours.teachers[0]}
+              </Text>
+            )}
           </View>
         </View>
         <View style={styles.nextCoursRight}>
           <Text numberOfLines={1} style={styles.nextCoursRightTime}>
-            à {new Date(cours.start).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+            à{' '}
+            {new Date(cours.start).toLocaleTimeString('fr-FR', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </Text>
 
           {isTimeSet ? (
@@ -521,7 +754,11 @@ function NextCours({ cours, navigation }) {
             </Text>
           ) : (
             <Text numberOfLines={1} style={styles.nextCoursRightDelay}>
-              fin {new Date(cours.end).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+              fin{' '}
+              {new Date(cours.end).toLocaleTimeString('fr-FR', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
             </Text>
           )}
         </View>
@@ -535,7 +772,7 @@ const styles = StyleSheet.create({
     paddingTop: 30,
   },
 
-  header : {
+  header: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
@@ -598,7 +835,7 @@ const styles = StyleSheet.create({
       width: 0,
       height: 0.5,
     },
-    shadowOpacity: .15,
+    shadowOpacity: 0.15,
     shadowRadius: 1,
 
     elevation: 3,
@@ -697,7 +934,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#ffffff99',
     flex: 1,
-    fontVariant: ["tabular-nums"],
+    fontVariant: ['tabular-nums'],
   },
 
   nextCoursInfo: {
@@ -779,9 +1016,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
 
-  checkboxContainer: {
-    
-  },
+  checkboxContainer: {},
   checkContainer: {
     width: 26,
     height: 26,
@@ -883,7 +1118,7 @@ const styles = StyleSheet.create({
   },
 
   smallGradeSubjectContainer: {
-    gap : 12,
+    gap: 12,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -918,7 +1153,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     gap: 1,
-    
+
     position: 'absolute',
     bottom: 14,
     left: 16,
@@ -962,7 +1197,7 @@ const styles = StyleSheet.create({
       width: 0,
       height: 0.5,
     },
-    shadowOpacity: .15,
+    shadowOpacity: 0.15,
     shadowRadius: 1,
 
     elevation: 0,

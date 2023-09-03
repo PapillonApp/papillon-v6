@@ -1,16 +1,13 @@
-import { getTimetable } from "./PronoteTimetable";
-import { getHomeworks } from "./PronoteHomeworks";
-import { getGrades } from "./PronoteGrades";
+import { getTimetable } from './PronoteTimetable';
+import { getHomeworks } from './PronoteHomeworks';
+import { getGrades } from './PronoteGrades';
 
 function getRecap(day, force) {
-    return Promise.all([
-        getTimetable(day),
-        getHomeworks(day),
-        getGrades(force)
-    ])
-    .then((result) => {
-        return result;
-    });
+  return Promise.all([
+    getTimetable(day),
+    getHomeworks(day),
+    getGrades(force),
+  ]).then((result) => result);
 }
 
 export { getRecap };

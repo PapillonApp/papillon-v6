@@ -1,76 +1,84 @@
-import consts from '../consts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import consts from '../consts.json';
 
 import { refreshToken } from '../AuthStack/LoginFlow';
 
+const getViescoNotValidate = (e) =>
+  e === undefined ||
+  e === null ||
+  e === 'expired' ||
+  e === '"expired"' ||
+  e === 'notfound' ||
+  e === '"notfound"';
+
 function getViesco(force = false) {
-    // obtenir le token
-    return AsyncStorage.getItem('viesco_cache').then((viesco_cache) => {
-        if (viesco_cache && !force) {
-            viesco_cache = JSON.parse(viesco_cache);
+  // obtenir le token
+  return AsyncStorage.getItem('viescoCache').then((viescoCache) => {
+    if (viescoCache && !force) {
+      viescoCache = JSON.parse(viescoCache);
 
-            let userCacheDate = new Date(viesco_cache.date);
-            let today = new Date();
+      const userCacheDate = new Date(viescoCache.date);
+      const today = new Date();
 
-            userCacheDate.setHours(0, 0, 0, 0);
-            today.setHours(0, 0, 0, 0);
-            
-            if (userCacheDate.getTime() == today.getTime()) {
-                return viesco_cache.viesco;
-            }
-            else {
-                AsyncStorage.removeItem('viesco_cache');
-                return getViesco(true);
-            }
-        }
-        else {
-            return AsyncStorage.getItem('token').then((token) => {
-                // fetch le timetable
-                return fetch(consts.API + '/absences' + '?token=' + token, {
-                    method: 'GET'
-                })
+      userCacheDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+
+      if (
+        userCacheDate.getTime() === today.getTime() &&
+        viescoCache.viesco &&
+        !getViescoNotValidate(viescoCache.viesco.absences) &&
+        !getViescoNotValidate(viescoCache.viesco.punishments) &&
+        !getViescoNotValidate(viescoCache.viesco.delays)
+      ) {
+        return viescoCache.viesco;
+      }
+      AsyncStorage.removeItem('viescoCache');
+      return getViesco(true);
+    }
+    return AsyncStorage.getItem('token').then((token) =>
+      // fetch le timetable
+      fetch(`${consts.API}/absences?token=${token}`, {
+        method: 'GET',
+      })
+        .then((response) => response.text())
+        .then((result) => {
+          if (getViescoNotValidate(result)) {
+            return refreshToken().then(() => getViesco());
+          }
+          const absences = JSON.parse(result);
+
+          return fetch(`${consts.API}/punishments?token=${token}`, {
+            method: 'GET',
+          })
+            .then((response) => response.text())
+            .then((res) => {
+              const punishments = JSON.parse(res);
+
+              return fetch(`${consts.API}/delays?token=${token}`, {
+                method: 'GET',
+              })
                 .then((response) => response.text())
-                .then((result) => {
-                    if (result == 'expired' || result == '"expired"' || result == 'notfound' || result == '"notfound"') {
-                        return refreshToken().then(() => {
-                            return getViesco();
-                        });
-                    }
-                    else {
-                        let absences = JSON.parse(result);
+                .then((r) => {
+                  const delays = JSON.parse(r);
 
-                        return fetch(consts.API + '/punishments' + '?token=' + token, {
-                            method: 'GET'
-                        })
-                        .then((response) => response.text())
-                        .then((result) => {
-                            let punishments = JSON.parse(result);
-
-                            return fetch(consts.API + '/delays' + '?token=' + token, {
-                                method: 'GET'
-                            })
-                            .then((response) => response.text())
-                            .then((result) => {
-                                let delays = JSON.parse(result);
-
-                                let cachedViesco = {
-                                    date : new Date(),
-                                    viesco : {
-                                        absences : absences,
-                                        punishments : punishments,
-                                        delays : delays
-                                    }
-                                };
-                                AsyncStorage.setItem('viesco_cache', JSON.stringify(cachedViesco));
-                            
-                                return cachedViesco.viesco;
-                            });
-                        });
-                    }
+                  const cachedViesco = {
+                    date: new Date(),
+                    viesco: {
+                      absences,
+                      punishments,
+                      delays,
+                    },
+                  };
+                  AsyncStorage.setItem(
+                    'viescoCache',
+                    JSON.stringify(cachedViesco)
+                  );
+                  return cachedViesco.viesco;
                 });
             });
-        }
-    });
+        })
+    );
+  });
 }
 
 export { getViesco };

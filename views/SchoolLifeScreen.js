@@ -1,125 +1,200 @@
-import React from 'react';
-import { StyleSheet, View, Button, ScrollView, StatusBar, Platform, RefreshControl } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  StatusBar,
+  Platform,
+  RefreshControl,
+} from 'react-native';
 
 import { Text, useTheme } from 'react-native-paper';
-import { useEffect, useState } from 'react';
 
-import { getViesco } from '../fetch/PronoteData/PronoteViesco';
-import { PressableScale } from 'react-native-pressable-scale';
 import { Clock3, UserX } from 'lucide-react-native';
+import { PressableScale } from 'react-native-pressable-scale';
+import { getViesco } from '../fetch/PronoteData/PronoteViesco';
 
 import PapillonIcon from '../components/PapillonIcon';
 import GetUIColors from '../utils/GetUIColors';
 
-function SchoolLifeScreen({ navigation }) {
+function SchoolLifeScreen() {
   const [viesco, setViesco] = useState(null);
   const theme = useTheme();
   const UIColors = GetUIColors();
 
-  const  [isHeadLoading, setIsHeadLoading] = useState(false);
+  const [isHeadLoading, setIsHeadLoading] = useState(false);
 
   useEffect(() => {
     setIsHeadLoading(true);
-    getViesco().then((viesco) => {
+    getViesco().then((v) => {
       setIsHeadLoading(false);
-      setViesco(viesco);
+      setViesco(v);
     });
   }, []);
 
   const onRefresh = React.useCallback(() => {
     setIsHeadLoading(true);
-    getViesco(true).then((viesco) => {
+    getViesco(true).then((v) => {
       setIsHeadLoading(false);
-      setViesco(viesco);
+      setViesco(v);
     });
   }, []);
 
   return (
-    <ScrollView style={[styles.container, {backgroundColor: UIColors.background}]} contentInsetAdjustmentBehavior='automatic'
-    refreshControl={
-      <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? '#29947A' : null]} />
-    }>
-      { Platform.OS === 'ios' ?
-        <StatusBar animated barStyle={'light-content'} />
-      :
-        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
+    <ScrollView
+      style={[styles.container, { backgroundColor: UIColors.background }]}
+      contentInsetAdjustmentBehavior="automatic"
+      refreshControl={
+        <RefreshControl
+          refreshing={isHeadLoading}
+          onRefresh={onRefresh}
+          colors={[Platform.OS === 'android' ? '#29947A' : null]}
+        />
       }
-      
-      { viesco ? (
+    >
+      {Platform.OS === 'ios' ? (
+        <StatusBar animated barStyle="light-content" />
+      ) : (
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
+      )}
+
+      {viesco ? (
         <>
-          { viesco.absences.length > 0 ? (
+          {viesco.absences.length > 0 ? (
             <View style={styles.optionsList}>
               <Text style={styles.ListTitle}>Absences</Text>
 
-              {viesco.absences.map((absence, index) => {
-                return (
-                  <PressableScale key={index} style={[styles.absenceItem, {
-                    backgroundColor: UIColors.element,
-                  }]}>
-                    <PapillonIcon
-                      icon={<UserX size={24} color={'#A84700'} />}
-                      color="#A84700"
-                      small
-                    />
-                    <View style={styles.absenceItemData}>
-                      <Text style={styles.absenceItemTitle}>{absence.hours} manquées</Text>
-                      <Text style={styles.absenceItemSubtitle}>le {new Date(absence.from).toLocaleDateString('fr', {weekday: 'long', day: '2-digit', month: 'short'})}</Text>
+              {viesco.absences?.map((absence, index) => (
+                <PressableScale
+                  key={index}
+                  style={[
+                    styles.absenceItem,
+                    {
+                      backgroundColor: UIColors.element,
+                    },
+                  ]}
+                >
+                  <PapillonIcon
+                    icon={<UserX size={24} color="#A84700" />}
+                    color="#A84700"
+                    small
+                  />
+                  <View style={styles.absenceItemData}>
+                    <Text style={styles.absenceItemTitle}>
+                      {absence.hours} manquées
+                    </Text>
+                    <Text style={styles.absenceItemSubtitle}>
+                      le{' '}
+                      {new Date(absence.from).toLocaleDateString('fr', {
+                        weekday: 'long',
+                        day: '2-digit',
+                        month: 'short',
+                      })}
+                    </Text>
 
-                      { absence.reasons.length > 0 ? (
-                        <Text style={[styles.absenceItemSubtitle, styles.absenceReason]}>{absence.reasons[0]}</Text>
-                      ) : null }
-                    </View>
-                    <View style={styles.absenceItemStatus}>
-                      { !absence.justified ? (
-                        <Text style={[styles.absenceItemStatusTitle, styles.absenceItemStatusTitleToJustify]}>A justifier</Text>
-                      ) : (
-                        <Text style={[styles.absenceItemStatusTitle]}>Justifiée</Text>
-                      ) }
-                    </View>
-                  </PressableScale>
-                )
-              })}
+                    {absence.reasons.length > 0 ? (
+                      <Text
+                        style={[
+                          styles.absenceItemSubtitle,
+                          styles.absenceReason,
+                        ]}
+                      >
+                        {absence.reasons[0]}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <View style={styles.absenceItemStatus}>
+                    {!absence.justified ? (
+                      <Text
+                        style={[
+                          styles.absenceItemStatusTitle,
+                          styles.absenceItemStatusTitleToJustify,
+                        ]}
+                      >
+                        A justifier
+                      </Text>
+                    ) : (
+                      <Text style={[styles.absenceItemStatusTitle]}>
+                        Justifiée
+                      </Text>
+                    )}
+                  </View>
+                </PressableScale>
+              ))}
             </View>
-          ) : null }
+          ) : null}
 
-          { viesco.delays.length > 0 ? (
+          {viesco.delays.length > 0 ? (
             <View style={styles.optionsList}>
               <Text style={styles.ListTitle}>Retards</Text>
 
-              {viesco.delays.map((delay, index) => {
-                return (
-                  <PressableScale key={index} style={[styles.absenceItem, {
-                    backgroundColor: UIColors.element,
-                  }]}>
-                    <PapillonIcon
-                      icon={<Clock3 size={24} color={'#565EA3'} />}
-                      color="#565EA3"
-                      small
-                    />
-                    <View style={styles.absenceItemData}>
-                      <Text style={styles.absenceItemTitle}>Retard de {delay.duration} min.</Text>
-                      <Text style={styles.absenceItemSubtitle}>le {new Date(delay.date).toLocaleDateString('fr', {weekday: 'long', day: '2-digit', month: 'short'})}</Text>
+              {viesco?.delays?.map((delay, index) => (
+                <PressableScale
+                  key={index}
+                  style={[
+                    styles.absenceItem,
+                    {
+                      backgroundColor: UIColors.element,
+                    },
+                  ]}
+                >
+                  <PapillonIcon
+                    icon={<Clock3 size={24} color="#565EA3" />}
+                    color="#565EA3"
+                    small
+                  />
+                  <View style={styles.absenceItemData}>
+                    <Text style={styles.absenceItemTitle}>
+                      Retard de {delay.duration} min.
+                    </Text>
+                    <Text style={styles.absenceItemSubtitle}>
+                      le{' '}
+                      {new Date(delay.date).toLocaleDateString('fr', {
+                        weekday: 'long',
+                        day: '2-digit',
+                        month: 'short',
+                      })}
+                    </Text>
 
-                      { delay.reasons.length > 0 ? (
-                        <Text style={[styles.absenceItemSubtitle, styles.absenceReason]}>{delay.reasons[0]}</Text>
-                      ) : null }
-                    </View>
-                    <View style={styles.absenceItemStatus}>
-                      { !delay.justified ? (
-                        <Text style={[styles.absenceItemStatusTitle, styles.absenceItemStatusTitleToJustify]}>A justifier</Text>
-                      ) : (
-                        <Text style={[styles.absenceItemStatusTitle]}>Justifiée</Text>
-                      ) }
-                    </View>
-                  </PressableScale>
-                )
-              })}
+                    {delay.reasons.length > 0 ? (
+                      <Text
+                        style={[
+                          styles.absenceItemSubtitle,
+                          styles.absenceReason,
+                        ]}
+                      >
+                        {delay.reasons[0]}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <View style={styles.absenceItemStatus}>
+                    {!delay.justified ? (
+                      <Text
+                        style={[
+                          styles.absenceItemStatusTitle,
+                          styles.absenceItemStatusTitleToJustify,
+                        ]}
+                      >
+                        A justifier
+                      </Text>
+                    ) : (
+                      <Text style={[styles.absenceItemStatusTitle]}>
+                        Justifiée
+                      </Text>
+                    )}
+                  </View>
+                </PressableScale>
+              ))}
             </View>
-          ) : null }
+          ) : null}
         </>
-      ) : null }
+      ) : null}
 
-      <View style={{height: 20}}></View>
+      <View style={{ height: 20 }} />
     </ScrollView>
   );
 }
