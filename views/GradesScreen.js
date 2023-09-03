@@ -76,6 +76,20 @@ function GradesScreen({ navigation }) {
         message: 'Sélectionnez la période de votre choix',
         options,
         cancelButtonIndex: options.length - 1,
+        containerStyle: {
+          paddingBottom: insets.bottom,
+          backgroundColor: UIColors.elementHigh,
+        },
+        textStyle: {
+          color: UIColors.text
+        },
+        titleTextStyle: {
+          color: UIColors.text,
+          fontWeight: 'bold',
+        },
+        messageTextStyle: {
+          color: UIColors.text,
+        }
       },
       (selectedIndex) => {
         if (selectedIndex === options.length - 1) return;
@@ -169,10 +183,10 @@ function GradesScreen({ navigation }) {
       const maxAverage = maxAverages / maxAveragecount;
 
       setAveragesData({
-        studentAverage: studentAverage.toFixed(2),
-        classAverage: classAverage.toFixed(2),
-        minAverage: minAverage.toFixed(2),
-        maxAverage: maxAverage.toFixed(2),
+        studentAverage: !isNaN(studentAverage) ? studentAverage.toFixed(2) : "?",
+        classAverage: !isNaN(classAverage) ? classAverage.toFixed(2) : "?",
+        minAverage: !isNaN(minAverage) ? minAverage.toFixed(2) : "?",
+        maxAverage: !isNaN(maxAverage) ? maxAverage.toFixed(2) : "?",
       });
     }
 
