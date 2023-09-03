@@ -1,46 +1,40 @@
 import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NavigationContainer } from '@react-navigation/native';
+import {
+  NavigationContainer,
+  DefaultTheme,
+  DarkTheme,
+} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BottomNavigation, useTheme } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-
-import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
-import FlashMessage from "react-native-flash-message";
-
-import { ActionSheetProvider } from '@expo/react-native-action-sheet';
-
-import Animated from 'react-native-reanimated';
-
-const Tab = createBottomTabNavigator();
-
-import useFonts from './hooks/useFonts';
-
-import { Appbar } from 'react-native-paper';
-import { getHeaderTitle } from '@react-navigation/elements';
-
-import { useMaterial3Theme } from '@pchmn/expo-material3-theme';
-import { useMemo } from 'react';
-
-import { PaperProvider, configureFonts } from 'react-native-paper';
-
-import { DefaultTheme, DarkTheme } from '@react-navigation/native';
-import { Platform, useColorScheme, View, Pressable, TouchableNativeFeedback } from 'react-native';
-
-import { useCallback, useState } from 'react';
-
-import { StyleSheet, Text } from 'react-native';
-
-import { PressableScale } from 'react-native-pressable-scale';
-
-import { Home, CalendarRange, BookOpen, BarChart3, UserCircle, CheckCircle, AlertCircle } from 'lucide-react-native';
-
 import {
+  BottomNavigation,
+  Appbar,
+  PaperProvider,
   MD3LightTheme,
   MD3DarkTheme,
 } from 'react-native-paper';
+
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import FlashMessage from 'react-native-flash-message';
+
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+
+import { getHeaderTitle } from '@react-navigation/elements';
+import { useMaterial3Theme } from '@pchmn/expo-material3-theme';
+import { useState } from 'react';
+import { Platform, useColorScheme, View } from 'react-native';
+import { PressableScale } from 'react-native-pressable-scale';
+import {
+  Home,
+  CalendarRange,
+  BookOpen,
+  BarChart3,
+  UserCircle,
+} from 'lucide-react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import useFonts from './hooks/useFonts';
 
 import HomeScreen from './views/HomeScreen';
 
@@ -77,12 +71,14 @@ import ConversationsScreen from './views/ConversationsScreen';
 
 import EvaluationsScreen from './views/EvaluationsScreen';
 
+const Tab = createBottomTabNavigator();
+
 const baseColor = '#29947a';
 
 // stack
 const Stack = createNativeStackNavigator();
 
-const CustomNavigationBar = ({ navigation, route, options, back }) => {
+function CustomNavigationBar({ navigation, route, options, back }) {
   const title = getHeaderTitle(options, route.name);
 
   let titleMode = 'small';
@@ -103,33 +99,41 @@ const CustomNavigationBar = ({ navigation, route, options, back }) => {
         ...options.headerStyle,
       }}
     >
-      {back ? <Appbar.BackAction color={titleColor} onPress={navigation.goBack} /> : null}
-      <Appbar.Content title={title} titleStyle={{fontFamily: 'Papillon-Medium'}} color={titleColor} />
-      
-      {options.headerRight ?
-        <View style={{paddingEnd: 16}}>
+      {back ? (
+        <Appbar.BackAction color={titleColor} onPress={navigation.goBack} />
+      ) : null}
+      <Appbar.Content
+        title={title}
+        titleStyle={{ fontFamily: 'Papillon-Medium' }}
+        color={titleColor}
+      />
+
+      {options.headerRight ? (
+        <View style={{ paddingEnd: 16 }}>
           {options.headerRight ? options.headerRight() : null}
         </View>
-      : null}
+      ) : null}
     </Appbar.Header>
   );
 }
 
-const InsetNewsScreen = () => {
+function InsetNewsScreen() {
   return (
     <Stack.Navigator
       screenOptions={
-        Platform.OS === 'android' ? {
-          animation: 'fade_from_bottom',
-          navigationBarColor: '#00000000',
-          header: (props) => <CustomNavigationBar {...props} />,
-        } : null
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : null
       }
     >
       <Stack.Screen
         name="News"
         component={NewsScreen}
-        options={{ 
+        options={{
           headerShown: true,
           headerLargeTitle: false,
           headerTitle: 'Actualités',
@@ -143,96 +147,104 @@ const InsetNewsScreen = () => {
         }}
       />
     </Stack.Navigator>
-  )
-};
+  );
+}
 
-const InsetSchoolLifeScreen = () => {
+function InsetSchoolLifeScreen() {
   return (
     <Stack.Navigator
       screenOptions={
-        Platform.OS === 'android' ? {
-          animation: 'fade_from_bottom',
-          navigationBarColor: '#00000000',
-          header: (props) => <CustomNavigationBar {...props} />,
-        } : null
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : null
       }
     >
       <Stack.Screen
-          name="Schoollife"
-          component={SchoolLifeScreen}
-          options={{ 
-            headerShown: true,
-            headerLargeTitle: false,
-            headerTitle: 'Vie scolaire',
-          }}
-        />
+        name="Schoollife"
+        component={SchoolLifeScreen}
+        options={{
+          headerShown: true,
+          headerLargeTitle: false,
+          headerTitle: 'Vie scolaire',
+        }}
+      />
     </Stack.Navigator>
-  )
-};
+  );
+}
 
-const InsetConversationsScreen = () => {
+function InsetConversationsScreen() {
   return (
     <Stack.Navigator
       screenOptions={
-        Platform.OS === 'android' ? {
-          animation: 'fade_from_bottom',
-          navigationBarColor: '#00000000',
-          header: (props) => <CustomNavigationBar {...props} />,
-        } : null
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : null
       }
     >
       <Stack.Screen
-          name="Conversations"
-          component={ConversationsScreen}
-          options={{
-            headerShown: true,
-            headerLargeTitle: false,
-            headerTitle: 'Conversations',
-          }}
-        />
+        name="Conversations"
+        component={ConversationsScreen}
+        options={{
+          headerShown: true,
+          headerLargeTitle: false,
+          headerTitle: 'Conversations',
+        }}
+      />
     </Stack.Navigator>
-  )
-};
+  );
+}
 
-const InsetEvaluationsScreen = () => {
+function InsetEvaluationsScreen() {
   return (
     <Stack.Navigator
       screenOptions={
-        Platform.OS === 'android' ? {
-          animation: 'fade_from_bottom',
-          navigationBarColor: '#00000000',
-          header: (props) => <CustomNavigationBar {...props} />,
-        } : null
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : null
       }
     >
       <Stack.Screen
-          name="Evaluations"
-          component={EvaluationsScreen}
-          options={{
-            headerShown: true,
-            headerLargeTitle: false,
-            headerTitle: 'Compétences',
-          }}
-        />
+        name="Evaluations"
+        component={EvaluationsScreen}
+        options={{
+          headerShown: true,
+          headerLargeTitle: false,
+          headerTitle: 'Compétences',
+        }}
+      />
     </Stack.Navigator>
-  )
-};
+  );
+}
 
-const WrappedHomeScreen = () => {
+function WrappedHomeScreen() {
   return (
     <Stack.Navigator
       screenOptions={
-        Platform.OS === 'android' ? {
-          animation: 'fade_from_bottom',
-          navigationBarColor: '#00000000',
-          header: (props) => <CustomNavigationBar {...props} />,
-        } : null
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : null
       }
     >
       <Stack.Screen
         name="Vue d'ensemble"
         component={HomeScreen}
-        options={{ 
+        options={{
           headerShown: true,
         }}
       />
@@ -281,7 +293,7 @@ const WrappedHomeScreen = () => {
       <Stack.Screen
         name="Profile"
         component={ProfileScreen}
-        options={{ 
+        options={{
           headerTitle: 'Mon profil',
           presentation: 'modal',
         }}
@@ -289,7 +301,7 @@ const WrappedHomeScreen = () => {
       <Stack.Screen
         name="Grade"
         component={GradeView}
-        options={{ 
+        options={{
           headerShown: true,
           headerLargeTitle: false,
           presentation: 'modal',
@@ -297,23 +309,25 @@ const WrappedHomeScreen = () => {
       />
     </Stack.Navigator>
   );
-};
+}
 
-const WrappedCoursScreen = () => {
+function WrappedCoursScreen() {
   return (
     <Stack.Navigator
       screenOptions={
-        Platform.OS === 'android' ? {
-          animation: 'fade_from_bottom',
-          navigationBarColor: '#00000000',
-          header: (props) => <CustomNavigationBar {...props} />,
-        } : null
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : null
       }
     >
       <Stack.Screen
         name="Cours"
         component={CoursScreen}
-        options={{ 
+        options={{
           headerShown: true,
         }}
       />
@@ -327,94 +341,102 @@ const WrappedCoursScreen = () => {
       />
     </Stack.Navigator>
   );
-};
+}
 
-const WrappedDevoirsScreen = () => {
+function WrappedDevoirsScreen() {
   return (
     <Stack.Navigator
       screenOptions={
-        Platform.OS === 'android' ? {
-          animation: 'fade_from_bottom',
-          navigationBarColor: '#00000000',
-          header: (props) => <CustomNavigationBar {...props} />,
-        } : null
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : null
       }
     >
       <Stack.Screen
         name="Devoirs"
         component={DevoirsScreen}
-        options={{ 
+        options={{
           headerShown: true,
           headerLargeTitle: false,
         }}
       />
     </Stack.Navigator>
   );
-};
+}
 
-const WrappedGradesScreen = () => {
+function WrappedGradesScreen() {
   return (
     <Stack.Navigator
       screenOptions={
-        Platform.OS === 'android' ? {
-          animation: 'fade_from_bottom',
-          navigationBarColor: '#00000000',
-          header: (props) => <CustomNavigationBar {...props} />,
-        } : null
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : null
       }
     >
       <Stack.Screen
         name="Notes"
         component={GradesScreen}
         options={
-          Platform.OS === 'ios' ? { 
-            headerShown: true,
-            headerLargeTitle: true,
-          } : null
+          Platform.OS === 'ios'
+            ? {
+                headerShown: true,
+                headerLargeTitle: true,
+              }
+            : null
         }
       />
       <Stack.Screen
         name="Grade"
         component={GradeView}
-        options={{ 
+        options={{
           headerShown: true,
           headerLargeTitle: false,
         }}
       />
     </Stack.Navigator>
   );
-};
+}
 
-const WrappedSettings = () => {
+function WrappedSettings() {
   return (
     <Stack.Navigator
       screenOptions={
-        Platform.OS === 'android' ? {
-          animation: 'fade_from_bottom',
-          navigationBarColor: '#00000000',
-          header: (props) => <CustomNavigationBar {...props} />,
-        } : null
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : null
       }
     >
       <Stack.Screen
         name="Compte"
         component={SettingsScreen}
-        options={{ 
-          headerLargeTitle: Platform.OS == 'ios' ? true : false,
+        options={{
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Compte',
         }}
       />
       <Stack.Screen
         name="Profile"
         component={ProfileScreen}
-        options={{ 
+        options={{
           headerTitle: 'Mon profil',
         }}
       />
       <Stack.Screen
         name="OfficialServer"
         component={OfficialServer}
-        options={{ 
+        options={{
           headerTitle: 'Serveur officiel',
 
           headerBackTitle: 'Retour',
@@ -423,22 +445,22 @@ const WrappedSettings = () => {
       <Stack.Screen
         name="About"
         component={AboutScreen}
-        options={{ 
+        options={{
           headerTitle: 'A propos de Papillon',
         }}
       />
       <Stack.Screen
         name="Appearance"
         component={AppearanceScreen}
-        options={{ 
+        options={{
           headerTitle: 'Apparence',
         }}
       />
       <Stack.Screen
         name="Icons"
         component={IconsScreen}
-        options={{ 
-          headerTitle: 'Icône de l\'application',
+        options={{
+          headerTitle: "Icône de l'application",
           presentation: 'modal',
         }}
       />
@@ -451,57 +473,59 @@ const WrappedSettings = () => {
       />
     </Stack.Navigator>
   );
-};
+}
 
-const AppStack = () => {
-  const theme = useTheme();
-
+function AppStack() {
   return (
     <Tab.Navigator
-      tabBar={Platform.OS !== 'ios' ? ({ navigation, state, descriptors, insets }) => (
-        <BottomNavigation.Bar
-          navigationState={state}
-          compact={false}
-          shifting={false}
-          safeAreaInsets={{
-            ...insets,
-            right: 12,
-            left: 12,
-          }}
-          onTabPress={({ route, preventDefault }) => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
+      tabBar={
+        Platform.OS !== 'ios'
+          ? ({ navigation, state, descriptors, insets }) => (
+              <BottomNavigation.Bar
+                navigationState={state}
+                compact={false}
+                shifting={false}
+                safeAreaInsets={{
+                  ...insets,
+                  right: 12,
+                  left: 12,
+                }}
+                onTabPress={({ route, preventDefault }) => {
+                  const event = navigation.emit({
+                    type: 'tabPress',
+                    target: route.key,
+                    canPreventDefault: true,
+                  });
 
-            if (event.defaultPrevented) {
-              preventDefault();
-            } else {
-            navigation.navigate(route.name);
-            }
-          }}
-          renderIcon={({ route, focused, color }) => {
-            const { options } = descriptors[route.key];
-            if (options.tabBarIcon) {
-              return options.tabBarIcon({ focused, color, size: 24 });
-            }
+                  if (event.defaultPrevented) {
+                    preventDefault();
+                  } else {
+                    navigation.navigate(route.name);
+                  }
+                }}
+                renderIcon={({ route, focused, color }) => {
+                  const { options } = descriptors[route.key];
+                  if (options.tabBarIcon) {
+                    return options.tabBarIcon({ focused, color, size: 24 });
+                  }
 
-            return null;
-          }}
-          getLabelText={({ route }) => {
-            const { options } = descriptors[route.key];
-            const label =
-              options.tabBarLabel !== undefined
-                ? options.tabBarLabel
-                : options.title !== undefined
-                ? options.title
-                : route.title;
+                  return null;
+                }}
+                getLabelText={({ route }) => {
+                  const { options } = descriptors[route.key];
+                  const label =
+                    options.tabBarLabel !== undefined
+                      ? options.tabBarLabel
+                      : options.title !== undefined
+                      ? options.title
+                      : route.title;
 
-            return label;
-          }}
-        />
-      ): undefined}
+                  return label;
+                }}
+              />
+            )
+          : undefined
+      }
       screenOptions={{
         headerTruncatedBackTitle: 'Retour',
         elevated: false,
@@ -517,22 +541,24 @@ const AppStack = () => {
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
-        tabBarShowLabel: Platform.OS === 'android' ? false : true,
+        tabBarShowLabel: Platform.OS !== 'android',
         tabBarStyle: {
           paddingLeft: 12,
           paddingRight: 12,
           paddingTop: 2,
         },
         tabBarButton: (props) => (
-            <PressableScale
-              {...props}
-              activeScale={0.7}
-              weight='light'
+          <PressableScale {...props} activeScale={0.7} weight="light">
+            <View
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
             >
-              <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                {props.children}
-              </View>
-            </PressableScale>
+              {props.children}
+            </View>
+          </PressableScale>
         ),
       }}
     >
@@ -541,9 +567,7 @@ const AppStack = () => {
         component={WrappedHomeScreen}
         options={{
           tabBarLabel: 'Accueil',
-          tabBarIcon: ({ color, size }) => {
-            return <Home color={color} size={size} />;
-          },
+          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
           headerShown: false,
         }}
       />
@@ -552,9 +576,9 @@ const AppStack = () => {
         component={WrappedCoursScreen}
         options={{
           tabBarLabel: 'Cours',
-          tabBarIcon: ({ color, size }) => {
-            return <CalendarRange color={color} size={size} />;
-          },
+          tabBarIcon: ({ color, size }) => (
+            <CalendarRange color={color} size={size} />
+          ),
           headerShown: false,
         }}
       />
@@ -563,9 +587,9 @@ const AppStack = () => {
         component={WrappedDevoirsScreen}
         options={{
           tabBarLabel: 'Devoirs',
-          tabBarIcon: ({ color, size }) => {
-            return <BookOpen color={color} size={size} />;
-          },
+          tabBarIcon: ({ color, size }) => (
+            <BookOpen color={color} size={size} />
+          ),
           headerShown: false,
         }}
       />
@@ -574,9 +598,9 @@ const AppStack = () => {
         component={WrappedGradesScreen}
         options={{
           tabBarLabel: 'Notes',
-          tabBarIcon: ({ color, size }) => {
-            return <BarChart3 color={color} size={size} />;
-          },
+          tabBarIcon: ({ color, size }) => (
+            <BarChart3 color={color} size={size} />
+          ),
           headerShown: false,
         }}
       />
@@ -585,24 +609,26 @@ const AppStack = () => {
         component={WrappedSettings}
         options={{
           tabBarLabel: 'Compte',
-          tabBarIcon: ({ color, size }) => {
-            return <UserCircle color={color} size={size} />;
-          },
+          tabBarIcon: ({ color, size }) => (
+            <UserCircle color={color} size={size} />
+          ),
           headerShown: false,
         }}
       />
     </Tab.Navigator>
   );
-};
+}
 
-const AuthStack = () => {
+function AuthStack() {
   return (
     <Stack.Navigator
       screenOptions={
-        Platform.OS === 'android' ? {
-          navigationBarColor: '#00000000',
-          header: (props) => <CustomNavigationBar {...props} />,
-        } : null
+        Platform.OS === 'android'
+          ? {
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : null
       }
     >
       <Stack.Screen
@@ -618,11 +644,9 @@ const AuthStack = () => {
         component={LoginScreen}
         options={{
           title: 'Connexion',
+          headerLargeTitle: Platform.OS === 'iOS',
           headerLargeTitleStyle: {
             color: baseColor,
-          },
-          headerLargeTitle: Platform.OS == 'iOS' ? true : false,
-          headerLargeTitleStyle: {
             fontFamily: 'Papillon-Semibold',
           },
         }}
@@ -637,17 +661,25 @@ const AuthStack = () => {
         }}
       />
 
-      <Stack.Screen name="LoginPronoteSelectEtab" component={LoginPronoteSelectEtab} options={{title: 'Sélection de l\'établissement', presentation: 'modal'}}/>
-      <Stack.Screen name="LoginPronote" component={LoginPronote} options={{title: 'Se connecter', presentation: 'modal'}}/>
+      <Stack.Screen
+        name="LoginPronoteSelectEtab"
+        component={LoginPronoteSelectEtab}
+        options={{
+          title: "Sélection de l'établissement",
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="LoginPronote"
+        component={LoginPronote}
+        options={{ title: 'Se connecter', presentation: 'modal' }}
+      />
     </Stack.Navigator>
   );
-};
-
-import * as NavigationBar from 'expo-navigation-bar';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+}
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false); 
+  const [loggedIn, setLoggedIn] = useState(false);
   const [loggedInLoaded, setLoggedInLoaded] = useState(false);
 
   // check if the user is logged in or not
@@ -660,19 +692,6 @@ function App() {
   });
 
   // while not logged in, check if the user is logged in
-  const loggedInInterval = setInterval(() => {
-    AsyncStorage.getItem('token').then((value) => {
-      if (value !== null) {
-        // user is logged in
-        setLoggedIn(true);
-      }
-      else {
-        // user is not logged in
-        setLoggedIn(false);
-      }
-      setLoggedInLoaded(true);
-    });
-  }, 1000);
 
   const [IsReady, SetIsReady] = useState(false);
 
@@ -685,19 +704,19 @@ function App() {
   const scheme = useColorScheme();
   const { theme } = useMaterial3Theme({ fallbackSourceColor: baseColor });
   const paperTheme = {
-    ...scheme === 'dark' ? MD3DarkTheme : MD3LightTheme,
+    ...(scheme === 'dark' ? MD3DarkTheme : MD3LightTheme),
     version: 3,
     colors: {
-      ...scheme === 'dark' ? theme.dark : theme.light,
-    }
+      ...(scheme === 'dark' ? theme.dark : theme.light),
+    },
   };
 
   const classicTheme = {
-    ...scheme === 'dark' ? DarkTheme : DefaultTheme,
+    ...(scheme === 'dark' ? DarkTheme : DefaultTheme),
     colors: {
-      ...scheme === 'dark' ? DarkTheme.colors : DefaultTheme.colors,
+      ...(scheme === 'dark' ? DarkTheme.colors : DefaultTheme.colors),
       primary: baseColor,
-    }
+    },
   };
 
   // toasts
@@ -705,7 +724,7 @@ function App() {
     success: ({ ...rest }) => (
       <BaseToast
         {...rest}
-        contentContainerStyle={{ 
+        contentContainerStyle={{
           paddingHorizontal: 15,
         }}
         style={{
@@ -714,8 +733,7 @@ function App() {
           marginTop: 10,
           borderRadius: 10,
           borderCurve: 'continuous',
-          borderLeftWidth: 0,
-          shadowColor: "#000",
+          shadowColor: '#000',
           shadowOffset: {
             width: 0,
             height: 1.5,
@@ -723,7 +741,6 @@ function App() {
           shadowOpacity: 0.25,
           shadowRadius: 3,
           elevation: 5,
-
           borderLeftWidth: 3,
           borderLeftColor: baseColor,
         }}
@@ -741,7 +758,7 @@ function App() {
     error: ({ ...rest }) => (
       <ErrorToast
         {...rest}
-        contentContainerStyle={{ 
+        contentContainerStyle={{
           paddingHorizontal: 15,
         }}
         style={{
@@ -750,8 +767,7 @@ function App() {
           marginTop: 10,
           borderRadius: 10,
           borderCurve: 'continuous',
-          borderLeftWidth: 0,
-          shadowColor: "#000",
+          shadowColor: '#000',
           shadowOffset: {
             width: 0,
             height: 1.5,
@@ -759,9 +775,8 @@ function App() {
           shadowOpacity: 0.25,
           shadowRadius: 3,
           elevation: 5,
-
           borderLeftWidth: 3,
-          borderLeftColor: "#A84700",
+          borderLeftColor: '#A84700',
         }}
         text1Style={{
           color: scheme === 'dark' ? '#fff' : '#000',
@@ -787,16 +802,18 @@ function App() {
 
   // load fonts
   return (
-    <View style={{flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff'}}>
+    <View
+      style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff' }}
+    >
       <PaperProvider theme={paperTheme}>
         <ActionSheetProvider>
-          <GestureHandlerRootView style={{flex: 1}}>
+          <GestureHandlerRootView style={{ flex: 1 }}>
             <NavigationContainer theme={classicTheme}>
-              { loggedInLoaded ?
-                <View style={{flex: 1}}>
+              {loggedInLoaded ? (
+                <View style={{ flex: 1 }}>
                   {loggedIn ? <AppStack /> : <AuthStack />}
                 </View>
-              : null }
+              ) : null}
             </NavigationContainer>
           </GestureHandlerRootView>
         </ActionSheetProvider>
@@ -806,36 +823,5 @@ function App() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  notification: {
-    marginTop: 10,
-
-    borderRadius: 10,
-    borderCurve: 'continuous',
-
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 2,
-
-    elevation: 5,
-
-    flexDirection: 'row',
-    gap: 10,
-    alignContent: 'center',
-    alignItems: 'center',
-  },
-  text1: {
-    fontFamily: 'Papillon-Medium',
-    fontSize: 17,
-  }
-});
 
 export default App;
