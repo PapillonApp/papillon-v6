@@ -31,9 +31,9 @@ import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import getClosestColor from '../utils/ColorCoursName';
 
-import { getRecap } from '../fetch/PronoteData/PronoteRecap';
-import { getUser } from '../fetch/PronoteData/PronoteUser';
-import { changeHomeworkState } from '../fetch/PronoteData/PronoteHomeworks';
+import { getRecap } from '../fetch/IndexData';
+import { getUser } from '../fetch/IndexData';
+import { changeHomeworkState } from '../fetch/IndexData';
 
 import GetUIColors from '../utils/GetUIColors';
 
