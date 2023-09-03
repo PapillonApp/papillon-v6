@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, View, StyleSheet, Platform, Alert, TextInput, StatusBar } from 'react-native';
+import { ScrollView, View, StyleSheet, Platform, Alert, TextInput, StatusBar, ActivityIndicator } from 'react-native';
 
 import { useColorScheme } from 'react-native';
 
@@ -108,6 +108,7 @@ function LoginPronote({ route, navigation }) {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [connecting, setConnecting] = useState(false);
 
   function login() {
     let credentials = {
@@ -127,8 +128,9 @@ function LoginPronote({ route, navigation }) {
       Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
       return;
     }
-
+    setConnecting(true)
     getToken(credentials).then((result) => {
+      setConnecting(false)
       const token = result.token;
 
       if(token == false) {
@@ -199,12 +201,22 @@ function LoginPronote({ route, navigation }) {
             </View>
 
             <View style={[styles.buttons]}>
+                {connecting ? (
+                <ListItem
+                  title="Connexion..."
+                  left={
+                    <ActivityIndicator size="small" />
+                  }
+                  style={[styles.button, {alignContent: 'center', alignItems: 'center'}]}
+                />
+                //<Text style={{"display": "flex", "alignItems": "center", "justifyContent": "center"}}><ActivityIndicator /> Connexion...</Text>
+                ) : (
                 <PapillonButton
                   title="Se connecter"
                   color="#159C5E"
                   onPress={() => login()}
                   style={[styles.button]}
-                />
+                />)}
             </View>
         </View>
 
