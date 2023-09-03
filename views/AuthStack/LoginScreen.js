@@ -1,34 +1,53 @@
+/* eslint-disable global-require */
 import * as React from 'react';
-import { Image, ScrollView, StyleSheet, View, StatusBar, Platform } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
-import { List } from 'react-native-paper';
-
-import { useColorScheme } from 'react-native';
-
-import packageJson from '../../package.json';
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  View,
+  StatusBar,
+  Platform,
+} from 'react-native';
+import { useTheme, Text, List } from 'react-native-paper';
 
 import { Info } from 'lucide-react-native';
-import ListItem from '../../components/ListItem';
 
-import { useState, useEffect } from 'react';
-import * as SystemUI from 'expo-system-ui';
+import { useEffect } from 'react';
+import ListItem from '../../components/ListItem';
+import packageJson from '../../package.json';
 import GetUIColors from '../../utils/GetUIColors';
 
 function ServiceOption({ service, color, logo, identitifants, press }) {
   const theme = useTheme();
-  const scheme = useColorScheme();
 
   return (
     <List.Item
-      title={"Connexion avec " + service}
-      titleStyle={{ fontWeight: 600, fontSize: 17, fontFamily: 'Papillon-Semibold', color: '#fff' }}
-      description={"avec des identifiants " + identitifants}
-      descriptionStyle={{ fontWeight: 400, fontSize: 15, color: '#fff', opacity: 0.6 }}
-      left={() => 
+      title={`Connexion avec ${service}`}
+      titleStyle={{
+        fontWeight: 600,
+        fontSize: 17,
+        fontFamily: 'Papillon-Semibold',
+        color: '#fff',
+      }}
+      description={`avec des identifiants ${identitifants}`}
+      descriptionStyle={{
+        fontWeight: 400,
+        fontSize: 15,
+        color: '#fff',
+        opacity: 0.6,
+      }}
+      left={() => (
         <Image source={logo} style={[styles.serviceOptionLogo, {}]} />
-      }
+      )}
       onPress={press}
-      style={[styles.serviceOption, { backgroundColor: color, borderColor: theme.colors.outline, borderColor: theme.dark ? '#191919' : '#e5e5e5', borderWidth: theme.dark ? 1 : 0 }]}
+      style={[
+        styles.serviceOption,
+        {
+          backgroundColor: color,
+          borderColor: theme.dark ? '#191919' : '#e5e5e5',
+          borderWidth: theme.dark ? 1 : 0,
+        },
+      ]}
     />
   );
 }
@@ -38,14 +57,13 @@ function LoginScreen({ navigation }) {
 
   // hide back button on ios
   React.useLayoutEffect(() => {
-    if (Platform.OS == 'ios') {
-      navigation.setOptions({ headerLeft: () => <View></View> });
+    if (Platform.OS === 'ios') {
+      navigation.setOptions({ headerLeft: () => <View /> });
     }
   }, [navigation]);
 
   useEffect(() => {
-      // change modal color
-      
+    // change modal color
   }, []);
 
   const services = [
@@ -70,15 +88,26 @@ function LoginScreen({ navigation }) {
   ];
 
   function pressedService(service, color) {
-    if (service == 'Pronote') navigation.navigate('LoginPronoteSelectEtab')
-    else navigation.navigate('LoginUnavailable', { service: service, color: color || '#A84700' })
+    if (service === 'Pronote') navigation.navigate('LoginPronoteSelectEtab');
+    else
+      navigation.navigate('LoginUnavailable', {
+        service,
+        color: color || '#A84700',
+      });
   }
 
   const UIColors = GetUIColors();
 
   return (
-    <ScrollView contentInsetAdjustmentBehavior="automatic" style={[styles.container, { backgroundColor: UIColors.background }]}>
-      <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      style={[styles.container, { backgroundColor: UIColors.background }]}
+    >
+      <StatusBar
+        animated
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor="transparent"
+      />
 
       <ListItem
         title="Papillon est un client alternatif pour Pronote et d’autres services scolaires"
@@ -86,12 +115,12 @@ function LoginScreen({ navigation }) {
         icon={<Info color="#29947A" />}
         color="#29947A"
         style={{ marginTop: 14 }}
-        isLarge={true}
+        isLarge
       />
 
       <List.Section style={styles.serviceOptionList}>
         <List.Subheader>Services scolaires disponibles</List.Subheader>
-        
+
         {services.map((service, index) => (
           <ServiceOption
             key={index}
@@ -102,7 +131,6 @@ function LoginScreen({ navigation }) {
             press={() => pressedService(service.name, service.color)}
           />
         ))}
-
       </List.Section>
 
       <View style={styles.versionTextContainer}>
@@ -111,10 +139,10 @@ function LoginScreen({ navigation }) {
         </Text>
 
         <Text style={styles.versionText}>
-          Cette application est une preview technique. Elle peut contenir de nombreux bugs et ne pas fonctionner correctement.
+          Cette application est une preview technique. Elle peut contenir de
+          nombreux bugs et ne pas fonctionner correctement.
         </Text>
       </View>
-
     </ScrollView>
   );
 }
@@ -123,7 +151,6 @@ const styles = StyleSheet.create({
   serviceOption: {
     borderRadius: 12,
     borderCurve: 'continuous',
-    overflow: 'hidden',
 
     paddingHorizontal: 14,
     paddingVertical: 7,
@@ -136,9 +163,7 @@ const styles = StyleSheet.create({
 
     overflow: 'hidden',
   },
-  serviceOptionList: {
-    
-  },
+  serviceOptionList: {},
   serviceOptionLogo: {
     width: 40,
     height: 40,
@@ -153,7 +178,7 @@ const styles = StyleSheet.create({
     opacity: 0.3,
     fontSize: 12,
     marginBottom: 6,
-  }
+  },
 });
 
 export default LoginScreen;

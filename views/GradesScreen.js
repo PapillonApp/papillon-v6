@@ -1,37 +1,34 @@
 import * as React from 'react';
-import { View, ScrollView, StyleSheet, StatusBar, Platform, Pressable, TouchableOpacity, Button, ActivityIndicator, RefreshControl } from 'react-native';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  StatusBar,
+  Platform,
+  Pressable,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
-
-import * as SystemUI from 'expo-system-ui';
 
 import Fade from 'react-native-fade';
 
-import formatCoursName from '../utils/FormatCoursName';
-import getClosestGradeEmoji from '../utils/EmojiCoursName';
-import getClosestColor from '../utils/ColorCoursName';
-
-import { showMessage, hideMessage } from "react-native-flash-message";
-
-import { getGrades, changePeriod } from '../fetch/PronoteData/PronoteGrades';
-import { getUser } from '../fetch/PronoteData/PronoteUser';
-
-import { User2, Users2, TrendingDown, TrendingUp, AlertTriangle } from 'lucide-react-native';
-
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import PapillonIcon from '../components/PapillonIcon';
+import { User2, Users2, TrendingDown, TrendingUp } from 'lucide-react-native';
 
 import { useState } from 'react';
-import { sub } from 'react-native-reanimated';
 import { PressableScale } from 'react-native-pressable-scale';
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
-import { useIsFocused } from '@react-navigation/native';
+import PapillonIcon from '../components/PapillonIcon';
+import { getUser } from '../fetch/PronoteData/PronoteUser';
+import { getGrades, changePeriod } from '../fetch/PronoteData/PronoteGrades';
+import getClosestColor from '../utils/ColorCoursName';
+import getClosestGradeEmoji from '../utils/EmojiCoursName';
+import formatCoursName from '../utils/FormatCoursName';
 import GetUIColors from '../utils/GetUIColors';
 
 function GradesScreen({ navigation }) {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const UIColors = GetUIColors();
   const { showActionSheetWithOptions } = useActionSheet();
 
@@ -54,8 +51,15 @@ function GradesScreen({ navigation }) {
     navigation.setOptions({
       headerRight: () => (
         <Fade visible={selectedPeriod} direction="up" duration={200}>
-          <TouchableOpacity onPress={newPeriod} style={styles.periodButtonContainer}>
-            <Text style={[styles.periodButtonText, {color: UIColors.primary}]}>{selectedPeriod?.name || ""}</Text>
+          <TouchableOpacity
+            onPress={newPeriod}
+            style={styles.periodButtonContainer}
+          >
+            <Text
+              style={[styles.periodButtonText, { color: UIColors.primary }]}
+            >
+              {selectedPeriod?.name || ''}
+            </Text>
           </TouchableOpacity>
         </Fade>
       ),
@@ -63,21 +67,35 @@ function GradesScreen({ navigation }) {
   }, [navigation, selectedPeriod, isLoading]);
 
   function newPeriod() {
-    const options = periodsList.map(period => period.name);
-    options.push("Annuler");
+    const options = periodsList.map((period) => period.name);
+    options.push('Annuler');
 
     showActionSheetWithOptions(
       {
-        title: "Changer de période",
-        message: "Sélectionnez la période de votre choix",
+        title: 'Changer de période',
+        message: 'Sélectionnez la période de votre choix',
         options,
         cancelButtonIndex: options.length - 1,
+        containerStyle: {
+          paddingBottom: insets.bottom,
+          backgroundColor: UIColors.elementHigh,
+        },
+        textStyle: {
+          color: UIColors.text
+        },
+        titleTextStyle: {
+          color: UIColors.text,
+          fontWeight: 'bold',
+        },
+        messageTextStyle: {
+          color: UIColors.text,
+        }
       },
-      selectedIndex => {
+      (selectedIndex) => {
         if (selectedIndex === options.length - 1) return;
-        const selectedPeriod = periodsList[selectedIndex];
-        setSelectedPeriod(selectedPeriod);
-        changePeriodPronote(selectedPeriod);
+        const selectedPer = periodsList[selectedIndex];
+        setSelectedPeriod(selectedPer);
+        changePeriodPronote(selectedPer);
       }
     );
   }
@@ -95,13 +113,17 @@ function GradesScreen({ navigation }) {
     const userData = result;
     const allPeriods = userData.periods;
 
-    const actualPeriod = allPeriods.find(period => period.actual === true);
+    const actualPeriod = allPeriods.find((period) => period.actual === true);
     let periods = [];
 
-    if (actualPeriod.name.toLowerCase().includes("trimestre")) {
-      periods = allPeriods.filter(period => period.name.toLowerCase().includes("trimestre"));
-    } else if (actualPeriod.name.toLowerCase().includes("semestre")) {
-      periods = allPeriods.filter(period => period.name.toLowerCase().includes("semestre"));
+    if (actualPeriod.name.toLowerCase().includes('trimestre')) {
+      periods = allPeriods.filter((period) =>
+        period.name.toLowerCase().includes('trimestre')
+      );
+    } else if (actualPeriod.name.toLowerCase().includes('semestre')) {
+      periods = allPeriods.filter((period) =>
+        period.name.toLowerCase().includes('semestre')
+      );
     }
 
     setPeriodsList(periods);
@@ -116,7 +138,7 @@ function GradesScreen({ navigation }) {
     // invert gradeslist
     gradesList.reverse();
 
-    const scaledGrades = gradesList.map(grade => ({
+    const scaledGrades = gradesList.map((grade) => ({
       ...grade,
       grade: {
         ...grade.grade,
@@ -124,52 +146,54 @@ function GradesScreen({ navigation }) {
       },
     }));
 
-    const latestGrades = scaledGrades.slice(0, 10);
+    const latestGrads = scaledGrades.slice(0, 10);
     const subjects = [];
 
     function calculateAverages(averages) {
-      let student_averages = 0;
-      let student_average_count = 0;
-  
-      let class_averages = 0;
-      let class_average_count = 0;
-  
-      let min_averages = 0;
-      let min_average_count = 0;
-      
-      let max_averages = 0;
-      let max_average_count = 0;
-  
+      let studentAverages = 0;
+      let studentAverageCount = 0;
+
+      let classAverages = 0;
+      let classAveragecount = 0;
+
+      let minAverages = 0;
+      let minAveragecount = 0;
+
+      let maxAverages = 0;
+      let maxAveragecount = 0;
+
       // for each average
       averages.forEach((average) => {
-        student_averages += average.average / average.out_of * 20;
-        student_average_count++;
-  
-        class_averages += average.class_average / average.out_of * 20;
-        class_average_count++;
-  
-        min_averages += average.min / average.out_of * 20;
-        min_average_count++;
-  
-        max_averages += average.max / average.out_of * 20;
-        max_average_count++;
+        studentAverages += (average.average / average.out_of) * 20;
+        studentAverageCount++;
+
+        classAverages += (average.classAverage / average.out_of) * 20;
+        classAveragecount++;
+
+        minAverages += (average.min / average.out_of) * 20;
+        minAveragecount++;
+
+        maxAverages += (average.max / average.out_of) * 20;
+        maxAveragecount++;
       });
-  
-      let student_average = student_averages / student_average_count;
-      let class_average = class_averages / class_average_count;
-      let min_average = min_averages / min_average_count;
-      let max_average = max_averages / max_average_count;
-  
+
+      const studentAverage = studentAverages / studentAverageCount;
+      const classAverage = classAverages / classAveragecount;
+      const minAverage = minAverages / minAveragecount;
+      const maxAverage = maxAverages / maxAveragecount;
+
       setAveragesData({
-        student_average: student_average.toFixed(2),
-        class_average: class_average.toFixed(2),
-        min_average: min_average.toFixed(2),
-        max_average: max_average.toFixed(2)
+        studentAverage: !isNaN(studentAverage) ? studentAverage.toFixed(2) : "?",
+        classAverage: !isNaN(classAverage) ? classAverage.toFixed(2) : "?",
+        minAverage: !isNaN(minAverage) ? minAverage.toFixed(2) : "?",
+        maxAverage: !isNaN(maxAverage) ? maxAverage.toFixed(2) : "?",
       });
     }
 
-    scaledGrades.forEach(grade => {
-      const subjectIndex = subjects.findIndex(subject => subject.name === grade.subject.name);
+    scaledGrades.forEach((grade) => {
+      const subjectIndex = subjects.findIndex(
+        (subject) => subject.name === grade.subject.name
+      );
       if (subjectIndex !== -1) {
         subjects[subjectIndex].grades.push(grade);
       } else {
@@ -182,20 +206,22 @@ function GradesScreen({ navigation }) {
 
     const averagesList = JSON.parse(grades).averages;
 
-    averagesList.forEach(average => {
-      const subject = subjects.find(subject => subject.name === average.subject.name);
+    averagesList.forEach((average) => {
+      const subject = subjects.find(
+        (subj) => subj.name === average.subject.name
+      );
       if (subject) {
         const closestColor = getClosestColor(average.color);
         average.color = closestColor;
         subject.averages = average;
-        
-        latestGrades.forEach(grade => {
+
+        latestGrads.forEach((grade) => {
           if (grade.subject.name === subject.name) {
             grade.color = average.color;
           }
         });
 
-        subject.grades.forEach(grade => {
+        subject.grades.forEach((grade) => {
           grade.color = average.color;
         });
       }
@@ -223,199 +249,350 @@ function GradesScreen({ navigation }) {
     navigation.navigate('Grade', { grade });
   }
 
-  const isFocused = useIsFocused();
-
   const onRefresh = React.useCallback(() => {
     setHeadLoading(true);
     loadGrades(true);
   }, []);
 
   return (
-    <>
-      <ScrollView 
-        contentInsetAdjustmentBehavior="automatic"
-        style={[styles.container, {backgroundColor : UIColors.background}]}
-        refreshControl={
-          <RefreshControl refreshing={isHeadLoading} onRefresh={onRefresh} colors={[Platform.OS === 'android' ? UIColors.primary : null]} />
-        }>
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      style={[styles.container, { backgroundColor: UIColors.background }]}
+      refreshControl={
+        <RefreshControl
+          refreshing={isHeadLoading}
+          onRefresh={onRefresh}
+          colors={[Platform.OS === 'android' ? UIColors.primary : null]}
+        />
+      }
+    >
+      <StatusBar
+        animated
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor="transparent"
+      />
 
-        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor='transparent' />
+      {subjectsList.length === 0 && !isLoading ? (
+        <Text style={[styles.noGrades]}>Aucune note à afficher.</Text>
+      ) : null}
 
-        { subjectsList.length == 0 && !isLoading ?
-          <Text style={[styles.noGrades]}>Aucune note à afficher.</Text>
-        : null }
+      {latestGrades.length > 0 ? (
+        <View style={[styles.smallSubjectList]}>
+          <Text style={styles.smallListTitle}>Dernières notes</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={[styles.latestGradesList]}
+          >
+            {latestGrades.map((grade, index) => (
+              <PressableScale
+                weight="light"
+                activeScale={0.89}
+                key={index}
+                style={[
+                  styles.smallGradeContainer,
+                  { backgroundColor: UIColors.elementHigh },
+                ]}
+                onPress={() => showGrade(grade)}
+              >
+                <View
+                  style={[
+                    styles.smallGradeSubjectContainer,
+                    { backgroundColor: grade.color },
+                  ]}
+                >
+                  <Text style={[styles.smallGradeEmoji]}>
+                    {getClosestGradeEmoji(grade.subject.name)}
+                  </Text>
+                  <Text
+                    style={[styles.smallGradeSubject]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {formatCoursName(grade.subject.name)}
+                  </Text>
+                </View>
 
-        { latestGrades.length > 0 ?
-          <View style={[styles.smallSubjectList]}>
-            <Text style={styles.smallListTitle}>Dernières notes</Text>
-            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.latestGradesList]}>
-            {latestGrades.map((grade, index) => {
-                return (
-                  <PressableScale weight="light" activeScale={0.89} key={index} style={[styles.smallGradeContainer, {backgroundColor: UIColors.elementHigh}]} onPress={() => showGrade(grade)}>
-                    <View style={[styles.smallGradeSubjectContainer, {backgroundColor: grade.color}]}>
-                      <Text style={[styles.smallGradeEmoji]}>{getClosestGradeEmoji(grade.subject.name)}</Text>
-                      <Text style={[styles.smallGradeSubject]} numberOfLines={1} ellipsizeMode='tail'>{formatCoursName(grade.subject.name)}</Text>
-                    </View>
+                <View style={[styles.smallGradeNameContainer]}>
+                  {grade.description ? (
+                    <Text
+                      style={[styles.smallGradeName]}
+                      numberOfLines={3}
+                      ellipsizeMode="tail"
+                    >
+                      {grade.description}
+                    </Text>
+                  ) : (
+                    <Text style={[styles.smallGradeName]}>
+                      Note en {formatCoursName(grade.subject.name)}
+                    </Text>
+                  )}
 
-                    <View style={[styles.smallGradeNameContainer]}>
-                      { grade.description ?
-                      <Text style={[styles.smallGradeName]} numberOfLines={3} ellipsizeMode='tail'>{grade.description}</Text>
-                      :
-                      <Text style={[styles.smallGradeName]}>Note en {formatCoursName(grade.subject.name)}</Text>
-                      }
+                  <Text style={[styles.smallGradeDate]}>
+                    {new Date(grade.date).toLocaleDateString('fr-FR', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </Text>
+                </View>
 
-                      <Text style={[styles.smallGradeDate]}>{new Date(grade.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' })}</Text>
-                    </View>
-
-                    <View style={[styles.smallGradeValueContainer]}>
-                      { grade.grade.significant == 0 ?
-                        <Text style={[styles.smallGradeValue]}>{parseFloat(grade.grade.value).toFixed(2)}</Text>
-                      : grade.grade.significant == 3 ?
-                        <Text style={[styles.smallGradeValue]}>Abs.</Text>
-                      :
-                        <Text style={[styles.smallGradeValue]}>N.not</Text>
-                      }
-                      <Text style={[styles.smallGradeOutOf]}>/{grade.grade.out_of}</Text>
-                    </View>
-                  </PressableScale>
-                );
-              })}
-            </ScrollView>
-          </View>
-        : null }
-
-        { subjectsList.length > 0 ?
-          <View style={[styles.smallSubjectList]}>
-            <Text style={styles.smallListTitle}>Moyennes</Text>
-            <View style={[styles.averagesList]}>
-              <PressableScale style={[styles.averageContainer, {backgroundColor: UIColors.element}]}>
-                <PapillonIcon
-                  icon={<User2 color={UIColors.primary} style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
-                  color={UIColors.primary}
-                  style={[styles.averageIcon]}
-                  small
-                />
-                <View style={[styles.averageTextContainer]}>
-                  <Text style={[styles.averageText]}>Moy. générale</Text>
-                  <View style={[styles.averageValueContainer]}>
-                    <Text style={[styles.averageValue]}>{averagesData.student_average}</Text>
-                    <Text style={[styles.averageValueOutOf]}>/20</Text>
-                  </View>
+                <View style={[styles.smallGradeValueContainer]}>
+                  {grade.grade.significant === 0 ? (
+                    <Text style={[styles.smallGradeValue]}>
+                      {parseFloat(grade.grade.value).toFixed(2)}
+                    </Text>
+                  ) : grade.grade.significant === 3 ? (
+                    <Text style={[styles.smallGradeValue]}>Abs.</Text>
+                  ) : (
+                    <Text style={[styles.smallGradeValue]}>N.not</Text>
+                  )}
+                  <Text style={[styles.smallGradeOutOf]}>
+                    /{grade.grade.out_of}
+                  </Text>
                 </View>
               </PressableScale>
-              <PressableScale style={[styles.averageContainer, {backgroundColor: UIColors.element}]}>
-                <PapillonIcon
-                  icon={<Users2 color={UIColors.primary} style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
-                  color={UIColors.primary}
-                  style={[styles.averageIcon]}
-                  small
-                />
-                <View style={[styles.averageTextContainer]}>
-                  <Text style={[styles.averageText]}>Moy. de classe</Text>
-                  <View style={[styles.averageValueContainer]}>
-                    <Text style={[styles.averageValue]}>{averagesData.class_average}</Text>
-                    <Text style={[styles.averageValueOutOf]}>/20</Text>
-                  </View>
+            ))}
+          </ScrollView>
+        </View>
+      ) : null}
+
+      {subjectsList.length > 0 ? (
+        <View style={[styles.smallSubjectList]}>
+          <Text style={styles.smallListTitle}>Moyennes</Text>
+          <View style={[styles.averagesList]}>
+            <PressableScale
+              style={[
+                styles.averageContainer,
+                { backgroundColor: UIColors.element },
+              ]}
+            >
+              <PapillonIcon
+                icon={
+                  <User2
+                    color={UIColors.primary}
+                    style={[
+                      styles.averageIcon,
+                      { color: !theme.dark ? '#151515' : '#fff' },
+                    ]}
+                  />
+                }
+                color={UIColors.primary}
+                style={[styles.averageIcon]}
+                small
+              />
+              <View style={[styles.averageTextContainer]}>
+                <Text style={[styles.averageText]}>Moy. générale</Text>
+                <View style={[styles.averageValueContainer]}>
+                  <Text style={[styles.averageValue]}>
+                    {averagesData.studentAverage}
+                  </Text>
+                  <Text style={[styles.averageValueOutOf]}>/20</Text>
                 </View>
-              </PressableScale>
-              <View style={[styles.averagesClassContainer]}>
-                <PressableScale style={[styles.averageContainer, {backgroundColor: UIColors.element}]}>
-                  <PapillonIcon
-                    icon={<TrendingDown color={UIColors.primary} style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
-                    color={UIColors.primary}
-                    style={[styles.averageIcon]}
-                    small
-                  />
-                  <View style={[styles.averageTextContainer]}>
-                    <Text style={[styles.averageText]}>Moy. faible</Text>
-                    <View style={[styles.averageValueContainer]}>
-                      <Text style={[styles.averageValue]}>{averagesData.min_average}</Text>
-                      <Text style={[styles.averageValueOutOf]}>/20</Text>
-                    </View>
-                  </View>
-                </PressableScale>
-                <PressableScale style={[styles.averageContainer, {backgroundColor: UIColors.element}]}>
-                  <PapillonIcon
-                    icon={<TrendingUp color={UIColors.primary} style={[styles.averageIcon, {color: !theme.dark ? '#151515' : '#fff'}]} />}
-                    color={UIColors.primary}
-                    style={[styles.averageIcon]}
-                    small
-                  />
-                  <View style={[styles.averageTextContainer]}>
-                    <Text style={[styles.averageText]}>Moy. élevée</Text>
-                    
-                    <View style={[styles.averageValueContainer]}>
-                      <Text style={[styles.averageValue]}>{averagesData.max_average}</Text>
-                      <Text style={[styles.averageValueOutOf]}>/20</Text>
-                    </View>
-                  </View>
-                </PressableScale>
               </View>
+            </PressableScale>
+            <PressableScale
+              style={[
+                styles.averageContainer,
+                { backgroundColor: UIColors.element },
+              ]}
+            >
+              <PapillonIcon
+                icon={
+                  <Users2
+                    color={UIColors.primary}
+                    style={[
+                      styles.averageIcon,
+                      { color: !theme.dark ? '#151515' : '#fff' },
+                    ]}
+                  />
+                }
+                color={UIColors.primary}
+                style={[styles.averageIcon]}
+                small
+              />
+              <View style={[styles.averageTextContainer]}>
+                <Text style={[styles.averageText]}>Moy. de classe</Text>
+                <View style={[styles.averageValueContainer]}>
+                  <Text style={[styles.averageValue]}>
+                    {averagesData.classAverage}
+                  </Text>
+                  <Text style={[styles.averageValueOutOf]}>/20</Text>
+                </View>
+              </View>
+            </PressableScale>
+            <View style={[styles.averagesClassContainer]}>
+              <PressableScale
+                style={[
+                  styles.averageContainer,
+                  { backgroundColor: UIColors.element },
+                ]}
+              >
+                <PapillonIcon
+                  icon={
+                    <TrendingDown
+                      color={UIColors.primary}
+                      style={[
+                        styles.averageIcon,
+                        { color: !theme.dark ? '#151515' : '#fff' },
+                      ]}
+                    />
+                  }
+                  color={UIColors.primary}
+                  style={[styles.averageIcon]}
+                  small
+                />
+                <View style={[styles.averageTextContainer]}>
+                  <Text style={[styles.averageText]}>Moy. faible</Text>
+                  <View style={[styles.averageValueContainer]}>
+                    <Text style={[styles.averageValue]}>
+                      {averagesData.minAverage}
+                    </Text>
+                    <Text style={[styles.averageValueOutOf]}>/20</Text>
+                  </View>
+                </View>
+              </PressableScale>
+              <PressableScale
+                style={[
+                  styles.averageContainer,
+                  { backgroundColor: UIColors.element },
+                ]}
+              >
+                <PapillonIcon
+                  icon={
+                    <TrendingUp
+                      color={UIColors.primary}
+                      style={[
+                        styles.averageIcon,
+                        { color: !theme.dark ? '#151515' : '#fff' },
+                      ]}
+                    />
+                  }
+                  color={UIColors.primary}
+                  style={[styles.averageIcon]}
+                  small
+                />
+                <View style={[styles.averageTextContainer]}>
+                  <Text style={[styles.averageText]}>Moy. élevée</Text>
+
+                  <View style={[styles.averageValueContainer]}>
+                    <Text style={[styles.averageValue]}>
+                      {averagesData.maxAverage}
+                    </Text>
+                    <Text style={[styles.averageValueOutOf]}>/20</Text>
+                  </View>
+                </View>
+              </PressableScale>
             </View>
           </View>
-        : null }
-        
-        { subjectsList.length > 0 ?
-          <View style={[styles.subjectList]}>
+        </View>
+      ) : null}
+
+      {subjectsList.length > 0 ? (
+        <View style={[styles.subjectList]}>
           <Text style={styles.ListTitle}>Liste des matières</Text>
-            {subjectsList.map((subject, index) => {
-              return (
-                <View key={index} style={[styles.subjectContainer, {backgroundColor: UIColors.element}]}>
-                  <Pressable style={[styles.subjectNameContainer, {backgroundColor: subject.averages.color}]}>
-                    <Text style={[styles.subjectName]}>{formatCoursName(subject.name)}</Text>
-                    <View style={[styles.subjectAverageContainer]}>
-                      <Text style={[styles.subjectAverage]}>{parseFloat(subject.averages.average).toFixed(2)}</Text>
-                      <Text style={[styles.subjectAverageOutOf]}>/{subject.averages.out_of}</Text>
-                    </View>
-                  </Pressable>
-
-                  <View style={[styles.gradesList]}>
-                    {subject.grades.map((grade, index) => {
-                      return (
-                        <View key={index} style={[styles.gradeContainer, {borderBottomColor: theme.dark ? '#ffffff22' : '#00000022', borderBottomWidth: (index === (subject.grades.length - 1)) ? 0 : 1}]}>
-                          <PressableScale weight="light" activeScale={0.95} style={[styles.gradeUnderContainer]} onPress={() => showGrade(grade)}>
-                            <View style={[styles.gradeEmojiContainer]}>
-                              <Text style={[styles.gradeEmoji]}>{getClosestGradeEmoji(grade.subject.name)}</Text>
-                            </View>
-                            <View style={[styles.gradeNameContainer]}>
-                              { grade.description ?
-                                <Text style={[styles.gradeName]}>{grade.description}</Text>
-                                :
-                                <Text style={[styles.gradeName]}>Note en {formatCoursName(grade.subject.name)}</Text>
-                              }
-
-                              <Text style={[styles.gradeDate]}>{new Date(grade.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' })}</Text>
-
-                              <Text style={[styles.gradeCoefficient]}>Coeff. : {grade.grade.coefficient}</Text>
-                            </View>
-                            <View style={[styles.gradeDataContainer]}>
-
-                              <View style={[styles.gradeValueContainer]}>
-                                { grade.grade.significant == 0 ?
-                                  <Text style={[styles.gradeValue]}>{parseFloat(grade.grade.value).toFixed(2)}</Text>
-                                : grade.grade.significant == 3 ?
-                                  <Text style={[styles.gradeValue]}>Abs.</Text>
-                                :
-                                  <Text style={[styles.gradeValue]}>N.not</Text>
-                                }
-
-                                <Text style={[styles.gradeOutOf]}>/{grade.grade.out_of}</Text>
-                              </View>
-
-                            </View>
-                          </PressableScale>
-                        </View>
-                      );
-                    })}
-                  </View>
+          {subjectsList.map((subject, index) => (
+            <View
+              key={index}
+              style={[
+                styles.subjectContainer,
+                { backgroundColor: UIColors.element },
+              ]}
+            >
+              <Pressable
+                style={[
+                  styles.subjectNameContainer,
+                  { backgroundColor: subject.averages.color },
+                ]}
+              >
+                <Text style={[styles.subjectName]}>
+                  {formatCoursName(subject.name)}
+                </Text>
+                <View style={[styles.subjectAverageContainer]}>
+                  <Text style={[styles.subjectAverage]}>
+                    {parseFloat(subject.averages.average).toFixed(2)}
+                  </Text>
+                  <Text style={[styles.subjectAverageOutOf]}>
+                    /{subject.averages.out_of}
+                  </Text>
                 </View>
-              );
-            })}
-          </View>
-        : null }
+              </Pressable>
 
-      </ScrollView>
-    </>
+              <View style={[styles.gradesList]}>
+                {subject.grades.map((grade, i) => (
+                  <View
+                    key={i}
+                    style={[
+                      styles.gradeContainer,
+                      {
+                        borderBottomColor: theme.dark
+                          ? '#ffffff22'
+                          : '#00000022',
+                        borderBottomWidth:
+                          i === subject.grades.length - 1 ? 0 : 1,
+                      },
+                    ]}
+                  >
+                    <PressableScale
+                      weight="light"
+                      activeScale={0.95}
+                      style={[styles.gradeUnderContainer]}
+                      onPress={() => showGrade(grade)}
+                    >
+                      <View style={[styles.gradeEmojiContainer]}>
+                        <Text style={[styles.gradeEmoji]}>
+                          {getClosestGradeEmoji(grade.subject.name)}
+                        </Text>
+                      </View>
+                      <View style={[styles.gradeNameContainer]}>
+                        {grade.description ? (
+                          <Text style={[styles.gradeName]}>
+                            {grade.description}
+                          </Text>
+                        ) : (
+                          <Text style={[styles.gradeName]}>
+                            Note en {formatCoursName(grade.subject.name)}
+                          </Text>
+                        )}
+
+                        <Text style={[styles.gradeDate]}>
+                          {new Date(grade.date).toLocaleDateString('fr-FR', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                          })}
+                        </Text>
+
+                        <Text style={[styles.gradeCoefficient]}>
+                          Coeff. : {grade.grade.coefficient}
+                        </Text>
+                      </View>
+                      <View style={[styles.gradeDataContainer]}>
+                        <View style={[styles.gradeValueContainer]}>
+                          {grade.grade.significant === 0 ? (
+                            <Text style={[styles.gradeValue]}>
+                              {parseFloat(grade.grade.value).toFixed(2)}
+                            </Text>
+                          ) : grade.grade.significant === 3 ? (
+                            <Text style={[styles.gradeValue]}>Abs.</Text>
+                          ) : (
+                            <Text style={[styles.gradeValue]}>N.not</Text>
+                          )}
+
+                          <Text style={[styles.gradeOutOf]}>
+                            /{grade.grade.out_of}
+                          </Text>
+                        </View>
+                      </View>
+                    </PressableScale>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ))}
+        </View>
+      ) : null}
+    </ScrollView>
   );
 }
 
@@ -563,7 +740,7 @@ const styles = StyleSheet.create({
   },
 
   smallGradeSubjectContainer: {
-    gap : 12,
+    gap: 12,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -598,7 +775,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     gap: 1,
-    
+
     position: 'absolute',
     bottom: 14,
     left: 16,
@@ -634,7 +811,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   averageTextContainer: {
-    gap: 0
+    gap: 0,
   },
   averageText: {
     fontSize: 15,

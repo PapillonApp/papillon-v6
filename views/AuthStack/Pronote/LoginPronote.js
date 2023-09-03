@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, View, StyleSheet, Platform, Alert, TextInput, StatusBar } from 'react-native';
+import { ScrollView, View, StyleSheet, Platform, Alert, TextInput, StatusBar, ActivityIndicator } from 'react-native';
 
 import { useColorScheme } from 'react-native';
 
@@ -8,6 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme, Button, Text, Portal, Switch } from 'react-native-paper';
 
 import { getENTs, getInfo, getToken } from '../../../fetch/AuthStack/LoginFlow';
+
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 import { useState } from 'react';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
@@ -108,6 +110,7 @@ function LoginPronote({ route, navigation }) {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [connecting, setConnecting] = useState(false);
 
   function login() {
     let credentials = {
@@ -124,20 +127,42 @@ function LoginPronote({ route, navigation }) {
     }
 
     if(credentials.username.trim() == '' || credentials.password.trim() == '') {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
+      showMessage({
+        message: "Échec de la connexion",
+        description: "Veuillez remplir tous les champs.",
+        type: "danger",
+        icon: "auto",
+        floating: true,
+        duration: 5000
+      })
       return;
     }
-
+    setConnecting(true)
     getToken(credentials).then((result) => {
+      setConnecting(false)
       const token = result.token;
 
       if(token == false) {
-        Alert.alert('Erreur', 'Identifiant ou mot de passe incorrect.');
+        showMessage({
+          message: "Échec de la connexion",
+          description: "Veuillez vérifier vos identifiants.",
+          type: "danger",
+          icon: "auto",
+          floating: true,
+          duration: 5000
+        })
         return;
       }
       else {
         AsyncStorage.setItem('token', token);
         AsyncStorage.setItem('credentials', JSON.stringify(credentials));
+
+        showMessage({
+          message: "Connecté avec succès",
+          type: "success",
+          icon: "auto",
+          floating: true
+        })
 
         navigation.popToTop();
       }
@@ -199,12 +224,22 @@ function LoginPronote({ route, navigation }) {
             </View>
 
             <View style={[styles.buttons]}>
+                {connecting ? (
+                <ListItem
+                  title="Connexion..."
+                  left={
+                    <ActivityIndicator size="small" />
+                  }
+                  style={[styles.button, {alignContent: 'center', alignItems: 'center'}]}
+                />
+                //<Text style={{"display": "flex", "alignItems": "center", "justifyContent": "center"}}><ActivityIndicator /> Connexion...</Text>
+                ) : (
                 <PapillonButton
                   title="Se connecter"
                   color="#159C5E"
                   onPress={() => login()}
                   style={[styles.button]}
-                />
+                />)}
             </View>
         </View>
 

@@ -184,7 +184,7 @@ function ProfileScreen({ route, navigation }) {
             }
 
             <Portal>
-            <Dialog style={{ bottom }} visible={androidNamePromptVisible} onDismiss={() => setIsSearchingUrlAndroid(false)}>
+            <Dialog style={{ bottom }} visible={androidNamePromptVisible} onDismiss={() => setAndroidNamePromptVisible(false)}>
                 <Dialog.Title>Modifier le nom utilisé</Dialog.Title>
                 <Dialog.Content>
                 <TextInput
