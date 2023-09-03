@@ -9,6 +9,8 @@ import { useTheme, Button, Text, Portal, Switch } from 'react-native-paper';
 
 import { getENTs, getInfo, getToken } from '../../../fetch/AuthStack/LoginFlow';
 
+import { showMessage, hideMessage } from "react-native-flash-message";
+
 import { useState } from 'react';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
@@ -125,7 +127,14 @@ function LoginPronote({ route, navigation }) {
     }
 
     if(credentials.username.trim() == '' || credentials.password.trim() == '') {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
+      showMessage({
+        message: "Échec de la connexion",
+        description: "Veuillez remplir tous les champs.",
+        type: "danger",
+        icon: "auto",
+        floating: true,
+        duration: 5000
+      })
       return;
     }
     setConnecting(true)
@@ -134,12 +143,26 @@ function LoginPronote({ route, navigation }) {
       const token = result.token;
 
       if(token == false) {
-        Alert.alert('Erreur', 'Identifiant ou mot de passe incorrect.');
+        showMessage({
+          message: "Échec de la connexion",
+          description: "Veuillez vérifier vos identifiants.",
+          type: "danger",
+          icon: "auto",
+          floating: true,
+          duration: 5000
+        })
         return;
       }
       else {
         AsyncStorage.setItem('token', token);
         AsyncStorage.setItem('credentials', JSON.stringify(credentials));
+
+        showMessage({
+          message: "Connecté avec succès",
+          type: "success",
+          icon: "auto",
+          floating: true
+        })
 
         navigation.popToTop();
       }
