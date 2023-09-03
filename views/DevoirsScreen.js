@@ -26,7 +26,7 @@ import getClosestColor from '../utils/ColorCoursName';
 import {
   getHomeworks,
   changeHomeworkState,
-} from '../fetch/PronoteData/PronoteHomeworks';
+} from '../fetch/IndexData';
 import GetUIColors from '../utils/GetUIColors';
 
 const openURL = (url) => {

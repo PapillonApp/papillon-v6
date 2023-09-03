@@ -18,7 +18,7 @@ import { PressableScale } from 'react-native-pressable-scale';
 import InfinitePager from 'react-native-infinite-pager';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Calendar, Info } from 'lucide-react-native';
-import { getTimetable } from '../fetch/PronoteData/PronoteTimetable';
+import { getTimetable } from '../fetch/IndexData';
 
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestColor from '../utils/ColorCoursName';

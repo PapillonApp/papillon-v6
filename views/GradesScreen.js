@@ -20,18 +20,19 @@ import { PressableScale } from 'react-native-pressable-scale';
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import PapillonIcon from '../components/PapillonIcon';
-import { getUser } from '../fetch/PronoteData/PronoteUser';
-import { getGrades, changePeriod } from '../fetch/PronoteData/PronoteGrades';
+import { getUser } from '../fetch/IndexData';
+import { getGrades, changePeriod } from '../fetch/IndexData';
 import getClosestColor from '../utils/ColorCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import formatCoursName from '../utils/FormatCoursName';
 import GetUIColors from '../utils/GetUIColors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function GradesScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
   const { showActionSheetWithOptions } = useActionSheet();
-
+  const insets = useSafeAreaInsets();
   const [subjectsList, setSubjectsList] = useState([]);
   const [averagesData, setAveragesData] = useState([]);
   const [latestGrades, setLatestGrades] = useState([]);
@@ -133,8 +134,8 @@ function GradesScreen({ navigation }) {
   async function loadGrades(force = false) {
     setHeadLoading(true);
     const grades = await getGrades(force);
+    console.log(grades)
     const gradesList = JSON.parse(grades).grades;
-
     // invert gradeslist
     gradesList.reverse();
 
