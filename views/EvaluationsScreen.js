@@ -18,12 +18,12 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
-import { getUser } from '../fetch/PronoteData/PronoteUser';
+import { getUser } from '../fetch/IndexData';
 
 import {
   getEvaluations,
   changePeriod,
-} from '../fetch/PronoteData/PronoteGrades';
+} from '../fetch/IndexData';
 import GetUIColors from '../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
