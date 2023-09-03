@@ -19,6 +19,7 @@ import { useState } from 'react';
 import { PressableScale } from 'react-native-pressable-scale';
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import PapillonIcon from '../components/PapillonIcon';
 import { getUser } from '../fetch/IndexData';
 import { getGrades, changePeriod } from '../fetch/IndexData';
@@ -31,6 +32,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 function GradesScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
   const { showActionSheetWithOptions } = useActionSheet();
   const insets = useSafeAreaInsets();
   const [subjectsList, setSubjectsList] = useState([]);
@@ -82,7 +84,7 @@ function GradesScreen({ navigation }) {
           backgroundColor: UIColors.elementHigh,
         },
         textStyle: {
-          color: UIColors.text
+          color: UIColors.text,
         },
         titleTextStyle: {
           color: UIColors.text,
@@ -90,7 +92,7 @@ function GradesScreen({ navigation }) {
         },
         messageTextStyle: {
           color: UIColors.text,
-        }
+        },
       },
       (selectedIndex) => {
         if (selectedIndex === options.length - 1) return;
@@ -184,10 +186,14 @@ function GradesScreen({ navigation }) {
       const maxAverage = maxAverages / maxAveragecount;
 
       setAveragesData({
-        studentAverage: !isNaN(studentAverage) ? studentAverage.toFixed(2) : "?",
-        classAverage: !isNaN(classAverage) ? classAverage.toFixed(2) : "?",
-        minAverage: !isNaN(minAverage) ? minAverage.toFixed(2) : "?",
-        maxAverage: !isNaN(maxAverage) ? maxAverage.toFixed(2) : "?",
+        studentAverage: !Number.isNaN(studentAverage)
+          ? studentAverage.toFixed(2)
+          : '?',
+        classAverage: !Number.isNaN(classAverage)
+          ? classAverage.toFixed(2)
+          : '?',
+        minAverage: !Number.isNaN(minAverage) ? minAverage.toFixed(2) : '?',
+        maxAverage: !Number.isNaN(maxAverage) ? maxAverage.toFixed(2) : '?',
       });
     }
 

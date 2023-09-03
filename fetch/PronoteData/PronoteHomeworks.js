@@ -4,7 +4,6 @@ import consts from '../consts.json';
 import { refreshToken } from '../AuthStack/LoginFlow';
 
 function getHomeworks(day) {
-  
   // TEMPORARY : remove 1 month
   day = new Date(day);
 
@@ -37,13 +36,17 @@ function getHomeworks(day) {
       }
     )
       .then((response) => response.json())
+      .catch((e) => {
+        console.log('ERR : PronoteHomeworks', e);
+        return [];
+      })
       .then((result) => {
         if (result === 'expired' || result === 'notfound') {
           return refreshToken().then(() => getHomeworks(day));
         }
         return result;
       })
-      .catch(e=>{
+      .catch((e) => {
         console.log(e);
         return [];
       })

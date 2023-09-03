@@ -68,7 +68,7 @@ function SchoolLifeScreen() {
             <View style={styles.optionsList}>
               <Text style={styles.ListTitle}>Absences</Text>
 
-              {viesco.absences.map((absence, index) => (
+              {viesco.absences?.map((absence, index) => (
                 <PressableScale
                   key={index}
                   style={[
@@ -132,7 +132,7 @@ function SchoolLifeScreen() {
             <View style={styles.optionsList}>
               <Text style={styles.ListTitle}>Retards</Text>
 
-              {viesco.delays.map((delay, index) => (
+              {viesco?.delays?.map((delay, index) => (
                 <PressableScale
                   key={index}
                   style={[

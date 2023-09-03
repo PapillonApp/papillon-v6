@@ -15,6 +15,7 @@ import Fade from 'react-native-fade';
 import { Text, useTheme } from 'react-native-paper';
 import { PressableScale } from 'react-native-pressable-scale';
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
@@ -25,7 +26,6 @@ import {
   changePeriod,
 } from '../fetch/IndexData';
 import GetUIColors from '../utils/GetUIColors';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function EvaluationsScreen({ navigation }) {
   const theme = useTheme();
@@ -75,7 +75,7 @@ function EvaluationsScreen({ navigation }) {
           backgroundColor: UIColors.elementHigh,
         },
         textStyle: {
-          color: UIColors.text
+          color: UIColors.text,
         },
         titleTextStyle: {
           color: UIColors.text,
@@ -83,7 +83,7 @@ function EvaluationsScreen({ navigation }) {
         },
         messageTextStyle: {
           color: UIColors.text,
-        }
+        },
       },
       (selectedIndex) => {
         if (selectedIndex === options.length - 1) return;

@@ -3,6 +3,14 @@ import consts from '../consts.json';
 
 import { refreshToken } from '../AuthStack/LoginFlow';
 
+const getViescoNotValidate = (e) =>
+  e === undefined ||
+  e === null ||
+  e === 'expired' ||
+  e === '"expired"' ||
+  e === 'notfound' ||
+  e === '"notfound"';
+
 function getViesco(force = false) {
   // obtenir le token
   return AsyncStorage.getItem('viescoCache').then((viescoCache) => {
@@ -15,7 +23,13 @@ function getViesco(force = false) {
       userCacheDate.setHours(0, 0, 0, 0);
       today.setHours(0, 0, 0, 0);
 
-      if (userCacheDate.getTime() === today.getTime()) {
+      if (
+        userCacheDate.getTime() === today.getTime() &&
+        viescoCache.viesco &&
+        !getViescoNotValidate(viescoCache.viesco.absences) &&
+        !getViescoNotValidate(viescoCache.viesco.punishments) &&
+        !getViescoNotValidate(viescoCache.viesco.delays)
+      ) {
         return viescoCache.viesco;
       }
       AsyncStorage.removeItem('viescoCache');
@@ -28,12 +42,7 @@ function getViesco(force = false) {
       })
         .then((response) => response.text())
         .then((result) => {
-          if (
-            result === 'expired' ||
-            result === '"expired"' ||
-            result === 'notfound' ||
-            result === '"notfound"'
-          ) {
+          if (getViescoNotValidate(result)) {
             return refreshToken().then(() => getViesco());
           }
           const absences = JSON.parse(result);
@@ -64,7 +73,6 @@ function getViesco(force = false) {
                     'viescoCache',
                     JSON.stringify(cachedViesco)
                   );
-
                   return cachedViesco.viesco;
                 });
             });

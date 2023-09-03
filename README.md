@@ -6,41 +6,43 @@ Votre emploi du temps 📅, votre agenda 📓, vos notes 📝, vos news 📰 et 
 
 ## 🚀 Sommaire
 
-* [À propos du projet](#-à-propos-du-projet)
-* [Screenshots](#-screenshots)
-* [Développé avec](#-développé-avec)
-* [Pour commencer](#-pour-commencer)
-   * [Prérequis](#prérequis)
-   * [Installation](#installation)
-* [Usage](#-usage)
-* [Avancement](#-avancement)
-* [Contribuer](#-contribuer)
-   * [Créer une Pull Request](#créer-une-pull-request)
-* [License](#-license)
+- [À propos du projet](#-à-propos-du-projet)
+- [Screenshots](#-screenshots)
+- [Développé avec](#-développé-avec)
+- [Pour commencer](#-pour-commencer)
+  - [Prérequis](#prérequis)
+  - [Installation](#installation)
+- [Usage](#-usage)
+- [Avancement](#-avancement)
+- [Contribuer](#-contribuer)
+  - [Créer une Pull Request](#créer-une-pull-request)
+- [License](#-license)
 
 ## Feuille de route
+
 Voici un aperçu de ce que nous avons accompli jusqu'à présent et de ce qui reste à faire :
+
 - [x] Structure
-    - [x] Routage & Navigation
-    - [x] Appels à l'API
-    - [x] Gestion des données utilisateurs (équivalent LocalStorage)
-    - [x] Intégration du Framework UI (React Native Paper)
-- [x] Connexion à un service scolaire *(Pronote pour le moment)*
-    - [x] Interface de choix du service scolaire
-    - [x] Interface de sélection de l'établissement
-    - [x] Interface de connexion au service
-    - [x] Appel à l'API pour se connecter et conservation de la session
-- [ ] Affichage des données *(Pronote en priorité)*
-    - [x] Données utilisateur
-    - [x] Emploi du temps
-    - [x] Devoirs
-    - [x] Notes
-    - [x] Compétences
-    - [ ] Contenu des cours
-    - [x] Fichiers
-    - [x] Actualités
-    - [ ] Conversations
-    - [x] Vie scolaire
+  - [x] Routage & Navigation
+  - [x] Appels à l'API
+  - [x] Gestion des données utilisateurs (équivalent LocalStorage)
+  - [x] Intégration du Framework UI (React Native Paper)
+- [x] Connexion à un service scolaire _(Pronote pour le moment)_
+  - [x] Interface de choix du service scolaire
+  - [x] Interface de sélection de l'établissement
+  - [x] Interface de connexion au service
+  - [x] Appel à l'API pour se connecter et conservation de la session
+- [ ] Affichage des données _(Pronote en priorité)_
+  - [x] Données utilisateur
+  - [x] Emploi du temps
+  - [x] Devoirs
+  - [x] Notes
+  - [x] Compétences
+  - [ ] Contenu des cours
+  - [x] Fichiers
+  - [x] Actualités
+  - [ ] Conversations
+  - [x] Vie scolaire
 
 ## 📖 À propos du projet
 
@@ -69,11 +71,13 @@ Papillon est une application mobile qui vise à simplifier la vie scolaire des �
 ### Installation
 
 1. Clonez le repo
+
 ```sh
 git clone https://github.com/PapillonApp/Papillon.git
 ```
 
 2. Installez les packages NPM
+
 ```sh
 yarn install
 ```

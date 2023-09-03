@@ -1,8 +1,16 @@
 import * as React from 'react';
-import { View, ScrollView, StyleSheet, StatusBar } from 'react-native';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  StatusBar,
+  Appearance,
+} from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import { Maximize } from 'lucide-react-native';
+import { Maximize, SunMoon } from 'lucide-react-native';
+import { useActionSheet } from '@expo/react-native-action-sheet';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
@@ -11,6 +19,55 @@ import GetUIColors from '../../utils/GetUIColors';
 function AppearanceScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
+  const { showActionSheetWithOptions } = useActionSheet();
+  const insets = useSafeAreaInsets();
+
+  const changeTheme = () => {
+    const options = [
+      {
+        label: 'Defaut',
+        value: null,
+      },
+      {
+        label: 'Clair',
+        value: 'light',
+      },
+      {
+        label: 'Sombre',
+        value: 'dark',
+      },
+      {
+        label: 'Annuler',
+        value: 'cancel',
+      },
+    ];
+    showActionSheetWithOptions(
+      {
+        options: options.map((option) => option.label),
+        cancelButtonIndex: options.length - 1,
+        containerStyle: {
+          paddingBottom: insets.bottom,
+          backgroundColor: UIColors.elementHigh,
+        },
+        textStyle: {
+          color: UIColors.text,
+        },
+        titleTextStyle: {
+          color: UIColors.text,
+          fontWeight: 'bold',
+        },
+        messageTextStyle: {
+          color: UIColors.text,
+        },
+      },
+      (selectedIndex) => {
+        if (selectedIndex === undefined) return;
+        const newTheme = options[selectedIndex];
+        if (newTheme.value === 'cancel') return;
+        Appearance.setColorScheme(newTheme.value);
+      }
+    );
+  };
 
   return (
     <ScrollView
@@ -36,6 +93,21 @@ function AppearanceScreen({ navigation }) {
             />
           }
           onPress={() => navigation.navigate('Icons')}
+          center
+        />
+        <ListItem
+          title="Theme de l'application"
+          subtitle="Sélectionner le thème de l'application"
+          color="#29947A"
+          left={
+            <PapillonIcon
+              icon={<SunMoon size={24} color="#29947A" />}
+              color="#29947A"
+              size={24}
+              small
+            />
+          }
+          onPress={() => changeTheme()}
           center
         />
       </View>
