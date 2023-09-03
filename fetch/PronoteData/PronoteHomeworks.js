@@ -32,6 +32,7 @@ function getHomeworks(day) {
             method: 'GET'
         })
         .then((response) => response.json())
+        .catch(e=>{console.log("ERR : PronoteHomeworks", e); return [];})
         .then((result) => {
             if (result == 'expired' || result == 'notfound') {
                 return refreshToken().then(() => {
@@ -41,7 +42,10 @@ function getHomeworks(day) {
             else {
                 return result;
             }
-        });
+        }).catch(e=>{
+            console.log(e);
+            return [];
+        })
     });
 }
 
