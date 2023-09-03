@@ -13,7 +13,7 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import { useState, useEffect } from 'react';
 import * as SystemUI from 'expo-system-ui';
 
-import { getUser } from '../../fetch/PronoteData/PronoteUser';
+import { getUser } from '../../fetch/IndexData';
 
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
