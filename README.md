@@ -2,7 +2,7 @@
 
 Votre emploi du temps 📅, votre agenda 📓, vos notes 📝, vos news 📰 et bien plus encore en un clin d’œil grâce à l'application Papillon.
 
-**📚 [Voir la documentation]([https://github.com/PapillonApp/Papillon/wiki](https://docs.getpapillon.xyz/))**
+**📚 [Voir la documentation](https://docs.getpapillon.xyz/)**
 
 ## 🚀 Sommaire
 
