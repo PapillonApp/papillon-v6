@@ -20,7 +20,7 @@ import { PressableScale } from 'react-native-pressable-scale';
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import PapillonIcon from '../components/PapillonIcon';
-import { getUser } from '../fetch/PronoteData/PronoteUser';
+import { getUser } from '../fetch/IndexData';
 import { getGrades, changePeriod } from '../fetch/IndexData';
 import getClosestColor from '../utils/ColorCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
