@@ -113,7 +113,7 @@ function LoginPronote({ route, navigation }) {
         );
         setENTs(ent);
 
-        if (ent.educonnect) {
+        if (ent?.educonnect) {
           setUseEduconnect(ent.educonnect);
         } else {
           setUseEduconnect(false);
@@ -173,7 +173,7 @@ function LoginPronote({ route, navigation }) {
       } else {
         AsyncStorage.setItem('token', token);
         AsyncStorage.setItem('credentials', JSON.stringify(credentials));
-        AsyncStorage.setItem('service', "Pronote");
+        AsyncStorage.setItem('service', 'Pronote');
 
         showMessage({
           message: 'Connecté avec succès',

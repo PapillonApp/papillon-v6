@@ -21,18 +21,15 @@ import { PressableScale } from 'react-native-pressable-scale';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import PapillonIcon from '../components/PapillonIcon';
-import { getUser } from '../fetch/IndexData';
-import { getGrades, changePeriod } from '../fetch/IndexData';
+import { IndexData } from '../fetch/IndexData';
 import getClosestColor from '../utils/ColorCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import formatCoursName from '../utils/FormatCoursName';
 import GetUIColors from '../utils/GetUIColors';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function GradesScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
-  const insets = useSafeAreaInsets();
   const { showActionSheetWithOptions } = useActionSheet();
   const insets = useSafeAreaInsets();
   const [subjectsList, setSubjectsList] = useState([]);
@@ -105,14 +102,14 @@ function GradesScreen({ navigation }) {
 
   async function changePeriodPronote(period) {
     setIsLoading(true);
-    await changePeriod(period.name);
-    getUser(true);
+    await IndexData.changePeriod(period.name);
+    IndexData.getUser(true);
     loadGrades(true);
     setIsLoading(false);
   }
 
   async function getPeriods() {
-    const result = await getUser(false);
+    const result = await IndexData.getUser(false);
     const userData = result;
     const allPeriods = userData.periods;
 
@@ -135,8 +132,8 @@ function GradesScreen({ navigation }) {
 
   async function loadGrades(force = false) {
     setHeadLoading(true);
-    const grades = await getGrades(force);
-    console.log(grades)
+    const grades = await IndexData.getGrades(force);
+    console.log(grades);
     const gradesList = JSON.parse(grades).grades;
     // invert gradeslist
     gradesList.reverse();

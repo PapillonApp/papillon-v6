@@ -31,9 +31,7 @@ import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import getClosestColor from '../utils/ColorCoursName';
 
-import { getRecap } from '../fetch/IndexData';
-import { getUser } from '../fetch/IndexData';
-import { changeHomeworkState } from '../fetch/IndexData';
+import { IndexData } from '../fetch/IndexData';
 
 import GetUIColors from '../utils/GetUIColors';
 
@@ -74,7 +72,7 @@ function HomeScreen({ navigation }) {
     }
 
     // Fetch recap data
-    getRecap(currentDate, forceReload).then(
+    IndexData.getRecap(currentDate, forceReload).then(
       ([timetableData, homeworksData, gradesData]) => {
         setIsHeadLoading(false);
 
@@ -104,7 +102,7 @@ function HomeScreen({ navigation }) {
     );
 
     // Fetch user data
-    getUser().then((result) => {
+    IndexData.getUser().then((result) => {
       setUser(result);
     });
 
@@ -354,7 +352,7 @@ function Hwitem({ homework, theme }) {
 
   const changeHwState = () => {
     console.log(`change ${homework.date} : ${homework.id}`);
-    changeHomeworkState(homework.date, homework.id).then((result) => {
+    IndexData.changeHomeworkState(homework.date, homework.id).then((result) => {
       console.log(result);
 
       if (result.status === 'not found') {
