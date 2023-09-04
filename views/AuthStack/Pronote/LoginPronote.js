@@ -23,6 +23,7 @@ import ListItem from '../../../components/ListItem';
 
 import PapillonButton from '../../../components/PapillonButton';
 import GetUIColors from '../../../utils/GetUIColors';
+import { useAppContext } from '../../../utils/AppContext';
 
 function LoginTextInput({
   label,
@@ -130,6 +131,8 @@ function LoginPronote({ route, navigation }) {
   const [password, setPassword] = useState('');
   const [connecting, setConnecting] = useState(false);
 
+  const appCtx = useAppContext();
+
   function login() {
     const credentials = {
       username,
@@ -182,6 +185,7 @@ function LoginPronote({ route, navigation }) {
           floating: true,
         });
 
+        appCtx.setLoggedIn(true);
         navigation.popToTop();
       }
     });

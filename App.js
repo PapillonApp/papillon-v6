@@ -1,28 +1,14 @@
 import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  NavigationContainer,
-  DefaultTheme,
-  DarkTheme,
-} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import {
-  BottomNavigation,
-  Appbar,
-  PaperProvider,
-  MD3LightTheme,
-  MD3DarkTheme,
-} from 'react-native-paper';
+import { BottomNavigation, Appbar } from 'react-native-paper';
 
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import FlashMessage from 'react-native-flash-message';
 
-import { ActionSheetProvider } from '@expo/react-native-action-sheet';
-
 import { getHeaderTitle } from '@react-navigation/elements';
-import { useMaterial3Theme } from '@pchmn/expo-material3-theme';
 import { useState } from 'react';
 import { Platform, useColorScheme, View } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
@@ -33,7 +19,6 @@ import {
   BarChart3,
   UserCircle,
 } from 'lucide-react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import useFonts from './hooks/useFonts';
 
 import HomeScreen from './views/HomeScreen';
@@ -70,10 +55,9 @@ import SchoolLifeScreen from './views/SchoolLifeScreen';
 import ConversationsScreen from './views/ConversationsScreen';
 
 import EvaluationsScreen from './views/EvaluationsScreen';
+import { AppContextProvider, baseColor } from './utils/AppContext';
 
 const Tab = createBottomTabNavigator();
-
-const baseColor = '#29947a';
 
 // stack
 const Stack = createNativeStackNavigator();
@@ -702,22 +686,6 @@ function App() {
 
   // dark mode
   const scheme = useColorScheme();
-  const { theme } = useMaterial3Theme({ fallbackSourceColor: baseColor });
-  const paperTheme = {
-    ...(scheme === 'dark' ? MD3DarkTheme : MD3LightTheme),
-    version: 3,
-    colors: {
-      ...(scheme === 'dark' ? theme.dark : theme.light),
-    },
-  };
-
-  const classicTheme = {
-    ...(scheme === 'dark' ? DarkTheme : DefaultTheme),
-    colors: {
-      ...(scheme === 'dark' ? DarkTheme.colors : DefaultTheme.colors),
-      primary: baseColor,
-    },
-  };
 
   // toasts
   const toastConfig = {
@@ -791,6 +759,10 @@ function App() {
     ),
   };
 
+  React.useEffect(() => {
+    console.log(loggedIn);
+  }, [loggedIn]);
+
   if (!IsReady) {
     // load fonts
     LoadFonts().then(() => {
@@ -805,19 +777,13 @@ function App() {
     <View
       style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff' }}
     >
-      <PaperProvider theme={paperTheme}>
-        <ActionSheetProvider>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <NavigationContainer theme={classicTheme}>
-              {loggedInLoaded ? (
-                <View style={{ flex: 1 }}>
-                  {loggedIn ? <AppStack /> : <AuthStack />}
-                </View>
-              ) : null}
-            </NavigationContainer>
-          </GestureHandlerRootView>
-        </ActionSheetProvider>
-      </PaperProvider>
+      <AppContextProvider state={{ loggedIn, setLoggedIn }}>
+        {loggedInLoaded ? (
+          <View style={{ flex: 1 }}>
+            {loggedIn ? <AppStack /> : <AuthStack />}
+          </View>
+        ) : null}
+      </AppContextProvider>
       <Toast config={toastConfig} />
       <FlashMessage position="top" />
     </View>

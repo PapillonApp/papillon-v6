@@ -18,9 +18,12 @@ import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
 import GetUIColors from '../../utils/GetUIColors';
+import { useAppContext } from '../../utils/AppContext';
 
-function SettingsScreen() {
+function SettingsScreen({ navigation }) {
   const UIColors = GetUIColors();
+
+  const appCtx = useAppContext();
 
   function LogOutAction() {
     Alert.alert('Déconnexion', 'Êtes-vous sûr de vouloir vous déconnecter ?', [
@@ -42,6 +45,9 @@ function SettingsScreen() {
           }
 
           AsyncStorage.clear();
+
+          appCtx.setLoggedIn(false);
+          navigation.popToTop();
         },
       },
     ]);
