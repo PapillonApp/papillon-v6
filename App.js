@@ -57,6 +57,8 @@ import ConversationsScreen from './views/ConversationsScreen';
 import EvaluationsScreen from './views/EvaluationsScreen';
 import { AppContextProvider, baseColor } from './utils/AppContext';
 
+import NotificationsScreen from './views/Settings/NotificationsScreen';
+
 const Tab = createBottomTabNavigator();
 
 // stack
@@ -437,7 +439,15 @@ function WrappedSettings() {
         name="Appearance"
         component={AppearanceScreen}
         options={{
-          headerTitle: 'Apparence',
+          headerTitle: 'Fonctionnalités',
+        }}
+      />
+      <Stack.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{
+          headerTitle: 'Notifications',
+          headerBackTitle: 'Retour',
         }}
       />
       <Stack.Screen

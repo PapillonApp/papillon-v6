@@ -45,6 +45,12 @@
     },
     "plugins": [
       [
+        "expo-notifications",
+        {
+          "sounds": ["assets/papillon-ding.wav"]
+        }
+      ],
+      [
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Papillon utilise ton emplacement pour trouver des établissements autour de toi."

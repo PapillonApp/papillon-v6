@@ -50,6 +50,8 @@ function HomeScreen({ navigation }) {
   const [refreshCount, setRefreshCount] = React.useState(0);
   const [isHeadLoading, setIsHeadLoading] = React.useState(true);
 
+  const [forceReload, setForceReload] = React.useState(false);
+
   // change header text and size
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -65,12 +67,6 @@ function HomeScreen({ navigation }) {
   }, [navigation, timetable, user]);
 
   React.useEffect(() => {
-    let forceReload = false;
-
-    if (isHeadLoading) {
-      forceReload = true;
-    }
-
     // Fetch recap data
     IndexData.getRecap(currentDate, forceReload).then(
       ([timetableData, homeworksData, gradesData]) => {
@@ -118,6 +114,7 @@ function HomeScreen({ navigation }) {
   // Refresh function
   const onRefresh = React.useCallback(() => {
     setIsHeadLoading(true);
+    setForceReload(true);
     setRefreshCount((prevCount) => prevCount + 1);
     setIsHeadLoading(false);
   }, []);

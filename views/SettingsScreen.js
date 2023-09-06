@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, ScrollView, StyleSheet, StatusBar } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import { Settings, User2, Palette, Info } from 'lucide-react-native';
+import { Settings, User2, Palette, Info, Sparkles } from 'lucide-react-native';
 
 import packageJson from '../package.json';
 
@@ -31,7 +31,7 @@ function SettingsScreen({ navigation }) {
         <Text style={styles.ListTitle}>Mon profil</Text>
 
         <ListItem
-          title="Profil"
+          title="Mon profil"
           subtitle="Configurez votre compte Papillon, votre pseudonyme, votre photo de profil..."
           color="#29947A"
           left={
@@ -52,7 +52,7 @@ function SettingsScreen({ navigation }) {
 
         <ListItem
           title="Réglages"
-          subtitle="Paramètres de l’application et modification de son comportement"
+          subtitle="Paramètres de l’application et des comptes"
           color="#565EA3"
           left={
             <PapillonIcon
@@ -67,12 +67,12 @@ function SettingsScreen({ navigation }) {
         />
 
         <ListItem
-          title="Apparence"
+          title="Apparence & fonctionnalités"
           subtitle="Personnaliser et modifier l’apparence de l’application"
           color="#A84700"
           left={
             <PapillonIcon
-              icon={<Palette size={24} color="#fff" />}
+              icon={<Sparkles size={24} color="#fff" />}
               color="#A84700"
               size={24}
               fill
@@ -87,8 +87,8 @@ function SettingsScreen({ navigation }) {
         <Text style={styles.ListTitle}>A propos</Text>
 
         <ListItem
-          title="A propos"
-          subtitle={`Papillon version ${packageJson.version}`}
+          title="A propos de Papillon"
+          subtitle={`Papillon version ${packageJson.version} ${packageJson.canal}`}
           color="#888888"
           left={
             <PapillonIcon
