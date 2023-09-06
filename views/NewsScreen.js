@@ -121,6 +121,7 @@ function NewsScreen({ navigation }) {
         <RefreshControl
           refreshing={isHeadLoading}
           onRefresh={onRefresh}
+          progressViewOffset={28}
           colors={[Platform.OS === 'android' ? UIColors.primary : null]}
         />
       }

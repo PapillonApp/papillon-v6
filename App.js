@@ -372,7 +372,7 @@ function WrappedGradesScreen() {
           Platform.OS === 'ios'
             ? {
                 headerShown: true,
-                headerLargeTitle: true,
+                headerLargeTitle: false,
               }
             : null
         }
