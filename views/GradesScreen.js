@@ -164,10 +164,12 @@ function GradesScreen({ navigation }) {
 
       // for each average
       averages.forEach((average) => {
+        console.log(average);
+
         studentAverages += (average.average / average.out_of) * 20;
         studentAverageCount++;
 
-        classAverages += (average.classAverage / average.out_of) * 20;
+        classAverages += (average.class_average / average.out_of) * 20;
         classAveragecount++;
 
         minAverages += (average.min / average.out_of) * 20;
