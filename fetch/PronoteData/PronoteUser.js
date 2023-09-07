@@ -84,6 +84,15 @@ function saveUser(user) {
           })
         );
       };
+    })
+    .catch((err) => {
+      AsyncStorage.setItem(
+        'userCache',
+        JSON.stringify({
+          date: new Date(),
+          user,
+        })
+      );
     });
 }
 

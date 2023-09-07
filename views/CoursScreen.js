@@ -115,7 +115,7 @@ function CoursScreen({ navigation }) {
 
   const forceRefresh = async () => {
     const newDate = calcDate(todayRef.current, 0);
-    const result = await IndexData.getTimetable(newDate);
+    const result = await IndexData.getTimetable(newDate, true);
     setCours((prevCours) => ({
       ...prevCours,
       [newDate.toLocaleDateString()]: result,

@@ -91,6 +91,9 @@ function getEvaluations(force = false) {
 
           return result;
         })
+        .catch(() => {
+          console.error('Error fetching Pronote evaluations');
+        })
     );
   });
 }
