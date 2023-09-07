@@ -251,6 +251,7 @@ function HomeScreen({ navigation }) {
                 homeworks={homeworks}
                 navigation={navigation}
                 theme={theme}
+                last={index === homeworks.length - 1}
               />
             ))}
           </View>
@@ -344,7 +345,7 @@ function HomeScreen({ navigation }) {
   );
 }
 
-function Hwitem({ homework, theme }) {
+function Hwitem({ homework, theme, last }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
 
   const changeHwState = () => {
@@ -360,9 +361,11 @@ function Hwitem({ homework, theme }) {
     });
   };
 
+  const UIColors = GetUIColors();
+
   return (
-    <PressableScale style={[styles.homeworkItemContainer]}>
-      <View style={[styles.homeworkItem]}>
+    <View style={[styles.homeworkItemContainer, {borderBottomColor: UIColors.text + '22', borderBottomWidth: !last ? 1 : 0}]}>
+      <PressableScale style={[styles.homeworkItem]}>
         <View style={[styles.checkboxContainer]}>
           <HwCheckbox
             checked={thisHwChecked}
@@ -400,7 +403,7 @@ function Hwitem({ homework, theme }) {
             {homework.description}
           </Text>
         </View>
-      </View>
+      </PressableScale>
 
       {homework.files.length > 0 ? (
         <View style={[styles.homeworkFiles]}>
@@ -439,7 +442,7 @@ function Hwitem({ homework, theme }) {
           ))}
         </View>
       ) : null}
-    </PressableScale>
+    </View>
   );
 }
 
@@ -611,7 +614,7 @@ function HomeHeader({ navigation, timetable, user }) {
           Bonjour{user ? `, ${getPrenom(user.name)} !` : ' !'}
         </Text>
         <Text style={[styles.headerCoursesText]}>
-          {timetable && leftCourses && timetable.length > 1
+          {timetable && leftCourses && leftCourses.length.length > 1 && timetable.length > 1
             ? `Il te reste ${leftCourses.length + 1} cours dans ta journée.`
             : "Tu n'as aucun cours restant aujourd'hui."}
         </Text>
@@ -678,9 +681,10 @@ function NextCours({ cours, navigation }) {
       const diffMinutes = Math.floor(diff / 1000 / 60);
       const diffSeconds = Math.floor((diff / 1000) % 60);
 
-      if (diffMinutes < 20) {
-        return `dans ${lz(diffMinutes)} min ${lz(diffSeconds)} sec`;
+      if (diffMinutes < 60) {
+        return `dans ${lz(diffMinutes)}:${lz(diffSeconds)}`;
       }
+
       return `dans ${Math.ceil(diffMinutes / 60)}h ${lz(diffMinutes % 60)} min`;
     }
     return 'maintenant';
@@ -996,9 +1000,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
     borderRadius: 12,
     borderCurve: 'continuous',
+    overflow: 'hidden',
   },
   homeworkItemContainer: {
-    borderRadius: 12,
     borderCurve: 'continuous',
     overflow: 'hidden',
   },
