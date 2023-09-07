@@ -211,6 +211,16 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
     [cours.end]
   );
 
+  const start = new Date(cours.start);
+  const end = new Date(cours.end);
+
+  function lz(num) {
+    return num < 10 ? '0' + num : num;
+  }
+
+  const length = Math.floor((end - start) / 60000);
+  const lengthString = `${Math.floor(length / 60)}h${lz(Math.floor(length % 60))}`;
+
   const handleCoursPressed = useCallback(() => {
     CoursPressed(cours);
   }, [CoursPressed, cours]);
@@ -247,7 +257,7 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
             ]}
           />
           <View style={[styles.coursInfo]}>
-            <Text style={[styles.coursTime]}>{formattedStartTime()}</Text>
+            <Text style={[styles.coursTime]}>{lengthString}</Text>
             <Text style={[styles.coursMatiere]}>
               {formatCoursName(cours.subject.name)}
             </Text>
@@ -309,6 +319,8 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
     });
   }, []);
 
+  const UIColors = GetUIColors();
+
   return (
     <ScrollView
       style={[styles.coursContainer]}
@@ -326,12 +338,29 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
       ) : null}
 
       {cours.map((_cours, index) => (
-        <CoursItem
-          key={index}
-          cours={_cours}
-          theme={theme}
-          CoursPressed={CoursPressed}
-        />
+        <>
+          {/* si le cours précédent était il y a + de 30 min du cours actuel */}
+          {index !== 0 &&
+          new Date(_cours.start) - new Date(cours[index - 1].end) > 1800000 ? (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginTop: 6,
+                marginBottom: 16,
+              }}
+            >
+              <View style={{ flex: 1, height: 3, borderRadius:3, backgroundColor: UIColors.text + '15' }} />
+            </View>
+          ) : null}
+
+          <CoursItem
+            key={index}
+            cours={_cours}
+            theme={theme}
+            CoursPressed={CoursPressed}
+          />
+        </>
       ))}
 
       <View style={{ height: 12 }} />
@@ -404,6 +433,12 @@ const styles = StyleSheet.create({
   coursTime: {
     fontSize: 14,
     opacity: 0.5,
+  },
+  coursLength: {
+    position: 'absolute',
+    right: 12,
+    top: 10,
+    opacity: 0.3,
   },
   coursMatiere: {
     fontSize: 18,
