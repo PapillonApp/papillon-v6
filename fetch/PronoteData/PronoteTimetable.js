@@ -62,8 +62,25 @@ function getTimetable(day, force = false) {
           if (result === 'expired' || result === 'notfound') {
             return refreshToken().then(() => getTimetable(day));
           }
+
           // sort the timetable by start
           result.sort((a, b) => a.start.localeCompare(b.start));
+
+          // if two cours start at the same time, remove the cours with isCancelled = true
+          for (let i = 0; i < result.length; i += 1) {
+            for (let j = 0; j < result.length; j += 1) {
+              if (i !== j) {
+                if (result[i].start === result[j].start) {
+                  if (result[i].isCancelled) {
+                    result.splice(i, 1);
+                  } else if (result[j].isCancelled) {
+                    result.splice(j, 1);
+                  }
+                }
+              }
+            }
+          }
+          
 
           // save in cache
           AsyncStorage.getItem('timetableCache').then((timetableCache) => {
