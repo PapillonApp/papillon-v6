@@ -23,6 +23,7 @@ import {
   Calendar,
   Hourglass,
   Clock8,
+  Users,
 } from 'lucide-react-native';
 
 import { useState, useEffect } from 'react';
@@ -43,6 +44,8 @@ function LessonScreen({ route, navigation }) {
   const theme = useTheme();
   const lesson = route.params.event;
   const UIColors = GetUIColors();
+
+  console.log(lesson);
 
   // calculate length of lesson
   const start = new Date(lesson.start);
@@ -140,20 +143,33 @@ function LessonScreen({ route, navigation }) {
         <View style={styles.optionsList}>
           <Text style={styles.ListTitle}>A propos</Text>
 
-          <ListItem
-            title="Salle de cours"
-            subtitle={lesson.rooms[0]}
-            color={mainColor}
-            left={<DoorOpen size={24} color={mainColor} />}
-            width
-          />
-          <ListItem
-            title="Professeur"
-            subtitle={lesson.teachers[0]}
-            color={mainColor}
-            left={<User2 size={24} color={mainColor} />}
-            width
-          />
+          { lesson.rooms.length > 0 ? (
+            <ListItem
+              title="Salle de cours"
+              subtitle={lesson.rooms.join(', ')}
+              color={mainColor}
+              left={<DoorOpen size={24} color={mainColor} />}
+              width
+            />
+          ) : null }
+          { lesson.teachers.length > 0 ? (
+            <ListItem
+              title={"Professeur" + (lesson.teachers.length > 1 ? "s" : "")}
+              subtitle={lesson.teachers.join(', ')}
+              color={mainColor}
+              left={<User2 size={24} color={mainColor} />}
+              width
+            />
+          ) : null }
+          { lesson.group_names.length > 0 ? (
+            <ListItem
+              title={"Groupe" + (lesson.group_names.length > 1 ? "s" : "")}
+              subtitle={lesson.group_names.join(', ')}
+              color={mainColor}
+              left={<Users size={24} color={mainColor} />}
+              width
+            />
+          ) : null }
           {lesson.status !== null ? (
             <ListItem
               title="Statut du cours"
@@ -330,6 +346,8 @@ const styles = StyleSheet.create({
 
     fontSize: 24,
     fontFamily: 'Papillon-Semibold',
+    
+    width: '80%',
   },
 
   coursHeaderClose: {

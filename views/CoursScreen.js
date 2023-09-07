@@ -262,8 +262,12 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
               {formatCoursName(cours.subject.name)}
             </Text>
 
-            <Text style={[styles.coursSalle]}>Salle {cours.rooms[0]}</Text>
-            <Text style={[styles.coursProf]}>{cours.teachers[0]}</Text>
+            { cours.rooms.length > 0 ? (
+              <Text style={[styles.coursSalle]}>Salle {cours.rooms.join(', ')}</Text>
+            ) : null }
+            { cours.teachers.length > 0 ? (
+              <Text style={[styles.coursProf]}>{cours.teachers.join(', ')}</Text>
+            ) : null }
 
             {cours.status && (
               <View

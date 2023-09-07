@@ -27,8 +27,7 @@ function getTimetable(day, force = false) {
         cacheTime.setHours(0, 0, 0, 0);
 
         if (currentTime.getTime() === cacheTime.getTime()) {
-          console.log('returning cached timetable');
-
+          console.log('timetable from cache');
           return timetableCache[i].timetable;
         }
        }
@@ -60,7 +59,7 @@ function getTimetable(day, force = false) {
         .then((response) => response.json())
         .then((result) => {
           if (result === 'expired' || result === 'notfound') {
-            return refreshToken().then(() => getTimetable(day));
+            return refreshToken().then(() => getTimetable(day, force));
           }
 
           // sort the timetable by start
