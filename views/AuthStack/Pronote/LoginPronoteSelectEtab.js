@@ -50,7 +50,8 @@ import {
   getPronoteEtabsFromCoords,
 } from '../../../fetch/AuthStack/SearchEtabs';
 import GetUIColors from '../../../utils/GetUIColors';
-import entities from "entities"
+
+const entities = require("entities");
 
 function LoginPronoteSelectEtab({ navigation }) {
   const theme = useTheme();
@@ -481,8 +482,8 @@ function LoginPronoteSelectEtab({ navigation }) {
           {EtabList.map((item, index) => (
             <ListItem
               key={index}
-              title={item.nomEtab}
-              subtitle={item.url}
+              title={entities.decodeHTML(item.nomEtab)}
+              subtitle={item.url.toLowerCase()}
               icon={<School color="#159C5E" />}
               color="#159C5E"
               onPress={() => selectEtab(item)}

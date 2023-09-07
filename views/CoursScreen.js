@@ -342,7 +342,7 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
       ) : null}
 
       {cours.map((_cours, index) => (
-        <>
+        <View key={index}>
           {/* si le cours précédent était il y a + de 30 min du cours actuel */}
           {index !== 0 &&
           new Date(_cours.start) - new Date(cours[index - 1].end) > 1800000 ? (
@@ -364,7 +364,7 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
             theme={theme}
             CoursPressed={CoursPressed}
           />
-        </>
+        </View>
       ))}
 
       <View style={{ height: 12 }} />
