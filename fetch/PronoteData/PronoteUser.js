@@ -45,13 +45,15 @@ function getUser(force = false) {
 function editUser(profile) {
   const user = profile;
 
-  return AsyncStorage.getItem('customProfilePicture').then(
+  return AsyncStorage.getItem('custom_profile_picture').then(
     (customProfilePicture) => {
+      console.log(customProfilePicture);
+
       if (customProfilePicture) {
         user.profile_picture = customProfilePicture;
       }
 
-      return AsyncStorage.getItem('customName').then((customName) => {
+      return AsyncStorage.getItem('custom_name').then((customName) => {
         if (customName) {
           user.name = customName;
         }
@@ -84,6 +86,15 @@ function saveUser(user) {
           })
         );
       };
+    })
+    .catch((err) => {
+      AsyncStorage.setItem(
+        'userCache',
+        JSON.stringify({
+          date: new Date(),
+          user,
+        })
+      );
     });
 }
 

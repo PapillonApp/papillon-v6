@@ -6,10 +6,13 @@ import {
   StatusBar,
   Platform,
   TouchableOpacity,
+  Switch,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
 import { ContextMenuView } from 'react-native-ios-context-menu';
+
+import * as Notifications from 'expo-notifications';
 
 import {
   X,
@@ -20,13 +23,17 @@ import {
   Calendar,
   Hourglass,
   Clock8,
+  Users,
 } from 'lucide-react-native';
+
+import { useState, useEffect } from 'react';
 
 import * as Clipboard from 'expo-clipboard';
 import formatCoursName from '../../utils/FormatCoursName';
 import ListItem from '../../components/ListItem';
 import getClosestColor from '../../utils/ColorCoursName';
 import GetUIColors from '../../utils/GetUIColors';
+import getClosestGradeEmoji from '../../utils/EmojiCoursName';
 
 /* async function getDefaultCalendarSource() {
 	const defaultCalendar = await Calendar.getDefaultCalendarAsync();
@@ -37,6 +44,8 @@ function LessonScreen({ route, navigation }) {
   const theme = useTheme();
   const lesson = route.params.event;
   const UIColors = GetUIColors();
+
+  console.log(lesson);
 
   // calculate length of lesson
   const start = new Date(lesson.start);
@@ -73,6 +82,51 @@ function LessonScreen({ route, navigation }) {
   // main color
   const mainColor = theme.dark ? '#ffffff' : '#444444';
 
+  const [isNotified, setIsNotified] = useState(false);
+
+  function changeIsNotified(val) {
+    setIsNotified(val);
+
+    let time = new Date(lesson.start);
+    time.setMinutes(time.getMinutes() - 5);
+
+    if (time < new Date()) {
+      setTimeout(() => {
+        setIsNotified(false);
+      }, 200);
+      return;
+    }
+
+    if (val) {
+      Notifications.scheduleNotificationAsync({
+        identifier: lesson.subject.name + new Date(lesson.start).getTime(),
+        content: {
+          title: `${getClosestGradeEmoji(lesson.subject.name)} ${lesson.subject.name} - Ça commence dans 5 minutes`,
+          body: `Ouvre l'app Papillon pour voir les détails du cours.`,
+          sound: true,
+        },
+        trigger: {
+          channelId: 'coursReminder',
+          date: new Date(time),
+        },
+      });
+    }
+    else {
+      Notifications.cancelScheduledNotificationAsync(lesson.subject.name + new Date(lesson.start).getTime());
+    }
+  }
+
+  useEffect(() => {
+    Notifications.getAllScheduledNotificationsAsync().then((value) => {
+      for (const notification of value) {
+        if (notification.identifier === lesson.subject.name + new Date(lesson.start).getTime()) {
+          setIsNotified(true);
+          break;
+        }
+      }
+    });
+  }, []);
+
   return (
     <>
       <CoursHeader cours={lesson} navigation={navigation} />
@@ -89,20 +143,33 @@ function LessonScreen({ route, navigation }) {
         <View style={styles.optionsList}>
           <Text style={styles.ListTitle}>A propos</Text>
 
-          <ListItem
-            title="Salle de cours"
-            subtitle={lesson.rooms[0]}
-            color={mainColor}
-            left={<DoorOpen size={24} color={mainColor} />}
-            width
-          />
-          <ListItem
-            title="Professeur"
-            subtitle={lesson.teachers[0]}
-            color={mainColor}
-            left={<User2 size={24} color={mainColor} />}
-            width
-          />
+          { lesson.rooms.length > 0 ? (
+            <ListItem
+              title="Salle de cours"
+              subtitle={lesson.rooms.join(', ')}
+              color={mainColor}
+              left={<DoorOpen size={24} color={mainColor} />}
+              width
+            />
+          ) : null }
+          { lesson.teachers.length > 0 ? (
+            <ListItem
+              title={"Professeur" + (lesson.teachers.length > 1 ? "s" : "")}
+              subtitle={lesson.teachers.join(', ')}
+              color={mainColor}
+              left={<User2 size={24} color={mainColor} />}
+              width
+            />
+          ) : null }
+          { lesson.group_names.length > 0 ? (
+            <ListItem
+              title={"Groupe" + (lesson.group_names.length > 1 ? "s" : "")}
+              subtitle={lesson.group_names.join(', ')}
+              color={mainColor}
+              left={<Users size={24} color={mainColor} />}
+              width
+            />
+          ) : null }
           {lesson.status !== null ? (
             <ListItem
               title="Statut du cours"
@@ -185,6 +252,26 @@ function LessonScreen({ route, navigation }) {
           </View>
         </View>
 
+        { new Date(lesson.start) > new Date() ? (
+          <View style={styles.optionsList}>
+            <Text style={styles.ListTitle}>Options (cours à venir)</Text>
+
+            <ListItem
+              title="Me notifier 5 minutes avant"
+              subtitle="Envoie une notification 5 minutes avant le début du cours"
+              style={{ flex: 1, marginHorizontal: 0 }}
+              right={
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Switch
+                    value={isNotified}
+                    onValueChange={(val) => changeIsNotified(val)}
+                  />
+                </View>
+              }
+            />
+          </View>
+        ) : null }
+
         <View style={{ height: 20 }} />
       </ScrollView>
     </>
@@ -259,6 +346,8 @@ const styles = StyleSheet.create({
 
     fontSize: 24,
     fontFamily: 'Papillon-Semibold',
+    
+    width: '80%',
   },
 
   coursHeaderClose: {

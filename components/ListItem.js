@@ -87,9 +87,11 @@ function ListItem({
         ) : null}
 
         <View style={[styles.listItemText, { gap: isLarge ? 8 : 2 }]}>
-          <Text style={[styles.listItemTextTitle, { color: textColor }]}>
-            {title}
-          </Text>
+          { title ? (
+            <Text style={[styles.listItemTextTitle, { color: textColor }]}>
+              {title}
+            </Text>
+          ) : null }
 
           {subtitle ? (
             <Text style={[styles.listItemTextSubtitle, { color: textColor }]}>
@@ -140,9 +142,11 @@ function ListItem({
           ) : null}
 
           <View style={[styles.listItemText, { gap: isLarge ? 8 : 2 }]}>
-            <Text style={[styles.listItemTextTitle, { color: textColor }]}>
-              {title}
-            </Text>
+            {title ? (
+              <Text style={[styles.listItemTextTitle, { color: textColor }]}>
+                {title}
+              </Text>
+            ) : null}
 
             {subtitle ? (
               <Text style={[styles.listItemTextSubtitle, { color: textColor }]}>

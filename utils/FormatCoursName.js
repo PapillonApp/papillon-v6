@@ -9,6 +9,10 @@ const formatExceptions = {
   'sciences de la vie et de la terre': 'Sciences de la vie et de la terre',
   'histoire-geographie': 'Histoire-Géographie',
   'sciences economiques et sociales': 'Sciences économiques et sociales',
+  'llc angl.mond.cont.': 'LLCER Anglais Monde Contemporain',
+  'accompagnemt. perso.' : 'Accompagnement personnalisé',
+  'numerique sc.inform.': 'Numérique et Sciences Informatiques',
+  'ed.physique & sport.': 'Éducation physique et sportive',
 };
 
 const lengthExceptions = ['vie', 'de', 'et', 'la'];

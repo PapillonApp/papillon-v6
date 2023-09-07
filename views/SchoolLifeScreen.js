@@ -64,7 +64,7 @@ function SchoolLifeScreen() {
 
       {viesco ? (
         <>
-          {viesco.absences.length > 0 ? (
+          {viesco.absences && viesco.absences.length > 0 ? (
             <View style={styles.optionsList}>
               <Text style={styles.ListTitle}>Absences</Text>
 
@@ -128,7 +128,7 @@ function SchoolLifeScreen() {
             </View>
           ) : null}
 
-          {viesco.delays.length > 0 ? (
+          {viesco.delays && viesco.delays.length > 0 ? (
             <View style={styles.optionsList}>
               <Text style={styles.ListTitle}>Retards</Text>
 

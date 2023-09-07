@@ -26,7 +26,7 @@ function GetUIColors() {
   }
 
   // text
-  const text = theme.dark ? '#fff' : '#000';
+  const text = theme.dark ? '#ffffff' : '#000000';
 
   // main
   // let primary = '';

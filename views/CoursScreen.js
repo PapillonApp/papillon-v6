@@ -115,7 +115,7 @@ function CoursScreen({ navigation }) {
 
   const forceRefresh = async () => {
     const newDate = calcDate(todayRef.current, 0);
-    const result = await IndexData.getTimetable(newDate);
+    const result = await IndexData.getTimetable(newDate, true);
     setCours((prevCours) => ({
       ...prevCours,
       [newDate.toLocaleDateString()]: result,
@@ -211,6 +211,16 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
     [cours.end]
   );
 
+  const start = new Date(cours.start);
+  const end = new Date(cours.end);
+
+  function lz(num) {
+    return num < 10 ? '0' + num : num;
+  }
+
+  const length = Math.floor((end - start) / 60000);
+  const lengthString = `${Math.floor(length / 60)}h${lz(Math.floor(length % 60))}`;
+
   const handleCoursPressed = useCallback(() => {
     CoursPressed(cours);
   }, [CoursPressed, cours]);
@@ -247,13 +257,17 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
             ]}
           />
           <View style={[styles.coursInfo]}>
-            <Text style={[styles.coursTime]}>{formattedStartTime()}</Text>
+            <Text style={[styles.coursTime]}>{lengthString}</Text>
             <Text style={[styles.coursMatiere]}>
               {formatCoursName(cours.subject.name)}
             </Text>
 
-            <Text style={[styles.coursSalle]}>Salle {cours.rooms[0]}</Text>
-            <Text style={[styles.coursProf]}>{cours.teachers[0]}</Text>
+            { cours.rooms.length > 0 ? (
+              <Text style={[styles.coursSalle]}>Salle {cours.rooms.join(', ')}</Text>
+            ) : null }
+            { cours.teachers.length > 0 ? (
+              <Text style={[styles.coursProf]}>{cours.teachers.join(', ')}</Text>
+            ) : null }
 
             {cours.status && (
               <View
@@ -309,6 +323,8 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
     });
   }, []);
 
+  const UIColors = GetUIColors();
+
   return (
     <ScrollView
       style={[styles.coursContainer]}
@@ -326,12 +342,29 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
       ) : null}
 
       {cours.map((_cours, index) => (
-        <CoursItem
-          key={index}
-          cours={_cours}
-          theme={theme}
-          CoursPressed={CoursPressed}
-        />
+        <View key={index}>
+          {/* si le cours précédent était il y a + de 30 min du cours actuel */}
+          {index !== 0 &&
+          new Date(_cours.start) - new Date(cours[index - 1].end) > 1800000 ? (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginTop: 6,
+                marginBottom: 16,
+              }}
+            >
+              <View style={{ flex: 1, height: 3, borderRadius:3, backgroundColor: UIColors.text + '15' }} />
+            </View>
+          ) : null}
+
+          <CoursItem
+            key={index}
+            cours={_cours}
+            theme={theme}
+            CoursPressed={CoursPressed}
+          />
+        </View>
       ))}
 
       <View style={{ height: 12 }} />
@@ -404,6 +437,12 @@ const styles = StyleSheet.create({
   coursTime: {
     fontSize: 14,
     opacity: 0.5,
+  },
+  coursLength: {
+    position: 'absolute',
+    right: 12,
+    top: 10,
+    opacity: 0.3,
   },
   coursMatiere: {
     fontSize: 18,

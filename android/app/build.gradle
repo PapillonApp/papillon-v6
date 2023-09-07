@@ -118,7 +118,7 @@ android {
         applicationId 'plus.pronote.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 6004
+        versionCode 1
         versionName "6.0.0"
     }
 

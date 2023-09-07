@@ -5,10 +5,11 @@ import {
   StyleSheet,
   StatusBar,
   Appearance,
+  Platform,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import { Maximize, SunMoon } from 'lucide-react-native';
+import { Bell, Maximize, SunMoon } from 'lucide-react-native';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ListItem from '../../components/ListItem';
@@ -25,7 +26,7 @@ function AppearanceScreen({ navigation }) {
   const changeTheme = () => {
     const options = [
       {
-        label: 'Defaut',
+        label: 'Par défaut',
         value: null,
       },
       {
@@ -79,7 +80,7 @@ function AppearanceScreen({ navigation }) {
       />
 
       <View style={{ gap: 9, marginTop: 24 }}>
-        <Text style={styles.ListTitle}>Application</Text>
+        <Text style={styles.ListTitle}>Thèmes et personnalisation</Text>
         <ListItem
           title="Icône de l'application"
           subtitle="Changer l'icône de l'application"
@@ -95,19 +96,40 @@ function AppearanceScreen({ navigation }) {
           onPress={() => navigation.navigate('Icons')}
           center
         />
+        { Platform.OS === 'android' && (
+          <ListItem
+            title="Thème de l'application"
+            subtitle="Sélectionner le thème de l'application"
+            color="#29947A"
+            left={
+              <PapillonIcon
+                icon={<SunMoon size={24} color="#29947A" />}
+                color="#29947A"
+                size={24}
+                small
+              />
+            }
+            onPress={() => changeTheme()}
+            center
+          />
+        )}
+      </View>
+
+      <View style={{ gap: 9, marginTop: 24 }}>
+        <Text style={styles.ListTitle}>Notifications</Text>
         <ListItem
-          title="Theme de l'application"
-          subtitle="Sélectionner le thème de l'application"
+          title="Notifications"
+          subtitle="Gérer les rappels et les mises à jour des données en arrière plan"
           color="#29947A"
           left={
             <PapillonIcon
-              icon={<SunMoon size={24} color="#29947A" />}
-              color="#29947A"
+              icon={<Bell size={24} color="#5d75de" />}
+              color="#5d75de"
               size={24}
               small
             />
           }
-          onPress={() => changeTheme()}
+          onPress={() => navigation.navigate('Notifications')}
           center
         />
       </View>

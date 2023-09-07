@@ -99,7 +99,12 @@ function ProfileScreen({ route }) {
     if (!result.canceled) {
       AsyncStorage.getItem('old_profile_picture').then((res) => {
         if (res === null) {
-          AsyncStorage.setItem('old_profile_picture', userData.profile_picture);
+          if(userData.profile_picture !== null) {
+            AsyncStorage.setItem('old_profile_picture', userData.profile_picture);
+          }
+          else {
+            AsyncStorage.setItem('old_profile_picture', '');
+          }
         }
       });
 

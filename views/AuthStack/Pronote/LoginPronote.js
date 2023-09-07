@@ -184,9 +184,11 @@ function LoginPronote({ route, navigation }) {
           icon: 'auto',
           floating: true,
         });
+        
+        navigation.goBack();
+        navigation.goBack();
 
         appCtx.setLoggedIn(true);
-        navigation.popToTop();
       }
     });
   }
@@ -283,24 +285,17 @@ function LoginPronote({ route, navigation }) {
         </View>
 
         <View style={[styles.buttons]}>
-          {connecting ? (
-            <ListItem
-              title="Connexion..."
-              left={<ActivityIndicator size="small" />}
-              style={[
-                styles.button,
-                { alignContent: 'center', alignItems: 'center' },
-              ]}
-            />
-          ) : (
-            // <Text style={{"display": "flex", "alignItems": "center", "justifyContent": "center"}}><ActivityIndicator /> Connexion...</Text>
-            <PapillonButton
+          <PapillonButton
               title="Se connecter"
               color="#159C5E"
               onPress={() => login()}
               style={[styles.button]}
+              right={
+                (connecting &&
+                  <ActivityIndicator color={'#ffffff'} />
+                )
+              }
             />
-          )}
         </View>
       </View>
     </ScrollView>

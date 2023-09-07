@@ -146,7 +146,7 @@ function GradesScreen({ navigation }) {
       },
     }));
 
-    const latestGrads = scaledGrades.slice(0, 10);
+    const latestGrades = scaledGrades.slice(0, 10);
     const subjects = [];
 
     function calculateAverages(averages) {
@@ -164,10 +164,12 @@ function GradesScreen({ navigation }) {
 
       // for each average
       averages.forEach((average) => {
+        console.log(average);
+
         studentAverages += (average.average / average.out_of) * 20;
         studentAverageCount++;
 
-        classAverages += (average.classAverage / average.out_of) * 20;
+        classAverages += (average.class_average / average.out_of) * 20;
         classAveragecount++;
 
         minAverages += (average.min / average.out_of) * 20;
@@ -219,7 +221,7 @@ function GradesScreen({ navigation }) {
         average.color = closestColor;
         subject.averages = average;
 
-        latestGrads.forEach((grade) => {
+        latestGrades.forEach((grade) => {
           if (grade.subject.name === subject.name) {
             grade.color = average.color;
           }

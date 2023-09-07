@@ -58,7 +58,7 @@ function ConversationsScreen() {
             marginTop: 4,
           }}
         >
-          Les conversartions seront disponibles dans une prochaîne beta.
+          Les conversations seront disponibles dans une prochaîne beta.
         </Text>
       </View>
     </ScrollView>
