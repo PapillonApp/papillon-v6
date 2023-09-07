@@ -50,6 +50,7 @@ import {
   getPronoteEtabsFromCoords,
 } from '../../../fetch/AuthStack/SearchEtabs';
 import GetUIColors from '../../../utils/GetUIColors';
+import entities from "entities"
 
 function LoginPronoteSelectEtab({ navigation }) {
   const theme = useTheme();
@@ -409,7 +410,7 @@ function LoginPronoteSelectEtab({ navigation }) {
                 <School color="#159C5E" />
                 <View style={[styles.detectedEtabData]}>
                   <Text style={[styles.detectedEtabText]}>
-                    {currentEtabName}
+                    {entities.decodeHTML(currentEtabName)}
                   </Text>
                   <Text style={[styles.detectedEtabDescription]}>
                     {currentEtabURL}
