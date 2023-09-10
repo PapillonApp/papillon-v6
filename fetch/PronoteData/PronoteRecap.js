@@ -7,6 +7,8 @@ import { getGrades } from './PronoteGrades';
 function addDays(date, days) {
   date = new Date(date);
   date.setDate(date.getDate() + days);
+
+  return date;
 }
 
 function getRecap(day, force) {
@@ -28,9 +30,11 @@ function getRecap(day, force) {
     }
     else {
       return Promise.all([
-        getTimetable(day),
-        getHomeworks(day),
+        getTimetable(day, force),
         getGrades(force),
+        getHomeworks(day, force),
+        getHomeworks(addDays(day, 1), force),
+        getHomeworks(addDays(day, 2), force),
       ]).then((result) => {
         
         AsyncStorage.setItem('recapCache', JSON.stringify({

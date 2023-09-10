@@ -43,7 +43,8 @@ function HomeScreen({ navigation }) {
   const [nextClasses, setNextClasses] = React.useState(null);
   const [timetable, setTimetable] = React.useState(null);
   const [homeworks, setHomeworks] = React.useState(null);
-  const [, setGrades] = React.useState(null);
+  const [fullHomeworks, setFullHomeworks] = React.useState(null);
+  const [grades, setGrades] = React.useState(null);
   const [user, setUser] = React.useState(null);
   const [latestGrades, setLatestGrades] = React.useState(null);
 
@@ -66,15 +67,38 @@ function HomeScreen({ navigation }) {
     });
   }, [navigation, timetable, user]);
 
+  function addDays(date, days) {
+    date = new Date(date);
+    date.setDate(date.getDate() + days);
+
+    return date;
+  }
+
   React.useEffect(() => {
     // Fetch recap data
     IndexData.getRecap(currentDate, forceReload).then(
-      ([timetableData, homeworksData, gradesData]) => {
+      ([timetableData, gradesData, homeworksData, homeworks1, homeworks2]) => {
         setIsHeadLoading(false);
 
         setTimetable(timetableData);
         setHomeworks(homeworksData);
         setGrades(gradesData);
+
+        fHws = [];
+        fHws.push({
+          date : addDays(new Date, 0),
+          hws: homeworksData
+        })
+        fHws.push({
+          date : addDays(new Date, 1),
+          hws: homeworks1
+        })
+        fHws.push({
+          date : addDays(new Date, 2),
+          hws: homeworks2
+        })
+
+        setFullHomeworks(fHws);
 
         const nextClasses2 = getNextCours(timetable).nextClasses;
         setNextClasses(nextClasses2);
@@ -239,20 +263,30 @@ function HomeScreen({ navigation }) {
       </View>
 
       {/* homeworks */}
-      {homeworks && homeworks.length > 0 ? (
+      {fullHomeworks && fullHomeworks.length > 0 ? (
         <>
           <Text style={styles.ListTitle}>Travail à faire</Text>
           <View style={[styles.hwList, { backgroundColor: UIColors.element }]}>
-            {homeworks.map((homework, index) => (
-              <Hwitem
-                key={index}
-                index={index}
-                homework={homework}
-                homeworks={homeworks}
-                navigation={navigation}
-                theme={theme}
-                last={index === homeworks.length - 1}
-              />
+            {fullHomeworks.map((data, index2) => (
+              <View key={index2}>
+                { data.hws.length > 0 ?
+                  <View style={[styles.HwTitle, {backgroundColor: UIColors.primary + '22'}]}>
+                    <Text style={[styles.HwTitleText, {color: UIColors.primary}]}> pour le {new Date(data.date).toLocaleDateString('fr-FR', {weekday: 'short', day: 'numeric',month: 'short'})}</Text>
+                  </View>
+                : null }
+
+                {data.hws.map((homework, index) => (
+                  <Hwitem
+                    key={index}
+                    index={index}
+                    homework={homework}
+                    homeworks={data.hws}
+                    navigation={navigation}
+                    theme={theme}
+                    last={true}
+                  />
+                ))}
+              </View>
             ))}
           </View>
         </>
@@ -1001,6 +1035,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderCurve: 'continuous',
     overflow: 'hidden',
+    paddingTop: 12,
   },
   homeworkItemContainer: {
     borderCurve: 'continuous',
@@ -1206,6 +1241,20 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'Papillon-Semibold',
   },
+
+  HwTitle : {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderTopRightRadius: 100,
+    borderBottomRightRadius: 100,
+  },
+  HwTitleText : {
+    color: '#ffffff',
+    fontFamily: 'Papillon-Medium',
+    fontSize: 16,
+    marginRight: 4,
+  }
 });
 
 export default HomeScreen;
