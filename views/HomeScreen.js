@@ -274,7 +274,7 @@ function HomeScreen({ navigation }) {
           <View style={[styles.hwList, { backgroundColor: UIColors.element }]}>
             {fullHomeworks.map((data, index2) => (
               <View key={index2}>
-                { data.hws && data.hws.length > 0 ?
+                { data.hws && data.hws !== undefined && data.hws.length > 0 ?
                   <>
                     { data.hws.length > 0 ?
                       <View style={[styles.HwTitle, Platform.OS == 'android' ? {backgroundColor: UIColors.primary + '22'} : null]}>
