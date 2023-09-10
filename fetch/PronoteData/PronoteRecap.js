@@ -4,6 +4,10 @@ import { getTimetable } from './PronoteTimetable';
 import { getHomeworks } from './PronoteHomeworks';
 import { getGrades } from './PronoteGrades';
 
+function addDays(date, days) {
+  date = new Date(date);
+  date.setDate(date.getDate() + days);
+}
 
 function getRecap(day, force) {
   return AsyncStorage.getItem('recapCache').then((recapCache) => {
@@ -28,6 +32,7 @@ function getRecap(day, force) {
         getHomeworks(day),
         getGrades(force),
       ]).then((result) => {
+        
         AsyncStorage.setItem('recapCache', JSON.stringify({
           date: new Date(),
           recap: result,
