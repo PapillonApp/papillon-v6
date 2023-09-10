@@ -18,7 +18,7 @@ import {
   Users2,
 } from 'lucide-react-native';
 
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import { PressableScale } from 'react-native-pressable-scale';
 
 import formatCoursName from '../../utils/FormatCoursName';
@@ -53,15 +53,15 @@ function GradeView({ route, navigation }) {
   grade.grade.min = (grade.grade.min / 20) * grade.grade.out_of;
 
   // change header title component
-  useEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: description,
       headerStyle: {
         backgroundColor: mainColor,
       },
       headerShadowVisible: false,
-      mdTitleColor: '#fff',
-      headerTintColor: '#fff',
+      mdTitleColor: '#ffffff',
+      headerTintColor: '#ffffff',
       headerRight: () => (
         <TouchableOpacity onPress={() => shareGrade()}>
           <Share size={24} color="#fff" />

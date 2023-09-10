@@ -291,6 +291,7 @@ function WrappedHomeScreen() {
           headerShown: true,
           headerLargeTitle: false,
           presentation: 'modal',
+          headerTintColor: '#ffffff',
         }}
       />
     </Stack.Navigator>
@@ -385,6 +386,7 @@ function WrappedGradesScreen() {
         options={{
           headerShown: true,
           headerLargeTitle: false,
+          headerTintColor: '#ffffff',
         }}
       />
     </Stack.Navigator>
