@@ -276,7 +276,7 @@ function HomeScreen({ navigation }) {
               <View key={index2}>
                 { data.hws.length > 0 ?
                   <View style={[styles.HwTitle, Platform.OS == 'android' ? {backgroundColor: UIColors.primary + '22'} : null]}>
-                    <Text style={[styles.HwTitleText, Platform.OS == 'android' ? {color: UIColors.primary} : null]}> pour le {new Date(data.date).toLocaleDateString('fr-FR', {weekday: 'short', day: 'numeric',month: 'short'})}</Text>
+                    <Text style={[styles.HwTitleText, Platform.OS == 'android' ? {color: UIColors.primary} : {color: theme.dark ? '#f0c5e2' : '#4f2040'}]}> pour le {new Date(data.date).toLocaleDateString('fr-FR', {weekday: 'short', day: 'numeric',month: 'short'})}</Text>
                   </View>
                 : null }
 
@@ -1256,7 +1256,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#cf46a315',
   },
   HwTitleText : {
-    color: '#8a296b',
+    color: '#7d245f',
     fontFamily: 'Papillon-Medium',
     fontSize: 16,
     marginRight: 4,
