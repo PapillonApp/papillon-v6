@@ -3,6 +3,8 @@ import consts from '../consts.json';
 
 import { refreshToken } from '../AuthStack/LoginFlow';
 
+let retries = {};
+
 function getHomeworks(day, force) {
   return AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
     if (homeworksCache && !force) {
@@ -68,6 +70,16 @@ function getHomeworks(day, force) {
         })
         .then((result) => {
           if (result === 'expired' || result === 'notfound') {
+            if(!retries[day]) {
+              retries[day] = 0;
+            }
+            else if(retries[day] > 1) {
+              retries[day] == 0;
+              return [];
+            }
+
+            retries[day] = retries[day] + 1;
+
             return refreshToken().then(() => getHomeworks(day));
           }
 
