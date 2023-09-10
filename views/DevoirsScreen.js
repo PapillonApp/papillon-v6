@@ -122,7 +122,7 @@ function DevoirsScreen({ navigation }) {
 
   const forceRefresh = async () => {
     const newDate = calcDate(todayRef.current, 0);
-    const result = await IndexData.getHomeworks(newDate);
+    const result = await IndexData.getHomeworks(newDate, true);
     setHomeworks((prevHomeworks) => ({
       ...prevHomeworks,
       [newDate.toLocaleDateString()]: result,

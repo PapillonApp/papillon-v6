@@ -26,10 +26,10 @@ export class IndexData {
   }
 
   // [Service]Homeworks.js
-  static async getHomeworks(day) {
+  static async getHomeworks(day, force = false) {
     return asyncStorage.getItem('service').then((service) => {
       if (service === 'Pronote')
-        return require(`./PronoteData/PronoteHomeworks.js`).getHomeworks(day);
+        return require(`./PronoteData/PronoteHomeworks.js`).getHomeworks(day, force);
     });
   }
 

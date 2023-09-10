@@ -3,54 +3,102 @@ import consts from '../consts.json';
 
 import { refreshToken } from '../AuthStack/LoginFlow';
 
-function getHomeworks(day) {
-  // TEMPORARY : remove 1 month
-  day = new Date(day);
+function getHomeworks(day, force) {
+  return AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
+    if (homeworksCache && !force) {
+      homeworksCache = JSON.parse(homeworksCache)
 
-  // date = '2021-09-13' (YYYY-MM-DD)
-  const date = new Date(day);
-  const year = date.getFullYear();
-  let month = date.getMonth() + 1;
-  let dayOfMonth = date.getDate();
+      for (let i = 0; i < homeworksCache.length; i += 1) {
+        let thisDay = new Date(day);
+        let cacheDay = new Date(homeworksCache[i].date);
 
-  if (month < 10) {
-    month = `0${month}`;
-  }
+        thisDay.setHours(0, 0, 0, 0);
+        cacheDay.setHours(0, 0, 0, 0);
 
-  if (dayOfMonth < 10) {
-    dayOfMonth = `0${dayOfMonth}`;
-  }
+       if ( thisDay.getTime() === cacheDay.getTime()) {
+        let currentTime = new Date();
+        currentTime.setHours(0, 0, 0, 0);
 
-  day = `${year}-${month}-${dayOfMonth}`;
+        let cacheTime = new Date(homeworksCache[i].dateSaved);
+        cacheTime.setHours(0, 0, 0, 0);
 
-  console.log(day);
-
-  // obtenir le token
-  return AsyncStorage.getItem('token').then((token) =>
-    // fetch les devoirs
-    fetch(
-      `${consts.API}/homework` +
-        `?token=${token}&dateFrom=${day}&dateTo=${day}`,
-      {
-        method: 'GET',
-      }
-    )
-      .then((response) => response.json())
-      .catch((e) => {
-        console.log('ERR : PronoteHomeworks', e);
-        return [];
-      })
-      .then((result) => {
-        if (result === 'expired' || result === 'notfound') {
-          return refreshToken().then(() => getHomeworks(day));
+        if (currentTime.getTime() === cacheTime.getTime()) {
+          console.log('homeworks from cache');
+          return homeworksCache[i].timetable;
         }
-        return result;
-      })
-      .catch((e) => {
-        console.log(e);
-        return [];
-      })
-  );
+       }
+      }
+    }
+
+    // TEMPORARY : remove 1 month
+    day = new Date(day);
+
+    // date = '2021-09-13' (YYYY-MM-DD)
+    const date = new Date(day);
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let dayOfMonth = date.getDate();
+
+    if (month < 10) {
+      month = `0${month}`;
+    }
+
+    if (dayOfMonth < 10) {
+      dayOfMonth = `0${dayOfMonth}`;
+    }
+
+    day = `${year}-${month}-${dayOfMonth}`;
+
+    console.log(day);
+
+    // obtenir le token
+    return AsyncStorage.getItem('token').then((token) =>
+      // fetch les devoirs
+      fetch(
+        `${consts.API}/homework` +
+          `?token=${token}&dateFrom=${day}&dateTo=${day}`,
+        {
+          method: 'GET',
+        }
+      )
+        .then((response) => response.json())
+        .catch((e) => {
+          console.log('ERR : PronoteHomeworks', e);
+          return [];
+        })
+        .then((result) => {
+          if (result === 'expired' || result === 'notfound') {
+            return refreshToken().then(() => getHomeworks(day));
+          }
+
+          // save in cache
+          AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
+            let cachedHomeworks = [];
+
+            if (homeworksCache) {
+              cachedHomeworks = JSON.parse(homeworksCache);
+            }
+
+            cachedHomeworks.push({
+              date: day,
+              dateSaved : new Date(),
+              timetable: result,
+            });
+
+            AsyncStorage.setItem(
+              'homeworksCache',
+              JSON.stringify(cachedHomeworks)
+            );
+          });
+
+          return result;
+        })
+        .catch((e) => {
+          console.log(e);
+          return [];
+        })
+    );
+  });
 }
 
 function changeHomeworkState(day, id) {
@@ -87,6 +135,7 @@ function changeHomeworkState(day, id) {
     )
       .then((response) => response.json())
       .then((result) => {
+        console.log(result);
         if (result === 'expired' || result === 'notfound') {
           return refreshToken().then(() => changeHomeworkState(date, id));
         }
