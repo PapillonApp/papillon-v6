@@ -219,8 +219,12 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
   }
 
   const length = Math.floor((end - start) / 60000);
-  const lengthString = `${Math.floor(length / 60)}h${lz(Math.floor(length % 60))}`;
+  let lengthString = `${Math.floor(length / 60)}h ${lz(Math.floor(length % 60))}min`;
 
+  if (Math.floor(length / 60) == 0) {
+    lengthString = `${lz(Math.floor(length % 60))} min`;
+  }
+ 
   const handleCoursPressed = useCallback(() => {
     CoursPressed(cours);
   }, [CoursPressed, cours]);
@@ -262,12 +266,20 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
               {formatCoursName(cours.subject.name)}
             </Text>
 
+            { (length / 60 > 1.4) ? (
+              <View style={{height: 25}} />
+            ) : null }
+
             { cours.rooms.length > 0 ? (
               <Text style={[styles.coursSalle]}>Salle {cours.rooms.join(', ')}</Text>
-            ) : null }
+            ) :
+              <Text style={[styles.coursSalle]}>Aucune salle</Text>
+            }
             { cours.teachers.length > 0 ? (
               <Text style={[styles.coursProf]}>{cours.teachers.join(', ')}</Text>
-            ) : null }
+            ) : 
+              <Text style={[styles.coursProf]}>Aucun professeur</Text>
+            }
 
             {cours.status && (
               <View
