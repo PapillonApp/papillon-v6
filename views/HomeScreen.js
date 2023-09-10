@@ -87,15 +87,15 @@ function HomeScreen({ navigation }) {
         fHws = [];
         fHws.push({
           date : addDays(new Date, 0),
-          hws: homeworksData
+          hws: homeworksData || []
         })
         fHws.push({
           date : addDays(new Date, 1),
-          hws: homeworks1
+          hws: homeworks1 || []
         })
         fHws.push({
           date : addDays(new Date, 2),
-          hws: homeworks2
+          hws: homeworks2 || []
         })
 
         if (homeworksData.length == 0 && homeworks1.length == 0 && homeworks2.length == 0) {
