@@ -275,8 +275,8 @@ function HomeScreen({ navigation }) {
             {fullHomeworks.map((data, index2) => (
               <View key={index2}>
                 { data.hws.length > 0 ?
-                  <View style={[styles.HwTitle, {backgroundColor: UIColors.primary + '22'}]}>
-                    <Text style={[styles.HwTitleText, {color: UIColors.primary}]}> pour le {new Date(data.date).toLocaleDateString('fr-FR', {weekday: 'short', day: 'numeric',month: 'short'})}</Text>
+                  <View style={[styles.HwTitle, Platform.OS == 'android' ? {backgroundColor: UIColors.primary + '22'} : null]}>
+                    <Text style={[styles.HwTitleText, Platform.OS == 'android' ? {color: UIColors.primary} : null]}> pour le {new Date(data.date).toLocaleDateString('fr-FR', {weekday: 'short', day: 'numeric',month: 'short'})}</Text>
                   </View>
                 : null }
 
@@ -1253,9 +1253,10 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderTopRightRadius: 100,
     borderBottomRightRadius: 100,
+    backgroundColor: '#cf46a315',
   },
   HwTitleText : {
-    color: '#ffffff',
+    color: '#8a296b',
     fontFamily: 'Papillon-Medium',
     fontSize: 16,
     marginRight: 4,
