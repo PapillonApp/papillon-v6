@@ -273,25 +273,29 @@ function HomeScreen({ navigation }) {
           <Text style={styles.ListTitle}>Travail à faire</Text>
           <View style={[styles.hwList, { backgroundColor: UIColors.element }]}>
             {fullHomeworks.map((data, index2) => (
-              <View key={index2}>
-                { data.hws.length > 0 ?
-                  <View style={[styles.HwTitle, Platform.OS == 'android' ? {backgroundColor: UIColors.primary + '22'} : null]}>
-                    <Text style={[styles.HwTitleText, Platform.OS == 'android' ? {color: UIColors.primary} : {color: theme.dark ? '#f0c5e2' : '#4f2040'}]}> pour le {new Date(data.date).toLocaleDateString('fr-FR', {weekday: 'short', day: 'numeric',month: 'short'})}</Text>
+              <>
+                { data.hws && data.hws.length > 0 ?
+                  <View key={index2}>
+                    { data.hws.length > 0 ?
+                      <View style={[styles.HwTitle, Platform.OS == 'android' ? {backgroundColor: UIColors.primary + '22'} : null]}>
+                        <Text style={[styles.HwTitleText, Platform.OS == 'android' ? {color: UIColors.primary} : {color: theme.dark ? '#f0c5e2' : '#4f2040'}]}> pour le {new Date(data.date).toLocaleDateString('fr-FR', {weekday: 'short', day: 'numeric',month: 'short'})}</Text>
+                      </View>
+                    : null }
+
+                    {data.hws.map((homework, index) => (
+                      <Hwitem
+                        key={index}
+                        index={index}
+                        homework={homework}
+                        homeworks={data.hws}
+                        navigation={navigation}
+                        theme={theme}
+                        last={true}
+                      />
+                    ))}
                   </View>
                 : null }
-
-                {data.hws.map((homework, index) => (
-                  <Hwitem
-                    key={index}
-                    index={index}
-                    homework={homework}
-                    homeworks={data.hws}
-                    navigation={navigation}
-                    theme={theme}
-                    last={true}
-                  />
-                ))}
-              </View>
+              </>
             ))}
           </View>
         </>
