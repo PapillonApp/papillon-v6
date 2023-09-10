@@ -490,12 +490,15 @@ function Hwitem({ homework, theme, last }) {
 }
 
 function HwCheckbox({ checked, theme, pressed }) {
+  const UIColors = GetUIColors();
+
   return (
     <PressableScale
       style={[
         styles.checkContainer,
         { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
         checked ? styles.checkChecked : null,
+        checked ? {backgroundColor: UIColors.primary, borderColor: UIColors.primary} : null,
       ]}
       weight="light"
       activeScale={0.7}
