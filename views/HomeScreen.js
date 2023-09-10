@@ -98,7 +98,12 @@ function HomeScreen({ navigation }) {
           hws: homeworks2
         })
 
-        setFullHomeworks(fHws);
+        if (homeworksData.length == 0 && homeworks1.length == 0 && homeworks2.length == 0) {
+          // setFullHomeworks(null);
+        }
+        else {
+          setFullHomeworks(fHws);
+        }
 
         const nextClasses2 = getNextCours(timetable).nextClasses;
         setNextClasses(nextClasses2);
