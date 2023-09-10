@@ -323,6 +323,10 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
     });
   }, []);
 
+  function lz(nb) {
+    return nb < 10 ? `0${nb}` : nb.toString();
+  }
+
   const UIColors = GetUIColors();
 
   return (
@@ -346,15 +350,14 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
           {/* si le cours précédent était il y a + de 30 min du cours actuel */}
           {index !== 0 &&
           new Date(_cours.start) - new Date(cours[index - 1].end) > 1800000 ? (
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginTop: 6,
-                marginBottom: 16,
-              }}
-            >
-              <View style={{ flex: 1, height: 3, borderRadius:3, backgroundColor: UIColors.text + '15' }} />
+            <View style={styles.coursSeparator}>
+              <View style={[styles.coursSeparatorLine, { backgroundColor: UIColors.text + '15' }]} />
+
+              <Text style={{ color: UIColors.text + '30' }}>
+                {`${Math.floor((new Date(_cours.start) - new Date(cours[index - 1].end)) / 3600000)} h ${lz(Math.floor(((new Date(_cours.start) - new Date(cours[index - 1].end)) % 3600000) / 60000))} min`}
+              </Text>
+              
+              <View style={[styles.coursSeparatorLine, { backgroundColor: UIColors.text + '15' }]} />
             </View>
           ) : null}
 
@@ -490,6 +493,20 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     textAlign: 'center',
     marginTop: 12,
+  },
+
+  coursSeparator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+    marginBottom: 16,
+
+    gap: 12,
+  },
+  coursSeparatorLine: {
+    flex: 1,
+    height: 2,
+    borderRadius:3,
   },
 });
 
