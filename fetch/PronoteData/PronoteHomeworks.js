@@ -72,13 +72,6 @@ function getHomeworks(day, force) {
           console.log(result)
 
           if (result === 'notfound') {
-            if(retries > 4) {
-              retries == 0;
-              return [];
-            }
-
-            retries = retries + 1;
-
             return getHomeworks(day);
           }
 
