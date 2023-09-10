@@ -47,7 +47,7 @@
       [
         "expo-notifications",
         {
-          "sounds": ["assets/papillon-ding.wav"]
+          "sounds": ["assets/papillon_ding.wav"]
         }
       ],
       [
