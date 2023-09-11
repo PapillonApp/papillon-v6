@@ -102,7 +102,7 @@ function LessonScreen({ route, navigation }) {
         identifier: lesson.subject.name + new Date(lesson.start).getTime(),
         content: {
           title: `${getClosestGradeEmoji(lesson.subject.name)} ${lesson.subject.name} - Ça commence dans 5 minutes`,
-          body: `Ouvre l'app Papillon pour voir les détails du cours.`,
+          body: `Le cours est en salle ${lesson.rooms[0]} avec ${lesson.teachers[0]}.`,
           sound: true,
         },
         trigger: {
