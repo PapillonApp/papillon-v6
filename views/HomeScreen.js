@@ -660,7 +660,7 @@ function HomeHeader({ navigation, timetable, user }) {
           Bonjour{user ? `, ${getPrenom(user.name)} !` : ' !'}
         </Text>
         <Text style={[styles.headerCoursesText]}>
-          {timetable && leftCourses && leftCourses.length.length > 1 && timetable.length > 1
+          {timetable && leftCourses && leftCourses.length > 1 && timetable.length > 1
             ? `Il te reste ${leftCourses.length + 1} cours dans ta journée.`
             : "Tu n'as aucun cours restant aujourd'hui."}
         </Text>
