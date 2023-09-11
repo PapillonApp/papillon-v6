@@ -6,6 +6,8 @@ import { refreshToken } from '../AuthStack/LoginFlow';
 let retries = 0;
 
 function getHomeworks(day, force) {
+  console.log("f:"+force)
+
   return getConsts().then((consts) => {
     return AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
       if (homeworksCache && !force) {
@@ -113,40 +115,25 @@ function getHomeworks(day, force) {
 
 function changeHomeworkState(day, id) {
   // TEMPORARY : remove 1 month
-  day = new Date(day);
+  day = day.split(" ")[0];
+  console.log("i:"+id)
+  console.log("d:"+day)
 
-  // date = '2021-09-13' (YYYY-MM-DD)
-  const date = new Date(day);
-  const year = date.getFullYear();
-  let month = date.getMonth() + 1;
-  let dayOfMonth = date.getDate();
-
-  if (month < 10) {
-    month = `0${month}`;
-  }
-
-  if (dayOfMonth < 10) {
-    dayOfMonth = `0${dayOfMonth}`;
-  }
-
-  day = `${year}-${month}-${dayOfMonth}`;
-
-  console.log(day);
+  id = id.replace("#", "%23");
 
   // obtenir le token
   return getConsts().then((consts) => {
     return AsyncStorage.getItem('token').then((token) =>
       // fetch les devoirs
       fetch(
-        `${consts.API}/homework/changeState` +
-          `?token=${token}&dateFrom=${day}&dateTo=${day}&homeworkId=${id}`,
+        `${consts.API}/homework/changeState?token=${token}&dateFrom=${day}&dateTo=${day}&homeworkId=${id}`,
         {
           method: 'POST',
         }
       )
         .then((response) => response.json())
         .then((result) => {
-          console.log(result);
+          console.log(`${consts.API}/homework/changeState?token=${token}&dateFrom=${day}&dateTo=${day}&homeworkId=${id}`);
           if (result === 'expired' || result === 'notfound') {
             return refreshToken().then(() => changeHomeworkState(date, id));
           }

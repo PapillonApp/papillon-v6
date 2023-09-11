@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
+import * as Haptics from 'expo-haptics';
+
 import { useIsFocused } from '@react-navigation/native';
 
 import {
@@ -23,7 +25,7 @@ import {
   File,
   Check,
 } from 'lucide-react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PressableScale } from 'react-native-pressable-scale';
 import { openURL } from 'expo-linking';
@@ -150,6 +152,10 @@ function HomeScreen({ navigation }) {
 
   const UIColors = GetUIColors();
 
+  function startConfetti() {
+    return false;
+  }
+
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
@@ -168,6 +174,7 @@ function HomeScreen({ navigation }) {
         />
       }
     >
+
       {/* next classes */}
       {nextClasses ? (
         <View
@@ -291,6 +298,7 @@ function HomeScreen({ navigation }) {
                         navigation={navigation}
                         theme={theme}
                         last={true}
+                        startConfetti={startConfetti}
                       />
                     ))}
                   </>
@@ -388,8 +396,12 @@ function HomeScreen({ navigation }) {
   );
 }
 
-function Hwitem({ homework, theme, last }) {
+function Hwitem({ homework, theme, last, startConfetti }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
+
+  useEffect(() => {
+    setThisHwChecked(homework.done)
+  }, [homework]);
 
   const changeHwState = () => {
     console.log(`change ${homework.date} : ${homework.id}`);
@@ -415,6 +427,7 @@ function Hwitem({ homework, theme, last }) {
             theme={theme}
             pressed={() => {
               setThisHwChecked(!thisHwChecked);
+              if(!thisHwChecked) {startConfetti()}
               changeHwState();
             }}
           />
@@ -502,7 +515,10 @@ function HwCheckbox({ checked, theme, pressed }) {
       ]}
       weight="light"
       activeScale={0.7}
-      onPress={pressed}
+      onPress={() => {
+        Haptics.notificationAsync('success')
+        pressed()
+      }}
     >
       {checked ? <Check size={20} color="#ffffff" /> : null}
     </PressableScale>

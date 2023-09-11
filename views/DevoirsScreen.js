@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
+import * as Haptics from 'expo-haptics';
+
 import { useState, useEffect, useRef } from 'react';
 
 import { PressableScale } from 'react-native-pressable-scale';
@@ -260,7 +262,10 @@ function HwCheckbox({ checked, theme, pressed }) {
       ]}
       weight="light"
       activeScale={0.7}
-      onPress={pressed}
+      onPress={() => {
+        Haptics.notificationAsync('success')
+        pressed()
+      }}
     >
       {checked ? <Check size={20} color="#ffffff" /> : null}
     </PressableScale>
@@ -269,6 +274,10 @@ function HwCheckbox({ checked, theme, pressed }) {
 
 function Hwitem({ homework, theme }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
+
+  useEffect(() => {
+    setThisHwChecked(homework.done)
+  }, [homework]);
 
   const changeHwState = () => {
     console.log(`change ${homework.date} : ${homework.id}`);
