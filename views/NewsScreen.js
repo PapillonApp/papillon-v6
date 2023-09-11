@@ -10,7 +10,7 @@ import {
 
 import { Text, useTheme } from 'react-native-paper';
 
-import { Newspaper } from 'lucide-react-native';
+import { Newspaper, Utensils } from 'lucide-react-native';
 import { IndexData } from '../fetch/IndexData';
 import ListItem from '../components/ListItem';
 
@@ -39,6 +39,34 @@ function relativeDate(date) {
     return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 30))} mois`;
   }
   return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 365))} ans`;
+}
+
+function normalizeText(text) {
+  // remove accents and render in lowercase
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+}
+
+function normalizeContent(text) {
+  return text
+    .replace(/(\r\n|\n|\r)/gm,"")
+    .trim();
+}
+
+function FullNewsIcon({ title }) {
+  const UIColors = GetUIColors();
+
+  return (
+    <View>
+      { normalizeText(title).includes('menu')
+        ? <Utensils color={UIColors.primary} size={24} />
+        : <Newspaper color={UIColors.primary} size={24} />
+      }
+    </View>
+  )
 }
 
 function NewsScreen({ navigation }) {
@@ -74,14 +102,6 @@ function NewsScreen({ navigation }) {
       setIsHeadLoading(false);
     });
   }, []);
-
-  function normalizeText(text) {
-    // remove accents and render in lowercase
-    return text
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
-  }
 
   // add search bar in the header
   React.useLayoutEffect(() => {
@@ -148,8 +168,8 @@ function NewsScreen({ navigation }) {
               <ListItem
                 key={index}
                 title={item.title}
-                subtitle={content}
-                icon={<Newspaper color={UIColors.primary} size={24} />}
+                subtitle={normalizeContent(content)}
+                icon={<FullNewsIcon title={item.title} />}
                 color={theme.colors.primary}
                 onPress={() =>
                   navigation.navigate('NewsDetails', { news: item })

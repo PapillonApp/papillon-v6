@@ -19,13 +19,18 @@ import ListItem from '../../components/ListItem';
 import GetUIColors from '../../utils/GetUIColors';
 
 function NewsHeader({ news }) {
+  let title = news.title
+  if(title.length > 30) {
+    title = title.substring(0,30) + "...";
+  }
+
   return (
     <View
       style={[
         Platform.OS === 'ios' ? styles.newsHeader : styles.newsHeaderAndroid,
       ]}
     >
-      <Text style={[styles.newsTitle]}>{news.title}</Text>
+      <Text style={[styles.newsTitle]}>{title}</Text>
       <Text style={[styles.newsDate]}>
         {new Date(news.date).toLocaleDateString('fr', {
           weekday: 'long',
@@ -48,7 +53,7 @@ function NewsItem({ route, navigation }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: (props) => <NewsHeader {...props} news={news} />,
-      headerBackTitleVisible: false,
+      headerBackTitleVisible: false
     });
   }, [navigation, news]);
 
@@ -95,19 +100,17 @@ function NewsItem({ route, navigation }) {
         <View
           style={[
             styles.homeworkFiles,
-            { backgroundColor: theme.dark ? '#222222' : '#ffffff' },
           ]}
         >
           {news.attachments.map((file, index) => (
             <View
               style={[
                 styles.homeworkFileContainer,
-                { borderColor: theme.dark ? '#ffffff10' : '#00000010' },
               ]}
               key={index}
             >
               <PressableScale
-                style={[styles.homeworkFile]}
+                style={[styles.homeworkFile, { backgroundColor: UIColors.element }]}
                 weight="light"
                 activeScale={0.9}
                 onPress={() => openURL(file.url)}
@@ -133,6 +136,8 @@ function NewsItem({ route, navigation }) {
           ))}
         </View>
       ) : null}
+
+      <View style={{height: 20}} />
     </ScrollView>
   );
 }
@@ -178,12 +183,13 @@ const styles = StyleSheet.create({
   homeworkFiles: {
     margin: 14,
     marginTop: 0,
-    borderRadius: 8,
+    borderRadius: 12,
     overflow: 'hidden',
+    gap: 9,
   },
 
   homeworkFileContainer: {
-    borderTopWidth: 1,
+    borderTopWidth: 0,
   },
   homeworkFile: {
     paddingVertical: 12,
@@ -191,6 +197,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     alignItems: 'center',
+    borderRadius: 12,
+    overflow: 'hidden',
   },
 
   homeworkFileData: {
