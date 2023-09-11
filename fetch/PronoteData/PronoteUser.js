@@ -1,44 +1,46 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import consts from '../consts.json';
+import getConsts from '../consts';
 
 import { refreshToken } from '../AuthStack/LoginFlow';
 
 function getUser(force = false) {
   // return cached user if from today and exists
-  return AsyncStorage.getItem('userCache').then((userCache) => {
-    if (userCache && !force) {
-      userCache = JSON.parse(userCache);
+  return getConsts().then((consts) => {
+    return AsyncStorage.getItem('userCache').then((userCache) => {
+      if (userCache && !force) {
+        userCache = JSON.parse(userCache);
 
-      const userCacheDate = new Date(userCache.date);
-      const today = new Date();
+        const userCacheDate = new Date(userCache.date);
+        const today = new Date();
 
-      userCacheDate.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
+        userCacheDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
 
-      if (userCacheDate.getTime() === today.getTime()) {
-        return editUser(userCache.user);
+        if (userCacheDate.getTime() === today.getTime()) {
+          return editUser(userCache.user);
+        }
+        AsyncStorage.removeItem('userCache');
+        return getUser(true);
       }
-      AsyncStorage.removeItem('userCache');
-      return getUser(true);
-    }
-    // obtenir le token
-    return AsyncStorage.getItem('token')
-      .then((token) =>
-        // fetch le timetable
-        fetch(`${consts.API}/user?token=${token}`, {
-          method: 'GET',
-        })
-          .then((response) => response.json())
-          .then(async (result) => {
-            if (result === 'expired' || result === 'notfound') {
-              return refreshToken().then(() => getUser());
-            }
-            saveUser(result);
-            return editUser(result);
+      // obtenir le token
+      return AsyncStorage.getItem('token')
+        .then((token) =>
+          // fetch le timetable
+          fetch(`${consts.API}/user?token=${token}`, {
+            method: 'GET',
           })
-          .catch(() => {})
-      )
-      .catch(() => {});
+            .then((response) => response.json())
+            .then(async (result) => {
+              if (result === 'expired' || result === 'notfound') {
+                return refreshToken().then(() => getUser());
+              }
+              saveUser(result);
+              return editUser(result);
+            })
+            .catch(() => {})
+        )
+        .catch(() => {});
+    });
   });
 }
 

@@ -35,6 +35,7 @@ import OfficialServer from './views/Settings/OfficialServer';
 import AppearanceScreen from './views/Settings/AppearanceScreen';
 import SettingsScreen2 from './views/Settings/SettingsScreen';
 import IconsScreen from './views/Settings/IconsScreen';
+import ChangeServer from './views/Settings/ChangeServer';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -457,6 +458,14 @@ function WrappedSettings() {
         component={IconsScreen}
         options={{
           headerTitle: "Icône de l'application",
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="changeServer"
+        component={ChangeServer}
+        options={{
+          headerTitle: "Changer de serveur",
           presentation: 'modal',
         }}
       />

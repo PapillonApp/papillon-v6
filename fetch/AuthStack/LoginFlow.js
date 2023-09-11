@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { showMessage } from 'react-native-flash-message';
-import consts from '../consts.json';
+import getConsts from '../consts';
 
 function fixURL(_url) {
   let url = _url.toLowerCase();
@@ -40,11 +40,13 @@ function getENTs(_url) {
 }
 
 function getInfo() {
-  return fetch(`${consts.API}/infos`, {
-    method: 'GET',
-  })
-    .then((response) => response.json())
-    .then((result) => result);
+  return getConsts().then((consts) => {
+    return fetch(`${consts.API}/infos`, {
+      method: 'GET',
+    })
+      .then((response) => response.json())
+      .then((result) => result);
+  });
 }
 
 function getToken(credentials) {
@@ -61,21 +63,23 @@ function getToken(credentials) {
     credentials.url += '?login=true';
   }
 
-  return fetch(`${consts.API}/generatetoken`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: `username=${credentials.username}&password=${credentials.password}&url=${credentials.url}&ent=${credentials.ent}`,
-  })
-    .then((response) => response.text())
-    .then((result) => {
-      if (result.startsWith('A server error occurred.')) {
-        return { token: false };
-      }
+  return getConsts().then((consts) => {
+    return fetch(`${consts.API}/generatetoken`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `username=${credentials.username}&password=${credentials.password}&url=${credentials.url}&ent=${credentials.ent}`,
+    })
+      .then((response) => response.text())
+      .then((result) => {
+        if (result.startsWith('A server error occurred.')) {
+          return { token: false };
+        }
 
-      return JSON.parse(result);
-    });
+        return JSON.parse(result);
+      });
+  });
 }
 
 function refreshToken() {

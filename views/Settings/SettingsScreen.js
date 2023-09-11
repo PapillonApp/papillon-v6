@@ -11,7 +11,7 @@ import { Text } from 'react-native-paper';
 import { useState } from 'react';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LogOut, RefreshCw, Trash2 } from 'lucide-react-native';
+import { LogOut, RefreshCw, Server, Trash2 } from 'lucide-react-native';
 import { refreshToken, expireToken } from '../../fetch/AuthStack/LoginFlow';
 
 import ListItem from '../../components/ListItem';
@@ -80,9 +80,24 @@ function SettingsScreen({ navigation }) {
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
     >
-      <View style={{ gap: 9, marginTop: 16 }}>
-        <Text style={styles.ListTitle}>Mon compte</Text>
+    <View style={{ gap: 9, marginTop: 16 }}>
+      <Text style={styles.ListTitle}>Serveur et identifiants (avancé)</Text>
 
+        <ListItem
+          title="Changer de serveur (avancé)"
+          subtitle="Modifier le serveur utilisé dans l'app"
+          color="#B42828"
+          center
+          left={
+            <PapillonIcon
+              icon={<Server size={24} color="#565EA3" />}
+              color="#565EA3"
+              size={24}
+              small
+            />
+          }
+          onPress={() => navigation.navigate('changeServer')}
+        />
         <ListItem
           title="Regénerer le token"
           subtitle="Regénerer le token de votre compte"
@@ -114,6 +129,11 @@ function SettingsScreen({ navigation }) {
           }
           onPress={() => ExpireAction()}
         />
+      </View>
+
+      <View style={{ gap: 9, marginTop: 16 }}>
+        <Text style={styles.ListTitle}>Mon compte</Text>
+
         <ListItem
           title="Déconnexion"
           subtitle="Se déconnecter de votre compte"

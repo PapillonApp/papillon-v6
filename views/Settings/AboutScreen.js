@@ -9,7 +9,7 @@ import { Server, Euro, History, Bug, Check } from 'lucide-react-native';
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
-import consts from '../../fetch/consts.json';
+import getConsts from '../../fetch/consts';
 import packageJson from '../../package.json';
 import donors from './Donateurs.json';
 import team from './Team.json';
@@ -60,24 +60,32 @@ function AboutScreen({ navigation }) {
 
   // eslint-disable-next-line no-unused-vars
   let knownServer = '';
+  const [isKnownServer, setIsKnownServer] = useState(false);
+  const [serverTag, setServerTag] = useState('Serveur non vérifié');
 
   function checkKnownServers() {
-    // if consts.API contains a known server
-    for (let i = 0; i < knownServers.length; i++) {
-      if (consts.API.includes(knownServers[i])) {
-        knownServer = knownServers[i];
-        return true;
+    return getConsts().then((consts) => {
+      console.log(consts.API)
+
+      for (let i = 0; i < knownServers.length; i++) {
+        if (consts.API.includes(knownServers[i])) {
+          knownServer = knownServers[i];
+          return true;
+        }
       }
+
+      knownServer = consts.API.split('/')[2];
+      return false;
+    });
+  }
+
+  checkKnownServers().then((isKnown) => {
+    setIsKnownServer(isKnown)
+
+    if(isKnown) {
+      setServerTag('Serveur vérifié')
     }
-
-    knownServer = consts.API.split('/')[2];
-    return false;
-  }
-
-  let serverTag = 'Serveur non vérifié';
-  if (checkKnownServers()) {
-    serverTag = 'Serveur vérifié';
-  }
+  }) 
 
   const [versionTaps, setVersionTaps] = useState(0);
 
@@ -91,7 +99,7 @@ function AboutScreen({ navigation }) {
   }
 
   function openServer() {
-    if (checkKnownServers()) {
+    if (isKnownServer) {
       navigation.navigate('OfficialServer', {
         official: true,
         server: serverInfo.server,
@@ -113,39 +121,41 @@ function AboutScreen({ navigation }) {
         <View style={[styles.optionsList]}>
           <Text style={styles.ListTitle}>Serveur</Text>
 
-          <ListItem
-            title={serverTag}
-            subtitle={`${serverInfo.server} v${serverInfo.version}`}
-            color="#29947A"
-            left={
-              <>
-                <PapillonIcon
-                  icon={
-                    <Server
-                      size={24}
-                      color={checkKnownServers() ? '#29947A' : '#0065A8'}
-                    />
-                  }
-                  color={checkKnownServers() ? '#29947A' : '#0065A8'}
-                  size={24}
-                  small
-                />
+          { serverInfo ?
+            <ListItem
+              title={serverTag}
+              subtitle={`${serverInfo.server} v${serverInfo.version}`}
+              color="#29947A"
+              left={
+                <>
+                  <PapillonIcon
+                    icon={
+                      <Server
+                        size={24}
+                        color={isKnownServer ? '#29947A' : '#0065A8'}
+                      />
+                    }
+                    color={isKnownServer ? '#29947A' : '#0065A8'}
+                    size={24}
+                    small
+                  />
 
-                {checkKnownServers() ? (
-                  <View
-                    style={[
-                      styles.certif,
-                      { borderColor: theme.dark ? '#111' : '#fff' },
-                    ]}
-                    sharedTransitionTag="serverCheck"
-                  >
-                    <Check size={16} color="#ffffff" />
-                  </View>
-                ) : null}
-              </>
-            }
-            onPress={() => openServer()}
-          />
+                  {isKnownServer ? (
+                    <View
+                      style={[
+                        styles.certif,
+                        { borderColor: theme.dark ? '#111' : '#fff' },
+                      ]}
+                      sharedTransitionTag="serverCheck"
+                    >
+                      <Check size={16} color="#ffffff" />
+                    </View>
+                  ) : null}
+                </>
+              }
+              onPress={() => openServer()}
+            />
+          : null }
         </View>
 
         <View style={styles.optionsList}>

@@ -37,6 +37,7 @@ import {
   Trash2,
   Contact2,
   Lock,
+  LogOut,
 } from 'lucide-react-native';
 import { IndexData } from '../../fetch/IndexData';
 
@@ -65,6 +66,34 @@ function ProfileScreen({ route }) {
       }
     });
   }, []);
+
+  function LogOutAction() {
+    Alert.alert('Déconnexion', 'Êtes-vous sûr de vouloir vous déconnecter ?', [
+      {
+        text: 'Annuler',
+        style: 'cancel',
+      },
+      {
+        text: 'Déconnexion',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            AsyncStorage.getItem('credentials').then((result) => {
+              const URL = JSON.parse(result).url;
+              AsyncStorage.setItem('old_login', JSON.stringify({ url: URL }));
+            });
+          } catch (e) {
+            /* empty */
+          }
+
+          AsyncStorage.clear();
+
+          appCtx.setLoggedIn(false);
+          navigation.popToTop();
+        },
+      },
+    ]);
+  }
 
   async function getINE() {
     if (shownINE === '') {
@@ -427,18 +456,39 @@ function ProfileScreen({ route }) {
         <ListItem
           title="Réinitialiser la photo de profil"
           subtitle="Utilise la photo de profil par défaut"
-          color="#B42828"
+          color="#c44b1b"
           center
           left={
             <PapillonIcon
               icon={<Trash2 size={24} color="#FFF" />}
-              color="#B42828"
+              color="#c44b1b"
               size={24}
               small
               fill
             />
           }
           onPress={() => ResetProfilePic()}
+        />
+      </View>
+
+      <View style={{ gap: 9, marginTop: 24 }}>
+        <Text style={styles.ListTitle}>Connexion</Text>
+
+        <ListItem
+          title="Déconnexion"
+          subtitle="Se déconnecter de votre compte"
+          color="#B42828"
+          center
+          left={
+            <PapillonIcon
+              icon={<LogOut size={24} color="#ffffff" />}
+              color="#B42828"
+              size={24}
+              small
+              fill
+            />
+          }
+          onPress={() => LogOutAction()}
         />
       </View>
 
