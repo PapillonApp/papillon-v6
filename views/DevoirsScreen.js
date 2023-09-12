@@ -29,12 +29,9 @@ import GetUIColors from '../utils/GetUIColors';
 import { IndexData } from '../fetch/IndexData';
 
 const openURL = (url) => {
-  const UIColors = GetUIColors();
-
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
-    presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
-    controlsColor: UIColors.primary,
+    presentationStyle: 'pageSheet'
   });
 };
 
