@@ -90,6 +90,10 @@ function getHomeworks(day, force) {
                 cachedHomeworks = JSON.parse(homeworksCache);
               }
 
+              cachedHomeworks = cachedHomeworks.filter((entry) => {
+                return entry.date !== day;
+              });
+
               cachedHomeworks.push({
                 date: day,
                 dateSaved : new Date(),

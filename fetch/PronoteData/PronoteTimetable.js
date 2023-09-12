@@ -3,6 +3,28 @@ import getConsts from '../consts';
 
 import { refreshToken } from '../AuthStack/LoginFlow';
 
+function removeDuplicateCourses(courses) {
+  const courseMap = new Map();
+
+  for (const course of courses) {
+    const startTime = course.start;
+    if (!courseMap.has(startTime)) {
+      courseMap.set(startTime, course);
+    } else {
+      const existingCourse = courseMap.get(startTime);
+      if (course.num > existingCourse.num) {
+        // Replace the existing course with the new one
+        courseMap.set(startTime, course);
+      }
+    }
+  }
+
+  // Convert the map back to an array of courses
+  const result = Array.from(courseMap.values());
+
+  return result;
+}
+
 function getTimetable(day, force = false) {
   // TEMPORARY : remove 1 month
   day = new Date(day);
@@ -67,20 +89,7 @@ function getTimetable(day, force = false) {
             result.sort((a, b) => a.start.localeCompare(b.start));
 
             // if two cours start at the same time, remove the cours with isCancelled = true
-            for (let i = 0; i < result.length; i += 1) {
-              for (let j = 0; j < result.length; j += 1) {
-                if (i !== j) {
-                  if (result[i].start === result[j].start) {
-                    if (result[i].isCancelled) {
-                      result.splice(i, 1);
-                    } else if (result[j].isCancelled) {
-                      result.splice(j, 1);
-                    }
-                  }
-                }
-              }
-            }
-            
+            result = removeDuplicateCourses(result)
 
             // save in cache
             AsyncStorage.getItem('timetableCache').then((timetableCache) => {
@@ -89,6 +98,10 @@ function getTimetable(day, force = false) {
               if (timetableCache) {
                 cachedTimetable = JSON.parse(timetableCache);
               }
+
+              cachedTimetable = cachedTimetable.filter((entry) => {
+                return entry.date !== day;
+              });
 
               cachedTimetable.push({
                 date: day,

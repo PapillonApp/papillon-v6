@@ -684,12 +684,12 @@ function HomeHeader({ navigation, timetable, user }) {
           Bonjour{user ? `, ${getPrenom(user.name)} !` : ' !'}
         </Text>
         <Text style={[styles.headerCoursesText]}>
-          {timetable && leftCourses && leftCourses.length > 1 && timetable.length > 1
+          {timetable && leftCourses && leftCourses.length > 0
             ? `Il te reste ${leftCourses.length + 1} cours dans ta journée.`
             : "Tu n'as aucun cours restant aujourd'hui."}
         </Text>
 
-        {user && (
+        {user && user.profile_picture !== null && (
           <TouchableOpacity
             style={[styles.headerPfpContainer]}
             onPress={openProfile}
@@ -755,7 +755,7 @@ function NextCours({ cours, navigation }) {
         return `dans ${lz(diffMinutes)}:${lz(diffSeconds)}`;
       }
 
-      return `dans ${Math.ceil(diffMinutes / 60)}h ${lz(diffMinutes % 60)} min`;
+      return `dans ${Math.ceil((diffMinutes / 60) - 1)}h ${lz(diffMinutes % 60)} min`;
     }
     return 'maintenant';
   };
@@ -980,6 +980,7 @@ const styles = StyleSheet.create({
 
     paddingHorizontal: 16,
     paddingVertical: 12,
+    paddingLeft: 4,
 
     backgroundColor: '#ffffff10',
     borderLeftWidth: 1,

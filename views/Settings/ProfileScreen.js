@@ -520,6 +520,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginBottom: 4,
     opacity: 0.6,
+    marginHorizontal: 20,
+    textAlign: 'center',
   },
   ListTitle: {
     paddingLeft: 29,
