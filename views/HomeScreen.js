@@ -28,7 +28,6 @@ import {
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PressableScale } from 'react-native-pressable-scale';
-import { openURL } from 'expo-linking';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import getClosestColor from '../utils/ColorCoursName';
@@ -36,6 +35,18 @@ import getClosestColor from '../utils/ColorCoursName';
 import { IndexData } from '../fetch/IndexData';
 
 import GetUIColors from '../utils/GetUIColors';
+
+import * as WebBrowser from 'expo-web-browser';
+
+const openURL = (url) => {
+  const UIColors = GetUIColors();
+
+  WebBrowser.openBrowserAsync(url, {
+    dismissButtonStyle: 'done',
+    presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
+    controlsColor: UIColors.primary,
+  });
+};
 
 function HomeScreen({ navigation }) {
   const theme = useTheme();
