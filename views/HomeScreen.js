@@ -158,6 +158,11 @@ function HomeScreen({ navigation }) {
     setIsHeadLoading(false);
   }, []);
 
+  React.useEffect(() => {
+    // refresh a l'ouverture de l'app
+    setRefreshCount((prevCount) => prevCount + 1);
+  }, [])
+
   const UIColors = GetUIColors();
 
   function startConfetti() {
