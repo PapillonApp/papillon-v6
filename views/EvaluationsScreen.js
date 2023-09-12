@@ -337,9 +337,17 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
 
+  periodButtonContainer: {
+    position: 'absolute',
+    top: -16,
+    right: 0,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
   periodButtonText: {
     fontSize: 17,
-    marginTop: -1,
     color: '#21826A',
   },
 
