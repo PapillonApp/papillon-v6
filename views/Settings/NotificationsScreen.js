@@ -77,7 +77,7 @@ function NotificationsScreen() {
       content: {
         title: '📚 Il est temps de faire tes devoirs !',
         body: "Ouvre l'app Papillon pour voir ce que tu as à faire.",
-        sound: true,
+        sound: 'papillon_ding.wav',
       },
       trigger: {
         channelId: 'devoirsReminder',
