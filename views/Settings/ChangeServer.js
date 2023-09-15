@@ -7,6 +7,7 @@ import {
   Platform,
   Alert,
   TextInput,
+  KeyboardAvoidingView,
   Button,
 } from 'react-native';
 
@@ -140,6 +141,7 @@ function ChangeServer() {
   }
 
   return (
+    <KeyboardAvoidingView style={{ flex: 1, flexDirection: 'column',justifyContent: 'center',}} behavior="padding" enabled   keyboardVerticalOffset={100}>
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
       contentInsetAdjustmentBehavior="automatic"
@@ -214,7 +216,10 @@ function ChangeServer() {
           <Button title="Confirmer" color={UIColors.primary} onPress={confirmURLCustom} />
         </View>
       </View>
+
+      <View style={{ height: 30 }} />
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
