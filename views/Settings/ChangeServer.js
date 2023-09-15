@@ -57,21 +57,27 @@ function ChangeServer() {
 
   const officialServerslist = [
     {
-      title: "Papillon-API-01",
+      title: "Papillon-NODE-API-01",
       url: "https://api-01.getpapillon.xyz",
       pretty_url: "api-01.getpapillon.xyz",
       custom: false,
     },
     {
-      title: "Papillon-API-02",
+      title: "Papillon-NODE-API-02",
       url: "https://api-02.getpapillon.xyz",
       pretty_url: "api-02.getpapillon.xyz",
       custom: false,
     },
     {
-      title: "Papillon-API-03-BAREMETAL",
+      title: "Papillon-NODE-API-03",
       url: "https://api-03.getpapillon.xyz",
       pretty_url: "api-03.getpapillon.xyz",
+      custom: false,
+    },
+    {
+      title: "Papillon-NODE-API-04",
+      url: "https://api-04.getpapillon.xyz",
+      pretty_url: "api-04.getpapillon.xyz",
       custom: false,
     },
   ]
