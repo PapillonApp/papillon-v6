@@ -1,6 +1,10 @@
 {
-  "lastupdated": "2023-07-09",
+  "lastupdated": "2023-09-15",
   "donors": [
+    {
+      "name": "Léo L-P",
+      "times": 6
+    },
     {
       "name": "Sivelswhy",
       "times": 1
@@ -8,10 +12,6 @@
     {
       "name": "MXNSER",
       "times": 1
-    },
-    {
-      "name": "Léo L-P",
-      "times": 4
     }
   ]
 }

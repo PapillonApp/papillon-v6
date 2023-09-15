@@ -33,15 +33,15 @@ function AboutScreen({ navigation }) {
   const [dataList] = useState([
     {
       title: 'Version de Papillon',
-      subtitle: packageJson.version,
+      subtitle: packageJson.version + " " + packageJson.canal,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
     },
     {
-      title: 'Canal de distribution',
-      subtitle: packageJson.canal,
+      title: 'Dépendances',
+      subtitle: `RN: ${packageJson.dependencies['react-native'].split('^')[1]}, Expo : ${packageJson.dependencies['expo'].split('^')[1]}`,
       color: '#888888',
-      icon: <Bug size={24} color="#888888" />,
+      icon: <History size={24} color="#888888" />,
     },
   ]);
 
@@ -210,8 +210,8 @@ function AboutScreen({ navigation }) {
 
         <View style={styles.optionsList}>
           <Text style={styles.ListTitle}>
-            Donateurs (mis à jour le{' '}
-            {new Date(donors.lastupdated).toLocaleDateString('fr')})
+            Donateurs (au{' '}
+            {new Date(donors.lastupdated).toLocaleDateString('fr', {dateStyle: 'medium'})})
           </Text>
 
           {donors.donors.map((item, index) => (
@@ -239,16 +239,12 @@ function AboutScreen({ navigation }) {
             <ListItem
               key={index}
               title={item.title}
-              subtitle={item.subtitle}
               color={item.color}
               center
-              left={
-                <PapillonIcon
-                  icon={item.icon}
-                  color={item.color}
-                  size={24}
-                  small
-                />
+              right={
+                <Text style={{ color: item.color, fontSize: 16, opacity: 0.5 }}>
+                  {item.subtitle}
+                </Text>
               }
               onPress={() => addVersionTap()}
             />
