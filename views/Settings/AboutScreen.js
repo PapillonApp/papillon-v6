@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, ScrollView, StyleSheet, Image } from 'react-native';
+import { View, ScrollView, StyleSheet, Image, ActivityIndicator } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
 import * as WebBrowser from 'expo-web-browser';
@@ -121,11 +121,12 @@ function AboutScreen({ navigation }) {
         <View style={[styles.optionsList]}>
           <Text style={styles.ListTitle}>Serveur</Text>
 
-          { serverInfo ?
+          { serverInfo.server && serverInfo.version ?
             <ListItem
               title={serverTag}
               subtitle={`${serverInfo.server} v${serverInfo.version}`}
               color="#29947A"
+              center
               left={
                 <>
                   <PapillonIcon
@@ -155,7 +156,35 @@ function AboutScreen({ navigation }) {
               }
               onPress={() => openServer()}
             />
-          : null }
+          :
+            <ListItem
+            title={'Connexion au serveur...'}
+            subtitle={`Détermination de la version....`}
+            color="#29947A"
+            center
+            left={
+              <>
+                <PapillonIcon
+                  icon={
+                    <Server
+                      size={24}
+                      color={'#0065A8'}
+                    />
+                  }
+                  color={'#0065A8'}
+                  size={24}
+                  small
+                />
+              </>
+            }
+            right={
+              <>
+                <ActivityIndicator />
+              </>
+            }
+            onPress={() => openServer()}
+          />
+          }
         </View>
 
         <View style={styles.optionsList}>
