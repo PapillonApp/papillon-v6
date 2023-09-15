@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, Platform, StatusBar, StyleSheet, View, KeyboardAvoidingView } from 'react-native';
+import { ScrollView, Alert, Platform, StatusBar, StyleSheet, View, KeyboardAvoidingView } from 'react-native';
 
 import { useAppContext } from '../../../utils/AppContext';
 
@@ -71,7 +71,16 @@ function LoginPronoteQR({ route, navigation }) {
         navigation.goBack();
         navigation.goBack();
 
+
         appCtx.setLoggedIn(true);
+
+        Alert.alert(
+          "Connexion par QR-code instable",
+          "La connexion par QR-code est instable et peut ne pas fonctionner comme prévu. Si c'est le cas, connectez vous d'une autre manière.",
+          [
+            { text: "OK" }
+          ]
+        );
       }
     });
   }
