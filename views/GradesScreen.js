@@ -142,7 +142,7 @@ function GradesScreen({ navigation }) {
       ...grade,
       grade: {
         ...grade.grade,
-        value: (grade.grade.value / grade.grade.out_of) * 20,
+        value: grade.grade.value,
       },
     }));
 
