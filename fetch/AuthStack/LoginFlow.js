@@ -82,16 +82,87 @@ function getToken(credentials) {
   });
 }
 
-function refreshToken() {
-  return AsyncStorage.getItem('credentials').then((result) => {
-    const credentials = JSON.parse(result);
+function loginQR(credentials) {
+  var formdata = new FormData();
+  formdata.append("url", credentials.url);
+  formdata.append("qrToken", credentials.qrToken);
+  formdata.append("login", credentials.login);
+  formdata.append("checkCode", credentials.checkCode);
+  formdata.append("uuid", credentials.uuid);
 
-    return getToken(credentials).then((res) => {
-      if (res.token !== false || res.token !== null) {
-        AsyncStorage.setItem('token', res.token);
-        return res;
-      }
-    });
+  var requestOptions = {
+    method: 'POST',
+    body: formdata,
+    redirect: 'follow'
+  };
+
+  return getConsts().then((consts) => {
+    return fetch(`${consts.API}/generatetoken?method=qrcode`, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        // add uuid to result
+        result.uuid = credentials.uuid;
+
+        return result;
+      });
+  });
+}
+
+function refreshQRToken(qr_result) {
+  return getConsts().then((consts) => {
+    var formdata = new FormData();
+    formdata.append("url", qr_result.qr_credentials.url);
+    formdata.append("username", qr_result.qr_credentials.username);
+    formdata.append("password", qr_result.qr_credentials.password);
+    formdata.append("uuid", qr_result.uuid);
+
+    var requestOptions = {
+      method: 'POST',
+      body: formdata,
+      redirect: 'follow'
+    };
+
+    return fetch(`${consts.API}/generatetoken?method=token`, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+        AsyncStorage.setItem('token', result.token);
+
+        // change password
+        return AsyncStorage.getItem('qr_credentials').then((qr_result) => {
+          if(qr_result) {
+            const qr_credentials = JSON.parse(qr_result);
+
+            qr_credentials.qr_credentials.password = result.qr_credentials.password;
+
+            console.log('Nouveau mot de passe: ' + result.qr_credentials.password);
+
+            AsyncStorage.setItem('qr_credentials', JSON.stringify(qr_credentials));
+          }
+
+          return result;
+        });
+      });
+  });
+}
+
+function refreshToken() {
+  return AsyncStorage.getItem('qr_credentials').then((qr_result) => {
+    if(qr_result) {
+      return refreshQRToken(JSON.parse(qr_result));
+    }
+    else {
+      return AsyncStorage.getItem('credentials').then((result) => {
+        const credentials = JSON.parse(result);
+
+        return getToken(credentials).then((res) => {
+          if (res.token !== false || res.token !== null) {
+            AsyncStorage.setItem('token', res.token);
+            return res;
+          }
+        });
+      });
+    }
   });
 }
 
@@ -113,4 +184,4 @@ function expireToken(reason) {
   });
 }
 
-export { getENTs, getInfo, getToken, refreshToken, expireToken };
+export { getENTs, getInfo, getToken, loginQR, refreshToken, expireToken };

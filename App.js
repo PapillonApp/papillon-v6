@@ -47,6 +47,7 @@ import LoginUnavailable from './views/AuthStack/LoginUnavailable';
 
 import LoginPronoteSelectEtab from './views/AuthStack/Pronote/LoginPronoteSelectEtab';
 import LoginPronote from './views/AuthStack/Pronote/LoginPronote';
+import LoginPronoteQR from './views/AuthStack/Pronote/LoginPronoteQRToken';
 
 import NewsScreen from './views/NewsScreen';
 import NewsItem from './views/News/NewsItem';
@@ -678,6 +679,12 @@ function AuthStack() {
         name="LoginPronote"
         component={LoginPronote}
         options={{ title: 'Se connecter', presentation: 'modal' }}
+      />
+      
+      <Stack.Screen
+        name="LoginPronoteQR"
+        component={LoginPronoteQR}
+        options={{ title: 'Validation du code QR', presentation: 'modal' }}
       />
     </Stack.Navigator>
   );

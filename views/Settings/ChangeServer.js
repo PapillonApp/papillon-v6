@@ -246,13 +246,10 @@ const styles = StyleSheet.create({
   },
 
   urlchoice: {
-    borderColor: "#29947A00",
-    borderWidth: 2,
+    borderWidth: 0,
   },
   current: {
-    borderColor: "#29947A",
     borderWidth: 2,
-    backgroundColor: "#29947A20",
   }
 });
 

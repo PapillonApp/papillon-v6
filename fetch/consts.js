@@ -6,7 +6,7 @@ function getConsts() {
             server = JSON.parse(server);
         }
 
-        let API = "https://api.getpapillon.xyz"
+        let API = "http://192.168.1.22:8000"
 
         if(server && server.url) {
             API = server.url

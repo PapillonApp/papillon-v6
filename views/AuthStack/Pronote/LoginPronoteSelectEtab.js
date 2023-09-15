@@ -32,6 +32,8 @@ import * as Location from 'expo-location';
 
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
+import * as Haptics from 'expo-haptics';
+
 import {
   School,
   Backpack,
@@ -252,27 +254,17 @@ function LoginPronoteSelectEtab({ navigation }) {
   const [currentEtabURL, setCurrentEtabURL] = useState('');
 
   function qrScanned(event) {
-    let url = '';
-    try {
-      url = JSON.parse(event.data)?.url;
-    } catch (e) {
-      Alert.alert('Erreur', "Le QR Code scanné n'est pas valide.");
-      return;
-    }
+    Haptics.notificationAsync("success")
 
-    if (!url) {
-      Alert.alert('Erreur', "Le QR Code scanné n'est pas valide.");
-      return;
-    }
+    // close modal
+    setQrModalVisible(false);
 
-    getENTs(url).then((result) => {
-      setCurrentEtabName(result.nomEtab);
-      setCurrentEtabURL(url);
+    let data = JSON.parse(event.data);
 
-      setTimeout(() => {
-        setQrEtabDetected(true);
-      }, 300);
-    });
+    console.log(data);
+
+    // open LoginQR with data
+    navigation.navigate('LoginPronoteQR', { qrData: data });
   }
 
   function closeModal() {
@@ -399,26 +391,6 @@ function LoginPronoteSelectEtab({ navigation }) {
                 style={[styles.qrModalScanner]}
               />
             ) : null}
-
-            <Fade visible={qrEtabDetected} direction="up" duration={200}>
-              <PressableScale
-                style={[
-                  styles.detectedEtab,
-                  { backgroundColor: UIColors.element },
-                ]}
-                onPress={() => openEtab()}
-              >
-                <School color="#159C5E" />
-                <View style={[styles.detectedEtabData]}>
-                  <Text style={[styles.detectedEtabText]}>
-                    {entities.decodeHTML(currentEtabName)}
-                  </Text>
-                  <Text style={[styles.detectedEtabDescription]}>
-                    {currentEtabURL}
-                  </Text>
-                </View>
-              </PressableScale>
-            </Fade>
           </View>
         </View>
       </Modal>
