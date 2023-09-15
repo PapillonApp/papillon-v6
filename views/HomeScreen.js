@@ -760,7 +760,7 @@ function NextCours({ cours, navigation }) {
         return `dans ${lz(diffMinutes)}:${lz(diffSeconds)}`;
       }
 
-      return `dans ${Math.ceil((diffMinutes / 60) - 1)}h ${lz(diffMinutes % 60)} min`;
+      return `ds. ${Math.ceil((diffMinutes / 60) - 1)}h ${lz(diffMinutes % 60)} mn`;
     }
     return 'maintenant';
   };
@@ -985,7 +985,6 @@ const styles = StyleSheet.create({
 
     paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingLeft: 4,
 
     backgroundColor: '#ffffff10',
     borderLeftWidth: 1,

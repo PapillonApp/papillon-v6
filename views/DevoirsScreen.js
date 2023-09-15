@@ -277,8 +277,8 @@ function Hwitem({ homework, theme }) {
   }, [homework]);
 
   const changeHwState = () => {
-    console.log(`change ${homework.date} : ${homework.id}`);
-    IndexData.changeHomeworkState(homework.date, homework.id).then((result) => {
+    console.log(`change ${homework.date} : ${homework.local_id}`);
+    IndexData.changeHomeworkState(homework.date, homework.local_id).then((result) => {
       console.log(result);
 
       if (result.status === 'not found') {
