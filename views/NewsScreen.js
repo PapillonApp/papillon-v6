@@ -6,6 +6,7 @@ import {
   StatusBar,
   RefreshControl,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 
 import { Text, useTheme } from 'react-native-paper';
@@ -24,21 +25,21 @@ function relativeDate(date) {
     return "À l'instant";
   }
   if (diff < 1000 * 60 * 60) {
-    return `${Math.floor(diff / (1000 * 60))} minutes`;
+    return `${Math.floor(diff / (1000 * 60))} minute(s)`;
   }
   if (diff < 1000 * 60 * 60 * 24) {
-    return `${Math.floor(diff / (1000 * 60 * 60))} heures`;
+    return `${Math.floor(diff / (1000 * 60 * 60))} heure(s)`;
   }
   if (diff < 1000 * 60 * 60 * 24 * 7) {
-    return `${Math.floor(diff / (1000 * 60 * 60 * 24))} jours`;
+    return `${Math.floor(diff / (1000 * 60 * 60 * 24))} jour(s)`;
   }
   if (diff < 1000 * 60 * 60 * 24 * 30) {
-    return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 7))} semaines`;
+    return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 7))} semaine(s)`;
   }
   if (diff < 1000 * 60 * 60 * 24 * 365) {
-    return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 30))} mois`;
+    return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 30))} moi(s)`;
   }
-  return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 365))} ans`;
+  return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 365))} an(s)`;
 }
 
 function normalizeText(text) {
@@ -106,6 +107,11 @@ function NewsScreen({ navigation }) {
   // add search bar in the header
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerLeft: () => (
+        ( isHeadLoading ?
+          <ActivityIndicator/>
+        : null )
+      ),
       headerSearchBarOptions: {
         placeholder: 'Rechercher une actualité',
         cancelButtonText: 'Annuler',
@@ -137,14 +143,6 @@ function NewsScreen({ navigation }) {
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
       contentInsetAdjustmentBehavior="automatic"
-      refreshControl={
-        <RefreshControl
-          refreshing={isHeadLoading}
-          onRefresh={onRefresh}
-          progressViewOffset={28}
-          colors={[Platform.OS === 'android' ? UIColors.primary : null]}
-        />
-      }
     >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
