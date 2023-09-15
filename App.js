@@ -668,6 +668,15 @@ function AuthStack() {
       />
 
       <Stack.Screen
+        name="changeServer"
+        component={ChangeServer}
+        options={{
+          headerTitle: "Changer de serveur",
+          presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
         name="LoginPronoteSelectEtab"
         component={LoginPronoteSelectEtab}
         options={{
@@ -680,7 +689,7 @@ function AuthStack() {
         component={LoginPronote}
         options={{ title: 'Se connecter', presentation: 'modal' }}
       />
-      
+
       <Stack.Screen
         name="LoginPronoteQR"
         component={LoginPronoteQR}

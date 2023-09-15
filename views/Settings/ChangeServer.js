@@ -173,7 +173,7 @@ function ChangeServer() {
                 small
               />
             }
-            style={[currentServer == item.url ? styles.current : styles.urlchoice]}
+            style={[{borderColor: UIColors.primary}, currentServer == item.url ? styles.current : styles.urlchoice]}
             onPress={() => applyServer(item)}
           />
         ))}
@@ -196,7 +196,7 @@ function ChangeServer() {
                 small
               />
             }
-            style={[currentServer == item.url ? styles.current : styles.urlchoice]}
+            style={[{borderColor: UIColors.primary}, currentServer == item.url ? styles.current : styles.urlchoice]}
             onPress={() => applyServer(item)}
           />
         ))}
@@ -246,7 +246,8 @@ const styles = StyleSheet.create({
   },
 
   urlchoice: {
-    borderWidth: 0,
+    borderWidth: 2,
+    borderColor: '#00000000',
   },
   current: {
     borderWidth: 2,

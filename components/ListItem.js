@@ -7,6 +7,8 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
+import { ChevronRight } from 'lucide-react-native';
+
 import { PressableScale } from 'react-native-pressable-scale';
 import * as Haptics from 'expo-haptics';
 
@@ -24,6 +26,7 @@ function ListItem({
   fill,
   width,
   center,
+  chevron,
 }) {
   const theme = useTheme();
 
@@ -101,6 +104,17 @@ function ListItem({
         </View>
 
         {right ? <View style={[styles.right]}>{right}</View> : null}
+
+        {chevron ? (
+          <View style={[styles.right]}>
+            <ChevronRight
+              size={24}
+              color={theme.dark ? '#ffffff40' : '#00000040'}
+              strokeWidth={2.5}
+              style={{ marginTop: -6, marginBottom: -6 }}
+            />
+          </View>
+        ) : null}
       </View>
     </PressableScale>
   ) : (

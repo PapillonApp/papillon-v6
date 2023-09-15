@@ -444,6 +444,14 @@ function LoginPronoteSelectEtab({ navigation }) {
             onPress={() => scanQR()}
             style={{ marginTop: 8 }}
           />
+
+          <ListItem
+            subtitle="Utiliser un serveur personnalisé"
+            chevron
+            center
+            onPress={() => navigation.navigate('changeServer')}
+            style={{ marginTop: 8 }}
+          />
         </>
       ) : null}
 
