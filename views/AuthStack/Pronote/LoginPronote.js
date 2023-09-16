@@ -25,6 +25,8 @@ import PapillonButton from '../../../components/PapillonButton';
 import GetUIColors from '../../../utils/GetUIColors';
 import { useAppContext } from '../../../utils/AppContext';
 
+import * as AccountManager from '../../../utils/AccountsManager'
+
 function LoginTextInput({
   label,
   icon,
@@ -160,11 +162,11 @@ function LoginPronote({ route, navigation }) {
       return;
     }
     setConnecting(true);
-    getToken(credentials).then((result) => {
-      setConnecting(false);
+    getToken(credentials).then(async (result) => {
       const token = result.token;
 
       if (!token) {
+        setConnecting(false);
         showMessage({
           message: 'Échec de la connexion',
           description: 'Veuillez vérifier vos identifiants.',
@@ -174,10 +176,12 @@ function LoginPronote({ route, navigation }) {
           duration: 5000,
         });
       } else {
-        AsyncStorage.setItem('token', token);
-        AsyncStorage.setItem('credentials', JSON.stringify(credentials));
-        AsyncStorage.setItem('service', 'Pronote');
-
+        let acId = await AccountManager.addAccount({
+          token: token,
+          credentials: credentials,
+          service: "Pronote"
+        })
+        await AccountManager.useAccount(acId)
         showMessage({
           message: 'Connecté avec succès',
           type: 'success',
@@ -187,7 +191,7 @@ function LoginPronote({ route, navigation }) {
         
         navigation.goBack();
         navigation.goBack();
-
+        setConnecting(false);
         appCtx.setLoggedIn(true);
       }
     });
