@@ -94,7 +94,9 @@ export function useAccount(id) {
             })
             oldAccount = {
                 id: activeAccount,
-                storage: await asyncStorage.multiGet(storage)
+                storage: await asyncStorage.multiGet(storage),
+                credentials: JSON.parse(await asyncStorage.getItem("credentials")),
+                service : JSON.parse(await asyncStorage.getItem("service"))
             }
             accounts.set(activeAccount, oldAccount)
         }
