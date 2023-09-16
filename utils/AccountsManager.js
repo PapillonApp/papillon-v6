@@ -69,11 +69,11 @@ export function useAccount(id) {
                     if(e !== "accounts" && e !== "old_login") storage.push(e)
                 })
                 oldAccount = {
-                    id: activeAccount,
+                    id: id,
                     storage: await asyncStorage.multiGet(storage),
                     credentials: JSON.parse(await asyncStorage.getItem("credentials")),
-                    service : JSON.parse(await asyncStorage.getItem("service")),
-                    userCache : JSON.parse(await asyncStorage.getItem("userCache"))
+                    service : await asyncStorage.getItem("service"),
+                    userCache : JSON.parse(await asyncStorage.getItem("userCache") || {})
                 }
                 accounts.set(activeAccount, oldAccount)
             }
@@ -96,11 +96,11 @@ export function useAccount(id) {
                 if(e !== "accounts" && e !== "old_login") storage.push(e)
             })
             oldAccount = {
-                id: activeAccount,
+                id: id,
                 storage: await asyncStorage.multiGet(storage),
                 credentials: JSON.parse(await asyncStorage.getItem("credentials")),
-                service : JSON.parse(await asyncStorage.getItem("service")),
-                userCache : JSON.parse(await asyncStorage.getItem("userCache"))
+                service : await asyncStorage.getItem("service"),
+                userCache : JSON.parse(await asyncStorage.getItem("userCache") || {})
             }
             accounts.set(activeAccount, oldAccount)
         }
@@ -140,8 +140,8 @@ export function updateUser(id) {
             id: id,
             storage: await asyncStorage.multiGet(storage),
             credentials: JSON.parse(await asyncStorage.getItem("credentials")),
-            service : JSON.parse(await asyncStorage.getItem("service")),
-            userCache : JSON.parse(await asyncStorage.getItem("userCache"))
+            service : await asyncStorage.getItem("service"),
+            userCache : JSON.parse(await asyncStorage.getItem("userCache") || {})
         }
         accounts.set(id, oldAccount)
         resolve()
