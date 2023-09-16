@@ -59,6 +59,27 @@ export function useAccount(id) {
         console.log("[AccountManager] Utilisation du compte " + id)
         let accounts = await getAccounts()
         if(!accounts) reject("Aucun compte enregistré")
+        if(id === null) {
+            if(activeAccount) {
+                let oldAccount = accounts.get(activeAccount)
+                console.log("[AccountManager/Use] Ancien compte trouvé, données : " + JSON.stringify(oldAccount))
+                let storage1 = await asyncStorage.getAllKeys()
+                let storage = []
+                storage1.forEach(e => {
+                    if(e !== "accounts" && e !== "old_login") storage.push(e)
+                })
+                oldAccount = {
+                    id: activeAccount,
+                    storage: await asyncStorage.multiGet(storage)
+                }
+                accounts.set(activeAccount, oldAccount)
+            }
+            let oldLogin = await asyncStorage.getItem("old_login")
+            await asyncStorage.clear()
+            await saveAccounts(accounts)
+            if(oldLogin) await asyncStorage.setItem("old_login", oldLogin)
+            console.log("[AccountManager] Compte actuel désactivé")
+        }
         let account = accounts.get(id)
         if(!account) reject("Aucun compte trouvé avec cet ID local")
         console.log("[AccountManager/Use] Infos du compte : " + JSON.stringify(account))
@@ -89,5 +110,23 @@ export function useAccount(id) {
         await asyncStorage.setItem("activeAccount", JSON.stringify(id))
         console.log("[AccountManager/Use] Changement de compte effectué")
         resolve(true)
+    })
+}
+
+/**
+ * Delete the account from the store
+ * @param {number} id ID of the account locally
+ * 
+ * @returns Promise { }
+ */
+export function deleteAccount(id) {
+    return new Promise(async (resolve, reject) => {
+        console.log("[AccountManager] Suppression du compte " + id)
+        let accounts = await getAccounts()
+        if(!accounts) reject("Aucun compte enregistré")
+        let account = accounts.get(id)
+        if(!account) reject("Aucun compte trouvé avec cet ID local")
+        accounts.delete(id)
+        resolve()
     })
 }
