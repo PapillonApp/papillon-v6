@@ -121,6 +121,7 @@ export function useAccount(id) {
  */
 export function deleteAccount(id) {
     return new Promise(async (resolve, reject) => {
+        if(!id) id = Number(await asyncStorage.getItem("activeAccount"))
         console.log("[AccountManager] Suppression du compte " + id)
         let accounts = await getAccounts()
         if(!accounts) reject("Aucun compte enregistré")
