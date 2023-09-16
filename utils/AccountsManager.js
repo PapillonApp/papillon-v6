@@ -84,6 +84,7 @@ export function useAccount(id) {
         if(oldLogin) asyncStorage.setItem("old_login", oldLogin)
         if(account.token) await asyncStorage.setItem("token", account.token)
         if(account.credentials) await asyncStorage.setItem("credentials", JSON.stringify(account.credentials))
+        if(account.qr_credentials) await asyncStorage.setItem("qr_credentials", JSON.stringify(account.qr_credentials))
         if(account.service) await asyncStorage.setItem("service", account.service)
         await asyncStorage.setItem("activeAccount", JSON.stringify(id))
         console.log("[AccountManager/Use] Changement de compte effectué")
