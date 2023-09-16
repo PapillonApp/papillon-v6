@@ -12,7 +12,19 @@ import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
 import { loginQR } from '../../../fetch/AuthStack/LoginFlow';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import * as AccountManager from '../../../utils/AccountsManager'
+
+import { showMessage } from 'react-native-flash-message';
+
 function LoginPronoteQR({ route, navigation }) {
+  showMessage({
+    message: 'La connexion par QR Code est instable.',
+    description: "Si vous rencontrez des problèmes dans le futur, privilégiez une connexion par identifiants.",
+    type: 'warning',
+    icon: 'auto',
+    floating: true,
+    duration: 5000
+  });
   const theme = useTheme();
 
   const { qrData } = route.params;
@@ -48,34 +60,55 @@ function LoginPronoteQR({ route, navigation }) {
       qrToken: qrData.jeton,
       login: qrData.login,
       uuid: makeUUID(),
-    }).then((res) => {
+    }).then(async (res) => {
       console.log(res);
 
       if(res.error) {
         if(res.error == "invalid confirmation code") {
           setErrPin(true);
           setError("Code invalide");
+          showMessage({
+            message: 'Code pin invalide',
+            type: 'danger',
+            icon: 'auto',
+            floating: true,
+            duration: 5000
+          });
         }
         if(res.error == "('Decryption failed while trying to un pad. (probably bad decryption key/iv)', 'exception happened during login -> probably the qr code has expired (qr code is valid during 10 minutes)')") {
           setErrPin(true);
           setError("QR-code expiré");
+          showMessage({
+            message: 'QR-Code expiré',
+            type: 'danger',
+            icon: 'auto',
+            floating: true,
+            duration: 5000
+          });
         }
       }
 
       if(res.error == false && res.token !== false) {
-        AsyncStorage.setItem('token', res.token);
-        AsyncStorage.setItem('qr_credentials', JSON.stringify(res));
-        AsyncStorage.setItem('service', 'Pronote');
-
+        let acId = await AccountManager.addAccount({
+          token: res.token,
+          qr_credentials: res,
+          service: "Pronote"
+        })
+        await AccountManager.useAccount(acId)
         navigation.goBack();
         navigation.goBack();
         navigation.goBack();
 
 
         appCtx.setLoggedIn(true);
-
+        showMessage({
+          message: 'Connecté avec succès',
+          type: 'success',
+          icon: 'auto',
+          floating: true,
+        });
         Alert.alert(
-          "Connexion par QR-code instable",
+          "Rappel : Connexion par QR-code instable",
           "La connexion par QR-code est instable et peut ne pas fonctionner comme prévu. Si c'est le cas, connectez vous d'une autre manière.",
           [
             { text: "OK" }
