@@ -36,6 +36,7 @@ import AppearanceScreen from './views/Settings/AppearanceScreen';
 import SettingsScreen2 from './views/Settings/SettingsScreen';
 import IconsScreen from './views/Settings/IconsScreen';
 import ChangeServer from './views/Settings/ChangeServer';
+import AccountsScreen from './views/Settings/AccountsScreen';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -477,7 +478,56 @@ function WrappedSettings() {
           headerTitle: 'Réglages',
         }}
       />
+      <Stack.Screen
+        name="Accounts"
+        component={AccountsScreen}
+        options={{
+          headerTitle: 'Gestion des comptes',
+        }}
+      />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{
+          title: 'Connexion',
+          headerLargeTitle: Platform.OS === 'iOS',
+          headerLargeTitleStyle: {
+            color: baseColor,
+            fontFamily: 'Papillon-Semibold',
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name="LoginUnavailable"
+        component={LoginUnavailable}
+        options={{
+          title: 'Service indisponible',
+          presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
+        name="LoginPronoteSelectEtab"
+        component={LoginPronoteSelectEtab}
+        options={{
+          title: "Sélection de l'établissement",
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="LoginPronote"
+        component={LoginPronote}
+        options={{ title: 'Se connecter', presentation: 'modal' }}
+      />
+
+      <Stack.Screen
+        name="LoginPronoteQR"
+        component={LoginPronoteQR}
+        options={{ title: 'Validation du code QR', presentation: 'modal' }}
+      />
     </Stack.Navigator>
+    
   );
 }
 
