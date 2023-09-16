@@ -11,7 +11,7 @@ import { Text } from 'react-native-paper';
 import { useState } from 'react';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LogOut, RefreshCw, Server, Trash2 } from 'lucide-react-native';
+import { LogOut, RefreshCw, Server, Trash2, Users } from 'lucide-react-native';
 import { refreshToken, expireToken } from '../../fetch/AuthStack/LoginFlow';
 
 import ListItem from '../../components/ListItem';
@@ -106,7 +106,20 @@ function SettingsScreen({ navigation }) {
     >
     <View style={{ gap: 9, marginTop: 16 }}>
       <Text style={styles.ListTitle}>Serveur et identifiants (avancé)</Text>
-
+      <ListItem
+          title="Gestion des comptes"
+          subtitle="Gestion des comptes utilisés dans l'application"
+          color="#B42828"
+          left={
+            <PapillonIcon
+              icon={<Users size={24} color="#565EA3" />}
+              color="#565EA3"
+              size={24}
+              small
+            />
+          }
+          onPress={() => navigation.navigate('Accounts')}
+        />
         <ListItem
           title="Changer de serveur (avancé)"
           subtitle="Modifier le serveur utilisé dans l'app"
