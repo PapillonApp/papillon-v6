@@ -70,7 +70,10 @@ export function useAccount(id) {
                 })
                 oldAccount = {
                     id: activeAccount,
-                    storage: await asyncStorage.multiGet(storage)
+                    storage: await asyncStorage.multiGet(storage),
+                    credentials: JSON.parse(await asyncStorage.getItem("credentials")),
+                    service : JSON.parse(await asyncStorage.getItem("service")),
+                    userCache : JSON.parse(await asyncStorage.getItem("userCache"))
                 }
                 accounts.set(activeAccount, oldAccount)
             }
@@ -96,7 +99,8 @@ export function useAccount(id) {
                 id: activeAccount,
                 storage: await asyncStorage.multiGet(storage),
                 credentials: JSON.parse(await asyncStorage.getItem("credentials")),
-                service : JSON.parse(await asyncStorage.getItem("service"))
+                service : JSON.parse(await asyncStorage.getItem("service")),
+                userCache : JSON.parse(await asyncStorage.getItem("userCache"))
             }
             accounts.set(activeAccount, oldAccount)
         }
@@ -112,6 +116,35 @@ export function useAccount(id) {
         await asyncStorage.setItem("activeAccount", JSON.stringify(id))
         console.log("[AccountManager/Use] Changement de compte effectué")
         resolve(true)
+    })
+}
+/**
+ * Update the account with local storage
+ * @param {number} id ID of the account locally
+ * 
+ * @returns Promise { }
+ */
+export function updateUser(id) {
+    return new Promise(async(resolve, reject) => {
+        if(!id) id = Number(await asyncStorage.getItem("activeAccount"))
+        let accounts = await getAccounts()
+        if(!accounts) reject("Aucun compte enregistré")
+        let account = accounts.get(id)
+        if(!account) reject("Aucun compte trouvé avec cet ID local")
+        let storage1 = await asyncStorage.getAllKeys()
+        let storage = []
+        storage1.forEach(e => {
+            if(e !== "accounts" && e !== "old_login") storage.push(e)
+        })
+        let oldAccount = {
+            id: id,
+            storage: await asyncStorage.multiGet(storage),
+            credentials: JSON.parse(await asyncStorage.getItem("credentials")),
+            service : JSON.parse(await asyncStorage.getItem("service")),
+            userCache : JSON.parse(await asyncStorage.getItem("userCache"))
+        }
+        accounts.set(id, oldAccount)
+        resolve()
     })
 }
 
