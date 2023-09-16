@@ -20,6 +20,10 @@ import PapillonIcon from '../../components/PapillonIcon';
 import GetUIColors from '../../utils/GetUIColors';
 import { useAppContext } from '../../utils/AppContext';
 
+import * as AccountManager from '../../utils/AccountsManager'
+
+import { showMessage } from 'react-native-flash-message';
+
 function SettingsScreen({ navigation }) {
   const UIColors = GetUIColors();
 
@@ -43,11 +47,35 @@ function SettingsScreen({ navigation }) {
           } catch (e) {
             /* empty */
           }
-
-          AsyncStorage.clear();
-
-          appCtx.setLoggedIn(false);
-          navigation.popToTop();
+          await AccountManager.deleteAccount()
+          let accounts = await AccountManager.getAccounts()
+          if(accounts.size > 0) {
+            let account = accounts.get(accounts.size)
+            AccountManager.useAccount(1)
+            showMessage({
+              message: `Déconnecté avec succès`,
+              description: `Le compte ${account.service} ${account.credentials ? "(" + account.credentials.username + ")" : null} a été automatiquement activé.`,
+              type: "info",
+              icon: "auto",
+              floating: true,
+              duration: 5000
+            })
+            navigation.popToTop();
+          }
+          else {
+            let credentials = await AsyncStorage.getItem("credentials")
+            const URL = JSON.parse(credentials).url
+            AsyncStorage.clear()
+            AsyncStorage.setItem('old_login', JSON.stringify({ url: URL }));
+            showMessage({
+              message: "Déconnecté avec succès !",
+              type: "success",
+              icon: "auto",
+              floating: true
+            })
+            appCtx.setLoggedIn(false);
+            navigation.popToTop();
+          }
         },
       },
     ]);
@@ -59,16 +87,12 @@ function SettingsScreen({ navigation }) {
     setTokenLoading(true);
     refreshToken().then(() => {
       setTokenLoading(false);
-      Alert.alert(
-        'Token regénéré',
-        'Le token de votre compte a été regénéré avec succès !',
-        [
-          {
-            text: 'OK',
-            style: 'cancel',
-          },
-        ]
-      );
+      showMessage({
+        message: "Token régénéré !",
+        type: "success",
+        floating: true,
+        icon: "auto"
+      })
     });
   }
 
