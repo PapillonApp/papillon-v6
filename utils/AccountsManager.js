@@ -128,6 +128,7 @@ export function deleteAccount(id) {
         let account = accounts.get(id)
         if(!account) reject("Aucun compte trouvé avec cet ID local")
         accounts.delete(id)
+        saveAccounts(accounts)
         resolve()
     })
 }
