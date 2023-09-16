@@ -38,6 +38,8 @@ import GetUIColors from '../utils/GetUIColors';
 
 import * as WebBrowser from 'expo-web-browser';
 
+import * as AccountManager from '../utils/AccountsManager'
+
 const openURL = (url) => {
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
@@ -156,6 +158,7 @@ function HomeScreen({ navigation }) {
     setForceReload(true);
     setRefreshCount((prevCount) => prevCount + 1);
     setIsHeadLoading(false);
+    AccountManager.updateUser();
   }, []);
 
   React.useEffect(() => {
