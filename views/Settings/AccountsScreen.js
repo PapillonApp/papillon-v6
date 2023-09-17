@@ -7,6 +7,7 @@ import {
   Appearance,
   Platform,
   ActivityIndicator,
+  Image
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -23,10 +24,11 @@ import { showMessage } from 'react-native-flash-message';
 
 import asyncStorage from '@react-native-async-storage/async-storage';
 
-async function AccountItem({ account, changeAccount, current, icon }) {
+async function AccountItem({ account, changeAccount, current, icon, loading }) {
+    console.log("account transmis :", account)
     return (
         <ListItem
-            title={account.userCache.name}
+            title={account.userCache.user.name}
             subtitle={"Compte " + account.service + " (" + account.credentials.username + ")"}
             color="#A84700"
             style={[styles.iconElem, current ? styles.iconElemCurrent : {}]}
@@ -34,7 +36,7 @@ async function AccountItem({ account, changeAccount, current, icon }) {
                 <Image source={icon} style={[styles.serviceOptionLogo, {}]} />
             }
             right={
-                loadingAccount === account.id ? (
+                loading ? (
                   <ActivityIndicator color={'#ffffff'} />
                 ) : null
               }
@@ -46,16 +48,18 @@ async function AccountItem({ account, changeAccount, current, icon }) {
 function AccountsScreen({ navigation }) {
     const [currentAccount, setCurrentAccount] = React.useState(null)
     asyncStorage.getItem("activeAccount").then(e => { setCurrentAccount(Number(e)) })
-    const [loadingAccount, setLoadingAccount] = React.useState(true)
-    const [accounts, setAccounts] = React.useRef(null)
-
+    const [loadingAccount, setLoadingAccount] = React.useState(null)
+    const [accounts, setAccounts] = React.useState(null)
+    function getAccounts() {
+        AccountManager.getAccounts().then(ac => {
+            let ac1 = Array.from(ac)
+            console.log("données en array : " + ac1)
+            setAccounts(ac1)
+        })
+    }
     React.useEffect(() => {
-        async function getAccounts() {
-            let ac = await AccountManager.getAccounts()
-            setAccounts(ac)
-        }
         getAccounts()
-    }, [accounts]);
+    }, []);
 
     const theme = useTheme();
     const UIColors = GetUIColors();
@@ -116,23 +120,31 @@ function AccountsScreen({ navigation }) {
                 center
                 />
           </View>
-          <View style={{ gap: 9, marginTop: 24 }}>
-            <Text style={styles.ListTitle}>Comptes liés</Text>
-                {accounts && accounts.size > 0 ? accounts.forEach(account => {
-                    return (
-                        <AccountItem
-                            account={account}
-                            changeAccount={changeAccount}
-                            current={currentAccount === account.id}
-                            icon={logos[account.service]}
-                        />
-                    )
-                }) : (
-                    <ListItem
-                        title="Chargement..."
+          { accounts && accounts.length > 0 ? (
+            <View style={{ gap: 9, marginTop: 24 }}>
+                <Text style={styles.ListTitle}>Comptes liés</Text>
+                { accounts.map((account) => {
+                    console.log("account :" + account[1])
+                    return(
+                    <AccountItem
+                        account={account[1]}
+                        changeAccount={changeAccount}
+                        current={currentAccount === account.id}
+                        icon={logos[account.service]}
+                        loading={loadingAccount === account.id}
                     />
-                )}
-          </View>
+                    )
+                })
+                }
+            
+            </View>
+          ) : (
+            <View style={{ gap: 9, marginTop: 24 }}>
+                <ListItem
+                    title="Chargement..."
+                />
+            </View>
+          ) }
         </ScrollView>
       );
 }
