@@ -38,7 +38,7 @@ async function AccountItem({ account, changeAccount, current, icon }) {
                   <ActivityIndicator color={'#ffffff'} />
                 ) : null
               }
-            onPress={() => changeAccount(id)}
+            onPress={() => changeAccount(account.id)}
         />
     )
 }
@@ -47,12 +47,16 @@ function AccountsScreen({ navigation }) {
     const [currentAccount, setCurrentAccount] = React.useState(null)
     asyncStorage.getItem("activeAccount").then(e => { setCurrentAccount(Number(e)) })
     const [loadingAccount, setLoadingAccount] = React.useState(true)
-    const [accounts, setAccounts] = React.useState(null)
-    async function getAccounts() {
-        let ac = await AccountManager.getAccounts()
-        setAccounts(ac)
-    }
-    getAccounts()
+    const [accounts, setAccounts] = React.useRef(null)
+
+    React.useEffect(() => {
+        async function getAccounts() {
+            let ac = await AccountManager.getAccounts()
+            setAccounts(ac)
+        }
+        getAccounts()
+    }, [accounts]);
+
     const theme = useTheme();
     const UIColors = GetUIColors();
     const logos = {
@@ -114,14 +118,20 @@ function AccountsScreen({ navigation }) {
           </View>
           <View style={{ gap: 9, marginTop: 24 }}>
             <Text style={styles.ListTitle}>Comptes liés</Text>
-                {accounts ? accounts.forEach(account => {
-                    <AccountItem
-                    account={account}
-                    changeAccount={changeAccount}
-                    current={currentAccount === account.id}
-                    icon={logos[account.service]}
-                />
-                }) : null}
+                {accounts && accounts.size > 0 ? accounts.forEach(account => {
+                    return (
+                        <AccountItem
+                            account={account}
+                            changeAccount={changeAccount}
+                            current={currentAccount === account.id}
+                            icon={logos[account.service]}
+                        />
+                    )
+                }) : (
+                    <ListItem
+                        title="Chargement..."
+                    />
+                )}
           </View>
         </ScrollView>
       );
