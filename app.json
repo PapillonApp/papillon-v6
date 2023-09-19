@@ -53,7 +53,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Papillon utilise ton emplacement pour trouver des établissements autour de toi."
+          "locationAlwaysAndWhenInUsePermission": "Papillon utilise ta position pour localiser des établissements autour de toi et également pour te localiser sur la carte."
         }
       ],
       [
