@@ -297,8 +297,8 @@ function HomeScreen({ navigation }) {
                 { data.hws && data.hws !== undefined && data.hws.length > 0 ?
                   <>
                     { data.hws.length > 0 ?
-                      <View style={[styles.HwTitle, Platform.OS == 'android' ? {backgroundColor: UIColors.primary + '22'} : null]}>
-                        <Text style={[styles.HwTitleText, Platform.OS == 'android' ? {color: UIColors.primary} : {color: theme.dark ? '#f0c5e2' : '#4f2040'}]}> pour le {new Date(data.date).toLocaleDateString('fr-FR', {weekday: 'short', day: 'numeric',month: 'short'})}</Text>
+                      <View style={[styles.HwTitle, Platform.OS == 'android' ? {backgroundColor: !theme.dark ? UIColors.primary + '32' : '#ffffff22'} : null]}>
+                        <Text style={[styles.HwTitleText, Platform.OS == 'android' ? {color: theme.dark ? '#ffffff99' : UIColors.primary} : {color: theme.dark ? '#f0c5e2' : '#4f2040'}]}> pour le {new Date(data.date).toLocaleDateString('fr-FR', {weekday: 'short', day: 'numeric',month: 'short'})}</Text>
                       </View>
                     : null }
 
