@@ -47,6 +47,12 @@ function GradeView({ route, navigation }) {
     description = 'Aucune description';
   }
 
+  // fix (temp) des notes
+  grade.grade.value = grade.grade.value / 20 * grade.grade.out_of;
+  grade.grade.max = grade.grade.max / 20 * grade.grade.out_of;
+  grade.grade.min = grade.grade.min / 20 * grade.grade.out_of;
+  grade.grade.average = grade.grade.average / 20 * grade.grade.out_of;
+
   // correct class averages
   grade.grade.average = (grade.grade.average / 20) * grade.grade.out_of;
   grade.grade.max = (grade.grade.max / 20) * grade.grade.out_of;
