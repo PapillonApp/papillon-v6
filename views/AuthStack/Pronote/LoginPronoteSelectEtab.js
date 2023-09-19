@@ -455,6 +455,30 @@ function LoginPronoteSelectEtab({ navigation }) {
         </>
       ) : null}
 
+      { loading ? (
+        <View style={{ alignItems: 'center', marginTop: 30 }}>
+          <ActivityIndicator
+            size={38}
+            animating
+            color="#159C5E"
+            style={{ marginBottom: 20 }}
+          />
+          <Text
+            variant="titleLarge"
+            style={{
+              fontWeight: 500,
+              marginBottom: 4,
+              fontFamily: 'Papillon-Semibold',
+            }}
+          >
+            Recherche des établissements
+          </Text>
+          <Text style={{ opacity: 0.6, marginBottom: 50 }}>
+            Cela peut prendre quelques secondes.
+          </Text>
+        </View>
+      ) : null}
+
       {EtabList.length > 0 && !loading ? (
         <List.Section style={styles.etabItemList}>
           <List.Subheader>Établissements disponibles</List.Subheader>

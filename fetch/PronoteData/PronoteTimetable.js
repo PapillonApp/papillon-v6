@@ -12,9 +12,13 @@ function removeDuplicateCourses(courses) {
       courseMap.set(startTime, course);
     } else {
       const existingCourse = courseMap.get(startTime);
-      if (course.num > existingCourse.num) {
+      if (course.isCancelled && !existingCourse.isCancelled) {
         // Replace the existing course with the new one
         courseMap.set(startTime, course);
+      }
+      if (!course.isCancelled && existingCourse.isCancelled) {
+        // Replace the new course with the existing one
+        courseMap.set(startTime, existingCourse);
       }
     }
   }
