@@ -497,30 +497,6 @@ function LoginPronoteSelectEtab({ navigation }) {
         </List.Section>
       ) : null}
 
-      {loading && searchQuery.trim() !== '' ? (
-        <View style={{ alignItems: 'center', marginTop: 30 }}>
-          <ActivityIndicator
-            size={46}
-            animating
-            color="#159C5E"
-            style={{ marginBottom: 20 }}
-          />
-          <Text
-            variant="titleLarge"
-            style={{
-              fontWeight: 500,
-              marginBottom: 4,
-              fontFamily: 'Papillon-Semibold',
-            }}
-          >
-            Recherche des établissements
-          </Text>
-          <Text style={{ opacity: 0.6, marginBottom: 50 }}>
-            Cela peut prendre quelques secondes.
-          </Text>
-        </View>
-      ) : null}
-
       {EtabList.length === 0 && searchQuery.trim() !== '' && !loading ? (
         <View style={{ alignItems: 'center', marginTop: 30 }}>
           <PapillonIcon

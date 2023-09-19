@@ -10,6 +10,10 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
+import { useFocusEffect } from '@react-navigation/native';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import * as Haptics from 'expo-haptics';
 
 import { ScrollView } from 'react-native-gesture-handler';
@@ -54,6 +58,19 @@ function DevoirsScreen({ navigation }) {
   const hwRef = useRef(homeworks);
 
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      AsyncStorage.getItem('homeworksUpdated').then((value) => {
+        if (value === 'true') {
+          console.log('homeworks updated');
+          forceRefresh();
+
+          AsyncStorage.setItem('homeworksUpdated', 'false');
+        }
+      });
+    }, [navigation])
+  );
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -127,6 +144,11 @@ function DevoirsScreen({ navigation }) {
       ...prevHomeworks,
       [newDate.toLocaleDateString()]: result,
     }));
+
+    // if date already loaded, update it
+    if (hwRef.current[newDate.toLocaleDateString()]) {
+      hwRef.current[newDate.toLocaleDateString()] = result;
+    }
   };
 
   useEffect(() => {
@@ -289,7 +311,22 @@ function Hwitem({ homework, theme }) {
         setTimeout(() => {
           setThisHwChecked(homework.done);
         }, 100);
+        return;
       }
+
+      // sync with home page
+      AsyncStorage.setItem('homeUpdated', 'true');
+
+      // get homework.date as 2023-01-01
+      const date = new Date(homework.date);
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+
+      const dateStr = `${year}-${month}-${day}`;
+
+      // load devoirs
+      IndexData.getHomeworks(dateStr, true);
     });
   };
 

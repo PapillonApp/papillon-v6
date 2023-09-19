@@ -10,7 +10,9 @@ import {
   RefreshControl,
   Image,
 } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
+import { useTheme, Text, Snackbar } from 'react-native-paper';
+
+import { useFocusEffect } from '@react-navigation/native';
 
 import * as Haptics from 'expo-haptics';
 
@@ -32,11 +34,14 @@ import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import getClosestColor from '../utils/ColorCoursName';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { IndexData } from '../fetch/IndexData';
 
 import GetUIColors from '../utils/GetUIColors';
 
 import * as WebBrowser from 'expo-web-browser';
+import ListItem from '../components/ListItem';
 
 import * as AccountManager from '../utils/AccountsManager'
 
@@ -86,11 +91,15 @@ function HomeScreen({ navigation }) {
     return date;
   }
 
+  const [homeLoading, setHomeLoading] = React.useState(false);
+
   React.useEffect(() => {
+    setHomeLoading(true);
     // Fetch recap data
     IndexData.getRecap(currentDate, forceReload).then(
       ([timetableData, gradesData, homeworksData, homeworks1, homeworks2]) => {
         setIsHeadLoading(false);
+        setHomeLoading(false);
 
         setTimetable(timetableData);
         setHomeworks(homeworksData);
@@ -138,9 +147,11 @@ function HomeScreen({ navigation }) {
       }
     );
 
+    setHomeLoading(true);
     // Fetch user data
     IndexData.getUser().then((result) => {
       setUser(result);
+      setHomeLoading(false);
     });
 
     const interval = setInterval(() => {
@@ -151,6 +162,19 @@ function HomeScreen({ navigation }) {
       clearInterval(interval);
     };
   }, [refreshCount]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      AsyncStorage.getItem('homeUpdated').then((value) => {
+        if (value === 'true') {
+          console.log('home updated');
+          setRefreshCount((prevCount) => prevCount + 1);
+
+          AsyncStorage.setItem('homeUpdated', 'false');
+        }
+      });
+    }, [navigation])
+  );
 
   // Refresh function
   const onRefresh = React.useCallback(() => {
@@ -242,6 +266,22 @@ function HomeScreen({ navigation }) {
           ))}
         </View>
       ) : null}
+
+      {/* status */}
+      { homeLoading && !isHeadLoading && Platform.OS == 'android' ? (
+        <ListItem
+          title="Chargement des données"
+          subtitle="Veuillez patienter..."
+          width
+          center
+          right={
+            <ActivityIndicator
+              size={24}
+            />
+          }
+          style={{ marginHorizontal: 16 }}
+        />
+      ) : null }
 
       {/* tabs */}
       <View style={[styles.tabsContainer]}>
@@ -428,7 +468,22 @@ function Hwitem({ homework, theme, last, startConfetti }) {
         setTimeout(() => {
           setThisHwChecked(homework.done);
         }, 100);
+        return;
       }
+
+      // sync with devoirs page
+      AsyncStorage.setItem('homeworksUpdated', 'true');
+
+      // get homework.date as 2023-01-01
+      const date = new Date(homework.date);
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+
+      const dateStr = `${year}-${month}-${day}`;
+
+      // load devoirs
+      IndexData.getHomeworks(dateStr, true);
     });
   };
 

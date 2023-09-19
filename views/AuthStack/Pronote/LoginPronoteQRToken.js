@@ -108,10 +108,10 @@ function LoginPronoteQR({ route, navigation }) {
           floating: true,
         });
         Alert.alert(
-          "Rappel : Connexion par QR-code instable",
-          "La connexion par QR-code est instable et peut ne pas fonctionner comme prévu. Si c'est le cas, connectez vous d'une autre manière.",
+          "Connexion par QR-code instable",
+          "La connexion par QR-code est instable et peut causer des plantages et autres erreurs récurrentes. Si c'est le cas, connectez vous d'une autre manière.",
           [
-            { text: "OK" }
+            { text: "J'ai compris" }
           ]
         );
       }

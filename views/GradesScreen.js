@@ -133,10 +133,10 @@ function GradesScreen({ navigation }) {
   async function loadGrades(force = false) {
     setHeadLoading(true);
     const grades = await IndexData.getGrades(force);
-    console.log(grades);
     const gradesList = JSON.parse(grades).grades;
     // invert gradeslist
     gradesList.reverse();
+    const gradesData = JSON.parse(grades);
 
     const scaledGrades = gradesList.map((grade) => ({
       ...grade,
@@ -164,7 +164,6 @@ function GradesScreen({ navigation }) {
 
       // for each average
       averages.forEach((average) => {
-        console.log(average);
 
         studentAverages += (average.average / average.out_of) * 20;
         studentAverageCount++;
@@ -179,10 +178,22 @@ function GradesScreen({ navigation }) {
         maxAveragecount++;
       });
 
-      const studentAverage = studentAverages / studentAverageCount;
-      const classAverage = classAverages / classAveragecount;
+      let studentAverage = studentAverages / studentAverageCount;
+      let classAverage = classAverages / classAveragecount;
       const minAverage = minAverages / minAveragecount;
       const maxAverage = maxAverages / maxAveragecount;
+
+      // if overall_average exists in grades
+      if (gradesData.overall_average && gradesData.overall_average !== null) {
+        studentAverage = gradesData.overall_average;
+        console.log('studentAverage', studentAverage);
+      }
+
+      // if class_overall_average exists in grades
+      if (gradesData.class_overall_average && gradesData.class_overall_average !== null) {
+        classAverage = gradesData.class_overall_average;
+        console.log('classAverage', classAverage);
+      }
 
       setAveragesData({
         studentAverage: !Number.isNaN(studentAverage)

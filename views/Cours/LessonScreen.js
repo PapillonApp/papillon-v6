@@ -103,7 +103,7 @@ function LessonScreen({ route, navigation }) {
         content: {
           title: `${getClosestGradeEmoji(lesson.subject.name)} ${lesson.subject.name} - Ça commence dans 5 minutes`,
           body: `Le cours est en salle ${lesson.rooms[0]} avec ${lesson.teachers[0]}.`,
-          sound: true,
+          sound: 'papillon_ding.wav',
         },
         trigger: {
           channelId: 'coursReminder',
