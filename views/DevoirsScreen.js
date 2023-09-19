@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {
   View,
-  ScrollView,
   StyleSheet,
   StatusBar,
   Platform,
@@ -12,6 +11,8 @@ import {
 import { useTheme, Text } from 'react-native-paper';
 
 import * as Haptics from 'expo-haptics';
+
+import { ScrollView } from 'react-native-gesture-handler';
 
 import { useState, useEffect, useRef } from 'react';
 
@@ -223,6 +224,7 @@ function Hwpage({ homeworks, navigation, theme, forceRefresh }) {
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       style={[styles.homeworksContainer]}
+      nestedScrollEnabled
       refreshControl={
         <RefreshControl
           refreshing={isHeadLoading}
@@ -245,6 +247,8 @@ function Hwpage({ homeworks, navigation, theme, forceRefresh }) {
           />
         ))}
       </View>
+
+      <View style={{ height: 24 }} />
     </ScrollView>
   );
 }
