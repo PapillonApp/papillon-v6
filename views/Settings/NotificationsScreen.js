@@ -28,7 +28,13 @@ function NotificationsScreen() {
   const [devoirsReminderEnabled, setDevoirsReminderEnabled] = useState(false);
   const [devoirsReminderTime, setDevoirsReminderTime] = useState(new Date());
 
+  const [timePickerEnabled, setTimePickerEnabled] = useState(false);
+
   useEffect(() => {
+    if(Platform.OS === 'ios') {
+      setTimePickerEnabled(true);
+    }
+
     AsyncStorage.getItem('devoirsReminder').then((value) => {
       if (value !== null) {
         const data = JSON.parse(value);
@@ -63,6 +69,7 @@ function NotificationsScreen() {
 
   async function updateReminderTime(time) {
     setDevoirsReminderTime(time);
+    closeTimePicker();
 
     await AsyncStorage.setItem('devoirsReminder', JSON.stringify({
       enabled: devoirsReminderEnabled,
@@ -87,6 +94,14 @@ function NotificationsScreen() {
       },
       identifier: 'devoirsReminder',
     });
+  }
+
+  function openTimePicker() {
+    setTimePickerEnabled(true);
+  }
+
+  function closeTimePicker() {
+    setTimePickerEnabled(false);
   }
 
   return (
@@ -128,7 +143,7 @@ function NotificationsScreen() {
 
         { devoirsReminderEnabled ? (
         <ListItem
-        subtitle="Sélectionner l'heure du rappel des devoirs"
+          subtitle="Sélectionner l'heure du rappel des devoirs"
           color="#29947A"
           center
           style={{
@@ -137,17 +152,26 @@ function NotificationsScreen() {
             borderTopRightRadius: 0,
           }}
           right={
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <DateTimePicker
-                value={devoirsReminderTime}
-                mode="time"
-                is24Hour={true}
-                display="default"
-                onChange={(event, time) => {updateReminderTime(time)}}
-              />
-            </View>
+            <>
+              {timePickerEnabled || Platform.OS == 'ios' ?
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <DateTimePicker
+                    value={devoirsReminderTime}
+                    mode="time"
+                    is24Hour={true}
+                    display="default"
+                    onChange={(event, time) => {updateReminderTime(time)}}
+                  />
+                </View>
+              : null}
+
+              {Platform.OS === 'android' ?
+               <Text style={styles.timeText}>{devoirsReminderTime.toLocaleTimeString('fr', {hour: '2-digit', 'minute': '2-digit'})}</Text>
+              : null}
+            </>
           }
-        />
+          onPress={() => {openTimePicker()}}
+                  />
         ) : null }
       </View>
     </ScrollView>
@@ -161,6 +185,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Papillon-Medium',
     opacity: 0.5,
   },
+
+  timeText: {
+    fontSize: 17,
+    fontWeight: 500,
+  }
 });
 
 export default NotificationsScreen;
