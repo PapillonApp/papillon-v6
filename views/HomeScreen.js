@@ -10,7 +10,9 @@ import {
   RefreshControl,
   Image,
 } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
+import { useTheme, Text, Snackbar } from 'react-native-paper';
+
+import { useFocusEffect } from '@react-navigation/native';
 
 import * as Haptics from 'expo-haptics';
 
@@ -32,11 +34,14 @@ import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import getClosestColor from '../utils/ColorCoursName';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { IndexData } from '../fetch/IndexData';
 
 import GetUIColors from '../utils/GetUIColors';
 
 import * as WebBrowser from 'expo-web-browser';
+import ListItem from '../components/ListItem';
 
 const openURL = (url) => {
   WebBrowser.openBrowserAsync(url, {
@@ -84,11 +89,15 @@ function HomeScreen({ navigation }) {
     return date;
   }
 
+  const [homeLoading, setHomeLoading] = React.useState(false);
+
   React.useEffect(() => {
+    setHomeLoading(true);
     // Fetch recap data
     IndexData.getRecap(currentDate, forceReload).then(
       ([timetableData, gradesData, homeworksData, homeworks1, homeworks2]) => {
         setIsHeadLoading(false);
+        setHomeLoading(false);
 
         setTimetable(timetableData);
         setHomeworks(homeworksData);
@@ -136,9 +145,11 @@ function HomeScreen({ navigation }) {
       }
     );
 
+    setHomeLoading(true);
     // Fetch user data
     IndexData.getUser().then((result) => {
       setUser(result);
+      setHomeLoading(false);
     });
 
     const interval = setInterval(() => {
@@ -149,6 +160,19 @@ function HomeScreen({ navigation }) {
       clearInterval(interval);
     };
   }, [refreshCount]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      AsyncStorage.getItem('homeUpdated').then((value) => {
+        if (value === 'true') {
+          console.log('home updated');
+          setRefreshCount((prevCount) => prevCount + 1);
+
+          AsyncStorage.setItem('homeUpdated', 'false');
+        }
+      });
+    }, [navigation])
+  );
 
   // Refresh function
   const onRefresh = React.useCallback(() => {
@@ -240,6 +264,22 @@ function HomeScreen({ navigation }) {
         </View>
       ) : null}
 
+      {/* status */}
+      { homeLoading && !isHeadLoading && Platform.OS == 'android' ? (
+        <ListItem
+          title="Chargement des données"
+          subtitle="Veuillez patienter..."
+          width
+          center
+          right={
+            <ActivityIndicator
+              size={24}
+            />
+          }
+          style={{ marginHorizontal: 16 }}
+        />
+      ) : null }
+
       {/* tabs */}
       <View style={[styles.tabsContainer]}>
         <View style={[styles.tabRow]}>
@@ -297,8 +337,8 @@ function HomeScreen({ navigation }) {
                 { data.hws && data.hws !== undefined && data.hws.length > 0 ?
                   <>
                     { data.hws.length > 0 ?
-                      <View style={[styles.HwTitle, Platform.OS == 'android' ? {backgroundColor: UIColors.primary + '22'} : null]}>
-                        <Text style={[styles.HwTitleText, Platform.OS == 'android' ? {color: UIColors.primary} : {color: theme.dark ? '#f0c5e2' : '#4f2040'}]}> pour le {new Date(data.date).toLocaleDateString('fr-FR', {weekday: 'short', day: 'numeric',month: 'short'})}</Text>
+                      <View style={[styles.HwTitle, Platform.OS == 'android' ? {backgroundColor: !theme.dark ? UIColors.primary + '32' : '#ffffff22'} : null]}>
+                        <Text style={[styles.HwTitleText, Platform.OS == 'android' ? {color: theme.dark ? '#ffffff99' : UIColors.primary} : {color: theme.dark ? '#f0c5e2' : '#4f2040'}]}> pour le {new Date(data.date).toLocaleDateString('fr-FR', {weekday: 'short', day: 'numeric',month: 'short'})}</Text>
                       </View>
                     : null }
 
@@ -425,7 +465,22 @@ function Hwitem({ homework, theme, last, startConfetti }) {
         setTimeout(() => {
           setThisHwChecked(homework.done);
         }, 100);
+        return;
       }
+
+      // sync with devoirs page
+      AsyncStorage.setItem('homeworksUpdated', 'true');
+
+      // get homework.date as 2023-01-01
+      const date = new Date(homework.date);
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+
+      const dateStr = `${year}-${month}-${day}`;
+
+      // load devoirs
+      IndexData.getHomeworks(dateStr, true);
     });
   };
 

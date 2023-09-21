@@ -455,28 +455,10 @@ function LoginPronoteSelectEtab({ navigation }) {
         </>
       ) : null}
 
-      {EtabList.length > 0 && !loading ? (
-        <List.Section style={styles.etabItemList}>
-          <List.Subheader>Établissements disponibles</List.Subheader>
-
-          {EtabList.map((item, index) => (
-            <ListItem
-              key={index}
-              title={entities.decodeHTML(item.nomEtab)}
-              subtitle={item.url.toLowerCase()}
-              icon={<School color="#159C5E" />}
-              color="#159C5E"
-              onPress={() => selectEtab(item)}
-              style={styles.etabItem}
-            />
-          ))}
-        </List.Section>
-      ) : null}
-
-      {loading && searchQuery.trim() !== '' ? (
+      { loading ? (
         <View style={{ alignItems: 'center', marginTop: 30 }}>
           <ActivityIndicator
-            size={46}
+            size={38}
             animating
             color="#159C5E"
             style={{ marginBottom: 20 }}
@@ -495,6 +477,24 @@ function LoginPronoteSelectEtab({ navigation }) {
             Cela peut prendre quelques secondes.
           </Text>
         </View>
+      ) : null}
+
+      {EtabList.length > 0 && !loading ? (
+        <List.Section style={styles.etabItemList}>
+          <List.Subheader>Établissements disponibles</List.Subheader>
+
+          {EtabList.map((item, index) => (
+            <ListItem
+              key={index}
+              title={entities.decodeHTML(item.nomEtab)}
+              subtitle={item.url.toLowerCase()}
+              icon={<School color="#159C5E" />}
+              color="#159C5E"
+              onPress={() => selectEtab(item)}
+              style={styles.etabItem}
+            />
+          ))}
+        </List.Section>
       ) : null}
 
       {EtabList.length === 0 && searchQuery.trim() !== '' && !loading ? (
