@@ -705,6 +705,16 @@ function HomeHeader({ navigation, timetable, user }) {
     return prenom;
   };
 
+  const getFormulePolitesse = () => {
+    const date = new Date();
+    const hours = date.getHours();
+    if(hours > 17) {
+      return "Bonsoir"
+    } else {
+      return "Bonjour"
+    }
+  }
+
   const openProfile = () => {
     if (user) {
       navigation.navigate('Profile', { isModal: true });
@@ -741,7 +751,7 @@ function HomeHeader({ navigation, timetable, user }) {
 
       <View style={styles.headerContainer}>
         <Text style={[styles.headerNameText]}>
-          Bonjour{user ? `, ${getPrenom(user.name)} !` : ' !'}
+          {getFormulePolitesse()}{user ? `, ${getPrenom(user.name)} !` : ' !'}
         </Text>
         <Text style={[styles.headerCoursesText]}>
           {timetable && leftCourses && leftCourses.length > 0
