@@ -147,17 +147,17 @@ function LessonScreen({ route, navigation }) {
               <Text style={styles.coursNameHeader}>
                 {formatCoursName(lesson.subject.name)}
               </Text>
-
-              <View style={[styles.coursNameEmoji]}>
-                <Text style={[styles.coursNameEmojiText]}>
-                  {getClosestGradeEmoji(lesson.subject.name)}
-                </Text>
-              </View>
             </View>
           </View>
         }
         HeaderNavbarComponent={
-          <View>
+          <View style={[{flex: 1, width: '100%'}]}>
+            <TouchableOpacity
+              style={[styles.closeItem, Platform.OS == 'android' ? {marginTop: insets.top} : null]}
+              onPress={() => navigation.goBack()}
+            >
+              <X size={24} color={'#ffffff'} />
+            </TouchableOpacity>
           </View>
         }
         TopNavBarComponent={
@@ -394,6 +394,21 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontFamily: 'Papillon-Semibold',
     textAlign: 'center',
+  },
+
+  closeItem: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    padding: 6,
+    margin: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    backgroundColor: '#ffffff22',
+    borderRadius: 50,
+
+    opacity: 0.7,
   },
 });
 
