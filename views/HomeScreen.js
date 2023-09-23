@@ -45,12 +45,10 @@ import * as WebBrowser from 'expo-web-browser';
 import ListItem from '../components/ListItem';
 
 const openURL = (url) => {
-  const UIColors = GetUIColors();
-
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
     presentationStyle: 'pageSheet',
-    controlsColor: UIColors.primary,
+    controlsColor: '#29947A',
     readerMode: true,
   });
 };
