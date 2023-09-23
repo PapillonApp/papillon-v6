@@ -4,27 +4,23 @@ import getConsts from '../consts';
 import { refreshToken } from '../AuthStack/LoginFlow';
 
 function removeDuplicateCourses(courses) {
-  const courseMap = new Map();
+  let result = [];
 
-  for (const course of courses) {
-    const startTime = course.start;
-    if (!courseMap.has(startTime)) {
-      courseMap.set(startTime, course);
-    } else {
-      const existingCourse = courseMap.get(startTime);
-      if (course.isCancelled && !existingCourse.isCancelled) {
-        // Replace the existing course with the new one
-        courseMap.set(startTime, course);
+  for (let i = 0; i < courses.length; i += 1) {
+    // if next cours starts at the same time
+    if (i + 1 < courses.length && courses[i].start === courses[i + 1].start) {
+      // if next cours is cancelled, remove it
+      if (courses[i + 1].is_cancelled) {
+        i += 1;
       }
-      if (!course.isCancelled && existingCourse.isCancelled) {
-        // Replace the new course with the existing one
-        courseMap.set(startTime, existingCourse);
+      // if current cours is cancelled, remove it
+      else if (courses[i].is_cancelled) {
+        continue;
       }
     }
-  }
 
-  // Convert the map back to an array of courses
-  const result = Array.from(courseMap.values());
+    result.push(courses[i]);
+  }
 
   return result;
 }
@@ -118,6 +114,9 @@ function getTimetable(day, force = false) {
                 JSON.stringify(cachedTimetable)
               );
             });
+
+            console.log(date);
+            console.log(result)
 
             return result;
           })

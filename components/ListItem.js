@@ -47,11 +47,11 @@ function ListItem({
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
-  let pressScale = 0.89;
+  let pressScale = 0.92;
   // let clickable = true;
 
   if (!onPress) {
-    pressScale = 1;
+    pressScale = 0.92;
     // clickable = false;
   }
 

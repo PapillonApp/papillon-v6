@@ -33,6 +33,7 @@ import { PressableScale } from 'react-native-pressable-scale';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import getClosestColor from '../utils/ColorCoursName';
+import { getClosestCourseColor } from '../utils/ColorCoursName';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -46,9 +47,13 @@ import ListItem from '../components/ListItem';
 import * as AccountManager from '../utils/AccountsManager'
 
 const openURL = (url) => {
+  const UIColors = GetUIColors();
+
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
-    presentationStyle: 'pageSheet'
+    presentationStyle: 'pageSheet',
+    controlsColor: UIColors.primary,
+    readerMode: true,
   });
 };
 
@@ -138,7 +143,7 @@ function HomeScreen({ navigation }) {
             );
             return {
               ...grade,
-              color: average ? getClosestColor(average.color) : undefined,
+              color: average ? getClosestCourseColor(average.subject.name) : undefined,
             };
           });
 
@@ -491,7 +496,7 @@ function Hwitem({ homework, theme, last, startConfetti }) {
 
   return (
     <View style={[styles.homeworkItemContainer, {borderBottomColor: UIColors.text + '22', borderBottomWidth: !last ? 1 : 0}]}>
-      <PressableScale style={[styles.homeworkItem]}>
+      <TouchableOpacity style={[styles.homeworkItem]} activeOpacity={0.5}>
         <View style={[styles.checkboxContainer]}>
           <HwCheckbox
             checked={thisHwChecked}
@@ -508,7 +513,7 @@ function Hwitem({ homework, theme, last, startConfetti }) {
             <View
               style={[
                 styles.hwItemColor,
-                { backgroundColor: getClosestColor(homework.background_color) },
+                { backgroundColor: getClosestCourseColor(homework.subject.name) },
               ]}
             />
             <Text
@@ -530,7 +535,7 @@ function Hwitem({ homework, theme, last, startConfetti }) {
             {homework.description}
           </Text>
         </View>
-      </PressableScale>
+      </TouchableOpacity>
 
       {homework.files.length > 0 ? (
         <View style={[styles.homeworkFiles]}>
@@ -699,7 +704,7 @@ function HomeHeader({ navigation, timetable, user }) {
   }, [timetable]);
 
   const getColorCoursBg = (color) =>
-    lightenDarkenColor(getClosestColor(color), -20);
+    lightenDarkenColor(getClosestCourseColor(color), -20);
 
   const getPrenom = (name) => {
     const words = name.split(' ');
@@ -707,6 +712,16 @@ function HomeHeader({ navigation, timetable, user }) {
 
     return prenom;
   };
+
+  const getFormulePolitesse = () => {
+    const date = new Date();
+    const hours = date.getHours();
+    if(hours > 17) {
+      return "Bonsoir"
+    } else {
+      return "Bonjour"
+    }
+  }
 
   const openProfile = () => {
     if (user) {
@@ -730,7 +745,7 @@ function HomeHeader({ navigation, timetable, user }) {
         styles.header,
         {
           backgroundColor: nextCourse
-            ? getColorCoursBg(nextCourse.background_color)
+            ? getColorCoursBg(nextCourse.subject.name)
             : UIColors.primaryBackground,
           paddingTop: insets.top + 13,
           borderColor: theme.dark ? '#ffffff15' : '#00000032',
@@ -744,7 +759,7 @@ function HomeHeader({ navigation, timetable, user }) {
 
       <View style={styles.headerContainer}>
         <Text style={[styles.headerNameText]}>
-          Bonjour{user ? `, ${getPrenom(user.name)} !` : ' !'}
+          {getFormulePolitesse()}{user ? `, ${getPrenom(user.name)} !` : ' !'}
         </Text>
         <Text style={[styles.headerCoursesText]}>
           {timetable && leftCourses && leftCourses.length > 0
@@ -844,7 +859,7 @@ function NextCours({ cours, navigation }) {
       <PressableScale
         style={[
           styles.nextCoursContainer,
-          { backgroundColor: getClosestColor(cours.background_color) },
+          { backgroundColor: getClosestCourseColor(cours.subject.name) },
         ]}
         onPress={openCours}
       >

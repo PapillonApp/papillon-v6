@@ -29,16 +29,10 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import * as WebBrowser from 'expo-web-browser';
 import { Calendar, Check, File, Link } from 'lucide-react-native';
 import getClosestColor from '../utils/ColorCoursName';
+import { getClosestCourseColor } from '../utils/ColorCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
 import { IndexData } from '../fetch/IndexData';
-
-const openURL = (url) => {
-  WebBrowser.openBrowserAsync(url, {
-    dismissButtonStyle: 'done',
-    presentationStyle: 'pageSheet'
-  });
-};
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -57,7 +51,23 @@ function DevoirsScreen({ navigation }) {
   const todayRef = useRef(today);
   const hwRef = useRef(homeworks);
 
+  const [browserOpen, setBrowserOpen] = useState(false);
+
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
+
+  const openURL = async (url) => {
+    if (Platform.OS === 'ios') {
+      setBrowserOpen(true);
+    }
+
+    await WebBrowser.openBrowserAsync(url, {
+      dismissButtonStyle: 'done',
+      presentationStyle: 'pageSheet',
+      controlsColor: UIColors.primary,
+    });
+    
+    setBrowserOpen(false);
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -166,11 +176,15 @@ function DevoirsScreen({ navigation }) {
 
   return (
     <>
-      <StatusBar
-        animated
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
-        backgroundColor="transparent"
-      />
+      { browserOpen ? (
+        <StatusBar barStyle={'light-content'} animated />
+      ) : (
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
+      ) }
 
       <View
         contentInsetAdjustmentBehavior="automatic"
@@ -218,6 +232,8 @@ function DevoirsScreen({ navigation }) {
                 navigation={navigation}
                 theme={theme}
                 forceRefresh={forceRefresh}
+                openURL={openURL}
+                UIColors={UIColors}
               />
             ) : (
               <View style={[styles.homeworksContainer]}>
@@ -231,7 +247,7 @@ function DevoirsScreen({ navigation }) {
   );
 }
 
-function Hwpage({ homeworks, navigation, theme, forceRefresh }) {
+function Hwpage({ homeworks, navigation, theme, forceRefresh, openURL, UIColors }) {
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
   const onRefresh = React.useCallback(() => {
@@ -251,7 +267,7 @@ function Hwpage({ homeworks, navigation, theme, forceRefresh }) {
         <RefreshControl
           refreshing={isHeadLoading}
           onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? '#29947A' : null]}
+          colors={[Platform.OS === 'android' ? UIColors.primary : null]}
         />
       }
     >
@@ -266,6 +282,7 @@ function Hwpage({ homeworks, navigation, theme, forceRefresh }) {
             navigation={navigation}
             theme={theme}
             key={index}
+            openURL={openURL}
           />
         ))}
       </View>
@@ -295,7 +312,7 @@ function HwCheckbox({ checked, theme, pressed }) {
   );
 }
 
-function Hwitem({ homework, theme }) {
+function Hwitem({ homework, theme, openURL }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
 
   useEffect(() => {
@@ -355,7 +372,7 @@ function Hwitem({ homework, theme }) {
             <View
               style={[
                 styles.hwItemColor,
-                { backgroundColor: getClosestColor(homework.background_color) },
+                { backgroundColor: getClosestCourseColor(homework.subject.name) },
               ]}
             />
             <Text

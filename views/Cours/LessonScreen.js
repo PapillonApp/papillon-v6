@@ -32,6 +32,7 @@ import * as Clipboard from 'expo-clipboard';
 import formatCoursName from '../../utils/FormatCoursName';
 import ListItem from '../../components/ListItem';
 import getClosestColor from '../../utils/ColorCoursName';
+import { getClosestCourseColor } from '../../utils/ColorCoursName';
 import GetUIColors from '../../utils/GetUIColors';
 import getClosestGradeEmoji from '../../utils/EmojiCoursName';
 
@@ -137,7 +138,7 @@ function LessonScreen({ route, navigation }) {
         <StatusBar
           animated
           barStyle="light-content"
-          backgroundColor={getClosestColor(lesson.background_color)}
+          backgroundColor={getClosestCourseColor(lesson.subject.name)}
         />
 
         <View style={styles.optionsList}>
@@ -283,7 +284,7 @@ function CoursHeader({ cours, navigation }) {
     <View
       style={[
         styles.coursHeader,
-        { backgroundColor: getClosestColor(cours.background_color) },
+        { backgroundColor: getClosestCourseColor(cours.subject.name) },
       ]}
     >
       <TouchableOpacity

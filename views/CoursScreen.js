@@ -21,6 +21,7 @@ import { Calendar, Info } from 'lucide-react-native';
 
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestColor from '../utils/ColorCoursName';
+import { getClosestCourseColor } from '../utils/ColorCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
 import { IndexData } from '../fetch/IndexData';
@@ -251,13 +252,13 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
         <View
           style={[
             styles.coursItem,
-            { backgroundColor: `${getClosestColor(cours.background_color)}22` },
+            { backgroundColor: `${getClosestCourseColor(cours.subject.name)}22` },
           ]}
         >
           <View
             style={[
               styles.coursColor,
-              { backgroundColor: getClosestColor(cours.background_color) },
+              { backgroundColor: getClosestCourseColor(cours.subject.name) },
             ]}
           />
           <View style={[styles.coursInfo]}>
@@ -286,8 +287,8 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
                 style={[
                   styles.coursStatus,
                   {
-                    backgroundColor: `${getClosestColor(
-                      cours.background_color
+                    backgroundColor: `${getClosestCourseColor(
+                      cours.subject.name
                     )}22`,
                   },
                   cours.is_cancelled ? styles.coursStatusCancelled : null,

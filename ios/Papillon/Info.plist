@@ -481,11 +481,11 @@
     <key>NSFaceIDUsageDescription</key>
     <string>Autorisez Papillon à utiliser Face ID.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>Papillon utilise ton emplacement pour trouver des établissements autour de toi.</string>
+    <string>Papillon utilise ta position pour localiser des établissements autour de toi et également pour te localiser sur la carte.</string>
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your location</string>
+    <string>Papillon utilise ton emplacement pour trouver des établissements autour de toi.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your location</string>
+    <string>Papillon utilise ton emplacement pour trouver des établissements autour de toi.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your microphone</string>
     <key>NSPhotoLibraryUsageDescription</key>

@@ -93,4 +93,96 @@ function getClosestColor(hexColor) {
   return findClosestColor(hexColor, colors);
 }
 
+const standardizedCourseColor = {
+  "francais": 32,
+  "mathematiques": 14,
+  "histoire": 45,
+  "sciences": 7,
+  "anglais": 23,
+  "geographie": 5,
+  "physique": 18,
+  "chimie": 9,
+  "biologie": 38,
+  "informatique": 11,
+  "musique": 29,
+  "art": 42,
+  "education physique": 21,
+  "philosophie": 47,
+  "economie": 36,
+  "espagnol": 10,
+  "psychologie": 27,
+  "sociologie": 4,
+  "droit": 2,
+  "management": 44,
+  "marketing": 12,
+  "finance": 33,
+  "comptabilite": 6,
+  "astronomie": 22,
+};
+
+function calculateStringDistance(str1, str2) {
+  // This function calculates the Levenshtein distance between two strings.
+  const m = str1.length;
+  const n = str2.length;
+  const dp = [];
+
+  for (let i = 0; i <= m; i++) {
+    dp[i] = [i];
+  }
+
+  for (let j = 0; j <= n; j++) {
+    dp[0][j] = j;
+  }
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+    }
+  }
+
+  return dp[m][n];
+}
+
+function removeAccentsAndLowercase(inputString) {
+  // Convert the string to lowercase
+  const lowercaseString = inputString.toLowerCase();
+
+  // Use a regular expression to replace accented characters with their non-accented equivalents
+  const normalizedString = lowercaseString.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+  return normalizedString;
+}
+
+function getClosestCourseColor(courseName) {
+  courseName = removeAccentsAndLowercase(courseName);
+
+  let closestMatch = null;
+  let minDistance = Infinity;
+
+  // Iterate through the course names in the standardizedCourseColor object
+  for (const key in standardizedCourseColor) {
+    const distance = calculateStringDistance(courseName, key);
+
+    // Check if the current course name is closer than the previous closest match
+    if (distance < minDistance) {
+      closestMatch = key;
+      minDistance = distance;
+    }
+  }
+
+  // If no match was found, return a random color from the colors array
+  if (closestMatch === null) {
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  // Return the color associated with the closest matching course name
+  return colors[standardizedCourseColor[closestMatch]];
+}
+
 export default getClosestColor;
+export { getClosestCourseColor };
