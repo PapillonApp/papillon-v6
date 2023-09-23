@@ -29,6 +29,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import * as WebBrowser from 'expo-web-browser';
 import { Calendar, Check, File, Link } from 'lucide-react-native';
 import getClosestColor from '../utils/ColorCoursName';
+import { getClosestCourseColor } from '../utils/ColorCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
 import { IndexData } from '../fetch/IndexData';
@@ -355,7 +356,7 @@ function Hwitem({ homework, theme }) {
             <View
               style={[
                 styles.hwItemColor,
-                { backgroundColor: getClosestColor(homework.background_color) },
+                { backgroundColor: getClosestCourseColor(homework.subject.name) },
               ]}
             />
             <Text

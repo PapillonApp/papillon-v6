@@ -33,6 +33,7 @@ import { PressableScale } from 'react-native-pressable-scale';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import getClosestColor from '../utils/ColorCoursName';
+import { getClosestCourseColor } from '../utils/ColorCoursName';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -136,7 +137,7 @@ function HomeScreen({ navigation }) {
             );
             return {
               ...grade,
-              color: average ? getClosestColor(average.color) : undefined,
+              color: average ? getClosestCourseColor(average.subject.name) : undefined,
             };
           });
 
@@ -505,7 +506,7 @@ function Hwitem({ homework, theme, last, startConfetti }) {
             <View
               style={[
                 styles.hwItemColor,
-                { backgroundColor: getClosestColor(homework.background_color) },
+                { backgroundColor: getClosestCourseColor(homework.subject.name) },
               ]}
             />
             <Text
@@ -696,7 +697,7 @@ function HomeHeader({ navigation, timetable, user }) {
   }, [timetable]);
 
   const getColorCoursBg = (color) =>
-    lightenDarkenColor(getClosestColor(color), -20);
+    lightenDarkenColor(getClosestCourseColor(color), -20);
 
   const getPrenom = (name) => {
     const words = name.split(' ');
@@ -737,7 +738,7 @@ function HomeHeader({ navigation, timetable, user }) {
         styles.header,
         {
           backgroundColor: nextCourse
-            ? getColorCoursBg(nextCourse.background_color)
+            ? getColorCoursBg(nextCourse.subject.name)
             : UIColors.primaryBackground,
           paddingTop: insets.top + 13,
           borderColor: theme.dark ? '#ffffff15' : '#00000032',
@@ -851,7 +852,7 @@ function NextCours({ cours, navigation }) {
       <PressableScale
         style={[
           styles.nextCoursContainer,
-          { backgroundColor: getClosestColor(cours.background_color) },
+          { backgroundColor: getClosestCourseColor(cours.subject.name) },
         ]}
         onPress={openCours}
       >

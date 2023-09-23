@@ -23,6 +23,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import PapillonIcon from '../components/PapillonIcon';
 import { IndexData } from '../fetch/IndexData';
 import getClosestColor from '../utils/ColorCoursName';
+import { getClosestCourseColor } from '../utils/ColorCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import formatCoursName from '../utils/FormatCoursName';
 import GetUIColors from '../utils/GetUIColors';
@@ -228,7 +229,7 @@ function GradesScreen({ navigation }) {
         (subj) => subj.name === average.subject.name
       );
       if (subject) {
-        const closestColor = getClosestColor(average.color);
+        const closestColor = getClosestCourseColor(average.subject.name);
         average.color = closestColor;
         subject.averages = average;
 
