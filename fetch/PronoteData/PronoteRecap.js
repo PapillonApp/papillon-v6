@@ -176,6 +176,7 @@ async function sendToSharedGroupGetEdtF(timetableData) {
           "is_exempted": false,
           "is_test": false
       }
+      
   ]
 
   timetableData = demoCours;
@@ -200,7 +201,14 @@ async function sendToSharedGroupGetEdtF(timetableData) {
 
   let stringifiedData = JSON.stringify(coursSharedTable);
 
+
   await SharedGroupPreferences.setItem("getEdtF", stringifiedData, appGroupIdentifier)
+
+  console.log("Sent to shared group");
+  const loadedData = await SharedGroupPreferences.getItem("getEdtF", appGroupIdentifier)
+
+  console.log("Loaded data: ", loadedData);
+
 }
 
 export { getRecap };
