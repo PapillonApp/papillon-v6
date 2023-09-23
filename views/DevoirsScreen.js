@@ -150,15 +150,11 @@ function DevoirsScreen({ navigation }) {
   const forceRefresh = async () => {
     const newDate = calcDate(todayRef.current, 0);
     const result = await IndexData.getHomeworks(newDate, true);
-    setHomeworks((prevHomeworks) => ({
-      ...prevHomeworks,
-      [newDate.toLocaleDateString()]: result,
-    }));
 
-    // if date already loaded, update it
-    if (hwRef.current[newDate.toLocaleDateString()]) {
-      hwRef.current[newDate.toLocaleDateString()] = result;
-    }
+    let oldHws = homeworks;
+    oldHws[newDate.toLocaleDateString()] = result;
+
+    setHomeworks(oldHws);
   };
 
   useEffect(() => {
