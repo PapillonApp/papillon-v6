@@ -34,13 +34,6 @@ import { getClosestCourseColor } from '../utils/ColorCoursName';
 import GetUIColors from '../utils/GetUIColors';
 import { IndexData } from '../fetch/IndexData';
 
-const openURL = (url) => {
-  WebBrowser.openBrowserAsync(url, {
-    dismissButtonStyle: 'done',
-    presentationStyle: 'pageSheet'
-  });
-};
-
 const calcDate = (date, days) => {
   const result = new Date(date);
   result.setDate(result.getDate() + days);
@@ -58,7 +51,23 @@ function DevoirsScreen({ navigation }) {
   const todayRef = useRef(today);
   const hwRef = useRef(homeworks);
 
+  const [browserOpen, setBrowserOpen] = useState(false);
+
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
+
+  const openURL = async (url) => {
+    if (Platform.OS === 'ios') {
+      setBrowserOpen(true);
+    }
+
+    await WebBrowser.openBrowserAsync(url, {
+      dismissButtonStyle: 'done',
+      presentationStyle: 'pageSheet',
+      controlsColor: '#29947A',
+    });
+    
+    setBrowserOpen(false);
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -167,11 +176,15 @@ function DevoirsScreen({ navigation }) {
 
   return (
     <>
-      <StatusBar
-        animated
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
-        backgroundColor="transparent"
-      />
+      { browserOpen ? (
+        <StatusBar barStyle={'light-content'} animated />
+      ) : (
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
+      ) }
 
       <View
         contentInsetAdjustmentBehavior="automatic"
@@ -219,6 +232,7 @@ function DevoirsScreen({ navigation }) {
                 navigation={navigation}
                 theme={theme}
                 forceRefresh={forceRefresh}
+                openURL={openURL}
               />
             ) : (
               <View style={[styles.homeworksContainer]}>
@@ -232,7 +246,7 @@ function DevoirsScreen({ navigation }) {
   );
 }
 
-function Hwpage({ homeworks, navigation, theme, forceRefresh }) {
+function Hwpage({ homeworks, navigation, theme, forceRefresh, openURL }) {
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
   const onRefresh = React.useCallback(() => {
@@ -267,6 +281,7 @@ function Hwpage({ homeworks, navigation, theme, forceRefresh }) {
             navigation={navigation}
             theme={theme}
             key={index}
+            openURL={openURL}
           />
         ))}
       </View>
@@ -296,7 +311,7 @@ function HwCheckbox({ checked, theme, pressed }) {
   );
 }
 
-function Hwitem({ homework, theme }) {
+function Hwitem({ homework, theme, openURL }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
 
   useEffect(() => {

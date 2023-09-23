@@ -47,7 +47,9 @@ import ListItem from '../components/ListItem';
 const openURL = (url) => {
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
-    presentationStyle: 'pageSheet'
+    presentationStyle: 'pageSheet',
+    controlsColor: '#29947A',
+    readerMode: true,
   });
 };
 
@@ -489,7 +491,7 @@ function Hwitem({ homework, theme, last, startConfetti }) {
 
   return (
     <View style={[styles.homeworkItemContainer, {borderBottomColor: UIColors.text + '22', borderBottomWidth: !last ? 1 : 0}]}>
-      <PressableScale style={[styles.homeworkItem]}>
+      <TouchableOpacity style={[styles.homeworkItem]} activeOpacity={0.5}>
         <View style={[styles.checkboxContainer]}>
           <HwCheckbox
             checked={thisHwChecked}
@@ -528,7 +530,7 @@ function Hwitem({ homework, theme, last, startConfetti }) {
             {homework.description}
           </Text>
         </View>
-      </PressableScale>
+      </TouchableOpacity>
 
       {homework.files.length > 0 ? (
         <View style={[styles.homeworkFiles]}>
