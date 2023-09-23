@@ -15,6 +15,7 @@
     "@expo/prebuild-config": "~6.2.4",
     "@expo/react-native-action-sheet": "^4.0.1",
     "@expo/webpack-config": "^19.0.0",
+    "@kanelloc/react-native-animated-header-scroll-view": "^1.0.0",
     "@pchmn/expo-material3-theme": "^1.0.1",
     "@react-native-async-storage/async-storage": "1.18.2",
     "@react-native-clipboard/clipboard": "^1.10.0",
