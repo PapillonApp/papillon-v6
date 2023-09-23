@@ -63,7 +63,7 @@ function DevoirsScreen({ navigation }) {
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
       presentationStyle: 'pageSheet',
-      controlsColor: '#29947A',
+      controlsColor: UIColors.primary,
     });
     
     setBrowserOpen(false);
@@ -233,6 +233,7 @@ function DevoirsScreen({ navigation }) {
                 theme={theme}
                 forceRefresh={forceRefresh}
                 openURL={openURL}
+                UIColors={UIColors}
               />
             ) : (
               <View style={[styles.homeworksContainer]}>
@@ -246,7 +247,7 @@ function DevoirsScreen({ navigation }) {
   );
 }
 
-function Hwpage({ homeworks, navigation, theme, forceRefresh, openURL }) {
+function Hwpage({ homeworks, navigation, theme, forceRefresh, openURL, UIColors }) {
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
   const onRefresh = React.useCallback(() => {
@@ -266,7 +267,7 @@ function Hwpage({ homeworks, navigation, theme, forceRefresh, openURL }) {
         <RefreshControl
           refreshing={isHeadLoading}
           onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? '#29947A' : null]}
+          colors={[Platform.OS === 'android' ? UIColors.primary : null]}
         />
       }
     >

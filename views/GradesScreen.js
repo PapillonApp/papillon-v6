@@ -76,6 +76,7 @@ function GradesScreen({ navigation }) {
         title: 'Changer de période',
         message: 'Sélectionnez la période de votre choix',
         options,
+        tintColor: UIColors.primary,
         cancelButtonIndex: options.length - 1,
         containerStyle: {
           paddingBottom: insets.bottom,
