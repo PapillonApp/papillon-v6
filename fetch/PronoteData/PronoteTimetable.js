@@ -119,6 +119,9 @@ function getTimetable(day, force = false) {
               );
             });
 
+            console.log(date);
+            console.log(result)
+
             return result;
           })
           .catch(() => {
