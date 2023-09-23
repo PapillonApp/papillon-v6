@@ -25,11 +25,13 @@ import { Calendar, Info } from 'lucide-react-native';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestColor from '../utils/ColorCoursName';
 import { getClosestCourseColor } from '../utils/ColorCoursName';
+import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
 import { IndexData } from '../fetch/IndexData';
 
 import * as ExpoCalendar from 'expo-calendar';
+import * as Notifications from 'expo-notifications';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -90,6 +92,55 @@ function CoursScreen({ navigation }) {
     */
   };
 
+  async function notifyAll(cours) {
+    // for each cours
+    for (let i = 0; i < cours.length; i++) {
+      const lesson = cours[i];
+      const identifier = lesson.subject.name + new Date(lesson.start).getTime();
+
+      // if notification already exists
+      Notifications.getAllScheduledNotificationsAsync().then((value) => {
+        // if item.identifier is found in value
+        for (const item of value) {
+          if (item.identifier === identifier) {
+            // cancel it
+            Notifications.cancelScheduledNotificationAsync(identifier);
+            break;
+          }
+        }
+      });
+
+      let time = new Date(lesson.start);
+      time.setMinutes(time.getMinutes() - 5);
+
+      // schedule notification
+      Notifications.scheduleNotificationAsync({
+        identifier: identifier,
+        content: {
+          title: `${getClosestGradeEmoji(lesson.subject.name)} ${lesson.subject.name} - Ça commence dans 5 minutes`,
+          body: `Le cours est en salle ${lesson.rooms[0]} avec ${lesson.teachers[0]}.`,
+          sound: 'papillon_ding.wav',
+        },
+        trigger: {
+          channelId: 'coursReminder',
+          date: new Date(time),
+        },
+      });
+    }
+
+    // alert user
+    Alert.alert(
+      'Notifications activées',
+      'Vous recevrez une notification pour chaque cours de la journée.',
+      [
+        {
+          text: 'OK',
+          style: 'cancel'
+        },
+      ]
+    );
+  }
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () =>
@@ -116,12 +167,26 @@ function CoursScreen({ navigation }) {
                       systemName: 'calendar.badge.plus',
                     },
                   },
-                }
+                },
+                {
+                  actionKey  : 'notifyAll',
+                  actionTitle: 'Programmer les notifications',
+                  actionSubtitle: 'Vous notifiera 5 min. avant chaque cours',
+                  icon: {
+                    type: 'IMAGE_SYSTEM',
+                    imageValue: {
+                      systemName: 'bell.badge.fill',
+                    },
+                  },
+                },
               ],
             }}
             onPressMenuItem={({nativeEvent}) => {
               if (nativeEvent.actionKey === 'addtoCalendar') {
                 addToCalendar(cours[calendarDate.toLocaleDateString()]);
+              }
+              else if (nativeEvent.actionKey === 'notifyAll') {
+                notifyAll(cours[calendarDate.toLocaleDateString()]);
               }
             }}
           >
