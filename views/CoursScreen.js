@@ -8,8 +8,11 @@ import {
   ActivityIndicator,
   RefreshControl,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
+
+import { ContextMenuView } from 'react-native-ios-context-menu';
 
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -25,6 +28,8 @@ import { getClosestCourseColor } from '../utils/ColorCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
 import { IndexData } from '../fetch/IndexData';
+
+import * as ExpoCalendar from 'expo-calendar';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -45,10 +50,81 @@ function CoursScreen({ navigation }) {
 
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
 
+  async function addToCalendar(cours) {
+    Alert.alert(
+      'Cette fonctionnalité n\'est pas encore disponible',
+      'Nous travaillons sur cette fonctionnalité. Elle sera disponible dans une prochaine mise à jour.',
+      [
+        {
+          text: 'OK',
+          style: 'cancel'
+        },
+      ]
+    );
+
+    // Attendre que https://github.com/expo/expo/pull/24545 soit prêt !!!
+
+    /*
+      // get calendar permission
+      const { status } = await ExpoCalendar.requestCalendarPermissionsAsync();
+      if (status === 'granted') {
+        // get default calendar
+        const calendars = await ExpoCalendar.getCalendarsAsync();
+        const defaultCalendar = calendars.find(
+          (calendar) => calendar.source.name === 'Default'
+        );
+      }
+      else {
+        console.log('Permission refusée');
+        Alert.alert(
+          'Permission refusée',
+          'Vous devez autoriser l\'application à accéder à votre calendrier pour pouvoir ajouter des cours au calendrier.',
+          [
+            {
+              text: 'OK',
+              style: 'cancel'
+            },
+          ]
+        );
+      }
+    */
+  };
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () =>
         Platform.OS === 'ios' ? (
+          <ContextMenuView
+            previewConfig={{
+              borderRadius: 8,
+            }}
+            menuConfig={{
+              menuTitle: calendarDate.toLocaleDateString('fr', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              }),
+              menuItems: [
+                {
+                  actionKey  : 'addtoCalendar',
+                  actionTitle: 'Ajouter au calendrier',
+                  actionSubtitle: 'Ajoute tous les cours de la journée au calendrier',
+                  icon: {
+                    type: 'IMAGE_SYSTEM',
+                    imageValue: {
+                      systemName: 'calendar.badge.plus',
+                    },
+                  },
+                }
+              ],
+            }}
+            onPressMenuItem={({nativeEvent}) => {
+              if (nativeEvent.actionKey === 'addtoCalendar') {
+                addToCalendar(cours[calendarDate.toLocaleDateString()]);
+              }
+            }}
+          >
           <DateTimePicker
             value={calendarDate}
             locale="fr-FR"
@@ -65,6 +141,7 @@ function CoursScreen({ navigation }) {
               }
             }}
           />
+          </ContextMenuView>
         ) : (
           <TouchableOpacity
             style={{
