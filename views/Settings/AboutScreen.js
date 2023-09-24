@@ -145,7 +145,7 @@ function AboutScreen({ navigation }) {
                     <View
                       style={[
                         styles.certif,
-                        { borderColor: theme.dark ? '#111' : '#fff' },
+                        { borderColor: UIColors.element },
                       ]}
                       sharedTransitionTag="serverCheck"
                     >
