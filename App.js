@@ -117,7 +117,12 @@ function InsetNewsScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            headerLargeTitleStyle: {
+              fontFamily: 'Papillon-Semibold',
+              fontSize: 28,
+            },
+          }
       }
     >
       <Stack.Screen
@@ -125,7 +130,7 @@ function InsetNewsScreen() {
         component={NewsScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Actualités',
         }}
       />
@@ -134,6 +139,8 @@ function InsetNewsScreen() {
         component={NewsItem}
         options={{
           headerShown: true,
+          headerLargeTitle: Platform.OS === 'ios',
+          headerTitle: 'Actualité',
         }}
       />
     </Stack.Navigator>
@@ -150,7 +157,12 @@ function InsetSchoolLifeScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            headerLargeTitleStyle: {
+              fontFamily: 'Papillon-Semibold',
+              fontSize: 28,
+            },
+          }
       }
     >
       <Stack.Screen
@@ -158,7 +170,7 @@ function InsetSchoolLifeScreen() {
         component={SchoolLifeScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Vie scolaire',
         }}
       />
@@ -176,7 +188,12 @@ function InsetConversationsScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            headerLargeTitleStyle: {
+              fontFamily: 'Papillon-Semibold',
+              fontSize: 28,
+            },
+          }
       }
     >
       <Stack.Screen
@@ -184,7 +201,7 @@ function InsetConversationsScreen() {
         component={ConversationsScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Conversations',
         }}
       />
@@ -202,7 +219,12 @@ function InsetEvaluationsScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            headerLargeTitleStyle: {
+              fontFamily: 'Papillon-Semibold',
+              fontSize: 28,
+            },
+          }
       }
     >
       <Stack.Screen
@@ -210,7 +232,7 @@ function InsetEvaluationsScreen() {
         component={EvaluationsScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Compétences',
         }}
       />
