@@ -31,6 +31,8 @@ import LessonScreen from './views/Cours/LessonScreen';
 import DevoirsScreen from './views/DevoirsScreen';
 import HomeworkScreen from './views/Devoirs/HwScreen';
 
+import ChangelogScreen from './views/ChangelogScreen';
+
 import SettingsScreen from './views/SettingsScreen';
 import AboutScreen from './views/Settings/AboutScreen';
 import ProfileScreen from './views/Settings/ProfileScreen';
@@ -261,6 +263,16 @@ function WrappedHomeScreen() {
         component={HomeScreen}
         options={{
           headerShown: true,
+        }}
+      />
+
+      <Stack.Screen
+        name="Changelog"
+        component={ChangelogScreen}
+        options={{
+          headerTitle: 'Quoi de neuf ?',
+          presentation: 'modal',
+          headerShown: false,
         }}
       />
 

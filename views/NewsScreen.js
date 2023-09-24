@@ -91,6 +91,7 @@ function NewsScreen({ navigation }) {
 
   const [news, setNews] = useState([]);
   const [finalNews, setFinalNews] = useState([]);
+  const [showNews, setShowNews] = useState(true);
 
   function editNews(n) {
     // invert the news array
@@ -152,7 +153,7 @@ function NewsScreen({ navigation }) {
         },
       },
     });
-  }, [navigation, finalNews]);
+  }, [navigation, finalNews, isHeadLoading]);
 
   const [currentNewsType, setCurrentNewsType] = useState("Toutes");
   const [newsTypes, setNewsTypes] = useState([
@@ -278,13 +279,15 @@ function NewsScreen({ navigation }) {
             />
           }
           renderItem={({ item, index }) => (
-            <NewsItem
-              item={item}
-              navigation={navigation}
-              UIColors={UIColors}
-              height={height}
-              index={index}
-            />
+            showNews ?
+              <NewsItem
+                item={item}
+                navigation={navigation}
+                UIColors={UIColors}
+                height={height}
+                index={index}
+              />
+            : null
           )}
         />
       ) : null}
@@ -359,6 +362,8 @@ function NewsChip({title, enabled, onPress, icon}) {
     <PressableScale
       style={[styles.newsChip, enabled ? styles.newsChipEnabled : null, {backgroundColor: enabled ? UIColors.primary + "22" : UIColors.element}]}
       onPress={onPress} 
+      activeScale={0.92}
+      weight='medium'
     >
       {icon}
       <Text style={[styles.newsChipText, enabled ? styles.newsChipTextEnabled : null, {color: enabled ? UIColors.primary  : UIColors.text}]}>{title}</Text>

@@ -55,6 +55,8 @@ const openURL = (url) => {
   });
 };
 
+import packageJson from '../package.json';
+
 function HomeScreen({ navigation }) {
   const theme = useTheme();
 
@@ -72,6 +74,16 @@ function HomeScreen({ navigation }) {
   const [isHeadLoading, setIsHeadLoading] = React.useState(true);
 
   const [forceReload, setForceReload] = React.useState(false);
+
+  // ouvrir le change log
+  useEffect(() => {
+    AsyncStorage.getItem('lastver').then((value) => {
+      if (value !== packageJson.version) {
+        navigation.navigate('Changelog');
+        AsyncStorage.setItem('lastver', packageJson.version);
+      }
+    });
+  }, [])
 
   // change header text and size
   React.useLayoutEffect(() => {

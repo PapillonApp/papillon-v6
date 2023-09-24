@@ -12,9 +12,10 @@ import { Text, useTheme } from 'react-native-paper';
 
 import RenderHtml from 'react-native-render-html';
 
+import * as WebBrowser from 'expo-web-browser';
+
 import { BarChart4, Link, File } from 'lucide-react-native';
 import { PressableScale } from 'react-native-pressable-scale';
-import { openURL } from 'expo-linking';
 import ListItem from '../../components/ListItem';
 import GetUIColors from '../../utils/GetUIColors';
 
@@ -23,6 +24,14 @@ function NewsItem({ route, navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
   const { width } = useWindowDimensions();
+
+  const openURL = async (url) => {
+    await WebBrowser.openBrowserAsync(url, {
+      dismissButtonStyle: 'done',
+      presentationStyle: 'pageSheet',
+      controlsColor: UIColors.primary,
+    });
+  };
 
   function genFirstName(name) {
     const names = name.split(' ');
