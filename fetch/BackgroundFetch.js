@@ -3,7 +3,7 @@ import * as TaskManager from 'expo-task-manager';
 
 import * as Notifications from 'expo-notifications';
 
-import { getNews } from './PronoteData/PronoteNews';
+import { IndexData } from './IndexData';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Actualités
@@ -12,7 +12,7 @@ TaskManager.defineTask('background-fetch-news', async () => {
     if (oldNews) {
       oldNews = JSON.parse(oldNews);
 
-      return getNews().then((news) => {
+      return IndexData.getNews().then((news) => {
         if (news.length !== oldNews.length) {
           AsyncStorage.setItem('oldNews', JSON.stringify(news));
 
