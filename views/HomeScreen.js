@@ -496,7 +496,7 @@ function Hwitem({ homework, theme, last, startConfetti, navigation }) {
 
   return (
     <View style={[styles.homeworkItemContainer, {borderBottomColor: UIColors.text + '22', borderBottomWidth: !last ? 1 : 0}]}>
-      <TouchableOpacity style={[styles.homeworkItem]} activeOpacity={0.5} onPress={() => navigation.navigate('Devoir', { homework })}>
+      <TouchableOpacity style={[styles.homeworkItem, thisHwChecked ? styles.homeworkItemCentered : null]} activeOpacity={0.5} onPress={() => navigation.navigate('Devoir', { homework })}>
         <View style={[styles.checkboxContainer]}>
           <HwCheckbox
             checked={thisHwChecked}
@@ -525,15 +525,17 @@ function Hwitem({ homework, theme, last, startConfetti, navigation }) {
               {homework.subject.name}
             </Text>
           </View>
-          <Text
-            numberOfLines={4}
-            style={[
-              styles.hwItemDescription,
-              { color: theme.dark ? '#ffffff' : '#000000' },
-            ]}
-          >
-            {homework.description}
-          </Text>
+          {!thisHwChecked ?
+            <Text
+              numberOfLines={4}
+              style={[
+                styles.hwItemDescription,
+                { color: theme.dark ? '#ffffff' : '#000000' },
+              ]}
+            >
+              {homework.description}
+            </Text>
+          : null }
         </View>
       </TouchableOpacity>
 
@@ -1162,6 +1164,9 @@ const styles = StyleSheet.create({
     gap: 16,
 
     flexDirection: 'row',
+  },
+  homeworkItemCentered: {
+    alignItems: 'center',
   },
 
   checkboxContainer: {},
