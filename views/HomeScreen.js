@@ -457,7 +457,7 @@ function HomeScreen({ navigation }) {
   );
 }
 
-function Hwitem({ homework, theme, last, startConfetti }) {
+function Hwitem({ homework, theme, last, startConfetti, navigation }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
 
   useEffect(() => {
@@ -496,7 +496,7 @@ function Hwitem({ homework, theme, last, startConfetti }) {
 
   return (
     <View style={[styles.homeworkItemContainer, {borderBottomColor: UIColors.text + '22', borderBottomWidth: !last ? 1 : 0}]}>
-      <TouchableOpacity style={[styles.homeworkItem]} activeOpacity={0.5}>
+      <TouchableOpacity style={[styles.homeworkItem]} activeOpacity={0.5} onPress={() => navigation.navigate('Devoir', { homework })}>
         <View style={[styles.checkboxContainer]}>
           <HwCheckbox
             checked={thisHwChecked}

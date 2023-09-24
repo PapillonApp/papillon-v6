@@ -26,6 +26,8 @@ import InfinitePager from 'react-native-infinite-pager';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+import FormatCoursName from '../utils/FormatCoursName';
+
 import * as WebBrowser from 'expo-web-browser';
 import { Calendar, Check, File, Link } from 'lucide-react-native';
 import getClosestColor from '../utils/ColorCoursName';
@@ -154,7 +156,10 @@ function DevoirsScreen({ navigation }) {
     let oldHws = homeworks;
     oldHws[newDate.toLocaleDateString()] = result;
 
-    setHomeworks(oldHws);
+    setHomeworks({});
+    setTimeout(() => {
+      setHomeworks(oldHws);
+    }, 200);
   };
 
   useEffect(() => {
@@ -308,7 +313,7 @@ function HwCheckbox({ checked, theme, pressed }) {
   );
 }
 
-function Hwitem({ homework, theme, openURL }) {
+function Hwitem({ homework, theme, openURL, navigation }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
 
   useEffect(() => {
@@ -351,6 +356,12 @@ function Hwitem({ homework, theme, openURL }) {
         styles.homeworkItemContainer,
         { backgroundColor: UIColors.elementHigh },
       ]}
+      onPress={() => {
+        navigation.navigate('Devoir', { homework: {
+          ...homework,
+          done: thisHwChecked,
+        } });
+      }}
     >
       <View style={[styles.homeworkItem]}>
         <View style={[styles.checkboxContainer]}>

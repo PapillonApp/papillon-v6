@@ -29,6 +29,7 @@ import CoursScreen from './views/CoursScreen';
 import LessonScreen from './views/Cours/LessonScreen';
 
 import DevoirsScreen from './views/DevoirsScreen';
+import HomeworkScreen from './views/Devoirs/HwScreen';
 
 import SettingsScreen from './views/SettingsScreen';
 import AboutScreen from './views/Settings/AboutScreen';
@@ -305,6 +306,14 @@ function WrappedHomeScreen() {
         }}
       />
       <Stack.Screen
+        name="Devoir"
+        component={HomeworkScreen}
+        options={{
+          headerShown: true,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
@@ -381,6 +390,14 @@ function WrappedDevoirsScreen() {
         options={{
           headerShown: true,
           headerLargeTitle: false,
+        }}
+      />
+      <Stack.Screen
+        name="Devoir"
+        component={HomeworkScreen}
+        options={{
+          headerShown: true,
+          presentation: 'modal',
         }}
       />
     </Stack.Navigator>
@@ -668,7 +685,9 @@ function AuthStack() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -684,11 +703,7 @@ function AuthStack() {
         component={LoginScreen}
         options={{
           title: 'Connexion',
-          headerLargeTitle: Platform.OS === 'iOS',
-          headerLargeTitleStyle: {
-            color: baseColor,
-            fontFamily: 'Papillon-Semibold',
-          },
+          headerLargeTitle: Platform.OS === 'ios',
         }}
       />
 
