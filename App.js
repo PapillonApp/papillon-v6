@@ -107,6 +107,16 @@ function CustomNavigationBar({ navigation, route, options, back }) {
   );
 }
 
+const headerTitleStyles = {
+  headerLargeTitleStyle: {
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 28,
+  },
+  headerTitleStyle: {
+    fontFamily: 'Papillon-Semibold',
+  },
+}
+
 function InsetNewsScreen() {
   return (
     <Stack.Navigator
@@ -118,10 +128,7 @@ function InsetNewsScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            headerLargeTitleStyle: {
-              fontFamily: 'Papillon-Semibold',
-              fontSize: 28,
-            },
+            ...headerTitleStyles
           }
       }
     >
@@ -158,10 +165,7 @@ function InsetSchoolLifeScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            headerLargeTitleStyle: {
-              fontFamily: 'Papillon-Semibold',
-              fontSize: 28,
-            },
+            ...headerTitleStyles
           }
       }
     >
@@ -189,10 +193,7 @@ function InsetConversationsScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            headerLargeTitleStyle: {
-              fontFamily: 'Papillon-Semibold',
-              fontSize: 28,
-            },
+            ...headerTitleStyles
           }
       }
     >
@@ -220,10 +221,7 @@ function InsetEvaluationsScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            headerLargeTitleStyle: {
-              fontFamily: 'Papillon-Semibold',
-              fontSize: 28,
-            },
+            ...headerTitleStyles
           }
       }
     >
@@ -250,7 +248,9 @@ function WrappedHomeScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -334,7 +334,9 @@ function WrappedCoursScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -366,7 +368,9 @@ function WrappedDevoirsScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -391,7 +395,9 @@ function WrappedGradesScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -429,7 +435,9 @@ function WrappedSettings() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen

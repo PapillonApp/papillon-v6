@@ -152,7 +152,7 @@ function NewsScreen({ navigation }) {
         },
       },
     });
-  }, [navigation]);
+  }, [navigation, finalNews]);
 
   const [currentNewsType, setCurrentNewsType] = useState("Toutes");
   const [newsTypes, setNewsTypes] = useState([
