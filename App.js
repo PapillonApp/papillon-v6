@@ -61,6 +61,8 @@ import { AppContextProvider, baseColor } from './utils/AppContext';
 
 import NotificationsScreen from './views/Settings/NotificationsScreen';
 
+import setBackgroundFetch from './fetch/BackgroundFetch';
+
 const Tab = createBottomTabNavigator();
 
 // stack
@@ -797,7 +799,10 @@ function App() {
   };
 
   React.useEffect(() => {
-    console.log(loggedIn);
+    // functions
+    if (loggedIn) {
+      setBackgroundFetch();
+    }
   }, [loggedIn]);
 
   if (!IsReady) {

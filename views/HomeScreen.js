@@ -44,6 +44,8 @@ import GetUIColors from '../utils/GetUIColors';
 import * as WebBrowser from 'expo-web-browser';
 import ListItem from '../components/ListItem';
 
+import * as Notifications from 'expo-notifications';
+
 const openURL = (url) => {
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
@@ -95,6 +97,9 @@ function HomeScreen({ navigation }) {
   const [homeLoading, setHomeLoading] = React.useState(false);
 
   React.useEffect(() => {
+    // ask for notifications permission
+    Notifications.requestPermissionsAsync();
+
     setHomeLoading(true);
     // Fetch recap data
     IndexData.getRecap(currentDate, forceReload).then(

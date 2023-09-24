@@ -491,7 +491,11 @@
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Papillon utilise ta pellicule pour personnaliser ton profil et ton expérience.</string>
     <key>NSRemindersUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your reminders</string>
+    <string>Papillon utilise tes rappels pour ajouter des devoirs à celui-ci.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+      <string>fetch</string>
+    </array>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>
