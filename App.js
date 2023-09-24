@@ -2,6 +2,8 @@ import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import "./utils/IgnoreWarnings";
+
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BottomNavigation, Appbar } from 'react-native-paper';
 
