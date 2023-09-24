@@ -85,4 +85,12 @@ export class IndexData {
         return require(`./PronoteData/PronoteViesco.js`).getViesco(force);
     });
   }
+
+  // [Service]Conversations.js
+  static async getConversations(force = false) {
+    return asyncStorage.getItem('service').then((service) => {
+      if (service === 'Pronote')
+        return require(`./PronoteData/PronoteConversations.js`).getConversations(force);
+    });
+  }
 }

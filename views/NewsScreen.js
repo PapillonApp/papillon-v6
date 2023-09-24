@@ -191,9 +191,6 @@ function NewsScreen({ navigation }) {
   function changeNewsType(type) {
     setCurrentNewsType(type);
 
-    console.log(type);
-    console.log(finalNews);
-
     if (type === "Toutes") {
       setNews(finalNews);
     }
