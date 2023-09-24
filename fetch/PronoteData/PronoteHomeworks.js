@@ -5,8 +5,12 @@ import { refreshToken } from '../AuthStack/LoginFlow';
 
 let retries = 0;
 
+let notfounddays = {};
+
 function getHomeworks(day, force) {
-  console.log("f:"+force)
+  if (force == undefined) {
+    force = false;
+  }
 
   return getConsts().then((consts) => {
     return AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
@@ -75,7 +79,7 @@ function getHomeworks(day, force) {
             console.log(result)
 
             if (result === 'notfound') {
-              return getHomeworks(day);
+              return refreshToken().then(() => getHomeworks(day));
             }
 
             if (result === 'expired') {
