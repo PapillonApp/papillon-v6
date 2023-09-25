@@ -20,6 +20,9 @@ import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import { IndexData } from '../fetch/IndexData';
 import GetUIColors from '../utils/GetUIColors';
+import PapillonLoading from '../components/PapillonLoading';
+
+import { Newspaper } from 'lucide-react-native';
 
 function EvaluationsScreen({ navigation }) {
   const theme = useTheme();
@@ -169,13 +172,6 @@ function EvaluationsScreen({ navigation }) {
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
       contentInsetAdjustmentBehavior="automatic"
-      refreshControl={
-        <RefreshControl
-          refreshing={isHeadLoading}
-          onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? UIColors.primary : null]}
-        />
-      }
     >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
@@ -186,6 +182,21 @@ function EvaluationsScreen({ navigation }) {
           backgroundColor="transparent"
         />
       )}
+
+      {isHeadLoading ? (
+        <PapillonLoading
+          title="Chargement des évaluations"
+          subtitle="Veuillez patienter quelques instants..."
+        />
+      ) : null}
+
+      {evaluations.length === 0 && !isHeadLoading ? (
+        <PapillonLoading
+          title="Aucune évaluation"
+          subtitle="Vous n'avez aucune évaluation pour le moment"
+          icon={<Newspaper size={24} color={UIColors.primary} />}
+        />
+      ) : null}
 
       {evaluations.length > 0
         ? evaluations.map((subject, index) => (

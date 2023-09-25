@@ -10,7 +10,11 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { ContextMenuView } from 'react-native-ios-context-menu';
+
+import { AnimatedScrollView } from '@kanelloc/react-native-animated-header-scroll-view';
 
 import * as Notifications from 'expo-notifications';
 
@@ -45,6 +49,8 @@ function LessonScreen({ route, navigation }) {
   const theme = useTheme();
   const lesson = route.params.event;
   const UIColors = GetUIColors();
+
+  const insets = useSafeAreaInsets();
 
   console.log(lesson);
 
@@ -130,10 +136,37 @@ function LessonScreen({ route, navigation }) {
 
   return (
     <>
-      <CoursHeader cours={lesson} navigation={navigation} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
+      <AnimatedScrollView
         style={{ flex: 1, backgroundColor: UIColors.background }}
+        headerMaxHeight={150}
+        topBarElevation={12}
+        topBarHeight={Platform.OS == 'android' ? insets.top + 56 : 56}
+        HeaderComponent={
+          <View style={[styles.coursNameHeaderView, {backgroundColor: getClosestCourseColor(lesson.subject.name)}]}>
+            <View style={styles.coursDataHeader}>
+              <Text style={styles.coursNameHeader}>
+                {formatCoursName(lesson.subject.name)}
+              </Text>
+            </View>
+          </View>
+        }
+        HeaderNavbarComponent={
+          <View style={[{flex: 1, width: '100%'}]}>
+            <TouchableOpacity
+              style={[styles.closeItem, Platform.OS == 'android' ? {marginTop: insets.top} : null]}
+              onPress={() => navigation.goBack()}
+            >
+              <X size={24} color={'#ffffff'} />
+            </TouchableOpacity>
+          </View>
+        }
+        TopNavBarComponent={
+          <View style={[styles.coursNameView, {backgroundColor: getClosestCourseColor(lesson.subject.name)}, Platform.OS == 'android' ? {paddingTop: insets.top} : null]}>
+            <Text style={[styles.coursNameHeaderText]}>
+              {formatCoursName(lesson.subject.name)}
+            </Text>
+          </View>
+        }
       >
         <StatusBar
           animated
@@ -274,33 +307,8 @@ function LessonScreen({ route, navigation }) {
         ) : null }
 
         <View style={{ height: 20 }} />
-      </ScrollView>
+      </AnimatedScrollView>
     </>
-  );
-}
-
-function CoursHeader({ cours, navigation }) {
-  return (
-    <View
-      style={[
-        styles.coursHeader,
-        { backgroundColor: getClosestCourseColor(cours.subject.name) },
-      ]}
-    >
-      <TouchableOpacity
-        style={[
-          styles.coursHeaderClose,
-          { top: Platform.OS === 'android' ? 36 : 20 },
-        ]}
-        onPress={() => navigation.goBack()}
-      >
-        <X size={22} color="#ffffff" />
-      </TouchableOpacity>
-
-      <Text style={styles.coursNameHeader}>
-        {formatCoursName(cours.subject.name)}
-      </Text>
-    </View>
   );
 }
 
@@ -335,31 +343,72 @@ const styles = StyleSheet.create({
     color: '#ffffff99',
   },
 
-  coursHeader: {
-    height: 150,
+  coursNameHeaderView: {
+    flex: 1,
     width: '100%',
   },
-  coursNameHeader: {
+
+  coursDataHeader: {
     position: 'absolute',
     bottom: 18,
     left: 20,
-    color: '#fff',
-
-    fontSize: 24,
-    fontFamily: 'Papillon-Semibold',
-    
-    width: '80%',
+    marginHorizontal: 40,
+    marginRight: 80,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 40,
   },
 
-  coursHeaderClose: {
+  coursNameHeader: {
+    color: '#fff',
+    fontSize: 24,
+    fontFamily: 'Papillon-Semibold',
+    flex: 1,
+  },
+
+  coursNameEmoji: {
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    backgroundColor: '#ffffff22',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: '#ffffff44',
+    borderWidth: 1,
+  },
+  coursNameEmojiText: {
+    fontSize: 28,
+    marginLeft: 2,
+  },
+
+  coursNameView: {
+    flex: 1,
+    width: '100%',
+    display: 'flex',
+    alignContent: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 22,
+  },
+  coursNameHeaderText: {
+    color: '#fff',
+    fontSize: 17,
+    fontFamily: 'Papillon-Semibold',
+    textAlign: 'center',
+  },
+
+  closeItem: {
     position: 'absolute',
-    top: 20,
-    right: 20,
-    zIndex: 1,
+    right: 0,
+    top: 0,
     padding: 6,
-    borderRadius: 120,
-    backgroundColor: '#ffffff33',
-    opacity: 0.8,
+    margin: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    backgroundColor: '#ffffff22',
+    borderRadius: 50,
+
+    opacity: 0.7,
   },
 });
 

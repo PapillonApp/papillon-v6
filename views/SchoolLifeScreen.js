@@ -16,6 +16,7 @@ import { IndexData } from '../fetch/IndexData';
 
 import PapillonIcon from '../components/PapillonIcon';
 import GetUIColors from '../utils/GetUIColors';
+import PapillonLoading from '../components/PapillonLoading';
 
 function SchoolLifeScreen() {
   const [viesco, setViesco] = useState(null);
@@ -44,13 +45,6 @@ function SchoolLifeScreen() {
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
       contentInsetAdjustmentBehavior="automatic"
-      refreshControl={
-        <RefreshControl
-          refreshing={isHeadLoading}
-          onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? '#29947A' : null]}
-        />
-      }
     >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
@@ -62,8 +56,23 @@ function SchoolLifeScreen() {
         />
       )}
 
+      {isHeadLoading ? (
+        <PapillonLoading
+          title="Chargement des évaluations"
+          subtitle="Veuillez patienter quelques instants..."
+        />
+      ) : null}
+
       {viesco ? (
         <>
+          {viesco.absences.length === 0 && viesco.delays.length === 0 && !isHeadLoading ? (
+            <PapillonLoading
+              title="Aucun évenement"
+              subtitle="Vous n'avez aucun évenement à afficher"
+              icon={<UserX size={26} color={UIColors.primary} />}
+            />
+          ) : null}
+
           {viesco.absences && viesco.absences.length > 0 ? (
             <View style={styles.optionsList}>
               <Text style={styles.ListTitle}>Absences</Text>

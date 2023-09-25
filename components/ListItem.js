@@ -27,6 +27,7 @@ function ListItem({
   width,
   center,
   chevron,
+  trimSubtitle,
 }) {
   const theme = useTheme();
 
@@ -97,7 +98,7 @@ function ListItem({
           ) : null }
 
           {subtitle ? (
-            <Text style={[styles.listItemTextSubtitle, { color: textColor }]}>
+            <Text style={[styles.listItemTextSubtitle, { color: textColor }]} numberOfLines={trimSubtitle ? 1 : null} ellipsizeMode='tail'>
               {subtitle}
             </Text>
           ) : null}
@@ -163,7 +164,7 @@ function ListItem({
             ) : null}
 
             {subtitle ? (
-              <Text style={[styles.listItemTextSubtitle, { color: textColor }]}>
+              <Text style={[styles.listItemTextSubtitle, { color: textColor }]} numberOfLines={trimSubtitle ? 1 : null} ellipsizeMode='tail'>
                 {subtitle}
               </Text>
             ) : null}

@@ -1,6 +1,6 @@
 {
   "name": "papillonvex",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "canal": "alpha",
   "scripts": {
     "start": "expo start --dev-client",
@@ -15,6 +15,7 @@
     "@expo/prebuild-config": "~6.2.4",
     "@expo/react-native-action-sheet": "^4.0.1",
     "@expo/webpack-config": "^19.0.0",
+    "@kanelloc/react-native-animated-header-scroll-view": "^1.0.0",
     "@pchmn/expo-material3-theme": "^1.0.1",
     "@react-native-async-storage/async-storage": "1.18.2",
     "@react-native-clipboard/clipboard": "^1.10.0",
@@ -77,7 +78,9 @@
     "react-native-toast-message": "^2.1.6",
     "react-native-vector-icons": "^9.2.0",
     "react-native-view-shot": "3.7.0",
-    "react-native-web": "~0.19.6"
+    "react-native-web": "~0.19.6",
+    "expo-background-fetch": "~11.3.0",
+    "expo-task-manager": "~11.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

@@ -10,11 +10,17 @@ import {
 import { Text, useTheme } from 'react-native-paper';
 import GetUIColors from '../utils/GetUIColors';
 
+import { IndexData } from '../fetch/IndexData';
+
 function ConversationsScreen() {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    IndexData.getConversations().then((v) => {
+      console.log(v);
+    });
+  }, []);
 
   return (
     <ScrollView

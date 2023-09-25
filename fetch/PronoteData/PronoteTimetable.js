@@ -29,6 +29,8 @@ function getTimetable(day, force = false) {
   // TEMPORARY : remove 1 month
   day = new Date(day);
 
+  console.log('ttForce : ', force)
+
   return getConsts().then((consts) => {
     return AsyncStorage.getItem('timetableCache').then((timetableCache) => {
       if (timetableCache && !force) {

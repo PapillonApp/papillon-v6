@@ -2,6 +2,8 @@ import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import "./utils/IgnoreWarnings";
+
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BottomNavigation, Appbar } from 'react-native-paper';
 
@@ -27,6 +29,9 @@ import CoursScreen from './views/CoursScreen';
 import LessonScreen from './views/Cours/LessonScreen';
 
 import DevoirsScreen from './views/DevoirsScreen';
+import HomeworkScreen from './views/Devoirs/HwScreen';
+
+import ChangelogScreen from './views/ChangelogScreen';
 
 import SettingsScreen from './views/SettingsScreen';
 import AboutScreen from './views/Settings/AboutScreen';
@@ -60,6 +65,8 @@ import EvaluationsScreen from './views/EvaluationsScreen';
 import { AppContextProvider, baseColor } from './utils/AppContext';
 
 import NotificationsScreen from './views/Settings/NotificationsScreen';
+
+import setBackgroundFetch from './fetch/BackgroundFetch';
 
 const Tab = createBottomTabNavigator();
 
@@ -105,6 +112,16 @@ function CustomNavigationBar({ navigation, route, options, back }) {
   );
 }
 
+const headerTitleStyles = {
+  headerLargeTitleStyle: {
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 28,
+  },
+  headerTitleStyle: {
+    fontFamily: 'Papillon-Semibold',
+  },
+}
+
 function InsetNewsScreen() {
   return (
     <Stack.Navigator
@@ -115,7 +132,9 @@ function InsetNewsScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -123,7 +142,7 @@ function InsetNewsScreen() {
         component={NewsScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Actualités',
         }}
       />
@@ -132,6 +151,8 @@ function InsetNewsScreen() {
         component={NewsItem}
         options={{
           headerShown: true,
+          headerLargeTitle: Platform.OS === 'ios',
+          headerTitle: 'Actualité',
         }}
       />
     </Stack.Navigator>
@@ -148,7 +169,9 @@ function InsetSchoolLifeScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -156,7 +179,7 @@ function InsetSchoolLifeScreen() {
         component={SchoolLifeScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Vie scolaire',
         }}
       />
@@ -174,7 +197,9 @@ function InsetConversationsScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -182,7 +207,7 @@ function InsetConversationsScreen() {
         component={ConversationsScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Conversations',
         }}
       />
@@ -200,7 +225,9 @@ function InsetEvaluationsScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -208,7 +235,7 @@ function InsetEvaluationsScreen() {
         component={EvaluationsScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Compétences',
         }}
       />
@@ -226,7 +253,9 @@ function WrappedHomeScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -234,6 +263,16 @@ function WrappedHomeScreen() {
         component={HomeScreen}
         options={{
           headerShown: true,
+        }}
+      />
+
+      <Stack.Screen
+        name="Changelog"
+        component={ChangelogScreen}
+        options={{
+          headerTitle: 'Quoi de neuf ?',
+          presentation: 'modal',
+          headerShown: false,
         }}
       />
 
@@ -279,6 +318,14 @@ function WrappedHomeScreen() {
         }}
       />
       <Stack.Screen
+        name="Devoir"
+        component={HomeworkScreen}
+        options={{
+          headerShown: true,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
@@ -310,7 +357,9 @@ function WrappedCoursScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -342,7 +391,9 @@ function WrappedDevoirsScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -351,6 +402,14 @@ function WrappedDevoirsScreen() {
         options={{
           headerShown: true,
           headerLargeTitle: false,
+        }}
+      />
+      <Stack.Screen
+        name="Devoir"
+        component={HomeworkScreen}
+        options={{
+          headerShown: true,
+          presentation: 'modal',
         }}
       />
     </Stack.Navigator>
@@ -367,7 +426,9 @@ function WrappedGradesScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -405,7 +466,9 @@ function WrappedSettings() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -634,7 +697,9 @@ function AuthStack() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -650,11 +715,7 @@ function AuthStack() {
         component={LoginScreen}
         options={{
           title: 'Connexion',
-          headerLargeTitle: Platform.OS === 'iOS',
-          headerLargeTitleStyle: {
-            color: baseColor,
-            fontFamily: 'Papillon-Semibold',
-          },
+          headerLargeTitle: Platform.OS === 'ios',
         }}
       />
 
@@ -797,7 +858,10 @@ function App() {
   };
 
   React.useEffect(() => {
-    console.log(loggedIn);
+    // functions
+    if (loggedIn) {
+      setBackgroundFetch();
+    }
   }, [loggedIn]);
 
   if (!IsReady) {

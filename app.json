@@ -65,7 +65,8 @@
       [
         "expo-calendar",
         {
-          "calendarPermission": "Papillon utilise ton calendrier pour ajouter des cours à celui-ci."
+          "calendarPermission": "Papillon utilise ton calendrier pour ajouter des cours à celui-ci.",
+          "remindersPermission": "Papillon utilise tes rappels pour ajouter des devoirs à celui-ci."
         }
       ],
       [

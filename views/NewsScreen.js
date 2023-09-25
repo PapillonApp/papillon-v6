@@ -1,21 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   StyleSheet,
   View,
+  Animated,
+  Easing,
   ScrollView,
   StatusBar,
   RefreshControl,
   Platform,
   ActivityIndicator,
+  FlatList,
+  Dimensions,
 } from 'react-native';
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text, useTheme } from 'react-native-paper';
 
-import { Newspaper, Utensils } from 'lucide-react-native';
+import { Newspaper, ChefHat, Projector, Users2, AlertTriangle } from 'lucide-react-native';
 import { IndexData } from '../fetch/IndexData';
 import ListItem from '../components/ListItem';
 
+import PapillonLoading from '../components/PapillonLoading';
+
 import GetUIColors from '../utils/GetUIColors';
+import { PressableScale } from 'react-native-pressable-scale';
 
 function relativeDate(date) {
   const now = new Date();
@@ -62,9 +71,11 @@ function FullNewsIcon({ title }) {
 
   return (
     <View>
-      { normalizeText(title).includes('menu')
-        ? <Utensils color={UIColors.primary} size={24} />
-        : <Newspaper color={UIColors.primary} size={24} />
+      { normalizeText(title).includes('menu') ? <ChefHat color={UIColors.primary} size={24} /> :
+      normalizeText(title).includes('reunion') ? <Projector color={UIColors.primary} size={24} /> :
+      normalizeText(title).includes('association') ? <Users2 color={UIColors.primary} size={24} /> :
+      normalizeText(title).includes('important') ? <AlertTriangle color={UIColors.primary} size={24} /> :
+      <Newspaper color={UIColors.primary} size={24} />
       }
     </View>
   )
@@ -74,8 +85,13 @@ function NewsScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
+  const insets = useSafeAreaInsets();
+
+  const { height } = Dimensions.get("screen");
+
   const [news, setNews] = useState([]);
-  let finalNews = [];
+  const [finalNews, setFinalNews] = useState([]);
+  const [showNews, setShowNews] = useState(true);
 
   function editNews(n) {
     // invert the news array
@@ -91,7 +107,7 @@ function NewsScreen({ navigation }) {
     IndexData.getNews().then((n) => {
       setIsHeadLoading(false);
       setNews(editNews(JSON.parse(n)));
-      finalNews = editNews(JSON.parse(n));
+      setFinalNews(editNews(JSON.parse(n)));
     });
   }, []);
 
@@ -99,7 +115,7 @@ function NewsScreen({ navigation }) {
     setIsHeadLoading(true);
     IndexData.getNews(true).then((n) => {
       setNews(editNews(JSON.parse(n)));
-      finalNews = editNews(JSON.parse(n));
+      setFinalNews(editNews(JSON.parse(n)));
       setIsHeadLoading(false);
     });
   }, []);
@@ -137,12 +153,77 @@ function NewsScreen({ navigation }) {
         },
       },
     });
-  }, [navigation]);
+  }, [navigation, finalNews, isHeadLoading]);
+
+  const [currentNewsType, setCurrentNewsType] = useState("Toutes");
+  const [newsTypes, setNewsTypes] = useState([
+    {
+      name: "Toutes",
+      icon: <Newspaper color={UIColors.primary} size={20} />,
+      enabled: true,
+    },
+    {
+      name: "Menus",
+      icon: <ChefHat color={UIColors.primary} size={20} />,
+      enabled: false,
+    },
+    {
+      name: "Réunions",
+      icon: <Projector color={UIColors.primary} size={20} />,
+      enabled: false,
+    },
+  ]);
+
+  useEffect(() => {
+    news.forEach((item) => {
+      if (normalizeText(item.title).includes(normalizeText("menu"))) {
+        newNewsTypes = newsTypes;
+        newNewsTypes[1].enabled = true;
+        setNewsTypes(newNewsTypes);
+      }
+      if (normalizeText(item.title).includes(normalizeText("reunion"))) {
+        newNewsTypes = newsTypes;
+        newNewsTypes[2].enabled = true;
+        setNewsTypes(newNewsTypes);
+      }
+    });
+  }, [news]);
+
+  function changeNewsType(type) {
+    setCurrentNewsType(type);
+
+    if (type === "Toutes") {
+      setNews(finalNews);
+    }
+
+    if (type === "Menus") {
+      const newNews = [];
+
+      finalNews.forEach((item) => {
+        if (normalizeText(item.title).includes(normalizeText("menu"))) {
+          newNews.push(item);
+        }
+      });
+
+      setNews(newNews);
+    }
+
+    if (type === "Réunions") {
+      const newNews = [];
+
+      finalNews.forEach((item) => {
+        if (normalizeText(item.title).includes(normalizeText("reunion"))) {
+          newNews.push(item);
+        }
+      });
+
+      setNews(newNews);
+    }
+  }
 
   return (
-    <ScrollView
+    <View
       style={[styles.container, { backgroundColor: UIColors.background }]}
-      contentInsetAdjustmentBehavior="automatic"
     >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
@@ -154,43 +235,174 @@ function NewsScreen({ navigation }) {
         />
       )}
 
-      {news.length > 0 ? (
-        <View style={styles.newsList}>
-          {news.map((item, index) => {
-            let content = item.content.trim();
-            if (content.length > 50) {
-              content = `${content.substring(0, 50)}...`;
-            }
-
-            return (
-              <ListItem
-                key={index}
-                title={item.title}
-                subtitle={normalizeContent(content)}
-                icon={<FullNewsIcon title={item.title} />}
-                color={theme.colors.primary}
-                onPress={() =>
-                  navigation.navigate('NewsDetails', { news: item })
-                }
-                right={
-                  <Text style={{ fontSize: 13, opacity: 0.5 }}>
-                    il y a {relativeDate(new Date(item.date))}
-                  </Text>
-                }
-              />
-            );
-          })}
-        </View>
+      {isHeadLoading ? (
+        <PapillonLoading
+          title="Chargement des actualités..."
+          subtitle="Obtention des dernières actualités en cours"
+          style={[{marginTop: insets.top + 120}]}
+        />
       ) : null}
-    </ScrollView>
+
+      {!isHeadLoading ? (
+        <Animated.FlatList
+          contentInsetAdjustmentBehavior="automatic"
+          style={[styles.newsList]}
+          contentContainerStyle={{
+            paddingBottom: insets.bottom,
+          }}
+          data={news}
+          keyExtractor={(item) => item.id.toString()}
+          ListHeaderComponent={
+            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={[styles.selectTypes]}>
+              { newsTypes.map((item, index) => (
+                ( item.enabled ?
+                  <NewsChip
+                    key={index}
+                    title={item.name}
+                    enabled={currentNewsType === item.name}
+                    icon={item.icon}
+                    onPress={() => {
+                      changeNewsType(item.name);
+                    }}
+                  />
+                : null )
+              ))}
+              <View style={{width: 18}}></View>
+            </ScrollView>
+          }
+          refreshControl={
+            <RefreshControl
+              refreshing={isHeadLoading}
+              onRefresh={onRefresh}
+              colors={[UIColors.primary]}
+              tintColor={UIColors.primary}
+            />
+          }
+          renderItem={({ item, index }) => (
+            showNews ?
+              <NewsItem
+                item={item}
+                navigation={navigation}
+                UIColors={UIColors}
+                height={height}
+                index={index}
+              />
+            : null
+          )}
+        />
+      ) : null}
+    </View>
   );
 }
 
+function NewsItem({item, navigation, UIColors, height, index}) {
+  let content = item.content.trim();
+  if (content.length > 50) {
+    content = `${content.substring(0, 50)}...`;
+  }
+
+  // Animation
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      easing: Easing.elastic(1),
+      useNativeDriver: true,
+      delay: index * 50,
+    }).start();
+  });
+
+  return (
+    <Animated.View
+    style={[
+      {
+        // Bind opacity to animated value
+        opacity: fadeAnim,
+        transform: [
+          {
+            translateY: fadeAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [50, 0],
+            })
+          },
+          {
+            scale: fadeAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0.9, 1],
+            })
+          }
+        ],
+      },
+    ]}>
+    <ListItem
+      title={item.title}
+      subtitle={normalizeContent(content)}
+      icon={<FullNewsIcon title={item.title} />}
+      color={UIColors.primary}
+      onPress={() =>
+        navigation.navigate('NewsDetails', { news: item })
+      }
+      right={
+        <Text style={{ fontSize: 13, opacity: 0.5 }}>
+          il y a {relativeDate(new Date(item.date))}
+        </Text>
+      }
+      style={styles.newsItem}
+    />
+    </Animated.View>
+  );
+}
+
+function NewsChip({title, enabled, onPress, icon}) {
+  const UIColors = GetUIColors();
+
+  return (
+    <PressableScale
+      style={[styles.newsChip, enabled ? styles.newsChipEnabled : null, {backgroundColor: enabled ? UIColors.primary + "22" : UIColors.element}]}
+      onPress={onPress} 
+      activeScale={0.92}
+      weight='medium'
+    >
+      {icon}
+      <Text style={[styles.newsChipText, enabled ? styles.newsChipTextEnabled : null, {color: enabled ? UIColors.primary  : UIColors.text}]}>{title}</Text>
+    </PressableScale>
+  )
+}
+
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+
   newsList: {
-    marginTop: 16,
-    marginBottom: 16,
-    gap: 10,
+  },
+
+  newsItem: {
+    marginBottom: 8,
+  },
+
+  selectTypes: {
+    flex: 1,
+    flexDirection: 'row',
+    marginVertical: 16,
+    paddingHorizontal: 16,
+  },
+
+  newsChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 7,
+    paddingHorizontal: 14,
+    borderRadius: 300,
+    gap: 7,
+    marginRight: 9,
+  },
+
+  newsChipText: {
+    fontSize: 15,
+    fontFamily: 'Papillon-Medium',
   },
 });
 

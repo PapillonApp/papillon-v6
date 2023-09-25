@@ -8,8 +8,11 @@ import {
   ActivityIndicator,
   RefreshControl,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
+
+import { ContextMenuView } from 'react-native-ios-context-menu';
 
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -17,14 +20,31 @@ import { PressableScale } from 'react-native-pressable-scale';
 
 import InfinitePager from 'react-native-infinite-pager';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Calendar, Info } from 'lucide-react-native';
 
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestColor from '../utils/ColorCoursName';
 import { getClosestCourseColor } from '../utils/ColorCoursName';
+import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
 import { IndexData } from '../fetch/IndexData';
+
+import ListItem from '../components/ListItem';
+
+import {
+  X,
+  DoorOpen,
+  User2,
+  Clock4,
+  Info,
+  Calendar,
+  Hourglass,
+  Clock8,
+  Users,
+} from 'lucide-react-native';
+
+import * as ExpoCalendar from 'expo-calendar';
+import * as Notifications from 'expo-notifications';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -45,10 +65,144 @@ function CoursScreen({ navigation }) {
 
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
 
+  async function addToCalendar(cours) {
+    Alert.alert(
+      'Cette fonctionnalité n\'est pas encore disponible',
+      'Nous travaillons sur cette fonctionnalité. Elle sera disponible dans une prochaine mise à jour.',
+      [
+        {
+          text: 'OK',
+          style: 'cancel'
+        },
+      ]
+    );
+
+    // Attendre que https://github.com/expo/expo/pull/24545 soit prêt !!!
+
+    /*
+      // get calendar permission
+      const { status } = await ExpoCalendar.requestCalendarPermissionsAsync();
+      if (status === 'granted') {
+        // get default calendar
+        const calendars = await ExpoCalendar.getCalendarsAsync();
+        const defaultCalendar = calendars.find(
+          (calendar) => calendar.source.name === 'Default'
+        );
+      }
+      else {
+        console.log('Permission refusée');
+        Alert.alert(
+          'Permission refusée',
+          'Vous devez autoriser l\'application à accéder à votre calendrier pour pouvoir ajouter des cours au calendrier.',
+          [
+            {
+              text: 'OK',
+              style: 'cancel'
+            },
+          ]
+        );
+      }
+    */
+  };
+
+  async function notifyAll(cours) {
+    // for each cours
+    for (let i = 0; i < cours.length; i++) {
+      const cours = cours[i];
+      const identifier = cours.subject.name + new Date(cours.start).getTime();
+
+      // if notification already exists
+      Notifications.getAllScheduledNotificationsAsync().then((value) => {
+        // if item.identifier is found in value
+        for (const item of value) {
+          if (item.identifier === identifier) {
+            // cancel it
+            Notifications.cancelScheduledNotificationAsync(identifier);
+            break;
+          }
+        }
+      });
+
+      let time = new Date(cours.start);
+      time.setMinutes(time.getMinutes() - 5);
+
+      // schedule notification
+      Notifications.scheduleNotificationAsync({
+        identifier: identifier,
+        content: {
+          title: `${getClosestGradeEmoji(cours.subject.name)} ${cours.subject.name} - Ça commence dans 5 minutes`,
+          body: `Le cours est en salle ${cours.rooms[0]} avec ${cours.teachers[0]}.`,
+          sound: 'papillon_ding.wav',
+        },
+        trigger: {
+          channelId: 'coursReminder',
+          date: new Date(time),
+        },
+      });
+    }
+
+    // alert user
+    Alert.alert(
+      'Notifications activées',
+      'Vous recevrez une notification pour chaque cours de la journée.',
+      [
+        {
+          text: 'OK',
+          style: 'cancel'
+        },
+      ]
+    );
+  }
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () =>
         Platform.OS === 'ios' ? (
+          <ContextMenuView
+            previewConfig={{
+              borderRadius: 8,
+            }}
+            menuConfig={{
+              menuTitle: calendarDate.toLocaleDateString('fr', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              }),
+              menuItems: [
+                {
+                  actionKey  : 'addtoCalendar',
+                  actionTitle: 'Ajouter au calendrier',
+                  actionSubtitle: 'Ajoute tous les cours de la journée au calendrier',
+                  icon: {
+                    type: 'IMAGE_SYSTEM',
+                    imageValue: {
+                      systemName: 'calendar.badge.plus',
+                    },
+                  },
+                },
+                {
+                  actionKey  : 'notifyAll',
+                  actionTitle: 'Programmer les notifications',
+                  actionSubtitle: 'Vous notifiera 5 min. avant chaque cours',
+                  icon: {
+                    type: 'IMAGE_SYSTEM',
+                    imageValue: {
+                      systemName: 'bell.badge.fill',
+                    },
+                  },
+                },
+              ],
+            }}
+            onPressMenuItem={({nativeEvent}) => {
+              if (nativeEvent.actionKey === 'addtoCalendar') {
+                addToCalendar(cours[calendarDate.toLocaleDateString()]);
+              }
+              else if (nativeEvent.actionKey === 'notifyAll') {
+                notifyAll(cours[calendarDate.toLocaleDateString()]);
+              }
+            }}
+          >
           <DateTimePicker
             value={calendarDate}
             locale="fr-FR"
@@ -65,6 +219,7 @@ function CoursScreen({ navigation }) {
               }
             }}
           />
+          </ContextMenuView>
         ) : (
           <TouchableOpacity
             style={{
@@ -117,10 +272,10 @@ function CoursScreen({ navigation }) {
   const forceRefresh = async () => {
     const newDate = calcDate(todayRef.current, 0);
     const result = await IndexData.getTimetable(newDate, true);
-    setCours((prevCours) => ({
-      ...prevCours,
-      [newDate.toLocaleDateString()]: result,
-    }));
+
+    let newCours = cours;
+    newCours[newDate.toLocaleDateString()] = result;
+    setCours(newCours);
   };
 
   useEffect(() => {
@@ -193,7 +348,7 @@ function CoursScreen({ navigation }) {
   );
 }
 
-const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
+const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
   const formattedStartTime = useCallback(
     () =>
       new Date(cours.start).toLocaleTimeString([], {
@@ -230,6 +385,9 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
     CoursPressed(cours);
   }, [CoursPressed, cours]);
 
+  const UIColors = GetUIColors();
+  const mainColor = theme.dark ? '#ffffff' : '#444444';
+
   return (
     <View style={[styles.fullCours]}>
       <View style={[styles.coursTimeContainer]}>
@@ -240,6 +398,93 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
           {formattedEndTime()}
         </Text>
       </View>
+      <ContextMenuView
+        style={{ flex: 1 }}
+        borderRadius={14}
+        previewConfig={{
+          borderRadius: 14,
+          previewType: 'CUSTOM',
+          previewSize: 'INHERIT',
+          backgroundColor: 'rgba(255,255,255,0)',
+          preferredCommitStyle: 'pop',
+        }}
+        menuConfig={{
+          menuTitle: cours.subject.name,
+          menuItems: [
+            {
+              actionKey  : 'open',
+              actionTitle: 'Voir le cours en détail',
+              actionSubtitle: 'Ouvrir la page détaillée du cours',
+              icon: {
+                type: 'IMAGE_SYSTEM',
+                imageValue: {
+                  systemName: 'book.pages',
+                },
+              },
+            }
+          ],
+        }}
+        onPressMenuItem={({nativeEvent}) => {
+          if (nativeEvent.actionKey === 'open') {
+            navigation.navigate('Lesson', { event: cours });
+          }
+        }}
+        onPressMenuPreview={() => {
+          navigation.navigate('Lesson', { event: cours });
+        }}
+        renderPreview={() => (
+          <View style={{ flex: 1, backgroundColor: UIColors.background + '99', width: 350 }}>
+            <View style={styles.coursPreviewList}>
+              { cours.rooms.length > 0 ? (
+                <ListItem
+                  title="Salle de cours"
+                  subtitle={cours.rooms.join(', ')}
+                  color={mainColor}
+                  left={<DoorOpen size={24} color={mainColor} />}
+                  width
+                  center
+                />
+              ) : null }
+              { cours.teachers.length > 0 ? (
+                <ListItem
+                  title={"Professeur" + (cours.teachers.length > 1 ? "s" : "")}
+                  subtitle={cours.teachers.join(', ')}
+                  color={mainColor}
+                  left={<User2 size={24} color={mainColor} />}
+                  width
+                  center
+                />
+              ) : null }
+              { cours.group_names.length > 0 ? (
+                <ListItem
+                  title={"Groupe" + (cours.group_names.length > 1 ? "s" : "")}
+                  subtitle={cours.group_names.join(', ')}
+                  color={mainColor}
+                  left={<Users size={24} color={mainColor} />}
+                  width
+                  center
+                />
+              ) : null }
+              {cours.status !== null ? (
+                <ListItem
+                  title="Statut du cours"
+                  subtitle={cours.status}
+                  color={!cours.is_cancelled ? mainColor : '#B42828'}
+                  left={
+                    <Info
+                      size={24}
+                      color={!cours.is_cancelled ? mainColor : '#ffffff'}
+                    />
+                  }
+                  fill={!!cours.is_cancelled}
+                  width
+                  center
+                />
+              ) : null}
+            </View>
+          </View>
+        )}
+      >
       <PressableScale
         weight="light"
         delayLongPress={100}
@@ -314,6 +559,7 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed }) => {
           </View>
         </View>
       </PressableScale>
+      </ContextMenuView>
     </View>
   );
 });
@@ -378,6 +624,7 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
             key={index}
             cours={_cours}
             theme={theme}
+            navigation={navigation}
             CoursPressed={CoursPressed}
           />
         </View>
@@ -520,6 +767,13 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 2,
     borderRadius:3,
+  },
+
+  coursPreviewList: {
+    padding: 12,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 9,
   },
 });
 

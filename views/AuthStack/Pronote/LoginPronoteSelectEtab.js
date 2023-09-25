@@ -381,6 +381,9 @@ function LoginPronoteSelectEtab({ navigation }) {
           <Text style={[styles.qrModalText]}>
             Scannez le QR Code de votre établissement pour vous connecter.
           </Text>
+          <Text style={[styles.qrModalText, styles.qrDanger]}>
+            ATTENTION : ce mode de connexion est instable et peut causer des plantages et autres comportements innatendus. Si c'est le cas, connectez vous d'une autre manière.
+          </Text>
 
           <View style={[styles.qrModalScannerContainer]}>
             {qrModalVisible ? (
@@ -559,6 +562,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     textAlign: 'center',
     marginHorizontal: 30,
+  },
+  qrDanger: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#ff0000',
   },
 
   qrBtn: {
