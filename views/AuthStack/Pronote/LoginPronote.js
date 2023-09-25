@@ -169,7 +169,7 @@ function LoginPronote({ route, navigation }) {
         setConnecting(false);
         showMessage({
           message: 'Échec de la connexion',
-          description: 'Veuillez vérifier vos identifiants.',
+          description: result.error || 'Veuillez vérifier vos identifiants.',
           type: 'danger',
           icon: 'auto',
           floating: true,

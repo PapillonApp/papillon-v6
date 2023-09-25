@@ -75,6 +75,7 @@ export function useAccount(id) {
                     service : await asyncStorage.getItem("service"),
                     userCache : JSON.parse(await asyncStorage.getItem("userCache") || {})
                 }
+                accounts.delete(activeAccount)
                 accounts.set(activeAccount, oldAccount)
             }
             let oldLogin = await asyncStorage.getItem("old_login")
@@ -88,7 +89,7 @@ export function useAccount(id) {
         console.log("[AccountManager/Use] Infos du compte : " + JSON.stringify(account))
         let activeAccount = await asyncStorage.getItem("activeAccount")
         if(activeAccount) {
-            let oldAccount = accounts.get(activeAccount)
+            let oldAccount = accounts.get(Number(activeAccount))
             console.log("[AccountManager/Use] Ancien compte trouvé, données : " + JSON.stringify(oldAccount))
             let storage1 = await asyncStorage.getAllKeys()
             let storage = []
@@ -126,7 +127,9 @@ export function useAccount(id) {
  */
 export function updateUser(id) {
     return new Promise(async(resolve, reject) => {
+        console.log("[AccountManager] Update user")
         if(!id) id = Number(await asyncStorage.getItem("activeAccount"))
+        console.log("[AccountManager] Utilisation id", id)
         let accounts = await getAccounts()
         if(!accounts) reject("Aucun compte enregistré")
         let account = accounts.get(id)
@@ -143,7 +146,9 @@ export function updateUser(id) {
             service : await asyncStorage.getItem("service"),
             userCache : JSON.parse(await asyncStorage.getItem("userCache") || {})
         }
+        accounts.delete(id)
         accounts.set(id, oldAccount)
+        await saveAccounts(accounts)
         resolve()
     })
 }

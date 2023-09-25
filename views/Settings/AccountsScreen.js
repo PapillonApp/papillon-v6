@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import { UserPlus } from 'lucide-react-native';
+import { UserPlus, Trash } from 'lucide-react-native';
 
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
@@ -24,11 +24,13 @@ import { showMessage } from 'react-native-flash-message';
 
 import asyncStorage from '@react-native-async-storage/async-storage';
 
-async function AccountItem({ account, changeAccount, current, icon, loading }) {
-    console.log("account transmis :", account)
+import { useAppContext } from '../../utils/AppContext';
+
+function AccountItem({ account, changeAccount, current, icon, loading }) {
+    console.log("current transmis :", current)
     return (
         <ListItem
-            title={account.userCache.user.name}
+            title={account.userCache ? account.userCache.user.name : "Inconnu"}
             subtitle={"Compte " + account.service + " (" + account.credentials.username + ")"}
             color="#A84700"
             style={[styles.iconElem, current ? styles.iconElemCurrent : {}]}
@@ -46,16 +48,21 @@ async function AccountItem({ account, changeAccount, current, icon, loading }) {
 }
 
 function AccountsScreen({ navigation }) {
+    const appCtx = useAppContext();
     const [currentAccount, setCurrentAccount] = React.useState(null)
-    asyncStorage.getItem("activeAccount").then(e => { setCurrentAccount(Number(e)) })
     const [loadingAccount, setLoadingAccount] = React.useState(null)
-    const [accounts, setAccounts] = React.useState(null)
+    const [accounts, setAccounts] = React.useState(undefined)
+    function logoutAll() {
+        appCtx.setLoggedIn(false)
+        asyncStorage.clear()
+    }
     function getAccounts() {
         AccountManager.getAccounts().then(ac => {
             let ac1 = Array.from(ac)
             console.log("données en array : " + ac1)
             setAccounts(ac1)
         })
+        asyncStorage.getItem("activeAccount").then(e => { console.log("activeAccount", e); setCurrentAccount(Number(e)) })
     }
     React.useEffect(() => {
         getAccounts()
@@ -68,9 +75,11 @@ function AccountsScreen({ navigation }) {
         "ecoledirecte": require("../../assets/logo_ed.png"),
         "skolengo": require("../../assets/logo_skolengo.png")
     }
+    console.log(logos["Pronote"])
     async function changeAccount(id) {
         if(loadingAccount !== null) return;
         if(currentAccount === id) return;
+        setLoadingAccount(id)
         AccountManager.useAccount(id)
         .then(() => {
             showMessage({
@@ -120,23 +129,33 @@ function AccountsScreen({ navigation }) {
                 center
                 />
           </View>
-          { accounts && accounts.length > 0 ? (
+          { typeof accounts !== "undefined" && accounts.length > 0 ? (
             <View style={{ gap: 9, marginTop: 24 }}>
                 <Text style={styles.ListTitle}>Comptes liés</Text>
-                { accounts.map((account) => {
-                    console.log("account :" + account[1])
-                    return(
+                { accounts.map((account) => (
                     <AccountItem
                         account={account[1]}
                         changeAccount={changeAccount}
-                        current={currentAccount === account.id}
-                        icon={logos[account.service]}
-                        loading={loadingAccount === account.id}
+                        current={currentAccount === account[1].id}
+                        icon={logos[account[1].service]}
+                        loading={loadingAccount === account[1].id}
                     />
-                    )
-                })
+                ))
                 }
-            
+                <ListItem
+                title="Déconnecter tous les comptes"
+                color="#B42828"
+                left={
+                    <PapillonIcon
+                    icon={<Trash size={24} color="#B42828" />}
+                    color="#B42828"
+                    size={24}
+                    small
+                    />
+                }
+                onPress={() => logoutAll()}
+                center
+                />
             </View>
           ) : (
             <View style={{ gap: 9, marginTop: 24 }}>
@@ -163,6 +182,12 @@ const styles = StyleSheet.create({
     iconElemCurrent: {
         borderColor: '#29947A',
         borderWidth: 2,
+    },
+    serviceOptionLogo: {
+        width: 40,
+        height: 40,
+    
+        borderRadius: 300,
     },
   });
   
