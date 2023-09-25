@@ -68,6 +68,8 @@ import NotificationsScreen from './views/Settings/NotificationsScreen';
 
 import setBackgroundFetch from './fetch/BackgroundFetch';
 
+import { SFSymbol } from "react-native-sfsymbols";
+
 const Tab = createBottomTabNavigator();
 
 // stack
@@ -600,12 +602,9 @@ function AppStack() {
         elevated: false,
         tabBarLabelStyle: {
           fontFamily: 'Papillon-Medium',
-          fontSize: 13,
+          fontSize: 12.5,
           letterSpacing: 0.2,
-        },
-        tabBarBadgeStyle: {
-          fontFamily: 'Papillon-Medium',
-          fontSize: 13,
+          marginTop: 1,
         },
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
@@ -617,7 +616,7 @@ function AppStack() {
           paddingTop: 2,
         },
         tabBarButton: (props) => (
-          <PressableScale {...props} activeScale={0.7} weight="light">
+          <PressableScale {...props} activeScale={0.85} weight="heavy">
             <View
               style={{
                 flex: 1,
@@ -636,7 +635,15 @@ function AppStack() {
         component={WrappedHomeScreen}
         options={{
           tabBarLabel: 'Accueil',
-          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="house.fill" color={color} size={size-2} />
+              :
+                <SFSymbol name="house" color={color} size={size-2} />
+            :
+              <Home color={color} size={size} />
+          ),
           headerShown: false,
         }}
       />
@@ -645,8 +652,14 @@ function AppStack() {
         component={WrappedCoursScreen}
         options={{
           tabBarLabel: 'Cours',
-          tabBarIcon: ({ color, size }) => (
-            <CalendarRange color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="calendar" color={color} size={size} />
+              :
+                <SFSymbol name="calendar" color={color} size={size} />
+            :
+              <CalendarRange color={color} size={size} />
           ),
           headerShown: false,
         }}
@@ -656,8 +669,14 @@ function AppStack() {
         component={WrappedDevoirsScreen}
         options={{
           tabBarLabel: 'Devoirs',
-          tabBarIcon: ({ color, size }) => (
-            <BookOpen color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="book.fill" color={color} size={size} />
+              :
+                <SFSymbol name="book" color={color} size={size} />
+            :
+              <CalendarRange color={color} size={size} />
           ),
           headerShown: false,
         }}
@@ -667,8 +686,14 @@ function AppStack() {
         component={WrappedGradesScreen}
         options={{
           tabBarLabel: 'Notes',
-          tabBarIcon: ({ color, size }) => (
-            <BarChart3 color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="chart.pie.fill" color={color} size={size} />
+              :
+                <SFSymbol name="chart.pie" color={color} size={size} />
+            :
+              <CalendarRange color={color} size={size} />
           ),
           headerShown: false,
         }}
@@ -678,8 +703,14 @@ function AppStack() {
         component={WrappedSettings}
         options={{
           tabBarLabel: 'Compte',
-          tabBarIcon: ({ color, size }) => (
-            <UserCircle color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="person.crop.circle.fill" color={color} size={size} />
+              :
+                <SFSymbol name="person.crop.circle" color={color} size={size} />
+            :
+              <CalendarRange color={color} size={size} />
           ),
           headerShown: false,
         }}

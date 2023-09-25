@@ -32,6 +32,7 @@
     "expo": "^49.0.9",
     "expo-app-loading": "^2.1.1",
     "expo-asset": "~8.10.1",
+    "expo-background-fetch": "~11.3.0",
     "expo-barcode-scanner": "~12.5.3",
     "expo-blur": "~12.4.1",
     "expo-calendar": "~11.3.0",
@@ -53,6 +54,7 @@
     "expo-status-bar": "~1.6.0",
     "expo-store-review": "~6.4.0",
     "expo-system-ui": "~2.4.0",
+    "expo-task-manager": "~11.3.0",
     "expo-web-browser": "~12.3.2",
     "lighten-darken-color": "^1.0.0",
     "lucide-react-native": "^0.258.0",
@@ -71,6 +73,7 @@
     "react-native-render-html": "^6.1.0",
     "react-native-safe-area-context": "4.6.3",
     "react-native-screens": "~3.22.0",
+    "react-native-sfsymbols": "^1.2.1",
     "react-native-shared-group-preferences": "^1.1.24",
     "react-native-smooth-pincode-input": "^1.0.9",
     "react-native-svg": "13.9.0",
@@ -78,9 +81,7 @@
     "react-native-toast-message": "^2.1.6",
     "react-native-vector-icons": "^9.2.0",
     "react-native-view-shot": "3.7.0",
-    "react-native-web": "~0.19.6",
-    "expo-background-fetch": "~11.3.0",
-    "expo-task-manager": "~11.3.0"
+    "react-native-web": "~0.19.6"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
