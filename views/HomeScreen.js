@@ -390,6 +390,7 @@ function HomeScreen({ navigation }) {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={[styles.latestGradesList]}
+            style={{flex: 1, width: '100%'}}
           >
             {latestGrades.map((grade, index) => (
               <PressableScale
