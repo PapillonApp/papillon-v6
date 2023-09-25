@@ -655,9 +655,9 @@ function AppStack() {
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
-                <SFSymbol name="calendar" color={color} size={size} />
+                <SFSymbol name="calendar" color={color} size={size-2} />
               :
-                <SFSymbol name="calendar" color={color} size={size} />
+                <SFSymbol name="calendar" color={color} size={size-2} />
             :
               <CalendarRange color={color} size={size} />
           ),
@@ -672,9 +672,9 @@ function AppStack() {
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
-                <SFSymbol name="book.fill" color={color} size={size} />
+                <SFSymbol name="book.fill" color={color} size={size-2} />
               :
-                <SFSymbol name="book" color={color} size={size} />
+                <SFSymbol name="book" color={color} size={size-2} />
             :
               <CalendarRange color={color} size={size} />
           ),
@@ -689,9 +689,9 @@ function AppStack() {
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
-                <SFSymbol name="chart.pie.fill" color={color} size={size} />
+                <SFSymbol name="chart.pie.fill" color={color} size={size-2} />
               :
-                <SFSymbol name="chart.pie" color={color} size={size} />
+                <SFSymbol name="chart.pie" color={color} size={size-2} />
             :
               <CalendarRange color={color} size={size} />
           ),
@@ -706,9 +706,9 @@ function AppStack() {
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
-                <SFSymbol name="person.crop.circle.fill" color={color} size={size} />
+                <SFSymbol name="person.crop.circle.fill" color={color} size={size-2} />
               :
-                <SFSymbol name="person.crop.circle" color={color} size={size} />
+                <SFSymbol name="person.crop.circle" color={color} size={size-2} />
             :
               <CalendarRange color={color} size={size} />
           ),
