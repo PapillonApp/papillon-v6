@@ -78,7 +78,7 @@ function HomeScreen({ navigation }) {
   // ouvrir le change log
   useEffect(() => {
     AsyncStorage.getItem('lastver').then((value) => {
-      if (value !== packageJson.version) {
+      if (value !== packageJson.version || 1 == 1) {
         navigation.navigate('Changelog');
         AsyncStorage.setItem('lastver', packageJson.version);
       }
