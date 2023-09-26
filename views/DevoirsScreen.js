@@ -90,7 +90,7 @@ function DevoirsScreen({ navigation }) {
         Platform.OS === 'ios' ? (
           <DateTimePicker
             value={calendarDate}
-            locale="fr-FR"
+            locale="fr_FR"
             mode="date"
             display="compact"
             onChange={(event, date) => {
