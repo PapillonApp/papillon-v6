@@ -524,7 +524,7 @@ function GradesScreen({ navigation }) {
                   { backgroundColor: subject.averages.color },
                 ]}
               >
-                <Text style={[styles.subjectName]}>
+                <Text style={[styles.subjectName]} numberOfLines={1}>
                   {formatCoursName(subject.name)}
                 </Text>
                 <View style={[styles.subjectAverageContainer]}>
