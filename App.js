@@ -772,14 +772,18 @@ function AuthStack() {
         name="LoginPronoteSelectEtab"
         component={LoginPronoteSelectEtab}
         options={{
-          title: "Sélection de l'établissement",
+          title: "Se connecter à Pronote",
+          headerLargeTitle: Platform.OS === 'ios',
           presentation: 'modal',
         }}
       />
       <Stack.Screen
         name="LoginPronote"
         component={LoginPronote}
-        options={{ title: 'Se connecter', presentation: 'modal' }}
+        options={{ 
+          title: 'Se connecter',
+          presentation: 'modal'
+        }}
       />
 
       <Stack.Screen
