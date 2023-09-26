@@ -134,7 +134,7 @@ function ChangelogScreen({ navigation }) {
         <View style={styles.optionsList}>
           <Text style={[styles.ListTitle]}>Le mot de Vincent le meilleur et le plus bg</Text>
 
-          <View style={[styles.devTextContainer, {backgroundColor: UIColors.element + '99'}]}>
+          <View style={[styles.devTextContainer, {backgroundColor: theme.dark ? UIColors.element + '99' : UIColors.primary}]}>
             <Text style={[styles.devText]}>
               Merci beaucoup d'être si nombreux à utiliser Papillon !
               J'ai hate de voir comment va continuer ce projet avec vous cette année ^^
