@@ -542,6 +542,16 @@ function WrappedSettings() {
           headerTitle: 'Réglages',
         }}
       />
+
+      <Stack.Screen
+        name="Changelog"
+        component={ChangelogScreen}
+        options={{
+          headerTitle: 'Quoi de neuf ?',
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
     </Stack.Navigator>
   );
 }

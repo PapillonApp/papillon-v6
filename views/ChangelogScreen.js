@@ -132,19 +132,26 @@ function ChangelogScreen({ navigation }) {
         </View>
 
         <View style={styles.optionsList}>
-          <Text style={[styles.ListTitle]}>Le mot de Vincent le meilleur et le plus bg</Text>
+          <Text style={[styles.ListTitle]}>Le mot de l'équipe</Text>
 
-          <View style={[styles.devTextContainer, {backgroundColor: theme.dark ? UIColors.element + '99' : UIColors.primary}]}>
+          <View style={[styles.devTextContainer, {backgroundColor: UIColors.element + '99'}]}>
             <Text style={[styles.devText]}>
               Merci beaucoup d'être si nombreux à utiliser Papillon !
               J'ai hate de voir comment va continuer ce projet avec vous cette année ^^
               Cette mise à jour de rentrée est importante pour toute l'équipe et on espère qu'elle va vous plaîre !
             </Text>
 
-            <Image
-              source={require('../assets/vincentimes_signature.png')}
-              style={[styles.signature]}
-            />
+            { theme.dark ? 
+              <Image
+                source={require('../assets/vincentimes_signature.png')}
+                style={[styles.signature]}
+              />
+            :
+              <Image
+                source={require('../assets/vincentimes_signature_light.png')}
+                style={[styles.signature]}
+              />
+            }
           </View>
         </View>
 
@@ -215,7 +222,6 @@ const styles = StyleSheet.create({
   devText: {
     fontSize: 15,
     fontFamily: 'Papillon-Medium',
-    color: '#FFFFFF',
     opacity: 0.6,
   },
 
