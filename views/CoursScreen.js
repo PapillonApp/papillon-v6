@@ -293,7 +293,7 @@ function CoursScreen({ navigation }) {
       {Platform.OS === 'android' && calendarModalOpen ? (
         <DateTimePicker
           value={calendarDate}
-          locale="fr-FR"
+          locale="fr_FR"
           mode="date"
           display="calendar"
           onChange={(event, date) => {
