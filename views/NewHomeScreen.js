@@ -263,47 +263,55 @@ const TabsElement = ({ navigation, theme, UIColors }) => {
   return (
     <View style={[styles.tabs.tabsContainer]}>
         <View style={[styles.tabs.tabRow]}>
-          <PressableScale
-            style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
-            weight="light"
-            activeScale={0.9}
-            onPress={() => navigation.navigate('InsetSchoollife')}
-          >
-            <Gavel size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-            <Text style={[styles.tabs.tabText]}>Vie scolaire</Text>
-          </PressableScale>
-          <PressableScale
-            style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
-            weight="light"
-            activeScale={0.9}
-            onPress={() => navigation.navigate('InsetNews')}
-          >
-            <Newspaper size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-            <Text style={[styles.tabs.tabText]}>Actualités</Text>
-          </PressableScale>
+          <ContextMenuView style={{flex: 1}}>
+            <PressableScale
+              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+              weight="light"
+              activeScale={0.9}
+              onPress={() => navigation.navigate('InsetSchoollife')}
+            >
+              <Gavel size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <Text style={[styles.tabs.tabText]}>Vie scolaire</Text>
+            </PressableScale>
+          </ContextMenuView>
+          <ContextMenuView style={{flex: 1}}>
+            <PressableScale
+              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+              weight="light"
+              activeScale={0.9}
+              onPress={() => navigation.navigate('InsetNews')}
+            >
+              <Newspaper size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <Text style={[styles.tabs.tabText]}>Actualités</Text>
+            </PressableScale>
+          </ContextMenuView>
         </View>
         <View style={[styles.tabs.tabRow]}>
-          <PressableScale
-            style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
-            weight="light"
-            activeScale={0.9}
-            onPress={() => navigation.navigate('InsetConversations')}
-          >
-            <MessagesSquare
-              size={24}
-              color={theme.dark ? '#ffffff' : '#000000'}
-            />
-            <Text style={[styles.tabs.tabText]}>Conversations</Text>
-          </PressableScale>
-          <PressableScale
-            style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
-            weight="light"
-            activeScale={0.9}
-            onPress={() => navigation.navigate('InsetEvaluations')}
-          >
-            <CheckCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-            <Text style={[styles.tabs.tabText]}>Compétences</Text>
-          </PressableScale>
+          <ContextMenuView style={{flex: 1}}>
+            <PressableScale
+              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+              weight="light"
+              activeScale={0.9}
+              onPress={() => navigation.navigate('InsetConversations')}
+            >
+              <MessagesSquare
+                size={24}
+                color={theme.dark ? '#ffffff' : '#000000'}
+              />
+              <Text style={[styles.tabs.tabText]}>Conversations</Text>
+            </PressableScale>
+          </ContextMenuView>
+          <ContextMenuView style={{flex: 1}}>
+            <PressableScale
+              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+              weight="light"
+              activeScale={0.9}
+              onPress={() => navigation.navigate('InsetEvaluations')}
+            >
+              <CheckCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <Text style={[styles.tabs.tabText]}>Compétences</Text>
+            </PressableScale>
+          </ContextMenuView>
         </View>
       </View>
   )
@@ -382,6 +390,37 @@ const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
         </Animated.View>
       ) : null}
 
+      <ContextMenuView
+        style={{ flex: 1 }}
+        borderRadius={14}
+        previewConfig={{
+          borderRadius: 12,
+          backgroundColor: UIColors.element,
+        }}
+        menuConfig={{
+          menuTitle: cours.subject.name,
+          menuItems: [
+            {
+              actionKey  : 'open',
+              actionTitle: 'Voir le cours en détail',
+              icon: {
+                type: 'IMAGE_SYSTEM',
+                imageValue: {
+                  systemName: 'book.pages',
+                },
+              },
+            },
+          ],
+        }}
+        onPressMenuItem={({nativeEvent}) => {
+          if (nativeEvent.actionKey === 'open') {
+            navigation.navigate('Lesson', { event: cours })
+          }
+        }}
+        onPressMenuPreview={() => {
+          navigation.navigate('Lesson', { event: cours })
+        }}
+      >
       <Animated.View
         style={[
           styles.homeworks.devoirsDay.container,
@@ -447,6 +486,7 @@ const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
         </>
       </TouchableHighlight>
       </Animated.View>
+      </ContextMenuView>
     </>
   );
 }
