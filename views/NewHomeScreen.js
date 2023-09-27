@@ -42,6 +42,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ContextMenuView } from 'react-native-ios-context-menu';
 
 // Functions
 const openURL = (url) => {
@@ -69,7 +70,7 @@ const openURL = (url) => {
 
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
-    presentationStyle: 'overFullScreen',
+    presentationStyle: 'pageSheet',
     controlsColor: Platform.OS == 'ios' ? '#29947A' : null,
     readerMode: true,
     createTask: false,
@@ -569,6 +570,65 @@ const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIn
   });
 
   return (
+    <ContextMenuView
+      style={{ flex: 1 }}
+      borderRadius={14}
+      previewConfig={{
+        borderRadius: 12,
+        backgroundColor: UIColors.element,
+      }}
+      menuConfig={{
+        menuTitle: homework.subject.name,
+        menuItems: [
+          {
+            actionKey  : 'open',
+            actionTitle: 'Voir le devoir en détail',
+            icon: {
+              type: 'IMAGE_SYSTEM',
+              imageValue: {
+                systemName: 'book.pages',
+              },
+            },
+          },
+          {
+            actionKey  : 'check',
+            actionTitle: 'Marquer comme fait',
+            menuState  : checked ? 'on' : 'off',
+            icon: {
+              type: 'IMAGE_SYSTEM',
+              imageValue: {
+                systemName: 'checkmark.circle',
+              },
+            },
+          },
+          homework.files.length > 0 ? {
+            actionKey  : 'files',
+            actionTitle: 'Ouvrir la pièce jointe',
+            actionSubtitle: homework.files[0].name,
+            icon: {
+              type: 'IMAGE_SYSTEM',
+              imageValue: {
+                systemName: 'paperclip',
+              },
+            },
+          } : null,
+        ],
+      }}
+      onPressMenuItem={({nativeEvent}) => {
+        if (nativeEvent.actionKey === 'open') {
+          navigation.navigate('Devoir', { homework: {... homework, done: checked}});
+        }
+        else if (nativeEvent.actionKey === 'check') {
+          checkThis();
+        }
+        else if (nativeEvent.actionKey === 'files') {
+          openURL(homework.files[0].url);
+        }
+      }}
+      onPressMenuPreview={() => {
+        navigation.navigate('Devoir', { homework: {... homework, done: checked}});
+      }}
+    >
     <Animated.View
       style={[
         {
@@ -633,6 +693,7 @@ const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIn
         </View>
       </TouchableHighlight>
     </Animated.View>
+    </ContextMenuView>
   );
 }
 
