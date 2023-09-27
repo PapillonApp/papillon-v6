@@ -665,9 +665,11 @@ const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIn
                 <Text style={[styles.homeworks.devoirsContent.header.subject.title, { color: UIColors.text }]}>{formatCoursName(homework.subject.name)}</Text>
               </View>
             </View>
-            <View style={styles.homeworks.devoirsContent.content.container}>
-              <Text style={[styles.homeworks.devoirsContent.content.description, { color: UIColors.text }]}>{homework.description}</Text>
-            </View>
+            { !checked ?
+              <View style={styles.homeworks.devoirsContent.content.container}>
+                <Text style={[styles.homeworks.devoirsContent.content.description, { color: UIColors.text }]}>{homework.description}</Text>
+              </View>
+            : null }
             { homework.files.length > 0 && (
               <View style={styles.homeworks.devoirsContent.footer.container}>
                 <View style={styles.homeworks.devoirsContent.footer.files.container}>
