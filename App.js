@@ -542,6 +542,16 @@ function WrappedSettings() {
           headerTitle: 'Réglages',
         }}
       />
+
+      <Stack.Screen
+        name="Changelog"
+        component={ChangelogScreen}
+        options={{
+          headerTitle: 'Quoi de neuf ?',
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -638,7 +648,7 @@ function AppStack() {
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
-                <SFSymbol name="house.fill" color={color} size={size-2} />
+                <SFSymbol name="house.fill"  color={color} size={size-2} />
               :
                 <SFSymbol name="house" color={color} size={size-2} />
             :
@@ -655,7 +665,7 @@ function AppStack() {
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
-                <SFSymbol name="calendar" color={color} size={size-2} />
+                <SFSymbol name="calendar" weight='semibold' color={color} size={size-2} />
               :
                 <SFSymbol name="calendar" color={color} size={size-2} />
             :

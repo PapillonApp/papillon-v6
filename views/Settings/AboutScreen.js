@@ -246,7 +246,7 @@ function AboutScreen({ navigation }) {
                   {item.subtitle}
                 </Text>
               }
-              onPress={() => addVersionTap()}
+              onPress={() => navigation.navigate('Changelog')}
             />
           ))}
         </View>

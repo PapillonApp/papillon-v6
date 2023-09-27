@@ -90,7 +90,7 @@ function DevoirsScreen({ navigation }) {
         Platform.OS === 'ios' ? (
           <DateTimePicker
             value={calendarDate}
-            locale="fr-FR"
+            locale="fr_FR"
             mode="date"
             display="compact"
             onChange={(event, date) => {
@@ -387,8 +387,10 @@ function Hwitem({ homework, theme, openURL, navigation }) {
                 styles.hwItemTitle,
                 { color: theme.dark ? '#ffffff' : '#000000' },
               ]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
             >
-              {homework.subject.name}
+              {homework.subject.name.toUpperCase()}
             </Text>
           </View>
           <Text

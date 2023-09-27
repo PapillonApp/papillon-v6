@@ -18,7 +18,7 @@ import * as Haptics from 'expo-haptics';
 
 import { PressableScale } from 'react-native-pressable-scale';
 
-import { Book, CopyMinus, Gauge, Globe2, Newspaper, Palette } from 'lucide-react-native';
+import { Book, Calendar, BarChart3, AlertCircle, Newspaper, Palette, Bug } from 'lucide-react-native';
 
 import { Text, useTheme } from 'react-native-paper';
 import GetUIColors from '../utils/GetUIColors';
@@ -29,18 +29,8 @@ function ChangelogScreen({ navigation }) {
 
   const features = [
     {
-      title: 'Nouvel onglet Actualités',
-      subtitle: 'L\'onglet actualités à été étoffé avec une interface plus intuitive.',
-      icon: <Newspaper size={24} color={UIColors.text} />,
-    },
-    {
-      title: 'Vue en détail des devoirs',
-      subtitle: 'Les devoirs sont maintenant affichés en détail, avec les informations de l\'enseignant, la matière, la date de rendu, etc.',
-      icon: <Book size={24} color={UIColors.text} />,
-    },
-    {
-      title: 'Nouvelles couleurs des cours',
-      subtitle: 'Vos cours sont maintenant colorés en fonction de leur matière.',
+      title: 'Améliorations de l\'interface iOS',
+      subtitle: 'Des légers changements d\'interface sont apparus.',
       icon: <Palette size={24} color={UIColors.text} />,
     },
   ]
@@ -48,19 +38,19 @@ function ChangelogScreen({ navigation }) {
   const fixes = [
     {
       title: 'Cours annulés / changements de salle',
-      subtitle: 'Les changements de salle n\'apparaîteront plus comme des cours annulés.',
-      icon: <CopyMinus size={24} color={UIColors.text} />,
+      subtitle: 'Les changements de salle n\'apparaîteront VRAIMENT plus comme des cours annulés.',
+      icon: <Bug size={24} color={UIColors.text} />,
     },
-    Platform.OS === 'ios' ? {
-      title: 'Navigateur web interne',
-      subtitle: 'Tous les liens sont maintenant ouverts dans un navigateur web interne, plus rapide et plus sécurisé.',
-      icon: <Globe2 size={24} color={UIColors.text} />,
-    } : {
-      title: 'Performances sous Android',
-      subtitle: 'Les performances sous Android ont été améliorées.',
-      icon: <Gauge size={24} color={UIColors.text} />,
+    {
+      title: 'Langue du calendrier',
+      subtitle: 'Les dates apparaîssent maintenant dans la bonne langue sous iOS.',
+      icon: <Calendar size={24} color={UIColors.text} />,
     },
-
+    {
+      title: 'Affichage des notes',
+      subtitle: 'Les notes ne se divisent et ne se modifient plus à leur ouverture.',
+      icon: <BarChart3 size={24} color={UIColors.text} />,
+    },
   ]
 
   return (
@@ -132,19 +122,25 @@ function ChangelogScreen({ navigation }) {
         </View>
 
         <View style={styles.optionsList}>
-          <Text style={[styles.ListTitle]}>Le mot de Vincent le meilleur et le plus bg</Text>
+          <Text style={[styles.ListTitle]}>Le mot de l'équipe</Text>
 
-          <View style={[styles.devTextContainer, {backgroundColor: theme.dark ? UIColors.element + '99' : UIColors.primary}]}>
+          <View style={[styles.devTextContainer, {backgroundColor: UIColors.element + '99'}]}>
             <Text style={[styles.devText]}>
-              Merci beaucoup d'être si nombreux à utiliser Papillon !
-              J'ai hate de voir comment va continuer ce projet avec vous cette année ^^
-              Cette mise à jour de rentrée est importante pour toute l'équipe et on espère qu'elle va vous plaîre !
+              Malgré les bugs et difficultés, on travaille d'arrache pied pour faire de Papillon la meilleure app de vie scolaire {'<'}3
+              Restez à l'affut, des trucs cools arrivent vite ^^
             </Text>
 
-            <Image
-              source={require('../assets/vincentimes_signature.png')}
-              style={[styles.signature]}
-            />
+            { theme.dark ? 
+              <Image
+                source={require('../assets/vincentimes_signature.png')}
+                style={[styles.signature]}
+              />
+            :
+              <Image
+                source={require('../assets/vincentimes_signature_light.png')}
+                style={[styles.signature]}
+              />
+            }
           </View>
         </View>
 
@@ -215,7 +211,6 @@ const styles = StyleSheet.create({
   devText: {
     fontSize: 15,
     fontFamily: 'Papillon-Medium',
-    color: '#FFFFFF',
     opacity: 0.6,
   },
 
