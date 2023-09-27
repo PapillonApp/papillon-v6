@@ -686,7 +686,7 @@ function AppStack() {
               :
                 <SFSymbol name="book" color={color} size={size-2} />
             :
-              <CalendarRange color={color} size={size} />
+              <BookOpen color={color} size={size} />
           ),
           headerShown: false,
         }}
@@ -703,7 +703,7 @@ function AppStack() {
               :
                 <SFSymbol name="chart.pie" color={color} size={size-2} />
             :
-              <CalendarRange color={color} size={size} />
+              <BarChart3 color={color} size={size} />
           ),
           headerShown: false,
         }}
@@ -720,7 +720,7 @@ function AppStack() {
               :
                 <SFSymbol name="person.crop.circle" color={color} size={size-2} />
             :
-              <CalendarRange color={color} size={size} />
+              <UserCircle color={color} size={size} />
           ),
           headerShown: false,
         }}
