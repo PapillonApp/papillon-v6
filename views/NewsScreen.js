@@ -4,13 +4,13 @@ import {
   View,
   Animated,
   Easing,
-  ScrollView,
   StatusBar,
   RefreshControl,
   Platform,
   ActivityIndicator,
   FlatList,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -253,21 +253,23 @@ function NewsScreen({ navigation }) {
           data={news}
           keyExtractor={(item) => item.id.toString()}
           ListHeaderComponent={
-            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={[styles.selectTypes]}>
-              { newsTypes.map((item, index) => (
-                ( item.enabled ?
-                  <NewsChip
-                    key={index}
-                    title={item.name}
-                    enabled={currentNewsType === item.name}
-                    icon={item.icon}
-                    onPress={() => {
-                      changeNewsType(item.name);
-                    }}
-                  />
-                : null )
-              ))}
-              <View style={{width: 18}}></View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View style={[styles.selectTypes]}>
+                { newsTypes.map((item, index) => (
+                  ( item.enabled ?
+                    <NewsChip
+                      key={index}
+                      title={item.name}
+                      enabled={currentNewsType === item.name}
+                      icon={item.icon}
+                      onPress={() => {
+                        changeNewsType(item.name);
+                      }}
+                    />
+                  : null )
+                ))}
+                <View style={{width: 18}}></View>
+              </View>
             </ScrollView>
           }
           refreshControl={

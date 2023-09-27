@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import "./utils/IgnoreWarnings";
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BottomNavigation, Appbar } from 'react-native-paper';
+import { BottomNavigation, Appbar, useTheme } from 'react-native-paper';
 
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import FlashMessage from 'react-native-flash-message';
@@ -23,7 +23,10 @@ import {
 } from 'lucide-react-native';
 import useFonts from './hooks/useFonts';
 
+import { BlurView } from 'expo-blur';
+
 import HomeScreen from './views/HomeScreen';
+import NewHomeScreen from './views/NewHomeScreen';
 
 import CoursScreen from './views/CoursScreen';
 import LessonScreen from './views/Cours/LessonScreen';
@@ -247,6 +250,8 @@ function InsetEvaluationsScreen() {
 }
 
 function WrappedHomeScreen() {
+  const theme = useTheme();
+
   return (
     <Stack.Navigator
       screenOptions={
@@ -263,9 +268,17 @@ function WrappedHomeScreen() {
     >
       <Stack.Screen
         name="Vue d'ensemble"
-        component={HomeScreen}
+        component={NewHomeScreen}
         options={{
           headerShown: true,
+          headerLargeTitle: Platform.OS === 'ios',
+          headerBlurEffect: 'systemUltraThinMaterial',
+          headerStyle: {
+            backgroundColor: theme.dark ? '#00000050' : '#ffffff50',
+          },
+          headerLargeStyle: {
+            backgroundColor: theme.dark ? '#00000000' : '#ffffff90',
+          },
         }}
       />
 
@@ -606,6 +619,8 @@ function WrappedSettings() {
 }
 
 function AppStack() {
+  const theme = useTheme();
+
   return (
     <Tab.Navigator
       tabBar={
@@ -673,7 +688,27 @@ function AppStack() {
           paddingLeft: 12,
           paddingRight: 12,
           paddingTop: 2,
+          position: 'absolute',
         },
+        tabBarBackground: () => (
+          <View
+            style={{
+              flex: 1,
+              width: '100%',
+              height: '100%',
+              backgroundColor: theme.dark ? '#000000a5' : '#ffffffa5',
+            }}
+          >
+            <BlurView
+              tint={theme.dark ? 'dark' : 'light'}
+              intensity={50}
+              style={{
+                width: '100%',
+                height: '100%',
+              }}
+            />
+          </View>
+        ),
         tabBarButton: (props) => (
           <PressableScale {...props} activeScale={0.85} weight="heavy">
             <View
