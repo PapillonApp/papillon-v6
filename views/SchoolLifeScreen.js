@@ -58,7 +58,7 @@ function SchoolLifeScreen() {
 
       {isHeadLoading ? (
         <PapillonLoading
-          title="Chargement des évaluations"
+          title="Chargement des évenements"
           subtitle="Veuillez patienter quelques instants..."
         />
       ) : null}

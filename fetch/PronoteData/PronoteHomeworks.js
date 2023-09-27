@@ -7,9 +7,16 @@ let retries = 0;
 
 let notfounddays = {};
 
-function getHomeworks(day, force) {
+function getHomeworks(day, force, day2) {
   if (force == undefined) {
     force = false;
+  }
+
+  if (day2 == undefined) {
+    day2 = day;
+  }
+  else {
+    force = true;
   }
 
   return getConsts().then((consts) => {
@@ -58,14 +65,33 @@ function getHomeworks(day, force) {
 
       day = `${year}-${month}-${dayOfMonth}`;
 
-      console.log(day);
+      day2 = new Date(day2);
+
+      // date = '2021-09-13' (YYYY-MM-DD)
+      const date2 = new Date(day2);
+      const year2 = date2.getFullYear();
+      let month2 = date2.getMonth() + 1;
+      let dayOfMonth2 = date2.getDate();
+
+      if (month2 < 10) {
+        month2 = `0${month2}`;
+      }
+
+      if (dayOfMonth2 < 10) {
+        dayOfMonth2 = `0${dayOfMonth2}`;
+      }
+
+      day2 = `${year2}-${month2}-${dayOfMonth2}`;
+      
+      console.log(day)
+      console.log(day2)
 
       // obtenir le token
       return AsyncStorage.getItem('token').then((token) =>
         // fetch les devoirs
         fetch(
           `${consts.API}/homework` +
-            `?token=${token}&dateFrom=${day}&dateTo=${day}`,
+            `?token=${token}&dateFrom=${day}&dateTo=${day2}`,
           {
             method: 'GET',
           }

@@ -153,7 +153,7 @@ function LessonScreen({ route, navigation }) {
         HeaderNavbarComponent={
           <View style={[{flex: 1, width: '100%'}]}>
             <TouchableOpacity
-              style={[styles.closeItem, Platform.OS == 'android' ? {marginTop: insets.top} : null]}
+              style={[styles.closeItem, Platform.OS == 'android' ? {marginTop: insets.top + 10} : null]}
               onPress={() => navigation.goBack()}
             >
               <X size={24} color={'#ffffff'} />
