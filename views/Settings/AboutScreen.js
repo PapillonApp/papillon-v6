@@ -145,7 +145,7 @@ function AboutScreen({ navigation }) {
                     <View
                       style={[
                         styles.certif,
-                        { borderColor: theme.dark ? '#111' : '#fff' },
+                        { borderColor: UIColors.element },
                       ]}
                       sharedTransitionTag="serverCheck"
                     >
@@ -246,7 +246,7 @@ function AboutScreen({ navigation }) {
                   {item.subtitle}
                 </Text>
               }
-              onPress={() => addVersionTap()}
+              onPress={() => navigation.navigate('Changelog')}
             />
           ))}
         </View>

@@ -13,6 +13,9 @@ const formatExceptions = {
   'accompagnemt. perso.' : 'Accompagnement personnalisé',
   'numerique sc.inform.': 'Numérique et Sciences Informatiques',
   'ed.physique & sport.': 'Éducation physique et sportive',
+  'sc.econo & sociales': 'Sciences économiques et sociales',
+  'histoire & geograph.': 'Histoire-Géo',
+  'sc.numeriq.technol.': 'Sciences Numériques et Technologie',
 };
 
 const lengthExceptions = ['vie', 'de', 'et', 'la'];

@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { Alert } from 'react-native';
+
 import { showMessage } from 'react-native-flash-message';
 import getConsts from '../consts';
 
@@ -125,8 +127,28 @@ function refreshQRToken(qr_result) {
     return fetch(`${consts.API}/generatetoken?method=token`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log(result);
         AsyncStorage.setItem('token', result.token);
+
+        // if no result.token
+        if (!result.token) {
+          const URL = qr_result.qr_credentials.url;
+          AsyncStorage.setItem('old_login', JSON.stringify({ url: URL }));
+
+          AsyncStorage.clear();
+
+          Alert.alert(
+            'Impossible de se reconnecter',
+            'Veuillez vous reconnecter manuellement à votre compte Pronote',
+            [
+              {
+                text: 'OK',
+              },
+            ],
+            { cancelable: false },
+          );
+
+          return false;
+        }
 
         // change password
         return AsyncStorage.getItem('qr_credentials').then((qr_result) => {

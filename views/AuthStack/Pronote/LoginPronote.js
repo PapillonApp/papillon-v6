@@ -7,6 +7,7 @@ import {
   TextInput,
   StatusBar,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -167,14 +168,24 @@ function LoginPronote({ route, navigation }) {
 
       if (!token) {
         setConnecting(false);
-        showMessage({
+        /*showMessage({
           message: 'Échec de la connexion',
           description: result.error || 'Veuillez vérifier vos identifiants.',
           type: 'danger',
           icon: 'auto',
           floating: true,
           duration: 5000,
-        });
+        });*/
+        Alert.alert(
+          'Échec de la connexion',
+          'Vérifiez vos identifiants et réessayez.',
+          [
+            {
+              text: 'OK',
+              style: 'cancel',
+            },
+          ]
+        );
       } else {
         let acId = await AccountManager.addAccount({
           token: token,

@@ -47,15 +47,20 @@ import ListItem from '../components/ListItem';
 import * as AccountManager from '../utils/AccountsManager'
 
 const openURL = (url) => {
-  const UIColors = GetUIColors();
+const UIColors = GetUIColors();
 
+import * as Notifications from 'expo-notifications';
+
+const openURL = (url) => {
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
     presentationStyle: 'pageSheet',
-    controlsColor: UIColors.primary,
+    controlsColor: '#29947A',
     readerMode: true,
   });
 };
+
+import packageJson from '../package.json';
 
 function HomeScreen({ navigation }) {
   const theme = useTheme();
@@ -74,6 +79,16 @@ function HomeScreen({ navigation }) {
   const [isHeadLoading, setIsHeadLoading] = React.useState(true);
 
   const [forceReload, setForceReload] = React.useState(false);
+
+  // ouvrir le change log
+  useEffect(() => {
+    AsyncStorage.getItem('lastver').then((value) => {
+      if (value !== packageJson.version) {
+        navigation.navigate('Changelog');
+        AsyncStorage.setItem('lastver', packageJson.version);
+      }
+    });
+  }, [])
 
   // change header text and size
   React.useLayoutEffect(() => {
@@ -99,6 +114,9 @@ function HomeScreen({ navigation }) {
   const [homeLoading, setHomeLoading] = React.useState(false);
 
   React.useEffect(() => {
+    // ask for notifications permission
+    Notifications.requestPermissionsAsync();
+
     setHomeLoading(true);
     // Fetch recap data
     IndexData.getRecap(currentDate, forceReload).then(
@@ -378,6 +396,7 @@ function HomeScreen({ navigation }) {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={[styles.latestGradesList]}
+            style={{flex: 1, width: '100%'}}
           >
             {latestGrades.map((grade, index) => (
               <PressableScale
@@ -457,7 +476,7 @@ function HomeScreen({ navigation }) {
   );
 }
 
-function Hwitem({ homework, theme, last, startConfetti }) {
+function Hwitem({ homework, theme, last, startConfetti, navigation }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
 
   useEffect(() => {
@@ -496,7 +515,7 @@ function Hwitem({ homework, theme, last, startConfetti }) {
 
   return (
     <View style={[styles.homeworkItemContainer, {borderBottomColor: UIColors.text + '22', borderBottomWidth: !last ? 1 : 0}]}>
-      <TouchableOpacity style={[styles.homeworkItem]} activeOpacity={0.5}>
+      <TouchableOpacity style={[styles.homeworkItem, thisHwChecked ? styles.homeworkItemCentered : null]} activeOpacity={0.5} onPress={() => navigation.navigate('Devoir', { homework })}>
         <View style={[styles.checkboxContainer]}>
           <HwCheckbox
             checked={thisHwChecked}
@@ -525,15 +544,17 @@ function Hwitem({ homework, theme, last, startConfetti }) {
               {homework.subject.name}
             </Text>
           </View>
-          <Text
-            numberOfLines={4}
-            style={[
-              styles.hwItemDescription,
-              { color: theme.dark ? '#ffffff' : '#000000' },
-            ]}
-          >
-            {homework.description}
-          </Text>
+          {!thisHwChecked ?
+            <Text
+              numberOfLines={4}
+              style={[
+                styles.hwItemDescription,
+                { color: theme.dark ? '#ffffff' : '#000000' },
+              ]}
+            >
+              {homework.description}
+            </Text>
+          : null }
         </View>
       </TouchableOpacity>
 
@@ -1162,6 +1183,9 @@ const styles = StyleSheet.create({
     gap: 16,
 
     flexDirection: 'row',
+  },
+  homeworkItemCentered: {
+    alignItems: 'center',
   },
 
   checkboxContainer: {},

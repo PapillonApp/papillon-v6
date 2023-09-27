@@ -12,36 +12,12 @@ import { Text, useTheme } from 'react-native-paper';
 
 import RenderHtml from 'react-native-render-html';
 
+import * as WebBrowser from 'expo-web-browser';
+
 import { BarChart4, Link, File } from 'lucide-react-native';
 import { PressableScale } from 'react-native-pressable-scale';
-import { openURL } from 'expo-linking';
 import ListItem from '../../components/ListItem';
 import GetUIColors from '../../utils/GetUIColors';
-
-function NewsHeader({ news }) {
-  let title = news.title
-  if(title.length > 30) {
-    title = title.substring(0,30) + "...";
-  }
-
-  return (
-    <View
-      style={[
-        Platform.OS === 'ios' ? styles.newsHeader : styles.newsHeaderAndroid,
-      ]}
-    >
-      <Text style={[styles.newsTitle]}>{title}</Text>
-      <Text style={[styles.newsDate]}>
-        {new Date(news.date).toLocaleDateString('fr', {
-          weekday: 'long',
-          day: '2-digit',
-          month: 'short',
-        })}{' '}
-        - {news.author}
-      </Text>
-    </View>
-  );
-}
 
 function NewsItem({ route, navigation }) {
   const { news } = route.params;
@@ -49,21 +25,61 @@ function NewsItem({ route, navigation }) {
   const UIColors = GetUIColors();
   const { width } = useWindowDimensions();
 
+  const openURL = async (url) => {
+    await WebBrowser.openBrowserAsync(url, {
+      dismissButtonStyle: 'done',
+      presentationStyle: 'pageSheet',
+      controlsColor: UIColors.primary,
+    });
+  };
+
+  function genFirstName(name) {
+    const names = name.split(' ');
+
+    if (names[0][0] == 'M') {
+      // remove it
+      names.shift();
+    }
+
+    if (names.length >= 1) {
+      return names[0][0] + names[1][0];
+    }
+
+    return names[0][0];
+  }
+
   // change the header of the screen
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: (props) => <NewsHeader {...props} news={news} />,
-      headerBackTitleVisible: false
+      headerTitle: news.title,
+      headerBackTitle: 'Retour',
     });
   }, [navigation, news]);
 
+  function trimHtml(html) {
+    // remove &nbsp;
+    html = html.replace('&nbsp;','');
+
+    // remove empty <p> tags even if they have attributes
+    html = html.replace(/<p[^>]*>\s*<\/p>/g, '');
+    // remove empty <div> tags even if they have attributes
+    html = html.replace(/<div[^>]*>\s*<\/div>/g, '');
+
+    return html
+  }
+
   const source = {
-    html: news.html_content[0].texte.V,
+    html: trimHtml(news.html_content[0].texte.V),
   };
+
+  const defaultTextProps = {
+    selectable: true,
+  };  
 
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
+      contentInsetAdjustmentBehavior='automatic'
     >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
@@ -90,11 +106,39 @@ function NewsItem({ route, navigation }) {
         {source.html ? (
           <RenderHtml
             contentWidth={width}
+            defaultTextProps={defaultTextProps}
             source={source}
             baseStyle={theme.dark ? styles.baseStyleDark : styles.baseStyle}
           />
         ) : null}
       </View>
+
+      { news.author ? (
+        <ListItem
+          left={(
+            <View
+              style={[styles.userPfp, {backgroundColor: UIColors.primary + '22'}]}
+            >
+              <Text
+                style={[styles.userPfpText, {color: UIColors.primary}]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {genFirstName(news.author)}
+              </Text>
+            </View>
+          )}
+          center
+          title={news.author}
+          subtitle={`${new Date(news.date).toLocaleDateString('fr-FR', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })} - ${news.category}`}
+          style={{ marginBottom: 9 }}
+        />
+      ) : null}
 
       {news.attachments.length > 0 ? (
         <View
@@ -151,10 +195,10 @@ const styles = StyleSheet.create({
   },
 
   baseStyle: {
-    fontSize: 16,
+    fontSize: 15,
   },
   baseStyleDark: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#ffffff',
   },
 
@@ -216,6 +260,18 @@ const styles = StyleSheet.create({
     fontWeight: 400,
     fontFamily: 'Papillon-Medium',
     opacity: 0.5,
+  },
+
+  userPfp: {
+    width: 40,
+    height: 40,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  userPfpText: {
+    fontSize: 19,
+    fontFamily: 'Papillon-Medium',
   },
 });
 

@@ -2,6 +2,8 @@ import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import "./utils/IgnoreWarnings";
+
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BottomNavigation, Appbar } from 'react-native-paper';
 
@@ -27,6 +29,9 @@ import CoursScreen from './views/CoursScreen';
 import LessonScreen from './views/Cours/LessonScreen';
 
 import DevoirsScreen from './views/DevoirsScreen';
+import HomeworkScreen from './views/Devoirs/HwScreen';
+
+import ChangelogScreen from './views/ChangelogScreen';
 
 import SettingsScreen from './views/SettingsScreen';
 import AboutScreen from './views/Settings/AboutScreen';
@@ -61,6 +66,10 @@ import EvaluationsScreen from './views/EvaluationsScreen';
 import { AppContextProvider, baseColor } from './utils/AppContext';
 
 import NotificationsScreen from './views/Settings/NotificationsScreen';
+
+import setBackgroundFetch from './fetch/BackgroundFetch';
+
+import { SFSymbol } from "react-native-sfsymbols";
 
 const Tab = createBottomTabNavigator();
 
@@ -106,6 +115,16 @@ function CustomNavigationBar({ navigation, route, options, back }) {
   );
 }
 
+const headerTitleStyles = {
+  headerLargeTitleStyle: {
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 28,
+  },
+  headerTitleStyle: {
+    fontFamily: 'Papillon-Semibold',
+  },
+}
+
 function InsetNewsScreen() {
   return (
     <Stack.Navigator
@@ -116,7 +135,9 @@ function InsetNewsScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -124,7 +145,7 @@ function InsetNewsScreen() {
         component={NewsScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Actualités',
         }}
       />
@@ -133,6 +154,8 @@ function InsetNewsScreen() {
         component={NewsItem}
         options={{
           headerShown: true,
+          headerLargeTitle: Platform.OS === 'ios',
+          headerTitle: 'Actualité',
         }}
       />
     </Stack.Navigator>
@@ -149,7 +172,9 @@ function InsetSchoolLifeScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -157,7 +182,7 @@ function InsetSchoolLifeScreen() {
         component={SchoolLifeScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Vie scolaire',
         }}
       />
@@ -175,7 +200,9 @@ function InsetConversationsScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -183,7 +210,7 @@ function InsetConversationsScreen() {
         component={ConversationsScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Conversations',
         }}
       />
@@ -201,7 +228,9 @@ function InsetEvaluationsScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -209,7 +238,7 @@ function InsetEvaluationsScreen() {
         component={EvaluationsScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Compétences',
         }}
       />
@@ -227,7 +256,9 @@ function WrappedHomeScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -235,6 +266,16 @@ function WrappedHomeScreen() {
         component={HomeScreen}
         options={{
           headerShown: true,
+        }}
+      />
+
+      <Stack.Screen
+        name="Changelog"
+        component={ChangelogScreen}
+        options={{
+          headerTitle: 'Quoi de neuf ?',
+          presentation: 'modal',
+          headerShown: false,
         }}
       />
 
@@ -280,6 +321,14 @@ function WrappedHomeScreen() {
         }}
       />
       <Stack.Screen
+        name="Devoir"
+        component={HomeworkScreen}
+        options={{
+          headerShown: true,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
@@ -311,7 +360,9 @@ function WrappedCoursScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -343,7 +394,9 @@ function WrappedDevoirsScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -352,6 +405,14 @@ function WrappedDevoirsScreen() {
         options={{
           headerShown: true,
           headerLargeTitle: false,
+        }}
+      />
+      <Stack.Screen
+        name="Devoir"
+        component={HomeworkScreen}
+        options={{
+          headerShown: true,
+          presentation: 'modal',
         }}
       />
     </Stack.Navigator>
@@ -368,7 +429,9 @@ function WrappedGradesScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -406,7 +469,9 @@ function WrappedSettings() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -526,6 +591,15 @@ function WrappedSettings() {
         component={LoginPronoteQR}
         options={{ title: 'Validation du code QR', presentation: 'modal' }}
       />
+      <Stack.Screen
+        name="Changelog"
+        component={ChangelogScreen}
+        options={{
+          headerTitle: 'Quoi de neuf ?',
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
     </Stack.Navigator>
     
   );
@@ -587,12 +661,9 @@ function AppStack() {
         elevated: false,
         tabBarLabelStyle: {
           fontFamily: 'Papillon-Medium',
-          fontSize: 13,
+          fontSize: 12.5,
           letterSpacing: 0.2,
-        },
-        tabBarBadgeStyle: {
-          fontFamily: 'Papillon-Medium',
-          fontSize: 13,
+          marginTop: 1,
         },
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
@@ -604,7 +675,7 @@ function AppStack() {
           paddingTop: 2,
         },
         tabBarButton: (props) => (
-          <PressableScale {...props} activeScale={0.7} weight="light">
+          <PressableScale {...props} activeScale={0.85} weight="heavy">
             <View
               style={{
                 flex: 1,
@@ -623,7 +694,15 @@ function AppStack() {
         component={WrappedHomeScreen}
         options={{
           tabBarLabel: 'Accueil',
-          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="house.fill"  color={color} size={size-2} />
+              :
+                <SFSymbol name="house" color={color} size={size-2} />
+            :
+              <Home color={color} size={size} />
+          ),
           headerShown: false,
         }}
       />
@@ -632,8 +711,14 @@ function AppStack() {
         component={WrappedCoursScreen}
         options={{
           tabBarLabel: 'Cours',
-          tabBarIcon: ({ color, size }) => (
-            <CalendarRange color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="calendar" weight='semibold' color={color} size={size-2} />
+              :
+                <SFSymbol name="calendar" color={color} size={size-2} />
+            :
+              <CalendarRange color={color} size={size} />
           ),
           headerShown: false,
         }}
@@ -643,8 +728,14 @@ function AppStack() {
         component={WrappedDevoirsScreen}
         options={{
           tabBarLabel: 'Devoirs',
-          tabBarIcon: ({ color, size }) => (
-            <BookOpen color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="book.fill" color={color} size={size-2} />
+              :
+                <SFSymbol name="book" color={color} size={size-2} />
+            :
+              <CalendarRange color={color} size={size} />
           ),
           headerShown: false,
         }}
@@ -654,8 +745,14 @@ function AppStack() {
         component={WrappedGradesScreen}
         options={{
           tabBarLabel: 'Notes',
-          tabBarIcon: ({ color, size }) => (
-            <BarChart3 color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="chart.pie.fill" color={color} size={size-2} />
+              :
+                <SFSymbol name="chart.pie" color={color} size={size-2} />
+            :
+              <CalendarRange color={color} size={size} />
           ),
           headerShown: false,
         }}
@@ -665,8 +762,14 @@ function AppStack() {
         component={WrappedSettings}
         options={{
           tabBarLabel: 'Compte',
-          tabBarIcon: ({ color, size }) => (
-            <UserCircle color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="person.crop.circle.fill" color={color} size={size-2} />
+              :
+                <SFSymbol name="person.crop.circle" color={color} size={size-2} />
+            :
+              <CalendarRange color={color} size={size} />
           ),
           headerShown: false,
         }}
@@ -684,7 +787,9 @@ function AuthStack() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+            ...headerTitleStyles
+          }
       }
     >
       <Stack.Screen
@@ -700,11 +805,7 @@ function AuthStack() {
         component={LoginScreen}
         options={{
           title: 'Connexion',
-          headerLargeTitle: Platform.OS === 'iOS',
-          headerLargeTitleStyle: {
-            color: baseColor,
-            fontFamily: 'Papillon-Semibold',
-          },
+          headerLargeTitle: Platform.OS === 'ios',
         }}
       />
 
@@ -730,14 +831,18 @@ function AuthStack() {
         name="LoginPronoteSelectEtab"
         component={LoginPronoteSelectEtab}
         options={{
-          title: "Sélection de l'établissement",
+          title: "Se connecter à Pronote",
+          headerLargeTitle: Platform.OS === 'ios',
           presentation: 'modal',
         }}
       />
       <Stack.Screen
         name="LoginPronote"
         component={LoginPronote}
-        options={{ title: 'Se connecter', presentation: 'modal' }}
+        options={{ 
+          title: 'Se connecter',
+          presentation: 'modal'
+        }}
       />
 
       <Stack.Screen
@@ -847,7 +952,10 @@ function App() {
   };
 
   React.useEffect(() => {
-    console.log(loggedIn);
+    // functions
+    if (loggedIn) {
+      setBackgroundFetch();
+    }
   }, [loggedIn]);
 
   if (!IsReady) {

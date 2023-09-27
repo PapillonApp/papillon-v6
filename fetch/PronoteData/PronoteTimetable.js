@@ -4,22 +4,23 @@ import getConsts from '../consts';
 import { refreshToken } from '../AuthStack/LoginFlow';
 
 function removeDuplicateCourses(courses) {
-  let result = [];
+  let result = courses;
 
   for (let i = 0; i < courses.length; i += 1) {
     // if next cours starts at the same time
     if (i + 1 < courses.length && courses[i].start === courses[i + 1].start) {
-      // if next cours is cancelled, remove it
+      console.log('duplicate found');
+      console.log(courses[i]);
+      console.log(courses[i + 1]);
+
       if (courses[i + 1].is_cancelled) {
-        i += 1;
+        result.splice(i + 1, 1);
       }
-      // if current cours is cancelled, remove it
-      else if (courses[i].is_cancelled) {
-        continue;
+
+      if (courses[i].is_cancelled) {
+        result.splice(i, 1);
       }
     }
-
-    result.push(courses[i]);
   }
 
   return result;
@@ -28,6 +29,8 @@ function removeDuplicateCourses(courses) {
 function getTimetable(day, force = false) {
   // TEMPORARY : remove 1 month
   day = new Date(day);
+
+  console.log('ttForce : ', force)
 
   return getConsts().then((consts) => {
     return AsyncStorage.getItem('timetableCache').then((timetableCache) => {
