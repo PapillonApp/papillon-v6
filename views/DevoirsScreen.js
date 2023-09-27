@@ -293,28 +293,33 @@ function Hwpage({ homeworks, navigation, theme, forceRefresh, openURL, UIColors 
   );
 }
 
-function HwCheckbox({ checked, theme, pressed }) {
+function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
   return (
-    <PressableScale
-      style={[
-        styles.checkContainer,
-        { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
-        checked ? styles.checkChecked : null,
-      ]}
-      weight="light"
-      activeScale={0.7}
-      onPress={() => {
-        Haptics.notificationAsync('success')
-        pressed()
-      }}
-    >
-      {checked ? <Check size={20} color="#ffffff" /> : null}
-    </PressableScale>
+    !loading ? (
+      <PressableScale
+        style={[
+          styles.checkContainer,
+          { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
+          checked ? styles.checkChecked : null,
+          checked ? {backgroundColor: UIColors.primary, borderColor: UIColors.primary} : null,
+        ]}
+        weight="light"
+        activeScale={0.7}
+        onPress={() => {
+          pressed()
+        }}
+      >
+        {checked ? <Check size={20} color="#ffffff" /> : null}
+      </PressableScale>
+    ) : (
+      <ActivityIndicator size={26} />
+    )
   );
 }
 
 function Hwitem({ homework, theme, openURL, navigation }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
+  const [thisHwLoading, setThisHwLoading] = useState(false);
 
   useEffect(() => {
     setThisHwChecked(homework.done)
@@ -331,20 +336,37 @@ function Hwitem({ homework, theme, openURL, navigation }) {
         }, 100);
         return;
       }
+      else if (result.status === 'ok') {
+        setThisHwChecked(!thisHwChecked);
+        setThisHwLoading(false);
 
-      // sync with home page
-      AsyncStorage.setItem('homeUpdated', 'true');
+        AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
+          // find the homework
+          let cachedHomeworks = JSON.parse(homeworksCache);
 
-      // get homework.date as 2023-01-01
-      const date = new Date(homework.date);
-      const year = date.getFullYear();
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
+          for (let i = 0; i < cachedHomeworks.length; i++) {
+            for (let j = 0; j < cachedHomeworks[i].timetable.length; j++) {
+              if (cachedHomeworks[i].timetable[j].local_id === homework.local_id) {
+                cachedHomeworks[i].timetable[j].done = !cachedHomeworks[i].timetable[j].done;
+              }
+            }
+          }
+          
+          AsyncStorage.setItem(
+            'homeworksCache',
+            JSON.stringify(cachedHomeworks)
+          );
+        });
 
-      const dateStr = `${year}-${month}-${day}`;
+        // sync with home page
+        AsyncStorage.setItem('homeUpdated', 'true');
 
-      // load devoirs
-      IndexData.getHomeworks(dateStr, true);
+        // get homework.date as 2023-01-01
+        const date = new Date(homework.date);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+      }
     });
   };
 
@@ -368,8 +390,10 @@ function Hwitem({ homework, theme, openURL, navigation }) {
           <HwCheckbox
             checked={thisHwChecked}
             theme={theme}
+            UIColors={UIColors}
+            loading={thisHwLoading}
             pressed={() => {
-              setThisHwChecked(!thisHwChecked);
+              setThisHwLoading(true);
               changeHwState();
             }}
           />

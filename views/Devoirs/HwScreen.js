@@ -5,6 +5,7 @@ import {
   ScrollView,
   StatusBar,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 
 import formatCoursName from '../../utils/FormatCoursName';
@@ -34,6 +35,7 @@ function HomeworkScreen({ route, navigation }) {
   const { homework } = route.params;
 
   const [thisHwChecked, setThisHwChecked] = React.useState(homework.done);
+  const [thisHwLoading, setThisHwLoading] = React.useState(false);
 
   const openURL = async (url) => {
     await WebBrowser.openBrowserAsync(url, {
@@ -58,29 +60,33 @@ function HomeworkScreen({ route, navigation }) {
         }, 100);
         return;
       }
+      else if (result.status === 'ok') {
+        setThisHwChecked(!thisHwChecked);
+        setThisHwLoading(false);
 
-      AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
-        // find the homework
-        let cachedHomeworks = JSON.parse(homeworksCache);
+        AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
+          // find the homework
+          let cachedHomeworks = JSON.parse(homeworksCache);
 
-        for (let i = 0; i < cachedHomeworks.length; i++) {
-          for (let j = 0; j < cachedHomeworks[i].timetable.length; j++) {
-            if (cachedHomeworks[i].timetable[j].local_id === homework.local_id) {
-              cachedHomeworks[i].timetable[j].done = !cachedHomeworks[i].timetable[j].done;
+          for (let i = 0; i < cachedHomeworks.length; i++) {
+            for (let j = 0; j < cachedHomeworks[i].timetable.length; j++) {
+              if (cachedHomeworks[i].timetable[j].local_id === homework.local_id) {
+                cachedHomeworks[i].timetable[j].done = !cachedHomeworks[i].timetable[j].done;
+              }
             }
           }
-        }
-        
-        AsyncStorage.setItem(
-          'homeworksCache',
-          JSON.stringify(cachedHomeworks)
-        );
-      });
+          
+          AsyncStorage.setItem(
+            'homeworksCache',
+            JSON.stringify(cachedHomeworks)
+          );
+        });
 
-      // sync with home page
-      AsyncStorage.setItem('homeUpdated', 'true');
-      // sync with devoirs page
-      AsyncStorage.setItem('homeworksUpdated', 'true');
+        // sync with home page
+        AsyncStorage.setItem('homeUpdated', 'true');
+        // sync with devoirs page
+        AsyncStorage.setItem('homeworksUpdated', 'true');
+      }
     });
   };
 
@@ -119,8 +125,10 @@ function HomeworkScreen({ route, navigation }) {
             <HwCheckbox
               checked={thisHwChecked}
               theme={theme}
+              UIColors={UIColors}
+              loading={thisHwLoading}
               pressed={() => {
-                setThisHwChecked(!thisHwChecked);
+                setThisHwLoading(true);
                 changeHwState();
               }}
             />
@@ -181,23 +189,27 @@ function HomeworkScreen({ route, navigation }) {
   );
 }
 
-function HwCheckbox({ checked, theme, pressed }) {
+function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
   return (
-    <PressableScale
-      style={[
-        styles.checkContainer,
-        { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
-        checked ? styles.checkChecked : null,
-      ]}
-      weight="light"
-      activeScale={0.7}
-      onPress={() => {
-        Haptics.notificationAsync('success')
-        pressed()
-      }}
-    >
-      {checked ? <Check size={20} color="#ffffff" /> : null}
-    </PressableScale>
+    !loading ? (
+      <PressableScale
+        style={[
+          styles.checkContainer,
+          { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
+          checked ? styles.checkChecked : null,
+          checked ? {backgroundColor: UIColors.primary, borderColor: UIColors.primary} : null,
+        ]}
+        weight="light"
+        activeScale={0.7}
+        onPress={() => {
+          pressed()
+        }}
+      >
+        {checked ? <Check size={20} color="#ffffff" /> : null}
+      </PressableScale>
+    ) : (
+      <ActivityIndicator size={26} />
+    )
   );
 }
 
