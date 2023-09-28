@@ -192,7 +192,8 @@ function GradesScreen({ navigation }) {
       }
 
       // if class_overall_average exists in grades
-      if (gradesData.class_overall_average && gradesData.class_overall_average !== null) {
+      if (gradesData.class_overall_average && gradesData.class_overall_average !== null && gradesData.class_overall_average === "-1") {
+        console.log("moyenne classe dans data", gradesData.class_overall_average)
         classAverage = gradesData.class_overall_average;
         console.log('classAverage', classAverage);
       }
