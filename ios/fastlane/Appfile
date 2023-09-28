@@ -1,0 +1,12 @@
+APPLE_ID = ENV["APPLE_ID"]
+ITC_TEAM_ID = ENV["ITC_TEAM_ID"]
+ITC_TEAM_NAME = ENV["ITC_TEAM_NAME"]
+APPLE_DEVELOPER_TEAM_ID = ENV["APPLE_DEVELOPER_TEAM_ID"]
+
+app_identifier("plus.pronote.app") # The bundle identifier of your app
+apple_id(APPLE_ID) # Your Apple email address
+
+itc_team_id(ITC_TEAM_ID) # App Store Connect Team ID
+itc_team_name(ITC_TEAM_NAME)
+team_id(APPLE_DEVELOPER_TEAM_ID) # Developer Portal Team ID
+team_name(ITC_TEAM_NAME)
