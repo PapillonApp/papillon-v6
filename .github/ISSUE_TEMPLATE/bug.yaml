@@ -1,7 +1,7 @@
 name: 🐛 Signaler un bug
 description: Signalez un bug pour nous aider à améliorer Papillon
 title: '[Bug]: '
-labels: [🪱 bug]
+labels: [bug]
 body:
   - type: textarea
     attributes:
