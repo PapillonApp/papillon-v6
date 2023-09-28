@@ -186,15 +186,14 @@ function GradesScreen({ navigation }) {
       const maxAverage = maxAverages / maxAveragecount;
 
       // if overall_average exists in grades
-      if (gradesData.overall_average && gradesData.overall_average !== null) {
+      if (gradesData.overall_average && gradesData.overall_average !== null && gradesData.class_overall !== "-1") {
         studentAverage = gradesData.overall_average;
         console.log('studentAverage', studentAverage);
       }
 
       // if class_overall_average exists in grades
-      if (gradesData.class_overall_average && gradesData.class_overall_average !== null && gradesData.class_overall_average === "-1") {
+      if (gradesData.class_overall_average && gradesData.class_overall_average !== null && gradesData.class_overall_average !== "-1") {
         console.log("moyenne classe dans data", gradesData.class_overall_average)
-        classAverage = gradesData.class_overall_average;
         console.log('classAverage', classAverage);
       }
 
