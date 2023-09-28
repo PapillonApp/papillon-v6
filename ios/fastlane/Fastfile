@@ -1,0 +1,191 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+require 'spaceship'
+Spaceship::ConnectAPI::App.const_set('ESSENTIAL_INCLUDES', 'appStoreVersions')
+
+default_platform(:ios)
+
+begin
+	desc "Push a new beta build to TestFlight"
+	lane :beta do
+		setup_ci
+
+		build()
+
+		api_key = app_store_connect_api_key(
+			key_id: ENV['APP_STORE_API_KEY_ID'],
+			issuer_id: ENV['APP_STORE_API_KEY_ISSUER_ID'],
+			key_filepath: "./AuthKey_QV8QQ622WD.p8",
+			in_house: false
+		)
+
+		pilot(
+			api_key: api_key,
+			build_number: ENV['APP_VERSION_CODE'],
+			app_version: ENV['APP_IOS_VERSION_NUMBER'],
+			ipa: IPA_LOCATION,
+			skip_waiting_for_build_processing: false,
+			changelog: "Prenez le temps de tout tester, et n'hésitez pas à nous faire remonter les bugs que vous trouverez !",
+			distribute_external: true,
+			groups: ['86df2d8b-d690-49df-b623-326705effd25', '86ecfec6-6abb-49f6-ab7a-0b4380757aed']
+		)
+	end
+
+	desc "Push a new build to the AppStore"
+	lane :prod do
+		setup_ci
+
+		build()
+
+		api_key = app_store_connect_api_key(
+			key_id: ENV['APP_STORE_API_KEY_ID'],
+			issuer_id: ENV['APP_STORE_API_KEY_ISSUER_ID'],
+			key_filepath: "./AuthKey_QV8QQ622WD.p8",
+			in_house: false
+		)
+
+		deliver(
+			api_key: api_key,
+			app_version: ENV['APP_IOS_VERSION_NUMBER'],
+			ipa: IPA_LOCATION,
+			submit_for_review: false,
+			automatic_release: true,
+			force: true,
+			skip_metadata: true,
+			skip_screenshots: true,
+			precheck_include_in_app_purchases: false,
+			submission_information: {
+				add_id_info_uses_idfa: false,
+				add_id_info_serves_ads: false,
+				export_compliance_uses_encryption: false,
+				export_compliance_platform: 'ios',
+				export_compliance_compliance_required: false,
+				export_compliance_encryption_updated: false,
+				export_compliance_is_exempt: false,
+			}
+		)
+	end
+
+	lane :test do
+		desc "Run tests"
+		
+		update_code_signing_settings(
+			path: "./App.xcodeproj",
+			use_automatic_signing: false,
+		)
+
+		build_app(
+			configuration: "Release",
+			output_name: "Papillon.ipa",
+			output_directory: ".",
+			workspace: "./App.xcworkspace",
+			scheme: "App",
+			skip_codesigning: true,
+			skip_build_archive: true,
+			skip_package_ipa: true,
+		) 
+
+		scan(
+			workspace: "./App.xcworkspace",
+			scheme: "App",
+			output_types: "junit",
+			output_directory: "./test-results",
+			code_coverage: true
+		)
+
+		IPA_LOCATION = "#{lane_context[SharedValues::IPA_OUTPUT_PATH]}"
+		SCAN_DERIVED_DATA_PATH = "#{lane_context[SharedValues::SCAN_DERIVED_DATA_PATH]}"
+		SCAN_GENERATED_PLIST_FILES = "#{lane_context[SharedValues::SCAN_GENERATED_PLIST_FILES]}"
+		SCAN_GENERATED_PLIST_FILES.each do |file|
+			puts "file : #{file}"
+		end
+		SCAN_GENERATED_XCRESULT_PATH = "#{lane_context[SharedValues::SCAN_GENERATED_XCRESULT_PATH]}"
+		
+		sh("echo IPA_LOCATION=#{IPA_LOCATION} >> $GITHUB_ENV")
+
+	end
+
+	lane :build do
+		api_key = app_store_connect_api_key(
+			key_id: ENV['APP_STORE_API_KEY_ID'],
+			issuer_id: ENV['APP_STORE_API_KEY_ISSUER_ID'],
+			key_filepath: "./AuthKey_QV8QQ622WD.p8",
+			in_house: false
+		)
+
+		def ensure_temp_keychain(name)
+			delete_keychain(
+				name: name
+			) if File.exist? File.expand_path("~/Library/Keychains/#{name}-db")
+			create_keychain(
+				name: name,
+				password: ENV['APP_IOS_PASSWORD'],
+				default_keychain: true,
+				unlock: true,
+				timeout: 0
+			)
+		end
+
+		ensure_temp_keychain 'login.keychain'
+
+		update_code_signing_settings(
+			path: "./App.xcodeproj",
+			use_automatic_signing: false,
+			code_sign_identity: "Apple Distribution: Alessio Di Paolo (LGP8G8MNJA)",
+			team_id: "LGP8G8MNJA"
+		)
+
+		match(
+			type: "appstore", 
+			app_identifier: "plus.pronote.app", 
+			api_key: api_key,
+			readonly: false,
+			keychain_name: "login.keychain",
+			keychain_password: ENV['APP_IOS_PASSWORD']
+		)
+
+		update_project_provisioning(
+			xcodeproj: "./App.xcodeproj",
+			target_filter: "App",
+			profile: ENV["sigh_plus.pronote.app_appstore_profile-path"],
+			build_configuration: "Release"
+		)
+	
+		update_project_team(
+			path: "./App.xcodeproj",
+			teamid: ENV["sigh_plus.pronote.app_appstore_team-id"]
+		)
+
+		increment_version_number(version_number: ENV['APP_IOS_VERSION_NUMBER'], xcodeproj: "./App.xcodeproj")
+		increment_build_number(build_number: ENV['APP_VERSION_CODE'], xcodeproj: "./App.xcodeproj")
+
+		build_app(
+			configuration: "Release",
+			output_name: "Papillon.ipa",
+			output_directory: ".",
+			workspace: "./App.xcworkspace",
+			scheme: "App"
+		) 
+
+		IPA_LOCATION = "#{lane_context[SharedValues::IPA_OUTPUT_PATH]}"
+		DSYM_LOCATION = "#{lane_context[SharedValues::DSYM_OUTPUT_PATH]}"
+		XCODEBUILD_ARCHIVE = "#{lane_context[SharedValues::XCODEBUILD_ARCHIVE]}"
+
+		sh("echo IPA_LOCATION=#{IPA_LOCATION} >> $GITHUB_ENV")
+		sh("echo DSYM_LOCATION=#{DSYM_LOCATION} >> $GITHUB_ENV")
+		sh("echo XCODEBUILD_ARCHIVE=#{XCODEBUILD_ARCHIVE} >> $GITHUB_ENV")
+	end
+end
