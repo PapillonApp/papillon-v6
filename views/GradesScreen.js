@@ -530,7 +530,9 @@ function GradesScreen({ navigation }) {
                 </Text>
                 <View style={[styles.subjectAverageContainer]}>
                   <Text style={[styles.subjectAverage]}>
-                    {parseFloat(subject.averages.average).toFixed(2)}
+                    {
+                      subject.averages.average !== "-1" ? parseFloat(subject.averages.average).toFixed(2) : "Inconnu"
+                    }
                   </Text>
                   <Text style={[styles.subjectAverageOutOf]}>
                     /{subject.averages.out_of}
