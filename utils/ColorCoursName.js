@@ -1,4 +1,5 @@
 import SyncStorage from 'sync-storage';
+SyncStorage.init();
 
 const colors = [
   "#2667a9", "#76a10b", "#3498DB", "#1ABC9C", "#a01679", "#27AE60", "#156cd6", "#F39C12", "#E67E22", "#D35400", "#2C3E50", "#E74C3C", "#C0392B", "#8E44AD", "#ad4491", "#9f563b", "#920205",
@@ -75,7 +76,18 @@ function getClosestCourseColor(courseName) {
   return hexColor;
 }
 
+function normalizeCoursName(courseName) {
+  // remove accents and lowercase
+  courseName = courseName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  // remove spaces
+  courseName = courseName.replace(/\s/g, '');
+  // remove special characters
+  courseName = courseName.replace(/[^a-zA-Z0-9]/g, '');
+  return courseName;
+}
+
 function getSavedCourseColor(courseName, courseColor) {
+  courseName = normalizeCoursName(courseName);
   let savedColors = SyncStorage.get('savedColors');
   if (savedColors) {
     savedColors = JSON.parse(savedColors);
@@ -96,5 +108,21 @@ function getSavedCourseColor(courseName, courseColor) {
   }
 }
 
+function forceSavedCourseColor(courseName, courseColor) {
+  courseName = normalizeCoursName(courseName);
+  let savedColors = SyncStorage.get('savedColors');
+  if (savedColors) {
+    savedColors = JSON.parse(savedColors);
+  }
+  else {
+    savedColors = {};
+  }
+
+  let color = courseColor;
+  savedColors[courseName] = color;
+  SyncStorage.set('savedColors', JSON.stringify(savedColors));
+  return color;
+}
+
 export default getClosestColor;
-export { getClosestCourseColor, getSavedCourseColor };
+export { getClosestCourseColor, getSavedCourseColor, forceSavedCourseColor };

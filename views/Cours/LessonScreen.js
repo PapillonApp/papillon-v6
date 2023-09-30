@@ -8,8 +8,12 @@ import {
   TouchableOpacity,
   Switch,
   Image,
+  Modal,
+  Button,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
+
+import ColorPicker, { Panel1, Swatches, Preview, OpacitySlider, HueSlider } from 'reanimated-color-picker';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -37,7 +41,7 @@ import * as Clipboard from 'expo-clipboard';
 import formatCoursName from '../../utils/FormatCoursName';
 import ListItem from '../../components/ListItem';
 import getClosestColor from '../../utils/ColorCoursName';
-import { getClosestCourseColor, getSavedCourseColor } from '../../utils/ColorCoursName';
+import { forceSavedCourseColor, getSavedCourseColor } from '../../utils/ColorCoursName';
 import GetUIColors from '../../utils/GetUIColors';
 import getClosestGradeEmoji from '../../utils/EmojiCoursName';
 
@@ -240,6 +244,19 @@ function LessonScreen({ route, navigation }) {
     }
   }, [countdown]);
 
+  const [colorModalVisible, setColorModalVisible] = useState(false);
+
+  function changeCourseColor() {
+    setColorModalVisible(true);
+  }
+
+  const [color, setColor] = useState(getSavedCourseColor(lesson.subject.name, lesson.background_color));
+
+  const onSelectColor = ({ hex }) => {
+    forceSavedCourseColor(lesson.subject.name, hex);
+    setColor(hex);
+  };
+
   return (
     <>
       <AnimatedScrollView
@@ -274,10 +291,10 @@ function LessonScreen({ route, navigation }) {
                 <View style={styles.coursGroupHeader}>
                   { userData.profile_picture ?
                     <View style={styles.coursGroupHeaderPics}>
-                      <Image style={[styles.coursGroupHeaderPic, {borderColor: getSavedCourseColor(lesson.subject.name, lesson.background_color)}]} source={blurPic1} />
-                      <Image style={[styles.coursGroupHeaderPic, {borderColor: getSavedCourseColor(lesson.subject.name, lesson.background_color)}]} source={blurPic2} />
+                      <Image style={[styles.coursGroupHeaderPic, {borderColor: color}]} source={blurPic1} />
+                      <Image style={[styles.coursGroupHeaderPic, {borderColor: color}]} source={blurPic2} />
 
-                      <Image style={[styles.coursGroupHeaderPic, {borderColor: getSavedCourseColor(lesson.subject.name, lesson.background_color)}]} source={{ uri: userData.profile_picture }} />
+                      <Image style={[styles.coursGroupHeaderPic, {borderColor: color}]} source={{ uri: userData.profile_picture }} />
                     </View>
                   : null }
                   { lesson.group_names.length > 0 ? (
@@ -305,17 +322,32 @@ function LessonScreen({ route, navigation }) {
           </View>
         }
         TopNavBarComponent={
-          <View style={[styles.coursNameView, {backgroundColor: getSavedCourseColor(lesson.subject.name, lesson.background_color)}, Platform.OS == 'android' ? {paddingTop: insets.top} : null]}>
+          <View style={[styles.coursNameView, {backgroundColor: color}, Platform.OS == 'android' ? {paddingTop: insets.top} : null]}>
             <Text style={[styles.coursNameHeaderText]}>
               {formatCoursName(lesson.subject.name)}
             </Text>
+            { countdownString ?
+                <Text style={styles.coursTimeHeaderTop}>
+                  {countdownString}
+                </Text>
+              :
+                ( Math.floor((new Date(lesson.start) - new Date()) / 1000) > 0 ?
+                  <Text style={styles.coursTimeHeaderTop}>
+                    dans ...
+                  </Text>
+                :
+                  <Text style={styles.coursTimeHeaderTop}>
+                    il y a ...
+                  </Text>
+                )
+              }
           </View>
         }
       >
         <StatusBar
           animated
           barStyle="light-content"
-          backgroundColor={getSavedCourseColor(lesson.subject.name, lesson.background_color)}
+          backgroundColor={color}
         />
 
         <View style={styles.optionsList}>
@@ -430,14 +462,15 @@ function LessonScreen({ route, navigation }) {
           </View>
         </View>
 
-        { new Date(lesson.start) > new Date() ? (
-          <View style={styles.optionsList}>
-            <Text style={styles.ListTitle}>Options (cours à venir)</Text>
+        <View style={styles.optionsList}>
+          <Text style={styles.ListTitle}>Options</Text>
 
+          { new Date(lesson.start) > new Date() ? (
             <ListItem
-              title="Me notifier 5 minutes avant"
-              subtitle="Envoie une notification 5 minutes avant le début du cours"
+              title="Me notifier 5 min. avant"
+              subtitle="Vous serez notifié 5 minutes avant le début du cours."
               style={{ flex: 1, marginHorizontal: 0 }}
+              center
               right={
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Switch
@@ -447,11 +480,35 @@ function LessonScreen({ route, navigation }) {
                 </View>
               }
             />
-          </View>
-        ) : null }
+          ) : null }
 
-        <View style={{ height: 20 }} />
+          <ListItem
+            title="Changer la couleur de la matière"
+            style={{ flex: 1, marginHorizontal: 0 }}
+            onPress={() => changeCourseColor()}
+            center
+            chevron
+          />
+        </View>
+        
+
+        <View style={{ height: 78 }} />
       </AnimatedScrollView>
+
+      <Modal visible={colorModalVisible} animationType='fade' presentationStyle='overFullScreen' transparent={true} >
+        <View style={{ flex: 1, backgroundColor: "#00000099", alignItems: 'center', justifyContent: 'center' }} >
+          <View style={{backgroundColor: UIColors.background, padding: 20, borderRadius: 12, borderCurve: 'continuous'}}>
+            <ColorPicker style={{ width: '70%', gap: 20 }} value={color} onComplete={onSelectColor}>
+              <Preview />
+              <Panel1 />
+              <HueSlider />
+              <Swatches />
+            </ColorPicker>
+
+            <Button title='Enregistrer' onPress={() => setColorModalVisible(false)} />
+          </View>
+        </View>
+      </Modal>
     </>
   );
 }
@@ -540,6 +597,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 17,
     fontFamily: 'Papillon-Semibold',
+    textAlign: 'center',
+  },
+  coursTimeHeaderTop: {
+    color: '#ffffff99',
+    fontSize: 14,
+    fontFamily: 'Papillon-Medium',
     textAlign: 'center',
   },
 
