@@ -1,0 +1,138 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+begin 
+  lane :build do
+    desc "Build for Google Play Store (Android)"
+
+    set_version()
+
+    gradle(
+      tasks: ["bundleRelease", "assembleRelease"],
+      print_command: false,
+      properties: {
+        "android.injected.signing.store.file" => ENV['KEY_STORE'],
+        "android.injected.signing.store.password" => ENV['KEY_STORE_PASSWORD'],
+        "android.injected.signing.key.alias" => ENV['KEY_ALIAS'],
+        "android.injected.signing.key.password" => ENV['KEY_PASSWORD'],
+        "android.injected.version.code" => ENV['APP_VERSION_CODE'],
+        "android.injected.version.name" => ENV['APP_VERSION_NUMBER'],
+      }
+    ) 
+
+    APK_LOCATION = "#{lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]}"
+    AAB_LOCATION = "#{lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH]}"
+
+    sh("echo APK_LOCATION=#{APK_LOCATION} >> $GITHUB_ENV")
+    sh("echo AAB_LOCATION=#{AAB_LOCATION} >> $GITHUB_ENV")
+  end
+
+  lane :beta do
+    build()
+
+    supply(
+        track: 'beta',
+        package_name: ENV['APP_PACKAGE_NAME'],
+        version_code: ENV['APP_VERSION_CODE'],
+        release_status: "draft",
+        aab: "#{AAB_LOCATION}",
+        skip_upload_images: true,
+        skip_upload_metadata: true,
+        skip_upload_changelogs: true,
+        skip_upload_screenshots: true,
+        skip_upload_apk: true,
+        json_key: ENV['PLAY_CREDENTIALS_JSON']
+      )
+  end
+
+  lane :prod do
+    build()
+
+    supply(
+      track: 'production',
+      package_name: ENV['APP_PACKAGE_NAME'],
+      version_code: ENV['APP_VERSION_CODE'],
+      release_status: "draft",
+      aab: "#{AAB_LOCATION}",
+      skip_upload_images: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_screenshots: true,
+      skip_upload_apk: true,
+      json_key: ENV['PLAY_CREDENTIALS_JSON']
+    )
+  end
+
+  lane :alpha do
+    build()
+
+    supply(
+      track: 'alpha',
+      package_name: ENV['APP_PACKAGE_NAME'],
+      version_code: ENV['APP_VERSION_CODE'],
+      release_status: "draft",
+      aab: "#{AAB_LOCATION}",
+      skip_upload_images: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_screenshots: true,
+      skip_upload_apk: true,
+      json_key: ENV['PLAY_CREDENTIALS_JSON']
+    )
+  end
+
+  lane :test do
+    desc("Build and deploy for test (Android) | It doesn't send app to play store")
+
+    set_version()
+
+    gradle(
+      tasks: ["bundleRelease", "assembleRelease"],
+      print_command: false,
+      properties: {
+        "android.injected.signing.store.file" => ENV['KEY_STORE'],
+        "android.injected.signing.store.password" => ENV['KEY_STORE_PASSWORD'],
+        "android.injected.signing.key.alias" => ENV['KEY_ALIAS'],
+        "android.injected.signing.key.password" => ENV['KEY_PASSWORD'],
+        "android.injected.version.code" => ENV['APP_VERSION_CODE'],
+        "android.injected.version.name" => ENV['APP_VERSION_NUMBER'],
+      }
+    )
+
+    APK_LOCATION = "#{lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]}"
+    AAB_LOCATION = "#{lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH]}"
+
+    print "APK_LOCATION: #{APK_LOCATION}"
+    print "AAB_LOCATION: #{AAB_LOCATION}"
+
+    sh("echo APK_LOCATION=#{APK_LOCATION} >> $GITHUB_ENV")
+    sh("echo AAB_LOCATION=#{AAB_LOCATION} >> $GITHUB_ENV")
+  end
+
+  lane :set_version do
+    android_set_version_name(
+      version_name: ENV["APP_VERSION_NUMBER"] || "5.0.0",
+      gradle_file: ENV["GRADLE_FILE"] || "./android/app/build.gradle"
+    )
+
+    android_set_version_code(
+      version_code: ENV["APP_VERSION_CODE"] || "1",
+      gradle_file: ENV["GRADLE_FILE"] || "./android/app/build.gradle"
+    )
+  end
+
+end
