@@ -79,76 +79,46 @@ const openURL = (url) => {
 
 // App
 const NewHomeScreen = ({ navigation }) => {
-  // main hooks
   const theme = useTheme();
   const UIColors = GetUIColors();
 
-  // Refresh
   const [refreshCount, setRefreshCount] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      AsyncStorage.getItem('homeUpdated').then((value) => {
-        if (value === 'true') {
-          console.log('home updated');
-          setRefreshCount((prevCount) => prevCount + 1);
-
-          AsyncStorage.setItem('homeUpdated', 'false');
-        }
-      });
-    }, [navigation])
-  );
-
-  // User
   const [loadingUser, setLoadingUser] = useState(true);
   const [user, setUser] = useState(null);
   const [formattedUserData, setFormattedUserData] = useState({
     prenom: '',
     establishment: '',
-    avatarURL: '', 
+    avatarURL: '',
   });
+  const [homeworks, setHomeworks] = useState([]);
+  const [loadingHw, setLoadingHw] = useState(true);
+  const [timetable, setTimetable] = useState([]);
+  const [loadingCours, setLoadingCours] = useState(true);
 
   useEffect(() => {
     setLoadingUser(true);
     IndexData.getUser().then((data) => {
-      setFormattedUserData({
-        prenom: data.name.split(' ')[data.name.split(' ').length - 1],
-        establishment: data.establishment,
-        avatarURL: data.profile_picture,
-      });
+      const prenom = data.name.split(' ').pop();
+      const establishment = data.establishment;
+      const avatarURL = data.profile_picture;
 
+      setFormattedUserData({ prenom, establishment, avatarURL });
       setUser(data);
       setLoadingUser(false);
     });
-  }, []);
 
-  // Homeworks
-  const [homeworks, setHomeworks] = useState([]);
-  const [loadingHw, setLoadingHw] = useState(true);
-
-  useEffect(() => {
-    // get today date
     const today = new Date();
+    let force = refreshCount > 0;
 
-    // get date in 1 week
-    const nextWeek = new Date();
-    nextWeek.setDate(today.getDate() + 7);
+    setLoadingHw(true);
+    setLoadingCours(true);
 
-    // force update
-    let force = false;
-
-    if (refreshCount > 0) {
-      force = true;
-    }
-
-    // loading
-    setLoadingHw(true)
-
-    IndexData.getHomeworks(today, force, nextWeek).then((data) => {
-      const groupedHomeworks = {};
-
-      data.forEach((homework) => {
+    Promise.all([
+      IndexData.getHomeworks(today, force, new Date(today).setDate(today.getDate() + 7)),
+      IndexData.getTimetable(today, force)
+    ]).then(([hwData, coursData]) => {
+      const groupedHomeworks = hwData.reduce((grouped, homework) => {
         const homeworkDate = new Date(homework.date);
         homeworkDate.setHours(0, 0, 0, 0);
 
@@ -161,55 +131,38 @@ const NewHomeScreen = ({ navigation }) => {
                 month: 'long',
               });
 
-        if (!groupedHomeworks[formattedDate]) {
-          groupedHomeworks[formattedDate] = {
+        if (!grouped[formattedDate]) {
+          grouped[formattedDate] = {
             date: homeworkDate,
             formattedDate: formattedDate,
             homeworks: [],
           };
         }
 
-        groupedHomeworks[formattedDate].homeworks.push(homework);
-      });
+        grouped[formattedDate].homeworks.push(homework);
+        return grouped;
+      }, {});
 
-      // Convert the groupedHomeworks object into an array
-      const result = Object.values(groupedHomeworks);
-
-      // Sort the array by date
-      result.sort((a, b) => a.date - b.date);
-
-      // set homeworks
+      const result = Object.values(groupedHomeworks).sort((a, b) => a.date - b.date);
       setHomeworks(result);
-
-      // loading
       setLoadingHw(false);
-    });
-  }, [refreshCount]);
-
-  // Cours
-  const [timetable, setTimetable] = useState([]);
-  const [loadingCours, setLoadingCours] = useState(true);
-
-  useEffect(() => {
-    // get today date
-    const today = new Date();
-    
-    // loading
-    setLoadingCours(true);
-
-    let force = false;
-
-    if (refreshCount > 0) {
-      force = true;
-    }
-    
-    IndexData.getTimetable(today, force).then((data) => {
-      setTimetable(data);
+      setTimetable(coursData);
       setLoadingCours(false);
     });
   }, [refreshCount]);
 
-  // change header text and size
+  useFocusEffect(
+    React.useCallback(() => {
+      AsyncStorage.getItem('homeUpdated').then((value) => {
+        if (value === 'true') {
+          console.log('home updated');
+          setRefreshCount((prevCount) => prevCount + 1);
+          AsyncStorage.setItem('homeUpdated', 'false');
+        }
+      });
+    }, [navigation])
+  );
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       header: (props) => (
@@ -223,12 +176,10 @@ const NewHomeScreen = ({ navigation }) => {
     });
   }, [navigation, timetable, user]);
 
-  // page
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
       contentInsetAdjustmentBehavior='automatic'
-
       refreshControl={
         <RefreshControl
           progressViewOffset={28}
@@ -246,17 +197,30 @@ const NewHomeScreen = ({ navigation }) => {
         />
       }
     >
-      <View style={{height: 32}} />
-
+      <View style={{ height: 32 }} />
       <TabsElement navigation={navigation} theme={theme} UIColors={UIColors} />
 
-      <CoursElement cours={timetable} theme={theme} UIColors={UIColors} navigation={navigation} loading={loadingCours} />
+      {timetable.length > 0 && !loadingCours ? (
+        <CoursElement
+          cours={timetable}
+          theme={theme}
+          UIColors={UIColors}
+          navigation={navigation}
+          loading={loadingCours}
+        />
+      ) : null}
 
-      <DevoirsElement homeworks={homeworks} theme={theme} UIColors={UIColors} navigation={navigation} loading={loadingHw} />
-
-      <View style={{height: 50}} />
+      {homeworks.length > 0 && !loadingHw ? (
+        <DevoirsElement
+          homeworks={homeworks}
+          theme={theme}
+          UIColors={UIColors}
+          navigation={navigation}
+          loading={loadingHw}
+        />
+      ) : null}
     </ScrollView>
-  )
+  );
 };
 
 const TabsElement = ({ navigation, theme, UIColors }) => {
@@ -791,8 +755,6 @@ const lightenDarkenColor = (color, amount) => {
 };
 
 function NextCours({ cours, navigation }) {
-  const [time, setTime] = React.useState('...');
-
   const lz = (number) => (number < 10 ? `0${number}` : number);
 
   const calculateTimeLeft = (date) => {
@@ -813,79 +775,74 @@ function NextCours({ cours, navigation }) {
     return 'maintenant';
   };
 
-  React.useEffect(() => {
-    const start = new Date(cours.start);
-    setTime(calculateTimeLeft(start));
-
-    const interval = setInterval(() => {
-      setTime(calculateTimeLeft(start));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [cours.start]);
-
   const openCours = () => {
     navigation.navigate('Lesson', { event: cours });
   };
 
-  const isTimeSet = time !== '...';
+  const isTimeSet = !!cours?.start;
+
+  const formattedStartTime = isTimeSet
+    ? new Date(cours.start).toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : '';
+
+  const formattedEndTime = isTimeSet
+    ? new Date(cours.end).toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : '';
+
+  const timeLeft = isTimeSet ? calculateTimeLeft(cours.start) : '';
+
+  if (!cours) {
+    return null;
+  }
 
   return (
-    cours && (
-      <PressableScale
-        style={[
-          nextCoursStyles.nextCoursContainer,
-          { backgroundColor: getClosestCourseColor(cours.subject.name) },
-        ]}
-        onPress={openCours}
-      >
-        <View style={nextCoursStyles.nextCoursLeft}>
-          <View style={nextCoursStyles.nextCoursEmoji}>
-            <Text style={nextCoursStyles.nextCoursEmojiText}>
-              {getClosestGradeEmoji(cours.subject.name)}
-            </Text>
-          </View>
-          <View style={nextCoursStyles.nextCoursLeftData}>
-            <Text numberOfLines={1} style={nextCoursStyles.nextCoursLeftDataText}>
-              {formatCoursName(cours.subject.name)}
-            </Text>
-
-            {cours.status === null ? (
-              <Text numberOfLines={1} style={nextCoursStyles.nextCoursLeftDataTextRoom}>
-                salle {cours.rooms[0]} - avec {cours.teachers[0]}
-              </Text>
-            ) : (
-              <Text numberOfLines={1} style={nextCoursStyles.nextCoursLeftDataTextRoom}>
-                {cours.status} - salle {cours.rooms[0]} - avec{' '}
-                {cours.teachers[0]}
-              </Text>
-            )}
-          </View>
+    <PressableScale
+      style={[
+        nextCoursStyles.nextCoursContainer,
+        { backgroundColor: getClosestCourseColor(cours.subject.name) },
+      ]}
+      onPress={openCours}
+    >
+      <View style={nextCoursStyles.nextCoursLeft}>
+        <View style={nextCoursStyles.nextCoursEmoji}>
+          <Text style={nextCoursStyles.nextCoursEmojiText}>
+            {getClosestGradeEmoji(cours.subject.name)}
+          </Text>
         </View>
-        <View style={nextCoursStyles.nextCoursRight}>
-          <Text numberOfLines={1} style={nextCoursStyles.nextCoursRightTime}>
-            à{' '}
-            {new Date(cours.start).toLocaleTimeString('fr-FR', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
+        <View style={nextCoursStyles.nextCoursLeftData}>
+          <Text numberOfLines={1} style={nextCoursStyles.nextCoursLeftDataText}>
+            {formatCoursName(cours.subject.name)}
           </Text>
 
-          {isTimeSet ? (
-            <Text numberOfLines={1} style={nextCoursStyles.nextCoursRightDelay}>
-              {time}
-            </Text>
-          ) : (
-            <Text numberOfLines={1} style={nextCoursStyles.nextCoursRightDelay}>
-              fin{' '}
-              {new Date(cours.end).toLocaleTimeString('fr-FR', {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </Text>
-          )}
+          <Text numberOfLines={1} style={nextCoursStyles.nextCoursLeftDataTextRoom}>
+            {cours.status === null
+              ? `salle ${cours.rooms[0]} - avec ${cours.teachers[0]}`
+              : `${cours.status} - salle ${cours.rooms[0]} - avec ${cours.teachers[0]}`}
+          </Text>
         </View>
-      </PressableScale>
-    )
+      </View>
+      <View style={nextCoursStyles.nextCoursRight}>
+        <Text numberOfLines={1} style={nextCoursStyles.nextCoursRightTime}>
+          à {formattedStartTime}
+        </Text>
+
+        {isTimeSet ? (
+          <Text numberOfLines={1} style={nextCoursStyles.nextCoursRightDelay}>
+            {timeLeft}
+          </Text>
+        ) : (
+          <Text numberOfLines={1} style={nextCoursStyles.nextCoursRightDelay}>
+            {formattedEndTime}
+          </Text>
+        )}
+      </View>
+    </PressableScale>
   );
 }
 
@@ -949,16 +906,16 @@ function HomeHeader({ navigation, timetable, user }) {
 
   const isFocused = useIsFocused();
 
-  React.useEffect(() => {
-    const fetchNextCourses = () => {
-      if (timetable !== null) {
-        const { next, nextClasses } = getNextCours(timetable);
-        setNextCourse(next);
-        setLeftCourses(nextClasses);
-        setLoading(false);
-      }
-    };
+  const fetchNextCourses = () => {
+    if (timetable !== null) {
+      const { next, nextClasses } = getNextCours(timetable);
+      setNextCourse(next);
+      setLeftCourses(nextClasses);
+      setLoading(false);
+    }
+  };
 
+  React.useEffect(() => {
     fetchNextCourses();
     const interval = setInterval(fetchNextCourses, 2000);
     return () => clearInterval(interval);
@@ -967,22 +924,12 @@ function HomeHeader({ navigation, timetable, user }) {
   const getColorCoursBg = (color) =>
     lightenDarkenColor(getClosestCourseColor(color), -20);
 
-  const getPrenom = (name) => {
-    const words = name.split(' ');
-    const prenom = words[words.length - 1];
-
-    return prenom;
-  };
+  const getPrenom = (name) => name.split(' ').pop();
 
   const getFormulePolitesse = () => {
-    const date = new Date();
-    const hours = date.getHours();
-    if(hours > 17) {
-      return "Bonsoir"
-    } else {
-      return "Bonjour"
-    }
-  }
+    const hours = new Date().getHours();
+    return hours > 17 ? 'Bonsoir' : 'Bonjour';
+  };
 
   const openProfile = () => {
     if (user) {
@@ -999,6 +946,7 @@ function HomeHeader({ navigation, timetable, user }) {
   };
 
   const UIColors = GetUIColors();
+  const hasTimetable = timetable && leftCourses && leftCourses.length > 0;
 
   return (
     <View
@@ -1014,16 +962,16 @@ function HomeHeader({ navigation, timetable, user }) {
         },
       ]}
     >
-      {isFocused ? (
+      {isFocused && (
         <StatusBar barStyle="light-content" backgroundColor="transparent" />
-      ) : null}
+      )}
 
       <View style={headerStyles.headerContainer}>
         <Text style={[headerStyles.headerNameText]}>
-          {getFormulePolitesse()}{user ? `, ${getPrenom(user.name)} !` : ' !'}
+          {`${getFormulePolitesse()}${user ? `, ${getPrenom(user.name)} !` : ' !'}`}
         </Text>
         <Text style={[headerStyles.headerCoursesText]}>
-          {timetable && leftCourses && leftCourses.length > 0
+          {hasTimetable
             ? `Il te reste ${leftCourses.length + 1} cours dans ta journée.`
             : "Tu n'as aucun cours restant aujourd'hui."}
         </Text>
@@ -1041,24 +989,11 @@ function HomeHeader({ navigation, timetable, user }) {
         )}
       </View>
 
-      {nextCourse && nextCourse.id !== null && (
+      { !loading && nextCourse && (
         <NextCours cours={nextCourse} navigation={navigation} />
       )}
 
-      {!loading && !nextCourse ? (
-        <PressableScale
-          style={[
-            headerStyles.nextCoursContainer,
-            { backgroundColor: UIColors.elementHigh },
-            headerStyles.nextCoursLoading,
-          ]}
-          onPress={openNextCours}
-        >
-          <Text style={[headerStyles.nextCoursLoadingText]}>
-            Pas de prochain cours
-          </Text>
-        </PressableScale>
-      ) : loading ? (
+      {!nextCourse && (
         <PressableScale
           style={[
             headerStyles.nextCoursContainer,
@@ -1066,12 +1001,20 @@ function HomeHeader({ navigation, timetable, user }) {
             headerStyles.nextCoursLoading,
           ]}
         >
-          <ActivityIndicator size={12} />
-          <Text style={[headerStyles.nextCoursLoadingText]}>
-            Chargement du prochain cours
-          </Text>
+          {loading ? (
+            <>
+              <ActivityIndicator size={12} />
+              <Text style={[headerStyles.nextCoursLoadingText]}>
+                Chargement du prochain cours
+              </Text>
+            </>
+          ) : (
+            <Text style={[headerStyles.nextCoursLoadingText]}>
+              Pas de prochain cours
+            </Text>
+          )}
         </PressableScale>
-      ) : null}
+      )}
     </View>
   );
 }

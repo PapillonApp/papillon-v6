@@ -250,7 +250,7 @@ function CoursScreen({ navigation }) {
 
   const updateCoursForDate = async (dateOffset, setDate) => {
     const newDate = calcDate(setDate, dateOffset);
-    if (!coursRef.current[newDate.toLocaleDateString()]) {
+    if (!cours[newDate.toLocaleDateString()]) {
       const result = await IndexData.getTimetable(newDate);
       setCours((prevCours) => ({
         ...prevCours,
@@ -260,9 +260,10 @@ function CoursScreen({ navigation }) {
   };
 
   const handlePageChange = (page) => {
-    const newDate = calcDate(todayRef.current, page);
+    const newDate = calcDate(calendarDate, page);
     setCurrentIndex(page);
     setCalendarDate(newDate);
+    setToday(newDate);
 
     for (let i = -2; i <= 2; i++) {
       updateCoursForDate(i, newDate);
@@ -270,18 +271,13 @@ function CoursScreen({ navigation }) {
   };
 
   const forceRefresh = async () => {
-    const newDate = calcDate(todayRef.current, 0);
+    const newDate = calcDate(calendarDate, 0);
     const result = await IndexData.getTimetable(newDate, true);
 
     let newCours = cours;
     newCours[newDate.toLocaleDateString()] = result;
     setCours(newCours);
   };
-
-  useEffect(() => {
-    todayRef.current = today;
-    coursRef.current = cours;
-  }, [today, cours]);
 
   const UIColors = GetUIColors();
 
