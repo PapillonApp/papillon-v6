@@ -140,7 +140,7 @@ function DevoirsScreen({ navigation }) {
   };
 
   const handlePageChange = (page) => {
-    const newDate = calcDate(todayRef.current, page);
+    const newDate = calcDate(calendarDate, page);
     setCurrentIndex(page);
     setCalendarDate(newDate);
 
@@ -150,7 +150,7 @@ function DevoirsScreen({ navigation }) {
   };
 
   const forceRefresh = async () => {
-    const newDate = calcDate(todayRef.current, 0);
+    const newDate = calcDate(calendarDate, 0);
     const result = await IndexData.getHomeworks(newDate, true);
 
     let oldHws = homeworks;
