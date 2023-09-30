@@ -33,7 +33,7 @@ import PapillonList from '../components/PapillonList';
 import { DownloadCloud, Check, Gavel, Newspaper, MessagesSquare, CheckCircle } from 'lucide-react-native';
 
 // Formatting
-import { getClosestCourseColor } from '../utils/ColorCoursName';
+import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
@@ -428,7 +428,7 @@ const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
               })}
             </Text>
           </View>
-          <View style={[styles.cours.item.color, {backgroundColor: getClosestCourseColor(cours.subject.name)}]} />
+          <View style={[styles.cours.item.color, {backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color)}]} />
           <View style={styles.cours.item.data.container}>
             <Text style={[styles.cours.item.data.subject]}>
               {formatCoursName(cours.subject.name)}
@@ -441,7 +441,7 @@ const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
             </Text>
 
             { cours.status ? (
-              <Text style={[styles.cours.item.data.status, {backgroundColor: getClosestCourseColor(cours.subject.name) + '22', color: getClosestCourseColor(cours.subject.name)}]}>
+              <Text style={[styles.cours.item.data.status, {backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color) + '22', color: getSavedCourseColor(cours.subject.name, cours.background_color)}]}>
                 {cours.status}
               </Text>
             ) : null }
@@ -665,7 +665,7 @@ const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIn
           <View style={styles.homeworks.devoirsContent.parent}>
             <View style={styles.homeworks.devoirsContent.header.container}>
               <View style={styles.homeworks.devoirsContent.header.subject.container}>
-                <View style={[styles.homeworks.devoirsContent.header.subject.color, {backgroundColor: getClosestCourseColor(homework.subject.name)}]} />
+                <View style={[styles.homeworks.devoirsContent.header.subject.color, {backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color)}]} />
                 <Text style={[styles.homeworks.devoirsContent.header.subject.title, { color: UIColors.text }]}>{formatCoursName(homework.subject.name)}</Text>
               </View>
             </View>
@@ -805,7 +805,7 @@ function NextCours({ cours, navigation }) {
     <PressableScale
       style={[
         nextCoursStyles.nextCoursContainer,
-        { backgroundColor: getClosestCourseColor(cours.subject.name) },
+        { backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color) },
       ]}
       onPress={openCours}
     >
@@ -922,7 +922,7 @@ function HomeHeader({ navigation, timetable, user }) {
   }, [timetable]);
 
   const getColorCoursBg = (color) =>
-    lightenDarkenColor(getClosestCourseColor(color), -20);
+    lightenDarkenColor(color, -20);
 
   const getPrenom = (name) => name.split(' ').pop();
 
@@ -954,7 +954,7 @@ function HomeHeader({ navigation, timetable, user }) {
         headerStyles.header,
         {
           backgroundColor: nextCourse
-            ? getColorCoursBg(nextCourse.subject.name)
+            ? getColorCoursBg(getSavedCourseColor(nextCourse.subject.name, nextCourse.background_color))
             : UIColors.primaryBackground,
           paddingTop: insets.top + 13,
           borderColor: theme.dark ? '#ffffff15' : '#00000032',

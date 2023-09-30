@@ -1,3 +1,5 @@
+import SyncStorage from 'sync-storage';
+
 const colors = [
   "#2667a9", "#76a10b", "#3498DB", "#1ABC9C", "#a01679", "#27AE60", "#156cd6", "#F39C12", "#E67E22", "#D35400", "#2C3E50", "#E74C3C", "#C0392B", "#8E44AD", "#ad4491", "#9f563b", "#920205",
 ];
@@ -73,6 +75,26 @@ function getClosestCourseColor(courseName) {
   return hexColor;
 }
 
+function getSavedCourseColor(courseName, courseColor) {
+  let savedColors = SyncStorage.get('savedColors');
+  if (savedColors) {
+    savedColors = JSON.parse(savedColors);
+  }
+  else {
+    savedColors = {};
+  }
+
+  if (savedColors[courseName]) {
+    return savedColors[courseName];
+  }
+  else {
+    // find a color that is not used
+    let color = courseColor;
+    savedColors[courseName] = color;
+    SyncStorage.set('savedColors', JSON.stringify(savedColors));
+    return color;
+  }
+}
 
 export default getClosestColor;
-export { getClosestCourseColor };
+export { getClosestCourseColor, getSavedCourseColor };

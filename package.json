@@ -81,7 +81,8 @@
     "react-native-toast-message": "^2.1.6",
     "react-native-vector-icons": "^9.2.0",
     "react-native-view-shot": "3.7.0",
-    "react-native-web": "~0.19.6"
+    "react-native-web": "~0.19.6",
+    "sync-storage": "^0.4.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

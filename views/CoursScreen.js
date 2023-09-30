@@ -23,7 +23,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestColor from '../utils/ColorCoursName';
-import { getClosestCourseColor } from '../utils/ColorCoursName';
+import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
@@ -250,7 +250,7 @@ function CoursScreen({ navigation }) {
 
   const updateCoursForDate = async (dateOffset, setDate) => {
     const newDate = calcDate(setDate, dateOffset);
-    if (!cours[newDate.toLocaleDateString()]) {
+    if (!coursRef.current[newDate.toLocaleDateString()]) {
       const result = await IndexData.getTimetable(newDate);
       setCours((prevCours) => ({
         ...prevCours,
@@ -260,10 +260,9 @@ function CoursScreen({ navigation }) {
   };
 
   const handlePageChange = (page) => {
-    const newDate = calcDate(calendarDate, page);
+    const newDate = calcDate(todayRef.current, page);
     setCurrentIndex(page);
     setCalendarDate(newDate);
-    setToday(newDate);
 
     for (let i = -2; i <= 2; i++) {
       updateCoursForDate(i, newDate);
@@ -278,6 +277,11 @@ function CoursScreen({ navigation }) {
     newCours[newDate.toLocaleDateString()] = result;
     setCours(newCours);
   };
+
+  useEffect(() => {
+    todayRef.current = today;
+    coursRef.current = cours;
+  }, [today, cours]);
 
   const UIColors = GetUIColors();
 
@@ -493,13 +497,13 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
         <View
           style={[
             styles.coursItem,
-            { backgroundColor: `${getClosestCourseColor(cours.subject.name)}22` },
+            { backgroundColor: `${getSavedCourseColor(cours.subject.name, cours.background_color)}22` },
           ]}
         >
           <View
             style={[
               styles.coursColor,
-              { backgroundColor: getClosestCourseColor(cours.subject.name) },
+              { backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color) },
             ]}
           />
           <View style={[styles.coursInfo]}>
@@ -528,9 +532,7 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
                 style={[
                   styles.coursStatus,
                   {
-                    backgroundColor: `${getClosestCourseColor(
-                      cours.subject.name
-                    )}22`,
+                    backgroundColor: `${getSavedCourseColor(cours.subject.name, cours.background_color)}22`,
                   },
                   cours.is_cancelled ? styles.coursStatusCancelled : null,
                 ]}

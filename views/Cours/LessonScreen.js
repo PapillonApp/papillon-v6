@@ -36,7 +36,7 @@ import * as Clipboard from 'expo-clipboard';
 import formatCoursName from '../../utils/FormatCoursName';
 import ListItem from '../../components/ListItem';
 import getClosestColor from '../../utils/ColorCoursName';
-import { getClosestCourseColor } from '../../utils/ColorCoursName';
+import { getClosestCourseColor, getSavedCourseColor } from '../../utils/ColorCoursName';
 import GetUIColors from '../../utils/GetUIColors';
 import getClosestGradeEmoji from '../../utils/EmojiCoursName';
 
@@ -142,7 +142,7 @@ function LessonScreen({ route, navigation }) {
         topBarElevation={12}
         topBarHeight={Platform.OS == 'android' ? insets.top + 56 : 56}
         HeaderComponent={
-          <View style={[styles.coursNameHeaderView, {backgroundColor: getClosestCourseColor(lesson.subject.name)}]}>
+          <View style={[styles.coursNameHeaderView, {backgroundColor: getSavedCourseColor(lesson.subject.name, lesson.background_color)}]}>
             <View style={styles.coursDataHeader}>
               <Text style={styles.coursNameHeader}>
                 {formatCoursName(lesson.subject.name)}
@@ -161,7 +161,7 @@ function LessonScreen({ route, navigation }) {
           </View>
         }
         TopNavBarComponent={
-          <View style={[styles.coursNameView, {backgroundColor: getClosestCourseColor(lesson.subject.name)}, Platform.OS == 'android' ? {paddingTop: insets.top} : null]}>
+          <View style={[styles.coursNameView, {backgroundColor: getSavedCourseColor(lesson.subject.name, lesson.background_color)}, Platform.OS == 'android' ? {paddingTop: insets.top} : null]}>
             <Text style={[styles.coursNameHeaderText]}>
               {formatCoursName(lesson.subject.name)}
             </Text>
@@ -171,7 +171,7 @@ function LessonScreen({ route, navigation }) {
         <StatusBar
           animated
           barStyle="light-content"
-          backgroundColor={getClosestCourseColor(lesson.subject.name)}
+          backgroundColor={getSavedCourseColor(lesson.subject.name, lesson.background_color)}
         />
 
         <View style={styles.optionsList}>
