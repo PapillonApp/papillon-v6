@@ -1,55 +1,5 @@
-/* give 50 random colors of all hues but with enough contrast with white text */
 const colors = [
-  '#2C3E50',
-  '#34495E',
-  '#2980B9',
-  '#3498DB',
-  '#1ABC9C',
-  '#16A085',
-  '#27AE60',
-  '#2ECC71',
-  '#F39C12',
-  '#E49F37',
-  '#E67E22',
-  '#D35400',
-  '#E74C3C',
-  '#C0392B',
-  '#9B59B6',
-  '#8E44AD',
-  '#2980B9',
-  '#2C3E50',
-  '#34495E',
-  '#3498DB',
-  '#1ABC9C',
-  '#16A085',
-  '#27AE60',
-  '#2ECC71',
-  '#F39C12',
-  '#E49F37',
-  '#E67E22',
-  '#D35400',
-  '#E74C3C',
-  '#C0392B',
-  '#9B59B6',
-  '#8E44AD',
-  '#2980B9',
-  '#2C3E50',
-  '#34495E',
-  '#3498DB',
-  '#1ABC9C',
-  '#16A085',
-  '#27AE60',
-  '#2ECC71',
-  '#F39C12',
-  '#E49F37',
-  '#E67E22',
-  '#D35400',
-  '#E74C3C',
-  '#C0392B',
-  '#9B59B6',
-  '#8E44AD',
-  '#2980B9',
-  '#2C3E50',
+  "#2667a9", "#76a10b", "#3498DB", "#1ABC9C", "#a01679", "#27AE60", "#156cd6", "#F39C12", "#E67E22", "#D35400", "#2C3E50", "#E74C3C", "#C0392B", "#8E44AD", "#ad4491", "#9f563b", "#920205",
 ];
 
 function hexToRGB(_hex) {
@@ -93,96 +43,36 @@ function getClosestColor(hexColor) {
   return findClosestColor(hexColor, colors);
 }
 
-const standardizedCourseColor = {
-  "francais": 32,
-  "mathematiques": 14,
-  "histoire": 45,
-  "sciences": 7,
-  "anglais": 23,
-  "geographie": 5,
-  "physique": 18,
-  "chimie": 9,
-  "biologie": 38,
-  "informatique": 11,
-  "musique": 29,
-  "art": 42,
-  "education physique": 21,
-  "philosophie": 47,
-  "economie": 36,
-  "espagnol": 10,
-  "psychologie": 27,
-  "sociologie": 4,
-  "droit": 2,
-  "management": 44,
-  "marketing": 12,
-  "finance": 33,
-  "comptabilite": 6,
-  "astronomie": 22,
-};
-
-function calculateStringDistance(str1, str2) {
-  // This function calculates the Levenshtein distance between two strings.
-  const m = str1.length;
-  const n = str2.length;
-  const dp = [];
-
-  for (let i = 0; i <= m; i++) {
-    dp[i] = [i];
-  }
-
-  for (let j = 0; j <= n; j++) {
-    dp[0][j] = j;
-  }
-
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
-      dp[i][j] = Math.min(
-        dp[i - 1][j] + 1,
-        dp[i][j - 1] + 1,
-        dp[i - 1][j - 1] + cost
-      );
-    }
-  }
-
-  return dp[m][n];
-}
-
-function removeAccentsAndLowercase(inputString) {
-  // Convert the string to lowercase
-  const lowercaseString = inputString.toLowerCase();
-
-  // Use a regular expression to replace accented characters with their non-accented equivalents
-  const normalizedString = lowercaseString.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-  return normalizedString;
-}
-
 function getClosestCourseColor(courseName) {
-  courseName = removeAccentsAndLowercase(courseName);
-
-  let closestMatch = null;
-  let minDistance = Infinity;
-
-  // Iterate through the course names in the standardizedCourseColor object
-  for (const key in standardizedCourseColor) {
-    const distance = calculateStringDistance(courseName, key);
-
-    // Check if the current course name is closer than the previous closest match
-    if (distance < minDistance) {
-      closestMatch = key;
-      minDistance = distance;
+  // Fonction pour générer une valeur de hachage à partir du nom du cours
+  function hashCode(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i) + 1;
+      hash = (hash << 5) - hash + char;
     }
+    return hash;
   }
 
-  // If no match was found, return a random color from the colors array
-  if (closestMatch === null) {
-    return colors[Math.floor(Math.random() * colors.length)];
-  }
+  // Générer une valeur de hachage à partir du nom du cours
+  const hash = hashCode(courseName);
 
-  // Return the color associated with the closest matching course name
-  return colors[standardizedCourseColor[closestMatch]];
+  // Introduire des facteurs multiplicatifs pour augmenter la variété des couleurs7
+  const multiplierR = 32;
+  const multiplierG = 26;
+  const multiplierB = 22;
+
+  // Calculer les composantes RVB de la couleur à partir de la valeur de hachage et des facteurs multiplicatifs
+  const r = Math.abs((hash * multiplierR * hash % 200 - 10));
+  const g = Math.abs((hash * multiplierG * hash % 220 - 15));
+  const b = Math.abs((hash * multiplierB * hash % 240 - 10));
+
+  // Convertir les composantes RVB en format HEX
+  const hexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+
+  return hexColor;
 }
+
 
 export default getClosestColor;
 export { getClosestCourseColor };

@@ -219,8 +219,6 @@ const NewHomeScreen = ({ navigation }) => {
           loading={loadingHw}
         />
       ) : null}
-
-      <View style={{ height: 50 }} />
     </ScrollView>
   );
 };

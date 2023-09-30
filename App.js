@@ -639,27 +639,7 @@ function AppStack() {
           paddingLeft: 12,
           paddingRight: 12,
           paddingTop: 2,
-          position: 'absolute',
         },
-        tabBarBackground: () => (
-          <View
-            style={{
-              flex: 1,
-              width: '100%',
-              height: '100%',
-              backgroundColor: theme.dark ? '#000000a5' : '#ffffffa5',
-            }}
-          >
-            <BlurView
-              tint={theme.dark ? 'dark' : 'light'}
-              intensity={50}
-              style={{
-                width: '100%',
-                height: '100%',
-              }}
-            />
-          </View>
-        ),
         tabBarButton: (props) => (
           <PressableScale {...props} activeScale={0.85} weight="heavy">
             <View
