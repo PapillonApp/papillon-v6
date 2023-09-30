@@ -63,9 +63,9 @@ function getClosestCourseColor(courseName) {
   const multiplierB = 22;
 
   // Calculer les composantes RVB de la couleur à partir de la valeur de hachage et des facteurs multiplicatifs
-  const r = Math.abs((hash * multiplierR * hash % 200 - 10));
-  const g = Math.abs((hash * multiplierG * hash % 220 - 15));
-  const b = Math.abs((hash * multiplierB * hash % 240 - 10));
+  const r = Math.abs((hash * multiplierR * hash % 219));
+  const g = Math.abs((hash * multiplierG * hash % 218));
+  const b = Math.abs((hash * multiplierB * hash % 225));
 
   // Convertir les composantes RVB en format HEX
   const hexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
