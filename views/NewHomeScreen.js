@@ -250,9 +250,13 @@ const NewHomeScreen = ({ navigation }) => {
 
       <TabsElement navigation={navigation} theme={theme} UIColors={UIColors} />
 
-      <CoursElement cours={timetable} theme={theme} UIColors={UIColors} navigation={navigation} loading={loadingCours} />
+      { timetable.length > 0 && !loadingCours ? (
+        <CoursElement cours={timetable} theme={theme} UIColors={UIColors} navigation={navigation} loading={loadingCours} />
+      ) : null }
 
-      <DevoirsElement homeworks={homeworks} theme={theme} UIColors={UIColors} navigation={navigation} loading={loadingHw} />
+      { homeworks.length > 0 && !loadingHw ? (
+        <DevoirsElement homeworks={homeworks} theme={theme} UIColors={UIColors} navigation={navigation} loading={loadingHw} />
+      ) : null }
 
       <View style={{height: 50}} />
     </ScrollView>
