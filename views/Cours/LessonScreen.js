@@ -505,7 +505,7 @@ function LessonScreen({ route, navigation }) {
               <Swatches />
             </ColorPicker>
 
-            <Button title='Enregistrer' onPress={() => setColorModalVisible(false)} />
+            <Button color={color} title='Enregistrer' onPress={() => setColorModalVisible(false)} />
           </View>
         </View>
       </Modal>
