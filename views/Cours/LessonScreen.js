@@ -7,6 +7,7 @@ import {
   Platform,
   TouchableOpacity,
   Switch,
+  Image,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -40,10 +41,29 @@ import { getClosestCourseColor, getSavedCourseColor } from '../../utils/ColorCou
 import GetUIColors from '../../utils/GetUIColors';
 import getClosestGradeEmoji from '../../utils/EmojiCoursName';
 
+import { IndexData } from '../../fetch/IndexData';
+
 /* async function getDefaultCalendarSource() {
 	const defaultCalendar = await Calendar.getDefaultCalendarAsync();
 	return defaultCalendar.source;
 } */
+
+function lz(num) {
+  return num < 10 ? '0' + num : num;
+}
+
+const blurPics = [
+  require(`../../assets/blur_01.png`),
+  require(`../../assets/blur_02.png`),
+  require(`../../assets/blur_03.png`),
+  require(`../../assets/blur_04.png`),
+  require(`../../assets/blur_05.png`),
+  require(`../../assets/blur_06.png`),
+  require(`../../assets/blur_07.png`)
+]
+
+const blurPic1 = blurPics[Math.floor(Math.random() * 7) + 1];
+const blurPic2 = blurPics[Math.floor(Math.random() * 7) + 1];
 
 function LessonScreen({ route, navigation }) {
   const theme = useTheme();
@@ -52,7 +72,21 @@ function LessonScreen({ route, navigation }) {
 
   const insets = useSafeAreaInsets();
 
-  console.log(lesson);
+  const [userData, setUserData] = useState(null);
+
+  const [blurPic1, setBlurPic1] = useState(null);
+  const [blurPic2, setBlurPic2] = useState(null);
+
+  React.useLayoutEffect(() => {
+    setBlurPic1(blurPics[Math.floor(Math.random() * 6) + 1]);
+    setBlurPic2(blurPics[Math.floor(Math.random() * 6) + 1]);
+  }, []);
+
+  useEffect(() => {
+    IndexData.getUser(false).then((data) => {
+      setUserData(data);
+    });
+  }, []);
 
   // calculate length of lesson
   const start = new Date(lesson.start);
@@ -134,11 +168,83 @@ function LessonScreen({ route, navigation }) {
     });
   }, []);
 
+  const [countdown, setCountdown] = useState(
+    Math.floor((new Date(lesson.start) - new Date()) / 1000)
+  );
+  const [countdownString, setCountdownString] = useState(null);
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const interval = setInterval(() => {
+        setCountdown(countdown - 1);
+
+        const hours = Math.floor(countdown / 3600);
+        const minutes = Math.floor((countdown % 3600) / 60);
+        const seconds = countdown % 60;
+
+        // a venir
+        if (hours > 0 && hours < 24) {
+          setCountdownString(
+            `dans ${lz(hours)}h ${lz(minutes)}m ${lz(seconds)}s`
+          );
+        }
+        else if (hours >= 24 && hours < 48) {
+          setCountdownString(
+            `dans ${Math.floor(hours / 24)} jour(s) ${lz(hours % 24)} heure(s)`
+          );
+        }
+        else if (hours >= 48) {
+          setCountdownString(
+            `dans ${Math.floor(hours / 24)} jours`
+          );
+        }
+        else {
+          setCountdownString(
+            `dans ${lz(minutes)}m ${lz(seconds)}s`
+          );
+        }
+
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+    else {
+      const interval = setInterval(() => {
+        setCountdown(countdown - 1);
+
+        const hours = Math.floor(countdown / 3600);
+        const minutes = Math.floor((countdown % 3600) / 60);
+        const seconds = countdown % 60;
+
+        // a venir
+
+        if (hours < -1 && hours > -48) {
+          setCountdownString(
+            `il y a ${lz(-hours)} heures`
+          );
+        }
+        else if (hours <= -48) {
+          setCountdownString(
+            `il y a ${Math.floor(-hours / 24)} jours`
+          );
+        }
+        else {
+          setCountdownString(
+            `il y a ${lz(-minutes)} minutes`
+          );
+        }
+
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [countdown]);
+
   return (
     <>
       <AnimatedScrollView
         style={{ flex: 1, backgroundColor: UIColors.background }}
-        headerMaxHeight={150}
+        headerMaxHeight={160}
         topBarElevation={12}
         topBarHeight={Platform.OS == 'android' ? insets.top + 56 : 56}
         HeaderComponent={
@@ -147,6 +253,44 @@ function LessonScreen({ route, navigation }) {
               <Text style={styles.coursNameHeader}>
                 {formatCoursName(lesson.subject.name)}
               </Text>
+
+              { countdownString ?
+                <Text style={styles.coursTimeHeader}>
+                  {countdownString}
+                </Text>
+              :
+                ( Math.floor((new Date(lesson.start) - new Date()) / 1000) > 0 ?
+                  <Text style={styles.coursTimeHeader}>
+                    dans ...
+                  </Text>
+                :
+                  <Text style={styles.coursTimeHeader}>
+                    il y a ...
+                  </Text>
+                )
+              }
+
+              { userData ?
+                <View style={styles.coursGroupHeader}>
+                  { userData.profile_picture ?
+                    <View style={styles.coursGroupHeaderPics}>
+                      <Image style={[styles.coursGroupHeaderPic, {borderColor: getSavedCourseColor(lesson.subject.name, lesson.background_color)}]} source={blurPic1} />
+                      <Image style={[styles.coursGroupHeaderPic, {borderColor: getSavedCourseColor(lesson.subject.name, lesson.background_color)}]} source={blurPic2} />
+
+                      <Image style={[styles.coursGroupHeaderPic, {borderColor: getSavedCourseColor(lesson.subject.name, lesson.background_color)}]} source={{ uri: userData.profile_picture }} />
+                    </View>
+                  : null }
+                  { lesson.group_names.length > 0 ? (
+                    <Text style={styles.coursGroupHeaderText}>
+                      avec le groupe {lesson.group_names.join(', ')}
+                    </Text>
+                  ) : (
+                    <Text style={styles.coursGroupHeaderText}>
+                      avec la classe {userData.class}
+                    </Text>
+                  )}
+                </View>
+              : null }
             </View>
           </View>
         }
@@ -354,16 +498,19 @@ const styles = StyleSheet.create({
     left: 20,
     marginHorizontal: 40,
     marginRight: 80,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 40,
+    gap: 4,
   },
 
   coursNameHeader: {
     color: '#fff',
-    fontSize: 24,
+    fontSize: 20,
     fontFamily: 'Papillon-Semibold',
     flex: 1,
+  },
+  coursTimeHeader: {
+    color: '#ffffff99',
+    fontSize: 15,
+    fontFamily: 'Papillon-Medium',
   },
 
   coursNameEmoji: {
@@ -409,6 +556,35 @@ const styles = StyleSheet.create({
     borderRadius: 50,
 
     opacity: 0.7,
+  },
+
+  coursGroupHeader: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 6,
+  },
+  coursGroupHeaderPics: {
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    alignSelf: 'flex-start',
+    gap: -15,
+  },
+  coursGroupHeaderPic: {
+    width: 26,
+    height: 26,
+    borderRadius: 50,
+    backgroundColor: '#ffffff22',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: '#ffffff44',
+    borderWidth: 1.5,
+  },
+  coursGroupHeaderText: {
+    color: '#ffffff99',
+    fontSize: 15,
+    fontFamily: 'Papillon-Medium',
   },
 });
 
