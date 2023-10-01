@@ -29,7 +29,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import FormatCoursName from '../utils/FormatCoursName';
 
 import * as WebBrowser from 'expo-web-browser';
-import { Calendar, Check, File, AlertCircle } from 'lucide-react-native';
+import { Calendar, Check, File, AlertCircle, Link } from 'lucide-react-native';
 import getClosestColor from '../utils/ColorCoursName';
 import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
 
