@@ -441,7 +441,7 @@ const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
               {cours.teachers.join(', ')}
             </Text>
             <Text style={[styles.cours.item.data.room]}>
-              {cours.rooms.join(', ')}
+              {cours.rooms.join(', ') || 'Aucune salle'}
             </Text>
 
             { cours.status ? (
@@ -782,7 +782,7 @@ function NextCours({ cours, navigation }) {
         return `dans ${lz(diffMinutes)}:${lz(diffSeconds)}`;
       }
 
-      return `ds. ${Math.ceil((diffMinutes / 60) - 1)}h ${lz(diffMinutes % 60)} mn`;
+      return `dans ${Math.ceil((diffMinutes / 60) - 1)}h ${lz(diffMinutes % 60)}m`;
     }
     return 'maintenant';
   };
@@ -834,8 +834,8 @@ function NextCours({ cours, navigation }) {
 
           <Text numberOfLines={1} style={nextCoursStyles.nextCoursLeftDataTextRoom}>
             {cours.status === null
-              ? `salle ${cours.rooms[0]} - avec ${cours.teachers[0]}`
-              : `${cours.status} - salle ${cours.rooms[0]} - avec ${cours.teachers[0]}`}
+              ? `salle ${cours.rooms[0] || 'inconnue'} - avec ${cours.teachers[0]}`
+              : `${cours.status} - salle ${cours.rooms[0] || 'inconnue'} - avec ${cours.teachers[0]}`}
           </Text>
         </View>
       </View>
