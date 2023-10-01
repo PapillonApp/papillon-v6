@@ -223,7 +223,7 @@ const TabsElement = ({ navigation, theme, UIColors }) => {
   return (
     <View style={[styles.tabs.tabsContainer]}>
         <View style={[styles.tabs.tabRow]}>
-          <ContextMenuView style={{flex: 1}}>
+          <ContextMenuView style={{flex: 1}} borderRadius={12}>
             <PressableScale
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
@@ -234,7 +234,7 @@ const TabsElement = ({ navigation, theme, UIColors }) => {
               <Text style={[styles.tabs.tabText]}>Vie scolaire</Text>
             </PressableScale>
           </ContextMenuView>
-          <ContextMenuView style={{flex: 1}}>
+          <ContextMenuView style={{flex: 1}} borderRadius={12}>
             <PressableScale
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
@@ -247,7 +247,7 @@ const TabsElement = ({ navigation, theme, UIColors }) => {
           </ContextMenuView>
         </View>
         <View style={[styles.tabs.tabRow]}>
-          <ContextMenuView style={{flex: 1}}>
+          <ContextMenuView style={{flex: 1}} borderRadius={12}>
             <PressableScale
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
@@ -261,7 +261,7 @@ const TabsElement = ({ navigation, theme, UIColors }) => {
               <Text style={[styles.tabs.tabText]}>Conversations</Text>
             </PressableScale>
           </ContextMenuView>
-          <ContextMenuView style={{flex: 1}}>
+          <ContextMenuView style={{flex: 1}} borderRadius={12}>
             <PressableScale
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
