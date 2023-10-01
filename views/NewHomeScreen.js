@@ -200,25 +200,21 @@ const NewHomeScreen = ({ navigation }) => {
       <View style={{ height: 32 }} />
       <TabsElement navigation={navigation} theme={theme} UIColors={UIColors} />
 
-      {timetable.length > 0 && !loadingCours ? (
-        <CoursElement
-          cours={timetable}
-          theme={theme}
-          UIColors={UIColors}
-          navigation={navigation}
-          loading={loadingCours}
-        />
-      ) : null}
-
-      {homeworks.length > 0 && !loadingHw ? (
-        <DevoirsElement
-          homeworks={homeworks}
-          theme={theme}
-          UIColors={UIColors}
-          navigation={navigation}
-          loading={loadingHw}
-        />
-      ) : null}
+      <CoursElement
+        cours={timetable}
+        theme={theme}
+        UIColors={UIColors}
+        navigation={navigation}
+        loading={loadingCours}
+      />
+      
+      <DevoirsElement
+        homeworks={homeworks}
+        theme={theme}
+        UIColors={UIColors}
+        navigation={navigation}
+        loading={loadingHw}
+      />
     </ScrollView>
   );
 };
@@ -284,13 +280,21 @@ const TabsElement = ({ navigation, theme, UIColors }) => {
 const CoursElement = ({ cours, theme, UIColors, navigation, loading }) => {
   return (
     !loading ? (
-      <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
-        {cours.map((day, index) => (
-          <View key={index}>
-            <CoursItem key={index} index={index} cours={day} day={cours} theme={theme} UIColors={UIColors} navigation={navigation} />
+      cours.length > 0 ? (
+        <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
+          {cours.map((day, index) => (
+            <View key={index}>
+              <CoursItem key={index} index={index} cours={day} day={cours} theme={theme} UIColors={UIColors} navigation={navigation} />
+            </View>
+          ))}
+        </PapillonList>
+      ) : (
+        <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
+          <View style={styles.loading.container}>
+            <Text style={styles.loading.text}>Aucun cours aujourd'hui</Text>
           </View>
-        ))}
-      </PapillonList>
+        </PapillonList>
+      )
     ) : (
       <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
         <View style={styles.loading.container}>
@@ -458,11 +462,19 @@ const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
 const DevoirsElement = ({ homeworks, theme, UIColors, navigation, loading }) => {
   return (
     !loading ? (
-      <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
-        {homeworks.map((day, index) => (
-          <DevoirsDay key={index} index={index} homeworks={day} theme={theme} UIColors={UIColors} navigation={navigation} />
-        ))}
-      </PapillonList>
+      homeworks.length > 0 ? (
+        <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
+          {homeworks.map((day, index) => (
+            <DevoirsDay key={index} index={index} homeworks={day} theme={theme} UIColors={UIColors} navigation={navigation} />
+          ))}
+        </PapillonList>
+      ) : (
+        <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
+          <View style={styles.loading.container}>
+            <Text style={styles.loading.text}>Aucun devoir à faire</Text>
+          </View>
+        </PapillonList>
+      )
     ) : (
       <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
         <View style={styles.loading.container}>

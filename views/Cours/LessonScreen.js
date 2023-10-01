@@ -45,6 +45,8 @@ import { forceSavedCourseColor, getSavedCourseColor } from '../../utils/ColorCou
 import GetUIColors from '../../utils/GetUIColors';
 import getClosestGradeEmoji from '../../utils/EmojiCoursName';
 
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+
 import { IndexData } from '../../fetch/IndexData';
 
 /* async function getDefaultCalendarSource() {
@@ -187,12 +189,12 @@ function LessonScreen({ route, navigation }) {
         const seconds = countdown % 60;
 
         // a venir
-        if (hours > 0 && hours < 24) {
+        if (hours > 0 && hours < 25) {
           setCountdownString(
             `dans ${lz(hours)}h ${lz(minutes)}m ${lz(seconds)}s`
           );
         }
-        else if (hours >= 24 && hours < 48) {
+        else if (hours >= 25 && hours < 48) {
           setCountdownString(
             `dans ${Math.floor(hours / 24)} jour(s) ${lz(hours % 24)} heure(s)`
           );
@@ -271,21 +273,23 @@ function LessonScreen({ route, navigation }) {
                 {formatCoursName(lesson.subject.name)}
               </Text>
 
-              { countdownString ?
-                <Text style={styles.coursTimeHeader}>
-                  {countdownString}
-                </Text>
-              :
-                ( Math.floor((new Date(lesson.start) - new Date()) / 1000) > 0 ?
+              <SkeletonPlaceholder
+                borderRadius={4}
+                backgroundColor={'#ffffff55'}
+                highlightColor={'#ffffff'}
+                speed={1000}
+                enabled={!countdownString}
+              >
+                { countdownString ?
                   <Text style={styles.coursTimeHeader}>
-                    dans ...
+                    {countdownString}
                   </Text>
                 :
-                  <Text style={styles.coursTimeHeader}>
-                    il y a ...
+                  <Text style={styles.coursTimeHeaderPlaceholder}>
+                    dans ...
                   </Text>
-                )
-              }
+                }
+              </SkeletonPlaceholder>
 
               { userData ?
                 <View style={styles.coursGroupHeader}>
@@ -326,6 +330,14 @@ function LessonScreen({ route, navigation }) {
             <Text style={[styles.coursNameHeaderText]}>
               {formatCoursName(lesson.subject.name)}
             </Text>
+
+            <SkeletonPlaceholder
+                borderRadius={4}
+                backgroundColor={'#ffffff55'}
+                highlightColor={'#ffffff'}
+                speed={1000}
+                enabled={!countdownString}
+            >
             { countdownString ?
                 <Text style={styles.coursTimeHeaderTop}>
                   {countdownString}
@@ -341,6 +353,7 @@ function LessonScreen({ route, navigation }) {
                   </Text>
                 )
               }
+              </SkeletonPlaceholder>
           </View>
         }
       >
@@ -568,6 +581,16 @@ const styles = StyleSheet.create({
     color: '#ffffff99',
     fontSize: 15,
     fontFamily: 'Papillon-Medium',
+    alignSelf: 'flex-start',
+    minWidth: 150,
+  },
+  coursTimeHeaderPlaceholder: {
+    color: '#ffffff99',
+    fontSize: 15,
+    fontFamily: 'Papillon-Medium',
+    alignSelf: 'flex-start',
+    minWidth: 150,
+    marginTop: 1.5,
   },
 
   coursNameEmoji: {
@@ -604,6 +627,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Papillon-Medium',
     textAlign: 'center',
+    alignSelf: 'center',
+    minWidth: 150,
   },
 
   closeItem: {
