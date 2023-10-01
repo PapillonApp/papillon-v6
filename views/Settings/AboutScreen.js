@@ -5,7 +5,7 @@ import { useTheme, Text } from 'react-native-paper';
 import * as WebBrowser from 'expo-web-browser';
 
 import { useState, useEffect } from 'react';
-import { Server, Euro, History, Bug, Check } from 'lucide-react-native';
+import { Server, Euro, History, Bug, Check, MessageCircle } from 'lucide-react-native';
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
@@ -231,6 +231,19 @@ function AboutScreen({ navigation }) {
               }
             />
           ))}
+        </View>
+
+        <View style={styles.optionsList}>
+          <Text style={styles.ListTitle}>Communauté</Text>
+          <ListItem
+            title="Rejoindre le Discord"
+            left={
+              <MessageCircle size={20} color={UIColors.text} />
+            }
+            center
+            chevron
+            onPress={() => openUserLink('https://discord.getpapillon.xyz/')}
+          />
         </View>
 
         <View style={styles.optionsList}>
