@@ -18,7 +18,7 @@ import * as Haptics from 'expo-haptics';
 
 import { PressableScale } from 'react-native-pressable-scale';
 
-import { Check, Link, File, Calendar, List } from 'lucide-react-native';
+import { Check, Link, File, Calendar, List, AlertCircle } from 'lucide-react-native';
 
 import * as WebBrowser from 'expo-web-browser';
 
@@ -33,7 +33,7 @@ function HomeworkScreen({ route, navigation }) {
   const UIColors = GetUIColors();
 
   const { homework } = route.params;
-
+  console.log("files", homework.files)
   const [thisHwChecked, setThisHwChecked] = React.useState(homework.done);
   const [thisHwLoading, setThisHwLoading] = React.useState(false);
 
@@ -168,17 +168,19 @@ function HomeworkScreen({ route, navigation }) {
           {homework.files.map((file, index) => (
             <ListItem
               key={index}
-              title={file.name}
-              subtitle={file.url}
+              title={file.url ? file.name : "Lien invalide"}
+              subtitle={file.url ? file.url : "Un lien vide a été renvoyé"}
               trimSubtitle={true}
               icon={(
+                file.url ? 
                 file.type === 0 ? (
                   <Link size={24} color={theme.dark ? '#ffffff' : '#000000'} />
                 ) : (
                   <File size={24} color={theme.dark ? '#ffffff' : '#000000'} />
                 )
+                : ( <AlertCircle size={24} color={"#ff0000"} /> )
               )}
-              onPress={() => openURL(file.url)}
+              onPress={() => file.url ? openURL(file.url) : null}
               width
               center
             />
