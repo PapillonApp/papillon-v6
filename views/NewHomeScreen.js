@@ -1127,7 +1127,9 @@ const styles = StyleSheet.create({
           marginTop: 4,
         },
         files: {
-          container: {},
+          container: {
+            gap: 2,
+          },
           file: {
             container: {
               flexDirection: 'row',
