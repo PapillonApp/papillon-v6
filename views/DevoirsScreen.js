@@ -29,7 +29,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import FormatCoursName from '../utils/FormatCoursName';
 
 import * as WebBrowser from 'expo-web-browser';
-import { Calendar, Check, File, Link } from 'lucide-react-native';
+import { Calendar, Check, File, AlertCircle } from 'lucide-react-native';
 import getClosestColor from '../utils/ColorCoursName';
 import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
 
@@ -442,22 +442,23 @@ function Hwitem({ homework, theme, openURL, navigation }) {
                 style={[styles.homeworkFile]}
                 weight="light"
                 activeScale={0.9}
-                onPress={() => openURL(file.url)}
+                onPress={() => file.url ? openURL(file.url) : null}
               >
-                {file.type === 0 ? (
+                {file.url ? file.type === 0 ? (
                   <Link size={20} color={theme.dark ? '#ffffff' : '#000000'} />
                 ) : (
                   <File size={20} color={theme.dark ? '#ffffff' : '#000000'} />
-                )}
+                ) : <AlertCircle size={20} color={"#ff0000"} />
+                }
 
                 <View style={[styles.homeworkFileData]}>
-                  <Text style={[styles.homeworkFileText]}>{file.name}</Text>
+                  <Text style={[styles.homeworkFileText]}>{file.url ? file.name : "Lien invalide"}</Text>
                   <Text
                     numberOfLines={1}
                     ellipsizeMode="tail"
                     style={[styles.homeworkFileUrl]}
                   >
-                    {file.url}
+                    {file.url ? file.url : "Un lien vide a été renvoyé"}
                   </Text>
                 </View>
               </PressableScale>
