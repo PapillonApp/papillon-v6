@@ -452,7 +452,7 @@ function Hwitem({ homework, theme, openURL, navigation }) {
                 }
 
                 <View style={[styles.homeworkFileData]}>
-                  <Text style={[styles.homeworkFileText]}>{file.url ? file.name : "Lien invalide"}</Text>
+                  <Text style={[styles.homeworkFileText]}>{file.name ? file.name : "Lien invalide"}</Text>
                   <Text
                     numberOfLines={1}
                     ellipsizeMode="tail"

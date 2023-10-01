@@ -168,7 +168,7 @@ function HomeworkScreen({ route, navigation }) {
           {homework.files.map((file, index) => (
             <ListItem
               key={index}
-              title={file.url ? file.name : "Lien invalide"}
+              title={file.name ? file.name : "Lien invalide"}
               subtitle={file.url ? file.url : "Un lien vide a été renvoyé"}
               trimSubtitle={true}
               icon={(
