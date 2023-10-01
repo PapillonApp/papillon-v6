@@ -31,7 +31,7 @@ import FormatCoursName from '../utils/FormatCoursName';
 import * as WebBrowser from 'expo-web-browser';
 import { Calendar, Check, File, Link } from 'lucide-react-native';
 import getClosestColor from '../utils/ColorCoursName';
-import { getClosestCourseColor } from '../utils/ColorCoursName';
+import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
 import { IndexData } from '../fetch/IndexData';
@@ -403,7 +403,7 @@ function Hwitem({ homework, theme, openURL, navigation }) {
             <View
               style={[
                 styles.hwItemColor,
-                { backgroundColor: getClosestCourseColor(homework.subject.name) },
+                { backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color) },
               ]}
             />
             <Text

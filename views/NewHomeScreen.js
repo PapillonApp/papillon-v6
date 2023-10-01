@@ -33,7 +33,7 @@ import PapillonList from '../components/PapillonList';
 import { DownloadCloud, Check, Gavel, Newspaper, MessagesSquare, CheckCircle } from 'lucide-react-native';
 
 // Formatting
-import { getClosestCourseColor } from '../utils/ColorCoursName';
+import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
@@ -200,25 +200,21 @@ const NewHomeScreen = ({ navigation }) => {
       <View style={{ height: 32 }} />
       <TabsElement navigation={navigation} theme={theme} UIColors={UIColors} />
 
-      {timetable.length > 0 && !loadingCours ? (
-        <CoursElement
-          cours={timetable}
-          theme={theme}
-          UIColors={UIColors}
-          navigation={navigation}
-          loading={loadingCours}
-        />
-      ) : null}
-
-      {homeworks.length > 0 && !loadingHw ? (
-        <DevoirsElement
-          homeworks={homeworks}
-          theme={theme}
-          UIColors={UIColors}
-          navigation={navigation}
-          loading={loadingHw}
-        />
-      ) : null}
+      <CoursElement
+        cours={timetable}
+        theme={theme}
+        UIColors={UIColors}
+        navigation={navigation}
+        loading={loadingCours}
+      />
+      
+      <DevoirsElement
+        homeworks={homeworks}
+        theme={theme}
+        UIColors={UIColors}
+        navigation={navigation}
+        loading={loadingHw}
+      />
     </ScrollView>
   );
 };
@@ -227,7 +223,7 @@ const TabsElement = ({ navigation, theme, UIColors }) => {
   return (
     <View style={[styles.tabs.tabsContainer]}>
         <View style={[styles.tabs.tabRow]}>
-          <ContextMenuView style={{flex: 1}}>
+          <ContextMenuView style={{flex: 1}} borderRadius={12}>
             <PressableScale
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
@@ -238,7 +234,7 @@ const TabsElement = ({ navigation, theme, UIColors }) => {
               <Text style={[styles.tabs.tabText]}>Vie scolaire</Text>
             </PressableScale>
           </ContextMenuView>
-          <ContextMenuView style={{flex: 1}}>
+          <ContextMenuView style={{flex: 1}} borderRadius={12}>
             <PressableScale
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
@@ -251,7 +247,7 @@ const TabsElement = ({ navigation, theme, UIColors }) => {
           </ContextMenuView>
         </View>
         <View style={[styles.tabs.tabRow]}>
-          <ContextMenuView style={{flex: 1}}>
+          <ContextMenuView style={{flex: 1}} borderRadius={12}>
             <PressableScale
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
@@ -265,7 +261,7 @@ const TabsElement = ({ navigation, theme, UIColors }) => {
               <Text style={[styles.tabs.tabText]}>Conversations</Text>
             </PressableScale>
           </ContextMenuView>
-          <ContextMenuView style={{flex: 1}}>
+          <ContextMenuView style={{flex: 1}} borderRadius={12}>
             <PressableScale
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
@@ -284,13 +280,21 @@ const TabsElement = ({ navigation, theme, UIColors }) => {
 const CoursElement = ({ cours, theme, UIColors, navigation, loading }) => {
   return (
     !loading ? (
-      <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
-        {cours.map((day, index) => (
-          <View key={index}>
-            <CoursItem key={index} index={index} cours={day} day={cours} theme={theme} UIColors={UIColors} navigation={navigation} />
+      cours.length > 0 ? (
+        <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
+          {cours.map((day, index) => (
+            <View key={index}>
+              <CoursItem key={index} index={index} cours={day} day={cours} theme={theme} UIColors={UIColors} navigation={navigation} />
+            </View>
+          ))}
+        </PapillonList>
+      ) : (
+        <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
+          <View style={styles.loading.container}>
+            <Text style={styles.loading.text}>Aucun cours aujourd'hui</Text>
           </View>
-        ))}
-      </PapillonList>
+        </PapillonList>
+      )
     ) : (
       <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
         <View style={styles.loading.container}>
@@ -428,7 +432,7 @@ const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
               })}
             </Text>
           </View>
-          <View style={[styles.cours.item.color, {backgroundColor: getClosestCourseColor(cours.subject.name)}]} />
+          <View style={[styles.cours.item.color, {backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color)}]} />
           <View style={styles.cours.item.data.container}>
             <Text style={[styles.cours.item.data.subject]}>
               {formatCoursName(cours.subject.name)}
@@ -437,11 +441,11 @@ const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
               {cours.teachers.join(', ')}
             </Text>
             <Text style={[styles.cours.item.data.room]}>
-              {cours.rooms.join(', ')}
+              {cours.rooms.join(', ') || 'Aucune salle'}
             </Text>
 
             { cours.status ? (
-              <Text style={[styles.cours.item.data.status, {backgroundColor: getClosestCourseColor(cours.subject.name) + '22', color: getClosestCourseColor(cours.subject.name)}]}>
+              <Text style={[styles.cours.item.data.status, {backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color) + '22', color: getSavedCourseColor(cours.subject.name, cours.background_color)}]}>
                 {cours.status}
               </Text>
             ) : null }
@@ -458,11 +462,19 @@ const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
 const DevoirsElement = ({ homeworks, theme, UIColors, navigation, loading }) => {
   return (
     !loading ? (
-      <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
-        {homeworks.map((day, index) => (
-          <DevoirsDay key={index} index={index} homeworks={day} theme={theme} UIColors={UIColors} navigation={navigation} />
-        ))}
-      </PapillonList>
+      homeworks.length > 0 ? (
+        <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
+          {homeworks.map((day, index) => (
+            <DevoirsDay key={index} index={index} homeworks={day} theme={theme} UIColors={UIColors} navigation={navigation} />
+          ))}
+        </PapillonList>
+      ) : (
+        <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
+          <View style={styles.loading.container}>
+            <Text style={styles.loading.text}>Aucun devoir à faire</Text>
+          </View>
+        </PapillonList>
+      )
     ) : (
       <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
         <View style={styles.loading.container}>
@@ -665,7 +677,7 @@ const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIn
           <View style={styles.homeworks.devoirsContent.parent}>
             <View style={styles.homeworks.devoirsContent.header.container}>
               <View style={styles.homeworks.devoirsContent.header.subject.container}>
-                <View style={[styles.homeworks.devoirsContent.header.subject.color, {backgroundColor: getClosestCourseColor(homework.subject.name)}]} />
+                <View style={[styles.homeworks.devoirsContent.header.subject.color, {backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color)}]} />
                 <Text style={[styles.homeworks.devoirsContent.header.subject.title, { color: UIColors.text }]}>{formatCoursName(homework.subject.name)}</Text>
               </View>
             </View>
@@ -770,7 +782,7 @@ function NextCours({ cours, navigation }) {
         return `dans ${lz(diffMinutes)}:${lz(diffSeconds)}`;
       }
 
-      return `ds. ${Math.ceil((diffMinutes / 60) - 1)}h ${lz(diffMinutes % 60)} mn`;
+      return `dans ${Math.ceil((diffMinutes / 60) - 1)}h ${lz(diffMinutes % 60)}m`;
     }
     return 'maintenant';
   };
@@ -805,7 +817,7 @@ function NextCours({ cours, navigation }) {
     <PressableScale
       style={[
         nextCoursStyles.nextCoursContainer,
-        { backgroundColor: getClosestCourseColor(cours.subject.name) },
+        { backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color) },
       ]}
       onPress={openCours}
     >
@@ -822,8 +834,8 @@ function NextCours({ cours, navigation }) {
 
           <Text numberOfLines={1} style={nextCoursStyles.nextCoursLeftDataTextRoom}>
             {cours.status === null
-              ? `salle ${cours.rooms[0]} - avec ${cours.teachers[0]}`
-              : `${cours.status} - salle ${cours.rooms[0]} - avec ${cours.teachers[0]}`}
+              ? `salle ${cours.rooms[0] || 'inconnue'} - avec ${cours.teachers[0]}`
+              : `${cours.status} - salle ${cours.rooms[0] || 'inconnue'} - avec ${cours.teachers[0]}`}
           </Text>
         </View>
       </View>
@@ -922,7 +934,7 @@ function HomeHeader({ navigation, timetable, user }) {
   }, [timetable]);
 
   const getColorCoursBg = (color) =>
-    lightenDarkenColor(getClosestCourseColor(color), -20);
+    lightenDarkenColor(color, -20);
 
   const getPrenom = (name) => name.split(' ').pop();
 
@@ -954,7 +966,7 @@ function HomeHeader({ navigation, timetable, user }) {
         headerStyles.header,
         {
           backgroundColor: nextCourse
-            ? getColorCoursBg(nextCourse.subject.name)
+            ? getColorCoursBg(getSavedCourseColor(nextCourse.subject.name, nextCourse.background_color))
             : UIColors.primaryBackground,
           paddingTop: insets.top + 13,
           borderColor: theme.dark ? '#ffffff15' : '#00000032',
@@ -1115,7 +1127,9 @@ const styles = StyleSheet.create({
           marginTop: 4,
         },
         files: {
-          container: {},
+          container: {
+            gap: 2,
+          },
           file: {
             container: {
               flexDirection: 'row',

@@ -847,7 +847,6 @@ function AuthStack() {
         component={LoginPronoteSelectEtab}
         options={{
           title: "Se connecter à Pronote",
-          headerLargeTitle: Platform.OS === 'ios',
           presentation: 'modal',
         }}
       />
@@ -856,7 +855,8 @@ function AuthStack() {
         component={LoginPronote}
         options={{ 
           title: 'Se connecter',
-          presentation: 'modal'
+          presentation: 'modal',
+          headerShown: false,
         }}
       />
 
