@@ -157,7 +157,6 @@ function InsetNewsScreen() {
         component={NewsItem}
         options={{
           headerShown: true,
-          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Actualité',
         }}
       />
