@@ -1,23 +1,20 @@
 import React, { useEffect } from 'react';
-import {
-  StyleSheet,
-  View,
-  ScrollView,
-  StatusBar,
-  Platform,
-} from 'react-native';
+import { StyleSheet, ScrollView, StatusBar, Platform } from 'react-native';
 
-import { Text, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 import GetUIColors from '../utils/GetUIColors';
 
-import { IndexData } from '../fetch/IndexData';
+import { WillBeSoon } from './Global/Soon';
+import { useAppContext } from '../utils/AppContext';
 
 function ConversationsScreen() {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
+  const appctx = useAppContext();
+
   useEffect(() => {
-    IndexData.getConversations().then((v) => {
+    appctx.dataprovider.getConversations().then((v) => {
       console.log(v);
     });
   }, []);
@@ -37,36 +34,7 @@ function ConversationsScreen() {
         />
       )}
 
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginTop: 20,
-          marginHorizontal: 20,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 20,
-            fontWeight: 'bold',
-            textAlign: 'center',
-            marginTop: 20,
-          }}
-        >
-          Ça arrive, t'inquiètes...
-        </Text>
-        <Text
-          style={{
-            fontSize: 16,
-            textAlign: 'center',
-            opacity: 0.5,
-            marginTop: 4,
-          }}
-        >
-          Les conversations seront disponibles dans une prochaîne beta.
-        </Text>
-      </View>
+      <WillBeSoon name="Les conversations" plural />
     </ScrollView>
   );
 }

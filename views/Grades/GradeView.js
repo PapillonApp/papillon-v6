@@ -18,7 +18,7 @@ import {
   Users2,
 } from 'lucide-react-native';
 
-import { useEffect, useLayoutEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import { PressableScale } from 'react-native-pressable-scale';
 
 import formatCoursName from '../../utils/FormatCoursName';

@@ -21,30 +21,18 @@ import { PressableScale } from 'react-native-pressable-scale';
 import InfinitePager from 'react-native-infinite-pager';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+import { DoorOpen, User2, Info, Calendar, Users } from 'lucide-react-native';
+import * as Notifications from 'expo-notifications';
 import formatCoursName from '../utils/FormatCoursName';
-import getClosestColor from '../utils/ColorCoursName';
-import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
+import { getSavedCourseColor } from '../utils/ColorCoursName';
+
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
-import { IndexData } from '../fetch/IndexData';
 
 import ListItem from '../components/ListItem';
 
-import {
-  X,
-  DoorOpen,
-  User2,
-  Clock4,
-  Info,
-  Calendar,
-  Hourglass,
-  Clock8,
-  Users,
-} from 'lucide-react-native';
-
-import * as ExpoCalendar from 'expo-calendar';
-import * as Notifications from 'expo-notifications';
+import { useAppContext } from '../utils/AppContext';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -65,14 +53,15 @@ function CoursScreen({ navigation }) {
 
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
 
-  async function addToCalendar(cours) {
+  // eslint-disable-next-line no-unused-vars
+  async function addToCalendar(_cours) {
     Alert.alert(
-      'Cette fonctionnalité n\'est pas encore disponible',
+      "Cette fonctionnalité n'est pas encore disponible",
       'Nous travaillons sur cette fonctionnalité. Elle sera disponible dans une prochaine mise à jour.',
       [
         {
           text: 'OK',
-          style: 'cancel'
+          style: 'cancel',
         },
       ]
     );
@@ -103,13 +92,14 @@ function CoursScreen({ navigation }) {
         );
       }
     */
-  };
+  }
 
-  async function notifyAll(cours) {
+  async function notifyAll(_cours) {
     // for each cours
-    for (let i = 0; i < cours.length; i++) {
-      const cours = cours[i];
-      const identifier = cours.subject.name + new Date(cours.start).getTime();
+    for (let i = 0; i < _cours.length; i++) {
+      const coursThis = _cours[i];
+      const identifier =
+        coursThis.subject.name + new Date(coursThis.start).getTime();
 
       // if notification already exists
       Notifications.getAllScheduledNotificationsAsync().then((value) => {
@@ -123,15 +113,17 @@ function CoursScreen({ navigation }) {
         }
       });
 
-      let time = new Date(cours.start);
+      const time = new Date(coursThis.start);
       time.setMinutes(time.getMinutes() - 5);
 
       // schedule notification
       Notifications.scheduleNotificationAsync({
-        identifier: identifier,
+        identifier,
         content: {
-          title: `${getClosestGradeEmoji(cours.subject.name)} ${cours.subject.name} - Ça commence dans 5 minutes`,
-          body: `Le cours est en salle ${cours.rooms[0]} avec ${cours.teachers[0]}.`,
+          title: `${getClosestGradeEmoji(coursThis.subject.name)} ${
+            coursThis.subject.name
+          } - Ça commence dans 5 minutes`,
+          body: `Le cours est en salle ${coursThis.rooms[0]} avec ${coursThis.teachers[0]}.`,
           sound: 'papillon_ding.wav',
         },
         trigger: {
@@ -148,7 +140,7 @@ function CoursScreen({ navigation }) {
       [
         {
           text: 'OK',
-          style: 'cancel'
+          style: 'cancel',
         },
       ]
     );
@@ -171,9 +163,10 @@ function CoursScreen({ navigation }) {
               }),
               menuItems: [
                 {
-                  actionKey  : 'addtoCalendar',
+                  actionKey: 'addtoCalendar',
                   actionTitle: 'Ajouter au calendrier',
-                  actionSubtitle: 'Ajoute tous les cours de la journée au calendrier',
+                  actionSubtitle:
+                    'Ajoute tous les cours de la journée au calendrier',
                   icon: {
                     type: 'IMAGE_SYSTEM',
                     imageValue: {
@@ -182,7 +175,7 @@ function CoursScreen({ navigation }) {
                   },
                 },
                 {
-                  actionKey  : 'notifyAll',
+                  actionKey: 'notifyAll',
                   actionTitle: 'Programmer les notifications',
                   actionSubtitle: 'Vous notifiera 5 min. avant chaque cours',
                   icon: {
@@ -194,31 +187,30 @@ function CoursScreen({ navigation }) {
                 },
               ],
             }}
-            onPressMenuItem={({nativeEvent}) => {
+            onPressMenuItem={({ nativeEvent }) => {
               if (nativeEvent.actionKey === 'addtoCalendar') {
                 addToCalendar(cours[calendarDate.toLocaleDateString()]);
-              }
-              else if (nativeEvent.actionKey === 'notifyAll') {
+              } else if (nativeEvent.actionKey === 'notifyAll') {
                 notifyAll(cours[calendarDate.toLocaleDateString()]);
               }
             }}
           >
-          <DateTimePicker
-            value={calendarDate}
-            locale="fr-FR"
-            mode="date"
-            display="compact"
-            onChange={(event, date) => {
-              setCalendarAndToday(date);
-              pagerRef.current.setPage(0);
-              if (currentIndex === 0) {
-                setCurrentIndex(1);
-                setTimeout(() => {
-                  setCurrentIndex(0);
-                }, 10);
-              }
-            }}
-          />
+            <DateTimePicker
+              value={calendarDate}
+              locale="fr-FR"
+              mode="date"
+              display="compact"
+              onChange={(event, date) => {
+                setCalendarAndToday(date);
+                pagerRef.current.setPage(0);
+                if (currentIndex === 0) {
+                  setCurrentIndex(1);
+                  setTimeout(() => {
+                    setCurrentIndex(0);
+                  }, 10);
+                }
+              }}
+            />
           </ContextMenuView>
         ) : (
           <TouchableOpacity
@@ -248,10 +240,12 @@ function CoursScreen({ navigation }) {
     setToday(date);
   };
 
+  const appctx = useAppContext();
+
   const updateCoursForDate = async (dateOffset, setDate) => {
     const newDate = calcDate(setDate, dateOffset);
     if (!coursRef.current[newDate.toLocaleDateString()]) {
-      const result = await IndexData.getTimetable(newDate);
+      const result = await appctx.dataprovider.getTimetable(newDate);
       setCours((prevCours) => ({
         ...prevCours,
         [newDate.toLocaleDateString()]: result,
@@ -271,9 +265,9 @@ function CoursScreen({ navigation }) {
 
   const forceRefresh = async () => {
     const newDate = calcDate(calendarDate, 0);
-    const result = await IndexData.getTimetable(newDate, true);
+    const result = await appctx.dataprovider.getTimetable(newDate, true);
 
-    let newCours = cours;
+    const newCours = cours;
     newCours[newDate.toLocaleDateString()] = result;
     setCours(newCours);
   };
@@ -371,16 +365,18 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
   const end = new Date(cours.end);
 
   function lz(num) {
-    return num < 10 ? '0' + num : num;
+    return num < 10 ? `0${num}` : num;
   }
 
   const length = Math.floor((end - start) / 60000);
-  let lengthString = `${Math.floor(length / 60)}h ${lz(Math.floor(length % 60))}min`;
+  let lengthString = `${Math.floor(length / 60)}h ${lz(
+    Math.floor(length % 60)
+  )}min`;
 
-  if (Math.floor(length / 60) == 0) {
+  if (Math.floor(length / 60) === 0) {
     lengthString = `${lz(Math.floor(length % 60))} min`;
   }
- 
+
   const handleCoursPressed = useCallback(() => {
     CoursPressed(cours);
   }, [CoursPressed, cours]);
@@ -412,7 +408,7 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
           menuTitle: cours.subject.name,
           menuItems: [
             {
-              actionKey  : 'open',
+              actionKey: 'open',
               actionTitle: 'Voir le cours en détail',
               actionSubtitle: 'Ouvrir la page détaillée du cours',
               icon: {
@@ -421,10 +417,10 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
                   systemName: 'book.pages',
                 },
               },
-            }
+            },
           ],
         }}
-        onPressMenuItem={({nativeEvent}) => {
+        onPressMenuItem={({ nativeEvent }) => {
           if (nativeEvent.actionKey === 'open') {
             navigation.navigate('Lesson', { event: cours });
           }
@@ -433,9 +429,15 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
           navigation.navigate('Lesson', { event: cours });
         }}
         renderPreview={() => (
-          <View style={{ flex: 1, backgroundColor: UIColors.background + '99', width: 350 }}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: `${UIColors.background}99`,
+              width: 350,
+            }}
+          >
             <View style={styles.coursPreviewList}>
-              { cours.rooms.length > 0 ? (
+              {cours.rooms.length > 0 ? (
                 <ListItem
                   title="Salle de cours"
                   subtitle={cours.rooms.join(', ')}
@@ -444,27 +446,27 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
                   width
                   center
                 />
-              ) : null }
-              { cours.teachers.length > 0 ? (
+              ) : null}
+              {cours.teachers.length > 0 ? (
                 <ListItem
-                  title={"Professeur" + (cours.teachers.length > 1 ? "s" : "")}
+                  title={`Professeur${cours.teachers.length > 1 ? 's' : ''}`}
                   subtitle={cours.teachers.join(', ')}
                   color={mainColor}
                   left={<User2 size={24} color={mainColor} />}
                   width
                   center
                 />
-              ) : null }
-              { cours.group_names.length > 0 ? (
+              ) : null}
+              {cours.group_names.length > 0 ? (
                 <ListItem
-                  title={"Groupe" + (cours.group_names.length > 1 ? "s" : "")}
+                  title={`Groupe${cours.group_names.length > 1 ? 's' : ''}`}
                   subtitle={cours.group_names.join(', ')}
                   color={mainColor}
                   left={<Users size={24} color={mainColor} />}
                   width
                   center
                 />
-              ) : null }
+              ) : null}
               {cours.status !== null ? (
                 <ListItem
                   title="Statut du cours"
@@ -485,78 +487,98 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
           </View>
         )}
       >
-      <PressableScale
-        weight="light"
-        delayLongPress={100}
-        style={[
-          styles.coursItemContainer,
-          { backgroundColor: theme.dark ? '#111111' : '#ffffff' },
-        ]}
-        onPress={handleCoursPressed}
-      >
-        <View
+        <PressableScale
+          weight="light"
+          delayLongPress={100}
           style={[
-            styles.coursItem,
-            { backgroundColor: `${getSavedCourseColor(cours.subject.name, cours.background_color)}22` },
+            styles.coursItemContainer,
+            { backgroundColor: theme.dark ? '#111111' : '#ffffff' },
           ]}
+          onPress={handleCoursPressed}
         >
           <View
             style={[
-              styles.coursColor,
-              { backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color) },
+              styles.coursItem,
+              {
+                backgroundColor: `${getSavedCourseColor(
+                  cours.subject.name,
+                  cours.background_color
+                )}22`,
+              },
             ]}
-          />
-          <View style={[styles.coursInfo]}>
-            <Text style={[styles.coursTime]}>{lengthString}</Text>
-            <Text style={[styles.coursMatiere]}>
-              {formatCoursName(cours.subject.name)}
-            </Text>
+          >
+            <View
+              style={[
+                styles.coursColor,
+                {
+                  backgroundColor: getSavedCourseColor(
+                    cours.subject.name,
+                    cours.background_color
+                  ),
+                },
+              ]}
+            />
+            <View style={[styles.coursInfo]}>
+              <Text style={[styles.coursTime]}>{lengthString}</Text>
+              <Text style={[styles.coursMatiere]}>
+                {formatCoursName(cours.subject.name)}
+              </Text>
 
-            { (length / 60 > 1.4) ? (
-              <View style={{height: 25}} />
-            ) : null }
+              {length / 60 > 1.4 ? <View style={{ height: 25 }} /> : null}
 
-            { cours.rooms.length > 0 ? (
-              <Text style={[styles.coursSalle]}>Salle {cours.rooms.join(', ')}</Text>
-            ) :
-              <Text style={[styles.coursSalle]}>Aucune salle</Text>
-            }
-            { cours.teachers.length > 0 ? (
-              <Text style={[styles.coursProf]}>{cours.teachers.join(', ')}</Text>
-            ) : 
-              <Text style={[styles.coursProf]}>Aucun professeur</Text>
-            }
+              {cours.rooms.length > 0 ? (
+                <Text style={[styles.coursSalle]}>
+                  Salle {cours.rooms.join(', ')}
+                </Text>
+              ) : (
+                <Text style={[styles.coursSalle]}>Aucune salle</Text>
+              )}
+              {cours.teachers.length > 0 ? (
+                <Text style={[styles.coursProf]}>
+                  {cours.teachers.join(', ')}
+                </Text>
+              ) : (
+                <Text style={[styles.coursProf]}>Aucun professeur</Text>
+              )}
 
-            {cours.status && (
-              <View
-                style={[
-                  styles.coursStatus,
-                  {
-                    backgroundColor: `${getSavedCourseColor(cours.subject.name, cours.background_color)}22`,
-                  },
-                  cours.is_cancelled ? styles.coursStatusCancelled : null,
-                ]}
-              >
-                {cours.is_cancelled ? (
-                  <Info size={20} color="#ffffff" />
-                ) : (
-                  <Info size={20} color={theme.dark ? '#ffffff' : '#000000'} />
-                )}
-
-                <Text
+              {cours.status && (
+                <View
                   style={[
-                    styles.coursStatusText,
-                    { color: theme.dark ? '#ffffff' : '#000000' },
-                    cours.is_cancelled ? styles.coursStatusCancelledText : null,
+                    styles.coursStatus,
+                    {
+                      backgroundColor: `${getSavedCourseColor(
+                        cours.subject.name,
+                        cours.background_color
+                      )}22`,
+                    },
+                    cours.is_cancelled ? styles.coursStatusCancelled : null,
                   ]}
                 >
-                  {cours.status}
-                </Text>
-              </View>
-            )}
+                  {cours.is_cancelled ? (
+                    <Info size={20} color="#ffffff" />
+                  ) : (
+                    <Info
+                      size={20}
+                      color={theme.dark ? '#ffffff' : '#000000'}
+                    />
+                  )}
+
+                  <Text
+                    style={[
+                      styles.coursStatusText,
+                      { color: theme.dark ? '#ffffff' : '#000000' },
+                      cours.is_cancelled
+                        ? styles.coursStatusCancelledText
+                        : null,
+                    ]}
+                  >
+                    {cours.status}
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
-        </View>
-      </PressableScale>
+        </PressableScale>
       </ContextMenuView>
     </View>
   );
@@ -608,13 +630,32 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
           {index !== 0 &&
           new Date(_cours.start) - new Date(cours[index - 1].end) > 1800000 ? (
             <View style={styles.coursSeparator}>
-              <View style={[styles.coursSeparatorLine, { backgroundColor: UIColors.text + '15' }]} />
+              <View
+                style={[
+                  styles.coursSeparatorLine,
+                  { backgroundColor: `${UIColors.text}15` },
+                ]}
+              />
 
-              <Text style={{ color: UIColors.text + '30' }}>
-                {`${Math.floor((new Date(_cours.start) - new Date(cours[index - 1].end)) / 3600000)} h ${lz(Math.floor(((new Date(_cours.start) - new Date(cours[index - 1].end)) % 3600000) / 60000))} min`}
+              <Text style={{ color: `${UIColors.text}30` }}>
+                {`${Math.floor(
+                  (new Date(_cours.start) - new Date(cours[index - 1].end)) /
+                    3600000
+                )} h ${lz(
+                  Math.floor(
+                    ((new Date(_cours.start) - new Date(cours[index - 1].end)) %
+                      3600000) /
+                      60000
+                  )
+                )} min`}
               </Text>
-              
-              <View style={[styles.coursSeparatorLine, { backgroundColor: UIColors.text + '15' }]} />
+
+              <View
+                style={[
+                  styles.coursSeparatorLine,
+                  { backgroundColor: `${UIColors.text}15` },
+                ]}
+              />
             </View>
           ) : null}
 
@@ -764,7 +805,7 @@ const styles = StyleSheet.create({
   coursSeparatorLine: {
     flex: 1,
     height: 2,
-    borderRadius:3,
+    borderRadius: 3,
   },
 
   coursPreviewList: {

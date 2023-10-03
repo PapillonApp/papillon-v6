@@ -89,6 +89,8 @@ function LoginScreen({ navigation }) {
 
   function pressedService(service, color) {
     if (service === 'Pronote') navigation.navigate('LoginPronoteSelectEtab');
+    else if (service === 'Skolengo')
+      navigation.navigate('LoginSkolengoSelectSchool');
     else
       navigation.navigate('LoginUnavailable', {
         service,

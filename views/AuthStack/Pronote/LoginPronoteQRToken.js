@@ -1,16 +1,21 @@
 import * as React from 'react';
-import { ScrollView, Alert, Platform, StatusBar, StyleSheet, View, KeyboardAvoidingView } from 'react-native';
-
-import { useAppContext } from '../../../utils/AppContext';
+import {
+  Alert,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  View,
+  KeyboardAvoidingView,
+} from 'react-native';
 
 import { useTheme, Text } from 'react-native-paper';
+import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAppContext } from '../../../utils/AppContext';
 
 import GetUIColors from '../../../utils/GetUIColors';
 
-import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
-
 import { loginQR } from '../../../fetch/AuthStack/LoginFlow';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function LoginPronoteQR({ route, navigation }) {
   const theme = useTheme();
@@ -27,18 +32,21 @@ function LoginPronoteQR({ route, navigation }) {
 
   function makeUUID() {
     let dt = new Date().getTime();
-    const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      // eslint-disable-next-line no-bitwise
-      const r = (dt + Math.random() * 16) % 16 | 0;
-      dt = Math.floor(dt / 16);
-      // eslint-disable-next-line no-bitwise
-      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-    });
+    const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+      /[xy]/g,
+      (c) => {
+        // eslint-disable-next-line no-bitwise
+        const r = (dt + Math.random() * 16) % 16 | 0;
+        dt = Math.floor(dt / 16);
+        // eslint-disable-next-line no-bitwise
+        return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+      }
+    );
     return uuid;
   }
 
   function handleLogin() {
-    if(code.length < 4) {
+    if (code.length < 4) {
       return;
     }
 
@@ -51,18 +59,21 @@ function LoginPronoteQR({ route, navigation }) {
     }).then((res) => {
       console.log(res);
 
-      if(res.error) {
-        if(res.error == "invalid confirmation code") {
+      if (res.error) {
+        if (res.error === 'invalid confirmation code') {
           setErrPin(true);
-          setError("Code invalide");
+          setError('Code invalide');
         }
-        if(res.error == "('Decryption failed while trying to un pad. (probably bad decryption key/iv)', 'exception happened during login -> probably the qr code has expired (qr code is valid during 10 minutes)')") {
+        if (
+          res.error ===
+          "('Decryption failed while trying to un pad. (probably bad decryption key/iv)', 'exception happened during login -> probably the qr code has expired (qr code is valid during 10 minutes)')"
+        ) {
           setErrPin(true);
-          setError("QR-code expiré");
+          setError('QR-code expiré');
         }
       }
 
-      if(res.error == false && res.token !== false) {
+      if (res.error === false && res.token !== false) {
         AsyncStorage.setItem('token', res.token);
         AsyncStorage.setItem('qr_credentials', JSON.stringify(res));
         AsyncStorage.setItem('service', 'Pronote');
@@ -71,22 +82,25 @@ function LoginPronoteQR({ route, navigation }) {
         navigation.goBack();
         navigation.goBack();
 
-
         appCtx.setLoggedIn(true);
 
         Alert.alert(
-          "Connexion par QR-code instable",
+          'Connexion par QR-code instable',
           "La connexion par QR-code est instable et peut causer des plantages et autres erreurs récurrentes. Si c'est le cas, connectez vous d'une autre manière.",
-          [
-            { text: "J'ai compris" }
-          ]
+          [{ text: "J'ai compris" }]
         );
       }
     });
   }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: UIColors.background }} contentContainerStyle={{ flexGrow: 1 }} behavior="padding" enabled   keyboardVerticalOffset={100}>
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: UIColors.background }}
+      contentContainerStyle={{ flexGrow: 1 }}
+      behavior="padding"
+      enabled
+      keyboardVerticalOffset={100}
+    >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
       ) : (
@@ -98,28 +112,38 @@ function LoginPronoteQR({ route, navigation }) {
       )}
 
       <View style={styles.pinInputContainer}>
-
         <View style={styles.pinInputView}>
           <Text style={styles.pinTitle}>Entrez le code de confirmation</Text>
-          <Text style={styles.pinSubtitle}>Il s'agit des 4 chiffres que vous avez choisi avant obtention du QR-code.</Text>
+          <Text style={styles.pinSubtitle}>
+            Il s'agit des 4 chiffres que vous avez choisi avant obtention du
+            QR-code.
+          </Text>
 
           <SmoothPinCodeInput
+            // eslint-disable-next-line react/no-this-in-sfc
             ref={this.pinInput}
             value={code}
-            onTextChange={code => setCode(code)}
-            cellStyle={[styles.cellStyle, { borderColor: UIColors.text + "23", backgroundColor: UIColors.element }]}
-            cellStyleFocused={[styles.cellStyleFocused, { borderColor: UIColors.text + "44" }]}
+            onTextChange={(_code) => setCode(_code)}
+            cellStyle={[
+              styles.cellStyle,
+              {
+                borderColor: `${UIColors.text}23`,
+                backgroundColor: UIColors.element,
+              },
+            ]}
+            cellStyleFocused={[
+              styles.cellStyleFocused,
+              { borderColor: `${UIColors.text}44` },
+            ]}
             textStyle={[styles.textStyle, { color: UIColors.text }]}
             textStyleFocused={styles.textStyleFocused}
             style={styles.pinInput}
             cellSpacing={6}
-            autoFocus={true}
+            autoFocus
             onFulfill={handleLogin()}
           />
 
-          {errPin ? (
-            <Text style={styles.error}>{error}</Text>
-          ) : null}
+          {errPin ? <Text style={styles.error}>{error}</Text> : null}
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -173,5 +197,5 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
- 
+
 export default LoginPronoteQR;

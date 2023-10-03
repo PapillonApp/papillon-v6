@@ -1,7 +1,7 @@
+/* eslint-disable global-require */
 import * as React from 'react';
 import {
   View,
-  ScrollView,
   StyleSheet,
   StatusBar,
   Platform,
@@ -13,7 +13,12 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import ColorPicker, { Panel1, Swatches, Preview, OpacitySlider, HueSlider } from 'reanimated-color-picker';
+import ColorPicker, {
+  Panel1,
+  Swatches,
+  Preview,
+  HueSlider,
+} from 'reanimated-color-picker';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -38,16 +43,18 @@ import {
 import { useState, useEffect } from 'react';
 
 import * as Clipboard from 'expo-clipboard';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import formatCoursName from '../../utils/FormatCoursName';
 import ListItem from '../../components/ListItem';
-import getClosestColor from '../../utils/ColorCoursName';
-import { forceSavedCourseColor, getSavedCourseColor } from '../../utils/ColorCoursName';
+import {
+  forceSavedCourseColor,
+  getSavedCourseColor,
+} from '../../utils/ColorCoursName';
+
 import GetUIColors from '../../utils/GetUIColors';
 import getClosestGradeEmoji from '../../utils/EmojiCoursName';
 
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
-
-import { IndexData } from '../../fetch/IndexData';
+import { useAppContext } from '../../utils/AppContext';
 
 /* async function getDefaultCalendarSource() {
 	const defaultCalendar = await Calendar.getDefaultCalendarAsync();
@@ -55,7 +62,7 @@ import { IndexData } from '../../fetch/IndexData';
 } */
 
 function lz(num) {
-  return num < 10 ? '0' + num : num;
+  return num < 10 ? `0${num}` : num;
 }
 
 const blurPics = [
@@ -65,11 +72,11 @@ const blurPics = [
   require(`../../assets/blur_04.png`),
   require(`../../assets/blur_05.png`),
   require(`../../assets/blur_06.png`),
-  require(`../../assets/blur_07.png`)
-]
+  require(`../../assets/blur_07.png`),
+];
 
-const blurPic1 = blurPics[Math.floor(Math.random() * 7) + 1];
-const blurPic2 = blurPics[Math.floor(Math.random() * 7) + 1];
+/* const blurPic1 = blurPics[Math.floor(Math.random() * 7) + 1];
+const blurPic2 = blurPics[Math.floor(Math.random() * 7) + 1]; */
 
 function LessonScreen({ route, navigation }) {
   const theme = useTheme();
@@ -83,13 +90,15 @@ function LessonScreen({ route, navigation }) {
   const [blurPic1, setBlurPic1] = useState(null);
   const [blurPic2, setBlurPic2] = useState(null);
 
+  const appctx = useAppContext();
+
   React.useLayoutEffect(() => {
     setBlurPic1(blurPics[Math.floor(Math.random() * 6) + 1]);
     setBlurPic2(blurPics[Math.floor(Math.random() * 6) + 1]);
   }, []);
 
   useEffect(() => {
-    IndexData.getUser(false).then((data) => {
+    appctx.dataprovider.getUser(false).then((data) => {
       setUserData(data);
     });
   }, []);
@@ -134,7 +143,7 @@ function LessonScreen({ route, navigation }) {
   function changeIsNotified(val) {
     setIsNotified(val);
 
-    let time = new Date(lesson.start);
+    const time = new Date(lesson.start);
     time.setMinutes(time.getMinutes() - 5);
 
     if (time < new Date()) {
@@ -148,7 +157,9 @@ function LessonScreen({ route, navigation }) {
       Notifications.scheduleNotificationAsync({
         identifier: lesson.subject.name + new Date(lesson.start).getTime(),
         content: {
-          title: `${getClosestGradeEmoji(lesson.subject.name)} ${lesson.subject.name} - Ça commence dans 5 minutes`,
+          title: `${getClosestGradeEmoji(lesson.subject.name)} ${
+            lesson.subject.name
+          } - Ça commence dans 5 minutes`,
           body: `Le cours est en salle ${lesson.rooms[0]} avec ${lesson.teachers[0]}.`,
           sound: 'papillon_ding.wav',
         },
@@ -157,16 +168,20 @@ function LessonScreen({ route, navigation }) {
           date: new Date(time),
         },
       });
-    }
-    else {
-      Notifications.cancelScheduledNotificationAsync(lesson.subject.name + new Date(lesson.start).getTime());
+    } else {
+      Notifications.cancelScheduledNotificationAsync(
+        lesson.subject.name + new Date(lesson.start).getTime()
+      );
     }
   }
 
   useEffect(() => {
     Notifications.getAllScheduledNotificationsAsync().then((value) => {
       for (const notification of value) {
-        if (notification.identifier === lesson.subject.name + new Date(lesson.start).getTime()) {
+        if (
+          notification.identifier ===
+          lesson.subject.name + new Date(lesson.start).getTime()
+        ) {
           setIsNotified(true);
           break;
         }
@@ -193,57 +208,39 @@ function LessonScreen({ route, navigation }) {
           setCountdownString(
             `dans ${lz(hours)}h ${lz(minutes)}m ${lz(seconds)}s`
           );
-        }
-        else if (hours >= 25 && hours < 48) {
+        } else if (hours >= 25 && hours < 48) {
           setCountdownString(
             `dans ${Math.floor(hours / 24)} jour(s) ${lz(hours % 24)} heure(s)`
           );
+        } else if (hours >= 48) {
+          setCountdownString(`dans ${Math.floor(hours / 24)} jours`);
+        } else {
+          setCountdownString(`dans ${lz(minutes)}m ${lz(seconds)}s`);
         }
-        else if (hours >= 48) {
-          setCountdownString(
-            `dans ${Math.floor(hours / 24)} jours`
-          );
-        }
-        else {
-          setCountdownString(
-            `dans ${lz(minutes)}m ${lz(seconds)}s`
-          );
-        }
-
       }, 1000);
 
       return () => clearInterval(interval);
     }
-    else {
-      const interval = setInterval(() => {
-        setCountdown(countdown - 1);
+    const interval = setInterval(() => {
+      setCountdown(countdown - 1);
 
-        const hours = Math.floor(countdown / 3600);
-        const minutes = Math.floor((countdown % 3600) / 60);
-        const seconds = countdown % 60;
+      const hours = Math.floor(countdown / 3600);
+      const minutes = Math.floor((countdown % 3600) / 60);
+      // eslint-disable-next-line no-unused-vars
+      const seconds = countdown % 60;
 
-        // a venir
+      // a venir
 
-        if (hours < -1 && hours > -48) {
-          setCountdownString(
-            `il y a ${lz(-hours)} heures`
-          );
-        }
-        else if (hours <= -48) {
-          setCountdownString(
-            `il y a ${Math.floor(-hours / 24)} jours`
-          );
-        }
-        else {
-          setCountdownString(
-            `il y a ${lz(-minutes)} minutes`
-          );
-        }
+      if (hours < -1 && hours > -48) {
+        setCountdownString(`il y a ${lz(-hours)} heures`);
+      } else if (hours <= -48) {
+        setCountdownString(`il y a ${Math.floor(-hours / 24)} jours`);
+      } else {
+        setCountdownString(`il y a ${lz(-minutes)} minutes`);
+      }
+    }, 1000);
 
-      }, 1000);
-
-      return () => clearInterval(interval);
-    }
+    return () => clearInterval(interval);
   }, [countdown]);
 
   const [colorModalVisible, setColorModalVisible] = useState(false);
@@ -252,7 +249,9 @@ function LessonScreen({ route, navigation }) {
     setColorModalVisible(true);
   }
 
-  const [color, setColor] = useState(getSavedCourseColor(lesson.subject.name, lesson.background_color));
+  const [color, setColor] = useState(
+    getSavedCourseColor(lesson.subject.name, lesson.background_color)
+  );
 
   const onSelectColor = ({ hex }) => {
     forceSavedCourseColor(lesson.subject.name, hex);
@@ -265,9 +264,19 @@ function LessonScreen({ route, navigation }) {
         style={{ flex: 1, backgroundColor: UIColors.background }}
         headerMaxHeight={160}
         topBarElevation={12}
-        topBarHeight={Platform.OS == 'android' ? insets.top + 56 : 56}
+        topBarHeight={Platform.OS === 'android' ? insets.top + 56 : 56}
         HeaderComponent={
-          <View style={[styles.coursNameHeaderView, {backgroundColor: getSavedCourseColor(lesson.subject.name, lesson.background_color)}]}>
+          <View
+            style={[
+              styles.coursNameHeaderView,
+              {
+                backgroundColor: getSavedCourseColor(
+                  lesson.subject.name,
+                  lesson.background_color
+                ),
+              },
+            ]}
+          >
             <View style={styles.coursDataHeader}>
               <Text style={styles.coursNameHeader}>
                 {formatCoursName(lesson.subject.name)}
@@ -275,33 +284,49 @@ function LessonScreen({ route, navigation }) {
 
               <SkeletonPlaceholder
                 borderRadius={4}
-                backgroundColor={'#ffffff55'}
-                highlightColor={'#ffffff'}
+                backgroundColor="#ffffff55"
+                highlightColor="#ffffff"
                 speed={1000}
                 enabled={!countdownString}
               >
-                { countdownString ?
-                  <Text style={styles.coursTimeHeader}>
-                    {countdownString}
-                  </Text>
-                :
+                {countdownString ? (
+                  <Text style={styles.coursTimeHeader}>{countdownString}</Text>
+                ) : (
                   <Text style={styles.coursTimeHeaderPlaceholder}>
                     dans ...
                   </Text>
-                }
+                )}
               </SkeletonPlaceholder>
 
-              { userData ?
+              {userData ? (
                 <View style={styles.coursGroupHeader}>
-                  { userData.profile_picture ?
+                  {userData.profile_picture ? (
                     <View style={styles.coursGroupHeaderPics}>
-                      <Image style={[styles.coursGroupHeaderPic, {borderColor: color}]} source={blurPic1} />
-                      <Image style={[styles.coursGroupHeaderPic, {borderColor: color}]} source={blurPic2} />
+                      <Image
+                        style={[
+                          styles.coursGroupHeaderPic,
+                          { borderColor: color },
+                        ]}
+                        source={blurPic1}
+                      />
+                      <Image
+                        style={[
+                          styles.coursGroupHeaderPic,
+                          { borderColor: color },
+                        ]}
+                        source={blurPic2}
+                      />
 
-                      <Image style={[styles.coursGroupHeaderPic, {borderColor: color}]} source={{ uri: userData.profile_picture }} />
+                      <Image
+                        style={[
+                          styles.coursGroupHeaderPic,
+                          { borderColor: color },
+                        ]}
+                        source={{ uri: userData.profile_picture }}
+                      />
                     </View>
-                  : null }
-                  { lesson.group_names.length > 0 ? (
+                  ) : null}
+                  {lesson.group_names.length > 0 ? (
                     <Text style={styles.coursGroupHeaderText}>
                       avec le groupe {lesson.group_names.join(', ')}
                     </Text>
@@ -311,62 +336,62 @@ function LessonScreen({ route, navigation }) {
                     </Text>
                   )}
                 </View>
-              : null }
+              ) : null}
             </View>
           </View>
         }
         HeaderNavbarComponent={
-          <View style={[{flex: 1, width: '100%'}]}>
+          <View style={[{ flex: 1, width: '100%' }]}>
             <TouchableOpacity
-              style={[styles.closeItem, Platform.OS == 'android' ? {marginTop: insets.top + 10} : null]}
+              style={[
+                styles.closeItem,
+                Platform.OS === 'android'
+                  ? { marginTop: insets.top + 10 }
+                  : null,
+              ]}
               onPress={() => navigation.goBack()}
             >
-              <X size={24} color={'#ffffff'} />
+              <X size={24} color="#ffffff" />
             </TouchableOpacity>
           </View>
         }
         TopNavBarComponent={
-          <View style={[styles.coursNameView, {backgroundColor: color}, Platform.OS == 'android' ? {paddingTop: insets.top} : null]}>
+          <View
+            style={[
+              styles.coursNameView,
+              { backgroundColor: color },
+              Platform.OS === 'android' ? { paddingTop: insets.top } : null,
+            ]}
+          >
             <Text style={[styles.coursNameHeaderText]}>
               {formatCoursName(lesson.subject.name)}
             </Text>
 
             <SkeletonPlaceholder
-                borderRadius={4}
-                backgroundColor={'#ffffff55'}
-                highlightColor={'#ffffff'}
-                speed={1000}
-                enabled={!countdownString}
+              borderRadius={4}
+              backgroundColor="#ffffff55"
+              highlightColor="#ffffff"
+              speed={1000}
+              enabled={!countdownString}
             >
-            { countdownString ?
-                <Text style={styles.coursTimeHeaderTop}>
-                  {countdownString}
-                </Text>
-              :
-                ( Math.floor((new Date(lesson.start) - new Date()) / 1000) > 0 ?
-                  <Text style={styles.coursTimeHeaderTop}>
-                    dans ...
-                  </Text>
-                :
-                  <Text style={styles.coursTimeHeaderTop}>
-                    il y a ...
-                  </Text>
-                )
-              }
-              </SkeletonPlaceholder>
+              {countdownString ? (
+                <Text style={styles.coursTimeHeaderTop}>{countdownString}</Text>
+              ) : Math.floor((new Date(lesson.start) - new Date()) / 1000) >
+                0 ? (
+                <Text style={styles.coursTimeHeaderTop}>dans ...</Text>
+              ) : (
+                <Text style={styles.coursTimeHeaderTop}>il y a ...</Text>
+              )}
+            </SkeletonPlaceholder>
           </View>
         }
       >
-        <StatusBar
-          animated
-          barStyle="light-content"
-          backgroundColor={color}
-        />
+        <StatusBar animated barStyle="light-content" backgroundColor={color} />
 
         <View style={styles.optionsList}>
           <Text style={styles.ListTitle}>A propos</Text>
 
-          { lesson.rooms.length > 0 ? (
+          {lesson.rooms.length > 0 ? (
             <ListItem
               title="Salle de cours"
               subtitle={lesson.rooms.join(', ')}
@@ -374,25 +399,25 @@ function LessonScreen({ route, navigation }) {
               left={<DoorOpen size={24} color={mainColor} />}
               width
             />
-          ) : null }
-          { lesson.teachers.length > 0 ? (
+          ) : null}
+          {lesson.teachers.length > 0 ? (
             <ListItem
-              title={"Professeur" + (lesson.teachers.length > 1 ? "s" : "")}
+              title={`Professeur${lesson.teachers.length > 1 ? 's' : ''}`}
               subtitle={lesson.teachers.join(', ')}
               color={mainColor}
               left={<User2 size={24} color={mainColor} />}
               width
             />
-          ) : null }
-          { lesson.group_names.length > 0 ? (
+          ) : null}
+          {lesson.group_names.length > 0 ? (
             <ListItem
-              title={"Groupe" + (lesson.group_names.length > 1 ? "s" : "")}
+              title={`Groupe${lesson.group_names.length > 1 ? 's' : ''}`}
               subtitle={lesson.group_names.join(', ')}
               color={mainColor}
               left={<Users size={24} color={mainColor} />}
               width
             />
-          ) : null }
+          ) : null}
           {lesson.status !== null ? (
             <ListItem
               title="Statut du cours"
@@ -478,7 +503,7 @@ function LessonScreen({ route, navigation }) {
         <View style={styles.optionsList}>
           <Text style={styles.ListTitle}>Options</Text>
 
-          { new Date(lesson.start) > new Date() ? (
+          {new Date(lesson.start) > new Date() ? (
             <ListItem
               title="Me notifier 5 min. avant"
               subtitle="Vous serez notifié 5 minutes avant le début du cours."
@@ -493,7 +518,7 @@ function LessonScreen({ route, navigation }) {
                 </View>
               }
             />
-          ) : null }
+          ) : null}
 
           <ListItem
             title="Changer la couleur de la matière"
@@ -503,22 +528,48 @@ function LessonScreen({ route, navigation }) {
             chevron
           />
         </View>
-        
 
         <View style={{ height: 78 }} />
       </AnimatedScrollView>
 
-      <Modal visible={colorModalVisible} animationType='fade' presentationStyle='overFullScreen' transparent={true} >
-        <View style={{ flex: 1, backgroundColor: "#00000099", alignItems: 'center', justifyContent: 'center' }} >
-          <View style={{backgroundColor: UIColors.background, padding: 20, borderRadius: 12, borderCurve: 'continuous'}}>
-            <ColorPicker style={{ width: '70%', gap: 20 }} value={color} onComplete={onSelectColor}>
+      <Modal
+        visible={colorModalVisible}
+        animationType="fade"
+        presentationStyle="overFullScreen"
+        transparent
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: '#00000099',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: UIColors.background,
+              padding: 20,
+              borderRadius: 12,
+              borderCurve: 'continuous',
+            }}
+          >
+            <ColorPicker
+              style={{ width: '70%', gap: 20 }}
+              value={color}
+              onComplete={onSelectColor}
+            >
               <Preview />
               <Panel1 />
               <HueSlider />
               <Swatches />
             </ColorPicker>
 
-            <Button color={color} title='Enregistrer' onPress={() => setColorModalVisible(false)} />
+            <Button
+              color={color}
+              title="Enregistrer"
+              onPress={() => setColorModalVisible(false)}
+            />
           </View>
         </View>
       </Modal>
@@ -537,9 +588,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'Papillon-Medium',
     opacity: 0.5,
-  },
-  coursNameView: {
-    height: 170,
   },
   coursName: {
     position: 'absolute',

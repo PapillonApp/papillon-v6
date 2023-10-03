@@ -1,8 +1,25 @@
 import SyncStorage from 'sync-storage';
+
 SyncStorage.init();
 
 const colors = [
-  "#2667a9", "#76a10b", "#3498DB", "#1ABC9C", "#a01679", "#27AE60", "#156cd6", "#F39C12", "#E67E22", "#D35400", "#2C3E50", "#E74C3C", "#C0392B", "#8E44AD", "#ad4491", "#9f563b", "#920205",
+  '#2667a9',
+  '#76a10b',
+  '#3498DB',
+  '#1ABC9C',
+  '#a01679',
+  '#27AE60',
+  '#156cd6',
+  '#F39C12',
+  '#E67E22',
+  '#D35400',
+  '#2C3E50',
+  '#E74C3C',
+  '#C0392B',
+  '#8E44AD',
+  '#ad4491',
+  '#9f563b',
+  '#920205',
 ];
 
 function hexToRGB(_hex) {
@@ -52,6 +69,7 @@ function getClosestCourseColor(courseName) {
     let hash = 5;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i) + 1;
+      // eslint-disable-next-line no-bitwise
       hash = (hash << 5) - hash + char;
     }
     return hash;
@@ -66,19 +84,24 @@ function getClosestCourseColor(courseName) {
   const multiplierB = 22;
 
   // Calculer les composantes RVB de la couleur à partir de la valeur de hachage et des facteurs multiplicatifs
-  const r = Math.abs((hash * multiplierR * hash / 0.7 % 231));
-  const g = Math.abs((hash * multiplierG * hash / 1.6 % 213));
-  const b = Math.abs((hash * multiplierB * hash / 0.5 % 246));
+  const r = Math.abs(((hash * multiplierR * hash) / 0.7) % 231);
+  const g = Math.abs(((hash * multiplierG * hash) / 1.6) % 213);
+  const b = Math.abs(((hash * multiplierB * hash) / 0.5) % 246);
 
   // Convertir les composantes RVB en format HEX
-  const hexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  const hexColor = `#${r.toString(16).padStart(2, '0')}${g
+    .toString(16)
+    .padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 
   return hexColor;
 }
 
 function normalizeCoursName(courseName) {
   // remove accents and lowercase
-  courseName = courseName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  courseName = courseName
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
   // remove spaces
   courseName = courseName.replace(/\s/g, '');
   // remove special characters
@@ -91,21 +114,18 @@ function getSavedCourseColor(courseName, courseColor) {
   let savedColors = SyncStorage.get('savedColors');
   if (savedColors) {
     savedColors = JSON.parse(savedColors);
-  }
-  else {
+  } else {
     savedColors = {};
   }
 
   if (savedColors[courseName]) {
     return savedColors[courseName];
   }
-  else {
-    // find a color that is not used
-    let color = courseColor;
-    savedColors[courseName] = color;
-    SyncStorage.set('savedColors', JSON.stringify(savedColors));
-    return color;
-  }
+  // find a color that is not used
+  const color = courseColor;
+  savedColors[courseName] = color;
+  SyncStorage.set('savedColors', JSON.stringify(savedColors));
+  return color;
 }
 
 function forceSavedCourseColor(courseName, courseColor) {
@@ -113,12 +133,11 @@ function forceSavedCourseColor(courseName, courseColor) {
   let savedColors = SyncStorage.get('savedColors');
   if (savedColors) {
     savedColors = JSON.parse(savedColors);
-  }
-  else {
+  } else {
     savedColors = {};
   }
 
-  let color = courseColor;
+  const color = courseColor;
   savedColors[courseName] = color;
   SyncStorage.set('savedColors', JSON.stringify(savedColors));
   return color;

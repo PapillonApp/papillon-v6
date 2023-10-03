@@ -13,8 +13,6 @@ import {
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
-const entities = require("entities");
-
 import LinearGradient from 'react-native-linear-gradient';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -25,22 +23,25 @@ import { showMessage } from 'react-native-flash-message';
 
 import { useState } from 'react';
 
-import { School, UserCircle, KeyRound } from 'lucide-react-native';
+import { UserCircle, KeyRound } from 'lucide-react-native';
 import { getENTs, getInfo, getToken } from '../../../fetch/AuthStack/LoginFlow';
-import ListItem from '../../../components/ListItem';
 
 import PapillonButton from '../../../components/PapillonButton';
 import GetUIColors from '../../../utils/GetUIColors';
 import { useAppContext } from '../../../utils/AppContext';
+
+const entities = require('entities');
 
 function LoginPronote({ route, navigation }) {
   const theme = useTheme();
   const { showActionSheetWithOptions } = useActionSheet();
 
   const { etab, useDemo } = route.params;
+  // eslint-disable-next-line no-unused-vars
   const [etabName, setEtabName] = useState(etab.nomEtab);
   const [etabInfo, setEtabInfo] = useState(etab);
 
+  // eslint-disable-next-line no-unused-vars
   const [useEduconnect, setUseEduconnect] = React.useState(false);
 
   const [isENTUsed, setIsENTUsed] = React.useState(false);
@@ -73,8 +74,7 @@ function LoginPronote({ route, navigation }) {
   React.useEffect(() => {
     getENTs(etab.url).then((result) => {
       CAS = result.CAS;
-      navigation.setOptions({
-      });
+      navigation.setOptions({});
 
       setEtabInfo(result);
       setEtabName(result.nomEtab);
@@ -85,9 +85,9 @@ function LoginPronote({ route, navigation }) {
         const ents = r?.ent_list;
 
         // find all ent in ents where url = hostname
-        const entList = ents.filter((ent) => {
-          return removeSubdomain(ent.url) === removeSubdomain(hostname);
-        });
+        const entList = ents.filter(
+          (ent) => removeSubdomain(ent.url) === removeSubdomain(hostname)
+        );
 
         let ent = entList[0];
 
@@ -95,7 +95,7 @@ function LoginPronote({ route, navigation }) {
           showActionSheetWithOptions(
             {
               title: 'Choisissez votre ENT',
-              options: entList.map((ent) => ent.name),
+              options: entList.map((_ent) => _ent.name),
               cancelButtonIndex: entList.length,
               tintColor: UIColors.primary,
             },
@@ -113,8 +113,6 @@ function LoginPronote({ route, navigation }) {
                 if (ent) {
                   setIsENTUsed(true);
                 }
-
-                return;
               }
             }
           );
@@ -194,7 +192,7 @@ function LoginPronote({ route, navigation }) {
           icon: 'auto',
           floating: true,
         });
-        
+
         navigation.goBack();
         navigation.goBack();
 
@@ -226,13 +224,21 @@ function LoginPronote({ route, navigation }) {
         />
       )}
 
-      <LinearGradient style={styles.loginHeader} colors={['#159C5E55', UIColors.background]} locations={[0,1]}>
-        <Image style={styles.loginHeaderLogo} source={require('../../../assets/logo_pronote.png')} />
+      <LinearGradient
+        style={styles.loginHeader}
+        colors={['#159C5E55', UIColors.background]}
+        locations={[0, 1]}
+      >
+        <Image
+          style={styles.loginHeaderLogo}
+          // eslint-disable-next-line global-require
+          source={require('../../../assets/logo_pronote.png')}
+        />
         <Text style={styles.loginHeaderText}>
           {entities.decodeHTML(etab.nomEtab)}
         </Text>
 
-        { !isENTUsed ? (
+        {!isENTUsed ? (
           <Text style={styles.loginHeaderDescription}>
             Connexion via Pronote
           </Text>
@@ -302,16 +308,12 @@ function LoginPronote({ route, navigation }) {
 
         <View style={[styles.buttons]}>
           <PapillonButton
-              title="Se connecter"
-              color="#159C5E"
-              onPress={() => login()}
-              style={[styles.button]}
-              right={
-                (connecting &&
-                  <ActivityIndicator color={'#ffffff'} />
-                )
-              }
-            />
+            title="Se connecter"
+            color="#159C5E"
+            onPress={() => login()}
+            style={[styles.button]}
+            right={connecting && <ActivityIndicator color="#ffffff" />}
+          />
         </View>
 
         <View style={[styles.bottomText]}>
@@ -321,14 +323,13 @@ function LoginPronote({ route, navigation }) {
             de Papillon.
           </Text>
 
-          { etabInfo.version && etabInfo.version.length > 0 ? (
+          {etabInfo.version && etabInfo.version.length > 0 ? (
             <Text style={[styles.bottomTextText]}>
               Pronote Espace Élèves ver. {etabInfo.version.join('.')}
             </Text>
-          ) : null }
+          ) : null}
         </View>
       </View>
-      
     </ScrollView>
   );
 }

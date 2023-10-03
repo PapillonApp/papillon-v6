@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -18,12 +18,28 @@ import { BarChart4, Link, File } from 'lucide-react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import ListItem from '../../components/ListItem';
 import GetUIColors from '../../utils/GetUIColors';
+import { useAppContext } from '../../utils/AppContext';
 
 function NewsItem({ route, navigation }) {
-  const { news } = route.params;
+  const [news, setNews] = useEffect(route.params.news);
   const theme = useTheme();
   const UIColors = GetUIColors();
   const { width } = useWindowDimensions();
+
+  const appctx = useAppContext();
+
+  const loadNews = async (id) => {
+    if (!id) return;
+    if (appctx.dataprovider.service === 'Skolengo') {
+      const newNews = await appctx.dataprovider.getUniqueNews(id, false);
+      setNews(newNews);
+    }
+  };
+
+  React.useEffect(() => {
+    setNews(route.params.news);
+    loadNews(route.params.news.id);
+  }, [route.params.news]);
 
   const openURL = async (url) => {
     await WebBrowser.openBrowserAsync(url, {
@@ -36,7 +52,7 @@ function NewsItem({ route, navigation }) {
   function genFirstName(name) {
     const names = name.split(' ');
 
-    if (names[0][0] == 'M') {
+    if (names[0][0] === 'M') {
       // remove it
       names.shift();
     }
@@ -58,14 +74,14 @@ function NewsItem({ route, navigation }) {
 
   function trimHtml(html) {
     // remove &nbsp;
-    html = html.replace('&nbsp;','');
+    html = html.replace('&nbsp;', '');
 
     // remove empty <p> tags even if they have attributes
     html = html.replace(/<p[^>]*>\s*<\/p>/g, '');
     // remove empty <div> tags even if they have attributes
     html = html.replace(/<div[^>]*>\s*<\/div>/g, '');
 
-    return html
+    return html;
   }
 
   const source = {
@@ -74,12 +90,12 @@ function NewsItem({ route, navigation }) {
 
   const defaultTextProps = {
     selectable: true,
-  };  
+  };
 
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
-      contentInsetAdjustmentBehavior='automatic'
+      contentInsetAdjustmentBehavior="automatic"
     >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
@@ -113,21 +129,24 @@ function NewsItem({ route, navigation }) {
         ) : null}
       </View>
 
-      { news.author ? (
+      {news.author ? (
         <ListItem
-          left={(
+          left={
             <View
-              style={[styles.userPfp, {backgroundColor: UIColors.primary + '22'}]}
+              style={[
+                styles.userPfp,
+                { backgroundColor: `${UIColors.primary}22` },
+              ]}
             >
               <Text
-                style={[styles.userPfpText, {color: UIColors.primary}]}
+                style={[styles.userPfpText, { color: UIColors.primary }]}
                 numberOfLines={1}
                 ellipsizeMode="tail"
               >
                 {genFirstName(news.author)}
               </Text>
             </View>
-          )}
+          }
           center
           title={news.author}
           subtitle={`${new Date(news.date).toLocaleDateString('fr-FR', {
@@ -141,20 +160,14 @@ function NewsItem({ route, navigation }) {
       ) : null}
 
       {news.attachments.length > 0 ? (
-        <View
-          style={[
-            styles.homeworkFiles,
-          ]}
-        >
+        <View style={[styles.homeworkFiles]}>
           {news.attachments.map((file, index) => (
-            <View
-              style={[
-                styles.homeworkFileContainer,
-              ]}
-              key={index}
-            >
+            <View style={[styles.homeworkFileContainer]} key={index}>
               <PressableScale
-                style={[styles.homeworkFile, { backgroundColor: UIColors.element }]}
+                style={[
+                  styles.homeworkFile,
+                  { backgroundColor: UIColors.element },
+                ]}
                 weight="light"
                 activeScale={0.9}
                 onPress={() => openURL(file.url)}
@@ -181,7 +194,7 @@ function NewsItem({ route, navigation }) {
         </View>
       ) : null}
 
-      <View style={{height: 20}} />
+      <View style={{ height: 20 }} />
     </ScrollView>
   );
 }

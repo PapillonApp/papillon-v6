@@ -8,7 +8,6 @@ import {
   RefreshControl,
   Platform,
   ActivityIndicator,
-  FlatList,
   Dimensions,
   ScrollView,
 } from 'react-native';
@@ -17,14 +16,20 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text, useTheme } from 'react-native-paper';
 
-import { Newspaper, ChefHat, Projector, Users2, AlertTriangle } from 'lucide-react-native';
-import { IndexData } from '../fetch/IndexData';
+import {
+  Newspaper,
+  ChefHat,
+  Projector,
+  Users2,
+  AlertTriangle,
+} from 'lucide-react-native';
+import { PressableScale } from 'react-native-pressable-scale';
 import ListItem from '../components/ListItem';
 
 import PapillonLoading from '../components/PapillonLoading';
 
 import GetUIColors from '../utils/GetUIColors';
-import { PressableScale } from 'react-native-pressable-scale';
+import { useAppContext } from '../utils/AppContext';
 
 function relativeDate(date) {
   const now = new Date();
@@ -61,9 +66,7 @@ function normalizeText(text) {
 }
 
 function normalizeContent(text) {
-  return text
-    .replace(/(\r\n|\n|\r)/gm,"")
-    .trim();
+  return text.replace(/(\r\n|\n|\r)/gm, '').trim();
 }
 
 function FullNewsIcon({ title }) {
@@ -71,14 +74,19 @@ function FullNewsIcon({ title }) {
 
   return (
     <View>
-      { normalizeText(title).includes('menu') ? <ChefHat color={UIColors.primary} size={24} /> :
-      normalizeText(title).includes('reunion') ? <Projector color={UIColors.primary} size={24} /> :
-      normalizeText(title).includes('association') ? <Users2 color={UIColors.primary} size={24} /> :
-      normalizeText(title).includes('important') ? <AlertTriangle color={UIColors.primary} size={24} /> :
-      <Newspaper color={UIColors.primary} size={24} />
-      }
+      {normalizeText(title).includes('menu') ? (
+        <ChefHat color={UIColors.primary} size={24} />
+      ) : normalizeText(title).includes('reunion') ? (
+        <Projector color={UIColors.primary} size={24} />
+      ) : normalizeText(title).includes('association') ? (
+        <Users2 color={UIColors.primary} size={24} />
+      ) : normalizeText(title).includes('important') ? (
+        <AlertTriangle color={UIColors.primary} size={24} />
+      ) : (
+        <Newspaper color={UIColors.primary} size={24} />
+      )}
     </View>
-  )
+  );
 }
 
 function NewsScreen({ navigation }) {
@@ -87,10 +95,11 @@ function NewsScreen({ navigation }) {
 
   const insets = useSafeAreaInsets();
 
-  const { height } = Dimensions.get("screen");
+  const { height } = Dimensions.get('screen');
 
   const [news, setNews] = useState([]);
   const [finalNews, setFinalNews] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [showNews, setShowNews] = useState(true);
 
   function editNews(n) {
@@ -102,9 +111,11 @@ function NewsScreen({ navigation }) {
 
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
+  const appctx = useAppContext();
+
   useEffect(() => {
     setIsHeadLoading(true);
-    IndexData.getNews().then((n) => {
+    appctx.dataprovider.getNews().then((n) => {
       setIsHeadLoading(false);
       setNews(editNews(JSON.parse(n)));
       setFinalNews(editNews(JSON.parse(n)));
@@ -113,7 +124,7 @@ function NewsScreen({ navigation }) {
 
   const onRefresh = React.useCallback(() => {
     setIsHeadLoading(true);
-    IndexData.getNews(true).then((n) => {
+    appctx.dataprovider.getNews(true).then((n) => {
       setNews(editNews(JSON.parse(n)));
       setFinalNews(editNews(JSON.parse(n)));
       setIsHeadLoading(false);
@@ -123,11 +134,7 @@ function NewsScreen({ navigation }) {
   // add search bar in the header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (
-        ( isHeadLoading ?
-          <ActivityIndicator/>
-        : null )
-      ),
+      headerLeft: () => (isHeadLoading ? <ActivityIndicator /> : null),
       headerSearchBarOptions: {
         placeholder: 'Rechercher une actualité',
         cancelButtonText: 'Annuler',
@@ -155,20 +162,20 @@ function NewsScreen({ navigation }) {
     });
   }, [navigation, finalNews, isHeadLoading]);
 
-  const [currentNewsType, setCurrentNewsType] = useState("Toutes");
+  const [currentNewsType, setCurrentNewsType] = useState('Toutes');
   const [newsTypes, setNewsTypes] = useState([
     {
-      name: "Toutes",
+      name: 'Toutes',
       icon: <Newspaper color={UIColors.primary} size={20} />,
       enabled: true,
     },
     {
-      name: "Menus",
+      name: 'Menus',
       icon: <ChefHat color={UIColors.primary} size={20} />,
       enabled: false,
     },
     {
-      name: "Réunions",
+      name: 'Réunions',
       icon: <Projector color={UIColors.primary} size={20} />,
       enabled: false,
     },
@@ -176,13 +183,13 @@ function NewsScreen({ navigation }) {
 
   useEffect(() => {
     news.forEach((item) => {
-      if (normalizeText(item.title).includes(normalizeText("menu"))) {
-        newNewsTypes = newsTypes;
+      if (normalizeText(item.title).includes(normalizeText('menu'))) {
+        const newNewsTypes = newsTypes;
         newNewsTypes[1].enabled = true;
         setNewsTypes(newNewsTypes);
       }
-      if (normalizeText(item.title).includes(normalizeText("reunion"))) {
-        newNewsTypes = newsTypes;
+      if (normalizeText(item.title).includes(normalizeText('reunion'))) {
+        const newNewsTypes = newsTypes;
         newNewsTypes[2].enabled = true;
         setNewsTypes(newNewsTypes);
       }
@@ -192,15 +199,15 @@ function NewsScreen({ navigation }) {
   function changeNewsType(type) {
     setCurrentNewsType(type);
 
-    if (type === "Toutes") {
+    if (type === 'Toutes') {
       setNews(finalNews);
     }
 
-    if (type === "Menus") {
+    if (type === 'Menus') {
       const newNews = [];
 
       finalNews.forEach((item) => {
-        if (normalizeText(item.title).includes(normalizeText("menu"))) {
+        if (normalizeText(item.title).includes(normalizeText('menu'))) {
           newNews.push(item);
         }
       });
@@ -208,11 +215,11 @@ function NewsScreen({ navigation }) {
       setNews(newNews);
     }
 
-    if (type === "Réunions") {
+    if (type === 'Réunions') {
       const newNews = [];
 
       finalNews.forEach((item) => {
-        if (normalizeText(item.title).includes(normalizeText("reunion"))) {
+        if (normalizeText(item.title).includes(normalizeText('reunion'))) {
           newNews.push(item);
         }
       });
@@ -222,9 +229,7 @@ function NewsScreen({ navigation }) {
   }
 
   return (
-    <View
-      style={[styles.container, { backgroundColor: UIColors.background }]}
-    >
+    <View style={[styles.container, { backgroundColor: UIColors.background }]}>
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
       ) : (
@@ -239,7 +244,7 @@ function NewsScreen({ navigation }) {
         <PapillonLoading
           title="Chargement des actualités..."
           subtitle="Obtention des dernières actualités en cours"
-          style={[{marginTop: insets.top + 120}]}
+          style={[{ marginTop: insets.top + 120 }]}
         />
       ) : null}
 
@@ -255,8 +260,8 @@ function NewsScreen({ navigation }) {
           ListHeaderComponent={
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={[styles.selectTypes]}>
-                { newsTypes.map((item, index) => (
-                  ( item.enabled ?
+                {newsTypes.map((item, index) =>
+                  item.enabled ? (
                     <NewsChip
                       key={index}
                       title={item.name}
@@ -266,9 +271,9 @@ function NewsScreen({ navigation }) {
                         changeNewsType(item.name);
                       }}
                     />
-                  : null )
-                ))}
-                <View style={{width: 18}}></View>
+                  ) : null
+                )}
+                <View style={{ width: 18 }} />
               </View>
             </ScrollView>
           }
@@ -280,8 +285,8 @@ function NewsScreen({ navigation }) {
               tintColor={UIColors.primary}
             />
           }
-          renderItem={({ item, index }) => (
-            showNews ?
+          renderItem={({ item, index }) =>
+            showNews ? (
               <NewsItem
                 item={item}
                 navigation={navigation}
@@ -289,15 +294,16 @@ function NewsScreen({ navigation }) {
                 height={height}
                 index={index}
               />
-            : null
-          )}
+            ) : null
+          }
         />
       ) : null}
     </View>
   );
 }
 
-function NewsItem({item, navigation, UIColors, height, index}) {
+// eslint-disable-next-line no-unused-vars
+function NewsItem({ item, navigation, UIColors, height, index }) {
   let content = item.content.trim();
   if (content.length > 50) {
     content = `${content.substring(0, 50)}...`;
@@ -318,59 +324,72 @@ function NewsItem({item, navigation, UIColors, height, index}) {
 
   return (
     <Animated.View
-    style={[
-      {
-        // Bind opacity to animated value
-        opacity: fadeAnim,
-        transform: [
-          {
-            translateY: fadeAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [50, 0],
-            })
-          },
-          {
-            scale: fadeAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0.9, 1],
-            })
-          }
-        ],
-      },
-    ]}>
-    <ListItem
-      title={item.title}
-      subtitle={normalizeContent(content)}
-      icon={<FullNewsIcon title={item.title} />}
-      color={UIColors.primary}
-      onPress={() =>
-        navigation.navigate('NewsDetails', { news: item })
-      }
-      right={
-        <Text style={{ fontSize: 13, opacity: 0.5 }}>
-          il y a {relativeDate(new Date(item.date))}
-        </Text>
-      }
-      style={styles.newsItem}
-    />
+      style={[
+        {
+          // Bind opacity to animated value
+          opacity: fadeAnim,
+          transform: [
+            {
+              translateY: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [50, 0],
+              }),
+            },
+            {
+              scale: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.9, 1],
+              }),
+            },
+          ],
+        },
+      ]}
+    >
+      <ListItem
+        title={item.title}
+        subtitle={normalizeContent(content)}
+        icon={<FullNewsIcon title={item.title} />}
+        color={UIColors.primary}
+        onPress={() => navigation.navigate('NewsDetails', { news: item })}
+        right={
+          <Text style={{ fontSize: 13, opacity: 0.5 }}>
+            il y a {relativeDate(new Date(item.date))}
+          </Text>
+        }
+        style={styles.newsItem}
+      />
     </Animated.View>
   );
 }
 
-function NewsChip({title, enabled, onPress, icon}) {
+function NewsChip({ title, enabled, onPress, icon }) {
   const UIColors = GetUIColors();
 
   return (
     <PressableScale
-      style={[styles.newsChip, enabled ? styles.newsChipEnabled : null, {backgroundColor: enabled ? UIColors.primary + "22" : UIColors.element}]}
-      onPress={onPress} 
+      style={[
+        styles.newsChip,
+        enabled ? styles.newsChipEnabled : null,
+        {
+          backgroundColor: enabled ? `${UIColors.primary}22` : UIColors.element,
+        },
+      ]}
+      onPress={onPress}
       activeScale={0.92}
-      weight='medium'
+      weight="medium"
     >
       {icon}
-      <Text style={[styles.newsChipText, enabled ? styles.newsChipTextEnabled : null, {color: enabled ? UIColors.primary  : UIColors.text}]}>{title}</Text>
+      <Text
+        style={[
+          styles.newsChipText,
+          enabled ? styles.newsChipTextEnabled : null,
+          { color: enabled ? UIColors.primary : UIColors.text },
+        ]}
+      >
+        {title}
+      </Text>
     </PressableScale>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -378,8 +397,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  newsList: {
-  },
+  newsList: {},
 
   newsItem: {
     marginBottom: 8,

@@ -1,13 +1,9 @@
 // React Native code
 import * as React from 'react';
-import {
-  View,
-  StyleSheet,
-} from 'react-native';
-import { useEffect, useState } from 'react';
+import { View, StyleSheet } from 'react-native';
 
-import GetUIColors from '../utils/GetUIColors';
 import { Text } from 'react-native-paper';
+import GetUIColors from '../utils/GetUIColors';
 
 function PapillonList({ children, inset, title, style }) {
   const UIColors = GetUIColors();
@@ -26,7 +22,7 @@ function PapillonList({ children, inset, title, style }) {
         {children}
       </View>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({

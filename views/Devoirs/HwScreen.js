@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   View,
@@ -8,25 +8,20 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-import formatCoursName from '../../utils/FormatCoursName';
-
-import ListItem from '../../components/ListItem';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import * as Haptics from 'expo-haptics';
 
 import { PressableScale } from 'react-native-pressable-scale';
 
-import { Check, Link, File, Calendar, List } from 'lucide-react-native';
+import { Check, Link, File, Calendar } from 'lucide-react-native';
 
 import * as WebBrowser from 'expo-web-browser';
 
 import { Text, useTheme } from 'react-native-paper';
-import GetUIColors from '../../utils/GetUIColors';
 
-import { IndexData } from '../../fetch/IndexData';
-import { openURL } from 'expo-linking';
+import ListItem from '../../components/ListItem';
+import GetUIColors from '../../utils/GetUIColors';
+import formatCoursName from '../../utils/FormatCoursName';
+import { useAppContext } from '../../utils/AppContext';
 
 function HomeworkScreen({ route, navigation }) {
   const theme = useTheme();
@@ -45,56 +40,57 @@ function HomeworkScreen({ route, navigation }) {
     });
   };
 
-  useEffect(() => {
-    
-  }, []);
+  const appctx = useAppContext();
 
   const changeHwState = () => {
     console.log(`change ${homework.date} : ${homework.local_id}`);
-    IndexData.changeHomeworkState(homework.date, homework.local_id).then((result) => {
-      console.log(result);
+    appctx.dataprovider
+      .changeHomeworkState(!thisHwChecked, homework.date, homework.local_id)
+      .then((result) => {
+        console.log(result);
 
-      if (result.status === 'not found') {
-        setTimeout(() => {
-          setThisHwChecked(homework.done);
-        }, 100);
-        return;
-      }
-      else if (result.status === 'ok') {
-        setThisHwChecked(!thisHwChecked);
-        setThisHwLoading(false);
+        if (result.status === 'not found') {
+          setTimeout(() => {
+            setThisHwChecked(homework.done);
+          }, 100);
+        } else if (result.status === 'ok') {
+          setThisHwChecked(!thisHwChecked);
+          setThisHwLoading(false);
 
-        AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
-          // find the homework
-          let cachedHomeworks = JSON.parse(homeworksCache);
+          AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
+            // find the homework
+            const cachedHomeworks = JSON.parse(homeworksCache);
 
-          for (let i = 0; i < cachedHomeworks.length; i++) {
-            for (let j = 0; j < cachedHomeworks[i].timetable.length; j++) {
-              if (cachedHomeworks[i].timetable[j].local_id === homework.local_id) {
-                cachedHomeworks[i].timetable[j].done = !cachedHomeworks[i].timetable[j].done;
+            for (let i = 0; i < cachedHomeworks.length; i++) {
+              for (let j = 0; j < cachedHomeworks[i].timetable.length; j++) {
+                if (
+                  cachedHomeworks[i].timetable[j].local_id === homework.local_id
+                ) {
+                  cachedHomeworks[i].timetable[j].done =
+                    !cachedHomeworks[i].timetable[j].done;
+                }
               }
             }
-          }
-          
-          AsyncStorage.setItem(
-            'homeworksCache',
-            JSON.stringify(cachedHomeworks)
-          );
-        });
 
-        // sync with home page
-        AsyncStorage.setItem('homeUpdated', 'true');
-        // sync with devoirs page
-        AsyncStorage.setItem('homeworksUpdated', 'true');
-      }
-    });
+            AsyncStorage.setItem(
+              'homeworksCache',
+              JSON.stringify(cachedHomeworks)
+            );
+          });
+
+          // sync with home page
+          AsyncStorage.setItem('homeUpdated', 'true');
+          // sync with devoirs page
+          AsyncStorage.setItem('homeworksUpdated', 'true');
+        }
+      });
   };
 
   // add checkbox in header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: "Devoir en " + formatCoursName(homework.subject.name),
-      headerLargeTitle: Platform.OS === 'ios' ? true : false,
+      headerTitle: `Devoir en ${formatCoursName(homework.subject.name)}`,
+      headerLargeTitle: Platform.OS === 'ios',
     });
   }, [navigation, homework]);
 
@@ -117,9 +113,9 @@ function HomeworkScreen({ route, navigation }) {
 
       <View style={styles.optionsList}>
         <Text style={styles.ListTitle}>Description</Text>
-        <View style={[styles.hwContent, {backgroundColor: UIColors.element}]}>
+        <View style={[styles.hwContent, { backgroundColor: UIColors.element }]}>
           <Text style={styles.hwContentText}>{homework.description}</Text>
-        </View>  
+        </View>
         <ListItem
           left={
             <HwCheckbox
@@ -140,16 +136,14 @@ function HomeworkScreen({ route, navigation }) {
             setThisHwChecked(!thisHwChecked);
             changeHwState();
           }}
-        />  
+        />
       </View>
 
       <View style={styles.optionsList}>
         <Text style={styles.ListTitle}>Informations</Text>
 
         <ListItem
-          icon={
-            <Calendar size={24} color={UIColors.text} />
-          }
+          icon={<Calendar size={24} color={UIColors.text} />}
           title="Donné pour le"
           subtitle={new Date(homework.date).toLocaleDateString('fr-FR', {
             weekday: 'long',
@@ -170,14 +164,14 @@ function HomeworkScreen({ route, navigation }) {
               key={index}
               title={file.name}
               subtitle={file.url}
-              trimSubtitle={true}
-              icon={(
+              trimSubtitle
+              icon={
                 file.type === 0 ? (
                   <Link size={24} color={theme.dark ? '#ffffff' : '#000000'} />
                 ) : (
                   <File size={24} color={theme.dark ? '#ffffff' : '#000000'} />
                 )
-              )}
+              }
               onPress={() => openURL(file.url)}
               width
               center
@@ -190,26 +184,26 @@ function HomeworkScreen({ route, navigation }) {
 }
 
 function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
-  return (
-    !loading ? (
-      <PressableScale
-        style={[
-          styles.checkContainer,
-          { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
-          checked ? styles.checkChecked : null,
-          checked ? {backgroundColor: UIColors.primary, borderColor: UIColors.primary} : null,
-        ]}
-        weight="light"
-        activeScale={0.7}
-        onPress={() => {
-          pressed()
-        }}
-      >
-        {checked ? <Check size={20} color="#ffffff" /> : null}
-      </PressableScale>
-    ) : (
-      <ActivityIndicator size={26} />
-    )
+  return !loading ? (
+    <PressableScale
+      style={[
+        styles.checkContainer,
+        { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
+        checked ? styles.checkChecked : null,
+        checked
+          ? { backgroundColor: UIColors.primary, borderColor: UIColors.primary }
+          : null,
+      ]}
+      weight="light"
+      activeScale={0.7}
+      onPress={() => {
+        pressed();
+      }}
+    >
+      {checked ? <Check size={20} color="#ffffff" /> : null}
+    </PressableScale>
+  ) : (
+    <ActivityIndicator size={26} />
   );
 }
 

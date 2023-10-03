@@ -5,8 +5,8 @@ import { refreshToken } from '../AuthStack/LoginFlow';
 
 function getGrades(force = false) {
   // obtenir le token
-  return getConsts().then((consts) => {
-    return AsyncStorage.getItem('gradesCache').then((gradesCache) => {
+  return getConsts().then((consts) =>
+    AsyncStorage.getItem('gradesCache').then((gradesCache) => {
       if (gradesCache && !force) {
         gradesCache = JSON.parse(gradesCache);
 
@@ -45,14 +45,14 @@ function getGrades(force = false) {
             return result;
           })
       );
-    });
-  });
+    })
+  );
 }
 
 function getEvaluations(force = false) {
   // obtenir le token
-  return getConsts().then((consts) => {
-    return AsyncStorage.getItem('evaluationsCache').then((evaluationsCache) => {
+  return getConsts().then((consts) =>
+    AsyncStorage.getItem('evaluationsCache').then((evaluationsCache) => {
       if (evaluationsCache && !force) {
         // eslint-disable-next-line no-param-reassign
         evaluationsCache = JSON.parse(evaluationsCache);
@@ -98,13 +98,13 @@ function getEvaluations(force = false) {
             console.error('Error fetching Pronote evaluations');
           })
       );
-    });
-  });
+    })
+  );
 }
 
 function changePeriod(selectedPeriod) {
-  return getConsts().then((consts) => {
-    return AsyncStorage.getItem('token').then((token) => {
+  return getConsts().then((consts) =>
+    AsyncStorage.getItem('token').then((token) => {
       const { API } = consts;
 
       const myHeaders = new Headers();
@@ -126,8 +126,8 @@ function changePeriod(selectedPeriod) {
         `${API}/changePeriod?token=${token}&periodName=${selectedPeriod}`,
         requestOptions
       ).then((response) => response.json());
-    });
-  });
+    })
+  );
 }
 
 export { getGrades, getEvaluations, changePeriod };

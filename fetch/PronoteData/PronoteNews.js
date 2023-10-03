@@ -4,8 +4,8 @@ import { refreshToken } from '../AuthStack/LoginFlow';
 
 function getNews(force = false) {
   // obtenir le token
-  return getConsts().then((consts) => {
-    return AsyncStorage.getItem('newsCache').then((newsCache) => {
+  return getConsts().then((consts) =>
+    AsyncStorage.getItem('newsCache').then((newsCache) => {
       if (newsCache && !force) {
         newsCache = JSON.parse(newsCache);
 
@@ -45,8 +45,8 @@ function getNews(force = false) {
             return result;
           })
       );
-    });
-  });
+    })
+  );
 }
 
 export { getNews };

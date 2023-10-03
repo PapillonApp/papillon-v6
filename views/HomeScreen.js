@@ -10,13 +10,11 @@ import {
   RefreshControl,
   Image,
 } from 'react-native';
-import { useTheme, Text, Snackbar } from 'react-native-paper';
+import { useTheme, Text } from 'react-native-paper';
 
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 
 import * as Haptics from 'expo-haptics';
-
-import { useIsFocused } from '@react-navigation/native';
 
 import {
   CheckCircle,
@@ -30,21 +28,19 @@ import {
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PressableScale } from 'react-native-pressable-scale';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as WebBrowser from 'expo-web-browser';
+import * as Notifications from 'expo-notifications';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
-import getClosestColor from '../utils/ColorCoursName';
 import { getClosestCourseColor } from '../utils/ColorCoursName';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import { IndexData } from '../fetch/IndexData';
 
 import GetUIColors from '../utils/GetUIColors';
 
-import * as WebBrowser from 'expo-web-browser';
 import ListItem from '../components/ListItem';
 
-import * as Notifications from 'expo-notifications';
+import packageJson from '../package.json';
+import { useAppContext } from '../utils/AppContext';
 
 const openURL = (url) => {
   WebBrowser.openBrowserAsync(url, {
@@ -55,8 +51,6 @@ const openURL = (url) => {
   });
 };
 
-import packageJson from '../package.json';
-
 function HomeScreen({ navigation }) {
   const theme = useTheme();
 
@@ -64,8 +58,10 @@ function HomeScreen({ navigation }) {
 
   const [nextClasses, setNextClasses] = React.useState(null);
   const [timetable, setTimetable] = React.useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [homeworks, setHomeworks] = React.useState(null);
   const [fullHomeworks, setFullHomeworks] = React.useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [grades, setGrades] = React.useState(null);
   const [user, setUser] = React.useState(null);
   const [latestGrades, setLatestGrades] = React.useState(null);
@@ -83,7 +79,7 @@ function HomeScreen({ navigation }) {
         AsyncStorage.setItem('lastver', packageJson.version);
       }
     });
-  }, [])
+  }, []);
 
   // change header text and size
   React.useLayoutEffect(() => {
@@ -108,66 +104,81 @@ function HomeScreen({ navigation }) {
 
   const [homeLoading, setHomeLoading] = React.useState(false);
 
+  const appctx = useAppContext();
+
   React.useEffect(() => {
     // ask for notifications permission
     Notifications.requestPermissionsAsync();
 
     setHomeLoading(true);
     // Fetch recap data
-    IndexData.getRecap(currentDate, forceReload).then(
-      ([timetableData, gradesData, homeworksData, homeworks1, homeworks2]) => {
-        setIsHeadLoading(false);
-        setHomeLoading(false);
+    appctx.dataprovider
+      .getRecap(currentDate, forceReload)
+      .then(
+        ([
+          timetableData,
+          gradesData,
+          homeworksData,
+          homeworks1,
+          homeworks2,
+        ]) => {
+          setIsHeadLoading(false);
+          setHomeLoading(false);
 
-        setTimetable(timetableData);
-        setHomeworks(homeworksData);
-        setGrades(gradesData);
+          setTimetable(timetableData);
+          setHomeworks(homeworksData);
+          setGrades(gradesData);
 
-        fHws = [];
-        fHws.push({
-          date : addDays(new Date, 0),
-          hws: homeworksData || []
-        })
-        fHws.push({
-          date : addDays(new Date, 1),
-          hws: homeworks1 || []
-        })
-        fHws.push({
-          date : addDays(new Date, 2),
-          hws: homeworks2 || []
-        })
-
-        if (homeworksData.length == 0 && homeworks1.length == 0 && homeworks2.length == 0) {
-          // setFullHomeworks(null);
-        }
-        else {
-          setFullHomeworks(fHws);
-        }
-
-        const nextClasses2 = getNextCours(timetable).nextClasses;
-        setNextClasses(nextClasses2);
-
-        // Calculate grade colors
-        const updatedGrades = JSON.parse(gradesData)
-          .grades.reverse()
-          .map((grade) => {
-            const average = JSON.parse(gradesData).averages.find(
-              (av) => av.subject.name === grade.subject.name
-            );
-            return {
-              ...grade,
-              color: average ? getClosestCourseColor(average.subject.name) : undefined,
-            };
+          const fHws = [];
+          fHws.push({
+            date: addDays(new Date(), 0),
+            hws: homeworksData || [],
+          });
+          fHws.push({
+            date: addDays(new Date(), 1),
+            hws: homeworks1 || [],
+          });
+          fHws.push({
+            date: addDays(new Date(), 2),
+            hws: homeworks2 || [],
           });
 
-        const latestGrades2 = updatedGrades.slice(0, 10);
-        setLatestGrades(latestGrades2);
-      }
-    );
+          if (
+            homeworksData.length === 0 &&
+            homeworks1.length === 0 &&
+            homeworks2.length === 0
+          ) {
+            // setFullHomeworks(null);
+          } else {
+            setFullHomeworks(fHws);
+          }
+
+          const nextClasses2 = getNextCours(timetable).nextClasses;
+          setNextClasses(nextClasses2);
+
+          // Calculate grade colors
+          const updatedGrades = JSON.parse(gradesData)
+            .grades.reverse()
+            .map((grade) => {
+              const average = JSON.parse(gradesData).averages.find(
+                (av) => av.subject.name === grade.subject.name
+              );
+              return {
+                ...grade,
+                color: average
+                  ? getClosestCourseColor(average.subject.name)
+                  : undefined,
+              };
+            });
+
+          const latestGrades2 = updatedGrades.slice(0, 10);
+          setLatestGrades(latestGrades2);
+        }
+      );
 
     setHomeLoading(true);
     // Fetch user data
-    IndexData.getUser().then((result) => {
+    appctx.dataprovider.getUser().then((result) => {
       setUser(result);
       setHomeLoading(false);
     });
@@ -205,7 +216,7 @@ function HomeScreen({ navigation }) {
   React.useEffect(() => {
     // refresh a l'ouverture de l'app
     setRefreshCount((prevCount) => prevCount + 1);
-  }, [])
+  }, []);
 
   const UIColors = GetUIColors();
 
@@ -231,7 +242,6 @@ function HomeScreen({ navigation }) {
         />
       }
     >
-
       {/* next classes */}
       {nextClasses ? (
         <View
@@ -285,20 +295,16 @@ function HomeScreen({ navigation }) {
       ) : null}
 
       {/* status */}
-      { homeLoading && !isHeadLoading && Platform.OS == 'android' ? (
+      {homeLoading && !isHeadLoading && Platform.OS === 'android' ? (
         <ListItem
           title="Chargement des données"
           subtitle="Veuillez patienter..."
           width
           center
-          right={
-            <ActivityIndicator
-              size={24}
-            />
-          }
+          right={<ActivityIndicator size={24} />}
           style={{ marginHorizontal: 16 }}
         />
-      ) : null }
+      ) : null}
 
       {/* tabs */}
       <View style={[styles.tabsContainer]}>
@@ -354,13 +360,43 @@ function HomeScreen({ navigation }) {
           <View style={[styles.hwList, { backgroundColor: UIColors.element }]}>
             {fullHomeworks.map((data, index2) => (
               <View key={index2}>
-                { data.hws && data.hws !== undefined && data.hws.length > 0 ?
+                {data.hws && data.hws !== undefined && data.hws.length > 0 ? (
                   <>
-                    { data.hws.length > 0 ?
-                      <View style={[styles.HwTitle, Platform.OS == 'android' ? {backgroundColor: !theme.dark ? UIColors.primary + '32' : '#ffffff22'} : null]}>
-                        <Text style={[styles.HwTitleText, Platform.OS == 'android' ? {color: theme.dark ? '#ffffff99' : UIColors.primary} : {color: theme.dark ? '#f0c5e2' : '#4f2040'}]}> pour le {new Date(data.date).toLocaleDateString('fr-FR', {weekday: 'short', day: 'numeric',month: 'short'})}</Text>
+                    {data.hws.length > 0 ? (
+                      <View
+                        style={[
+                          styles.HwTitle,
+                          Platform.OS === 'android'
+                            ? {
+                                backgroundColor: !theme.dark
+                                  ? `${UIColors.primary}32`
+                                  : '#ffffff22',
+                              }
+                            : null,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.HwTitleText,
+                            Platform.OS === 'android'
+                              ? {
+                                  color: theme.dark
+                                    ? '#ffffff99'
+                                    : UIColors.primary,
+                                }
+                              : { color: theme.dark ? '#f0c5e2' : '#4f2040' },
+                          ]}
+                        >
+                          {' '}
+                          pour le{' '}
+                          {new Date(data.date).toLocaleDateString('fr-FR', {
+                            weekday: 'short',
+                            day: 'numeric',
+                            month: 'short',
+                          })}
+                        </Text>
                       </View>
-                    : null }
+                    ) : null}
 
                     {data.hws.map((homework, index) => (
                       <Hwitem
@@ -370,12 +406,12 @@ function HomeScreen({ navigation }) {
                         homeworks={data.hws}
                         navigation={navigation}
                         theme={theme}
-                        last={true}
-                        startConfetti={startConfetti}
+                        last
+                        startConfetti={() => startConfetti()}
                       />
                     ))}
                   </>
-                : null }
+                ) : null}
               </View>
             ))}
           </View>
@@ -390,7 +426,7 @@ function HomeScreen({ navigation }) {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={[styles.latestGradesList]}
-            style={{flex: 1, width: '100%'}}
+            style={{ flex: 1, width: '100%' }}
           >
             {latestGrades.map((grade, index) => (
               <PressableScale
@@ -474,49 +510,71 @@ function Hwitem({ homework, theme, last, startConfetti, navigation }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
 
   useEffect(() => {
-    setThisHwChecked(homework.done)
+    setThisHwChecked(homework.done);
   }, [homework]);
+
+  const appctx = useAppContext();
 
   const changeHwState = () => {
     console.log(`change ${homework.date} : ${homework.local_id}`);
-    IndexData.changeHomeworkState(homework.date, homework.local_id).then((result) => {
-      console.log(result);
+    appctx.dataprovider
+      .changeHomeworkState(!thisHwChecked, homework.date, homework.local_id)
+      .then((result) => {
+        console.log(result);
 
-      if (result.status === 'not found') {
-        setTimeout(() => {
-          setThisHwChecked(homework.done);
-        }, 100);
-        return;
-      }
+        if (result.status === 'not found') {
+          setTimeout(() => {
+            setThisHwChecked(homework.done);
+          }, 100);
+          return;
+        }
 
-      // sync with devoirs page
-      AsyncStorage.setItem('homeworksUpdated', 'true');
+        setThisHwChecked(!thisHwChecked);
 
-      // get homework.date as 2023-01-01
-      const date = new Date(homework.date);
-      const year = date.getFullYear();
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
+        // sync with devoirs page
+        AsyncStorage.setItem('homeworksUpdated', 'true');
 
-      const dateStr = `${year}-${month}-${day}`;
+        // get homework.date as 2023-01-01
+        const date = new Date(homework.date);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
 
-      // load devoirs
-      IndexData.getHomeworks(dateStr, true);
-    });
+        const dateStr = `${year}-${month}-${day}`;
+
+        // load devoirs
+        appctx.dataprovider.getHomeworks(dateStr, true);
+      });
   };
 
   const UIColors = GetUIColors();
 
   return (
-    <View style={[styles.homeworkItemContainer, {borderBottomColor: UIColors.text + '22', borderBottomWidth: !last ? 1 : 0}]}>
-      <TouchableOpacity style={[styles.homeworkItem, thisHwChecked ? styles.homeworkItemCentered : null]} activeOpacity={0.5} onPress={() => navigation.navigate('Devoir', { homework })}>
+    <View
+      style={[
+        styles.homeworkItemContainer,
+        {
+          borderBottomColor: `${UIColors.text}22`,
+          borderBottomWidth: !last ? 1 : 0,
+        },
+      ]}
+    >
+      <TouchableOpacity
+        style={[
+          styles.homeworkItem,
+          thisHwChecked ? styles.homeworkItemCentered : null,
+        ]}
+        activeOpacity={0.5}
+        onPress={() => navigation.navigate('Devoir', { homework })}
+      >
         <View style={[styles.checkboxContainer]}>
           <HwCheckbox
             checked={thisHwChecked}
             theme={theme}
             pressed={() => {
-              setThisHwChecked(!thisHwChecked);
-              if(!thisHwChecked) {startConfetti()}
+              if (!thisHwChecked) {
+                startConfetti();
+              }
               changeHwState();
             }}
           />
@@ -526,7 +584,9 @@ function Hwitem({ homework, theme, last, startConfetti, navigation }) {
             <View
               style={[
                 styles.hwItemColor,
-                { backgroundColor: getClosestCourseColor(homework.subject.name) },
+                {
+                  backgroundColor: getClosestCourseColor(homework.subject.name),
+                },
               ]}
             />
             <Text
@@ -538,7 +598,7 @@ function Hwitem({ homework, theme, last, startConfetti, navigation }) {
               {homework.subject.name}
             </Text>
           </View>
-          {!thisHwChecked ?
+          {!thisHwChecked ? (
             <Text
               numberOfLines={4}
               style={[
@@ -548,7 +608,7 @@ function Hwitem({ homework, theme, last, startConfetti, navigation }) {
             >
               {homework.description}
             </Text>
-          : null }
+          ) : null}
         </View>
       </TouchableOpacity>
 
@@ -602,13 +662,15 @@ function HwCheckbox({ checked, theme, pressed }) {
         styles.checkContainer,
         { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
         checked ? styles.checkChecked : null,
-        checked ? {backgroundColor: UIColors.primary, borderColor: UIColors.primary} : null,
+        checked
+          ? { backgroundColor: UIColors.primary, borderColor: UIColors.primary }
+          : null,
       ]}
       weight="light"
       activeScale={0.7}
       onPress={() => {
-        Haptics.notificationAsync('success')
-        pressed()
+        Haptics.notificationAsync('success');
+        pressed();
       }}
     >
       {checked ? <Check size={20} color="#ffffff" /> : null}
@@ -731,12 +793,11 @@ function HomeHeader({ navigation, timetable, user }) {
   const getFormulePolitesse = () => {
     const date = new Date();
     const hours = date.getHours();
-    if(hours > 17) {
-      return "Bonsoir"
-    } else {
-      return "Bonjour"
+    if (hours > 17) {
+      return 'Bonsoir';
     }
-  }
+    return 'Bonjour';
+  };
 
   const openProfile = () => {
     if (user) {
@@ -774,7 +835,8 @@ function HomeHeader({ navigation, timetable, user }) {
 
       <View style={styles.headerContainer}>
         <Text style={[styles.headerNameText]}>
-          {getFormulePolitesse()}{user ? `, ${getPrenom(user.name)} !` : ' !'}
+          {getFormulePolitesse()}
+          {user ? `, ${getPrenom(user.name)} !` : ' !'}
         </Text>
         <Text style={[styles.headerCoursesText]}>
           {timetable && leftCourses && leftCourses.length > 0
@@ -848,7 +910,9 @@ function NextCours({ cours, navigation }) {
         return `dans ${lz(diffMinutes)}:${lz(diffSeconds)}`;
       }
 
-      return `ds. ${Math.ceil((diffMinutes / 60) - 1)}h ${lz(diffMinutes % 60)} mn`;
+      return `ds. ${Math.ceil(diffMinutes / 60 - 1)}h ${lz(
+        diffMinutes % 60
+      )} mn`;
     }
     return 'maintenant';
   };
@@ -1374,7 +1438,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Papillon-Semibold',
   },
 
-  HwTitle : {
+  HwTitle: {
     alignSelf: 'flex-start',
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -1382,12 +1446,12 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 100,
     backgroundColor: '#cf46a315',
   },
-  HwTitleText : {
+  HwTitleText: {
     color: '#7d245f',
     fontFamily: 'Papillon-Medium',
     fontSize: 16,
     marginRight: 4,
-  }
+  },
 });
 
 export default HomeScreen;

@@ -38,15 +38,17 @@ import {
   Contact2,
   Lock,
   LogOut,
+  UserCircle2,
 } from 'lucide-react-native';
-import { IndexData } from '../../fetch/IndexData';
 
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
 import GetUIColors from '../../utils/GetUIColors';
+import { useAppContext } from '../../utils/AppContext';
+import { SkolengoDatas } from '../../fetch/SkolengoData/SkolengoDatas';
 
-function ProfileScreen({ route }) {
+function ProfileScreen({ route, navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
   const isModal = route.params.isModal;
@@ -56,8 +58,10 @@ function ProfileScreen({ route }) {
 
   const [shownINE, setShownINE] = React.useState('');
 
+  const appctx = useAppContext();
+
   useEffect(() => {
-    IndexData.getUser(false).then((result) => {
+    appctx.dataprovider.getUser(false).then((result) => {
       setUserData(result);
       setProfilePicture(result.profile_picture);
 
@@ -79,16 +83,24 @@ function ProfileScreen({ route }) {
         onPress: async () => {
           try {
             AsyncStorage.getItem('credentials').then((result) => {
-              const URL = JSON.parse(result).url;
-              AsyncStorage.setItem('old_login', JSON.stringify({ url: URL }));
+              const res = JSON.parse(result);
+              if (res)
+                AsyncStorage.setItem(
+                  'old_login',
+                  JSON.stringify({ url: res.url })
+                );
             });
+            AsyncStorage.removeItem(SkolengoDatas.TOKEN_PATH);
+            AsyncStorage.removeItem(SkolengoDatas.SCHOOL_PATH);
+            AsyncStorage.removeItem(SkolengoDatas.CURRENT_USER_PATH);
+            AsyncStorage.removeItem(SkolengoDatas.DISCOVERY_PATH);
           } catch (e) {
             /* empty */
           }
 
           AsyncStorage.clear();
 
-          appCtx.setLoggedIn(false);
+          appctx.setLoggedIn(false);
           navigation.popToTop();
         },
       },
@@ -127,11 +139,16 @@ function ProfileScreen({ route }) {
 
     if (!result.canceled) {
       AsyncStorage.getItem('old_profile_picture').then((res) => {
-        if (res === null) {
-          if(userData.profile_picture !== null) {
-            AsyncStorage.setItem('old_profile_picture', userData.profile_picture);
-          }
-          else {
+        if (res === null || res === '') {
+          if (
+            userData.profile_picture !== null &&
+            userData.profile_picture !== ''
+          ) {
+            AsyncStorage.setItem(
+              'old_profile_picture',
+              userData.profile_picture
+            );
+          } else {
             AsyncStorage.setItem('old_profile_picture', '');
           }
         }
@@ -182,9 +199,10 @@ function ProfileScreen({ route }) {
   }
 
   function FullResetName() {
-    AsyncStorage.removeItem('custom_name');
     AsyncStorage.getItem('old_name').then((result) => {
+      if (result === null || '') return;
       setUserData({ ...userData, name: result });
+      AsyncStorage.removeItem('custom_name');
     });
   }
 
@@ -222,7 +240,7 @@ function ProfileScreen({ route }) {
 
   function ModifyName(name) {
     AsyncStorage.getItem('custom_name').then((result) => {
-      if (result === null) {
+      if (result === null || '') {
         AsyncStorage.setItem('old_name', userData.name);
       }
     });
@@ -306,29 +324,40 @@ function ProfileScreen({ route }) {
       </Portal>
 
       <View style={styles.profileContainer}>
-        {profilePicture !== '' ? (
-          <Pressable
-            style={({ pressed }) => [
-              styles.profilePictureContainer,
-              { opacity: pressed ? 0.6 : 1 },
-            ]}
-            onPress={() => EditProfilePicture()}
-          >
+        <Pressable
+          style={({ pressed }) => [
+            styles.profilePictureContainer,
+            { opacity: pressed ? 0.6 : 1 },
+          ]}
+          onPress={() => EditProfilePicture()}
+        >
+          {profilePicture && profilePicture !== '' ? (
             <Image
               style={styles.profilePicture}
               source={{ uri: profilePicture }}
             />
+          ) : (
+            <UserCircle2
+              size={86}
+              color={theme.dark ? '#fff' : '#000'}
+              style={styles.profilePicture}
+            />
+          )}
 
-            <View style={[styles.profilePictureEdit]}>
-              <Pencil size={18} color="#fff" />
-            </View>
-          </Pressable>
-        ) : null}
+          <View style={[styles.profilePictureEdit]}>
+            <Pencil size={18} color="#fff" />
+          </View>
+        </Pressable>
 
-        <Text style={styles.name}>{userData.name}</Text>
-        <Text style={styles.userData}>
-          {userData.class} - {userData.establishment}
-        </Text>
+        <Text style={styles.name}>{userData?.name}</Text>
+        {[userData.class, userData.establishment].filter((e) => e).length >
+          0 && (
+          <Text style={styles.userData}>
+            {[userData.class, userData.establishment]
+              .filter((e) => e)
+              .join(' - ')}
+          </Text>
+        )}
       </View>
 
       {userData.email !== '' && userData.phone !== '' ? (
@@ -368,7 +397,7 @@ function ProfileScreen({ route }) {
               }
             />
           ) : null}
-          {userData.ine !== '' ? (
+          {typeof userData?.ine === 'string' && userData?.ine?.length > 0 ? (
             <ContextMenuButton
               isMenuPrimaryAction
               menuConfig={{

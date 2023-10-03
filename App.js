@@ -2,7 +2,7 @@ import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import "./utils/IgnoreWarnings";
+import './utils/IgnoreWarnings';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BottomNavigation, Appbar, useTheme } from 'react-native-paper';
@@ -14,6 +14,8 @@ import { getHeaderTitle } from '@react-navigation/elements';
 import { useState } from 'react';
 import { Platform, useColorScheme, View } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
+import { SFSymbol } from 'react-native-sfsymbols';
+
 import {
   Home,
   CalendarRange,
@@ -23,9 +25,6 @@ import {
 } from 'lucide-react-native';
 import useFonts from './hooks/useFonts';
 
-import { BlurView } from 'expo-blur';
-
-import HomeScreen from './views/HomeScreen';
 import NewHomeScreen from './views/NewHomeScreen';
 
 import CoursScreen from './views/CoursScreen';
@@ -71,7 +70,8 @@ import NotificationsScreen from './views/Settings/NotificationsScreen';
 
 import setBackgroundFetch from './fetch/BackgroundFetch';
 
-import { SFSymbol } from "react-native-sfsymbols";
+import { LoginSkolengoSelectSchool } from './views/AuthStack/Skolengo/LoginSkolengoSelectSchool';
+import { IndexDataInstance } from './fetch/IndexDataInstance';
 
 const Tab = createBottomTabNavigator();
 
@@ -125,7 +125,7 @@ const headerTitleStyles = {
   headerTitleStyle: {
     fontFamily: 'Papillon-Semibold',
   },
-}
+};
 
 function InsetNewsScreen() {
   return (
@@ -138,8 +138,8 @@ function InsetNewsScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -174,8 +174,8 @@ function InsetSchoolLifeScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -202,8 +202,8 @@ function InsetConversationsScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -230,8 +230,8 @@ function InsetEvaluationsScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -260,8 +260,8 @@ function WrappedHomeScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -372,8 +372,8 @@ function WrappedCoursScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -406,8 +406,8 @@ function WrappedDevoirsScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -441,8 +441,8 @@ function WrappedGradesScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -481,8 +481,8 @@ function WrappedSettings() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -543,7 +543,7 @@ function WrappedSettings() {
         name="changeServer"
         component={ChangeServer}
         options={{
-          headerTitle: "Changer de serveur",
+          headerTitle: 'Changer de serveur',
           presentation: 'modal',
         }}
       />
@@ -569,8 +569,6 @@ function WrappedSettings() {
 }
 
 function AppStack() {
-  const theme = useTheme();
-
   return (
     <Tab.Navigator
       tabBar={
@@ -659,15 +657,16 @@ function AppStack() {
         component={WrappedHomeScreen}
         options={{
           tabBarLabel: 'Accueil',
-          tabBarIcon: ({ color, size, focused }) => (
-            Platform.OS === 'ios' ?
-              focused ?
-                <SFSymbol name="house.fill"  color={color} size={size-2} />
-              :
-                <SFSymbol name="house" color={color} size={size-2} />
-            :
+          tabBarIcon: ({ color, size, focused }) =>
+            Platform.OS === 'ios' ? (
+              focused ? (
+                <SFSymbol name="house.fill" color={color} size={size - 2} />
+              ) : (
+                <SFSymbol name="house" color={color} size={size - 2} />
+              )
+            ) : (
               <Home color={color} size={size} />
-          ),
+            ),
           headerShown: false,
         }}
       />
@@ -676,15 +675,21 @@ function AppStack() {
         component={WrappedCoursScreen}
         options={{
           tabBarLabel: 'Cours',
-          tabBarIcon: ({ color, size, focused }) => (
-            Platform.OS === 'ios' ?
-              focused ?
-                <SFSymbol name="calendar" weight='semibold' color={color} size={size-2} />
-              :
-                <SFSymbol name="calendar" color={color} size={size-2} />
-            :
+          tabBarIcon: ({ color, size, focused }) =>
+            Platform.OS === 'ios' ? (
+              focused ? (
+                <SFSymbol
+                  name="calendar"
+                  weight="semibold"
+                  color={color}
+                  size={size - 2}
+                />
+              ) : (
+                <SFSymbol name="calendar" color={color} size={size - 2} />
+              )
+            ) : (
               <CalendarRange color={color} size={size} />
-          ),
+            ),
           headerShown: false,
         }}
       />
@@ -693,15 +698,16 @@ function AppStack() {
         component={WrappedDevoirsScreen}
         options={{
           tabBarLabel: 'Devoirs',
-          tabBarIcon: ({ color, size, focused }) => (
-            Platform.OS === 'ios' ?
-              focused ?
-                <SFSymbol name="book.fill" color={color} size={size-2} />
-              :
-                <SFSymbol name="book" color={color} size={size-2} />
-            :
+          tabBarIcon: ({ color, size, focused }) =>
+            Platform.OS === 'ios' ? (
+              focused ? (
+                <SFSymbol name="book.fill" color={color} size={size - 2} />
+              ) : (
+                <SFSymbol name="book" color={color} size={size - 2} />
+              )
+            ) : (
               <BookOpen color={color} size={size} />
-          ),
+            ),
           headerShown: false,
         }}
       />
@@ -710,15 +716,16 @@ function AppStack() {
         component={WrappedGradesScreen}
         options={{
           tabBarLabel: 'Notes',
-          tabBarIcon: ({ color, size, focused }) => (
-            Platform.OS === 'ios' ?
-              focused ?
-                <SFSymbol name="chart.pie.fill" color={color} size={size-2} />
-              :
-                <SFSymbol name="chart.pie" color={color} size={size-2} />
-            :
+          tabBarIcon: ({ color, size, focused }) =>
+            Platform.OS === 'ios' ? (
+              focused ? (
+                <SFSymbol name="chart.pie.fill" color={color} size={size - 2} />
+              ) : (
+                <SFSymbol name="chart.pie" color={color} size={size - 2} />
+              )
+            ) : (
               <BarChart3 color={color} size={size} />
-          ),
+            ),
           headerShown: false,
         }}
       />
@@ -727,15 +734,24 @@ function AppStack() {
         component={WrappedSettings}
         options={{
           tabBarLabel: 'Compte',
-          tabBarIcon: ({ color, size, focused }) => (
-            Platform.OS === 'ios' ?
-              focused ?
-                <SFSymbol name="person.crop.circle.fill" color={color} size={size-2} />
-              :
-                <SFSymbol name="person.crop.circle" color={color} size={size-2} />
-            :
+          tabBarIcon: ({ color, size, focused }) =>
+            Platform.OS === 'ios' ? (
+              focused ? (
+                <SFSymbol
+                  name="person.crop.circle.fill"
+                  color={color}
+                  size={size - 2}
+                />
+              ) : (
+                <SFSymbol
+                  name="person.crop.circle"
+                  color={color}
+                  size={size - 2}
+                />
+              )
+            ) : (
               <UserCircle color={color} size={size} />
-          ),
+            ),
           headerShown: false,
         }}
       />
@@ -753,8 +769,8 @@ function AuthStack() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -787,7 +803,16 @@ function AuthStack() {
         name="changeServer"
         component={ChangeServer}
         options={{
-          headerTitle: "Changer de serveur",
+          headerTitle: 'Changer de serveur',
+          presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
+        name="LoginSkolengoSelectSchool"
+        component={LoginSkolengoSelectSchool}
+        options={{
+          title: 'Se connecter à Skolengo',
           presentation: 'modal',
         }}
       />
@@ -796,14 +821,14 @@ function AuthStack() {
         name="LoginPronoteSelectEtab"
         component={LoginPronoteSelectEtab}
         options={{
-          title: "Se connecter à Pronote",
+          title: 'Se connecter à Pronote',
           presentation: 'modal',
         }}
       />
       <Stack.Screen
         name="LoginPronote"
         component={LoginPronote}
-        options={{ 
+        options={{
           title: 'Se connecter',
           presentation: 'modal',
           headerShown: false,
@@ -923,6 +948,32 @@ function App() {
     }
   }, [loggedIn]);
 
+  const [dataprovider, setDataprovider] = React.useState(null);
+
+  const [service, setService] = React.useState(null);
+
+  React.useEffect(() => {
+    AsyncStorage.getItem('service').then((value) => {
+      setService(value);
+    });
+  }, []);
+
+  React.useEffect(() => {
+    const provider = IndexDataInstance.singletonGetInstance(service);
+    setDataprovider(provider);
+  }, [service]);
+
+  const ctxValue = React.useMemo(
+    () => ({
+      loggedIn,
+      setLoggedIn,
+      dataprovider,
+      service,
+      setService,
+    }),
+    [loggedIn, dataprovider, service]
+  );
+
   if (!IsReady) {
     // load fonts
     LoadFonts().then(() => {
@@ -937,7 +988,7 @@ function App() {
     <View
       style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff' }}
     >
-      <AppContextProvider state={{ loggedIn, setLoggedIn }}>
+      <AppContextProvider state={ctxValue}>
         {loggedInLoaded ? (
           <View style={{ flex: 1 }}>
             {loggedIn ? <AppStack /> : <AuthStack />}

@@ -3,46 +3,41 @@ import getConsts from '../consts';
 
 import { refreshToken } from '../AuthStack/LoginFlow';
 
-let retries = 0;
-
-let notfounddays = {};
-
-function getHomeworks(day, force, day2) {
-  if (force == undefined) {
+function getHomeworks(day, force = false, day2 = null) {
+  if (!force) {
     force = false;
   }
 
-  if (day2 == undefined) {
+  if (!day2) {
     day2 = day;
-  }
-  else {
+  } else {
     force = true;
   }
 
-  return getConsts().then((consts) => {
-    return AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
+  return getConsts().then((consts) =>
+    AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
       if (homeworksCache && !force) {
-        homeworksCache = JSON.parse(homeworksCache)
+        homeworksCache = JSON.parse(homeworksCache);
 
         for (let i = 0; i < homeworksCache.length; i += 1) {
-          let thisDay = new Date(day);
-          let cacheDay = new Date(homeworksCache[i].date);
+          const thisDay = new Date(day);
+          const cacheDay = new Date(homeworksCache[i].date);
 
           thisDay.setHours(0, 0, 0, 0);
           cacheDay.setHours(0, 0, 0, 0);
 
-        if ( thisDay.getTime() === cacheDay.getTime()) {
-          let currentTime = new Date();
-          currentTime.setHours(0, 0, 0, 0);
+          if (thisDay.getTime() === cacheDay.getTime()) {
+            const currentTime = new Date();
+            currentTime.setHours(0, 0, 0, 0);
 
-          let cacheTime = new Date(homeworksCache[i].dateSaved);
-          cacheTime.setHours(0, 0, 0, 0);
+            const cacheTime = new Date(homeworksCache[i].dateSaved);
+            cacheTime.setHours(0, 0, 0, 0);
 
-          if (currentTime.getTime() === cacheTime.getTime()) {
-            console.log('homeworks from cache');
-            return homeworksCache[i].timetable;
+            if (currentTime.getTime() === cacheTime.getTime()) {
+              console.log('homeworks from cache');
+              return homeworksCache[i].timetable;
+            }
           }
-        }
         }
       }
 
@@ -82,9 +77,9 @@ function getHomeworks(day, force, day2) {
       }
 
       day2 = `${year2}-${month2}-${dayOfMonth2}`;
-      
-      console.log(day)
-      console.log(day2)
+
+      console.log(day);
+      console.log(day2);
 
       // obtenir le token
       return AsyncStorage.getItem('token').then((token) =>
@@ -102,7 +97,7 @@ function getHomeworks(day, force, day2) {
             return [];
           })
           .then((result) => {
-            console.log(result)
+            console.log(result);
 
             if (result === 'notfound') {
               return refreshToken().then(() => getHomeworks(day));
@@ -113,20 +108,20 @@ function getHomeworks(day, force, day2) {
             }
 
             // save in cache
-            AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
+            AsyncStorage.getItem('homeworksCache').then((_homeworksCache) => {
               let cachedHomeworks = [];
 
-              if (homeworksCache) {
-                cachedHomeworks = JSON.parse(homeworksCache);
+              if (_homeworksCache) {
+                cachedHomeworks = JSON.parse(_homeworksCache);
               }
 
-              cachedHomeworks = cachedHomeworks.filter((entry) => {
-                return entry.date !== day;
-              });
+              cachedHomeworks = cachedHomeworks.filter(
+                (entry) => entry.date !== day
+              );
 
               cachedHomeworks.push({
                 date: day,
-                dateSaved : new Date(),
+                dateSaved: new Date(),
                 timetable: result,
               });
 
@@ -143,21 +138,21 @@ function getHomeworks(day, force, day2) {
             return [];
           })
       );
-    });
-  });
+    })
+  );
 }
 
 function changeHomeworkState(day, id) {
   // TEMPORARY : remove 1 month
-  day = day.split(" ")[0];
-  console.log("i:"+id)
-  console.log("d:"+day)
+  day = day.split(' ')[0];
+  console.log(`i:${id}`);
+  console.log(`d:${day}`);
 
-  id = id.replace("#", "%23");
+  id = id.replace('#', '%23');
 
   // obtenir le token
-  return getConsts().then((consts) => {
-    return AsyncStorage.getItem('token').then((token) =>
+  return getConsts().then((consts) =>
+    AsyncStorage.getItem('token').then((token) =>
       // fetch les devoirs
       fetch(
         `${consts.API}/homework/changeState?token=${token}&dateFrom=${day}&dateTo=${day}&homeworkId=${id}`,
@@ -167,14 +162,16 @@ function changeHomeworkState(day, id) {
       )
         .then((response) => response.json())
         .then((result) => {
-          console.log(`${consts.API}/homework/changeState?token=${token}&dateFrom=${day}&dateTo=${day}&homeworkId=${id}`);
+          console.log(
+            `${consts.API}/homework/changeState?token=${token}&dateFrom=${day}&dateTo=${day}&homeworkId=${id}`
+          );
           if (result === 'expired' || result === 'notfound') {
-            return refreshToken().then(() => changeHomeworkState(date, id));
+            return refreshToken().then(() => changeHomeworkState(day, id));
           }
           return result;
         })
-    );
-  });
+    )
+  );
 }
 
 export { getHomeworks, changeHomeworkState };

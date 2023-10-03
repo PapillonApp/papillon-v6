@@ -26,13 +26,17 @@ export class IndexData {
   }
 
   // [Service]Homeworks.js
-  static async getHomeworks(day, force = false, day2) {
+  static async getHomeworks(day, force = false, day2 = null) {
     // if day2 is not set, use day
     if (!day2) day2 = day;
 
     return asyncStorage.getItem('service').then((service) => {
       if (service === 'Pronote')
-        return require(`./PronoteData/PronoteHomeworks.js`).getHomeworks(day, force, day2);
+        return require(`./PronoteData/PronoteHomeworks.js`).getHomeworks(
+          day,
+          force,
+          day2
+        );
     });
   }
 
@@ -93,7 +97,9 @@ export class IndexData {
   static async getConversations(force = false) {
     return asyncStorage.getItem('service').then((service) => {
       if (service === 'Pronote')
-        return require(`./PronoteData/PronoteConversations.js`).getConversations(force);
+        return require(
+          `./PronoteData/PronoteConversations.js`
+        ).getConversations(force);
     });
   }
 }

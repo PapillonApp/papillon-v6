@@ -20,22 +20,23 @@ import { useEffect, useState, useRef } from 'react';
 
 // Components & Styles
 import { useTheme, Text } from 'react-native-paper';
-import GetUIColors from '../utils/GetUIColors';
 import { PressableScale } from 'react-native-pressable-scale';
 
 // Fetch
-import { IndexData } from '../fetch/IndexData';
 
 // Custom Components
-import PapillonList from '../components/PapillonList';
 
-// Icons 
-import { DownloadCloud, Check, Gavel, Newspaper, MessagesSquare, CheckCircle } from 'lucide-react-native';
+// Icons
+import {
+  DownloadCloud,
+  Check,
+  Gavel,
+  Newspaper,
+  MessagesSquare,
+  CheckCircle,
+} from 'lucide-react-native';
 
 // Formatting
-import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
-import formatCoursName from '../utils/FormatCoursName';
-import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
 // Modules
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -43,10 +44,16 @@ import * as WebBrowser from 'expo-web-browser';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContextMenuView } from 'react-native-ios-context-menu';
+import getClosestGradeEmoji from '../utils/EmojiCoursName';
+import formatCoursName from '../utils/FormatCoursName';
+import { getSavedCourseColor } from '../utils/ColorCoursName';
+import PapillonList from '../components/PapillonList';
+import GetUIColors from '../utils/GetUIColors';
+import { useAppContext } from '../utils/AppContext';
 
 // Functions
 const openURL = (url) => {
-  isURL = url.includes('http://') || url.includes('https://');
+  const isURL = url.includes('http://') || url.includes('https://');
 
   if (!isURL) {
     Alert.alert(
@@ -55,14 +62,14 @@ const openURL = (url) => {
       [
         {
           text: 'OK',
-          style: 'cancel'
+          style: 'cancel',
         },
         {
           text: 'Ouvrir quand même',
           onPress: () => {
             Linking.openURL(`https://${url}`);
-          }
-        }
+          },
+        },
       ]
     );
     return;
@@ -71,21 +78,23 @@ const openURL = (url) => {
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
     presentationStyle: 'pageSheet',
-    controlsColor: Platform.OS == 'ios' ? '#29947A' : null,
+    controlsColor: Platform.OS === 'ios' ? '#29947A' : null,
     readerMode: true,
     createTask: false,
   });
 };
 
 // App
-const NewHomeScreen = ({ navigation }) => {
+function NewHomeScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
   const [refreshCount, setRefreshCount] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [loadingUser, setLoadingUser] = useState(true);
   const [user, setUser] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [formattedUserData, setFormattedUserData] = useState({
     prenom: '',
     establishment: '',
@@ -96,9 +105,11 @@ const NewHomeScreen = ({ navigation }) => {
   const [timetable, setTimetable] = useState([]);
   const [loadingCours, setLoadingCours] = useState(true);
 
+  const appctx = useAppContext();
+
   useEffect(() => {
     setLoadingUser(true);
-    IndexData.getUser().then((data) => {
+    appctx.dataprovider.getUser().then((data) => {
       const prenom = data.name.split(' ').pop();
       const establishment = data.establishment;
       const avatarURL = data.profile_picture;
@@ -109,14 +120,18 @@ const NewHomeScreen = ({ navigation }) => {
     });
 
     const today = new Date();
-    let force = refreshCount > 0;
+    const force = refreshCount > 0;
 
     setLoadingHw(true);
     setLoadingCours(true);
 
     Promise.all([
-      IndexData.getHomeworks(today, force, new Date(today).setDate(today.getDate() + 7)),
-      IndexData.getTimetable(today, force)
+      appctx.dataprovider.getHomeworks(
+        today,
+        force,
+        new Date(today).setDate(today.getDate() + 7)
+      ),
+      appctx.dataprovider.getTimetable(today, force),
     ]).then(([hwData, coursData]) => {
       const groupedHomeworks = hwData.reduce((grouped, homework) => {
         const homeworkDate = new Date(homework.date);
@@ -134,7 +149,7 @@ const NewHomeScreen = ({ navigation }) => {
         if (!grouped[formattedDate]) {
           grouped[formattedDate] = {
             date: homeworkDate,
-            formattedDate: formattedDate,
+            formattedDate,
             homeworks: [],
           };
         }
@@ -143,7 +158,9 @@ const NewHomeScreen = ({ navigation }) => {
         return grouped;
       }, {});
 
-      const result = Object.values(groupedHomeworks).sort((a, b) => a.date - b.date);
+      const result = Object.values(groupedHomeworks).sort(
+        (a, b) => a.date - b.date
+      );
       setHomeworks(result);
       setLoadingHw(false);
       setTimetable(coursData);
@@ -179,12 +196,12 @@ const NewHomeScreen = ({ navigation }) => {
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
-      contentInsetAdjustmentBehavior='automatic'
+      contentInsetAdjustmentBehavior="automatic"
       refreshControl={
         <RefreshControl
           progressViewOffset={28}
           refreshing={refreshing}
-          colors={[Platform.OS == 'android' ? UIColors.primary : null]}
+          colors={[Platform.OS === 'android' ? UIColors.primary : null]}
           onRefresh={() => {
             setRefreshing(true);
             setTimeout(() => {
@@ -207,7 +224,7 @@ const NewHomeScreen = ({ navigation }) => {
         navigation={navigation}
         loading={loadingCours}
       />
-      
+
       <DevoirsElement
         homeworks={homeworks}
         theme={theme}
@@ -217,96 +234,113 @@ const NewHomeScreen = ({ navigation }) => {
       />
     </ScrollView>
   );
-};
-
-const TabsElement = ({ navigation, theme, UIColors }) => {
-  return (
-    <View style={[styles.tabs.tabsContainer]}>
-        <View style={[styles.tabs.tabRow]}>
-          <ContextMenuView style={{flex: 1}} borderRadius={12}>
-            <PressableScale
-              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
-              weight="light"
-              activeScale={0.9}
-              onPress={() => navigation.navigate('InsetSchoollife')}
-            >
-              <Gavel size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-              <Text style={[styles.tabs.tabText]}>Vie scolaire</Text>
-            </PressableScale>
-          </ContextMenuView>
-          <ContextMenuView style={{flex: 1}} borderRadius={12}>
-            <PressableScale
-              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
-              weight="light"
-              activeScale={0.9}
-              onPress={() => navigation.navigate('InsetNews')}
-            >
-              <Newspaper size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-              <Text style={[styles.tabs.tabText]}>Actualités</Text>
-            </PressableScale>
-          </ContextMenuView>
-        </View>
-        <View style={[styles.tabs.tabRow]}>
-          <ContextMenuView style={{flex: 1}} borderRadius={12}>
-            <PressableScale
-              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
-              weight="light"
-              activeScale={0.9}
-              onPress={() => navigation.navigate('InsetConversations')}
-            >
-              <MessagesSquare
-                size={24}
-                color={theme.dark ? '#ffffff' : '#000000'}
-              />
-              <Text style={[styles.tabs.tabText]}>Conversations</Text>
-            </PressableScale>
-          </ContextMenuView>
-          <ContextMenuView style={{flex: 1}} borderRadius={12}>
-            <PressableScale
-              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
-              weight="light"
-              activeScale={0.9}
-              onPress={() => navigation.navigate('InsetEvaluations')}
-            >
-              <CheckCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-              <Text style={[styles.tabs.tabText]}>Compétences</Text>
-            </PressableScale>
-          </ContextMenuView>
-        </View>
-      </View>
-  )
 }
 
-const CoursElement = ({ cours, theme, UIColors, navigation, loading }) => {
+function TabsElement({ navigation, theme, UIColors }) {
   return (
-    !loading ? (
-      cours.length > 0 ? (
-        <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
-          {cours.map((day, index) => (
-            <View key={index}>
-              <CoursItem key={index} index={index} cours={day} day={cours} theme={theme} UIColors={UIColors} navigation={navigation} />
-            </View>
-          ))}
-        </PapillonList>
-      ) : (
-        <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
-          <View style={styles.loading.container}>
-            <Text style={styles.loading.text}>Aucun cours aujourd'hui</Text>
+    <View style={[styles.tabs.tabsContainer]}>
+      <View style={[styles.tabs.tabRow]}>
+        <ContextMenuView style={{ flex: 1 }} borderRadius={12}>
+          <PressableScale
+            style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+            weight="light"
+            activeScale={0.9}
+            onPress={() => navigation.navigate('InsetSchoollife')}
+          >
+            <Gavel size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+            <Text style={[styles.tabs.tabText]}>Vie scolaire</Text>
+          </PressableScale>
+        </ContextMenuView>
+        <ContextMenuView style={{ flex: 1 }} borderRadius={12}>
+          <PressableScale
+            style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+            weight="light"
+            activeScale={0.9}
+            onPress={() => navigation.navigate('InsetNews')}
+          >
+            <Newspaper size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+            <Text style={[styles.tabs.tabText]}>Actualités</Text>
+          </PressableScale>
+        </ContextMenuView>
+      </View>
+      <View style={[styles.tabs.tabRow]}>
+        <ContextMenuView style={{ flex: 1 }} borderRadius={12}>
+          <PressableScale
+            style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+            weight="light"
+            activeScale={0.9}
+            onPress={() => navigation.navigate('InsetConversations')}
+          >
+            <MessagesSquare
+              size={24}
+              color={theme.dark ? '#ffffff' : '#000000'}
+            />
+            <Text style={[styles.tabs.tabText]}>Conversations</Text>
+          </PressableScale>
+        </ContextMenuView>
+        <ContextMenuView style={{ flex: 1 }} borderRadius={12}>
+          <PressableScale
+            style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+            weight="light"
+            activeScale={0.9}
+            onPress={() => navigation.navigate('InsetEvaluations')}
+          >
+            <CheckCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+            <Text style={[styles.tabs.tabText]}>Compétences</Text>
+          </PressableScale>
+        </ContextMenuView>
+      </View>
+    </View>
+  );
+}
+
+function CoursElement({ cours, theme, UIColors, navigation, loading }) {
+  return !loading ? (
+    cours.length > 0 ? (
+      <PapillonList
+        inset
+        title="Emploi du temps"
+        style={styles.cours.container}
+      >
+        {cours.map((day, index) => (
+          <View key={index}>
+            <CoursItem
+              key={index}
+              index={index}
+              cours={day}
+              day={cours}
+              theme={theme}
+              UIColors={UIColors}
+              navigation={navigation}
+            />
           </View>
-        </PapillonList>
-      )
+        ))}
+      </PapillonList>
     ) : (
-      <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
+      <PapillonList
+        inset
+        title="Emploi du temps"
+        style={styles.cours.container}
+      >
         <View style={styles.loading.container}>
-          <ActivityIndicator />
-          <Text style={styles.loading.text}>Chargement de l'emploi du temps...</Text>
+          <Text style={styles.loading.text}>Aucun cours aujourd'hui</Text>
         </View>
       </PapillonList>
     )
-  )
+  ) : (
+    <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
+      <View style={styles.loading.container}>
+        <ActivityIndicator />
+        <Text style={styles.loading.text}>
+          Chargement de l'emploi du temps...
+        </Text>
+      </View>
+    </PapillonList>
+  );
 }
 
-const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
+// eslint-disable-next-line no-unused-vars
+function CoursItem({ cours, day, theme, UIColors, navigation, index }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -325,7 +359,8 @@ const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
 
   return (
     <>
-      {day[index - 1] && new Date(cours.start) - new Date(day[index - 1].end) > 1800000 ? (
+      {day[index - 1] &&
+      new Date(cours.start) - new Date(day[index - 1].end) > 1800000 ? (
         <Animated.View
           style={[
             styles.cours.separator,
@@ -336,25 +371,43 @@ const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
                   translateY: fadeAnim.interpolate({
                     inputRange: [0, 1],
                     outputRange: [50, 0],
-                  })
+                  }),
                 },
                 {
                   scale: fadeAnim.interpolate({
                     inputRange: [0, 1],
                     outputRange: [0.9, 1],
-                  })
-                }
+                  }),
+                },
               ],
-            }
+            },
           ]}
         >
-          <View style={[styles.cours.separatorLine, { backgroundColor: UIColors.text + '15' }]} />
+          <View
+            style={[
+              styles.cours.separatorLine,
+              { backgroundColor: `${UIColors.text}15` },
+            ]}
+          />
 
-          <Text style={{ color: UIColors.text + '30' }}>
-            {`${Math.floor((new Date(cours.start) - new Date(day[index - 1].end)) / 3600000)} h ${lz(Math.floor(((new Date(cours.start) - new Date(day[index - 1].end)) % 3600000) / 60000))} min`}
+          <Text style={{ color: `${UIColors.text}30` }}>
+            {`${Math.floor(
+              (new Date(cours.start) - new Date(day[index - 1].end)) / 3600000
+            )} h ${lz(
+              Math.floor(
+                ((new Date(cours.start) - new Date(day[index - 1].end)) %
+                  3600000) /
+                  60000
+              )
+            )} min`}
           </Text>
-          
-          <View style={[styles.cours.separatorLine, { backgroundColor: UIColors.text + '15' }]} />
+
+          <View
+            style={[
+              styles.cours.separatorLine,
+              { backgroundColor: `${UIColors.text}15` },
+            ]}
+          />
         </Animated.View>
       ) : null}
 
@@ -369,7 +422,7 @@ const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
           menuTitle: cours.subject.name,
           menuItems: [
             {
-              actionKey  : 'open',
+              actionKey: 'open',
               actionTitle: 'Voir le cours en détail',
               icon: {
                 type: 'IMAGE_SYSTEM',
@@ -380,113 +433,153 @@ const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
             },
           ],
         }}
-        onPressMenuItem={({nativeEvent}) => {
+        onPressMenuItem={({ nativeEvent }) => {
           if (nativeEvent.actionKey === 'open') {
-            navigation.navigate('Lesson', { event: cours })
+            navigation.navigate('Lesson', { event: cours });
           }
         }}
         onPressMenuPreview={() => {
-          navigation.navigate('Lesson', { event: cours })
+          navigation.navigate('Lesson', { event: cours });
         }}
       >
-      <Animated.View
-        style={[
-          styles.homeworks.devoirsDay.container,
-          {
-            // Bind opacity to animated value
-            opacity: fadeAnim,
-            transform: [
-              {
-                translateY: fadeAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [50, 0],
-                })
-              },
-              {
-                scale: fadeAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.9, 1],
-                })
-              }
-            ],
-          },
-        ]}
-      >
-      <TouchableHighlight
-        style={styles.cours.item.container}
-        underlayColor={UIColors.text + '12'}
-        onPress={() => navigation.navigate('Lesson', { event: cours })}
-      >
-        <>
-          <View style={styles.cours.item.time.container}>
-            <Text style={styles.cours.item.time.start}>
-              {new Date(cours.start).toLocaleTimeString('fr-FR', {
-                hour: 'numeric',
-                minute: 'numeric',
-              })}
-            </Text>
-            <Text style={styles.cours.item.time.end}>
-              {new Date(cours.end).toLocaleTimeString('fr-FR', {
-                hour: 'numeric',
-                minute: 'numeric',
-              })}
-            </Text>
-          </View>
-          <View style={[styles.cours.item.color, {backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color)}]} />
-          <View style={styles.cours.item.data.container}>
-            <Text style={[styles.cours.item.data.subject]}>
-              {formatCoursName(cours.subject.name)}
-            </Text>
-            <Text style={[styles.cours.item.data.teachers]}>
-              {cours.teachers.join(', ')}
-            </Text>
-            <Text style={[styles.cours.item.data.room]}>
-              {cours.rooms.join(', ') || 'Aucune salle'}
-            </Text>
+        <Animated.View
+          style={[
+            styles.homeworks.devoirsDay.container,
+            {
+              // Bind opacity to animated value
+              opacity: fadeAnim,
+              transform: [
+                {
+                  translateY: fadeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [50, 0],
+                  }),
+                },
+                {
+                  scale: fadeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.9, 1],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <TouchableHighlight
+            style={styles.cours.item.container}
+            underlayColor={`${UIColors.text}12`}
+            onPress={() => navigation.navigate('Lesson', { event: cours })}
+          >
+            <>
+              <View style={styles.cours.item.time.container}>
+                <Text style={styles.cours.item.time.start}>
+                  {new Date(cours.start).toLocaleTimeString('fr-FR', {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                  })}
+                </Text>
+                <Text style={styles.cours.item.time.end}>
+                  {new Date(cours.end).toLocaleTimeString('fr-FR', {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                  })}
+                </Text>
+              </View>
+              <View
+                style={[
+                  styles.cours.item.color,
+                  {
+                    backgroundColor: getSavedCourseColor(
+                      cours.subject.name,
+                      cours.background_color
+                    ),
+                  },
+                ]}
+              />
+              <View style={styles.cours.item.data.container}>
+                <Text style={[styles.cours.item.data.subject]}>
+                  {formatCoursName(cours.subject.name)}
+                </Text>
+                <Text style={[styles.cours.item.data.teachers]}>
+                  {cours.teachers.join(', ')}
+                </Text>
+                <Text style={[styles.cours.item.data.room]}>
+                  {cours.rooms.join(', ') || 'Aucune salle'}
+                </Text>
 
-            { cours.status ? (
-              <Text style={[styles.cours.item.data.status, {backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color) + '22', color: getSavedCourseColor(cours.subject.name, cours.background_color)}]}>
-                {cours.status}
-              </Text>
-            ) : null }
-
-          </View>
-        </>
-      </TouchableHighlight>
-      </Animated.View>
+                {cours.status ? (
+                  <Text
+                    style={[
+                      styles.cours.item.data.status,
+                      {
+                        backgroundColor: `${getSavedCourseColor(
+                          cours.subject.name,
+                          cours.background_color
+                        )}22`,
+                        color: getSavedCourseColor(
+                          cours.subject.name,
+                          cours.background_color
+                        ),
+                      },
+                    ]}
+                  >
+                    {cours.status}
+                  </Text>
+                ) : null}
+              </View>
+            </>
+          </TouchableHighlight>
+        </Animated.View>
       </ContextMenuView>
     </>
   );
 }
 
-const DevoirsElement = ({ homeworks, theme, UIColors, navigation, loading }) => {
-  return (
-    !loading ? (
-      homeworks.length > 0 ? (
-        <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
-          {homeworks.map((day, index) => (
-            <DevoirsDay key={index} index={index} homeworks={day} theme={theme} UIColors={UIColors} navigation={navigation} />
-          ))}
-        </PapillonList>
-      ) : (
-        <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
-          <View style={styles.loading.container}>
-            <Text style={styles.loading.text}>Aucun devoir à faire</Text>
-          </View>
-        </PapillonList>
-      )
+function DevoirsElement({ homeworks, theme, UIColors, navigation, loading }) {
+  return !loading ? (
+    homeworks.length > 0 ? (
+      <PapillonList
+        inset
+        title="Travail à faire"
+        style={[styles.homeworks.devoirsElement.container]}
+      >
+        {homeworks.map((day, index) => (
+          <DevoirsDay
+            key={index}
+            index={index}
+            homeworks={day}
+            theme={theme}
+            UIColors={UIColors}
+            navigation={navigation}
+          />
+        ))}
+      </PapillonList>
     ) : (
-      <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
+      <PapillonList
+        inset
+        title="Travail à faire"
+        style={[styles.homeworks.devoirsElement.container]}
+      >
         <View style={styles.loading.container}>
-          <ActivityIndicator />
-          <Text style={styles.loading.text}>Chargement des devoirs...</Text>
+          <Text style={styles.loading.text}>Aucun devoir à faire</Text>
         </View>
       </PapillonList>
     )
+  ) : (
+    <PapillonList
+      inset
+      title="Travail à faire"
+      style={[styles.homeworks.devoirsElement.container]}
+    >
+      <View style={styles.loading.container}>
+        <ActivityIndicator />
+        <Text style={styles.loading.text}>Chargement des devoirs...</Text>
+      </View>
+    </PapillonList>
   );
 }
 
-const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
+function DevoirsDay({ homeworks, theme, UIColors, navigation, index }) {
   // sort homeworks by index
   homeworks.homeworks.sort((a, b) => a.index - b.index);
 
@@ -516,26 +609,28 @@ const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
               translateY: fadeAnim.interpolate({
                 inputRange: [0, 1],
                 outputRange: [50, 0],
-              })
+              }),
             },
             {
               scale: fadeAnim.interpolate({
                 inputRange: [0, 1],
                 outputRange: [0.9, 1],
-              })
-            }
+              }),
+            },
           ],
         },
       ]}
     >
-
       <View
-        style={[styles.homeworks.devoirsDay.header.container, { backgroundColor: UIColors.primary + '22' }]}
+        style={[
+          styles.homeworks.devoirsDay.header.container,
+          { backgroundColor: `${UIColors.primary}22` },
+        ]}
       >
         <Text
           style={[
             styles.homeworks.devoirsDay.header.title,
-            { color: UIColors.primary }
+            { color: UIColors.primary },
           ]}
         >
           pour {homeworks.formattedDate}
@@ -543,35 +638,53 @@ const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
       </View>
 
       <View style={styles.homeworks.devoirsDay.content}>
-        { homeworks.homeworks.map((homework, index) => (
-          <DevoirsContent key={index} index={index} parentIndex={parentIndex} homework={homework} theme={theme} UIColors={UIColors} navigation={navigation} />
+        {homeworks.homeworks.map((homework, i) => (
+          <DevoirsContent
+            key={i}
+            index={i}
+            parentIndex={parentIndex}
+            homework={homework}
+            theme={theme}
+            UIColors={UIColors}
+            navigation={navigation}
+          />
         ))}
       </View>
     </Animated.View>
   );
 }
 
-const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIndex }) => {
+function DevoirsContent({
+  homework,
+  theme,
+  UIColors,
+  navigation,
+  index,
+  parentIndex,
+}) {
   const [checkLoading, setCheckLoading] = useState(false);
   const [checked, setChecked] = useState(homework.done);
+
+  const appctx = useAppContext();
 
   const checkThis = () => {
     // définir le loading
     setCheckLoading(true);
 
-    IndexData.changeHomeworkState(homework.date, homework.local_id).then((result) => {
-      console.log(result);
+    appctx.dataprovider
+      .changeHomeworkState(!checked, homework.date, homework.local_id)
+      .then((result) => {
+        console.log(result);
 
-      setCheckLoading(false);
+        setCheckLoading(false);
 
-      if (result.status === 'not found') {
-        return;
-      }
-      else if (result.status === 'ok') {
-        setChecked(!checked);
-      }
-    });
-  }
+        if (result.status === 'not found') {
+          // TODO: handle error
+        } else if (result.status === 'ok') {
+          setChecked(!checked);
+        }
+      });
+  };
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -581,7 +694,7 @@ const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIn
       duration: 300,
       easing: Easing.elastic(1),
       useNativeDriver: true,
-      delay: (index * 50) + (parentIndex * 150) + 100,
+      delay: index * 50 + parentIndex * 150 + 100,
     }).start();
   });
 
@@ -597,7 +710,7 @@ const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIn
         menuTitle: homework.subject.name,
         menuItems: [
           {
-            actionKey  : 'open',
+            actionKey: 'open',
             actionTitle: 'Voir le devoir en détail',
             icon: {
               type: 'IMAGE_SYSTEM',
@@ -607,9 +720,9 @@ const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIn
             },
           },
           {
-            actionKey  : 'check',
+            actionKey: 'check',
             actionTitle: 'Marquer comme fait',
-            menuState  : checked ? 'on' : 'off',
+            menuState: checked ? 'on' : 'off',
             icon: {
               type: 'IMAGE_SYSTEM',
               imageValue: {
@@ -617,125 +730,181 @@ const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIn
               },
             },
           },
-          homework.files.length > 0 ? {
-            actionKey  : 'files',
-            actionTitle: 'Ouvrir la pièce jointe',
-            actionSubtitle: homework.files[0].name,
-            icon: {
-              type: 'IMAGE_SYSTEM',
-              imageValue: {
-                systemName: 'paperclip',
-              },
-            },
-          } : null,
+          homework.files.length > 0
+            ? {
+                actionKey: 'files',
+                actionTitle: 'Ouvrir la pièce jointe',
+                actionSubtitle: homework.files[0].name,
+                icon: {
+                  type: 'IMAGE_SYSTEM',
+                  imageValue: {
+                    systemName: 'paperclip',
+                  },
+                },
+              }
+            : null,
         ],
       }}
-      onPressMenuItem={({nativeEvent}) => {
+      onPressMenuItem={({ nativeEvent }) => {
         if (nativeEvent.actionKey === 'open') {
-          navigation.navigate('Devoir', { homework: {... homework, done: checked}});
-        }
-        else if (nativeEvent.actionKey === 'check') {
+          navigation.navigate('Devoir', {
+            homework: { ...homework, done: checked },
+          });
+        } else if (nativeEvent.actionKey === 'check') {
           checkThis();
-        }
-        else if (nativeEvent.actionKey === 'files') {
+        } else if (nativeEvent.actionKey === 'files') {
           openURL(homework.files[0].url);
         }
       }}
       onPressMenuPreview={() => {
-        navigation.navigate('Devoir', { homework: {... homework, done: checked}});
+        navigation.navigate('Devoir', {
+          homework: { ...homework, done: checked },
+        });
       }}
     >
-    <Animated.View
-      style={[
-        {
-          // Bind opacity to animated value
-          opacity: fadeAnim,
-          transform: [
-            {
-              translateY: fadeAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [50, 0],
-              })
-            },
-            {
-              scale: fadeAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0.9, 1],
-              })
-            }
-          ],
-        },
-      ]}
+      <Animated.View
+        style={[
+          {
+            // Bind opacity to animated value
+            opacity: fadeAnim,
+            transform: [
+              {
+                translateY: fadeAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [50, 0],
+                }),
+              },
+              {
+                scale: fadeAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.9, 1],
+                }),
+              },
+            ],
+          },
+        ]}
       >
-      <TouchableHighlight
-        style={[styles.homeworks.devoirsContent.container]}
-        underlayColor={UIColors.text + '12'}
-        onPress={() => navigation.navigate('Devoir', { homework: {... homework, done: checked} })}
-      >
-        <View style={styles.homeworks.devoirsContent.inner}>
-          <HwCheckbox checked={checked} theme={theme} pressed={() => {checkThis()}} UIColors={UIColors} loading={checkLoading} />
-          <View style={styles.homeworks.devoirsContent.parent}>
-            <View style={styles.homeworks.devoirsContent.header.container}>
-              <View style={styles.homeworks.devoirsContent.header.subject.container}>
-                <View style={[styles.homeworks.devoirsContent.header.subject.color, {backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color)}]} />
-                <Text style={[styles.homeworks.devoirsContent.header.subject.title, { color: UIColors.text }]}>{formatCoursName(homework.subject.name)}</Text>
+        <TouchableHighlight
+          style={[styles.homeworks.devoirsContent.container]}
+          underlayColor={`${UIColors.text}12`}
+          onPress={() =>
+            navigation.navigate('Devoir', {
+              homework: { ...homework, done: checked },
+            })
+          }
+        >
+          <View style={styles.homeworks.devoirsContent.inner}>
+            <HwCheckbox
+              checked={checked}
+              theme={theme}
+              pressed={() => {
+                checkThis();
+              }}
+              UIColors={UIColors}
+              loading={checkLoading}
+            />
+            <View style={styles.homeworks.devoirsContent.parent}>
+              <View style={styles.homeworks.devoirsContent.header.container}>
+                <View
+                  style={
+                    styles.homeworks.devoirsContent.header.subject.container
+                  }
+                >
+                  <View
+                    style={[
+                      styles.homeworks.devoirsContent.header.subject.color,
+                      {
+                        backgroundColor: getSavedCourseColor(
+                          homework.subject.name,
+                          homework.background_color
+                        ),
+                      },
+                    ]}
+                  />
+                  <Text
+                    style={[
+                      styles.homeworks.devoirsContent.header.subject.title,
+                      { color: UIColors.text },
+                    ]}
+                  >
+                    {formatCoursName(homework.subject.name)}
+                  </Text>
+                </View>
               </View>
+              {!checked ? (
+                <View style={styles.homeworks.devoirsContent.content.container}>
+                  <Text
+                    style={[
+                      styles.homeworks.devoirsContent.content.description,
+                      { color: UIColors.text },
+                    ]}
+                  >
+                    {homework.description}
+                  </Text>
+                </View>
+              ) : null}
+              {homework.files.length > 0 && (
+                <View style={styles.homeworks.devoirsContent.footer.container}>
+                  <View
+                    style={
+                      styles.homeworks.devoirsContent.footer.files.container
+                    }
+                  >
+                    {homework.files.map((file, i) => (
+                      <PressableScale
+                        key={i}
+                        style={[
+                          styles.homeworks.devoirsContent.footer.files.file
+                            .container,
+                          { backgroundColor: `${UIColors.text}12` },
+                        ]}
+                        onPress={() => openURL(file.url)}
+                      >
+                        <DownloadCloud size={22} color={UIColors.text} />
+                        <Text
+                          style={
+                            styles.homeworks.devoirsContent.footer.files.file
+                              .text
+                          }
+                          numberOfLines={1}
+                        >
+                          {file.name}
+                        </Text>
+                      </PressableScale>
+                    ))}
+                  </View>
+                  <View style={styles.homeworks.devoirsContent.footer.done} />
+                </View>
+              )}
             </View>
-            { !checked ?
-              <View style={styles.homeworks.devoirsContent.content.container}>
-                <Text style={[styles.homeworks.devoirsContent.content.description, { color: UIColors.text }]}>{homework.description}</Text>
-              </View>
-            : null }
-            { homework.files.length > 0 && (
-              <View style={styles.homeworks.devoirsContent.footer.container}>
-                <View style={styles.homeworks.devoirsContent.footer.files.container}>
-                  { homework.files.map((file, index) => (
-                    <PressableScale
-                      key={index}
-                      style={[
-                        styles.homeworks.devoirsContent.footer.files.file.container,
-                        { backgroundColor: UIColors.text + '12' }
-                      ]}
-                      onPress={() => openURL(file.url)}
-                    >
-                      <DownloadCloud size={22} color={UIColors.text} />
-                      <Text style={styles.homeworks.devoirsContent.footer.files.file.text} numberOfLines={1}>{file.name}</Text>
-                    </PressableScale>
-                  ))}
-                </View>
-                <View style={styles.homeworks.devoirsContent.footer.done}>
-                </View>
-              </View>
-            )}
           </View>
-        </View>
-      </TouchableHighlight>
-    </Animated.View>
+        </TouchableHighlight>
+      </Animated.View>
     </ContextMenuView>
   );
 }
 
 function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
-  return (
-    !loading ? (
-      <PressableScale
-        style={[
-          styles.checkbox.checkContainer,
-          { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
-          checked ? styles.checkbox.checkChecked : null,
-          checked ? {backgroundColor: UIColors.primary, borderColor: UIColors.primary} : null,
-        ]}
-        weight="light"
-        activeScale={0.7}
-        onPress={() => {
-          pressed()
-        }}
-      >
-        {checked ? <Check size={20} color="#ffffff" /> : null}
-      </PressableScale>
-    ) : (
-      <ActivityIndicator size={26} />
-    )
+  return !loading ? (
+    <PressableScale
+      style={[
+        styles.checkbox.checkContainer,
+        { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
+        checked ? styles.checkbox.checkChecked : null,
+        checked
+          ? { backgroundColor: UIColors.primary, borderColor: UIColors.primary }
+          : null,
+      ]}
+      weight="light"
+      activeScale={0.7}
+      onPress={() => {
+        pressed();
+      }}
+    >
+      {checked ? <Check size={20} color="#ffffff" /> : null}
+    </PressableScale>
+  ) : (
+    <ActivityIndicator size={26} />
   );
 }
 
@@ -782,7 +951,9 @@ function NextCours({ cours, navigation }) {
         return `dans ${lz(diffMinutes)}:${lz(diffSeconds)}`;
       }
 
-      return `dans ${Math.ceil((diffMinutes / 60) - 1)}h ${lz(diffMinutes % 60)}m`;
+      return `dans ${Math.ceil(diffMinutes / 60 - 1)}h ${lz(
+        diffMinutes % 60
+      )}m`;
     }
     return 'maintenant';
   };
@@ -817,7 +988,12 @@ function NextCours({ cours, navigation }) {
     <PressableScale
       style={[
         nextCoursStyles.nextCoursContainer,
-        { backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color) },
+        {
+          backgroundColor: getSavedCourseColor(
+            cours.subject.name,
+            cours.background_color
+          ),
+        },
       ]}
       onPress={openCours}
     >
@@ -832,10 +1008,17 @@ function NextCours({ cours, navigation }) {
             {formatCoursName(cours.subject.name)}
           </Text>
 
-          <Text numberOfLines={1} style={nextCoursStyles.nextCoursLeftDataTextRoom}>
+          <Text
+            numberOfLines={1}
+            style={nextCoursStyles.nextCoursLeftDataTextRoom}
+          >
             {cours.status === null
-              ? `salle ${cours.rooms[0] || 'inconnue'} - avec ${cours.teachers[0]}`
-              : `${cours.status} - salle ${cours.rooms[0] || 'inconnue'} - avec ${cours.teachers[0]}`}
+              ? `salle ${cours.rooms[0] || 'inconnue'} - avec ${
+                  cours.teachers[0]
+                }`
+              : `${cours.status} - salle ${
+                  cours.rooms[0] || 'inconnue'
+                } - avec ${cours.teachers[0]}`}
           </Text>
         </View>
       </View>
@@ -933,8 +1116,7 @@ function HomeHeader({ navigation, timetable, user }) {
     return () => clearInterval(interval);
   }, [timetable]);
 
-  const getColorCoursBg = (color) =>
-    lightenDarkenColor(color, -20);
+  const getColorCoursBg = (color) => lightenDarkenColor(color, -20);
 
   const getPrenom = (name) => name.split(' ').pop();
 
@@ -949,6 +1131,7 @@ function HomeHeader({ navigation, timetable, user }) {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const openNextCours = () => {
     if (nextCourse && nextCourse.id !== null) {
       navigation.navigate('Lesson', { event: nextCourse });
@@ -966,7 +1149,12 @@ function HomeHeader({ navigation, timetable, user }) {
         headerStyles.header,
         {
           backgroundColor: nextCourse
-            ? getColorCoursBg(getSavedCourseColor(nextCourse.subject.name, nextCourse.background_color))
+            ? getColorCoursBg(
+                getSavedCourseColor(
+                  nextCourse.subject.name,
+                  nextCourse.background_color
+                )
+              )
             : UIColors.primaryBackground,
           paddingTop: insets.top + 13,
           borderColor: theme.dark ? '#ffffff15' : '#00000032',
@@ -980,7 +1168,9 @@ function HomeHeader({ navigation, timetable, user }) {
 
       <View style={headerStyles.headerContainer}>
         <Text style={[headerStyles.headerNameText]}>
-          {`${getFormulePolitesse()}${user ? `, ${getPrenom(user.name)} !` : ' !'}`}
+          {`${getFormulePolitesse()}${
+            user ? `, ${getPrenom(user.name)} !` : ' !'
+          }`}
         </Text>
         <Text style={[headerStyles.headerCoursesText]}>
           {hasTimetable
@@ -1001,7 +1191,7 @@ function HomeHeader({ navigation, timetable, user }) {
         )}
       </View>
 
-      { !loading && nextCourse && (
+      {!loading && nextCourse && (
         <NextCours cours={nextCourse} navigation={navigation} />
       )}
 
@@ -1114,7 +1304,7 @@ const styles = StyleSheet.create({
             fontSize: 16,
             fontFamily: 'Papillon-Semibold',
           },
-        }
+        },
       },
       content: {
         container: {},
@@ -1146,9 +1336,7 @@ const styles = StyleSheet.create({
             },
           },
         },
-        done: {
-
-        },
+        done: {},
       },
     },
   },
@@ -1162,7 +1350,7 @@ const styles = StyleSheet.create({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-  
+
       borderWidth: 1,
     },
     checkChecked: {
@@ -1242,7 +1430,7 @@ const styles = StyleSheet.create({
     separatorLine: {
       flex: 1,
       height: 2,
-      borderRadius:3,
+      borderRadius: 3,
     },
   },
 
@@ -1259,11 +1447,11 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       gap: 6,
     },
-  
+
     tab: {
       borderRadius: 12,
       borderCurve: 'continuous',
-  
+
       flex: 1,
       flexDirection: 'column',
       justifyContent: 'center',
@@ -1271,7 +1459,7 @@ const styles = StyleSheet.create({
       paddingVertical: 12,
       paddingHorizontal: 16,
       gap: 5,
-  
+
       shadowColor: '#000',
       shadowOffset: {
         width: 0,
@@ -1279,15 +1467,15 @@ const styles = StyleSheet.create({
       },
       shadowOpacity: 0.15,
       shadowRadius: 1,
-  
+
       elevation: 0,
     },
-  
+
     tabText: {
       fontSize: 15,
       fontFamily: 'Papillon-Semibold',
     },
-  }
+  },
 });
 
 const headerStyles = StyleSheet.create({

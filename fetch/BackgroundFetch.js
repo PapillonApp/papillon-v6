@@ -3,37 +3,40 @@ import * as TaskManager from 'expo-task-manager';
 
 import * as Notifications from 'expo-notifications';
 
-import { IndexData } from './IndexData';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { IndexDataInstance } from './IndexDataInstance';
 
 // Actualités
-TaskManager.defineTask('background-fetch-news', async () => {
-  return AsyncStorage.getItem('oldNews').then((oldNews) => {
+TaskManager.defineTask('background-fetch-news', async () =>
+  AsyncStorage.getItem('oldNews').then((oldNews) => {
     if (oldNews) {
       oldNews = JSON.parse(oldNews);
 
-      return IndexData.getNews().then((news) => {
-        if (news.length !== oldNews.length) {
-          AsyncStorage.setItem('oldNews', JSON.stringify(news));
+      return IndexDataInstance.singletonGetInstance()
+        .getNews()
+        .then((news) => {
+          if (news.length !== oldNews.length) {
+            AsyncStorage.setItem('oldNews', JSON.stringify(news));
 
-          let lastNews = news[0];
+            const lastNews = news[0];
 
-          Notifications.scheduleNotificationAsync({
-            content: {
-              subtitle: '📰 Nouvelle actualité Pronote',
-              body: lastNews.title,
-              sound: 'papillon_ding.wav',
-            },
-            trigger: null,
-          });
+            Notifications.scheduleNotificationAsync({
+              content: {
+                subtitle: '📰 Nouvelle actualité Pronote',
+                body: lastNews.title,
+                sound: 'papillon_ding.wav',
+              },
+              trigger: null,
+            });
 
-          // Be sure to return the successful result type!
-          return BackgroundFetch.BackgroundFetchResult.NewData;
-        }
-      });
+            // Be sure to return the successful result type!
+            return BackgroundFetch.BackgroundFetchResult.NewData;
+          }
+        });
     }
-    else {
-      return getNews().then((news) => {
+    return IndexDataInstance.singletonGetInstance()
+      .getNews()
+      .then((news) => {
         Notifications.scheduleNotificationAsync({
           content: {
             subtitle: 'Notifications actives !',
@@ -45,9 +48,8 @@ TaskManager.defineTask('background-fetch-news', async () => {
 
         AsyncStorage.setItem('oldNews', JSON.stringify(news));
       });
-    }
-  });
-});
+  })
+);
 
 // News Register
 async function registerNewsBackgroundFetchAsync() {
@@ -59,8 +61,8 @@ async function registerNewsBackgroundFetchAsync() {
 }
 
 function setBackgroundFetch() {
-  registerNewsBackgroundFetchAsync().then((taskId) => {
-    console.log('Successfully registered \'background-fetch-news\' fetch task');
+  registerNewsBackgroundFetchAsync().then(() => {
+    console.log("Successfully registered 'background-fetch-news' fetch task");
   });
 }
 

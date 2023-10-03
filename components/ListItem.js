@@ -28,6 +28,7 @@ function ListItem({
   center,
   chevron,
   trimSubtitle,
+  bottom,
 }) {
   const theme = useTheme();
 
@@ -91,17 +92,23 @@ function ListItem({
         ) : null}
 
         <View style={[styles.listItemText, { gap: isLarge ? 8 : 2 }]}>
-          { title ? (
+          {title ? (
             <Text style={[styles.listItemTextTitle, { color: textColor }]}>
               {title}
             </Text>
-          ) : null }
+          ) : null}
 
           {subtitle ? (
-            <Text style={[styles.listItemTextSubtitle, { color: textColor }]} numberOfLines={trimSubtitle ? 1 : null} ellipsizeMode='tail'>
+            <Text
+              style={[styles.listItemTextSubtitle, { color: textColor }]}
+              numberOfLines={trimSubtitle ? 1 : null}
+              ellipsizeMode="tail"
+            >
               {subtitle}
             </Text>
           ) : null}
+
+          {bottom ? <View style={[]}>{bottom}</View> : null}
         </View>
 
         {right ? <View style={[styles.right]}>{right}</View> : null}
@@ -164,10 +171,16 @@ function ListItem({
             ) : null}
 
             {subtitle ? (
-              <Text style={[styles.listItemTextSubtitle, { color: textColor }]} numberOfLines={trimSubtitle ? 1 : null} ellipsizeMode='tail'>
+              <Text
+                style={[styles.listItemTextSubtitle, { color: textColor }]}
+                numberOfLines={trimSubtitle ? 1 : null}
+                ellipsizeMode="tail"
+              >
                 {subtitle}
               </Text>
             ) : null}
+
+            {bottom ? <View style={[]}>{bottom}</View> : null}
           </View>
 
           {right ? <View style={[styles.right]}>{right}</View> : null}

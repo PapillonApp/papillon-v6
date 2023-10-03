@@ -80,8 +80,8 @@ function SettingsScreen({ navigation }) {
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
     >
-    <View style={{ gap: 9, marginTop: 16 }}>
-      <Text style={styles.ListTitle}>Serveur et identifiants (avancé)</Text>
+      <View style={{ gap: 9, marginTop: 16 }}>
+        <Text style={styles.ListTitle}>Serveur et identifiants (avancé)</Text>
 
         <ListItem
           title="Changer de serveur (avancé)"
