@@ -678,8 +678,8 @@ function DevoirsContent({
 
         setCheckLoading(false);
 
+        // eslint-disable-next-line no-empty
         if (result.status === 'not found') {
-          // TODO: handle error
         } else if (result.status === 'ok') {
           setChecked(!checked);
         }

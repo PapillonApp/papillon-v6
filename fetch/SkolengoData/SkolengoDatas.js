@@ -541,7 +541,6 @@ export class SkolengoDatas extends SkolengoBase {
         teacher: 'firstName,lastName,title',
       },
     });
-    // TODO : Cache timeout par evalId et non global
     /* SkolengoCache.getItem('evals', {})
       .then((actualCache) => ({
         ...actualCache.data,
@@ -713,10 +712,15 @@ export class SkolengoDatas extends SkolengoBase {
     });
 
   getHomeworks = async (day, force) => {
-    const cache = await SkolengoCache.getItem('homeworkList', {});
     const dayFormatted = SkolengoBase.dateParser(day);
-    if (!force && !cache.expired && cache.data[dayFormatted] !== undefined)
-      return cache.data[dayFormatted];
+    if (!force) {
+      const cachedRecap = await SkolengoCache.getCollectionItem(
+        'homeworkList',
+        dayFormatted,
+        {}
+      );
+      if (!cachedRecap.expired) return cachedRecap.data;
+    }
     console.log('fetch hw', dayFormatted);
     const datas = await this.getAgendas(
       dayFormatted,
@@ -732,19 +736,12 @@ export class SkolengoDatas extends SkolengoBase {
           )
           .flat() || []
     );
-    // TODO : Cache timeout par dayFormatted et non global
-    SkolengoCache.getItem('homeworkList', {})
-      .then((actualCache) => ({
-        ...actualCache.data,
-        [dayFormatted]: datas,
-      }))
-      .then((newSavedCache) =>
-        SkolengoCache.setItem(
-          'homeworkList',
-          newSavedCache,
-          SkolengoCache.HOUR * 4
-        )
-      );
+    SkolengoCache.setCollectionItem(
+      'homeworkList',
+      dayFormatted,
+      datas,
+      SkolengoCache.HOUR * 4
+    );
     return datas;
   };
 
