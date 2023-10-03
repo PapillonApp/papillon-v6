@@ -188,13 +188,13 @@ function GradesScreen({ navigation }) {
       const maxAverage = maxAverages / maxAveragecount;
 
       // if overall_average exists in grades
-      if (gradesData.overall_average && gradesData.overall_average !== null && gradesData.class_overall !== "-1") {
+      if (gradesData.overall_average && gradesData.overall_average !== null && gradesData.overall_average !== -1) {
         studentAverage = gradesData.overall_average;
         console.log('studentAverage', studentAverage);
       }
 
       // if class_overall_average exists in grades
-      if (gradesData.class_overall_average && gradesData.class_overall_average !== null && gradesData.class_overall_average !== "-1") {
+      if (gradesData.class_overall_average && gradesData.class_overall_average !== null && gradesData.class_overall_average !== -1) {
         classAverage = gradesData.class_overall_average
         console.log('classAverage', classAverage);
       }
@@ -531,7 +531,7 @@ function GradesScreen({ navigation }) {
                 <View style={[styles.subjectAverageContainer]}>
                   <Text style={[styles.subjectAverage]}>
                     {
-                      subject.averages.average !== "-1" ? parseFloat(subject.averages.average).toFixed(2) : "Inconnu"
+                      subject.averages.average !== -1 ? parseFloat(subject.averages.average).toFixed(2) : "Inconnu"
                     }
                   </Text>
                   <Text style={[styles.subjectAverageOutOf]}>
