@@ -180,6 +180,7 @@ function refreshToken() {
       return refreshQRToken(JSON.parse(qrResult));
     }
     return AsyncStorage.getItem('credentials').then((result) => {
+      if (!result) return;
       const credentials = JSON.parse(result);
 
       return getToken(credentials).then((res) => {

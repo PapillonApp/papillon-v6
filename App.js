@@ -950,28 +950,20 @@ function App() {
 
   const [dataprovider, setDataprovider] = React.useState(null);
 
-  const [service, setService] = React.useState(null);
-
   React.useEffect(() => {
     AsyncStorage.getItem('service').then((value) => {
-      setService(value);
+      const provider = new IndexDataInstance(value || null);
+      setDataprovider(provider);
     });
   }, []);
-
-  React.useEffect(() => {
-    const provider = IndexDataInstance.singletonGetInstance(service);
-    setDataprovider(provider);
-  }, [service]);
 
   const ctxValue = React.useMemo(
     () => ({
       loggedIn,
       setLoggedIn,
       dataprovider,
-      service,
-      setService,
     }),
-    [loggedIn, dataprovider, service]
+    [loggedIn, dataprovider]
   );
 
   if (!IsReady) {

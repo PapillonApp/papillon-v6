@@ -28,7 +28,7 @@ function LoginPronoteQR({ route, navigation }) {
   const [error, setError] = React.useState('');
   const [errPin, setErrPin] = React.useState(false);
 
-  const appCtx = useAppContext();
+  const appctx = useAppContext();
 
   function makeUUID() {
     let dt = new Date().getTime();
@@ -82,7 +82,7 @@ function LoginPronoteQR({ route, navigation }) {
         navigation.goBack();
         navigation.goBack();
 
-        appCtx.setLoggedIn(true);
+        appctx.setLoggedIn(true);
 
         Alert.alert(
           'Connexion par QR-code instable',

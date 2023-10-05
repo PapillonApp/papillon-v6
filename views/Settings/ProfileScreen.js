@@ -46,7 +46,6 @@ import PapillonIcon from '../../components/PapillonIcon';
 
 import GetUIColors from '../../utils/GetUIColors';
 import { useAppContext } from '../../utils/AppContext';
-import { SkolengoDatas } from '../../fetch/SkolengoData/SkolengoDatas';
 
 function ProfileScreen({ route, navigation }) {
   const theme = useTheme();
@@ -83,17 +82,15 @@ function ProfileScreen({ route, navigation }) {
         onPress: async () => {
           try {
             AsyncStorage.getItem('credentials').then((result) => {
-              const res = JSON.parse(result);
+              const res = JSON.parse(result || 'null');
               if (res)
                 AsyncStorage.setItem(
                   'old_login',
                   JSON.stringify({ url: res.url })
                 );
             });
-            AsyncStorage.removeItem(SkolengoDatas.TOKEN_PATH);
-            AsyncStorage.removeItem(SkolengoDatas.SCHOOL_PATH);
-            AsyncStorage.removeItem(SkolengoDatas.CURRENT_USER_PATH);
-            AsyncStorage.removeItem(SkolengoDatas.DISCOVERY_PATH);
+            if (appctx.dataprovider.service === 'Skolengo')
+              appctx.dataprovider.skolengoInstance?.skolengoDisconnect();
           } catch (e) {
             /* empty */
           }

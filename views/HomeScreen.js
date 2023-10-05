@@ -24,6 +24,7 @@ import {
   Link,
   File,
   Check,
+  UserCircle2,
 } from 'lucide-react-native';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -844,15 +845,23 @@ function HomeHeader({ navigation, timetable, user }) {
             : "Tu n'as aucun cours restant aujourd'hui."}
         </Text>
 
-        {user && user.profile_picture !== null && (
+        {user && (
           <TouchableOpacity
             style={[styles.headerPfpContainer]}
             onPress={openProfile}
           >
-            <Image
-              source={{ uri: user.profile_picture }}
-              style={[styles.headerPfp]}
-            />
+            {user.profile_picture && user.profile_picture !== '' ? (
+              <Image
+                source={{ uri: user.profile_picture }}
+                style={[styles.headerPfp]}
+              />
+            ) : (
+              <UserCircle2
+                size={36}
+                color={theme.dark ? '#fff' : '#000'}
+                style={[styles.headerPfp]}
+              />
+            )}
           </TouchableOpacity>
         )}
       </View>

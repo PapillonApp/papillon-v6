@@ -34,6 +34,7 @@ import {
   Newspaper,
   MessagesSquare,
   CheckCircle,
+  UserCircle2,
 } from 'lucide-react-native';
 
 // Formatting
@@ -109,7 +110,7 @@ function NewHomeScreen({ navigation }) {
 
   useEffect(() => {
     setLoadingUser(true);
-    appctx.dataprovider.getUser().then((data) => {
+    appctx.dataprovider?.getUser().then((data) => {
       const prenom = data.name.split(' ').pop();
       const establishment = data.establishment;
       const avatarURL = data.profile_picture;
@@ -129,7 +130,7 @@ function NewHomeScreen({ navigation }) {
       appctx.dataprovider.getHomeworks(
         today,
         force,
-        new Date(today).setDate(today.getDate() + 7)
+        new Date(today).setDate(today.getDate() + 14)
       ),
       appctx.dataprovider.getTimetable(today, force),
     ]).then(([hwData, coursData]) => {
@@ -161,6 +162,7 @@ function NewHomeScreen({ navigation }) {
       const result = Object.values(groupedHomeworks).sort(
         (a, b) => a.date - b.date
       );
+      console.log('res', result, hwData);
       setHomeworks(result);
       setLoadingHw(false);
       setTimetable(coursData);
@@ -1166,27 +1168,44 @@ function HomeHeader({ navigation, timetable, user }) {
         <StatusBar barStyle="light-content" backgroundColor="transparent" />
       )}
 
-      <View style={headerStyles.headerContainer}>
-        <Text style={[headerStyles.headerNameText]}>
-          {`${getFormulePolitesse()}${
-            user ? `, ${getPrenom(user.name)} !` : ' !'
-          }`}
-        </Text>
-        <Text style={[headerStyles.headerCoursesText]}>
-          {hasTimetable
-            ? `Il te reste ${leftCourses.length + 1} cours dans ta journée.`
-            : "Tu n'as aucun cours restant aujourd'hui."}
-        </Text>
-
-        {user && user.profile_picture !== null && (
+      <View
+        style={[
+          headerStyles.headerContainer,
+          {
+            display: 'flex',
+            flexDirection: 'row',
+          },
+        ]}
+      >
+        <View style={headerStyles.headerTextContainer}>
+          <Text style={[headerStyles.headerNameText]}>
+            {`${getFormulePolitesse()}${
+              user ? `, ${getPrenom(user.name)} !` : ' !'
+            }`}
+          </Text>
+          <Text style={[headerStyles.headerCoursesText]}>
+            {hasTimetable
+              ? `Il te reste ${leftCourses.length + 1} cours dans ta journée.`
+              : "Tu n'as aucun cours restant aujourd'hui."}
+          </Text>
+        </View>
+        {user && (
           <TouchableOpacity
-            style={[headerStyles.headerPfpContainer]}
+            style={[styles.headerPfpContainer]}
             onPress={openProfile}
           >
-            <Image
-              source={{ uri: user.profile_picture }}
-              style={[headerStyles.headerPfp]}
-            />
+            {user.profile_picture && user.profile_picture !== '' ? (
+              <Image
+                source={{ uri: user.profile_picture }}
+                style={[headerStyles.headerPfp]}
+              />
+            ) : (
+              <UserCircle2
+                size={36}
+                color={theme.dark ? '#fff' : '#000'}
+                style={[styles.headerPfp]}
+              />
+            )}
           </TouchableOpacity>
         )}
       </View>
@@ -1505,7 +1524,7 @@ const headerStyles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
-
+    position: 'relative',
     width: '92%',
   },
 
@@ -1686,9 +1705,15 @@ const headerStyles = StyleSheet.create({
     opacity: 0.5,
     marginLeft: 10,
   },
-
+  headerTextContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    width: '100%',
+  },
   headerPfpContainer: {
     position: 'absolute',
+    backgroundColor: '#ff000010',
     right: 0,
     top: 0,
   },

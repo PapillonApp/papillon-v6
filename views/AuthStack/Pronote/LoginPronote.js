@@ -137,7 +137,7 @@ function LoginPronote({ route, navigation }) {
   const [password, setPassword] = useState('');
   const [connecting, setConnecting] = useState(false);
 
-  const appCtx = useAppContext();
+  const appctx = useAppContext();
 
   function login() {
     const credentials = {
@@ -196,7 +196,7 @@ function LoginPronote({ route, navigation }) {
         navigation.goBack();
         navigation.goBack();
 
-        appCtx.setLoggedIn(true);
+        appctx.setLoggedIn(true);
       }
     });
   }

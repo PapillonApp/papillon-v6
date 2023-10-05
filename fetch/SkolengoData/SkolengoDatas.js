@@ -3,6 +3,7 @@ import {
   AuthRequest,
   exchangeCodeAsync,
   resolveDiscoveryAsync,
+  revokeAsync,
 } from 'expo-auth-session';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { deserialize } from 'jsonapi-fractal';
@@ -268,15 +269,25 @@ export class SkolengoDatas extends SkolengoBase {
     this.currentUser = jwtDecode(this.rtInstance.accessToken);
   };
 
-  getUser = (force = false) => {
+  getUser = async (force = false) => {
     if (!force) {
-      const cachedRecap = SkolengoCache.getItem('userdatas');
+      const cachedRecap = await SkolengoCache.getItem(
+        SkolengoCache.cacheKeys.userdatas
+      );
       if (!cachedRecap.expired) return cachedRecap.data;
     }
-    const datas = this.request('get', `/users-info/${this.currentUser.sub}`, {
-      include: 'school,students,students.school',
-    }).then(this.usrTransform);
-    SkolengoCache.setItem('userdatas', datas, SkolengoCache.DAY);
+    const datas = await this.request(
+      'get',
+      `/users-info/${this.currentUser.sub}`,
+      {
+        include: 'school,students,students.school',
+      }
+    ).then(this.usrTransform);
+    SkolengoCache.setItem(
+      SkolengoCache.cacheKeys.userdatas,
+      datas,
+      SkolengoCache.DAY
+    );
     return datas;
   };
 
@@ -285,11 +296,13 @@ export class SkolengoDatas extends SkolengoBase {
    */
   getAbsenceFiles = async (force = false, limit = 20, offset = 0) => {
     if (!force) {
-      const cachedRecap = await SkolengoCache.getItem('absences');
+      const cachedRecap = await SkolengoCache.getItem(
+        SkolengoCache.cacheKeys.absences
+      );
       if (!cachedRecap.expired) return cachedRecap.data;
     }
 
-    const datas = this.request('get', '/absence-files', {
+    const datas = await this.request('get', '/absence-files', {
       filter: {
         'student.id': this.currentUser.sub,
         'currentState.absenceType': 'ABSENCE,LATENESS',
@@ -314,7 +327,11 @@ export class SkolengoDatas extends SkolengoBase {
             e.concat(f)
           )
     );
-    SkolengoCache.setItem('absences', datas, SkolengoCache.HOUR * 4);
+    SkolengoCache.setItem(
+      SkolengoCache.cacheKeys.absences,
+      datas,
+      SkolengoCache.HOUR * 4
+    );
     return datas;
   };
 
@@ -385,14 +402,20 @@ export class SkolengoDatas extends SkolengoBase {
    */
   getSchoolInfos = async (force = false) => {
     if (!force) {
-      const cachedRecap = await SkolengoCache.getItem('schoolInfos');
+      const cachedRecap = await SkolengoCache.getItem(
+        SkolengoCache.cacheKeys.schoolInfos
+      );
       if (!cachedRecap.expired) return cachedRecap.data;
     }
-    const datas = this.request('get', '/schools-info', {
+    const datas = await this.request('get', '/schools-info', {
       include:
         'illustration,school,author,author.person,author.technicalUser,attachments',
     });
-    SkolengoCache.setItem('schoolInfos', datas, SkolengoCache.HOUR * 4);
+    SkolengoCache.setItem(
+      SkolengoCache.cacheKeys.schoolInfos,
+      datas,
+      SkolengoCache.HOUR * 4
+    );
     return datas;
   };
 
@@ -402,18 +425,18 @@ export class SkolengoDatas extends SkolengoBase {
   getSchoolInfo = async (schoolInfoId, force = false) => {
     if (!force) {
       const cachedRecap = await SkolengoCache.getCollectionItem(
-        'schoolInfoCollection',
+        SkolengoCache.cacheKeys.schoolInfoCollection,
         schoolInfoId,
         {}
       );
       if (!cachedRecap.expired) return cachedRecap.data;
     }
-    const datas = this.request('get', `/schools-info/${schoolInfoId}`, {
+    const datas = await this.request('get', `/schools-info/${schoolInfoId}`, {
       include:
         'illustration,school,author,author.person,author.technicalUser,attachments',
     });
     SkolengoCache.setCollectionItem(
-      'schoolInfoCollection',
+      SkolengoCache.cacheKeys.schoolInfoCollection,
       schoolInfoId,
       datas,
       SkolengoCache.HOUR * 4
@@ -494,7 +517,9 @@ export class SkolengoDatas extends SkolengoBase {
    */
   getEvaluationSettings = async (force = false, limit = 20, offset = 0) => {
     if (!force) {
-      const cachedRecap = await SkolengoCache.getItem('eval_settings');
+      const cachedRecap = await SkolengoCache.getItem(
+        SkolengoCache.cacheKeys.evalSettings
+      );
       if (!cachedRecap.expired) return cachedRecap.data;
     }
     const settings = await this.request('get', '/evaluations-settings', {
@@ -507,7 +532,11 @@ export class SkolengoDatas extends SkolengoBase {
       },
       include: 'periods,skillsSetting,skillsSetting.skillAcquisitionColors',
     });
-    SkolengoCache.setItem('eval_settings', settings, SkolengoCache.DAY * 3);
+    SkolengoCache.setItem(
+      SkolengoCache.cacheKeys.evalSettings,
+      settings,
+      SkolengoCache.DAY * 3
+    );
     return settings;
   };
 
@@ -517,7 +546,7 @@ export class SkolengoDatas extends SkolengoBase {
   getEvaluation = async (evaluationId, force = false) => {
     if (!force) {
       const cachedRecap = await SkolengoCache.getCollectionItem(
-        'evalDatas',
+        SkolengoCache.cacheKeys.evalDatas,
         evaluationId,
         {}
       );
@@ -550,7 +579,7 @@ export class SkolengoDatas extends SkolengoBase {
         SkolengoCache.setItem('evals', newSavedCache, SkolengoCache.HOUR * 4)
       ); */
     SkolengoCache.setCollectionItem(
-      'evalDatas',
+      SkolengoCache.cacheKeys.evalDatas,
       evaluationId,
       datas,
       SkolengoCache.HOUR * 4
@@ -563,14 +592,20 @@ export class SkolengoDatas extends SkolengoBase {
    */
   getPeriods = async (force = false) => {
     if (!force) {
-      const cachedRecap = await SkolengoCache.getItem('periods');
+      const cachedRecap = await SkolengoCache.getItem(
+        SkolengoCache.cacheKeys.periods
+      );
       if (!cachedRecap.expired) return cachedRecap.data;
     }
     const datas = await this.getEvaluationSettings(force).then((e) =>
       e.at(0)?.periods?.map((period) => this.periodTransform(period))
     );
     if (datas !== undefined)
-      SkolengoCache.setItem('periods', datas, SkolengoCache.DAY * 14);
+      SkolengoCache.setItem(
+        SkolengoCache.cacheKeys.periods,
+        datas,
+        SkolengoCache.DAY * 14
+      );
     return datas;
   };
 
@@ -584,7 +619,9 @@ export class SkolengoDatas extends SkolengoBase {
    */
   getGrades = async (periodId, force = false, limit = 100, offset = 0) => {
     if (!force) {
-      const cachedRecap = await SkolengoCache.getItem('grades');
+      const cachedRecap = await SkolengoCache.getItem(
+        SkolengoCache.cacheKeys.grades
+      );
       if (
         !cachedRecap.expired &&
         Array.isArray(cachedRecap.data?.grades) &&
@@ -603,7 +640,7 @@ export class SkolengoDatas extends SkolengoBase {
       .then((evals) => this.noteFullFill(evals, force))
       .then(this.gradesTransform);
     SkolengoCache.setItem(
-      'grades',
+      SkolengoCache.cacheKeys.grades,
       { ...datas, periodId },
       SkolengoCache.HOUR * 4
     );
@@ -711,11 +748,14 @@ export class SkolengoDatas extends SkolengoBase {
       },
     });
 
-  getHomeworks = async (day, force) => {
+  getHomeworks = async (day, force, day2) => {
+    const canBeCached =
+      day2 && SkolengoBase.dateParser(day) !== SkolengoBase.dateParser(day2);
     const dayFormatted = SkolengoBase.dateParser(day);
-    if (!force) {
+    const day2Formatted = SkolengoBase.dateParser(day2 || day);
+    if (!force && canBeCached) {
       const cachedRecap = await SkolengoCache.getCollectionItem(
-        'homeworkList',
+        SkolengoCache.cacheKeys.homeworkList,
         dayFormatted,
         {}
       );
@@ -724,41 +764,41 @@ export class SkolengoDatas extends SkolengoBase {
     console.log('fetch hw', dayFormatted);
     const datas = await this.getAgendas(
       dayFormatted,
-      dayFormatted,
+      day2Formatted,
       50,
       0,
       'homeworkAssignments,homeworkAssignments.subject'
-    ).then(
-      (e) =>
-        e
-          ?.map((f) =>
+    )
+      .then(
+        (e) =>
+          e?.map((f) =>
             f.homeworkAssignments.map((g) => this.homeworkTransform(g))
-          )
-          .flat() || []
-    );
-    SkolengoCache.setCollectionItem(
-      'homeworkList',
-      dayFormatted,
-      datas,
-      SkolengoCache.HOUR * 4
-    );
+          ) || []
+      )
+      .then((e) => (canBeCached ? e.flat() : e));
+    if (canBeCached)
+      SkolengoCache.setCollectionItem(
+        SkolengoCache.cacheKeys.homeworkList,
+        dayFormatted,
+        datas,
+        SkolengoCache.HOUR * 4
+      );
     return datas;
   };
 
-  getLongHomeworks = async (day, offset) => {
-    const dayTime = 1000 * 60 * 60 * 24;
-    const date = new Date(day);
+  getLongHomeworks = async (day, day2) => {
+    if (!day2) day2 = day;
     return this.getAgendas(
-      SkolengoBase.dateParser(date - offset * dayTime),
-      SkolengoBase.dateParser(day + offset * dayTime),
+      SkolengoBase.dateParser(day),
+      SkolengoBase.dateParser(day2),
       50,
       0,
       'homeworkAssignments,homeworkAssignments.subject'
     ).then((e) =>
-      e?.map((f) => [
-        f.date,
-        f.homeworkAssignments.map((g) => this.homeworkTransform(g)),
-      ])
+      e?.map((f) => ({
+        date: f.date,
+        homeworks: f.homeworkAssignments.map((g) => this.homeworkTransform(g)),
+      }))
     );
   };
 
@@ -805,7 +845,9 @@ export class SkolengoDatas extends SkolengoBase {
 
   getTimetable = async (day, force = false) => {
     if (!force) {
-      const cachedRecap = await SkolengoCache.getItem('timetable');
+      const cachedRecap = await SkolengoCache.getItem(
+        SkolengoCache.cacheKeys.timetable
+      );
       if (!cachedRecap.expired) return cachedRecap.data;
     }
     const agendas = await this.getAgendas(
@@ -813,7 +855,11 @@ export class SkolengoDatas extends SkolengoBase {
       SkolengoBase.dateParser(day)
     );
     const datas = this.timetableTransform(agendas[0]);
-    SkolengoCache.setItem('timetable', datas, SkolengoCache.MINUTE * 30);
+    SkolengoCache.setItem(
+      SkolengoCache.cacheKeys.timetable,
+      datas,
+      SkolengoCache.MINUTE * 30
+    );
     return datas;
   };
 
@@ -826,7 +872,9 @@ export class SkolengoDatas extends SkolengoBase {
 
   getRecap = async (startDate, force) => {
     if (!force) {
-      const cachedRecap = await SkolengoCache.getItem('recap');
+      const cachedRecap = await SkolengoCache.getItem(
+        SkolengoCache.cacheKeys.recap
+      );
       if (!cachedRecap.expired) return cachedRecap.data;
     }
     try {
@@ -870,7 +918,11 @@ export class SkolengoDatas extends SkolengoBase {
         },
         hws,
       ];
-      SkolengoCache.setItem('recap', res, SkolengoCache.msToTomorrow());
+      SkolengoCache.setItem(
+        SkolengoCache.cacheKeys.recap,
+        res,
+        SkolengoCache.msToTomorrow()
+      );
       return res;
     } catch (e) {
       console.log('recap err', e);
@@ -1052,9 +1104,21 @@ export class SkolengoDatas extends SkolengoBase {
       new Date() > new Date(period.startDate) &&
       new Date() < new Date(period.endDate),
   });
+
+  skolengoDisconnect = async () => {
+    const discovery = await AsyncStorage.getItem(SkolengoDatas.DISCOVERY_PATH);
+    return Promise.all([
+      revokeAsync(this.rtInstance, discovery),
+      AsyncStorage.removeItem(SkolengoDatas.TOKEN_PATH),
+      AsyncStorage.removeItem(SkolengoDatas.SCHOOL_PATH),
+      AsyncStorage.removeItem(SkolengoDatas.CURRENT_USER_PATH),
+      AsyncStorage.removeItem(SkolengoDatas.DISCOVERY_PATH),
+      SkolengoCache.clearItems(),
+    ]);
+  };
 }
 
-const ucFirst = (str) =>
+export const ucFirst = (str) =>
   (str?.charAt(0)?.toUpperCase() ?? '') + (str?.slice(1) ?? '');
 
 const errHandler = (err) => {
@@ -1128,9 +1192,9 @@ export const loginSkolengoWorkflow = async (
       appctx.setLoggedIn(true);
       navigation.popToTop();
     });
-  } else {
-    skolengoInstance.school = school;
-    skolengoInstance.rtInstance = token;
-    return skolengoInstance;
+    return true;
   }
+  skolengoInstance.school = school;
+  skolengoInstance.rtInstance = token;
+  return skolengoInstance;
 };

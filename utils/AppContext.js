@@ -13,13 +13,11 @@ import { useMaterial3Theme } from '@pchmn/expo-material3-theme';
 import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-/** @type {{logged: boolean, setLogged: (logged: boolean) => void, dataprovider: import('../fetch/IndexDataInstance').IndexDataInstance, setDataprovider: (dataprovider: import('../fetch/IndexDataInstance').IndexDataInstance) => void, service: string|null, setService: (service: string|null) => void}} */
+/** @type {{logged: boolean, setLogged: (logged: boolean) => void, dataprovider: import('../fetch/IndexDataInstance').IndexDataInstance, setDataprovider: (dataprovider: import('../fetch/IndexDataInstance').IndexDataInstance) => void}} */
 export const DefaultValuesAppContext = {
   loggedIn: false,
   setLoggedIn: () => {},
   dataprovider: null,
-  service: null,
-  setService: () => {},
 };
 
 const AppContext = React.createContext(DefaultValuesAppContext);

@@ -93,13 +93,34 @@ export class SkolengoCache {
       };
     const value = cachedDatas.data[id];
     return {
-      expired: value.maxDate < new Date().getTime(),
+      expired: value.maxDate < new Date().getTime() || !value.data,
       maxDate: value.maxDate,
       data: value.data,
     };
   }
 
   static removeItem(key) {
-    return AsyncStorage.removeItem(key);
+    return AsyncStorage.removeItem(
+      `${SkolengoPrivateCache.ASYNCSTORAGE_PREFIX}${key}`
+    );
   }
+
+  static clearItems = () =>
+    Promise.all(
+      Object.values(this.cacheKeys).map((key) => this.removeItem(key))
+    );
+
+  static cacheKeys = {
+    userdatas: 'userdatas',
+    absences: 'absences',
+    schoolInfos: 'schoolInfos',
+    schoolInfoCollection: 'schoolInfoCollection',
+    evalSettings: 'evalSettings',
+    evalDatas: 'evalDatas',
+    periods: 'periods',
+    grades: 'grades',
+    homeworkList: 'homeworkList',
+    timetable: 'timetable',
+    recap: 'recap',
+  };
 }

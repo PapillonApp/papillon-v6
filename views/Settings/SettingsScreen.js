@@ -12,6 +12,9 @@ import { useState } from 'react';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LogOut, RefreshCw, Server, Trash2 } from 'lucide-react-native';
+import { showMessage } from 'react-native-flash-message';
+import { revokeAsync } from 'expo-auth-session';
+
 import { refreshToken, expireToken } from '../../fetch/AuthStack/LoginFlow';
 
 import ListItem from '../../components/ListItem';
@@ -19,11 +22,16 @@ import PapillonIcon from '../../components/PapillonIcon';
 
 import GetUIColors from '../../utils/GetUIColors';
 import { useAppContext } from '../../utils/AppContext';
+import { SkolengoCache } from '../../fetch/SkolengoData/SkolengoCache';
+import {
+  SkolengoDatas,
+  loginSkolengoWorkflow,
+} from '../../fetch/SkolengoData/SkolengoDatas';
 
 function SettingsScreen({ navigation }) {
   const UIColors = GetUIColors();
 
-  const appCtx = useAppContext();
+  const appctx = useAppContext();
 
   function LogOutAction() {
     Alert.alert('Déconnexion', 'Êtes-vous sûr de vouloir vous déconnecter ?', [
@@ -37,16 +45,22 @@ function SettingsScreen({ navigation }) {
         onPress: async () => {
           try {
             AsyncStorage.getItem('credentials').then((result) => {
-              const URL = JSON.parse(result).url;
-              AsyncStorage.setItem('old_login', JSON.stringify({ url: URL }));
+              const res = JSON.parse(result || 'null');
+              if (res)
+                AsyncStorage.setItem(
+                  'old_login',
+                  JSON.stringify({ url: res.url })
+                );
             });
+            if (appctx.dataprovider.service === 'Skolengo')
+              appctx.dataprovider.skolengoInstance?.skolengoDisconnect();
           } catch (e) {
             /* empty */
           }
 
           AsyncStorage.clear();
 
-          appCtx.setLoggedIn(false);
+          appctx.setLoggedIn(false);
           navigation.popToTop();
         },
       },
@@ -76,6 +90,81 @@ function SettingsScreen({ navigation }) {
     expireToken('expireAction');
   }
 
+  function SkolengoCacheClear() {
+    if (appctx.dataprovider.service === 'Skolengo') {
+      Alert.alert(
+        'Vider le cache',
+        'Êtes-vous sûr de vouloir vider le cache ?',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+          {
+            text: 'Vider le cache',
+            style: 'destructive',
+            onPress: async () => {
+              SkolengoCache.clearItems().then(() =>
+                showMessage({
+                  message: 'Cache vidé avec succès',
+                  type: 'success',
+                  icon: 'auto',
+                  floating: true,
+                })
+              );
+            },
+          },
+        ]
+      );
+    }
+  }
+
+  function SkolengoReconnect() {
+    if (appctx.dataprovider.service === 'Skolengo') {
+      Alert.alert(
+        'Reconnecter son compte Skolengo',
+        'Êtes-vous sûr de vouloir reconnecter votre compte Skolengo ?',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+          {
+            text: 'Reconnecter',
+            style: 'destructive',
+            onPress: async () => {
+              if (!appctx?.dataprovider?.skolengoInstance) return;
+              const validRetry = await loginSkolengoWorkflow(
+                appctx,
+                null,
+                appctx.dataprovider.skolengoInstance.school,
+                appctx.dataprovider.skolengoInstance
+              );
+              if (validRetry === true) {
+                SkolengoCache.clearItems();
+                const discovery = AsyncStorage.getItem(
+                  SkolengoDatas.DISCOVERY_PATH
+                )?.then((_disco) => _disco && JSON.parse(_disco));
+                revokeAsync(
+                  appctx.dataprovider.skolengoInstance.rtInstance,
+                  discovery
+                ).then(() => {
+                  showMessage({
+                    message: 'Compte déconnecté avec succès',
+                    type: 'success',
+                    icon: 'auto',
+                    floating: true,
+                  });
+                  navigation.navigate('login');
+                });
+              }
+            },
+          },
+        ]
+      );
+    }
+  }
+
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
@@ -98,37 +187,75 @@ function SettingsScreen({ navigation }) {
           }
           onPress={() => navigation.navigate('changeServer')}
         />
-        <ListItem
-          title="Regénerer le token"
-          subtitle="Regénerer le token de votre compte"
-          color="#B42828"
-          center
-          left={
-            <PapillonIcon
-              icon={<RefreshCw size={24} color="#565EA3" />}
-              color="#565EA3"
-              size={24}
-              small
+        {appctx.dataprovider.service === 'Pronote' && (
+          <>
+            <ListItem
+              title="Regénerer le token"
+              subtitle="Regénerer le token de votre compte"
+              color="#B42828"
+              center
+              left={
+                <PapillonIcon
+                  icon={<RefreshCw size={24} color="#565EA3" />}
+                  color="#565EA3"
+                  size={24}
+                  small
+                />
+              }
+              right={tokenLoading ? <ActivityIndicator size="small" /> : null}
+              onPress={() => TokenAction()}
             />
-          }
-          right={tokenLoading ? <ActivityIndicator size="small" /> : null}
-          onPress={() => TokenAction()}
-        />
-        <ListItem
-          title="Forcer l'expiration du token"
-          subtitle="Regénerer le token de votre compte"
-          color="#B42828"
-          center
-          left={
-            <PapillonIcon
-              icon={<Trash2 size={24} color="#565EA3" />}
-              color="#565EA3"
-              size={24}
-              small
+            <ListItem
+              title="Forcer l'expiration du token"
+              subtitle="Regénerer le token de votre compte"
+              color="#B42828"
+              center
+              left={
+                <PapillonIcon
+                  icon={<Trash2 size={24} color="#565EA3" />}
+                  color="#565EA3"
+                  size={24}
+                  small
+                />
+              }
+              onPress={() => ExpireAction()}
             />
-          }
-          onPress={() => ExpireAction()}
-        />
+          </>
+        )}
+        {appctx.dataprovider.service === 'Skolengo' && (
+          <>
+            <ListItem
+              title="Vider le cache"
+              subtitle="Vider le cache de l'application"
+              color="#B42828"
+              center
+              left={
+                <PapillonIcon
+                  icon={<Trash2 size={24} color="#565EA3" />}
+                  color="#565EA3"
+                  size={24}
+                  small
+                />
+              }
+              onPress={() => SkolengoCacheClear()}
+            />
+            <ListItem
+              title="Reconnecter son compte Skolengo"
+              subtitle="Et regénérer le token"
+              color="#B42828"
+              center
+              left={
+                <PapillonIcon
+                  icon={<Trash2 size={24} color="#565EA3" />}
+                  color="#565EA3"
+                  size={24}
+                  small
+                />
+              }
+              onPress={() => SkolengoReconnect()}
+            />
+          </>
+        )}
       </View>
 
       <View style={{ gap: 9, marginTop: 16 }}>

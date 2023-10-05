@@ -1,13 +1,9 @@
 /* eslint-disable global-require */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { sendToSharedGroupGetEdtF } from './SharedValues';
 
 export class IndexDataInstance {
-  /**
-   * @type {IndexDataInstance}
-   */
-  static instance = null;
-
   initialized = false;
 
   service = null;
@@ -20,21 +16,9 @@ export class IndexDataInstance {
   constructor(service = null) {
     this.service = service;
     this.init(service);
-    IndexDataInstance.instance = this;
   }
 
-  static singletonGetInstance(service = null) {
-    if (
-      !IndexDataInstance.instance ||
-      (service && IndexDataInstance.instance.service !== service)
-    ) {
-      IndexDataInstance.instance =
-        IndexDataInstance.singletonGetInstance(service);
-    }
-    return IndexDataInstance.instance;
-  }
-
-  waitInit = async () => {
+  async waitInit() {
     if (this.initialized) return true;
     if (this.service === 'Skolengo' && this.skolengoInstance === null)
       await this.init('Skolengo');
@@ -46,7 +30,7 @@ export class IndexDataInstance {
         }
       }, 250);
     });
-  };
+  }
 
   async init(service = null) {
     this.service = service || (await AsyncStorage.getItem('service')) || null;
@@ -97,7 +81,7 @@ export class IndexDataInstance {
     if (!day2) day2 = day;
     await this.waitInit();
     if (this.service === 'Skolengo')
-      return this.skolengoInstance.getHomeworks(day, force);
+      return this.skolengoInstance.getHomeworks(day, force, day2) || [];
     if (this.service === 'Pronote')
       return require(`./PronoteData/PronoteHomeworks.js`).getHomeworks(
         day,
@@ -144,10 +128,16 @@ export class IndexDataInstance {
   // [Service]Recap.js
   async getRecap(day, force = false) {
     await this.waitInit();
+    const storeShared = (e) => {
+      sendToSharedGroupGetEdtF(e[0]);
+      return e;
+    };
     if (this.service === 'Skolengo')
-      return this.skolengoInstance.getRecap(day, force);
+      return this.skolengoInstance.getRecap(day, force).then(storeShared);
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteRecap.js`).getRecap(day, force);
+      return require(`./PronoteData/PronoteRecap.js`)
+        .getRecap(day, force)
+        .then(storeShared);
     // .then((e) => thenHandler('recap', e));
     return [[], [], {}];
   }
@@ -169,7 +159,13 @@ export class IndexDataInstance {
   async getUser(force = false) {
     await this.waitInit();
     if (this.service === 'Skolengo')
-      return this.skolengoInstance.getUser(force).then((e) => editUser(e));
+      return this.skolengoInstance
+        .getUser(force)
+        .then((e) => editUser(e))
+        .then((e) => {
+          console.log('usr', e);
+          return e;
+        });
     if (this.service === 'Pronote')
       return require(`./PronoteData/PronoteUser.js`)
         .getUser(force)
@@ -211,22 +207,22 @@ export class IndexDataInstance {
   }
 }
 
-function editUser(profile) {
+async function editUser(profile) {
   const user = profile;
 
-  return AsyncStorage.getItem('custom_profile_picture').then(
+  await AsyncStorage.getItem('custom_profile_picture').then(
     (customProfilePicture) => {
       if (customProfilePicture) {
         user.profile_picture = customProfilePicture;
       }
-
-      return AsyncStorage.getItem('custom_name').then((customName) => {
-        if (customName) {
-          user.name = customName;
-        }
-
-        return user;
-      });
     }
   );
+
+  await AsyncStorage.getItem('custom_name').then((customName) => {
+    if (customName) {
+      user.name = customName;
+    }
+  });
+
+  return user;
 }
