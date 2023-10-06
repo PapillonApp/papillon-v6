@@ -134,6 +134,8 @@ function SettingsScreen({ navigation }) {
             style: 'destructive',
             onPress: async () => {
               if (!appctx?.dataprovider?.skolengoInstance) return;
+              if (!appctx?.dataprovider?.skolengoInstance.rtInstance)
+                await appctx?.dataprovider?.init();
               const validRetry = await loginSkolengoWorkflow(
                 appctx,
                 null,
@@ -146,7 +148,12 @@ function SettingsScreen({ navigation }) {
                   SkolengoDatas.DISCOVERY_PATH
                 )?.then((_disco) => _disco && JSON.parse(_disco));
                 revokeAsync(
-                  appctx.dataprovider.skolengoInstance.rtInstance,
+                  {
+                    ...appctx.dataprovider.skolengoInstance?.rtInstance,
+                    token:
+                      appctx.dataprovider.skolengoInstance?.rtInstance
+                        .accessToken,
+                  },
                   discovery
                 ).then(() => {
                   showMessage({

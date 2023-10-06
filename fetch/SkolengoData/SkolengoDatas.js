@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import {
   TokenResponse,
   AuthRequest,
@@ -618,7 +619,7 @@ export class SkolengoDatas extends SkolengoBase {
    * @returns {Promise<import('./SkolengoCustomTypes').Grades>}
    */
   getGrades = async (periodId, force = false, limit = 100, offset = 0) => {
-    if (!force) {
+    if (!force && periodId) {
       const cachedRecap = await SkolengoCache.getItem(
         SkolengoCache.cacheKeys.grades
       );
@@ -630,9 +631,10 @@ export class SkolengoDatas extends SkolengoBase {
         return cachedRecap.data;
     }
     if (!periodId)
-      periodId = this.getPeriods(false).then(
+      periodId = await this.getPeriods(false).then(
         (periods) => periods.find((period) => period.actual)?.id
       );
+    console.log('pId', periodId);
     if (typeof periodId !== 'string' && typeof periodId !== 'number')
       return this.gradesTransform([]);
 
@@ -749,10 +751,9 @@ export class SkolengoDatas extends SkolengoBase {
     });
 
   getHomeworks = async (day, force, day2) => {
-    const canBeCached =
-      day2 && SkolengoBase.dateParser(day) !== SkolengoBase.dateParser(day2);
     const dayFormatted = SkolengoBase.dateParser(day);
     const day2Formatted = SkolengoBase.dateParser(day2 || day);
+    const canBeCached = !day2 || dayFormatted === day2Formatted;
     if (!force && canBeCached) {
       const cachedRecap = await SkolengoCache.getCollectionItem(
         SkolengoCache.cacheKeys.homeworkList,
@@ -776,6 +777,7 @@ export class SkolengoDatas extends SkolengoBase {
           ) || []
       )
       .then((e) => (canBeCached ? e.flat() : e));
+
     if (canBeCached)
       SkolengoCache.setCollectionItem(
         SkolengoCache.cacheKeys.homeworkList,
@@ -828,7 +830,7 @@ export class SkolengoDatas extends SkolengoBase {
     const date = new Date(homework.dueDateTime || homework.dueDate);
     const validDate = Number.isNaN(date.getTime()) ? null : date.toISOString();
     if (validDate) this.getHomeworks(date, true);
-    return homework;
+    return { ...homework, status: 'ok' };
   };
 
   /**
@@ -845,8 +847,10 @@ export class SkolengoDatas extends SkolengoBase {
 
   getTimetable = async (day, force = false) => {
     if (!force) {
-      const cachedRecap = await SkolengoCache.getItem(
-        SkolengoCache.cacheKeys.timetable
+      const cachedRecap = await SkolengoCache.getCollectionItem(
+        SkolengoCache.cacheKeys.timetable,
+        SkolengoBase.dateParser(day),
+        {}
       );
       if (!cachedRecap.expired) return cachedRecap.data;
     }
@@ -855,10 +859,11 @@ export class SkolengoDatas extends SkolengoBase {
       SkolengoBase.dateParser(day)
     );
     const datas = this.timetableTransform(agendas[0]);
-    SkolengoCache.setItem(
+    SkolengoCache.setCollectionItem(
       SkolengoCache.cacheKeys.timetable,
+      SkolengoBase.dateParser(day),
       datas,
-      SkolengoCache.MINUTE * 30
+      SkolengoCache.HOUR * 4
     );
     return datas;
   };
@@ -999,8 +1004,8 @@ export class SkolengoDatas extends SkolengoBase {
    * @param {import('scolengo-api/types/models/Results').Evaluation[]} evals
    */
   // eslint-disable-next-line class-methods-use-this
-  gradesTransform = (evals = []) => ({
-    grades: evals
+  gradesTransform = (evals = []) => {
+    const grades = evals
       .map((evalSubj) =>
         evalSubj.evaluations.map((evalData) => ({
           id: evalData.id,
@@ -1031,8 +1036,8 @@ export class SkolengoDatas extends SkolengoBase {
           },
         }))
       )
-      .flat(),
-    averages:
+      .flat();
+    const averages =
       evals
         ?.filter((e) => e.evaluations?.length > 0)
         .map((evalSubj) => ({
@@ -1054,10 +1059,32 @@ export class SkolengoDatas extends SkolengoBase {
           out_of: 20,
           significant: 0,
           color: evalSubj.subject.color,
-        })) || [],
-    overall_average: 10,
-    class_overall_average: 10,
-  });
+        })) || [];
+
+    console.log(
+      'av',
+      averages.map((e) => e)
+    );
+
+    const countedAverages = averages
+      .map((e) => e.average)
+      .filter((e) => typeof e === 'number');
+    const overall_average =
+      countedAverages.reduce((a, b) => a + b, 0) / countedAverages.length;
+    console.log(overall_average);
+    const countedOverallAverages = averages
+      .map((e) => e.class_average)
+      .filter((e) => e);
+    const class_overall_average =
+      countedOverallAverages.reduce((a, b) => a + b, 0) /
+      countedOverallAverages.length;
+    return {
+      grades,
+      averages,
+      overall_average,
+      class_overall_average,
+    };
+  };
 
   /**
    * @param {import('scolengo-api/types/models/Calendar').HomeworkAssignment} homework
@@ -1071,6 +1098,7 @@ export class SkolengoDatas extends SkolengoBase {
       });
     return {
       id: homework.id,
+      local_id: homework.id,
       done: homework.done,
       date: Number.isNaN(dat.getTime()) ? null : dat.toISOString(),
       background_color: homework.subject.color,
@@ -1108,7 +1136,10 @@ export class SkolengoDatas extends SkolengoBase {
   skolengoDisconnect = async () => {
     const discovery = await AsyncStorage.getItem(SkolengoDatas.DISCOVERY_PATH);
     return Promise.all([
-      revokeAsync(this.rtInstance, discovery),
+      revokeAsync(
+        { ...this.rtInstance, token: this.rtInstance.accessToken },
+        discovery
+      ).then(() => console.log('token revoked')),
       AsyncStorage.removeItem(SkolengoDatas.TOKEN_PATH),
       AsyncStorage.removeItem(SkolengoDatas.SCHOOL_PATH),
       AsyncStorage.removeItem(SkolengoDatas.CURRENT_USER_PATH),

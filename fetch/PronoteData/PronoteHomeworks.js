@@ -3,7 +3,7 @@ import getConsts from '../consts';
 
 import { refreshToken } from '../AuthStack/LoginFlow';
 
-function getHomeworks(day, force = false, day2 = null) {
+async function getHomeworks(day, force = false, day2 = null) {
   if (!force) {
     force = false;
   }
@@ -13,6 +13,13 @@ function getHomeworks(day, force = false, day2 = null) {
   } else {
     force = true;
   }
+
+  // if date is not valid
+  if (
+    Number.isNaN(new Date(day).getTime()) &&
+    Number.isNaN(new Date(day2).getTime())
+  )
+    return [];
 
   return getConsts().then((consts) =>
     AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {

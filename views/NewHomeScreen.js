@@ -111,7 +111,8 @@ function NewHomeScreen({ navigation }) {
   useEffect(() => {
     setLoadingUser(true);
     appctx.dataprovider?.getUser().then((data) => {
-      const prenom = data.name.split(' ').pop();
+      console.log('uuser', data);
+      const prenom = data.name?.split(' ')?.pop();
       const establishment = data.establishment;
       const avatarURL = data.profile_picture;
 
@@ -134,7 +135,8 @@ function NewHomeScreen({ navigation }) {
       ),
       appctx.dataprovider.getTimetable(today, force),
     ]).then(([hwData, coursData]) => {
-      const groupedHomeworks = hwData.reduce((grouped, homework) => {
+      const groupedHomeworks = hwData?.flat()?.reduce((grouped, homework) => {
+        if (!homework) return grouped;
         const homeworkDate = new Date(homework.date);
         homeworkDate.setHours(0, 0, 0, 0);
 
@@ -709,7 +711,7 @@ function DevoirsContent({
         backgroundColor: UIColors.element,
       }}
       menuConfig={{
-        menuTitle: homework.subject.name,
+        menuTitle: homework.subject?.name,
         menuItems: [
           {
             actionKey: 'open',
@@ -736,7 +738,7 @@ function DevoirsContent({
             ? {
                 actionKey: 'files',
                 actionTitle: 'Ouvrir la pièce jointe',
-                actionSubtitle: homework.files[0].name,
+                actionSubtitle: homework.files[0]?.name,
                 icon: {
                   type: 'IMAGE_SYSTEM',
                   imageValue: {
@@ -817,7 +819,7 @@ function DevoirsContent({
                       styles.homeworks.devoirsContent.header.subject.color,
                       {
                         backgroundColor: getSavedCourseColor(
-                          homework.subject.name,
+                          homework.subject?.name,
                           homework.background_color
                         ),
                       },
@@ -829,7 +831,7 @@ function DevoirsContent({
                       { color: UIColors.text },
                     ]}
                   >
-                    {formatCoursName(homework.subject.name)}
+                    {formatCoursName(homework.subject?.name)}
                   </Text>
                 </View>
               </View>
@@ -870,7 +872,7 @@ function DevoirsContent({
                           }
                           numberOfLines={1}
                         >
-                          {file.name}
+                          {file?.name}
                         </Text>
                       </PressableScale>
                     ))}
@@ -1120,7 +1122,7 @@ function HomeHeader({ navigation, timetable, user }) {
 
   const getColorCoursBg = (color) => lightenDarkenColor(color, -20);
 
-  const getPrenom = (name) => name.split(' ').pop();
+  const getPrenom = (name = '') => name.split(' ').pop();
 
   const getFormulePolitesse = () => {
     const hours = new Date().getHours();

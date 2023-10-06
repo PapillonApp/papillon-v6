@@ -59,7 +59,7 @@ function relativeDate(date) {
 function normalizeText(text) {
   // remove accents and render in lowercase
   return text
-    .normalize('NFD')
+    ?.normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .toLowerCase();

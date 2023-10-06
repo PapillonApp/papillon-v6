@@ -30,7 +30,7 @@ function getClosestGradeEmoji(subjectName) {
 
   const subjectNameFormatted = subjectName
     .toLowerCase()
-    .normalize('NFD')
+    ?.normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
 
   // get emoji with key in subject name

@@ -193,10 +193,12 @@ function LoginPronote({ route, navigation }) {
           floating: true,
         });
 
-        navigation.goBack();
-        navigation.goBack();
-
-        appctx.setLoggedIn(true);
+        appctx.dataprovider.service = 'Pronote';
+        appctx.dataprovider.init('Pronote').then(() => {
+          navigation.goBack();
+          navigation.goBack();
+          appctx.setLoggedIn(true);
+        });
       }
     });
   }

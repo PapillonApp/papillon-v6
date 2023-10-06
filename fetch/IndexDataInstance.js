@@ -34,6 +34,7 @@ export class IndexDataInstance {
 
   async init(service = null) {
     this.service = service || (await AsyncStorage.getItem('service')) || null;
+    console.log('seriv', this.service);
     this.skolengoInstance =
       this.service === 'Skolengo'
         ? await require(
@@ -50,7 +51,9 @@ export class IndexDataInstance {
       return this.skolengoInstance.getGrades(selectedPeriod, force);
     }
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteGrades.js`).getGrades(force);
+      return require(`./PronoteData/PronoteGrades.js`)
+        .getGrades(force)
+        .then((e) => (typeof e === 'string' ? JSON.parse(e) : e));
     // .then((e) => thenHandler('grades', e));
     return require(`./SkolengoData/SkolengoDatas.js`).SkolengoDatas
       .gradesDefault;

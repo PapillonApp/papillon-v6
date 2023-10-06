@@ -96,11 +96,11 @@ function getClosestCourseColor(courseName) {
   return hexColor;
 }
 
-function normalizeCoursName(courseName) {
+function normalizeCoursName(courseName = '') {
   // remove accents and lowercase
   courseName = courseName
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    ?.normalize('NFD')
+    ?.replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
   // remove spaces
   courseName = courseName.replace(/\s/g, '');

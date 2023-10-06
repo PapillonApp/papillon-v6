@@ -108,17 +108,16 @@ function GradesScreen({ navigation }) {
     setIsLoading(true);
     await appctx.dataprovider.changePeriod(period.name);
     appctx.dataprovider.getUser(true);
-    loadGrades(true);
+    loadGrades(true, period);
     setIsLoading(false);
   }
 
   async function getPeriods() {
-    const result = await appctx.dataprovider.getUser(false);
-    const userData = result;
-    const allPeriods = userData.periods;
-
-    const actualPeriod = allPeriods.find((period) => period.actual === true);
+    const allPeriods = await appctx.dataprovider.getPeriods(false);
+    console.log('pp', allPeriods);
+    const actualPeriod = allPeriods?.find((period) => period.actual === true);
     let periods = [];
+    console.log('pp2', actualPeriod);
 
     if (actualPeriod.name.toLowerCase().includes('trimestre')) {
       periods = allPeriods.filter((period) =>
@@ -132,6 +131,8 @@ function GradesScreen({ navigation }) {
 
     setPeriodsList(periods);
     setSelectedPeriod(actualPeriod);
+
+    return actualPeriod;
   }
 
   async function loadGrades(force = false, _selectedPeriod = null) {
@@ -152,6 +153,8 @@ function GradesScreen({ navigation }) {
 
     const latestGradesThis = scaledGrades.slice(0, 10);
     const subjects = [];
+
+    console.log('grds', grades);
 
     function calculateAverages(averages) {
       let studentAverages = 0;
@@ -234,7 +237,7 @@ function GradesScreen({ navigation }) {
       }
     });
 
-    const averagesList = JSON.parse(grades).averages;
+    const averagesList = grades?.averages;
 
     averagesList.forEach((average) => {
       const subject = subjects.find(
@@ -271,11 +274,12 @@ function GradesScreen({ navigation }) {
     let actual = null;
     if (periodsList.length === 0) {
       actual = await getPeriods().then((e) => e.actualPeriod);
-      setSelectedPeriod(() => actual);
+      console.log('actual', actual);
+      setSelectedPeriod(actual);
     }
 
     if (subjectsList.length === 0) {
-      loadGrades(false, actual);
+      setTimeout(() => loadGrades(false, actual), 150);
     }
   };
   React.useEffect(() => {

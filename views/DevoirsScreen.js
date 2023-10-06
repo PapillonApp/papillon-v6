@@ -276,7 +276,7 @@ function Hwpage({
         />
       }
     >
-      {homeworks.length === 0 ? (
+      {homeworks?.length === 0 ? (
         <Text style={styles.noHomework}>Aucun devoir pour cette date.</Text>
       ) : null}
 
@@ -350,8 +350,8 @@ function Hwitem({ homework, theme, openURL, navigation }) {
             // find the homework
             const cachedHomeworks = JSON.parse(homeworksCache);
 
-            for (let i = 0; i < cachedHomeworks.length; i++) {
-              for (let j = 0; j < cachedHomeworks[i].timetable.length; j++) {
+            for (let i = 0; i < cachedHomeworks?.length; i++) {
+              for (let j = 0; j < cachedHomeworks[i].timetable?.length; j++) {
                 if (
                   cachedHomeworks[i].timetable[j].local_id === homework.local_id
                 ) {
@@ -384,6 +384,7 @@ function Hwitem({ homework, theme, openURL, navigation }) {
 
   const UIColors = GetUIColors();
 
+  if (!homework) return;
   return (
     <PressableScale
       style={[
@@ -419,7 +420,7 @@ function Hwitem({ homework, theme, openURL, navigation }) {
                 styles.hwItemColor,
                 {
                   backgroundColor: getSavedCourseColor(
-                    homework.subject.name,
+                    homework.subject?.name,
                     homework.background_color
                   ),
                 },
@@ -433,7 +434,7 @@ function Hwitem({ homework, theme, openURL, navigation }) {
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              {homework.subject.name.toUpperCase()}
+              {homework.subject?.name.toUpperCase()}
             </Text>
           </View>
           <Text
@@ -447,7 +448,7 @@ function Hwitem({ homework, theme, openURL, navigation }) {
         </View>
       </View>
 
-      {homework.files.length > 0 ? (
+      {homework.files?.length > 0 ? (
         <View style={[styles.homeworkFiles]}>
           {homework.files.map((file, index) => (
             <View
@@ -470,7 +471,7 @@ function Hwitem({ homework, theme, openURL, navigation }) {
                 )}
 
                 <View style={[styles.homeworkFileData]}>
-                  <Text style={[styles.homeworkFileText]}>{file.name}</Text>
+                  <Text style={[styles.homeworkFileText]}>{file?.name}</Text>
                   <Text
                     numberOfLines={1}
                     ellipsizeMode="tail"

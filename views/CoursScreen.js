@@ -246,6 +246,7 @@ function CoursScreen({ navigation }) {
     const newDate = calcDate(setDate, dateOffset);
     if (!coursRef.current[newDate.toLocaleDateString()]) {
       const result = await appctx.dataprovider.getTimetable(newDate);
+      console.log('cor', newDate, result);
       setCours((prevCours) => ({
         ...prevCours,
         [newDate.toLocaleDateString()]: result,

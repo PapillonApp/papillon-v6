@@ -57,31 +57,34 @@ function HomeworkScreen({ route, navigation }) {
           setThisHwChecked(!thisHwChecked);
           setThisHwLoading(false);
 
-          AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
-            // find the homework
-            const cachedHomeworks = JSON.parse(homeworksCache);
+          if (appctx.dataprovider.service === 'Pronote') {
+            AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
+              // find the homework
+              const cachedHomeworks = JSON.parse(homeworksCache);
 
-            for (let i = 0; i < cachedHomeworks.length; i++) {
-              for (let j = 0; j < cachedHomeworks[i].timetable.length; j++) {
-                if (
-                  cachedHomeworks[i].timetable[j].local_id === homework.local_id
-                ) {
-                  cachedHomeworks[i].timetable[j].done =
-                    !cachedHomeworks[i].timetable[j].done;
+              for (let i = 0; i < cachedHomeworks.length; i++) {
+                for (let j = 0; j < cachedHomeworks[i].timetable.length; j++) {
+                  if (
+                    cachedHomeworks[i].timetable[j].local_id ===
+                    homework.local_id
+                  ) {
+                    cachedHomeworks[i].timetable[j].done =
+                      !cachedHomeworks[i].timetable[j].done;
+                  }
                 }
               }
-            }
 
-            AsyncStorage.setItem(
-              'homeworksCache',
-              JSON.stringify(cachedHomeworks)
-            );
-          });
+              AsyncStorage.setItem(
+                'homeworksCache',
+                JSON.stringify(cachedHomeworks)
+              );
+            });
 
-          // sync with home page
-          AsyncStorage.setItem('homeUpdated', 'true');
-          // sync with devoirs page
-          AsyncStorage.setItem('homeworksUpdated', 'true');
+            // sync with home page
+            AsyncStorage.setItem('homeUpdated', 'true');
+            // sync with devoirs page
+            AsyncStorage.setItem('homeworksUpdated', 'true');
+          }
         }
       });
   };

@@ -102,18 +102,18 @@ function EvaluationsScreen({ navigation }) {
   }
 
   async function getPeriods() {
-    const result = await appctx.dataprovider.getUser(false);
-    const userData = result;
-    const allPeriods = userData.periods;
+    const allPeriods = await appctx.dataprovider.getPeriods(false);
 
-    const actualPeriod = allPeriods.find((period) => period.actual === true);
+    const actualPeriod = allPeriods?.find((period) => period.actual === true);
     let periods = [];
 
-    if (actualPeriod.name.toLowerCase().includes('trimestre')) {
+    console.log('peri', actualPeriod);
+
+    if (actualPeriod?.name.toLowerCase().includes('trimestre')) {
       periods = allPeriods.filter((period) =>
         period.name.toLowerCase().includes('trimestre')
       );
-    } else if (actualPeriod.name.toLowerCase().includes('semestre')) {
+    } else if (actualPeriod?.name.toLowerCase().includes('semestre')) {
       periods = allPeriods.filter((period) =>
         period.name.toLowerCase().includes('semestre')
       );
@@ -121,6 +121,8 @@ function EvaluationsScreen({ navigation }) {
 
     setPeriodsList(periods);
     setSelectedPeriod(actualPeriod);
+
+    return actualPeriod;
   }
 
   React.useEffect(() => {
