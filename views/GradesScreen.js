@@ -64,6 +64,11 @@ function GradesScreen({ navigation }) {
           </TouchableOpacity>
         </Fade>
       ),
+      headerTitle: () => (  Platform.OS !== 'ios' ? null : (
+        <Text style={[styles.headerTitle, { color: UIColors.text }]}>
+          Mes notes
+        </Text>
+      )),
     });
   }, [navigation, selectedPeriod, isLoading]);
 
@@ -876,6 +881,11 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     textAlign: 'center',
     marginTop: 12,
+  },
+
+  headerTitle: {
+    fontSize: 17,
+    fontFamily: 'Papillon-Semibold',
   },
 });
 

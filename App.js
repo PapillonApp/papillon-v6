@@ -463,6 +463,7 @@ function WrappedGradesScreen() {
             ? {
                 headerShown: true,
                 headerLargeTitle: false,
+                headerTintColor: '#ffffff',
               }
             : null
         }
@@ -473,6 +474,7 @@ function WrappedGradesScreen() {
         options={{
           headerShown: true,
           headerLargeTitle: false,
+          mdTitleColor: '#ffffff',
           headerTintColor: '#ffffff',
         }}
       />

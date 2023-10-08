@@ -123,11 +123,6 @@ function NewsScreen({ navigation }) {
   // add search bar in the header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (
-        ( isHeadLoading ?
-          <ActivityIndicator/>
-        : null )
-      ),
       headerSearchBarOptions: {
         placeholder: 'Rechercher une actualité',
         cancelButtonText: 'Annuler',
@@ -277,7 +272,6 @@ function NewsScreen({ navigation }) {
               refreshing={isHeadLoading}
               onRefresh={onRefresh}
               colors={[UIColors.primary]}
-              tintColor={UIColors.primary}
             />
           }
           renderItem={({ item, index }) => (

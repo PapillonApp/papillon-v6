@@ -17,6 +17,8 @@ import team from './Team.json';
 import { getInfo } from '../../fetch/AuthStack/LoginFlow';
 import GetUIColors from '../../utils/GetUIColors';
 
+import * as Linking from 'expo-linking';
+
 function AboutScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -86,17 +88,6 @@ function AboutScreen({ navigation }) {
       setServerTag('Serveur vérifié')
     }
   }) 
-
-  const [versionTaps, setVersionTaps] = useState(0);
-
-  function addVersionTap() {
-    setVersionTaps(versionTaps + 1);
-
-    if (versionTaps >= 7) {
-      setVersionTaps(0);
-      WebBrowser.openBrowserAsync('https://matias.ma/nsfw');
-    }
-  }
 
   function openServer() {
     if (isKnownServer) {
@@ -242,7 +233,7 @@ function AboutScreen({ navigation }) {
             }
             center
             chevron
-            onPress={() => openUserLink('https://discord.getpapillon.xyz/')}
+            onPress={() => Linking.openURL('https://discord.getpapillon.xyz/')}
           />
         </View>
 
