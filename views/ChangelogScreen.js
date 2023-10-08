@@ -23,6 +23,8 @@ import { Book, Calendar, BarChart3, AlertCircle, Newspaper, Palette, Bug } from 
 import { Text, useTheme } from 'react-native-paper';
 import GetUIColors from '../utils/GetUIColors';
 
+import * as Linking from 'expo-linking';
+
 function ChangelogScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -53,12 +55,18 @@ function ChangelogScreen({ navigation }) {
     },
   ]
 
+  // Easter egg (allez voir :))
+  function monTelephoneAunTresTresTresGrosProbleme() {
+    Linking.openURL('https://www.youtube.com/watch?v=U8R2NgcRBc0');
+  }
+
   return (
     <View style={{flex: 1, backgroundColor: UIColors.background}}>
       <Image
-          source={require('../assets/bkg_gradient.png')}
-          style={styles.headerImage}
-        />
+        source={require('../assets/bkg_gradient.png')}
+        style={styles.headerImage}
+      />
+
       <ScrollView
         style={[styles.container]}
         contentInsetAdjustmentBehavior="automatic"
@@ -74,15 +82,17 @@ function ChangelogScreen({ navigation }) {
         )}
 
         <View style={styles.headerChangelogTitle}>
-          <Image
-            source={require('../assets/cutted_appicon.png')}
-            style={[styles.headerLogo, Platform.OS == 'android' ? {borderRadius: 200} : null]}
-          />
+          <PressableScale delayLongPress={2000} onLongPress={() => monTelephoneAunTresTresTresGrosProbleme()} style={styles.headerLogoContainer}>
+            <Image
+              source={require('../assets/cutted_appicon.png')}
+              style={[styles.headerLogo, Platform.OS == 'android' ? {borderRadius: 200} : null]}
+            />
+          </PressableScale>
           <Text style={styles.headerTitleTitle}>
             Quoi de neuf dans Papillon ?
           </Text>
           <Text style={styles.headerTitleText}>
-            Papillon à été mis à jour à la version {packageJson.version}.
+            Papillon a été mis à jour à la version {packageJson.version}.
             Découvrons ensemble, pas-à-pas, toutes les nouvelles fonctionnalités !
           </Text>
         </View>
@@ -167,6 +177,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 600,
     
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+
+  headerImageContainer: {
     position: 'absolute',
     top: 0,
     left: 0,

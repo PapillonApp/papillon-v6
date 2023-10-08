@@ -11,6 +11,10 @@ import PapillonIcon from '../components/PapillonIcon';
 
 import GetUIColors from '../utils/GetUIColors';
 
+import NativeList from '../components/NativeList';
+import NativeItem from '../components/NativeItem';
+import NativeText from '../components/NativeText';
+
 function SettingsScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -119,6 +123,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Papillon-Medium',
     opacity: 0.5,
   },
+  
 });
 
 export default SettingsScreen;

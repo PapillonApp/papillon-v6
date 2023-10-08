@@ -7,11 +7,10 @@ import "./utils/IgnoreWarnings";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BottomNavigation, Appbar, useTheme } from 'react-native-paper';
 
-import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import FlashMessage from 'react-native-flash-message';
 
 import { getHeaderTitle } from '@react-navigation/elements';
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Platform, useColorScheme, View } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import {
@@ -127,6 +126,17 @@ const headerTitleStyles = {
     fontFamily: 'Papillon-Semibold',
   },
 }
+
+const commonScreenOptions = Platform.select({
+  android: {
+    animation: 'fade_from_bottom',
+    navigationBarColor: '#00000000',
+    header: (props) => <CustomNavigationBar {...props} />,
+  },
+  ios: {
+    ...headerTitleStyles,
+  },
+});
 
 function InsetNewsScreen() {
   return (
@@ -620,56 +630,58 @@ function WrappedSettings() {
 function AppStack() {
   const theme = useTheme();
 
+  const tabBar = useMemo(() => {
+    if (Platform.OS !== 'ios') {
+      return ({ navigation, state, descriptors, insets }) => (
+        <BottomNavigation.Bar
+          navigationState={state}
+          compact={false}
+          shifting={false}
+          safeAreaInsets={{
+            ...insets,
+            right: 12,
+            left: 12,
+          }}
+          onTabPress={({ route, preventDefault }) => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!event.defaultPrevented) {
+              navigation.navigate(route.name);
+            } else {
+              preventDefault();
+            }
+          }}
+          renderIcon={({ route, focused, color }) => {
+            const { options } = descriptors[route.key];
+            if (options.tabBarIcon) {
+              return options.tabBarIcon({ focused, color, size: 24 });
+            }
+            return null;
+          }}
+          getLabelText={({ route }) => {
+            const { options } = descriptors[route.key];
+            const label =
+              options.tabBarLabel !== undefined
+                ? options.tabBarLabel
+                : options.title !== undefined
+                ? options.title
+                : route.title;
+
+            return label;
+          }}
+        />
+      );
+    }
+    return undefined;
+  }, []);
+
   return (
     <Tab.Navigator
-      tabBar={
-        Platform.OS !== 'ios'
-          ? ({ navigation, state, descriptors, insets }) => (
-              <BottomNavigation.Bar
-                navigationState={state}
-                compact={false}
-                shifting={false}
-                safeAreaInsets={{
-                  ...insets,
-                  right: 12,
-                  left: 12,
-                }}
-                onTabPress={({ route, preventDefault }) => {
-                  const event = navigation.emit({
-                    type: 'tabPress',
-                    target: route.key,
-                    canPreventDefault: true,
-                  });
-
-                  if (event.defaultPrevented) {
-                    preventDefault();
-                  } else {
-                    navigation.navigate(route.name);
-                  }
-                }}
-                renderIcon={({ route, focused, color }) => {
-                  const { options } = descriptors[route.key];
-                  if (options.tabBarIcon) {
-                    return options.tabBarIcon({ focused, color, size: 24 });
-                  }
-
-                  return null;
-                }}
-                getLabelText={({ route }) => {
-                  const { options } = descriptors[route.key];
-                  const label =
-                    options.tabBarLabel !== undefined
-                      ? options.tabBarLabel
-                      : options.title !== undefined
-                      ? options.title
-                      : route.title;
-
-                  return label;
-                }}
-              />
-            )
-          : undefined
-      }
+      tabBar={tabBar}
       screenOptions={{
         headerTruncatedBackTitle: 'Retour',
         elevated: false,
@@ -793,19 +805,18 @@ function AppStack() {
 }
 
 function AuthStack() {
+  const screenOptions = Platform.select({
+    android: {
+      navigationBarColor: '#00000000',
+      header: (props) => <CustomNavigationBar {...props} />,
+    },
+    ios: {
+      ...headerTitleStyles,
+    },
+  });
+
   return (
-    <Stack.Navigator
-      screenOptions={
-        Platform.OS === 'android'
-          ? {
-              navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
-            }
-          : {
-            ...headerTitleStyles
-          }
-      }
-    >
+    <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen
         name="Welcome"
         component={WelcomeScreen}
@@ -870,130 +881,30 @@ function AuthStack() {
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [loggedInLoaded, setLoggedInLoaded] = useState(false);
-
-  // check if the user is logged in or not
-  AsyncStorage.getItem('token').then((value) => {
-    if (value !== null) {
-      // user is logged in
-      setLoggedIn(true);
-    }
-    setLoggedInLoaded(true);
-  });
-
-  // while not logged in, check if the user is logged in
-
-  const [IsReady, SetIsReady] = useState(false);
-
-  // load fonts
-  const LoadFonts = async () => {
-    await useFonts();
-  };
-
-  // dark mode
+  const [isReady, setIsReady] = useState(false);
   const scheme = useColorScheme();
 
-  // toasts
-  const toastConfig = {
-    success: ({ ...rest }) => (
-      <BaseToast
-        {...rest}
-        contentContainerStyle={{
-          paddingHorizontal: 15,
-        }}
-        style={{
-          backgroundColor: scheme === 'dark' ? '#252525' : '#fff',
-          width: '90%',
-          marginTop: 10,
-          borderRadius: 10,
-          borderCurve: 'continuous',
-          shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: 1.5,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3,
-          elevation: 5,
-          borderLeftWidth: 3,
-          borderLeftColor: baseColor,
-        }}
-        text1Style={{
-          color: scheme === 'dark' ? '#fff' : '#000',
-          fontSize: 17,
-          fontFamily: 'Papillon-Semibold',
-        }}
-        text2Style={{
-          color: scheme === 'dark' ? '#fff' : '#000',
-          fontSize: 15,
-        }}
-      />
-    ),
-    error: ({ ...rest }) => (
-      <ErrorToast
-        {...rest}
-        contentContainerStyle={{
-          paddingHorizontal: 15,
-        }}
-        style={{
-          backgroundColor: scheme === 'dark' ? '#252525' : '#fff',
-          width: '90%',
-          marginTop: 10,
-          borderRadius: 10,
-          borderCurve: 'continuous',
-          shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: 1.5,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3,
-          elevation: 5,
-          borderLeftWidth: 3,
-          borderLeftColor: '#A84700',
-        }}
-        text1Style={{
-          color: scheme === 'dark' ? '#fff' : '#000',
-          fontSize: 17,
-          fontFamily: 'Papillon-Semibold',
-        }}
-        text2Style={{
-          color: scheme === 'dark' ? '#fff' : '#000',
-          fontSize: 15,
-        }}
-      />
-    ),
-  };
+  useEffect(() => {
+    // Load fonts and check if the user is logged in
+    const loadApp = async () => {
+      await useFonts();
+      const value = await AsyncStorage.getItem('token');
+      if (value !== null) {
+        setLoggedIn(true);
+      }
+      setIsReady(true);
+    };
 
-  React.useEffect(() => {
-    // functions
-    if (loggedIn) {
-      setBackgroundFetch();
-    }
-  }, [loggedIn]);
+    loadApp();
+  }, []);
 
-  if (!IsReady) {
-    // load fonts
-    LoadFonts().then(() => {
-      SetIsReady(true);
-    });
-
-    return null;
-  }
-
-  // load fonts
   return (
-    <View
-      style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff' }}
-    >
+    <View style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff' }}>
       <AppContextProvider state={{ loggedIn, setLoggedIn }}>
-        {loggedInLoaded ? (
-          <View style={{ flex: 1 }}>
-            {loggedIn ? <AppStack /> : <AuthStack />}
-          </View>
-        ) : null}
+        <View style={{ flex: 1 }}>
+          {loggedIn ? <AppStack /> : <AuthStack />}
+        </View>
       </AppContextProvider>
-      <Toast config={toastConfig} />
       <FlashMessage position="top" />
     </View>
   );
