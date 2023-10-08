@@ -7,11 +7,7 @@ function GetUIColors() {
   const theme = useTheme();
   const colorScheme = useColorScheme();
 
-  // Delay the update of isDark for 1 second
-  setTimeout(() => {
-    isDark = colorScheme === 'dark';
-    console.log('isDark: ' + isDark);
-  }, 1000); // 1000 milliseconds (1 second) delay
+  isDark = colorScheme === 'dark';
 
   // background
   let background = '';

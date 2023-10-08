@@ -302,12 +302,23 @@ function WrappedHomeScreen() {
 
       <Stack.Screen
         name="InsetNews"
-        component={InsetNewsScreen}
+        component={NewsScreen}
         options={{
-          headerShown: false,
-          presentation: 'modal',
+          headerLargeTitle: Platform.OS === 'ios',
+          headerBackTitle: 'Vue d\'ensemble',
+          headerTitle: 'Actualités',
         }}
       />
+      <Stack.Screen
+        name="NewsDetails"
+        component={NewsItem}
+        options={{
+          headerShown: true,
+          headerTitle: 'Actualité',
+        }}
+      />
+
+
       <Stack.Screen
         name="InsetSchoollife"
         component={InsetSchoolLifeScreen}
