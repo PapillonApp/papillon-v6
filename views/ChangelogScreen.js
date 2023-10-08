@@ -92,7 +92,7 @@ function ChangelogScreen({ navigation }) {
             Quoi de neuf dans Papillon ?
           </Text>
           <Text style={styles.headerTitleText}>
-            Papillon à été mis à jour à la version {packageJson.version}.
+            Papillon a été mis à jour à la version {packageJson.version}.
             Découvrons ensemble, pas-à-pas, toutes les nouvelles fonctionnalités !
           </Text>
         </View>
