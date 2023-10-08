@@ -137,34 +137,124 @@ const commonScreenOptions = Platform.select({
   },
 });
 
-function createNavigator(name, component, title) {
-  const options = {
-    headerShown: true,
-    headerLargeTitle: Platform.OS === 'ios',
-    headerTitle: title,
-  };
-
+function InsetNewsScreen() {
   return (
-    <Stack.Navigator screenOptions={commonScreenOptions}>
-      <Stack.Screen name={name} component={component} options={options} />
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : {
+            ...headerTitleStyles
+          }
+      }
+    >
+      <Stack.Screen
+        name="News"
+        component={NewsScreen}
+        options={{
+          headerShown: true,
+          headerLargeTitle: Platform.OS === 'ios',
+          headerTitle: 'Actualités',
+        }}
+      />
+      <Stack.Screen
+        name="NewsDetails"
+        component={NewsItem}
+        options={{
+          headerShown: true,
+          headerTitle: 'Actualité',
+        }}
+      />
     </Stack.Navigator>
   );
 }
 
-function InsetNewsScreen() {
-  return createNavigator("News", NewsScreen, 'Actualités');
-}
-
 function InsetSchoolLifeScreen() {
-  return createNavigator("Schoollife", SchoolLifeScreen, 'Vie scolaire');
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : {
+            ...headerTitleStyles
+          }
+      }
+    >
+      <Stack.Screen
+        name="Schoollife"
+        component={SchoolLifeScreen}
+        options={{
+          headerShown: true,
+          headerLargeTitle: Platform.OS === 'ios',
+          headerTitle: 'Vie scolaire',
+        }}
+      />
+    </Stack.Navigator>
+  );
 }
 
 function InsetConversationsScreen() {
-  return createNavigator("Conversations", ConversationsScreen, 'Conversations');
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : {
+            ...headerTitleStyles
+          }
+      }
+    >
+      <Stack.Screen
+        name="Conversations"
+        component={ConversationsScreen}
+        options={{
+          headerShown: true,
+          headerLargeTitle: Platform.OS === 'ios',
+          headerTitle: 'Conversations',
+        }}
+      />
+    </Stack.Navigator>
+  );
 }
 
 function InsetEvaluationsScreen() {
-  return createNavigator("Evaluations", EvaluationsScreen, 'Compétences');
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : {
+            ...headerTitleStyles
+          }
+      }
+    >
+      <Stack.Screen
+        name="Evaluations"
+        component={EvaluationsScreen}
+        options={{
+          headerShown: true,
+          headerLargeTitle: Platform.OS === 'ios',
+          headerTitle: 'Compétences',
+        }}
+      />
+    </Stack.Navigator>
+  );
 }
 
 function WrappedHomeScreen() {

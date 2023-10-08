@@ -42,20 +42,24 @@ function GetUIColors() {
       : theme.colors.primary;
   }
 
-  // textOnPrimary
-  // let textOnPrimary = '#ffffff';
+  // border
+  let borderColor = '';
 
-  if (Platform.OS === 'android') {
-    // textOnPrimary = theme.colors.onPrimary;
+  if (Platform.OS === 'ios') {
+    borderColor = theme.dark ? '#444444' : '#d5d5d5';
+  } else {
+    borderColor = theme.colors.border;
   }
 
   return {
+    theme : theme.dark ? 'dark' : 'light',
     background,
     element,
     elementHigh,
     text,
     primary: primaryBackground,
     primaryBackground,
+    border: borderColor,
   };
 }
 
