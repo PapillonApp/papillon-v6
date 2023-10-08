@@ -86,6 +86,7 @@
     "react-native-view-shot": "3.7.0",
     "react-native-web": "~0.19.6",
     "reanimated-color-picker": "^2.3.4",
+    "swiftui-react-native": "^5.0.0",
     "sync-storage": "^0.4.2"
   },
   "devDependencies": {
