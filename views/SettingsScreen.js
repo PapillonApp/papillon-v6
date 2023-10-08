@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Papillon-Medium',
     opacity: 0.5,
   },
+  
 });
 
 export default SettingsScreen;
