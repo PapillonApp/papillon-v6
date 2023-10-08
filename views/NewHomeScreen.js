@@ -30,7 +30,7 @@ import { IndexData } from '../fetch/IndexData';
 import PapillonList from '../components/PapillonList';
 
 // Icons 
-import { DownloadCloud, Check, Gavel, Newspaper, MessagesSquare, CheckCircle } from 'lucide-react-native';
+import { DownloadCloud, Check, Gavel, Newspaper, MessagesSquare, CheckCircle, AlertCircle } from 'lucide-react-native';
 
 // Formatting
 import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
@@ -698,8 +698,11 @@ const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIn
                       ]}
                       onPress={() => openURL(file.url)}
                     >
-                      <DownloadCloud size={22} color={UIColors.text} />
-                      <Text style={styles.homeworks.devoirsContent.footer.files.file.text} numberOfLines={1}>{file.name}</Text>
+                      { file.url ? 
+                        <DownloadCloud size={22} color={UIColors.text} />
+                        : <AlertCircle size={22} color={"#ff0000"} />
+                      }
+                      <Text style={styles.homeworks.devoirsContent.footer.files.file.text} numberOfLines={1}>{file.name ? file.name : "Lien invalide"}</Text>
                     </PressableScale>
                   ))}
                 </View>
