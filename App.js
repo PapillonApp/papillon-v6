@@ -26,7 +26,6 @@ import useFonts from './hooks/useFonts';
 import { BlurView } from 'expo-blur';
 
 import HomeScreen from './views/HomeScreen';
-import NewHomeScreen from './views/NewHomeScreen';
 
 import CoursScreen from './views/CoursScreen';
 import LessonScreen from './views/Cours/LessonScreen';
@@ -44,6 +43,8 @@ import AppearanceScreen from './views/Settings/AppearanceScreen';
 import SettingsScreen2 from './views/Settings/SettingsScreen';
 import IconsScreen from './views/Settings/IconsScreen';
 import ChangeServer from './views/Settings/ChangeServer';
+
+import NewSettings from './views/NewSettings';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -72,6 +73,7 @@ import NotificationsScreen from './views/Settings/NotificationsScreen';
 import setBackgroundFetch from './fetch/BackgroundFetch';
 
 import { SFSymbol } from "react-native-sfsymbols";
+import GetUIColors from './utils/GetUIColors';
 
 const Tab = createBottomTabNavigator();
 
@@ -223,6 +225,8 @@ function InsetEvaluationsScreen() {
 }
 
 function InsetSettings() {
+  const UIColors = GetUIColors();
+  
   return (
     <Stack.Navigator
       screenOptions={
@@ -237,6 +241,21 @@ function InsetSettings() {
           }
       }
     >
+      { Platform.OS === 'ios' ?
+        <Stack.Screen
+          name="Paramètres"
+          component={NewSettings}
+          options={{
+            headerTitle: 'Réglages',
+            headerLargeTitle: Platform.OS === 'ios',
+            headerLargeStyle: {
+              backgroundColor: UIColors.background,
+            },
+            headerLargeTitleShadowVisible: false,
+          }}
+        />
+      : null }
+
       <Stack.Screen
         name="Compte"
         component={SettingsScreen}
@@ -339,7 +358,7 @@ function WrappedHomeScreen() {
     >
       <Stack.Screen
         name="Vue d'ensemble"
-        component={NewHomeScreen}
+        component={HomeScreen}
         options={{
           headerShown: true,
           headerLargeTitle: Platform.OS === 'ios',

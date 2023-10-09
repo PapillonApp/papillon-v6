@@ -1,91 +1,168 @@
+// React Native code
 import * as React from 'react';
 import {
   View,
+  Alert,
   ScrollView,
   StyleSheet,
-  StatusBar,
-  Platform,
-  TouchableOpacity,
+  Image,
+  Animated,
+  Easing,
+  TouchableHighlight,
   ActivityIndicator,
   RefreshControl,
-  Image,
+  Linking,
+  Platform,
+  StatusBar,
+  TouchableOpacity,
 } from 'react-native';
-import { useTheme, Text, Snackbar } from 'react-native-paper';
+import { useEffect, useState, useRef } from 'react';
 
-import { useFocusEffect } from '@react-navigation/native';
-
-import * as Haptics from 'expo-haptics';
-
-import { useIsFocused } from '@react-navigation/native';
-
-import {
-  CheckCircle,
-  Gavel,
-  MessagesSquare,
-  Newspaper,
-  Link,
-  File,
-  Check,
-} from 'lucide-react-native';
-import { useState, useEffect } from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+// Components & Styles
+import { useTheme, Text } from 'react-native-paper';
+import GetUIColors from '../utils/GetUIColors';
 import { PressableScale } from 'react-native-pressable-scale';
-import formatCoursName from '../utils/FormatCoursName';
-import getClosestGradeEmoji from '../utils/EmojiCoursName';
-import getClosestColor from '../utils/ColorCoursName';
-import { getClosestCourseColor } from '../utils/ColorCoursName';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+// Fetch
 import { IndexData } from '../fetch/IndexData';
 
-import GetUIColors from '../utils/GetUIColors';
+// Custom Components
+import PapillonList from '../components/PapillonList';
 
+// Icons 
+import { DownloadCloud, Check, Gavel, Newspaper, MessagesSquare, CheckCircle, AlertCircle } from 'lucide-react-native';
+
+// Formatting
+import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
+import formatCoursName from '../utils/FormatCoursName';
+import getClosestGradeEmoji from '../utils/EmojiCoursName';
+
+// Modules
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
-import ListItem from '../components/ListItem';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ContextMenuView } from 'react-native-ios-context-menu';
 
-import * as Notifications from 'expo-notifications';
-
+// Functions
 const openURL = (url) => {
+  isURL = url.includes('http://') || url.includes('https://');
+
+  if (!isURL) {
+    Alert.alert(
+      'URL invalide',
+      'Le lien fourni par votre établissement ne peut pas être ouvert.',
+      [
+        {
+          text: 'OK',
+          style: 'cancel'
+        },
+        {
+          text: 'Ouvrir quand même',
+          onPress: () => {
+            Linking.openURL(`https://${url}`);
+          }
+        }
+      ]
+    );
+    return;
+  }
+
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
     presentationStyle: 'pageSheet',
-    controlsColor: '#29947A',
+    controlsColor: Platform.OS == 'ios' ? '#29947A' : null,
     readerMode: true,
+    createTask: false,
   });
 };
 
-import packageJson from '../package.json';
-
-function HomeScreen({ navigation }) {
+// App
+const NewHomeScreen = ({ navigation }) => {
   const theme = useTheme();
+  const UIColors = GetUIColors();
 
-  const currentDate = new Date();
+  const [refreshCount, setRefreshCount] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [user, setUser] = useState(null);
+  const [formattedUserData, setFormattedUserData] = useState({
+    prenom: '',
+    establishment: '',
+    avatarURL: '',
+  });
+  const [homeworks, setHomeworks] = useState([]);
+  const [loadingHw, setLoadingHw] = useState(true);
+  const [timetable, setTimetable] = useState([]);
+  const [loadingCours, setLoadingCours] = useState(true);
 
-  const [nextClasses, setNextClasses] = React.useState(null);
-  const [timetable, setTimetable] = React.useState(null);
-  const [homeworks, setHomeworks] = React.useState(null);
-  const [fullHomeworks, setFullHomeworks] = React.useState(null);
-  const [grades, setGrades] = React.useState(null);
-  const [user, setUser] = React.useState(null);
-  const [latestGrades, setLatestGrades] = React.useState(null);
-
-  const [refreshCount, setRefreshCount] = React.useState(0);
-  const [isHeadLoading, setIsHeadLoading] = React.useState(true);
-
-  const [forceReload, setForceReload] = React.useState(false);
-
-  // ouvrir le change log
   useEffect(() => {
-    AsyncStorage.getItem('lastver').then((value) => {
-      if (value !== packageJson.version) {
-        navigation.navigate('Changelog');
-        AsyncStorage.setItem('lastver', packageJson.version);
-      }
-    });
-  }, [])
+    setLoadingUser(true);
+    IndexData.getUser().then((data) => {
+      const prenom = data.name.split(' ').pop();
+      const establishment = data.establishment;
+      const avatarURL = data.profile_picture;
 
-  // change header text and size
+      setFormattedUserData({ prenom, establishment, avatarURL });
+      setUser(data);
+      setLoadingUser(false);
+    });
+
+    const today = new Date();
+    let force = refreshCount > 0;
+
+    setLoadingHw(true);
+    setLoadingCours(true);
+
+    Promise.all([
+      IndexData.getHomeworks(today, force, new Date(today).setDate(today.getDate() + 7)),
+      IndexData.getTimetable(today, force)
+    ]).then(([hwData, coursData]) => {
+      const groupedHomeworks = hwData.reduce((grouped, homework) => {
+        const homeworkDate = new Date(homework.date);
+        homeworkDate.setHours(0, 0, 0, 0);
+
+        const formattedDate =
+          homeworkDate.getDate() === today.getDate() + 1
+            ? 'demain'
+            : new Date(homeworkDate).toLocaleDateString('fr-FR', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+              });
+
+        if (!grouped[formattedDate]) {
+          grouped[formattedDate] = {
+            date: homeworkDate,
+            formattedDate: formattedDate,
+            homeworks: [],
+          };
+        }
+
+        grouped[formattedDate].homeworks.push(homework);
+        return grouped;
+      }, {});
+
+      const result = Object.values(groupedHomeworks).sort((a, b) => a.date - b.date);
+      setHomeworks(result);
+      setLoadingHw(false);
+      setTimetable(coursData);
+      setLoadingCours(false);
+    });
+  }, [refreshCount]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      AsyncStorage.getItem('homeUpdated').then((value) => {
+        if (value === 'true') {
+          console.log('home updated');
+          setRefreshCount((prevCount) => prevCount + 1);
+          AsyncStorage.setItem('homeUpdated', 'false');
+        }
+      });
+    }, [navigation])
+  );
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       header: (props) => (
@@ -99,519 +176,660 @@ function HomeScreen({ navigation }) {
     });
   }, [navigation, timetable, user]);
 
-  function addDays(date, days) {
-    date = new Date(date);
-    date.setDate(date.getDate() + days);
-
-    return date;
-  }
-
-  const [homeLoading, setHomeLoading] = React.useState(false);
-
-  React.useEffect(() => {
-    // ask for notifications permission
-    Notifications.requestPermissionsAsync();
-
-    setHomeLoading(true);
-    // Fetch recap data
-    IndexData.getRecap(currentDate, forceReload).then(
-      ([timetableData, gradesData, homeworksData, homeworks1, homeworks2]) => {
-        setIsHeadLoading(false);
-        setHomeLoading(false);
-
-        setTimetable(timetableData);
-        setHomeworks(homeworksData);
-        setGrades(gradesData);
-
-        fHws = [];
-        fHws.push({
-          date : addDays(new Date, 0),
-          hws: homeworksData || []
-        })
-        fHws.push({
-          date : addDays(new Date, 1),
-          hws: homeworks1 || []
-        })
-        fHws.push({
-          date : addDays(new Date, 2),
-          hws: homeworks2 || []
-        })
-
-        if (homeworksData.length == 0 && homeworks1.length == 0 && homeworks2.length == 0) {
-          // setFullHomeworks(null);
-        }
-        else {
-          setFullHomeworks(fHws);
-        }
-
-        const nextClasses2 = getNextCours(timetable).nextClasses;
-        setNextClasses(nextClasses2);
-
-        // Calculate grade colors
-        const updatedGrades = JSON.parse(gradesData)
-          .grades.reverse()
-          .map((grade) => {
-            const average = JSON.parse(gradesData).averages.find(
-              (av) => av.subject.name === grade.subject.name
-            );
-            return {
-              ...grade,
-              color: average ? getClosestCourseColor(average.subject.name) : undefined,
-            };
-          });
-
-        const latestGrades2 = updatedGrades.slice(0, 10);
-        setLatestGrades(latestGrades2);
-      }
-    );
-
-    setHomeLoading(true);
-    // Fetch user data
-    IndexData.getUser().then((result) => {
-      setUser(result);
-      setHomeLoading(false);
-    });
-
-    const interval = setInterval(() => {
-      const nextClasses2 = getNextCours(timetable).nextClasses;
-      setNextClasses(nextClasses2);
-    }, 2000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, [refreshCount]);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      AsyncStorage.getItem('homeUpdated').then((value) => {
-        if (value === 'true') {
-          console.log('home updated');
-          setRefreshCount((prevCount) => prevCount + 1);
-
-          AsyncStorage.setItem('homeUpdated', 'false');
-        }
-      });
-    }, [navigation])
-  );
-
-  // Refresh function
-  const onRefresh = React.useCallback(() => {
-    setIsHeadLoading(true);
-    setForceReload(true);
-    setRefreshCount((prevCount) => prevCount + 1);
-    setIsHeadLoading(false);
-  }, []);
-
-  React.useEffect(() => {
-    // refresh a l'ouverture de l'app
-    setRefreshCount((prevCount) => prevCount + 1);
-  }, [])
-
-  const UIColors = GetUIColors();
-
-  function startConfetti() {
-    return false;
-  }
-
   return (
     <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
       style={[styles.container, { backgroundColor: UIColors.background }]}
-      contentContainerStyle={{
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingTop: 12,
-      }}
+      contentInsetAdjustmentBehavior='automatic'
       refreshControl={
         <RefreshControl
           progressViewOffset={28}
-          refreshing={isHeadLoading}
-          onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? UIColors.primary : null]}
+          refreshing={refreshing}
+          colors={[Platform.OS == 'android' ? UIColors.primary : null]}
+          onRefresh={() => {
+            setRefreshing(true);
+            setTimeout(() => {
+              setRefreshCount(refreshCount + 1);
+            }, 500);
+            setTimeout(() => {
+              setRefreshing(false);
+            }, 1000);
+          }}
         />
       }
     >
+      <View style={{ height: 32 }} />
+      <TabsElement navigation={navigation} theme={theme} UIColors={UIColors} />
 
-      {/* next classes */}
-      {nextClasses ? (
-        <View
-          style={[
-            styles.nextClassesList,
-            { backgroundColor: UIColors.element },
-          ]}
-        >
-          {nextClasses.map((cours, index) => (
-            <View
-              key={index}
-              style={[
-                styles.nextClassesListItemContainer,
-                {
-                  borderBottomWidth: index !== nextClasses.length - 1 ? 1 : 0,
-                  borderBottomColor: theme.dark ? '#ffffff10' : '#00000010',
-                },
-              ]}
+      <CoursElement
+        cours={timetable}
+        theme={theme}
+        UIColors={UIColors}
+        navigation={navigation}
+        loading={loadingCours}
+      />
+      
+      <DevoirsElement
+        homeworks={homeworks}
+        theme={theme}
+        UIColors={UIColors}
+        navigation={navigation}
+        loading={loadingHw}
+      />
+    </ScrollView>
+  );
+};
+
+const TabsElement = ({ navigation, theme, UIColors }) => {
+  return (
+    <View style={[styles.tabs.tabsContainer]}>
+        <View style={[styles.tabs.tabRow]}>
+          <ContextMenuView style={{flex: 1}} borderRadius={12}>
+            <PressableScale
+              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+              weight="light"
+              activeScale={0.9}
+              onPress={() => navigation.navigate('InsetSchoollife')}
             >
-              <TouchableOpacity
-                style={[styles.nextClassesListItem]}
-                onPress={() => navigation.navigate('Lesson', { event: cours })}
-              >
-                <Text
-                  numberOfLines={1}
-                  style={[styles.nextClassesListItemEmoji]}
-                >
-                  {getClosestGradeEmoji(cours.subject.name)}
-                </Text>
-
-                <Text
-                  numberOfLines={1}
-                  style={[styles.nextClassesListItemText]}
-                >
-                  {formatCoursName(cours.subject.name)}
-                </Text>
-
-                <Text
-                  numberOfLines={1}
-                  style={[styles.nextClassesListItemTime]}
-                >
-                  {new Date(cours.start).toLocaleTimeString('fr-FR', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
-      ) : null}
-
-      {/* status */}
-      { homeLoading && !isHeadLoading && Platform.OS == 'android' ? (
-        <ListItem
-          title="Chargement des données"
-          subtitle="Veuillez patienter..."
-          width
-          center
-          right={
-            <ActivityIndicator
-              size={24}
-            />
-          }
-          style={{ marginHorizontal: 16 }}
-        />
-      ) : null }
-
-      {/* tabs */}
-      <View style={[styles.tabsContainer]}>
-        <View style={[styles.tabRow]}>
-          <PressableScale
-            style={[styles.tab, { backgroundColor: UIColors.element }]}
-            weight="light"
-            activeScale={0.9}
-            onPress={() => navigation.navigate('InsetSchoollife')}
-          >
-            <Gavel size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-            <Text style={[styles.tabText]}>Vie scolaire</Text>
-          </PressableScale>
-          <PressableScale
-            style={[styles.tab, { backgroundColor: UIColors.element }]}
-            weight="light"
-            activeScale={0.9}
-            onPress={() => navigation.navigate('InsetNews')}
-          >
-            <Newspaper size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-            <Text style={[styles.tabText]}>Actualités</Text>
-          </PressableScale>
-        </View>
-        <View style={[styles.tabRow]}>
-          <PressableScale
-            style={[styles.tab, { backgroundColor: UIColors.element }]}
-            weight="light"
-            activeScale={0.9}
-            onPress={() => navigation.navigate('InsetConversations')}
-          >
-            <MessagesSquare
-              size={24}
-              color={theme.dark ? '#ffffff' : '#000000'}
-            />
-            <Text style={[styles.tabText]}>Conversations</Text>
-          </PressableScale>
-          <PressableScale
-            style={[styles.tab, { backgroundColor: UIColors.element }]}
-            weight="light"
-            activeScale={0.9}
-            onPress={() => navigation.navigate('InsetEvaluations')}
-          >
-            <CheckCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-            <Text style={[styles.tabText]}>Compétences</Text>
-          </PressableScale>
+              <Gavel size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <Text style={[styles.tabs.tabText]}>Vie scolaire</Text>
+            </PressableScale>
+          </ContextMenuView>
+          <ContextMenuView style={{flex: 1}} borderRadius={12}>
+            <PressableScale
+              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+              weight="light"
+              activeScale={0.9}
+              onPress={() => navigation.navigate('InsetEvaluations')}
+            >
+              <CheckCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <Text style={[styles.tabs.tabText]}>Compétences</Text>
+            </PressableScale>
+          </ContextMenuView>
         </View>
       </View>
+  )
+}
 
-      {/* homeworks */}
-      {fullHomeworks && fullHomeworks.length > 0 ? (
+const CoursElement = ({ cours, theme, UIColors, navigation, loading }) => {
+  return (
+    !loading ? (
+      cours.length > 0 ? (
+        <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
+          {cours.map((day, index) => (
+            <View key={index}>
+              <CoursItem key={index} index={index} cours={day} day={cours} theme={theme} UIColors={UIColors} navigation={navigation} />
+            </View>
+          ))}
+        </PapillonList>
+      ) : (
+        <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
+          <View style={styles.loading.container}>
+            <Text style={styles.loading.text}>Aucun cours aujourd'hui</Text>
+          </View>
+        </PapillonList>
+      )
+    ) : (
+      <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
+        <View style={styles.loading.container}>
+          <ActivityIndicator />
+          <Text style={styles.loading.text}>Chargement de l'emploi du temps...</Text>
+        </View>
+      </PapillonList>
+    )
+  )
+}
+
+const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      easing: Easing.elastic(1),
+      useNativeDriver: true,
+      delay: index * 50,
+    }).start();
+  });
+
+  function lz(nb) {
+    return nb < 10 ? `0${nb}` : nb.toString();
+  }
+
+  return (
+    <>
+      {day[index - 1] && new Date(cours.start) - new Date(day[index - 1].end) > 1800000 ? (
+        <Animated.View
+          style={[
+            styles.cours.separator,
+            {
+              opacity: fadeAnim,
+              transform: [
+                {
+                  translateY: fadeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [50, 0],
+                  })
+                },
+                {
+                  scale: fadeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.9, 1],
+                  })
+                }
+              ],
+            }
+          ]}
+        >
+          <View style={[styles.cours.separatorLine, { backgroundColor: UIColors.text + '15' }]} />
+
+          <Text style={{ color: UIColors.text + '30' }}>
+            {`${Math.floor((new Date(cours.start) - new Date(day[index - 1].end)) / 3600000)} h ${lz(Math.floor(((new Date(cours.start) - new Date(day[index - 1].end)) % 3600000) / 60000))} min`}
+          </Text>
+          
+          <View style={[styles.cours.separatorLine, { backgroundColor: UIColors.text + '15' }]} />
+        </Animated.View>
+      ) : null}
+
+      <ContextMenuView
+        style={{ flex: 1 }}
+        borderRadius={14}
+        previewConfig={{
+          borderRadius: 12,
+          backgroundColor: UIColors.element,
+        }}
+        menuConfig={{
+          menuTitle: cours.subject.name,
+          menuItems: [
+            {
+              actionKey  : 'open',
+              actionTitle: 'Voir le cours en détail',
+              icon: {
+                type: 'IMAGE_SYSTEM',
+                imageValue: {
+                  systemName: 'book.pages',
+                },
+              },
+            },
+          ],
+        }}
+        onPressMenuItem={({nativeEvent}) => {
+          if (nativeEvent.actionKey === 'open') {
+            navigation.navigate('Lesson', { event: cours })
+          }
+        }}
+        onPressMenuPreview={() => {
+          navigation.navigate('Lesson', { event: cours })
+        }}
+      >
+      <Animated.View
+        style={[
+          styles.homeworks.devoirsDay.container,
+          {
+            // Bind opacity to animated value
+            opacity: fadeAnim,
+            transform: [
+              {
+                translateY: fadeAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [50, 0],
+                })
+              },
+              {
+                scale: fadeAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.9, 1],
+                })
+              }
+            ],
+          },
+        ]}
+      >
+      <TouchableHighlight
+        style={styles.cours.item.container}
+        underlayColor={UIColors.text + '12'}
+        onPress={() => navigation.navigate('Lesson', { event: cours })}
+      >
         <>
-          <Text style={styles.ListTitle}>Travail à faire</Text>
-          <View style={[styles.hwList, { backgroundColor: UIColors.element }]}>
-            {fullHomeworks.map((data, index2) => (
-              <View key={index2}>
-                { data.hws && data.hws !== undefined && data.hws.length > 0 ?
-                  <>
-                    { data.hws.length > 0 ?
-                      <View style={[styles.HwTitle, Platform.OS == 'android' ? {backgroundColor: !theme.dark ? UIColors.primary + '32' : '#ffffff22'} : null]}>
-                        <Text style={[styles.HwTitleText, Platform.OS == 'android' ? {color: theme.dark ? '#ffffff99' : UIColors.primary} : {color: theme.dark ? '#f0c5e2' : '#4f2040'}]}> pour le {new Date(data.date).toLocaleDateString('fr-FR', {weekday: 'short', day: 'numeric',month: 'short'})}</Text>
-                      </View>
-                    : null }
+          <View style={styles.cours.item.time.container}>
+            <Text style={styles.cours.item.time.start}>
+              {new Date(cours.start).toLocaleTimeString('fr-FR', {
+                hour: 'numeric',
+                minute: 'numeric',
+              })}
+            </Text>
+            <Text style={styles.cours.item.time.end}>
+              {new Date(cours.end).toLocaleTimeString('fr-FR', {
+                hour: 'numeric',
+                minute: 'numeric',
+              })}
+            </Text>
+          </View>
+          <View style={[styles.cours.item.color, {backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color)}]} />
+          <View style={styles.cours.item.data.container}>
+            <Text style={[styles.cours.item.data.subject]}>
+              {formatCoursName(cours.subject.name)}
+            </Text>
+            <Text style={[styles.cours.item.data.teachers]}>
+              {cours.teachers.join(', ')}
+            </Text>
+            <Text style={[styles.cours.item.data.room]}>
+              {cours.rooms.join(', ') || 'Aucune salle'}
+            </Text>
 
-                    {data.hws.map((homework, index) => (
-                      <Hwitem
-                        key={index}
-                        index={index}
-                        homework={homework}
-                        homeworks={data.hws}
-                        navigation={navigation}
-                        theme={theme}
-                        last={true}
-                        startConfetti={startConfetti}
-                      />
-                    ))}
-                  </>
-                : null }
-              </View>
-            ))}
+            { cours.status ? (
+              <Text style={[styles.cours.item.data.status, {backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color) + '22', color: getSavedCourseColor(cours.subject.name, cours.background_color)}]}>
+                {cours.status}
+              </Text>
+            ) : null }
+
           </View>
         </>
-      ) : null}
-
-      {/* grades */}
-      {latestGrades && latestGrades.length > 0 ? (
-        <>
-          <Text style={styles.ListTitle}>Dernières notes</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={[styles.latestGradesList]}
-            style={{flex: 1, width: '100%'}}
-          >
-            {latestGrades.map((grade, index) => (
-              <PressableScale
-                weight="light"
-                activeScale={0.89}
-                key={index}
-                style={[
-                  styles.smallGradeContainer,
-                  { backgroundColor: UIColors.element },
-                ]}
-                onPress={() => navigation.navigate('Grade', { grade })}
-              >
-                <View
-                  style={[
-                    styles.smallGradeSubjectContainer,
-                    { backgroundColor: grade.color },
-                  ]}
-                >
-                  <Text style={[styles.smallGradeEmoji]}>
-                    {getClosestGradeEmoji(grade.subject.name)}
-                  </Text>
-                  <Text
-                    style={[styles.smallGradeSubject]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {formatCoursName(grade.subject.name)}
-                  </Text>
-                </View>
-
-                <View style={[styles.smallGradeNameContainer]}>
-                  {grade.description ? (
-                    <Text
-                      style={[styles.smallGradeName]}
-                      numberOfLines={3}
-                      ellipsizeMode="tail"
-                    >
-                      {grade.description}
-                    </Text>
-                  ) : (
-                    <Text style={[styles.smallGradeName]}>
-                      Note en {formatCoursName(grade.subject.name)}
-                    </Text>
-                  )}
-
-                  <Text style={[styles.smallGradeDate]}>
-                    {new Date(grade.date).toLocaleDateString('fr-FR', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </Text>
-                </View>
-
-                <View style={[styles.smallGradeValueContainer]}>
-                  {grade.grade.significant === 0 ? (
-                    <Text style={[styles.smallGradeValue]}>
-                      {parseFloat(grade.grade.value).toFixed(2)}
-                    </Text>
-                  ) : grade.grade.significant === 3 ? (
-                    <Text style={[styles.smallGradeValue]}>Abs.</Text>
-                  ) : (
-                    <Text style={[styles.smallGradeValue]}>N.not</Text>
-                  )}
-                  <Text style={[styles.smallGradeOutOf]}>
-                    /{grade.grade.out_of}
-                  </Text>
-                </View>
-              </PressableScale>
-            ))}
-          </ScrollView>
-        </>
-      ) : null}
-
-      <View style={{ height: 50 }} />
-    </ScrollView>
+      </TouchableHighlight>
+      </Animated.View>
+      </ContextMenuView>
+    </>
   );
 }
 
-function Hwitem({ homework, theme, last, startConfetti, navigation }) {
-  const [thisHwChecked, setThisHwChecked] = useState(homework.done);
+const DevoirsElement = ({ homeworks, theme, UIColors, navigation, loading }) => {
+  return (
+    !loading ? (
+      homeworks.length > 0 ? (
+        <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
+          {homeworks.map((day, index) => (
+            <DevoirsDay key={index} index={index} homeworks={day} theme={theme} UIColors={UIColors} navigation={navigation} />
+          ))}
+        </PapillonList>
+      ) : (
+        <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
+          <View style={styles.loading.container}>
+            <Text style={styles.loading.text}>Aucun devoir à faire</Text>
+          </View>
+        </PapillonList>
+      )
+    ) : (
+      <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
+        <View style={styles.loading.container}>
+          <ActivityIndicator />
+          <Text style={styles.loading.text}>Chargement des devoirs...</Text>
+        </View>
+      </PapillonList>
+    )
+  );
+}
+
+const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
+  // sort homeworks by index
+  homeworks.homeworks.sort((a, b) => a.index - b.index);
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    setThisHwChecked(homework.done)
-  }, [homework]);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      easing: Easing.elastic(1),
+      useNativeDriver: true,
+      delay: index * 150,
+    }).start();
+  });
 
-  const changeHwState = () => {
-    console.log(`change ${homework.date} : ${homework.local_id}`);
+  const parentIndex = index;
+
+  return (
+    <Animated.View
+      style={[
+        styles.homeworks.devoirsDay.container,
+        {
+          // Bind opacity to animated value
+          opacity: fadeAnim,
+          transform: [
+            {
+              translateY: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [50, 0],
+              })
+            },
+            {
+              scale: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.9, 1],
+              })
+            }
+          ],
+        },
+      ]}
+    >
+
+      <View
+        style={[styles.homeworks.devoirsDay.header.container, { backgroundColor: UIColors.primary + '22' }]}
+      >
+        <Text
+          style={[
+            styles.homeworks.devoirsDay.header.title,
+            { color: UIColors.primary }
+          ]}
+        >
+          pour {homeworks.formattedDate}
+        </Text>
+      </View>
+
+      <View style={styles.homeworks.devoirsDay.content}>
+        { homeworks.homeworks.map((homework, index) => (
+          <DevoirsContent key={index} index={index} parentIndex={parentIndex} homework={homework} theme={theme} UIColors={UIColors} navigation={navigation} />
+        ))}
+      </View>
+    </Animated.View>
+  );
+}
+
+const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIndex }) => {
+  const [checkLoading, setCheckLoading] = useState(false);
+  const [checked, setChecked] = useState(homework.done);
+
+  const checkThis = () => {
+    // définir le loading
+    setCheckLoading(true);
+
     IndexData.changeHomeworkState(homework.date, homework.local_id).then((result) => {
       console.log(result);
 
+      setCheckLoading(false);
+
       if (result.status === 'not found') {
-        setTimeout(() => {
-          setThisHwChecked(homework.done);
-        }, 100);
         return;
       }
-
-      // sync with devoirs page
-      AsyncStorage.setItem('homeworksUpdated', 'true');
-
-      // get homework.date as 2023-01-01
-      const date = new Date(homework.date);
-      const year = date.getFullYear();
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
-
-      const dateStr = `${year}-${month}-${day}`;
-
-      // load devoirs
-      IndexData.getHomeworks(dateStr, true);
+      else if (result.status === 'ok') {
+        setChecked(!checked);
+      }
     });
-  };
+  }
 
-  const UIColors = GetUIColors();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      easing: Easing.elastic(1),
+      useNativeDriver: true,
+      delay: (index * 50) + (parentIndex * 150) + 100,
+    }).start();
+  });
 
   return (
-    <View style={[styles.homeworkItemContainer, {borderBottomColor: UIColors.text + '22', borderBottomWidth: !last ? 1 : 0}]}>
-      <TouchableOpacity style={[styles.homeworkItem, thisHwChecked ? styles.homeworkItemCentered : null]} activeOpacity={0.5} onPress={() => navigation.navigate('Devoir', { homework })}>
-        <View style={[styles.checkboxContainer]}>
-          <HwCheckbox
-            checked={thisHwChecked}
-            theme={theme}
-            pressed={() => {
-              setThisHwChecked(!thisHwChecked);
-              if(!thisHwChecked) {startConfetti()}
-              changeHwState();
-            }}
-          />
-        </View>
-        <View style={[styles.hwItem]}>
-          <View style={[styles.hwItemHeader]}>
-            <View
-              style={[
-                styles.hwItemColor,
-                { backgroundColor: getClosestCourseColor(homework.subject.name) },
-              ]}
-            />
-            <Text
-              style={[
-                styles.hwItemTitle,
-                { color: theme.dark ? '#ffffff' : '#000000' },
-              ]}
-            >
-              {homework.subject.name}
-            </Text>
-          </View>
-          {!thisHwChecked ?
-            <Text
-              numberOfLines={4}
-              style={[
-                styles.hwItemDescription,
-                { color: theme.dark ? '#ffffff' : '#000000' },
-              ]}
-            >
-              {homework.description}
-            </Text>
-          : null }
-        </View>
-      </TouchableOpacity>
-
-      {homework.files.length > 0 ? (
-        <View style={[styles.homeworkFiles]}>
-          {homework.files.map((file, i) => (
-            <View
-              style={[
-                styles.homeworkFileContainer,
-                { borderColor: theme.dark ? '#ffffff10' : '#00000010' },
-              ]}
-              key={i}
-            >
-              <PressableScale
-                style={[styles.homeworkFile]}
-                weight="light"
-                activeScale={0.9}
-                onPress={() => openURL(file.url)}
-              >
-                {file.type === 0 ? (
-                  <Link size={20} color={theme.dark ? '#ffffff' : '#000000'} />
-                ) : (
-                  <File size={20} color={theme.dark ? '#ffffff' : '#000000'} />
-                )}
-
-                <View style={[styles.homeworkFileData]}>
-                  <Text style={[styles.homeworkFileText]}>{file.name}</Text>
-                  <Text
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                    style={[styles.homeworkFileUrl]}
-                  >
-                    {file.url}
-                  </Text>
-                </View>
-              </PressableScale>
+    <ContextMenuView
+      style={{ flex: 1 }}
+      borderRadius={14}
+      previewConfig={{
+        borderRadius: 12,
+        backgroundColor: UIColors.element,
+      }}
+      menuConfig={{
+        menuTitle: homework.subject.name,
+        menuItems: [
+          {
+            actionKey  : 'open',
+            actionTitle: 'Voir le devoir en détail',
+            icon: {
+              type: 'IMAGE_SYSTEM',
+              imageValue: {
+                systemName: 'book.pages',
+              },
+            },
+          },
+          {
+            actionKey  : 'check',
+            actionTitle: 'Marquer comme fait',
+            menuState  : checked ? 'on' : 'off',
+            icon: {
+              type: 'IMAGE_SYSTEM',
+              imageValue: {
+                systemName: 'checkmark.circle',
+              },
+            },
+          },
+          homework.files.length > 0 ? {
+            actionKey  : 'files',
+            actionTitle: 'Ouvrir la pièce jointe',
+            actionSubtitle: homework.files[0].name,
+            icon: {
+              type: 'IMAGE_SYSTEM',
+              imageValue: {
+                systemName: 'paperclip',
+              },
+            },
+          } : null,
+        ],
+      }}
+      onPressMenuItem={({nativeEvent}) => {
+        if (nativeEvent.actionKey === 'open') {
+          navigation.navigate('Devoir', { homework: {... homework, done: checked}});
+        }
+        else if (nativeEvent.actionKey === 'check') {
+          checkThis();
+        }
+        else if (nativeEvent.actionKey === 'files') {
+          openURL(homework.files[0].url);
+        }
+      }}
+      onPressMenuPreview={() => {
+        navigation.navigate('Devoir', { homework: {... homework, done: checked}});
+      }}
+    >
+    <Animated.View
+      style={[
+        {
+          // Bind opacity to animated value
+          opacity: fadeAnim,
+          transform: [
+            {
+              translateY: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [50, 0],
+              })
+            },
+            {
+              scale: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.9, 1],
+              })
+            }
+          ],
+        },
+      ]}
+      >
+      <TouchableHighlight
+        style={[styles.homeworks.devoirsContent.container]}
+        underlayColor={UIColors.text + '12'}
+        onPress={() => navigation.navigate('Devoir', { homework: {... homework, done: checked} })}
+      >
+        <View style={styles.homeworks.devoirsContent.inner}>
+          <HwCheckbox checked={checked} theme={theme} pressed={() => {checkThis()}} UIColors={UIColors} loading={checkLoading} />
+          <View style={styles.homeworks.devoirsContent.parent}>
+            <View style={styles.homeworks.devoirsContent.header.container}>
+              <View style={styles.homeworks.devoirsContent.header.subject.container}>
+                <View style={[styles.homeworks.devoirsContent.header.subject.color, {backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color)}]} />
+                <Text style={[styles.homeworks.devoirsContent.header.subject.title, { color: UIColors.text }]}>{formatCoursName(homework.subject.name)}</Text>
+              </View>
             </View>
-          ))}
+            { !checked ?
+              <View style={styles.homeworks.devoirsContent.content.container}>
+                <Text style={[styles.homeworks.devoirsContent.content.description, { color: UIColors.text }]}>{homework.description}</Text>
+              </View>
+            : null }
+            { homework.files.length > 0 && (
+              <View style={styles.homeworks.devoirsContent.footer.container}>
+                <View style={styles.homeworks.devoirsContent.footer.files.container}>
+                  { homework.files.map((file, index) => (
+                    <PressableScale
+                      key={index}
+                      style={[
+                        styles.homeworks.devoirsContent.footer.files.file.container,
+                        { backgroundColor: UIColors.text + '12' }
+                      ]}
+                      onPress={() => openURL(file.url)}
+                    >
+                      { file.url ? 
+                        <DownloadCloud size={22} color={UIColors.text} />
+                        : <AlertCircle size={22} color={"#ff0000"} />
+                      }
+                      <Text style={styles.homeworks.devoirsContent.footer.files.file.text} numberOfLines={1}>{file.name ? file.name : "Lien invalide"}</Text>
+                    </PressableScale>
+                  ))}
+                </View>
+                <View style={styles.homeworks.devoirsContent.footer.done}>
+                </View>
+              </View>
+            )}
+          </View>
         </View>
-      ) : null}
-    </View>
+      </TouchableHighlight>
+    </Animated.View>
+    </ContextMenuView>
   );
 }
 
-function HwCheckbox({ checked, theme, pressed }) {
-  const UIColors = GetUIColors();
+function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
+  return (
+    !loading ? (
+      <PressableScale
+        style={[
+          styles.checkbox.checkContainer,
+          { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
+          checked ? styles.checkbox.checkChecked : null,
+          checked ? {backgroundColor: UIColors.primary, borderColor: UIColors.primary} : null,
+        ]}
+        weight="light"
+        activeScale={0.7}
+        onPress={() => {
+          pressed()
+        }}
+      >
+        {checked ? <Check size={20} color="#ffffff" /> : null}
+      </PressableScale>
+    ) : (
+      <ActivityIndicator size={26} />
+    )
+  );
+}
+
+const lightenDarkenColor = (color, amount) => {
+  let colorWithoutHash = color.replace('#', '');
+  if (colorWithoutHash.length === 3) {
+    colorWithoutHash = colorWithoutHash
+      .split('')
+      .map((c) => `${c}${c}`)
+      .join('');
+  }
+
+  const getColorChannel = (substring) => {
+    let colorChannel = parseInt(substring, 16) + amount;
+    colorChannel = Math.max(Math.min(255, colorChannel), 0).toString(16);
+
+    if (colorChannel.length < 2) {
+      colorChannel = `0${colorChannel}`;
+    }
+
+    return colorChannel;
+  };
+
+  const colorChannelRed = getColorChannel(colorWithoutHash.substring(0, 2));
+  const colorChannelGreen = getColorChannel(colorWithoutHash.substring(2, 4));
+  const colorChannelBlue = getColorChannel(colorWithoutHash.substring(4, 6));
+
+  return `#${colorChannelRed}${colorChannelGreen}${colorChannelBlue}`;
+};
+
+function NextCours({ cours, navigation }) {
+  const lz = (number) => (number < 10 ? `0${number}` : number);
+
+  const calculateTimeLeft = (date) => {
+    const now = new Date();
+    const start = new Date(date);
+    const diff = start - now;
+
+    if (diff > 0) {
+      const diffMinutes = Math.floor(diff / 1000 / 60);
+      const diffSeconds = Math.floor((diff / 1000) % 60);
+
+      if (diffMinutes < 60) {
+        return `dans ${lz(diffMinutes)}:${lz(diffSeconds)}`;
+      }
+
+      return `dans ${Math.ceil((diffMinutes / 60) - 1)}h ${lz(diffMinutes % 60)}m`;
+    }
+    return 'maintenant';
+  };
+
+  const openCours = () => {
+    navigation.navigate('Lesson', { event: cours });
+  };
+
+  const isTimeSet = !!cours?.start;
+
+  const formattedStartTime = isTimeSet
+    ? new Date(cours.start).toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : '';
+
+  const formattedEndTime = isTimeSet
+    ? new Date(cours.end).toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : '';
+
+  const timeLeft = isTimeSet ? calculateTimeLeft(cours.start) : '';
+
+  if (!cours) {
+    return null;
+  }
 
   return (
     <PressableScale
       style={[
-        styles.checkContainer,
-        { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
-        checked ? styles.checkChecked : null,
-        checked ? {backgroundColor: UIColors.primary, borderColor: UIColors.primary} : null,
+        nextCoursStyles.nextCoursContainer,
+        { backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color) },
       ]}
-      weight="light"
-      activeScale={0.7}
-      onPress={() => {
-        Haptics.notificationAsync('success')
-        pressed()
-      }}
+      onPress={openCours}
     >
-      {checked ? <Check size={20} color="#ffffff" /> : null}
+      <View style={nextCoursStyles.nextCoursLeft}>
+        <View style={nextCoursStyles.nextCoursEmoji}>
+          <Text style={nextCoursStyles.nextCoursEmojiText}>
+            {getClosestGradeEmoji(cours.subject.name)}
+          </Text>
+        </View>
+        <View style={nextCoursStyles.nextCoursLeftData}>
+          <Text numberOfLines={1} style={nextCoursStyles.nextCoursLeftDataText}>
+            {formatCoursName(cours.subject.name)}
+          </Text>
+
+          <Text numberOfLines={1} style={nextCoursStyles.nextCoursLeftDataTextRoom}>
+            {cours.status === null
+              ? `salle ${cours.rooms[0] || 'inconnue'} - avec ${cours.teachers[0]}`
+              : `${cours.status} - salle ${cours.rooms[0] || 'inconnue'} - avec ${cours.teachers[0]}`}
+          </Text>
+        </View>
+      </View>
+      <View style={nextCoursStyles.nextCoursRight}>
+        <Text numberOfLines={1} style={nextCoursStyles.nextCoursRightTime}>
+          à {formattedStartTime}
+        </Text>
+
+        {isTimeSet ? (
+          <Text numberOfLines={1} style={nextCoursStyles.nextCoursRightDelay}>
+            {timeLeft}
+          </Text>
+        ) : (
+          <Text numberOfLines={1} style={nextCoursStyles.nextCoursRightDelay}>
+            {formattedEndTime}
+          </Text>
+        )}
+      </View>
     </PressableScale>
   );
 }
@@ -666,33 +884,6 @@ function getNextCours(classes) {
   };
 }
 
-const lightenDarkenColor = (color, amount) => {
-  let colorWithoutHash = color.replace('#', '');
-  if (colorWithoutHash.length === 3) {
-    colorWithoutHash = colorWithoutHash
-      .split('')
-      .map((c) => `${c}${c}`)
-      .join('');
-  }
-
-  const getColorChannel = (substring) => {
-    let colorChannel = parseInt(substring, 16) + amount;
-    colorChannel = Math.max(Math.min(255, colorChannel), 0).toString(16);
-
-    if (colorChannel.length < 2) {
-      colorChannel = `0${colorChannel}`;
-    }
-
-    return colorChannel;
-  };
-
-  const colorChannelRed = getColorChannel(colorWithoutHash.substring(0, 2));
-  const colorChannelGreen = getColorChannel(colorWithoutHash.substring(2, 4));
-  const colorChannelBlue = getColorChannel(colorWithoutHash.substring(4, 6));
-
-  return `#${colorChannelRed}${colorChannelGreen}${colorChannelBlue}`;
-};
-
 function HomeHeader({ navigation, timetable, user }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -703,44 +894,34 @@ function HomeHeader({ navigation, timetable, user }) {
 
   const isFocused = useIsFocused();
 
-  React.useEffect(() => {
-    const fetchNextCourses = () => {
-      if (timetable !== null) {
-        const { next, nextClasses } = getNextCours(timetable);
-        setNextCourse(next);
-        setLeftCourses(nextClasses);
-        setLoading(false);
-      }
-    };
+  const fetchNextCourses = () => {
+    if (timetable !== null) {
+      const { next, nextClasses } = getNextCours(timetable);
+      setNextCourse(next);
+      setLeftCourses(nextClasses);
+      setLoading(false);
+    }
+  };
 
+  React.useEffect(() => {
     fetchNextCourses();
-    const interval = setInterval(fetchNextCourses, 2000);
+    const interval = setInterval(fetchNextCourses, 1000);
     return () => clearInterval(interval);
   }, [timetable]);
 
   const getColorCoursBg = (color) =>
-    lightenDarkenColor(getClosestCourseColor(color), -20);
+    lightenDarkenColor(color, -20);
 
-  const getPrenom = (name) => {
-    const words = name.split(' ');
-    const prenom = words[words.length - 1];
-
-    return prenom;
-  };
+  const getPrenom = (name) => name.split(' ').pop();
 
   const getFormulePolitesse = () => {
-    const date = new Date();
-    const hours = date.getHours();
-    if(hours > 17) {
-      return "Bonsoir"
-    } else {
-      return "Bonjour"
-    }
-  }
+    const hours = new Date().getHours();
+    return hours > 17 ? 'Bonsoir' : 'Bonjour';
+  };
 
   const openProfile = () => {
     if (user) {
-      navigation.navigate('Profile', { isModal: true });
+      navigation.navigate('InsetSettings', { isModal: true });
     }
   };
 
@@ -753,14 +934,15 @@ function HomeHeader({ navigation, timetable, user }) {
   };
 
   const UIColors = GetUIColors();
+  const hasTimetable = timetable && leftCourses && leftCourses.length > 0;
 
   return (
     <View
       style={[
-        styles.header,
+        headerStyles.header,
         {
           backgroundColor: nextCourse
-            ? getColorCoursBg(nextCourse.subject.name)
+            ? getColorCoursBg(getSavedCourseColor(nextCourse.subject.name, nextCourse.background_color))
             : UIColors.primaryBackground,
           paddingTop: insets.top + 13,
           borderColor: theme.dark ? '#ffffff15' : '#00000032',
@@ -768,172 +950,323 @@ function HomeHeader({ navigation, timetable, user }) {
         },
       ]}
     >
-      {isFocused ? (
+      {isFocused && (
         <StatusBar barStyle="light-content" backgroundColor="transparent" />
-      ) : null}
+      )}
 
-      <View style={styles.headerContainer}>
-        <Text style={[styles.headerNameText]}>
-          {getFormulePolitesse()}{user ? `, ${getPrenom(user.name)} !` : ' !'}
+      <View style={headerStyles.headerContainer}>
+        <Text style={[headerStyles.headerNameText]}>
+          {`${getFormulePolitesse()}${user ? `, ${getPrenom(user.name)} !` : ' !'}`}
         </Text>
-        <Text style={[styles.headerCoursesText]}>
-          {timetable && leftCourses && leftCourses.length > 0
+        <Text style={[headerStyles.headerCoursesText]}>
+          {hasTimetable
             ? `Il te reste ${leftCourses.length + 1} cours dans ta journée.`
             : "Tu n'as aucun cours restant aujourd'hui."}
         </Text>
 
         {user && user.profile_picture !== null && (
           <TouchableOpacity
-            style={[styles.headerPfpContainer]}
+            style={[headerStyles.headerPfpContainer]}
             onPress={openProfile}
           >
             <Image
               source={{ uri: user.profile_picture }}
-              style={[styles.headerPfp]}
+              style={[headerStyles.headerPfp]}
             />
           </TouchableOpacity>
         )}
       </View>
 
-      {nextCourse && nextCourse.id !== null && (
+      { !loading && nextCourse && (
         <NextCours cours={nextCourse} navigation={navigation} />
       )}
 
-      {!loading && !nextCourse ? (
+      {!nextCourse && (
         <PressableScale
           style={[
-            styles.nextCoursContainer,
+            headerStyles.nextCoursContainer,
             { backgroundColor: UIColors.elementHigh },
-            styles.nextCoursLoading,
-          ]}
-          onPress={openNextCours}
-        >
-          <Text style={[styles.nextCoursLoadingText]}>
-            Pas de prochain cours
-          </Text>
-        </PressableScale>
-      ) : loading ? (
-        <PressableScale
-          style={[
-            styles.nextCoursContainer,
-            { backgroundColor: UIColors.elementHigh },
-            styles.nextCoursLoading,
+            headerStyles.nextCoursLoading,
           ]}
         >
-          <ActivityIndicator size={12} />
-          <Text style={[styles.nextCoursLoadingText]}>
-            Chargement du prochain cours
-          </Text>
+          {loading ? (
+            <>
+              <ActivityIndicator size={12} />
+              <Text style={[headerStyles.nextCoursLoadingText]}>
+                Chargement du prochain cours
+              </Text>
+            </>
+          ) : (
+            <Text style={[headerStyles.nextCoursLoadingText]}>
+              Pas de prochain cours
+            </Text>
+          )}
         </PressableScale>
-      ) : null}
+      )}
     </View>
   );
 }
 
-function NextCours({ cours, navigation }) {
-  const [time, setTime] = React.useState('...');
-
-  const lz = (number) => (number < 10 ? `0${number}` : number);
-
-  const calculateTimeLeft = (date) => {
-    const now = new Date();
-    const start = new Date(date);
-    const diff = start - now;
-
-    if (diff > 0) {
-      const diffMinutes = Math.floor(diff / 1000 / 60);
-      const diffSeconds = Math.floor((diff / 1000) % 60);
-
-      if (diffMinutes < 60) {
-        return `dans ${lz(diffMinutes)}:${lz(diffSeconds)}`;
-      }
-
-      return `ds. ${Math.ceil((diffMinutes / 60) - 1)}h ${lz(diffMinutes % 60)} mn`;
-    }
-    return 'maintenant';
-  };
-
-  React.useEffect(() => {
-    const start = new Date(cours.start);
-    setTime(calculateTimeLeft(start));
-
-    const interval = setInterval(() => {
-      setTime(calculateTimeLeft(start));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [cours.start]);
-
-  const openCours = () => {
-    navigation.navigate('Lesson', { event: cours });
-  };
-
-  const isTimeSet = time !== '...';
-
-  return (
-    cours && (
-      <PressableScale
-        style={[
-          styles.nextCoursContainer,
-          { backgroundColor: getClosestCourseColor(cours.subject.name) },
-        ]}
-        onPress={openCours}
-      >
-        <View style={styles.nextCoursLeft}>
-          <View style={styles.nextCoursEmoji}>
-            <Text style={styles.nextCoursEmojiText}>
-              {getClosestGradeEmoji(cours.subject.name)}
-            </Text>
-          </View>
-          <View style={styles.nextCoursLeftData}>
-            <Text numberOfLines={1} style={styles.nextCoursLeftDataText}>
-              {formatCoursName(cours.subject.name)}
-            </Text>
-
-            {cours.status === null ? (
-              <Text numberOfLines={1} style={styles.nextCoursLeftDataTextRoom}>
-                salle {cours.rooms[0]} - avec {cours.teachers[0]}
-              </Text>
-            ) : (
-              <Text numberOfLines={1} style={styles.nextCoursLeftDataTextRoom}>
-                {cours.status} - salle {cours.rooms[0]} - avec{' '}
-                {cours.teachers[0]}
-              </Text>
-            )}
-          </View>
-        </View>
-        <View style={styles.nextCoursRight}>
-          <Text numberOfLines={1} style={styles.nextCoursRightTime}>
-            à{' '}
-            {new Date(cours.start).toLocaleTimeString('fr-FR', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </Text>
-
-          {isTimeSet ? (
-            <Text numberOfLines={1} style={styles.nextCoursRightDelay}>
-              {time}
-            </Text>
-          ) : (
-            <Text numberOfLines={1} style={styles.nextCoursRightDelay}>
-              fin{' '}
-              {new Date(cours.end).toLocaleTimeString('fr-FR', {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </Text>
-          )}
-        </View>
-      </PressableScale>
-    )
-  );
-}
-
 const styles = StyleSheet.create({
-  container: {
-    paddingTop: 30,
+  loading: {
+    container: {
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: 12,
+      marginVertical: 12,
+    },
+    text: {
+      fontSize: 15,
+      opacity: 0.5,
+    },
   },
 
+  homeworks: {
+    devoirsElement: {
+      container: {
+        paddingVertical: 8,
+
+        borderRadius: 12,
+        borderCurve: 'continuous',
+
+        overflow: 'hidden',
+      },
+    },
+    devoirsDay: {
+      container: {
+        flex: 1,
+        marginTop: 5,
+      },
+      header: {
+        container: {
+          paddingHorizontal: 16,
+          paddingVertical: 6,
+          alignSelf: 'flex-start',
+          borderTopRightRadius: 16,
+          borderBottomRightRadius: 16,
+        },
+        title: {
+          fontSize: 15,
+          fontFamily: 'Papillon-Semibold',
+        },
+      },
+      content: {
+        paddingTop: 5,
+      },
+    },
+    devoirsContent: {
+      container: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        flex: 1,
+      },
+      inner: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+      },
+      parent: {
+        flex: 1,
+        paddingHorizontal: 14,
+        gap: 6,
+      },
+      header: {
+        container: {},
+        subject: {
+          container: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+          },
+          color: {
+            width: 10,
+            height: 10,
+            borderRadius: 8,
+          },
+          title: {
+            fontSize: 16,
+            fontFamily: 'Papillon-Semibold',
+          },
+        }
+      },
+      content: {
+        container: {},
+        description: {
+          fontSize: 15,
+        },
+      },
+      footer: {
+        container: {
+          marginTop: 4,
+        },
+        files: {
+          container: {
+            gap: 2,
+          },
+          file: {
+            container: {
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 8,
+              alignSelf: 'flex-start',
+              paddingVertical: 4,
+              paddingHorizontal: 12,
+              borderRadius: 8,
+            },
+            text: {
+              fontSize: 15,
+              fontFamily: 'Papillon-Semibold',
+            },
+          },
+        },
+        done: {
+
+        },
+      },
+    },
+  },
+
+  checkbox: {
+    checkContainer: {
+      width: 26,
+      height: 26,
+      borderRadius: 16,
+      borderCurve: 'continuous',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+  
+      borderWidth: 1,
+    },
+    checkChecked: {
+      backgroundColor: '#159C5E',
+      borderColor: '#159C5E',
+    },
+  },
+
+  cours: {
+    container: {
+      paddingVertical: 6,
+      overflow: 'hidden',
+      gap: 0,
+    },
+    item: {
+      container: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        flex: 1,
+        flexDirection: 'row',
+        gap: 12,
+        marginTop: -4,
+      },
+      time: {
+        container: {
+          width: 50,
+          justifyContent: 'space-between',
+        },
+        start: {
+          textAlign: 'right',
+          fontWeight: 600,
+        },
+        end: {
+          textAlign: 'right',
+          opacity: 0.5,
+        },
+      },
+      color: {
+        width: 5,
+        height: '100%',
+        borderRadius: 8,
+      },
+      data: {
+        container: {
+          flex: 1,
+        },
+        subject: {
+          fontSize: 16,
+          fontFamily: 'Papillon-Semibold',
+          marginBottom: 8,
+        },
+        teachers: {
+          opacity: 0.5,
+        },
+        room: {
+          fontWeight: 500,
+        },
+        status: {
+          fontWeight: 500,
+          marginTop: 8,
+          alignSelf: 'flex-start',
+          paddingHorizontal: 8,
+          paddingVertical: 4,
+          borderRadius: 8,
+          overflow: 'hidden',
+        },
+      },
+    },
+    separator: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      marginVertical: 2,
+      marginHorizontal: 12,
+      marginBottom: 2,
+    },
+    separatorLine: {
+      flex: 1,
+      height: 2,
+      borderRadius:3,
+    },
+  },
+
+  tabs: {
+    tabsContainer: {
+      marginTop: 24,
+      marginHorizontal: 16,
+      gap: 6,
+      marginBottom: 16,
+    },
+    tabRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      gap: 6,
+    },
+  
+    tab: {
+      borderRadius: 12,
+      borderCurve: 'continuous',
+  
+      flex: 1,
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: 12,
+      paddingHorizontal: 10,
+      gap: 4,
+  
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 0.5,
+      },
+      shadowOpacity: 0.15,
+      shadowRadius: 1,
+  
+      elevation: 0,
+    },
+  
+    tabText: {
+      fontSize: 14.5,
+      fontFamily: 'Papillon-Semibold',
+    },
+  }
+});
+
+const headerStyles = StyleSheet.create({
   header: {
     display: 'flex',
     flexDirection: 'column',
@@ -1155,208 +1488,19 @@ const styles = StyleSheet.create({
     borderColor: '#ffffff25',
     borderWidth: 1,
   },
+});
 
-  hwList: {
-    gap: 0,
-    flex: 1,
+const nextCoursStyles = StyleSheet.create({
+  nextCoursContainer: {
     width: '92%',
-    marginTop: 12,
-    borderRadius: 12,
-    borderCurve: 'continuous',
-    overflow: 'hidden',
-    paddingTop: 12,
-  },
-  homeworkItemContainer: {
-    borderCurve: 'continuous',
-    overflow: 'hidden',
-  },
-
-  homeworkItem: {
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    gap: 16,
-
-    flexDirection: 'row',
-  },
-  homeworkItemCentered: {
-    alignItems: 'center',
-  },
-
-  checkboxContainer: {},
-  checkContainer: {
-    width: 26,
-    height: 26,
-    borderRadius: 16,
-    borderCurve: 'continuous',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-
-    borderWidth: 1,
-  },
-  checkChecked: {
-    backgroundColor: '#159C5E',
-    borderColor: '#159C5E',
-  },
-
-  hwItem: {
-    gap: 4,
-    flex: 1,
-  },
-
-  hwItemHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-
-  hwItemColor: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    borderCurve: 'continuous',
-  },
-
-  hwItemTitle: {
-    fontSize: 15,
-    fontWeight: 600,
-    fontFamily: 'Papillon-Semibold',
-    opacity: 0.4,
-    letterSpacing: 0.7,
-  },
-
-  hwItemDescription: {
-    fontSize: 17,
-    fontWeight: 400,
-    fontFamily: 'Papillon-Medium',
-  },
-
-  homeworkFileContainer: {
-    borderTopWidth: 1,
-  },
-  homeworkFile: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    gap: 12,
-    alignItems: 'center',
-  },
-
-  homeworkFileData: {
-    gap: 2,
-    flex: 1,
-  },
-
-  homeworkFileText: {
-    fontSize: 17,
-    fontWeight: 400,
-    fontFamily: 'Papillon-Semibold',
-  },
-  homeworkFileUrl: {
-    fontSize: 15,
-    fontWeight: 400,
-    fontFamily: 'Papillon-Medium',
-    opacity: 0.5,
-  },
-
-  noHomework: {
-    fontSize: 17,
-    fontWeight: 400,
-    fontFamily: 'Papillon-Medium',
-    opacity: 0.5,
-    textAlign: 'center',
-    marginTop: 12,
-  },
-
-  latestGradesList: {
-    gap: 14,
-    paddingHorizontal: 16,
-    marginTop: 12,
-    paddingBottom: 2,
-  },
-  smallGradeContainer: {
-    borderRadius: 14,
-    borderCurve: 'continuous',
-    width: 220,
-    paddingBottom: 42,
-    overflow: 'hidden',
-    elevation: 1,
-  },
-
-  smallGradeSubjectContainer: {
-    gap: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginBottom: 12,
-  },
-  smallGradeEmoji: {
-    fontSize: 20,
-  },
-  smallGradeSubject: {
-    fontSize: 15,
-    fontFamily: 'Papillon-Semibold',
-    color: '#FFFFFF',
-    width: '82%',
-  },
-
-  smallGradeNameContainer: {
-    flex: 1,
-    gap: 3,
-    marginHorizontal: 16,
-  },
-  smallGradeName: {
-    fontSize: 17,
-    fontFamily: 'Papillon-Semibold',
-  },
-  smallGradeDate: {
-    fontSize: 15,
-    opacity: 0.5,
-  },
-
-  smallGradeValueContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 1,
-
-    position: 'absolute',
-    bottom: 14,
-    left: 16,
-  },
-  smallGradeValue: {
-    fontSize: 17,
-    fontFamily: 'Papillon-Semibold',
-  },
-  smallGradeOutOf: {
-    fontSize: 15,
-    opacity: 0.5,
-  },
-
-  tabsContainer: {
-    width: '92%',
-    marginTop: 24,
-
-    gap: 6,
-  },
-  tabRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 6,
-  },
-
-  tab: {
+    height: 68,
     borderRadius: 12,
     borderCurve: 'continuous',
 
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    gap: 5,
+    marginTop: 2,
+    marginBottom: -32,
+
+    borderWidth: 0,
 
     shadowColor: '#000',
     shadowOffset: {
@@ -1366,28 +1510,114 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 1,
 
-    elevation: 0,
+    elevation: 3,
+
+    flexDirection: 'row',
   },
 
-  tabText: {
+  nextCoursLoading: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
+  },
+  nextCoursLoadingText: {
     fontSize: 15,
-    fontFamily: 'Papillon-Semibold',
+    opacity: 0.5,
   },
 
-  HwTitle : {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderTopRightRadius: 100,
-    borderBottomRightRadius: 100,
-    backgroundColor: '#cf46a315',
+  nextCoursLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+
+    gap: 14,
   },
-  HwTitleText : {
-    color: '#7d245f',
-    fontFamily: 'Papillon-Medium',
-    fontSize: 16,
-    marginRight: 4,
-  }
+  nextCoursEmoji: {
+    width: 42,
+    height: 42,
+    borderRadius: 24,
+    backgroundColor: '#ffffff10',
+    borderColor: '#ffffff25',
+    borderWidth: 1,
+
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  nextCoursEmojiText: {
+    fontSize: 22,
+  },
+
+  nextCoursLeftData: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    gap: 2,
+    flex: 1,
+  },
+  nextCoursLeftDataText: {
+    fontSize: 18,
+    fontFamily: 'Papillon-Semibold',
+    color: '#ffffff',
+    flex: 1,
+    marginTop: 2,
+  },
+  nextCoursLeftDataTextRoom: {
+    fontSize: 15,
+    color: '#ffffff99',
+    flex: 1,
+  },
+
+  nextCoursRight: {
+    width: '35%',
+
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+
+    backgroundColor: '#ffffff10',
+    borderLeftWidth: 1,
+    borderLeftColor: '#ffffff25',
+
+    gap: 0,
+
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  nextCoursRightTime: {
+    fontSize: 17,
+    fontFamily: 'Papillon-Semibold',
+    color: '#ffffff',
+    flex: 1,
+    marginTop: 3,
+
+    letterSpacing: 0.5,
+  },
+  nextCoursRightDelay: {
+    fontSize: 15,
+    color: '#ffffff99',
+    flex: 1,
+    fontVariant: ['tabular-nums'],
+  },
+
+  nextCoursInfo: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  nextCoursInfoText: {
+    fontSize: 15,
+    opacity: 0.5,
+  },
 });
 
-export default HomeScreen;
+export default NewHomeScreen;

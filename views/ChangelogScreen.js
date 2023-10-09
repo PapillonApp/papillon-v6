@@ -231,8 +231,8 @@ const styles = StyleSheet.create({
   },
 
   signature: {
-    width: 104,
-    height: 42,
+    width: 204,
+    height: 110,
     opacity: 0.6,
     marginTop: 12,
   },
