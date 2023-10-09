@@ -28,7 +28,7 @@ function NewsItem({ route, navigation }) {
   const openURL = async (url) => {
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
-      presentationStyle: 'pageSheet',
+      presentationStyle: 'currentContext',
       controlsColor: UIColors.primary,
     });
   };
@@ -81,15 +81,11 @@ function NewsItem({ route, navigation }) {
       style={[styles.container, { backgroundColor: UIColors.background }]}
       contentInsetAdjustmentBehavior='automatic'
     >
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated barStyle="light-content" />
-      ) : (
-        <StatusBar
-          animated
-          barStyle={theme.dark ? 'light-content' : 'dark-content'}
-          backgroundColor="transparent"
-        />
-      )}
+      <StatusBar
+        animated
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor="transparent"
+      />
 
       {news.survey ? (
         <ListItem

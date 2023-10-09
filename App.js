@@ -19,6 +19,7 @@ import {
   BookOpen,
   BarChart3,
   UserCircle,
+  Newspaper,
 } from 'lucide-react-native';
 import useFonts from './hooks/useFonts';
 
@@ -137,42 +138,6 @@ const commonScreenOptions = Platform.select({
   },
 });
 
-function InsetNewsScreen() {
-  return (
-    <Stack.Navigator
-      screenOptions={
-        Platform.OS === 'android'
-          ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
-            }
-          : {
-            ...headerTitleStyles
-          }
-      }
-    >
-      <Stack.Screen
-        name="News"
-        component={NewsScreen}
-        options={{
-          headerShown: true,
-          headerLargeTitle: Platform.OS === 'ios',
-          headerTitle: 'Actualités',
-        }}
-      />
-      <Stack.Screen
-        name="NewsDetails"
-        component={NewsItem}
-        options={{
-          headerShown: true,
-          headerTitle: 'Actualité',
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
-
 function InsetSchoolLifeScreen() {
   return (
     <Stack.Navigator
@@ -257,6 +222,104 @@ function InsetEvaluationsScreen() {
   );
 }
 
+function InsetSettings() {
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : {
+            ...headerTitleStyles
+          }
+      }
+    >
+      <Stack.Screen
+        name="Compte"
+        component={SettingsScreen}
+        options={{
+          headerLargeTitle: Platform.OS === 'ios',
+          headerTitle: 'Compte',
+        }}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          headerTitle: 'Mon profil',
+        }}
+      />
+      <Stack.Screen
+        name="OfficialServer"
+        component={OfficialServer}
+        options={{
+          headerTitle: 'Serveur officiel',
+
+          headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
+        name="About"
+        component={AboutScreen}
+        options={{
+          headerTitle: 'A propos de Papillon',
+        }}
+      />
+      <Stack.Screen
+        name="Appearance"
+        component={AppearanceScreen}
+        options={{
+          headerTitle: 'Fonctionnalités',
+        }}
+      />
+      <Stack.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{
+          headerTitle: 'Notifications',
+          headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
+        name="Icons"
+        component={IconsScreen}
+        options={{
+          headerTitle: "Icône de l'application",
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="changeServer"
+        component={ChangeServer}
+        options={{
+          headerTitle: "Changer de serveur",
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen2}
+        options={{
+          headerTitle: 'Réglages',
+        }}
+      />
+
+      <Stack.Screen
+        name="Changelog"
+        component={ChangelogScreen}
+        options={{
+          headerTitle: 'Quoi de neuf ?',
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 function WrappedHomeScreen() {
   const theme = useTheme();
 
@@ -300,27 +363,6 @@ function WrappedHomeScreen() {
         }}
       />
 
-      <Stack.Screen
-        name="InsetNews"
-        component={NewsScreen}
-        options={{
-          headerLargeTitle: Platform.OS === 'ios',
-          headerBackTitle: 'Vue d\'ensemble',
-          headerTitle: 'Actualités',
-          headerSearchBarOptions: {
-            placeholder: 'Rechercher une actualité',
-          },
-        }}
-      />
-      <Stack.Screen
-        name="NewsDetails"
-        component={NewsItem}
-        options={{
-          headerShown: true,
-          headerTitle: 'Actualité',
-        }}
-      />
-
 
       <Stack.Screen
         name="InsetSchoollife"
@@ -341,6 +383,15 @@ function WrappedHomeScreen() {
       <Stack.Screen
         name="InsetEvaluations"
         component={InsetEvaluationsScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
+        name="InsetSettings"
+        component={InsetSettings}
         options={{
           headerShown: false,
           presentation: 'modal',
@@ -476,8 +527,8 @@ function WrappedGradesScreen() {
           Platform.OS === 'ios'
             ? {
                 headerShown: true,
-                headerLargeTitle: false,
-                headerTintColor: '#ffffff',
+                headerLargeTitle: Platform.OS === 'ios',
+                headerTitle: 'Mes notes',
               }
             : null
         }
@@ -488,6 +539,7 @@ function WrappedGradesScreen() {
         options={{
           headerShown: true,
           headerLargeTitle: false,
+          headerBackTitle: 'Notes',
           mdTitleColor: '#ffffff',
           headerTintColor: '#ffffff',
         }}
@@ -496,7 +548,7 @@ function WrappedGradesScreen() {
   );
 }
 
-function WrappedSettings() {
+function WrappedNewsScreen() {
   return (
     <Stack.Navigator
       screenOptions={
@@ -512,82 +564,20 @@ function WrappedSettings() {
       }
     >
       <Stack.Screen
-        name="Compte"
-        component={SettingsScreen}
+        name="News"
+        component={NewsScreen}
         options={{
+          headerShown: true,
           headerLargeTitle: Platform.OS === 'ios',
-          headerTitle: 'Compte',
+          headerTitle: 'Actualités',
         }}
       />
       <Stack.Screen
-        name="Profile"
-        component={ProfileScreen}
+        name="NewsDetails"
+        component={NewsItem}
         options={{
-          headerTitle: 'Mon profil',
-        }}
-      />
-      <Stack.Screen
-        name="OfficialServer"
-        component={OfficialServer}
-        options={{
-          headerTitle: 'Serveur officiel',
-
-          headerBackTitle: 'Retour',
-        }}
-      />
-      <Stack.Screen
-        name="About"
-        component={AboutScreen}
-        options={{
-          headerTitle: 'A propos de Papillon',
-        }}
-      />
-      <Stack.Screen
-        name="Appearance"
-        component={AppearanceScreen}
-        options={{
-          headerTitle: 'Fonctionnalités',
-        }}
-      />
-      <Stack.Screen
-        name="Notifications"
-        component={NotificationsScreen}
-        options={{
-          headerTitle: 'Notifications',
-          headerBackTitle: 'Retour',
-        }}
-      />
-      <Stack.Screen
-        name="Icons"
-        component={IconsScreen}
-        options={{
-          headerTitle: "Icône de l'application",
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="changeServer"
-        component={ChangeServer}
-        options={{
-          headerTitle: "Changer de serveur",
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="Settings"
-        component={SettingsScreen2}
-        options={{
-          headerTitle: 'Réglages',
-        }}
-      />
-
-      <Stack.Screen
-        name="Changelog"
-        component={ChangelogScreen}
-        options={{
-          headerTitle: 'Quoi de neuf ?',
-          presentation: 'modal',
-          headerShown: false,
+          headerShown: true,
+          headerTitle: 'Actualité',
         }}
       />
     </Stack.Navigator>
@@ -751,18 +741,18 @@ function AppStack() {
         }}
       />
       <Tab.Screen
-        name="ParamètresHandler"
-        component={WrappedSettings}
+        name="NewsHandler"
+        component={WrappedNewsScreen}
         options={{
-          tabBarLabel: 'Compte',
+          tabBarLabel: 'Actualités',
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
-                <SFSymbol name="person.crop.circle.fill" color={color} size={size-2} />
+                <SFSymbol name="newspaper.fill" color={color} size={size-2} />
               :
-                <SFSymbol name="person.crop.circle" color={color} size={size-2} />
+                <SFSymbol name="newspaper" color={color} size={size-2} />
             :
-              <UserCircle color={color} size={size} />
+              <Newspaper color={color} size={size} />
           ),
           headerShown: false,
         }}

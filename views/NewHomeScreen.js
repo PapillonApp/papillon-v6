@@ -239,19 +239,6 @@ const TabsElement = ({ navigation, theme, UIColors }) => {
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
               activeScale={0.9}
-              onPress={() => navigation.navigate('InsetNews')}
-            >
-              <Newspaper size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-              <Text style={[styles.tabs.tabText]}>Actualités</Text>
-            </PressableScale>
-          </ContextMenuView>
-        </View>
-        <View style={[styles.tabs.tabRow]}>
-          <ContextMenuView style={{flex: 1}} borderRadius={12}>
-            <PressableScale
-              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
-              weight="light"
-              activeScale={0.9}
               onPress={() => navigation.navigate('InsetConversations')}
             >
               <MessagesSquare
@@ -948,7 +935,7 @@ function HomeHeader({ navigation, timetable, user }) {
 
   const openProfile = () => {
     if (user) {
-      navigation.navigate('Profile', { isModal: true });
+      navigation.navigate('InsetSettings', { isModal: true });
     }
   };
 
@@ -1272,8 +1259,8 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       paddingVertical: 12,
-      paddingHorizontal: 16,
-      gap: 5,
+      paddingHorizontal: 10,
+      gap: 4,
   
       shadowColor: '#000',
       shadowOffset: {
@@ -1287,7 +1274,7 @@ const styles = StyleSheet.create({
     },
   
     tabText: {
-      fontSize: 15,
+      fontSize: 14.5,
       fontFamily: 'Papillon-Semibold',
     },
   }

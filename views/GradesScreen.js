@@ -64,13 +64,8 @@ function GradesScreen({ navigation }) {
           </TouchableOpacity>
         </Fade>
       ),
-      headerTitle: () => (  Platform.OS !== 'ios' ? null : (
-        <Text style={[styles.headerTitle, { color: UIColors.text }]}>
-          Mes notes
-        </Text>
-      )),
     });
-  }, [navigation, selectedPeriod, isLoading]);
+  }, [navigation, selectedPeriod, isLoading, UIColors]);
 
   function newPeriod() {
     const options = periodsList.map((period) => period.name);
@@ -138,7 +133,6 @@ function GradesScreen({ navigation }) {
   }
 
   async function loadGrades(force = false) {
-    setHeadLoading(true);
     const grades = await IndexData.getGrades(force);
     const gradesList = JSON.parse(grades).grades;
     // invert gradeslist
@@ -257,7 +251,6 @@ function GradesScreen({ navigation }) {
 
     setSubjectsList(subjects);
     setLatestGrades(latestGrades);
-    setHeadLoading(false);
   }
 
   React.useEffect(() => {
@@ -277,6 +270,7 @@ function GradesScreen({ navigation }) {
   const onRefresh = React.useCallback(() => {
     setHeadLoading(true);
     loadGrades(true);
+    setHeadLoading(false);
   }, []);
 
   return (

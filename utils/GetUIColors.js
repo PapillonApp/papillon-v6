@@ -1,19 +1,14 @@
 import { Platform, useColorScheme } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
-let isDark = false;
-
 function GetUIColors() {
   const theme = useTheme();
-  const colorScheme = useColorScheme();
-
-  isDark = colorScheme === 'dark';
 
   // background
   let background = '';
 
   if (Platform.OS === 'ios') {
-    background = isDark ? '#000000' : '#f2f2f7';
+    background = theme.dark ? '#000000' : '#f2f2f7';
   } else {
     background = theme.colors.background;
   }
@@ -23,15 +18,15 @@ function GetUIColors() {
   let elementHigh = '';
 
   if (Platform.OS === 'ios') {
-    element = isDark ? '#151515' : '#ffffff';
-    elementHigh = isDark ? '#151515' : '#ffffff';
+    element = theme.dark ? '#151515' : '#ffffff';
+    elementHigh = theme.dark ? '#151515' : '#ffffff';
   } else {
     element = theme.colors.elevation.level1;
     elementHigh = theme.colors.elevation.level2;
   }
 
   // text
-  const text = isDark ? '#ffffff' : '#000000';
+  const text = theme.dark ? '#ffffff' : '#000000';
 
   // main
   // let primary = '';
@@ -42,7 +37,7 @@ function GetUIColors() {
     primaryBackground = '#29947A';
   } else {
     // primary = theme.colors.primary;
-    primaryBackground = isDark
+    primaryBackground = theme.dark
       ? theme.colors.primaryContainer
       : theme.colors.primary;
   }
@@ -51,13 +46,13 @@ function GetUIColors() {
   let borderColor = '';
 
   if (Platform.OS === 'ios') {
-    borderColor = isDark ? '#444444' : '#d5d5d5';
+    borderColor = theme.dark ? '#444444' : '#d5d5d5';
   } else {
     borderColor = theme.colors.border;
   }
 
   return {
-    theme: isDark ? 'dark' : 'light',
+    theme: theme.dark ? 'dark' : 'light',
     background,
     element,
     elementHigh,

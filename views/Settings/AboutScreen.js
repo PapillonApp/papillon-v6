@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, ScrollView, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import { View, ScrollView, StyleSheet, Image, ActivityIndicator, StatusBar } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
 import * as WebBrowser from 'expo-web-browser';
@@ -105,6 +105,16 @@ function AboutScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
+      {Platform.OS === 'ios' ? (
+        <StatusBar animated barStyle="light-content" />
+      ) : (
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
+      )}
+
       <ScrollView
         style={[styles.container, { backgroundColor: UIColors.background }]}
         contentInsetAdjustmentBehavior="automatic"
