@@ -307,6 +307,9 @@ function WrappedHomeScreen() {
           headerLargeTitle: Platform.OS === 'ios',
           headerBackTitle: 'Vue d\'ensemble',
           headerTitle: 'Actualités',
+          headerSearchBarOptions: {
+            placeholder: 'Rechercher une actualité',
+          },
         }}
       />
       <Stack.Screen
