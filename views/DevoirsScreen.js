@@ -366,6 +366,31 @@ function Hwitem({ homework, theme, openURL, navigation }) {
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
         const day = date.getDate();
+
+        // if tomorrow, update badge
+        let tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+
+        let checked = thisHwChecked;
+
+        // if this homework is for tomorrow
+        if (new Date(homework.date).getDate() === tomorrow.getDate()) {
+          AsyncStorage.getItem('badgesStorage').then((value) => {
+            let currentSyncBadges = JSON.parse(value);
+
+            if (currentSyncBadges === null) {
+              currentSyncBadges = {
+                homeworks: 0,
+              };
+            }
+
+            let newBadges = currentSyncBadges;
+            newBadges.homeworks = checked ? newBadges.homeworks + 1 : newBadges.homeworks - 1;
+
+            AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
+          });
+        }
       }
     });
   };

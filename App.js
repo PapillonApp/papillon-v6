@@ -606,6 +606,26 @@ function WrappedNewsScreen() {
 function AppStack() {
   const theme = useTheme();
 
+  const [badges, setBadges] = useState({});
+
+  const loadBadges = async () => {
+    try {
+      const value = await AsyncStorage.getItem('badgesStorage');
+      if (value !== null) {
+        const parsedBadges = JSON.parse(value);
+        setBadges(parsedBadges);
+      }
+    } catch (error) {
+      console.error('Error loading badges:', error);
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(loadBadges, 2400);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const tabBar = useMemo(() => {
     if (Platform.OS !== 'ios') {
       return ({ navigation, state, descriptors, insets }) => (
@@ -676,6 +696,10 @@ function AppStack() {
           paddingRight: 12,
           paddingTop: 2,
         },
+        tabBarBadgeStyle: {
+          backgroundColor: "#B42828",
+          color: '#fff',
+        },
         tabBarButton: (props) => (
           <PressableScale {...props} activeScale={0.85} weight="heavy">
             <View
@@ -713,6 +737,7 @@ function AppStack() {
         component={WrappedCoursScreen}
         options={{
           tabBarLabel: 'Cours',
+          tabBarBadge: badges.courses > 0 ? badges.courses : null,
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
@@ -730,6 +755,7 @@ function AppStack() {
         component={WrappedDevoirsScreen}
         options={{
           tabBarLabel: 'Devoirs',
+          tabBarBadge: badges.homeworks > 0 ? badges.homeworks : null,
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
@@ -747,6 +773,7 @@ function AppStack() {
         component={WrappedGradesScreen}
         options={{
           tabBarLabel: 'Notes',
+          tabBarBadge: badges.grades > 0 ? badges.grades : null,
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
@@ -764,6 +791,7 @@ function AppStack() {
         component={WrappedNewsScreen}
         options={{
           tabBarLabel: 'Actualités',
+          tabBarBadge: badges.news > 0 ? badges.news : null,
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
