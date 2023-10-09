@@ -101,11 +101,14 @@ function NewsScreen({ navigation }) {
   }
 
   const [isHeadLoading, setIsHeadLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     IndexData.getNews().then((n) => {
       setNews(editNews(JSON.parse(n)));
       setFinalNews(editNews(JSON.parse(n)));
+      setIsLoading(false);
     });
   }, []);
 
@@ -223,6 +226,14 @@ function NewsScreen({ navigation }) {
         barStyle={theme.dark ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
       />
+
+      {isLoading ? (
+        <PapillonLoading
+          title="Chargement des actualités..."
+          subtitle="Obtention des dernières actualités en cours"
+          style={[{marginTop: insets.top + 160}]}
+        />
+      ) : null}
 
       
         <Animated.FlatList
