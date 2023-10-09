@@ -932,7 +932,7 @@ function HomeHeader({ navigation, timetable, user }) {
 
   React.useEffect(() => {
     fetchNextCourses();
-    const interval = setInterval(fetchNextCourses, 2000);
+    const interval = setInterval(fetchNextCourses, 1000);
     return () => clearInterval(interval);
   }, [timetable]);
 
