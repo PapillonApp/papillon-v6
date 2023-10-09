@@ -103,9 +103,7 @@ function NewsScreen({ navigation }) {
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
   useEffect(() => {
-    setIsHeadLoading(true);
     IndexData.getNews().then((n) => {
-      setIsHeadLoading(false);
       setNews(editNews(JSON.parse(n)));
       setFinalNews(editNews(JSON.parse(n)));
     });
@@ -230,15 +228,7 @@ function NewsScreen({ navigation }) {
         />
       )}
 
-      {isHeadLoading ? (
-        <PapillonLoading
-          title="Chargement des actualités..."
-          subtitle="Obtention des dernières actualités en cours"
-          style={[{marginTop: insets.top + 120}]}
-        />
-      ) : null}
-
-      {!isHeadLoading ? (
+      
         <Animated.FlatList
           contentInsetAdjustmentBehavior="automatic"
           style={[styles.newsList]}
@@ -284,9 +274,10 @@ function NewsScreen({ navigation }) {
                 index={index}
               />
             : null
+            
           )}
         />
-      ) : null}
+
     </View>
   );
 }
