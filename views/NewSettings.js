@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import { View, Image, StyleSheet, StatusBar } from 'react-native';
 import { Text } from 'react-native-paper';
 
 import { useEffect, useState } from 'react';
@@ -38,6 +38,15 @@ function NewSettings({navigation}) {
         backgroundColor: UIColors.background,
       }}
     >
+      {Platform.OS === 'ios' ? (
+        <StatusBar animated barStyle="light-content" />
+      ) : (
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
+      )}
       
       <NativeList
         inset={true}
@@ -249,7 +258,7 @@ function NewSettings({navigation}) {
             Nouveautés
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Découvrez les nouvelles fonctionnalités
+            Affiche le changelog
           </NativeText>
         </NativeItem>
         <NativeItem
