@@ -52,16 +52,16 @@ function NewsItem({ route, navigation }) {
   function genFirstName(name) {
     const names = name.split(' ');
 
-    if (names[0][0] === 'M') {
+    if (names?.at(0)?.at(0) === 'M') {
       // remove it
       names.shift();
     }
 
     if (names.length >= 1) {
-      return names[0][0] + names[1][0];
+      return `${names?.at(0)?.at(0)}${names?.at(1)?.at(0)}`;
     }
 
-    return names[0][0];
+    return names?.at(0)?.at(0);
   }
 
   // change the header of the screen

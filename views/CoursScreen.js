@@ -238,6 +238,10 @@ function CoursScreen({ navigation }) {
   const setCalendarAndToday = (date) => {
     setCalendarDate(date);
     setToday(date);
+    setCalendarDate(date);
+    for (let i = -2; i <= 2; i++) {
+      updateCoursForDate(i, date);
+    }
   };
 
   const appctx = useAppContext();

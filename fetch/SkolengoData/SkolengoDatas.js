@@ -17,6 +17,8 @@ import { SkolengoBase } from './SkolengoBase';
 import { SkolengoCache } from './SkolengoCache';
 import { SkolengoStatic } from './SkolengoLoginFlow';
 
+const to20 = (grade, out_of) => (grade * 20) / out_of;
+
 export class SkolengoDatas extends SkolengoBase {
   /**
    * @param {Date} date
@@ -1049,11 +1051,13 @@ export class SkolengoDatas extends SkolengoBase {
           average: evalSubj.studentAverage,
           class_average: evalSubj.average,
           max: evalSubj.evaluations.reduce(
-            (acc, e) => (acc > e.max ? acc : e.max),
+            (acc, e) =>
+              acc > to20(e.max, e.scale) ? acc : to20(e.max, e.scale),
             0
           ),
           min: evalSubj.evaluations.reduce(
-            (acc, e) => (acc < e.min ? acc : e.min),
+            (acc, e) =>
+              acc < to20(e.min, e.scale) ? acc : to20(e.min, e.scale),
             20
           ),
           out_of: 20,

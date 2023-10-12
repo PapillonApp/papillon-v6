@@ -117,16 +117,16 @@ function NewsScreen({ navigation }) {
     setIsHeadLoading(true);
     appctx.dataprovider.getNews().then((n) => {
       setIsHeadLoading(false);
-      setNews(editNews(JSON.parse(n)));
-      setFinalNews(editNews(JSON.parse(n)));
+      setNews(editNews(n));
+      setFinalNews(editNews(n));
     });
   }, []);
 
   const onRefresh = React.useCallback(() => {
     setIsHeadLoading(true);
     appctx.dataprovider.getNews(true).then((n) => {
-      setNews(editNews(JSON.parse(n)));
-      setFinalNews(editNews(JSON.parse(n)));
+      setNews(editNews(n));
+      setFinalNews(editNews(n));
       setIsHeadLoading(false);
     });
   }, []);
