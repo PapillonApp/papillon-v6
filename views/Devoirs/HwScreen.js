@@ -149,7 +149,7 @@ function HomeworkScreen({ route, navigation }) {
       <NativeList header="Contenu du devoir">
         <NativeItem>
           <ParsedText
-            style={styles.hwContentText}
+            style={[styles.hwContentText, {color: UIColors.text}]}
             selectable={true}
             parse={
               [
