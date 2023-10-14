@@ -13,13 +13,14 @@ import { IndexData } from '../../fetch/IndexData';
 import GetUIColors from '../../utils/GetUIColors';
 import { Text } from 'react-native-paper';
 
-import { GiftedChat, Bubble } from 'react-native-gifted-chat'
+import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat'
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function convertPronoteMessages(messages) {
   let msgs = [];
-  for (let i = 0; i < messages.length; i++) {
+
+  for (let i = messages.length - 1; i >= 0; i--) {
     let msg = messages[i];
     msgs.push({
       _id: msg.id,
@@ -33,6 +34,14 @@ function convertPronoteMessages(messages) {
       received: true,
     });
   }
+
+  msgs.push({
+    _id: 1,
+    text: "Vous avez rejoint la conversation",
+    createdAt: new Date(messages[0].date),
+    system: true,
+  });
+
   return msgs;
 }
 
@@ -103,6 +112,33 @@ const MessagesScreen = ({ route, navigation }) => {
                 right: {
                   backgroundColor: UIColors.primary,
                 },
+              }}
+            />
+          )
+        }}
+
+        renderMessageText={(props) => {
+          return (
+            <Text style={{ color: UIColors.text, fontSize: 16, padding: 10, paddingBottom: 0 }}>{props.currentMessage.text}</Text>
+          )
+        }}
+
+        textInputStyle={{
+          color: UIColors.text,
+          marginTop: 10,
+          
+        }}
+
+        minInputToolbarHeight={52}
+
+        renderInputToolbar={(props) => {
+          return (
+            <InputToolbar
+              {...props}
+              containerStyle={{
+                backgroundColor: UIColors.element,
+                borderTopColor: UIColors.text + '26',
+                paddingHorizontal: 5,
               }}
             />
           )
