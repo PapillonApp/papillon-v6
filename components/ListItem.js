@@ -15,6 +15,7 @@ import * as Haptics from 'expo-haptics';
 function ListItem({
   title,
   subtitle,
+  undertitle,
   left,
   right,
   icon,
@@ -100,6 +101,12 @@ function ListItem({
           {subtitle ? (
             <Text style={[styles.listItemTextSubtitle, { color: textColor }]} numberOfLines={trimSubtitle ? 1 : null} ellipsizeMode='tail'>
               {subtitle}
+            </Text>
+          ) : null}
+
+          {undertitle ? (
+            <Text style={[styles.listItemTextUndertitle, { color: textColor }]}>
+              {undertitle}
             </Text>
           ) : null}
         </View>
@@ -210,6 +217,11 @@ const styles = StyleSheet.create({
   listItemTextSubtitle: {
     fontSize: 15,
     opacity: 0.6,
+  },
+  listItemTextUndertitle: {
+    fontSize: 13,
+    opacity: 0.6,
+    marginTop: 4,
   },
   left: {
     marginRight: 14,

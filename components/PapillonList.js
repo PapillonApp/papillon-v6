@@ -9,16 +9,18 @@ import { useEffect, useState } from 'react';
 import GetUIColors from '../utils/GetUIColors';
 import { Text } from 'react-native-paper';
 
-function PapillonList({ children, inset, title, style }) {
+function PapillonList({ children, inset, title, style, grouped }) {
   const UIColors = GetUIColors();
 
   return (
     <View style={[styles.listGroup]}>
-      <Text style={[styles.listTitle]}>{title}</Text>
+      { title &&
+        <Text style={[styles.listTitle]}>{title}</Text>
+      }
       <View
         style={[
           styles.list,
-          { backgroundColor: UIColors.element },
+          !grouped ? { backgroundColor: UIColors.element } : {gap: 12},
           inset ? styles.inset : null,
           style,
         ]}

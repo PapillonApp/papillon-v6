@@ -62,6 +62,7 @@ import NewsItem from './views/News/NewsItem';
 import SchoolLifeScreen from './views/SchoolLifeScreen';
 
 import ConversationsScreen from './views/ConversationsScreen';
+import MessagesScreen from './views/Conversations/MessagesScreen';
 
 import EvaluationsScreen from './views/EvaluationsScreen';
 import { AppContextProvider, baseColor } from './utils/AppContext';
@@ -386,19 +387,28 @@ function WrappedHomeScreen() {
         }}
       />
       <Stack.Screen
-        name="InsetConversations"
-        component={InsetConversationsScreen}
-        options={{
-          headerShown: false,
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
         name="InsetEvaluations"
         component={InsetEvaluationsScreen}
         options={{
           headerShown: false,
           presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
+        name="InsetConversations"
+        component={ConversationsScreen}
+        options={{
+          headerBackTitle: 'Accueil',
+          headerTitle: 'Conversations',
+        }}
+      />
+      <Stack.Screen
+        name="InsetConversationsItem"
+        component={MessagesScreen}
+        options={{
+          headerBackTitle: 'Retour',
+          headerTitle: 'Conversation',
         }}
       />
 

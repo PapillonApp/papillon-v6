@@ -16,7 +16,7 @@ function getConversations(force = false) {
               if (result === 'expired' || result === 'notfound') {
                 return refreshToken().then(() => getConversations());
               }
-              console.log(result);
+              console.log(JSON.stringify(result));
               return result;
             })
             .catch(() => {})
