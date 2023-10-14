@@ -37,13 +37,14 @@ import {
   User2,
   Clock4,
   Info,
-  Calendar,
+  Calendar as IconCalendar,
   Hourglass,
   Clock8,
   Users,
 } from 'lucide-react-native';
 
-import * as ExpoCalendar from 'expo-calendar';
+import * as Calendar from 'expo-calendar';
+
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -67,27 +68,77 @@ function CoursScreen({ navigation }) {
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
 
   async function addToCalendar(cours) {
-    Alert.alert(
-      'Cette fonctionnalité n\'est pas encore disponible',
-      'Nous travaillons sur cette fonctionnalité. Elle sera disponible dans une prochaine mise à jour.',
-      [
-        {
-          text: 'OK',
-          style: 'cancel'
-        },
-      ]
-    );
 
-    // Attendre que https://github.com/expo/expo/pull/24545 soit prêt !!!
-
-    /*
       // get calendar permission
-      const { status } = await ExpoCalendar.requestCalendarPermissionsAsync();
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
       if (status === 'granted') {
-        // get default calendar
-        const calendars = await ExpoCalendar.getCalendarsAsync();
-        const defaultCalendar = calendars.find(
-          (calendar) => calendar.source.name === 'Default'
+        // for each cours
+        
+        cours.forEach(async (cours) => {
+          // get calendar
+          const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+
+          // if Papillon-(cours.subject.name) calendar exists
+          let calendarId = null;
+
+          for (const calendar of calendars) {
+            if (calendar.title === `Papillon-${cours.subject.name}`) {
+              calendarId = calendar.id;
+              break;
+            }
+          }
+
+          // if not, create it
+          if (calendarId === null) {
+            await Calendar.createCalendarAsync({
+              title: `Papillon-${cours.subject.name}`,
+              color: getClosestCourseColor(cours.subject.name, cours.background_color),
+              entityType: Calendar.EntityTypes.EVENT,
+            });
+
+            // get calendar
+            const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+
+            // get calendar id
+
+            for (const calendar of calendars) {
+              if (calendar.title === `Papillon-${cours.subject.name}`) {
+                calendarId = calendar.id;
+                break;
+              }
+            }
+          }
+          
+          // add event to calendar
+
+          if (!cours.is_cancelled) {
+            const event = await Calendar.createEventAsync(calendarId, {
+              startDate: new Date(cours.start),
+              endDate: new Date(cours.end),
+              title: cours.subject.name,
+              location: cours.rooms.join(', '),
+              notes: `
+                Professeur(s) : ${cours.teachers.length > 1 ? 's' : ''} : ${cours.teachers.join(', ')}
+Statut : ${cours.status || 'Aucun'}
+              `.trim(),
+              status: cours.is_cancelled ? 'CANCELED' : 'CONFIRMED',
+              organizer: cours.teachers[0],
+              creationDate: new Date(),
+              lastModifiedDate: new Date(),
+            });
+          }
+        });
+
+        // alert user
+        Alert.alert(
+          'Cours ajoutés au calendrier',
+          'Les cours ont été ajoutés au calendrier.',
+          [
+            {
+              text: 'OK',
+              style: 'cancel'
+            },
+          ]
         );
       }
       else {
@@ -103,7 +154,6 @@ function CoursScreen({ navigation }) {
           ]
         );
       }
-    */
   };
 
   async function notifyAll(cours) {
@@ -231,7 +281,7 @@ function CoursScreen({ navigation }) {
             }}
             onPress={() => setCalendarModalOpen(true)}
           >
-            <Calendar size={20} color={UIColors.text} />
+            <IconCalendar size={20} color={UIColors.text} />
             <Text style={{ fontSize: 15, fontFamily: 'Papillon-Medium' }}>
               {new Date(calendarDate).toLocaleDateString('fr', {
                 weekday: 'short',

@@ -36,7 +36,7 @@
     "expo-background-fetch": "~11.3.0",
     "expo-barcode-scanner": "~12.5.3",
     "expo-blur": "~12.4.1",
-    "expo-calendar": "~11.3.0",
+    "expo-calendar": "^11.3.2",
     "expo-clipboard": "~4.3.1",
     "expo-dev-client": "~2.4.8",
     "expo-dev-launcher": "^3.0.0",
@@ -90,7 +90,8 @@
     "react-native-web": "~0.19.6",
     "reanimated-color-picker": "^2.3.4",
     "swiftui-react-native": "^5.0.0",
-    "sync-storage": "^0.4.2"
+    "sync-storage": "^0.4.2",
+    "@react-native-community/netinfo": "9.3.10"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
