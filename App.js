@@ -579,6 +579,79 @@ function WrappedSettings() {
 }
 
 function AppStack() {
+
+  const theme = useTheme();
+
+  const [badges, setBadges] = useState({});
+
+  const loadBadges = async () => {
+    try {
+      const value = await AsyncStorage.getItem('badgesStorage');
+      if (value !== null) {
+        const parsedBadges = JSON.parse(value);
+        setBadges(parsedBadges);
+      }
+    } catch (error) {
+      console.error('Error loading badges:', error);
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(loadBadges, 2400);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const tabBar = useMemo(() => {
+    if (Platform.OS !== 'ios') {
+      return ({ navigation, state, descriptors, insets }) => (
+        <BottomNavigation.Bar
+          navigationState={state}
+          compact={false}
+          shifting={false}
+          safeAreaInsets={{
+            ...insets,
+            right: 12,
+            left: 12,
+          }}
+          onTabPress={({ route, preventDefault }) => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!event.defaultPrevented) {
+              navigation.navigate(route.name);
+            } else {
+              preventDefault();
+            }
+          }}
+          renderIcon={({ route, focused, color }) => {
+            const { options } = descriptors[route.key];
+            if (options.tabBarIcon) {
+              return options.tabBarIcon({ focused, color, size: 24 });
+            }
+            return null;
+          }}
+          getLabelText={({ route }) => {
+            const { options } = descriptors[route.key];
+            const label =
+              options.tabBarLabel !== undefined
+                ? options.tabBarLabel
+                : options.title !== undefined
+                ? options.title
+                : route.title;
+
+            return label;
+          }}
+        />
+      );
+    }
+    return undefined;
+  }, []);
+
+  
   return (
     <Tab.Navigator
       tabBar={tabBar}
