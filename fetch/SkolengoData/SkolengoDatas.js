@@ -1138,11 +1138,15 @@ export class SkolengoDatas extends SkolengoBase {
   });
 
   skolengoDisconnect = async () => {
-    const discovery = await AsyncStorage.getItem(SkolengoDatas.DISCOVERY_PATH);
+    const discovery = await AsyncStorage.getItem(SkolengoDatas.DISCOVERY_PATH)?.then(JSON.parse);
     return Promise.all([
       revokeAsync(
         { ...this.rtInstance, token: this.rtInstance.accessToken },
-        discovery
+        {
+          ...discovery,
+          revocationEndpoint: 
+            discovery.revocationEndpoint || discovery.revocation_endpoint
+        }
       ).then(() => console.log('token revoked')),
       AsyncStorage.removeItem(SkolengoDatas.TOKEN_PATH),
       AsyncStorage.removeItem(SkolengoDatas.SCHOOL_PATH),

@@ -42,11 +42,9 @@ function LoginSkolengoSelectSchool({ navigation }) {
   }
 
   function searchSchool(text) {
-    console.log({ text });
     setLoading(true);
     setEtabList([]);
     setSearchQuery(text);
-    console.log('sear');
     SkolengoStatic.getSchools({
       text,
     })
