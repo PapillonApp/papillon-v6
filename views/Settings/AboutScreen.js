@@ -221,7 +221,7 @@ function AboutScreen({ navigation }) {
             <ListItem
               key={index}
               title={item.name}
-              subtitle={`${item.name} à donné ${item.times} fois`}
+              subtitle={`${item.name} a donné ${item.times} fois`}
               color="#565EA3"
               center
               left={
