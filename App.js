@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import './utils/IgnoreWarnings';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BottomNavigation, Appbar, useTheme } from 'react-native-paper';
+import { BottomNavigation, Appbar, useTheme, PaperProvider } from 'react-native-paper';
 
 import FlashMessage from 'react-native-flash-message';
 
@@ -820,6 +820,7 @@ function AuthStack() {
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [isReady, setIsReady] = useState(false);
+
   const scheme = useColorScheme();
 
   useEffect(() => {
@@ -836,45 +837,15 @@ function App() {
     loadApp();
   }, []);
 
-  const [dataprovider, setDataprovider] = React.useState(null);
-
-  React.useEffect(() => {
-    AsyncStorage.getItem('service').then((value) => {
-      const provider = new IndexDataInstance(value || null);
-      setDataprovider(provider);
-    });
-  }, []);
-
-  const ctxValue = React.useMemo(
-    () => ({
-      loggedIn,
-      setLoggedIn,
-      dataprovider,
-    }),
-    [loggedIn, dataprovider]
-  );
-
-  if (!IsReady) {
-    // load fonts
-    LoadFonts().then(() => {
-      SetIsReady(true);
-    });
-
-    return null;
-  }
-
-  // load fonts
   return (
-    <View
-      style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff' }}
-    >
-      <AppContextProvider state={ctxValue}>
-        {loggedInLoaded ? (
+    <View style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff' }}>
+      <PaperProvider>
+        <AppContextProvider state={{ loggedIn, setLoggedIn }}>
           <View style={{ flex: 1 }}>
             {loggedIn ? <AppStack /> : <AuthStack />}
           </View>
-        ) : null}
-      </AppContextProvider>
+        </AppContextProvider>
+      </PaperProvider>
       <FlashMessage position="top" />
     </View>
   );
