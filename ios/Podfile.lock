@@ -455,6 +455,8 @@ PODS:
     - React-Core
   - react-native-sfsymbols (1.2.1):
     - React
+  - react-native-tableview-list (0.1.14):
+    - React-Core
   - react-native-view-shot (3.7.0):
     - React-Core
   - React-NativeModulesApple (0.72.4):
@@ -688,6 +690,7 @@ DEPENDENCIES:
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-segmented-control (from `../node_modules/@react-native-segmented-control/segmented-control`)"
   - react-native-sfsymbols (from `../node_modules/react-native-sfsymbols`)
+  - react-native-tableview-list (from `../node_modules/react-native-tableview-list`)
   - react-native-view-shot (from `../node_modules/react-native-view-shot`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -850,6 +853,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-segmented-control/segmented-control"
   react-native-sfsymbols:
     :path: "../node_modules/react-native-sfsymbols"
+  react-native-tableview-list:
+    :path: "../node_modules/react-native-tableview-list"
   react-native-view-shot:
     :path: "../node_modules/react-native-view-shot"
   React-NativeModulesApple:
@@ -975,6 +980,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 36cc67648134e89465663b8172336a19eeda493d
   react-native-segmented-control: 0e4b5d93911e2234f110057df2b41738b326ab3e
   react-native-sfsymbols: bd3a0d3eab185e80b571bae60753dcf5a0d57967
+  react-native-tableview-list: 01220db8b451c27134cd9666059a2df354552e94
   react-native-view-shot: f5507655f122e6b104888a11130f267a427f0d57
   React-NativeModulesApple: edb5ace14f73f4969df6e7b1f3e41bef0012740f
   React-perflogger: 496a1a3dc6737f964107cb3ddae7f9e265ddda58
@@ -1010,4 +1016,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: f73324ee57d220dbc7eb340fa5567e6b5b770f16
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.13.0

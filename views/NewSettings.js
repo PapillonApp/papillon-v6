@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Image, StyleSheet, StatusBar } from 'react-native';
+import { View, Image, StyleSheet, StatusBar, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 
 import { useEffect, useState } from 'react';
@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react';
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
-import { ScrollView } from 'react-native-gesture-handler';
 
 import { SFSymbol } from "react-native-sfsymbols";
 
