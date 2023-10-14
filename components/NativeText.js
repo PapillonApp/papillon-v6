@@ -7,7 +7,8 @@ function NativeText(props) {
   const {
     children,
     heading = 'p',
-    style
+    style,
+    numberOfLines,
   } = props;
 
   const UIColors = GetUIColors();
@@ -57,6 +58,10 @@ function NativeText(props) {
       fontSize: 16,
       opacity: 0.6,
     },
+    "b": {
+      fontSize: 16,
+      fontWeight: '600',
+    },
   };
 
   return (
@@ -68,6 +73,8 @@ function NativeText(props) {
         headingStyles[heading],
         style,
       ]}
+      numberOfLines={props.numberOfLines}
+      ellipsizeMode='tail'
     >
       {children}
     </Text>

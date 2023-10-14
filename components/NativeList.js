@@ -33,6 +33,7 @@ function NativeList(props) {
         inset={inset}
         style={[
           style,
+          {flex: 1}
         ]}
         sideBar={sideBar}
 
@@ -57,12 +58,12 @@ function NativeHeader(props) {
 const styles = StyleSheet.create({
   listHeader: {
     paddingHorizontal: 18,
-    paddingVertical: 7,
+    paddingVertical: 8,
+    paddingTop: 10,
   },
 
   listHeaderInset: {
     paddingHorizontal: 32,
-    paddingVertical: 7,
   },
 
   listText: {

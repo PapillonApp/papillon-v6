@@ -70,15 +70,7 @@ function NewSettings({navigation}) {
               />
               : null
             }
-            trailing={
-              <SFSymbol
-                name="chevron.right"
-                weight="semibold"
-                size={16}
-                color={UIColors.text + '40'}
-                style={{marginRight: 12}}
-              />
-            }
+            chevron
             onPress={() => navigation.navigate('Profile', { isModal: false })}
           >
             <View style={styles.profile.textContainer}>

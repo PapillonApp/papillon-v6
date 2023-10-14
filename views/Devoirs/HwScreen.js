@@ -6,6 +6,7 @@ import {
   StatusBar,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 
 import formatCoursName from '../../utils/FormatCoursName';
@@ -25,8 +26,13 @@ import * as WebBrowser from 'expo-web-browser';
 import { Text, useTheme } from 'react-native-paper';
 import GetUIColors from '../../utils/GetUIColors';
 
+import ParsedText from 'react-native-parsed-text';
+
+import NativeList from '../../components/NativeList';
+import NativeItem from '../../components/NativeItem';
+import NativeText from '../../components/NativeText';
+
 import { IndexData } from '../../fetch/IndexData';
-import { openURL } from 'expo-linking';
 
 function HomeworkScreen({ route, navigation }) {
   const theme = useTheme();
@@ -44,10 +50,6 @@ function HomeworkScreen({ route, navigation }) {
       controlsColor: UIColors.primary,
     });
   };
-
-  useEffect(() => {
-    
-  }, []);
 
   const changeHwState = () => {
     console.log(`change ${homework.date} : ${homework.local_id}`);
@@ -119,11 +121,13 @@ function HomeworkScreen({ route, navigation }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: "Devoir en " + formatCoursName(homework.subject.name),
-      headerLargeTitle: Platform.OS === 'ios' ? true : false,
     });
   }, [navigation, homework]);
 
-  console.log(homework);
+  const handleUrlPress = (url, matchIndex) => {
+    console.log(url);
+    openURL(url);
+  }
 
   return (
     <ScrollView
@@ -140,78 +144,103 @@ function HomeworkScreen({ route, navigation }) {
         />
       )}
 
-      <View style={styles.optionsList}>
-        <Text style={styles.ListTitle}>Description</Text>
-        <View style={[styles.hwContent, {backgroundColor: UIColors.element}]}>
-          <Text style={styles.hwContentText}>{homework.description}</Text>
-        </View>  
-        <ListItem
-          left={
+      <View style={{ height: 6 }} />
+
+      <NativeList header="Contenu du devoir">
+        <NativeItem>
+          <ParsedText
+            style={styles.hwContentText}
+            selectable={true}
+            parse={
+              [
+                {
+                  type: 'url',
+                  style: [styles.url, {color: UIColors.primary}],
+                  onPress: handleUrlPress
+                },
+                {
+                  type: 'email',
+                  style: [styles.url, {color: UIColors.primary}],
+                },
+              ]
+            }
+          >
+            {homework.description}
+          </ParsedText>
+        </NativeItem>
+      </NativeList>
+
+      <View style={{ height: 6 }} />
+
+      <NativeList sideBar header="Statut du devoir">
+        <NativeItem
+          leading={
             <HwCheckbox
               checked={thisHwChecked}
               theme={theme}
-              UIColors={UIColors}
-              loading={thisHwLoading}
               pressed={() => {
                 setThisHwLoading(true);
                 changeHwState();
               }}
+              UIColors={UIColors}
+              loading={thisHwLoading}
             />
           }
-          title="Marquer comme fait"
-          width
-          center
           onPress={() => {
-            setThisHwChecked(!thisHwChecked);
+            setThisHwLoading(true);
             changeHwState();
           }}
-        />  
-      </View>
-
-      <View style={styles.optionsList}>
-        <Text style={styles.ListTitle}>Informations</Text>
-
-        <ListItem
-          icon={
-            <Calendar size={24} color={UIColors.text} />
+        >
+          <NativeText heading="b">
+            Marquer comme fait
+          </NativeText>
+        </NativeItem>
+        <NativeItem
+          trailing={
+            <NativeText heading="p2">
+              {new Date(homework.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </NativeText>
           }
-          title="Donné pour le"
-          subtitle={new Date(homework.date).toLocaleDateString('fr-FR', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-          width
-          center
-        />
-      </View>
+        >
+          <NativeText>
+            A rendre pour le
+          </NativeText>
+        </NativeItem>
+      </NativeList>
 
-      {homework.files.length > 0 ? (
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>Fichiers</Text>
-          {homework.files.map((file, index) => (
-            <ListItem
-              key={index}
-              title={file.name ? file.name : "Lien invalide"}
-              subtitle={file.url ? file.url : "Un lien vide a été renvoyé"}
-              trimSubtitle={true}
-              icon={(
-                file.url ? 
-                file.type === 0 ? (
-                  <Link size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-                ) : (
-                  <File size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-                )
-                : ( <AlertCircle size={24} color={"#ff0000"} /> )
-              )}
-              onPress={() => file.url ? openURL(file.url) : null}
-              width
-              center
-            />
-          ))}
-        </View>
-      ) : null}
+      <View style={{ height: 6 }} />
+
+      { homework.files.length > 0 ? (
+        <NativeList header="Fichiers">
+          {homework.files.map((file, index) => {
+            let fileIcon = <Link size={24} color={UIColors.text} />
+            if (file.type === 1) {
+              fileIcon = <File size={24} color={UIColors.text} />
+            }
+
+            return (
+              <NativeItem
+                key={index}
+                onPress={() => {
+                  openURL(file.url);
+                }}
+                leading={fileIcon}
+              >
+                <View style={{marginRight: 80, paddingLeft: 6}}>
+                  <NativeText heading="h4">
+                    {file.name}
+                  </NativeText>
+                  <NativeText numberOfLines={1}>
+                    {file.url}
+                  </NativeText>
+                </View>
+              </NativeItem>
+            );
+
+          })}
+        </NativeList>
+      ) : null }
+
     </ScrollView>
   );
 }
@@ -242,15 +271,7 @@ function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
 
 const styles = StyleSheet.create({
   optionsList: {
-    gap: 9,
     marginTop: 16,
-    marginHorizontal: 14,
-  },
-  ListTitle: {
-    paddingLeft: 12,
-    fontSize: 15,
-    fontFamily: 'Papillon-Medium',
-    opacity: 0.5,
   },
 
   checkboxContainer: {},
@@ -277,6 +298,7 @@ const styles = StyleSheet.create({
   },
   hwContentText: {
     fontSize: 16,
+    paddingRight: 16,
   },
 
   homeworkFile: {
@@ -304,6 +326,10 @@ const styles = StyleSheet.create({
     fontWeight: 400,
     fontFamily: 'Papillon-Medium',
     opacity: 0.5,
+  },
+
+  url: {
+    textDecorationLine: 'underline',
   },
 });
 

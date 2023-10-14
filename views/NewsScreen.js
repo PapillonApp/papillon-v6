@@ -92,6 +92,7 @@ function NewsScreen({ navigation }) {
   const [news, setNews] = useState([]);
   const [finalNews, setFinalNews] = useState([]);
   const [showNews, setShowNews] = useState(true);
+  const [currentNewsType, setCurrentNewsType] = useState("Toutes");
 
   function editNews(n) {
     // invert the news array
@@ -142,8 +143,10 @@ function NewsScreen({ navigation }) {
               }
             });
 
+            setCurrentNewsType("Toutes");
             setNews(newNews);
           } else {
+            setCurrentNewsType("Toutes");
             setNews(finalNews);
           }
         },
@@ -151,7 +154,6 @@ function NewsScreen({ navigation }) {
     });
   }, [navigation, finalNews, isHeadLoading]);
 
-  const [currentNewsType, setCurrentNewsType] = useState("Toutes");
   const [newsTypes, setNewsTypes] = useState([
     {
       name: "Toutes",
