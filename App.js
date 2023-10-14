@@ -44,8 +44,6 @@ import SettingsScreen2 from './views/Settings/SettingsScreen';
 import IconsScreen from './views/Settings/IconsScreen';
 import ChangeServer from './views/Settings/ChangeServer';
 
-import NewSettings from './views/NewSettings';
-
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
 
@@ -241,28 +239,24 @@ function InsetSettings() {
           }
       }
     >
-      { Platform.OS === 'ios' ?
-        <Stack.Screen
-          name="Paramètres"
-          component={NewSettings}
-          options={{
-            headerTitle: 'Réglages',
-            headerLargeTitle: Platform.OS === 'ios',
-            headerLargeStyle: {
-              backgroundColor: UIColors.background,
-            },
-            headerLargeTitleShadowVisible: false,
-          }}
-        />
-      : null }
-
       <Stack.Screen
         name="Compte"
         component={SettingsScreen}
-        options={{
-          headerLargeTitle: Platform.OS === 'ios',
-          headerTitle: 'Compte',
-        }}
+        options={
+          Platform.OS === 'ios' ?
+            {
+              headerTitle: 'Réglages',
+              headerLargeTitle: Platform.OS === 'ios',
+              headerLargeStyle: {
+                backgroundColor: UIColors.background,
+              },
+              headerLargeTitleShadowVisible: false,
+            }
+          :
+            {
+              headerTitle: 'Compte',
+            }
+        }
       />
       <Stack.Screen
         name="Profile"
