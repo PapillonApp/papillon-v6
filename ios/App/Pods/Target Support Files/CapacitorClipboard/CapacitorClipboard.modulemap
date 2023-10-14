@@ -1,0 +1,6 @@
+framework module CapacitorClipboard {
+  umbrella header "CapacitorClipboard-umbrella.h"
+
+  export *
+  module * { export * }
+}

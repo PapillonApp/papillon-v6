@@ -1,0 +1,6 @@
+framework module CapacitorNotificationBadge {
+  umbrella header "CapacitorNotificationBadge-umbrella.h"
+
+  export *
+  module * { export * }
+}

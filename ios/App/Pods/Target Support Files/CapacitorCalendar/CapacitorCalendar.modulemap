@@ -1,0 +1,6 @@
+framework module CapacitorCalendar {
+  umbrella header "CapacitorCalendar-umbrella.h"
+
+  export *
+  module * { export * }
+}

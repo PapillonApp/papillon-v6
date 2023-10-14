@@ -1,0 +1,6 @@
+framework module CapacitorShare {
+  umbrella header "CapacitorShare-umbrella.h"
+
+  export *
+  module * { export * }
+}

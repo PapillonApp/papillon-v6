@@ -49,6 +49,11 @@ function ChangelogScreen() {
     },
   ];
 
+  // Easter egg (allez voir :))
+  function monTelephoneAunTresTresTresGrosProbleme() {
+    Linking.openURL('https://www.youtube.com/watch?v=U8R2NgcRBc0');
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: UIColors.background }}>
       <Image
@@ -175,6 +180,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 600,
 
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+
+  headerImageContainer: {
     position: 'absolute',
     top: 0,
     left: 0,

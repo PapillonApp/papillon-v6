@@ -1,0 +1,166 @@
+PODS:
+  - Capacitor (5.0.4):
+    - CapacitorCordova
+  - CapacitorActionSheet (5.0.2):
+    - Capacitor
+  - CapacitorApp (5.0.2):
+    - Capacitor
+  - CapacitorBrowser (5.0.2):
+    - Capacitor
+  - CapacitorCalendar (1.0.6):
+    - Capacitor
+  - CapacitorClipboard (5.0.2):
+    - Capacitor
+  - CapacitorCommunityAppIcon (4.1.0):
+    - Capacitor
+  - CapacitorCordova (5.0.4)
+  - CapacitorDevice (5.0.2):
+    - Capacitor
+  - CapacitorDialog (5.0.2):
+    - Capacitor
+  - CapacitorFilesystem (5.0.2):
+    - Capacitor
+  - CapacitorGeolocation (5.0.2):
+    - Capacitor
+  - CapacitorHaptics (5.0.2):
+    - Capacitor
+  - CapacitorKeyboard (5.0.2):
+    - Capacitor
+  - CapacitorLocalNotifications (5.0.2):
+    - Capacitor
+  - CapacitorNetwork (5.0.2):
+    - Capacitor
+  - CapacitorNotificationBadge (1.0.6):
+    - Capacitor
+  - CapacitorPluginSafeArea (2.0.5):
+    - Capacitor
+  - CapacitorPreferences (5.0.2):
+    - Capacitor
+  - CapacitorShare (5.0.2):
+    - Capacitor
+  - CapacitorSplashScreen (5.0.2):
+    - Capacitor
+  - CapacitorStatusBar (5.0.2):
+    - Capacitor
+  - CapacitorToast (5.0.2):
+    - Capacitor
+  - CapawesomeCapacitorFilePicker (5.0.0):
+    - Capacitor
+  - MauricewegnerCapacitorNavigationBar (2.0.3):
+    - Capacitor
+  - TransistorsoftCapacitorBackgroundFetch (5.0.0):
+    - Capacitor
+
+DEPENDENCIES:
+  - "Capacitor (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorActionSheet (from `../../node_modules/@capacitor/action-sheet`)"
+  - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
+  - "CapacitorBrowser (from `../../node_modules/@capacitor/browser`)"
+  - CapacitorCalendar (from `../../node_modules/capacitor-calendar`)
+  - "CapacitorClipboard (from `../../node_modules/@capacitor/clipboard`)"
+  - "CapacitorCommunityAppIcon (from `../../node_modules/@capacitor-community/app-icon`)"
+  - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
+  - "CapacitorDialog (from `../../node_modules/@capacitor/dialog`)"
+  - "CapacitorFilesystem (from `../../node_modules/@capacitor/filesystem`)"
+  - "CapacitorGeolocation (from `../../node_modules/@capacitor/geolocation`)"
+  - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
+  - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
+  - "CapacitorLocalNotifications (from `../../node_modules/@capacitor/local-notifications`)"
+  - "CapacitorNetwork (from `../../node_modules/@capacitor/network`)"
+  - CapacitorNotificationBadge (from `../../node_modules/capacitor-notification-badge`)
+  - CapacitorPluginSafeArea (from `../../node_modules/capacitor-plugin-safe-area`)
+  - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
+  - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
+  - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
+  - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
+  - "CapacitorToast (from `../../node_modules/@capacitor/toast`)"
+  - "CapawesomeCapacitorFilePicker (from `../../node_modules/@capawesome/capacitor-file-picker`)"
+  - "MauricewegnerCapacitorNavigationBar (from `../../node_modules/@mauricewegner/capacitor-navigation-bar`)"
+  - "TransistorsoftCapacitorBackgroundFetch (from `../../node_modules/@transistorsoft/capacitor-background-fetch`)"
+
+EXTERNAL SOURCES:
+  Capacitor:
+    :path: "../../node_modules/@capacitor/ios"
+  CapacitorActionSheet:
+    :path: "../../node_modules/@capacitor/action-sheet"
+  CapacitorApp:
+    :path: "../../node_modules/@capacitor/app"
+  CapacitorBrowser:
+    :path: "../../node_modules/@capacitor/browser"
+  CapacitorCalendar:
+    :path: "../../node_modules/capacitor-calendar"
+  CapacitorClipboard:
+    :path: "../../node_modules/@capacitor/clipboard"
+  CapacitorCommunityAppIcon:
+    :path: "../../node_modules/@capacitor-community/app-icon"
+  CapacitorCordova:
+    :path: "../../node_modules/@capacitor/ios"
+  CapacitorDevice:
+    :path: "../../node_modules/@capacitor/device"
+  CapacitorDialog:
+    :path: "../../node_modules/@capacitor/dialog"
+  CapacitorFilesystem:
+    :path: "../../node_modules/@capacitor/filesystem"
+  CapacitorGeolocation:
+    :path: "../../node_modules/@capacitor/geolocation"
+  CapacitorHaptics:
+    :path: "../../node_modules/@capacitor/haptics"
+  CapacitorKeyboard:
+    :path: "../../node_modules/@capacitor/keyboard"
+  CapacitorLocalNotifications:
+    :path: "../../node_modules/@capacitor/local-notifications"
+  CapacitorNetwork:
+    :path: "../../node_modules/@capacitor/network"
+  CapacitorNotificationBadge:
+    :path: "../../node_modules/capacitor-notification-badge"
+  CapacitorPluginSafeArea:
+    :path: "../../node_modules/capacitor-plugin-safe-area"
+  CapacitorPreferences:
+    :path: "../../node_modules/@capacitor/preferences"
+  CapacitorShare:
+    :path: "../../node_modules/@capacitor/share"
+  CapacitorSplashScreen:
+    :path: "../../node_modules/@capacitor/splash-screen"
+  CapacitorStatusBar:
+    :path: "../../node_modules/@capacitor/status-bar"
+  CapacitorToast:
+    :path: "../../node_modules/@capacitor/toast"
+  CapawesomeCapacitorFilePicker:
+    :path: "../../node_modules/@capawesome/capacitor-file-picker"
+  MauricewegnerCapacitorNavigationBar:
+    :path: "../../node_modules/@mauricewegner/capacitor-navigation-bar"
+  TransistorsoftCapacitorBackgroundFetch:
+    :path: "../../node_modules/@transistorsoft/capacitor-background-fetch"
+
+SPEC CHECKSUMS:
+  Capacitor: d3d4463573438b9fa65326d1f3549da6f4c21634
+  CapacitorActionSheet: 5f96ede9bde29ba734a5a31b70cfdaaa7855689f
+  CapacitorApp: 28fef1fd75b2b3686e875216806fb8416d421097
+  CapacitorBrowser: 7986ee35377383fc40f7c1a0a793e0d9a49fe527
+  CapacitorCalendar: c950f49840de2656adc9336488227bee8481aed6
+  CapacitorClipboard: a198f34cd0ed4d1777da5edae13445227ec05be3
+  CapacitorCommunityAppIcon: c2d7ddab91cbdb2e5b68b84703e1882676ba6a37
+  CapacitorCordova: b1fe6bf1f36974a8e4a9044b342d22d49c0996d6
+  CapacitorDevice: 980e172f6fbfa0a945c73f908adc74b5a031e7d4
+  CapacitorDialog: 01c49f7f4b37e7ad59e38fd317a6e5f006f23cdc
+  CapacitorFilesystem: 3a7bb944feb5b7e9473adeb08662c73141510aa8
+  CapacitorGeolocation: 8532cd1585dbf0b5b721fa65ea51a36bf9a71e92
+  CapacitorHaptics: 864585542a435bd41eaabf7f30d9ff5ec03024d3
+  CapacitorKeyboard: e628d4e66d621c69e449945ebabded17c5b9c2e8
+  CapacitorLocalNotifications: db01feb38f85b4fd8c0a0d0fa94a4a6410239563
+  CapacitorNetwork: 77c00ce41b4e014cbc6fdcb233462e7fce4b4755
+  CapacitorNotificationBadge: 47b0f3cabf527f72f9dfad8c4164fc0ee5cedb4b
+  CapacitorPluginSafeArea: bfdd714827dbd89fb44fea286beec996e1b0c5c4
+  CapacitorPreferences: 0ad8838944f900284900d9647d9b0145c89ca27d
+  CapacitorShare: 931224a0e17615e799d35b26286ab1d05f37d8fb
+  CapacitorSplashScreen: bd2a056394ba0b8807e7bb3e746424f67c426e03
+  CapacitorStatusBar: 48f2899f6846cc7d8431b251ebfc58e1c10e3d58
+  CapacitorToast: d785c9169585b9267b8392094298de7cb0eaa16e
+  CapawesomeCapacitorFilePicker: ec211560d209c2efa0e47dad3308bf497e6ce388
+  MauricewegnerCapacitorNavigationBar: 37f1308a961a8d8cd00f6362e30bad03a73728f7
+  TransistorsoftCapacitorBackgroundFetch: 88c994671b9a6e9b0a9106a173d96c095be8bcc2
+
+PODFILE CHECKSUM: a15ca2e1bd79dcf829b3ad4ef28ced5041d2f021
+
+COCOAPODS: 1.12.1
