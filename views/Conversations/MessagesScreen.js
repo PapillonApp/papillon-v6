@@ -1,8 +1,10 @@
 import * as React from 'react';
 import {
   View,
+  KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
+  TextInput,
 } from 'react-native';
 import { useState, useCallback, useEffect } from 'react';
 
@@ -12,6 +14,8 @@ import GetUIColors from '../../utils/GetUIColors';
 import { Text } from 'react-native-paper';
 
 import { GiftedChat } from 'react-native-gifted-chat'
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function convertPronoteMessages(messages) {
   let msgs = [];
@@ -34,6 +38,7 @@ function convertPronoteMessages(messages) {
 
 const MessagesScreen = ({ route, navigation }) => {
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
 
   const conversation = route.params.conversation;
   const [msgs, setMsgs] = useState(convertPronoteMessages(conversation.messages));
@@ -75,27 +80,39 @@ const MessagesScreen = ({ route, navigation }) => {
   }
 
   return (
-    <GiftedChat
-    styles
-      messages={msgs}
-      onSend={messages => {
-        sendMessage(messages[0]);
-      }}
-      user={{
-        _id: '1',
-        name: userData.name,
-        avatar: profilePicture,
-      }}
+    <View style={{backgroundColor: '#ffffff', flex: 1}}>
+      <GiftedChat
+        style={{ backgroundColor: UIColors.element }}
+        messages={msgs}
+        onSend={messages => {
+          sendMessage(messages[0]);
+        }}
+        user={{
+          _id: '1',
+          name: userData.name,
+          avatar: profilePicture,
+        }}
 
-      placeholder='Écrire un message...'
-      locale={require('dayjs/locale/fr')}
+        placeholder='Écrire un message...'
+        locale={require('dayjs/locale/fr')}
 
-      renderUsernameOnMessage
-    />
+        renderUsernameOnMessage
+
+        bottomOffset={insets.bottom + 48}
+      />
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
+  input : {
+    borderRadius: 10,
+    padding: 10,
+    margin: 10,
+    flex: 1,
+    width: '100%',
+    height: 40,
+  },
 });
 
 export default MessagesScreen;
