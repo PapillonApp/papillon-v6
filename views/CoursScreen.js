@@ -45,6 +45,7 @@ import {
 
 import * as ExpoCalendar from 'expo-calendar';
 import * as Notifications from 'expo-notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -251,11 +252,31 @@ function CoursScreen({ navigation }) {
   const updateCoursForDate = async (dateOffset, setDate) => {
     const newDate = calcDate(setDate, dateOffset);
     if (!coursRef.current[newDate.toLocaleDateString()]) {
+      // load cache before fetching
+      const cacheResult = await AsyncStorage.getItem('@cours');
+      if (cacheResult) {
+        const cache = JSON.parse(cacheResult);
+        if (cache[newDate.toLocaleDateString()]) {
+          setCours((prevCours) => ({
+            ...prevCours,
+            [newDate.toLocaleDateString()]: cache[newDate.toLocaleDateString()],
+          }));
+        }
+      }
+
+      // fetch
       const result = await IndexData.getTimetable(newDate);
       setCours((prevCours) => ({
         ...prevCours,
         [newDate.toLocaleDateString()]: result,
       }));
+
+      // save to cache
+      AsyncStorage.getItem('@cours').then((value) => {
+        const cours = JSON.parse(value) || {};
+        cours[newDate.toLocaleDateString()] = result;
+        AsyncStorage.setItem('@cours', JSON.stringify(cours));
+      });
     }
   };
 

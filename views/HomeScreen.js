@@ -43,6 +43,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContextMenuView } from 'react-native-ios-context-menu';
+import { set } from 'sync-storage';
 
 // Functions
 const openURL = (url) => {
@@ -96,6 +97,97 @@ const NewHomeScreen = ({ navigation }) => {
   const [timetable, setTimetable] = useState([]);
   const [loadingCours, setLoadingCours] = useState(true);
 
+  const [usesCache, setUsesCache] = useState(false);
+
+  const today = new Date();
+
+  const applyLoadedData = (hwData, coursData) => {
+    const groupedHomeworks = hwData.reduce((grouped, homework) => {
+      const homeworkDate = new Date(homework.date);
+      homeworkDate.setHours(0, 0, 0, 0);
+
+      const formattedDate =
+        homeworkDate.getDate() === today.getDate() + 1
+          ? 'demain'
+          : new Date(homeworkDate).toLocaleDateString('fr-FR', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+            });
+
+      if (!grouped[formattedDate]) {
+        grouped[formattedDate] = {
+          date: homeworkDate,
+          formattedDate: formattedDate,
+          homeworks: [],
+        };
+      }
+
+      // find all homeworks for tomorrow
+      let tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+
+      let tomorrowHomeworks = hwData.filter((hw) => {
+        const hwDate = new Date(hw.date);
+        hwDate.setHours(0, 0, 0, 0);
+
+        return hwDate.getDate() === tomorrow.getDate();
+      });
+
+      // count undone homeworks
+      let undoneTomorrowHomeworks = tomorrowHomeworks.filter((hw) => {
+        return !hw.done;
+      });
+
+      console.log(undoneTomorrowHomeworks.length);
+
+      AsyncStorage.getItem('badgesStorage').then((value) => {
+        let currentSyncBadges = JSON.parse(value);
+
+        if (currentSyncBadges === null) {
+          currentSyncBadges = {
+            homeworks: 0,
+          };
+        }
+
+        let newBadges = currentSyncBadges;
+        newBadges.homeworks = undoneTomorrowHomeworks.length;
+
+        AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
+      });
+
+      grouped[formattedDate].homeworks.push(homework);
+      return grouped;
+    }, {});
+
+    const result = Object.values(groupedHomeworks).sort((a, b) => a.date - b.date);
+    setHomeworks(result);
+    setLoadingHw(false);
+    setTimetable(coursData);
+    setLoadingCours(false);
+  }
+
+  useEffect(() => {
+    // cache loads
+    AsyncStorage.getItem('appcache-user').then((value) => {
+      if (value) {
+        const data = JSON.parse(value);
+        setUser(data);
+        setLoadingUser(false);
+      }
+    });
+
+    AsyncStorage.getItem('appcache-homedata').then((value) => {
+      if (value) {
+        const data = JSON.parse(value);
+        applyLoadedData(data.homeworks, data.timetable);
+
+        setUsesCache(true);
+      }
+    });
+  }, []);
+
   useEffect(() => {
     setLoadingUser(true);
     IndexData.getUser().then((data) => {
@@ -106,9 +198,10 @@ const NewHomeScreen = ({ navigation }) => {
       setFormattedUserData({ prenom, establishment, avatarURL });
       setUser(data);
       setLoadingUser(false);
+
+      AsyncStorage.setItem('appcache-user', JSON.stringify(data));
     });
 
-    const today = new Date();
     let force = refreshCount > 0;
 
     setLoadingHw(true);
@@ -118,70 +211,9 @@ const NewHomeScreen = ({ navigation }) => {
       IndexData.getHomeworks(today, force, new Date(today).setDate(today.getDate() + 7)),
       IndexData.getTimetable(today, force)
     ]).then(([hwData, coursData]) => {
-      const groupedHomeworks = hwData.reduce((grouped, homework) => {
-        const homeworkDate = new Date(homework.date);
-        homeworkDate.setHours(0, 0, 0, 0);
-
-        const formattedDate =
-          homeworkDate.getDate() === today.getDate() + 1
-            ? 'demain'
-            : new Date(homeworkDate).toLocaleDateString('fr-FR', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-              });
-
-        if (!grouped[formattedDate]) {
-          grouped[formattedDate] = {
-            date: homeworkDate,
-            formattedDate: formattedDate,
-            homeworks: [],
-          };
-        }
-
-        // find all homeworks for tomorrow
-        let tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
-
-        let tomorrowHomeworks = hwData.filter((hw) => {
-          const hwDate = new Date(hw.date);
-          hwDate.setHours(0, 0, 0, 0);
-
-          return hwDate.getDate() === tomorrow.getDate();
-        });
-
-        // count undone homeworks
-        let undoneTomorrowHomeworks = tomorrowHomeworks.filter((hw) => {
-          return !hw.done;
-        });
-
-        console.log(undoneTomorrowHomeworks.length);
-
-        AsyncStorage.getItem('badgesStorage').then((value) => {
-          let currentSyncBadges = JSON.parse(value);
-
-          if (currentSyncBadges === null) {
-            currentSyncBadges = {
-              homeworks: 0,
-            };
-          }
-
-          let newBadges = currentSyncBadges;
-          newBadges.homeworks = undoneTomorrowHomeworks.length;
-
-          AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
-        });
-
-        grouped[formattedDate].homeworks.push(homework);
-        return grouped;
-      }, {});
-
-      const result = Object.values(groupedHomeworks).sort((a, b) => a.date - b.date);
-      setHomeworks(result);
-      setLoadingHw(false);
-      setTimetable(coursData);
-      setLoadingCours(false);
+      applyLoadedData(hwData, coursData);
+      AsyncStorage.setItem('appcache-homedata', JSON.stringify({ homeworks: hwData, timetable: coursData }));
+      setUsesCache(false);
     });
   }, [refreshCount]);
 

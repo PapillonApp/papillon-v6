@@ -27,6 +27,7 @@ import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursN
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import formatCoursName from '../utils/FormatCoursName';
 import GetUIColors from '../utils/GetUIColors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function GradesScreen({ navigation }) {
   const theme = useTheme();
@@ -132,88 +133,27 @@ function GradesScreen({ navigation }) {
     setSelectedPeriod(actualPeriod);
   }
 
-  async function loadGrades(force = false) {
-    const grades = await IndexData.getGrades(force);
-    const gradesList = JSON.parse(grades).grades;
-    // invert gradeslist
-    gradesList.reverse();
-    const gradesData = JSON.parse(grades);
-
-    console.log('gradesData', gradesData);
-
-    const scaledGrades = gradesList.map((grade) => ({
-      ...grade,
-      grade: {
-        ...grade.grade,
-        value: grade.grade.value,
-      },
-    }));
-
-    const latestGrades = scaledGrades.slice(0, 10);
+  async function parseGrades(grades) {
+    const parsedData = JSON.parse(grades);
+    const gradesList = parsedData.grades;
     const subjects = [];
-
+  
     function calculateAverages(averages) {
-      let studentAverages = 0;
-      let studentAverageCount = 0;
-
-      let classAverages = 0;
-      let classAveragecount = 0;
-
-      let minAverages = 0;
-      let minAveragecount = 0;
-
-      let maxAverages = 0;
-      let maxAveragecount = 0;
-
-      // for each average
-      averages.forEach((average) => {
-
-        studentAverages += (average.average / average.out_of) * 20;
-        studentAverageCount++;
-
-        classAverages += (average.class_average / average.out_of) * 20;
-        classAveragecount++;
-
-        minAverages += (average.min / average.out_of) * 20;
-        minAveragecount++;
-
-        maxAverages += (average.max / average.out_of) * 20;
-        maxAveragecount++;
-      });
-
-      let studentAverage = studentAverages / studentAverageCount;
-      let classAverage = classAverages / classAveragecount;
-      const minAverage = minAverages / minAveragecount;
-      const maxAverage = maxAverages / maxAveragecount;
-
-      // if overall_average exists in grades
-      if (gradesData.overall_average && gradesData.overall_average !== null && gradesData.overall_average !== -1) {
-        studentAverage = gradesData.overall_average;
-        console.log('studentAverage', studentAverage);
-      }
-
-      // if class_overall_average exists in grades
-      if (gradesData.class_overall_average && gradesData.class_overall_average !== null && gradesData.class_overall_average !== -1) {
-        classAverage = gradesData.class_overall_average
-        console.log('classAverage', classAverage);
-      }
-
+      const studentAverage = (averages.reduce((acc, avg) => acc + (avg.average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
+      const classAverage = (averages.reduce((acc, avg) => acc + (avg.class_average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
+      const minAverage = (averages.reduce((acc, avg) => acc + (avg.min / avg.out_of) * 20, 0) / averages.length).toFixed(2);
+      const maxAverage = (averages.reduce((acc, avg) => acc + (avg.max / avg.out_of) * 20, 0) / averages.length).toFixed(2);
+  
       setAveragesData({
-        studentAverage: !Number.isNaN(studentAverage)
-          ? studentAverage.toFixed(2)
-          : '?',
-        classAverage: !Number.isNaN(classAverage)
-          ? classAverage.toFixed(2)
-          : '?',
-        minAverage: !Number.isNaN(minAverage) ? minAverage.toFixed(2) : '?',
-        maxAverage: !Number.isNaN(maxAverage) ? maxAverage.toFixed(2) : '?',
+        studentAverage: studentAverage,
+        classAverage: classAverage,
+        minAverage: minAverage,
+        maxAverage: maxAverage,
       });
     }
-
-    scaledGrades.forEach((grade) => {
-      const subjectIndex = subjects.findIndex(
-        (subject) => subject.name === grade.subject.name
-      );
+  
+    gradesList.forEach((grade) => {
+      const subjectIndex = subjects.findIndex((subject) => subject.name === grade.subject.name);
       if (subjectIndex !== -1) {
         subjects[subjectIndex].grades.push(grade);
       } else {
@@ -223,34 +163,50 @@ function GradesScreen({ navigation }) {
         });
       }
     });
-
-    const averagesList = JSON.parse(grades).averages;
-
+  
+    const averagesList = parsedData.averages;
+  
     averagesList.forEach((average) => {
-      const subject = subjects.find(
-        (subj) => subj.name === average.subject.name
-      );
+      const subject = subjects.find((subj) => subj.name === average.subject.name);
       if (subject) {
         average.color = getSavedCourseColor(average.subject.name, average.color);
         subject.averages = average;
-
+  
         latestGrades.forEach((grade) => {
           if (grade.subject.name === subject.name) {
             grade.color = average.color;
           }
         });
-
+  
         subject.grades.forEach((grade) => {
           grade.color = average.color;
         });
       }
     });
-
+  
     calculateAverages(averagesList);
+  
     subjects.sort((a, b) => a.name.localeCompare(b.name));
-
+  
     setSubjectsList(subjects);
-    setLatestGrades(latestGrades);
+    setLatestGrades(gradesList.slice(0, 10));
+  }
+  
+
+  async function loadGrades(force = false) {
+    // get grades from cache
+    AsyncStorage.getItem('@grades').then((grades) => {
+      if (grades) {
+        parseGrades(grades);
+      }
+    })
+
+    // fetch grades
+    const grades = await IndexData.getGrades(force);
+    parseGrades(grades);
+
+    // save grades to cache
+    AsyncStorage.setItem('@grades', grades);
   }
 
   React.useEffect(() => {

@@ -237,7 +237,7 @@ function NewsScreen({ navigation }) {
         />
       ) : null}
 
-      {news.length !== 0 && !isLoading ? (
+      
         <Animated.FlatList
           contentInsetAdjustmentBehavior="automatic"
           style={[styles.newsList]}
@@ -286,7 +286,6 @@ function NewsScreen({ navigation }) {
             
           )}
         />
-      ) : null}
 
     </View>
   );
