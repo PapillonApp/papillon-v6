@@ -837,10 +837,28 @@ function App() {
     loadApp();
   }, []);
 
+  const [dataprovider, setDataprovider] = React.useState(null);	
+
+  React.useEffect(() => {	
+    AsyncStorage.getItem('service').then((value) => {	
+      const provider = new IndexDataInstance(value || null);	
+      setDataprovider(provider);	
+    });	
+  }, []);	
+
+  const ctxValue = React.useMemo(	
+    () => ({	
+      loggedIn,	
+      setLoggedIn,	
+      dataprovider,	
+    }),	
+    [loggedIn, dataprovider]	
+  );
+
   return (
     <View style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff' }}>
       <PaperProvider>
-        <AppContextProvider state={{ loggedIn, setLoggedIn }}>
+        <AppContextProvider state={ctxValue}>
           <View style={{ flex: 1 }}>
             {loggedIn ? <AppStack /> : <AuthStack />}
           </View>
