@@ -1,0 +1,6 @@
+framework module CapacitorHaptics {
+  umbrella header "CapacitorHaptics-umbrella.h"
+
+  export *
+  module * { export * }
+}

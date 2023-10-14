@@ -1,0 +1,23 @@
+{
+  "name": "MauricewegnerCapacitorNavigationBar",
+  "version": "2.0.3",
+  "summary": "Capacitor Plugin for Navigation Bar",
+  "license": "MIT",
+  "homepage": "git+https://github.com/mauricewegner/navigation-bar.git",
+  "authors": "mauricewegner",
+  "source": {
+    "git": "git+https://github.com/mauricewegner/navigation-bar.git",
+    "tag": "2.0.3"
+  },
+  "source_files": "ios/Plugin/**/*.{swift,h,m,c,cc,mm,cpp}",
+  "platforms": {
+    "ios": "13.0"
+  },
+  "dependencies": {
+    "Capacitor": [
+
+    ]
+  },
+  "swift_versions": "5.1",
+  "swift_version": "5.1"
+}

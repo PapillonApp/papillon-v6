@@ -1,0 +1,6 @@
+framework module TransistorsoftCapacitorBackgroundFetch {
+  umbrella header "TransistorsoftCapacitorBackgroundFetch-umbrella.h"
+
+  export *
+  module * { export * }
+}

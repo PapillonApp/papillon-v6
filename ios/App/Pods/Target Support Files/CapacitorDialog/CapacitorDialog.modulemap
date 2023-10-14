@@ -1,0 +1,6 @@
+framework module CapacitorDialog {
+  umbrella header "CapacitorDialog-umbrella.h"
+
+  export *
+  module * { export * }
+}

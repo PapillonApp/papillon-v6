@@ -1,0 +1,27 @@
+{
+  "name": "TransistorsoftCapacitorBackgroundFetch",
+  "version": "5.0.0",
+  "summary": "Periodic callbacks in the background for both IOS and Android",
+  "license": "MIT",
+  "homepage": "git+https://github.com/transistorsoft/capacitor-background-fetch.git",
+  "authors": "Transistor Software<chris@transistorsoft.com>",
+  "source": {
+    "git": "git+https://github.com/transistorsoft/capacitor-background-fetch.git",
+    "tag": "5.0.0"
+  },
+  "source_files": "ios/Plugin/**/*.{swift,h,m,c,cc,mm,cpp}",
+  "platforms": {
+    "ios": "12.0"
+  },
+  "dependencies": {
+    "Capacitor": [
+
+    ]
+  },
+  "vendored_frameworks": [
+    "ios/TSBackgroundFetch.xcframework"
+  ],
+  "static_framework": true,
+  "swift_versions": "5.1",
+  "swift_version": "5.1"
+}
