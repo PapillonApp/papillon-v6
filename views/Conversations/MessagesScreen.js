@@ -13,7 +13,7 @@ import { IndexData } from '../../fetch/IndexData';
 import GetUIColors from '../../utils/GetUIColors';
 import { Text } from 'react-native-paper';
 
-import { GiftedChat } from 'react-native-gifted-chat'
+import { GiftedChat, Bubble } from 'react-native-gifted-chat'
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -63,24 +63,16 @@ const MessagesScreen = ({ route, navigation }) => {
 
 
     let newMessage = {
+      ...msg,
       _id: msgs.length + 1,
-      text: msg.text,
       date: new Date().toISOString(),
-      user : {
-        id: '1',
-        name: userData.name,
-        avatar: profilePicture,
-      },
-      pending: true,
-      sent: false,
-      received: false,
     };
 
     setMsgs(GiftedChat.append(msgs, newMessage));
   }
 
   return (
-    <View style={{backgroundColor: '#ffffff', flex: 1}}>
+    <View style={{backgroundColor: UIColors.background, flex: 1}}>
       <GiftedChat
         style={{ backgroundColor: UIColors.element }}
         messages={msgs}
@@ -99,6 +91,22 @@ const MessagesScreen = ({ route, navigation }) => {
         renderUsernameOnMessage
 
         bottomOffset={insets.bottom + 48}
+
+        renderBubble={(props) => {
+          return (
+            <Bubble
+              {...props}
+              wrapperStyle={{
+                left: {
+                  backgroundColor: UIColors.element,
+                },
+                right: {
+                  backgroundColor: UIColors.primary,
+                },
+              }}
+            />
+          )
+        }}
       />
     </View>
   )
