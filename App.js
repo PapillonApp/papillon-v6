@@ -401,6 +401,11 @@ function WrappedHomeScreen() {
         options={{
           headerBackTitle: 'Accueil',
           headerTitle: 'Conversations',
+          headerLargeTitle: Platform.OS === 'ios',
+          headerSearchBarOptions: {
+            placeholder: 'Rechercher une conversation',
+            cancelButtonText: 'Annuler',
+          },
         }}
       />
       <Stack.Screen

@@ -5,6 +5,7 @@ import {
   ScrollView,
   StatusBar,
   Platform,
+  RefreshControl,
 } from 'react-native';
 
 import { Text, useTheme } from 'react-native-paper';
@@ -14,42 +15,26 @@ import ListItem from '../components/ListItem';
 import PapillonList from '../components/PapillonList';
 
 import { IndexData } from '../fetch/IndexData';
-
-function relativeDate(date) {
-  const now = new Date();
-  const diff = now - date;
-
-  if (diff < 1000 * 60) {
-    return "À l'instant";
-  }
-  if (diff < 1000 * 60 * 60) {
-    return `${Math.floor(diff / (1000 * 60))} minute(s)`;
-  }
-  if (diff < 1000 * 60 * 60 * 24) {
-    return `${Math.floor(diff / (1000 * 60 * 60))} heure(s)`;
-  }
-  if (diff < 1000 * 60 * 60 * 24 * 7) {
-    return `${Math.floor(diff / (1000 * 60 * 60 * 24))} jour(s)`;
-  }
-  if (diff < 1000 * 60 * 60 * 24 * 30) {
-    return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 7))} semaine(s)`;
-  }
-  if (diff < 1000 * 60 * 60 * 24 * 365) {
-    return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 30))} moi(s)`;
-  }
-  return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 365))} an(s)`;
-}
+import PapillonLoading from '../components/PapillonLoading';
 
 function ConversationsScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
   const [conversations, setConversations] = React.useState([]);
+  const [originalConversations, setOriginalConversations] = React.useState([]); // for search
+
+  const [loading, setLoading] = React.useState(true);
+  const [headLoading, setHeadLoading] = React.useState(false);
 
   useEffect(() => {
     IndexData.getConversations().then((v) => {
       console.log(v);
-      setConversations(v);
+      if (v) {
+        setConversations(v);
+        setOriginalConversations(v);
+        setLoading(false);
+      }
     });
   }, []);
 
@@ -65,10 +50,49 @@ function ConversationsScreen({ navigation }) {
     return ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
   }
 
+  // add search functionality
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerSearchBarOptions: {
+        placeholder: 'Rechercher une conversation',
+        cancelButtonText: 'Annuler',
+        onChangeText: (event) => {
+          const text = event.nativeEvent.text.trim();
+
+          if (text.length > 0) {
+            // filter conversations
+            let filteredConversations = originalConversations.filter((conversation) => {
+              return conversation.subject.toLowerCase().includes(text.toLowerCase());
+            });
+
+            setConversations(filteredConversations);
+          } else {
+            setConversations(originalConversations);
+          }
+        },
+      },
+    });
+  }, [navigation]);
+
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
       contentInsetAdjustmentBehavior="automatic"
+      refreshControl={
+        <RefreshControl
+          refreshing={headLoading}
+          onRefresh={() => {
+            setHeadLoading(true);
+            IndexData.getConversations().then((v) => {
+              if (v) {
+                setConversations(v);
+                setOriginalConversations(v);
+                setHeadLoading(false);
+              }
+            });
+          }}
+        />
+      }
     >
       <StatusBar
         animated
@@ -76,28 +100,36 @@ function ConversationsScreen({ navigation }) {
         backgroundColor="transparent"
       />
 
-      <PapillonList inset grouped>
-        { conversations.map((conversation, index) => (
-          <ListItem
-            key={index}
-            title={conversation.subject}
-            subtitle={conversation.messages[conversation.messages.length - 1].content.replace(/(\r\n|\n|\r)/gm," ")}
-            undertitle={"il y a " + relativeDate(new Date(conversation.messages[conversation.messages.length - 1].date))}
-            width
-            trimSubtitle
-            chevron
-            center
-            left={
-              <View style={{ width: 36, height: 36, borderRadius: 38, backgroundColor: UIColors.primary + '22', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, color: UIColors.primary }}>{getInitials(conversation.creator)}</Text>
-              </View>
-            }
-            onPress={() => {
-              navigation.navigate('InsetConversationsItem', { conversation: conversation });
-            }}
-          />
-        )) }
-      </PapillonList>
+      { loading && (
+        <PapillonLoading
+          title="Chargement des conversations"
+          subtitle="Veuillez patienter pendant que nous récupérons vos conversations."
+        />
+      ) }
+
+      { conversations.length > 0 && (
+        <PapillonList inset grouped>
+          { conversations.map((conversation, index) => (
+            <ListItem
+              key={index}
+              title={conversation.subject}
+              subtitle={conversation.messages[conversation.messages.length - 1].content.replace(/(\r\n|\n|\r)/gm," ")}
+              width
+              trimSubtitle
+              chevron
+              center
+              left={
+                <View style={{ width: 36, height: 36, borderRadius: 38, backgroundColor: UIColors.primary + '22', justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 18, color: UIColors.primary }}>{getInitials(conversation.creator)}</Text>
+                </View>
+              }
+              onPress={() => {
+                navigation.navigate('InsetConversationsItem', { conversation: conversation });
+              }}
+            />
+          )) }
+        </PapillonList>
+      ) }
     </ScrollView>
   );
 }
