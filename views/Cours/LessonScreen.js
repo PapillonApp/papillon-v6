@@ -373,7 +373,6 @@ function LessonScreen({ route, navigation }) {
           inset
           header="A propos"
         >
-          { lesson.rooms.length > 0 ? (
             <NativeItem
               leading={<DoorOpen size={24} color={mainColor} />}
             >
@@ -381,11 +380,9 @@ function LessonScreen({ route, navigation }) {
                 Salle{lesson.rooms.length > 1 ? 's' : ''} de cours
               </NativeText>
               <NativeText heading="h4">
-                {lesson.rooms.join(', ')}
+                {lesson.rooms.join(', ') || 'Non spécifié'}
               </NativeText>
             </NativeItem>
-          ) : null }
-          { lesson.teachers.length > 0 ? (
             <NativeItem
               leading={<User2 size={24} color={mainColor} />}
             >
@@ -393,11 +390,9 @@ function LessonScreen({ route, navigation }) {
                 Professeur{lesson.teachers.length > 1 ? 's' : ''}
               </NativeText>
               <NativeText heading="h4">
-                {lesson.teachers.join(', ')}
+                {lesson.teachers.join(', ') || 'Non spécifié'}
               </NativeText>
             </NativeItem>
-          ) : null }
-          { lesson.group_names.length > 0 ? (
             <NativeItem
               leading={<Users size={24} color={mainColor} />}
             >
@@ -405,10 +400,9 @@ function LessonScreen({ route, navigation }) {
                 Groupe{lesson.group_names.length > 1 ? 's' : ''}
               </NativeText>
               <NativeText heading="h4">
-                {lesson.group_names.join(', ')}
+                {lesson.group_names.join(', ') || 'Non spécifié'}
               </NativeText>
             </NativeItem>
-          ) : null }
         </NativeList>
 
         <NativeList
