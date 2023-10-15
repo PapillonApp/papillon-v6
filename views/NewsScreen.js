@@ -270,7 +270,6 @@ function NewsScreen({ navigation }) {
                     <FullNewsIcon title={item.title} />
                   </View>
                 }
-                chevron
                 onPress={() => navigation.navigate('NewsDetails', { news: item })}
               >
                 <NativeText heading="h4" numberOfLines={1}>
