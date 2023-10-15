@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { List } from 'react-native-ios-list';
 
+import { View, StyleSheet } from 'react-native';
+import { Text } from 'react-native-paper';
+
 import GetUIColors from '../utils/GetUIColors';
 
 function NativeList(props) {
@@ -22,22 +25,53 @@ function NativeList(props) {
   });
 
   return (
-    <List
-      inset={inset}
-      header={header}
-      footer={footer}
-      style={[
-        style,
-      ]}
-      sideBar={sideBar}
+    <>
+      { header ? (
+        <NativeHeader text={header} inset={inset} />
+      ) : null }
+      <List
+        inset={inset}
+        style={[
+          style,
+          {flex: 1}
+        ]}
+        sideBar={sideBar}
 
-      backgroundColor={UIColors.element}
-      containerBackgroundColor={UIColors.background}
-      dividerColor={UIColors.border}
-    >
-      {childrenWithKeys}
-    </List>
+        backgroundColor={UIColors.element}
+        containerBackgroundColor={UIColors.background}
+        dividerColor={UIColors.border}
+      >
+        {childrenWithKeys}
+      </List>
+    </>
   );
 }
+
+function NativeHeader(props) {
+  return (
+    <View style={[styles.listHeader, props.inset ? styles.listHeaderInset : null]}>
+      <Text style={styles.listText}>{props.text}</Text>
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  listHeader: {
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+    paddingTop: 10,
+  },
+
+  listHeaderInset: {
+    paddingHorizontal: 32,
+  },
+
+  listText: {
+    fontSize: 13,
+    fontWeight: '400',
+    opacity: 0.6,
+    textTransform: 'uppercase',
+  },
+});
 
 export default NativeList;

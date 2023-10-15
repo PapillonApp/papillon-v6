@@ -98,16 +98,34 @@ function SchoolLifeScreen() {
                   />
                   <View style={styles.absenceItemData}>
                     <Text style={styles.absenceItemTitle}>
-                      {absence.hours} manquées
+                      {absence.hours}h manquées
                     </Text>
-                    <Text style={styles.absenceItemSubtitle}>
+                    
+                    {
+                      // if from and to is same day :
+                      (!absence.to || (new Date(absence.from).getDate() === new Date(absence.to).getDate())) ? (
+<Text style={styles.absenceItemSubtitle}>
                       le{' '}
                       {new Date(absence.from).toLocaleDateString('fr', {
                         weekday: 'long',
                         day: '2-digit',
                         month: 'short',
                       })}
+                    </Text>) : (
+                      <Text style={styles.absenceItemSubtitle}>
+                      du{' '}
+                      {new Date(absence.from).toLocaleDateString('fr', {
+                        weekday: 'long',
+                        day: '2-digit',
+                        month: 'short',
+                      })} au {new Date(absence.to).toLocaleDateString('fr', {
+                        weekday: 'long',
+                        day: '2-digit',
+                        month: 'short',
+                      })}
                     </Text>
+                    )
+                    }
 
                     {absence.reasons.length > 0 ? (
                       <Text

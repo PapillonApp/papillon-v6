@@ -20,9 +20,10 @@ import { PressableScale } from 'react-native-pressable-scale';
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import PapillonIcon from '../components/PapillonIcon';
 import { getSavedCourseColor } from '../utils/ColorCoursName';
-
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import formatCoursName from '../utils/FormatCoursName';
 import GetUIColors from '../utils/GetUIColors';
@@ -30,6 +31,7 @@ import { useAppContext } from '../utils/AppContext';
 
 function GradesScreen({ navigation }) {
   const theme = useTheme();
+  const appctx = useAppContext();
   const UIColors = GetUIColors();
   const { showActionSheetWithOptions } = useActionSheet();
   const insets = useSafeAreaInsets();
@@ -41,11 +43,6 @@ function GradesScreen({ navigation }) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isHeadLoading, setHeadLoading] = useState(false);
-
-  React.useEffect(() => {
-    // change background color
-    // This effect doesn't contain any code, you can remove it if not needed.
-  }, []);
 
   // add button to header
   React.useLayoutEffect(() => {
@@ -65,7 +62,7 @@ function GradesScreen({ navigation }) {
         </Fade>
       ),
     });
-  }, [navigation, selectedPeriod, isLoading]);
+  }, [navigation, selectedPeriod, isLoading, UIColors]);
 
   function newPeriod() {
     const options = periodsList.map((period) => period.name);
@@ -102,22 +99,19 @@ function GradesScreen({ navigation }) {
     );
   }
 
-  const appctx = useAppContext();
-
   async function changePeriodPronote(period) {
     setIsLoading(true);
     await appctx.dataprovider.changePeriod(period.name);
     appctx.dataprovider.getUser(true);
-    loadGrades(true, period);
+    loadGrades(true);
     setIsLoading(false);
   }
 
   async function getPeriods() {
     const allPeriods = await appctx.dataprovider.getPeriods(false);
-    console.log('pp', allPeriods);
-    const actualPeriod = allPeriods?.find((period) => period.actual === true);
+
+    const actualPeriod = allPeriods.find((period) => period.actual === true);
     let periods = [];
-    console.log('pp2', actualPeriod);
 
     if (actualPeriod.name.toLowerCase().includes('trimestre')) {
       periods = allPeriods.filter((period) =>
@@ -131,102 +125,28 @@ function GradesScreen({ navigation }) {
 
     setPeriodsList(periods);
     setSelectedPeriod(actualPeriod);
-
-    return actualPeriod;
   }
 
-  async function loadGrades(force = false, _selectedPeriod = null) {
-    setHeadLoading(true);
-    if (!_selectedPeriod && !selectedPeriod) {
-      _selectedPeriod = (await getPeriods()).actualPeriod;
-      setSelectedPeriod(_selectedPeriod);
-    }
-    const periodId = _selectedPeriod?.id || selectedPeriod?.id;
-    const grades = await appctx.dataprovider.getGrades(periodId, force);
-    const scaledGrades = [...(grades.grades || [])].reverse().map((grade) => ({
-      ...grade,
-      grade: {
-        ...grade.grade,
-        value: grade.grade.value,
-      },
-    }));
-
-    const latestGradesThis = scaledGrades.slice(0, 10);
+  async function parseGrades(parsedData) {
+    const gradesList = parsedData.grades;
     const subjects = [];
-
-    console.log('grds', grades);
-
+  
     function calculateAverages(averages) {
-      let studentAverages = 0;
-      let studentAverageCount = 0;
-
-      let classAverages = 0;
-      let classAveragecount = 0;
-
-      let minAverages = 0;
-      let minAveragecount = 0;
-
-      let maxAverages = 0;
-      let maxAveragecount = 0;
-
-      // for each average
-      averages
-        .filter((e) => e.average !== null)
-        .forEach((average) => {
-          studentAverages += (average.average / average.out_of) * 20;
-          studentAverageCount++;
-
-          classAverages += (average.class_average / average.out_of) * 20;
-          classAveragecount++;
-
-          minAverages += (average.min / average.out_of) * 20;
-          minAveragecount++;
-
-          maxAverages += (average.max / average.out_of) * 20;
-          maxAveragecount++;
-        });
-
-      let studentAverage = studentAverages / studentAverageCount;
-      let classAverage = classAverages / classAveragecount;
-      const minAverage = minAverages / minAveragecount;
-      const maxAverage = maxAverages / maxAveragecount;
-
-      // if overall_average exists in grades
-      if (
-        grades.overall_average &&
-        grades.overall_average !== null &&
-        grades.class_overall !== '-1'
-      ) {
-        studentAverage = grades.overall_average;
-        console.log('studentAverage', studentAverage);
-      }
-
-      // if class_overall_average exists in grades
-      if (
-        grades.class_overall_average &&
-        grades.class_overall_average !== null &&
-        grades.class_overall_average !== '-1'
-      ) {
-        classAverage = grades.class_overall_average;
-        console.log('classAverage', classAverage);
-      }
-
+      const studentAverage = (averages.reduce((acc, avg) => acc + (avg.average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
+      const classAverage = (averages.reduce((acc, avg) => acc + (avg.class_average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
+      const minAverage = (averages.reduce((acc, avg) => acc + (avg.min / avg.out_of) * 20, 0) / averages.length).toFixed(2);
+      const maxAverage = (averages.reduce((acc, avg) => acc + (avg.max / avg.out_of) * 20, 0) / averages.length).toFixed(2);
+  
       setAveragesData({
-        studentAverage: !Number.isNaN(studentAverage)
-          ? studentAverage.toFixed(2)
-          : '?',
-        classAverage: !Number.isNaN(classAverage)
-          ? classAverage.toFixed(2)
-          : '?',
-        minAverage: !Number.isNaN(minAverage) ? minAverage.toFixed(2) : '?',
-        maxAverage: !Number.isNaN(maxAverage) ? maxAverage.toFixed(2) : '?',
+        studentAverage: studentAverage,
+        classAverage: classAverage,
+        minAverage: minAverage,
+        maxAverage: maxAverage,
       });
     }
-
-    scaledGrades.forEach((grade) => {
-      const subjectIndex = subjects.findIndex(
-        (subject) => subject.name === grade.subject.name
-      );
+  
+    gradesList.forEach((grade) => {
+      const subjectIndex = subjects.findIndex((subject) => subject.name === grade.subject.name);
       if (subjectIndex !== -1) {
         subjects[subjectIndex].grades.push(grade);
       } else {
@@ -236,54 +156,60 @@ function GradesScreen({ navigation }) {
         });
       }
     });
-
-    const averagesList = grades?.averages;
-
+  
+    const averagesList = parsedData.averages;
+  
     averagesList.forEach((average) => {
-      const subject = subjects.find(
-        (subj) => subj.name === average.subject.name
-      );
+      const subject = subjects.find((subj) => subj.name === average.subject.name);
       if (subject) {
-        average.color = getSavedCourseColor(
-          average.subject.name,
-          average.color
-        );
+        average.color = getSavedCourseColor(average.subject.name, average.color);
         subject.averages = average;
-
-        latestGradesThis.forEach((grade) => {
+  
+        latestGrades.forEach((grade) => {
           if (grade.subject.name === subject.name) {
             grade.color = average.color;
           }
         });
-
+  
         subject.grades.forEach((grade) => {
           grade.color = average.color;
         });
       }
     });
-
+  
     calculateAverages(averagesList);
+  
     subjects.sort((a, b) => a.name.localeCompare(b.name));
-
+  
     setSubjectsList(subjects);
-    setLatestGrades(latestGradesThis);
-    setHeadLoading(false);
+    setLatestGrades(gradesList.slice(0, 10));
+  }
+  
+
+  async function loadGrades(force = false) {
+    // get grades from cache
+    AsyncStorage.getItem('@grades').then((grades) => {
+      if (grades) {
+        parseGrades(JSON.parse(grades));
+      }
+    })
+
+    // fetch grades
+    const grades = await appctx.dataprovider.getGrades(force);
+    parseGrades(grades);
+
+    // save grades to cache
+    AsyncStorage.setItem('@grades', JSON.stringify(grades));
   }
 
-  const initialLoad = async () => {
-    let actual = null;
+  React.useEffect(() => {
     if (periodsList.length === 0) {
-      actual = await getPeriods().then((e) => e.actualPeriod);
-      console.log('actual', actual);
-      setSelectedPeriod(actual);
+      getPeriods();
     }
 
     if (subjectsList.length === 0) {
-      setTimeout(() => loadGrades(false, actual), 150);
+      loadGrades();
     }
-  };
-  React.useEffect(() => {
-    initialLoad();
   }, []);
 
   function showGrade(grade) {
@@ -292,7 +218,8 @@ function GradesScreen({ navigation }) {
 
   const onRefresh = React.useCallback(() => {
     setHeadLoading(true);
-    loadGrades(true, selectedPeriod);
+    loadGrades(true);
+    setHeadLoading(false);
   }, []);
 
   return (
@@ -551,10 +478,9 @@ function GradesScreen({ navigation }) {
                 </Text>
                 <View style={[styles.subjectAverageContainer]}>
                   <Text style={[styles.subjectAverage]}>
-                    {subject.averages.average !== '-1' &&
-                    !Number.isNaN(parseFloat(subject.averages.average))
-                      ? parseFloat(subject.averages.average).toFixed(2)
-                      : 'Inconnu'}
+                    {
+                      subject.averages.average !== -1 ? parseFloat(subject.averages.average).toFixed(2) : "Inconnu"
+                    }
                   </Text>
                   <Text style={[styles.subjectAverageOutOf]}>
                     /{subject.averages.out_of}
@@ -743,6 +669,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
 
+
   periodButtonContainer: {
     position: 'absolute',
     top: -16,
@@ -897,6 +824,11 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     textAlign: 'center',
     marginTop: 12,
+  },
+
+  headerTitle: {
+    fontSize: 17,
+    fontFamily: 'Papillon-Semibold',
   },
 });
 

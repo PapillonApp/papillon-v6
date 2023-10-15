@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { Row } from 'react-native-ios-list';
 
+import { View } from 'react-native';
+
 import GetUIColors from '../utils/GetUIColors';
+
+import { SFSymbol } from "react-native-sfsymbols";
 
 function NativeItem(props) {
   const { 
@@ -11,6 +15,7 @@ function NativeItem(props) {
     onPress,
     last,
     style,
+    chevron
   } = props;
 
   const UIColors = GetUIColors();
@@ -20,11 +25,25 @@ function NativeItem(props) {
   return (
     <Row
       leading={leading}
-      trailing={trailing}
+      trailing={
+        <View style={{paddingRight: 6}}>
+          { trailing }
+
+          { chevron &&
+          <SFSymbol
+                name="chevron.right"
+                weight="semibold"
+                size={16}
+                color={UIColors.text + '40'}
+              />
+          }
+        </View>
+      }
       hideDivider={last}
       onPress={onPress}
       style={[
-        style
+        style,
+        {flex: 1, maxWidth: '100%'},
       ]}
       highlightColor={UIColors.text + '12'}
     >

@@ -11,10 +11,6 @@ import PapillonIcon from '../components/PapillonIcon';
 
 import GetUIColors from '../utils/GetUIColors';
 
-import NativeList from '../components/NativeList';
-import NativeItem from '../components/NativeItem';
-import NativeText from '../components/NativeText';
-
 function SettingsScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -25,11 +21,15 @@ function SettingsScreen({ navigation }) {
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}
     >
-      <StatusBar
-        animated
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
-        backgroundColor="transparent"
-      />
+      {Platform.OS === 'ios' ? (
+        <StatusBar animated barStyle="light-content" />
+      ) : (
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
+      )}
 
       <View style={styles.optionsList}>
         <Text style={styles.ListTitle}>Mon profil</Text>

@@ -7,7 +7,8 @@ function NativeText(props) {
   const {
     children,
     heading = 'p',
-    style
+    style,
+    numberOfLines,
   } = props;
 
   const UIColors = GetUIColors();
@@ -24,12 +25,12 @@ function NativeText(props) {
       fontFamily: 'Papillon-Semibold',
     },
     "h3": {
-      fontSize: 17,
+      fontSize: 18,
       fontWeight: 600,
       fontFamily: 'Papillon-Semibold',
     },
     "h4": {
-      fontSize: 15,
+      fontSize: 16,
       fontWeight: 600,
       fontFamily: 'Papillon-Semibold',
     },
@@ -51,23 +52,29 @@ function NativeText(props) {
       textTransform: 'uppercase',
     },
     "p": {
-      fontSize: 15,
+      fontSize: 16,
     },
     "p2": {
-      fontSize: 15,
+      fontSize: 16,
       opacity: 0.6,
+    },
+    "b": {
+      fontSize: 16,
+      fontWeight: '600',
     },
   };
 
   return (
     <Text
       style={[
-        style,
         {
           color: UIColors.text,
         },
         headingStyles[heading],
+        style,
       ]}
+      numberOfLines={props.numberOfLines}
+      ellipsizeMode='tail'
     >
       {children}
     </Text>

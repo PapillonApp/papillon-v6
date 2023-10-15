@@ -1,40 +1,138 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, ScrollView, StatusBar, Platform } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  StatusBar,
+  Platform,
+  RefreshControl,
+} from 'react-native';
 
-import { useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import GetUIColors from '../utils/GetUIColors';
 
-import { WillBeSoon } from './Global/Soon';
 import { useAppContext } from '../utils/AppContext';
 
-function ConversationsScreen() {
+import ListItem from '../components/ListItem';
+import PapillonList from '../components/PapillonList';
+
+import PapillonLoading from '../components/PapillonLoading';
+
+function ConversationsScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
+
+  const [conversations, setConversations] = React.useState([]);
+  const [originalConversations, setOriginalConversations] = React.useState([]); // for search
+
+  const [loading, setLoading] = React.useState(true);
+  const [headLoading, setHeadLoading] = React.useState(false);
 
   const appctx = useAppContext();
 
   useEffect(() => {
     appctx.dataprovider.getConversations().then((v) => {
       console.log(v);
+      if (v) {
+        setConversations(v);
+        setOriginalConversations(v);
+        setLoading(false);
+      }
     });
   }, []);
+
+  function getInitials(name) {
+    let initials = name.match(/\b\w/g) || [];
+
+    // if first initial is M and there is a second initial, use the second initial
+
+    if (initials[0] === 'M' && initials[1]) {
+      initials.shift();
+    }
+
+    return ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
+  }
+
+  // add search functionality
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerSearchBarOptions: {
+        placeholder: 'Rechercher une conversation',
+        cancelButtonText: 'Annuler',
+        onChangeText: (event) => {
+          const text = event.nativeEvent.text.trim();
+
+          if (text.length > 0) {
+            // filter conversations
+            const filteredConversations = originalConversations.filter(
+              (conversation) => conversation.subject.toLowerCase().includes(text.toLowerCase())
+            );
+
+            setConversations(filteredConversations);
+          } else {
+            setConversations(originalConversations);
+          }
+        },
+      },
+    });
+  }, [navigation]);
 
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
       contentInsetAdjustmentBehavior="automatic"
-    >
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated barStyle="light-content" />
-      ) : (
-        <StatusBar
-          animated
-          barStyle={theme.dark ? 'light-content' : 'dark-content'}
-          backgroundColor="transparent"
+      refreshControl={
+        <RefreshControl
+          refreshing={headLoading}
+          onRefresh={() => {
+            setHeadLoading(true);
+            appctx.dataprovider.getConversations().then((v) => {
+              if (v) {
+                setConversations(v);
+                setOriginalConversations(v);
+                setHeadLoading(false);
+              }
+            });
+          }}
         />
-      )}
+      }
+    >
+      <StatusBar
+        animated
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor="transparent"
+      />
 
-      <WillBeSoon name="Les conversations" plural />
+      { loading && (
+        <PapillonLoading
+          title="Chargement des conversations"
+          subtitle="Veuillez patienter pendant que nous récupérons vos conversations."
+        />
+      ) }
+
+      { conversations.length > 0 && (
+        <PapillonList inset grouped>
+          { conversations.map((conversation, index) => (
+            <ListItem
+              key={index}
+              title={conversation.subject}
+              subtitle={conversation.messages[conversation.messages.length - 1].content.replace(/(\r\n|\n|\r)/gm," ")}
+              width
+              trimSubtitle
+              chevron
+              center
+              left={
+                <View style={{ width: 36, height: 36, borderRadius: 38, backgroundColor: UIColors.primary + '22', justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 18, color: UIColors.primary }}>{getInitials(conversation.creator)}</Text>
+                </View>
+              }
+              onPress={() => {
+                navigation.navigate('InsetConversationsItem', { conversation: conversation });
+              }}
+            />
+          )) }
+        </PapillonList>
+      ) }
     </ScrollView>
   );
 }

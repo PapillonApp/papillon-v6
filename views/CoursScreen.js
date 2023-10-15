@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import * as React from 'react';
 import { useCallback, useState, useEffect, useRef } from 'react';
 import {
@@ -21,10 +22,21 @@ import { PressableScale } from 'react-native-pressable-scale';
 import InfinitePager from 'react-native-infinite-pager';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import { DoorOpen, User2, Info, Calendar, Users } from 'lucide-react-native';
 import * as Notifications from 'expo-notifications';
+
+import * as Calendar from 'expo-calendar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import {
+  DoorOpen,
+  User2,
+  Info,
+  Calendar as IconCalendar,
+  Users,
+} from 'lucide-react-native';
+
 import formatCoursName from '../utils/FormatCoursName';
-import { getSavedCourseColor } from '../utils/ColorCoursName';
+import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
 
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
@@ -53,29 +65,78 @@ function CoursScreen({ navigation }) {
 
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
 
-  // eslint-disable-next-line no-unused-vars
-  async function addToCalendar(_cours) {
-    Alert.alert(
-      "Cette fonctionnalité n'est pas encore disponible",
-      'Nous travaillons sur cette fonctionnalité. Elle sera disponible dans une prochaine mise à jour.',
-      [
-        {
-          text: 'OK',
-          style: 'cancel',
-        },
-      ]
-    );
+  async function addToCalendar(cours) {
 
-    // Attendre que https://github.com/expo/expo/pull/24545 soit prêt !!!
-
-    /*
       // get calendar permission
-      const { status } = await ExpoCalendar.requestCalendarPermissionsAsync();
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
       if (status === 'granted') {
-        // get default calendar
-        const calendars = await ExpoCalendar.getCalendarsAsync();
-        const defaultCalendar = calendars.find(
-          (calendar) => calendar.source.name === 'Default'
+        // for each cours
+        
+        cours.forEach(async (cours) => {
+          // get calendar
+          const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+
+          // if Papillon-(cours.subject.name) calendar exists
+          let calendarId = null;
+
+          for (const calendar of calendars) {
+            if (calendar.title === `Papillon-${cours.subject.name}`) {
+              calendarId = calendar.id;
+              break;
+            }
+          }
+
+          // if not, create it
+          if (calendarId === null) {
+            await Calendar.createCalendarAsync({
+              title: `Papillon-${cours.subject.name}`,
+              color: getClosestCourseColor(cours.subject.name, cours.background_color),
+              entityType: Calendar.EntityTypes.EVENT,
+            });
+
+            // get calendar
+            const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+
+            // get calendar id
+
+            for (const calendar of calendars) {
+              if (calendar.title === `Papillon-${cours.subject.name}`) {
+                calendarId = calendar.id;
+                break;
+              }
+            }
+          }
+          
+          // add event to calendar
+
+          if (!cours.is_cancelled) {
+            const event = await Calendar.createEventAsync(calendarId, {
+              startDate: new Date(cours.start),
+              endDate: new Date(cours.end),
+              title: cours.subject.name,
+              location: cours.rooms.join(', '),
+              notes: `
+                Professeur(s) : ${cours.teachers.length > 1 ? 's' : ''} : ${cours.teachers.join(', ')}
+Statut : ${cours.status || 'Aucun'}
+              `.trim(),
+              status: cours.is_cancelled ? 'CANCELED' : 'CONFIRMED',
+              organizer: cours.teachers[0],
+              creationDate: new Date(),
+              lastModifiedDate: new Date(),
+            });
+          }
+        });
+
+        // alert user
+        Alert.alert(
+          'Cours ajoutés au calendrier',
+          'Les cours ont été ajoutés au calendrier.',
+          [
+            {
+              text: 'OK',
+              style: 'cancel'
+            },
+          ]
         );
       }
       else {
@@ -91,8 +152,7 @@ function CoursScreen({ navigation }) {
           ]
         );
       }
-    */
-  }
+  };
 
   async function notifyAll(_cours) {
     // for each cours
@@ -222,7 +282,7 @@ function CoursScreen({ navigation }) {
             }}
             onPress={() => setCalendarModalOpen(true)}
           >
-            <Calendar size={20} color={UIColors.text} />
+            <IconCalendar size={20} color={UIColors.text} />
             <Text style={{ fontSize: 15, fontFamily: 'Papillon-Medium' }}>
               {new Date(calendarDate).toLocaleDateString('fr', {
                 weekday: 'short',
@@ -249,12 +309,31 @@ function CoursScreen({ navigation }) {
   const updateCoursForDate = async (dateOffset, setDate) => {
     const newDate = calcDate(setDate, dateOffset);
     if (!coursRef.current[newDate.toLocaleDateString()]) {
+      // load cache before fetching
+      const cacheResult = await AsyncStorage.getItem('@cours');
+      if (cacheResult) {
+        const cache = JSON.parse(cacheResult);
+        if (cache[newDate.toLocaleDateString()]) {
+          setCours((prevCours) => ({
+            ...prevCours,
+            [newDate.toLocaleDateString()]: cache[newDate.toLocaleDateString()],
+          }));
+        }
+      }
+
+      // fetch
       const result = await appctx.dataprovider.getTimetable(newDate);
-      console.log('cor', newDate, result);
       setCours((prevCours) => ({
         ...prevCours,
         [newDate.toLocaleDateString()]: result,
       }));
+
+      // save to cache
+      AsyncStorage.getItem('@cours').then((value) => {
+        const c = JSON.parse(value) || {};
+        c[newDate.toLocaleDateString()] = result;
+        AsyncStorage.setItem('@cours', JSON.stringify(cours));
+      });
     }
   };
 

@@ -179,23 +179,23 @@ function SettingsScreen({ navigation }) {
       <View style={{ gap: 9, marginTop: 16 }}>
         <Text style={styles.ListTitle}>Serveur et identifiants (avancé)</Text>
 
-        <ListItem
-          title="Changer de serveur (avancé)"
-          subtitle="Modifier le serveur utilisé dans l'app"
-          color="#B42828"
-          center
-          left={
-            <PapillonIcon
-              icon={<Server size={24} color="#565EA3" />}
-              color="#565EA3"
-              size={24}
-              small
-            />
-          }
-          onPress={() => navigation.navigate('changeServer')}
-        />
         {appctx.dataprovider.service === 'Pronote' && (
           <>
+            <ListItem
+              title="Changer de serveur (avancé)"
+              subtitle="Modifier le serveur utilisé dans l'app"
+              color="#B42828"
+              center
+              left={
+                <PapillonIcon
+                  icon={<Server size={24} color="#565EA3" />}
+                  color="#565EA3"
+                  size={24}
+                  small
+                />
+              }
+              onPress={() => navigation.navigate('changeServer')}
+            />
             <ListItem
               title="Regénerer le token"
               subtitle="Regénerer le token de votre compte"
@@ -233,7 +233,7 @@ function SettingsScreen({ navigation }) {
           <>
             <ListItem
               title="Vider le cache"
-              subtitle="Vider le cache de l'application"
+              subtitle="Supprimer le cache des données de Skolengo"
               color="#B42828"
               center
               left={

@@ -21,10 +21,13 @@ import {
   BookOpen,
   BarChart3,
   UserCircle,
+  Newspaper,
 } from 'lucide-react-native';
 import useFonts from './hooks/useFonts';
 
-import NewHomeScreen from './views/NewHomeScreen';
+import { BlurView } from 'expo-blur';
+
+import HomeScreen from './views/HomeScreen';
 
 import CoursScreen from './views/CoursScreen';
 import LessonScreen from './views/Cours/LessonScreen';
@@ -61,6 +64,7 @@ import NewsItem from './views/News/NewsItem';
 import SchoolLifeScreen from './views/SchoolLifeScreen';
 
 import ConversationsScreen from './views/ConversationsScreen';
+import MessagesScreen from './views/Conversations/MessagesScreen';
 
 import EvaluationsScreen from './views/EvaluationsScreen';
 import { AppContextProvider, baseColor } from './utils/AppContext';
@@ -71,6 +75,7 @@ import setBackgroundFetch from './fetch/BackgroundFetch';
 
 import { LoginSkolengoSelectSchool } from './views/AuthStack/Skolengo/LoginSkolengoSelectSchool';
 import { IndexDataInstance } from './fetch/IndexDataInstance';
+import GetUIColors from './utils/GetUIColors';
 
 const Tab = createBottomTabNavigator();
 
@@ -136,42 +141,6 @@ const commonScreenOptions = Platform.select({
     ...headerTitleStyles,
   },
 });
-
-function InsetNewsScreen() {
-  return (
-    <Stack.Navigator
-      screenOptions={
-        Platform.OS === 'android'
-          ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
-            }
-          : {
-              ...headerTitleStyles,
-            }
-      }
-    >
-      <Stack.Screen
-        name="News"
-        component={NewsScreen}
-        options={{
-          headerShown: true,
-          headerLargeTitle: Platform.OS === 'ios',
-          headerTitle: 'Actualités',
-        }}
-      />
-      <Stack.Screen
-        name="NewsDetails"
-        component={NewsItem}
-        options={{
-          headerShown: true,
-          headerTitle: 'Actualité',
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
 
 function InsetSchoolLifeScreen() {
   return (
@@ -257,6 +226,117 @@ function InsetEvaluationsScreen() {
   );
 }
 
+function InsetSettings() {
+  const UIColors = GetUIColors();
+  
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : {
+              ...headerTitleStyles,
+            }
+      }
+    >
+      <Stack.Screen
+        name="Compte"
+        component={SettingsScreen}
+        options={
+          Platform.OS === 'ios' ?
+            {
+              headerTitle: 'Réglages',
+              headerLargeTitle: Platform.OS === 'ios',
+              headerLargeStyle: {
+                backgroundColor: UIColors.background,
+              },
+              headerLargeTitleShadowVisible: false,
+            }
+          :
+            {
+              headerTitle: 'Compte',
+            }
+        }
+      />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          headerTitle: 'Mon profil',
+        }}
+      />
+      <Stack.Screen
+        name="OfficialServer"
+        component={OfficialServer}
+        options={{
+          headerTitle: 'Serveur officiel',
+
+          headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
+        name="About"
+        component={AboutScreen}
+        options={{
+          headerTitle: 'A propos de Papillon',
+        }}
+      />
+      <Stack.Screen
+        name="Appearance"
+        component={AppearanceScreen}
+        options={{
+          headerTitle: 'Fonctionnalités',
+        }}
+      />
+      <Stack.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{
+          headerTitle: 'Notifications',
+          headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
+        name="Icons"
+        component={IconsScreen}
+        options={{
+          headerTitle: "Icône de l'application",
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="changeServer"
+        component={ChangeServer}
+        options={{
+          headerTitle: "Changer de serveur",
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen2}
+        options={{
+          headerTitle: 'Réglages',
+        }}
+      />
+
+      <Stack.Screen
+        name="Changelog"
+        component={ChangelogScreen}
+        options={{
+          headerTitle: 'Quoi de neuf ?',
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 function WrappedHomeScreen() {
   const theme = useTheme();
 
@@ -276,7 +356,7 @@ function WrappedHomeScreen() {
     >
       <Stack.Screen
         name="Vue d'ensemble"
-        component={NewHomeScreen}
+        component={HomeScreen}
         options={{
           headerShown: true,
           headerLargeTitle: Platform.OS === 'ios',
@@ -300,14 +380,7 @@ function WrappedHomeScreen() {
         }}
       />
 
-      <Stack.Screen
-        name="InsetNews"
-        component={InsetNewsScreen}
-        options={{
-          headerShown: false,
-          presentation: 'modal',
-        }}
-      />
+
       <Stack.Screen
         name="InsetSchoollife"
         component={InsetSchoolLifeScreen}
@@ -317,16 +390,39 @@ function WrappedHomeScreen() {
         }}
       />
       <Stack.Screen
-        name="InsetConversations"
-        component={InsetConversationsScreen}
+        name="InsetEvaluations"
+        component={InsetEvaluationsScreen}
         options={{
           headerShown: false,
           presentation: 'modal',
         }}
       />
+
       <Stack.Screen
-        name="InsetEvaluations"
-        component={InsetEvaluationsScreen}
+        name="InsetConversations"
+        component={ConversationsScreen}
+        options={{
+          headerBackTitle: 'Accueil',
+          headerTitle: 'Conversations',
+          headerLargeTitle: Platform.OS === 'ios',
+          headerSearchBarOptions: {
+            placeholder: 'Rechercher une conversation',
+            cancelButtonText: 'Annuler',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="InsetConversationsItem"
+        component={MessagesScreen}
+        options={{
+          headerBackTitle: 'Retour',
+          headerTitle: 'Conversation',
+        }}
+      />
+
+      <Stack.Screen
+        name="InsetSettings"
+        component={InsetSettings}
         options={{
           headerShown: false,
           presentation: 'modal',
@@ -462,7 +558,8 @@ function WrappedGradesScreen() {
           Platform.OS === 'ios'
             ? {
                 headerShown: true,
-                headerLargeTitle: false,
+                headerLargeTitle: Platform.OS === 'ios',
+                headerTitle: 'Mes notes',
               }
             : null
         }
@@ -473,6 +570,8 @@ function WrappedGradesScreen() {
         options={{
           headerShown: true,
           headerLargeTitle: false,
+          headerBackTitle: 'Notes',
+          mdTitleColor: '#ffffff',
           headerTintColor: '#ffffff',
         }}
       />
@@ -480,7 +579,7 @@ function WrappedGradesScreen() {
   );
 }
 
-function WrappedSettings() {
+function WrappedNewsScreen() {
   return (
     <Stack.Navigator
       screenOptions={
@@ -496,82 +595,20 @@ function WrappedSettings() {
       }
     >
       <Stack.Screen
-        name="Compte"
-        component={SettingsScreen}
+        name="News"
+        component={NewsScreen}
         options={{
+          headerShown: true,
           headerLargeTitle: Platform.OS === 'ios',
-          headerTitle: 'Compte',
+          headerTitle: 'Actualités',
         }}
       />
       <Stack.Screen
-        name="Profile"
-        component={ProfileScreen}
+        name="NewsDetails"
+        component={NewsItem}
         options={{
-          headerTitle: 'Mon profil',
-        }}
-      />
-      <Stack.Screen
-        name="OfficialServer"
-        component={OfficialServer}
-        options={{
-          headerTitle: 'Serveur officiel',
-
-          headerBackTitle: 'Retour',
-        }}
-      />
-      <Stack.Screen
-        name="About"
-        component={AboutScreen}
-        options={{
-          headerTitle: 'A propos de Papillon',
-        }}
-      />
-      <Stack.Screen
-        name="Appearance"
-        component={AppearanceScreen}
-        options={{
-          headerTitle: 'Fonctionnalités',
-        }}
-      />
-      <Stack.Screen
-        name="Notifications"
-        component={NotificationsScreen}
-        options={{
-          headerTitle: 'Notifications',
-          headerBackTitle: 'Retour',
-        }}
-      />
-      <Stack.Screen
-        name="Icons"
-        component={IconsScreen}
-        options={{
-          headerTitle: "Icône de l'application",
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="changeServer"
-        component={ChangeServer}
-        options={{
-          headerTitle: 'Changer de serveur',
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="Settings"
-        component={SettingsScreen2}
-        options={{
-          headerTitle: 'Réglages',
-        }}
-      />
-
-      <Stack.Screen
-        name="Changelog"
-        component={ChangelogScreen}
-        options={{
-          headerTitle: 'Quoi de neuf ?',
-          presentation: 'modal',
-          headerShown: false,
+          headerShown: true,
+          headerTitle: 'Actualité',
         }}
       />
     </Stack.Navigator>
@@ -673,6 +710,10 @@ function AppStack() {
           paddingRight: 12,
           paddingTop: 2,
         },
+        tabBarBadgeStyle: {
+          backgroundColor: "#B42828",
+          color: '#fff',
+        },
         tabBarButton: (props) => (
           <PressableScale {...props} activeScale={0.85} weight="heavy">
             <View
@@ -711,19 +752,14 @@ function AppStack() {
         component={WrappedCoursScreen}
         options={{
           tabBarLabel: 'Cours',
-          tabBarIcon: ({ color, size, focused }) =>
-            Platform.OS === 'ios' ? (
-              focused ? (
-                <SFSymbol
-                  name="calendar"
-                  weight="semibold"
-                  color={color}
-                  size={size - 2}
-                />
-              ) : (
-                <SFSymbol name="calendar" color={color} size={size - 2} />
-              )
-            ) : (
+          tabBarBadge: badges.courses > 0 ? badges.courses : null,
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="calendar" weight='semibold' color={color} size={size-2} />
+              :
+                <SFSymbol name="calendar" color={color} size={size-2} />
+            :
               <CalendarRange color={color} size={size} />
             ),
           headerShown: false,
@@ -734,14 +770,14 @@ function AppStack() {
         component={WrappedDevoirsScreen}
         options={{
           tabBarLabel: 'Devoirs',
-          tabBarIcon: ({ color, size, focused }) =>
-            Platform.OS === 'ios' ? (
-              focused ? (
-                <SFSymbol name="book.fill" color={color} size={size - 2} />
-              ) : (
-                <SFSymbol name="book" color={color} size={size - 2} />
-              )
-            ) : (
+          tabBarBadge: badges.homeworks > 0 ? badges.homeworks : null,
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="book.fill" color={color} size={size-2} />
+              :
+                <SFSymbol name="book" color={color} size={size-2} />
+            :
               <BookOpen color={color} size={size} />
             ),
           headerShown: false,
@@ -752,42 +788,34 @@ function AppStack() {
         component={WrappedGradesScreen}
         options={{
           tabBarLabel: 'Notes',
-          tabBarIcon: ({ color, size, focused }) =>
-            Platform.OS === 'ios' ? (
-              focused ? (
-                <SFSymbol name="chart.pie.fill" color={color} size={size - 2} />
-              ) : (
-                <SFSymbol name="chart.pie" color={color} size={size - 2} />
-              )
-            ) : (
+          tabBarBadge: badges.grades > 0 ? badges.grades : null,
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="chart.pie.fill" color={color} size={size-2} />
+              :
+                <SFSymbol name="chart.pie" color={color} size={size-2} />
+            :
               <BarChart3 color={color} size={size} />
             ),
           headerShown: false,
         }}
       />
       <Tab.Screen
-        name="ParamètresHandler"
-        component={WrappedSettings}
+        name="NewsHandler"
+        component={WrappedNewsScreen}
         options={{
-          tabBarLabel: 'Compte',
-          tabBarIcon: ({ color, size, focused }) =>
-            Platform.OS === 'ios' ? (
-              focused ? (
-                <SFSymbol
-                  name="person.crop.circle.fill"
-                  color={color}
-                  size={size - 2}
-                />
-              ) : (
-                <SFSymbol
-                  name="person.crop.circle"
-                  color={color}
-                  size={size - 2}
-                />
-              )
-            ) : (
-              <UserCircle color={color} size={size} />
-            ),
+          tabBarLabel: 'Actualités',
+          tabBarBadge: badges.news > 0 ? badges.news : null,
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="newspaper.fill" color={color} size={size-2} />
+              :
+                <SFSymbol name="newspaper" color={color} size={size-2} />
+            :
+              <Newspaper color={color} size={size} />
+          ),
           headerShown: false,
         }}
       />

@@ -5,10 +5,13 @@ import {
   StyleSheet,
   Image,
   ActivityIndicator,
+  StatusBar,
+  Platform,
 } from 'react-native';
-import { Text } from 'react-native-paper';
+import { useTheme, Text } from 'react-native-paper';
 
 import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 
 import { useState, useEffect } from 'react';
 import {
@@ -18,8 +21,8 @@ import {
   Check,
   MessageCircle,
 } from 'lucide-react-native';
-import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
+import ListItem from '../../components/ListItem';
 
 import getConsts from '../../fetch/consts';
 import packageJson from '../../package.json';
@@ -76,6 +79,8 @@ function AboutScreen({ navigation }) {
   const [isKnownServer, setIsKnownServer] = useState(false);
   const [serverTag, setServerTag] = useState('Serveur non vérifié');
 
+  const theme = useTheme();
+
   function checkKnownServers() {
     return getConsts().then((consts) => {
       console.log(consts.API);
@@ -100,18 +105,6 @@ function AboutScreen({ navigation }) {
     }
   });
 
-  const [versionTaps, setVersionTaps] = useState(0);
-
-  // eslint-disable-next-line no-unused-vars
-  function addVersionTap() {
-    setVersionTaps(versionTaps + 1);
-
-    if (versionTaps >= 7) {
-      setVersionTaps(0);
-      WebBrowser.openBrowserAsync('https://matias.ma/nsfw');
-    }
-  }
-
   function openServer() {
     if (isKnownServer) {
       navigation.navigate('OfficialServer', {
@@ -128,6 +121,16 @@ function AboutScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
+      {Platform.OS === 'ios' ? (
+        <StatusBar animated barStyle="light-content" />
+      ) : (
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
+      )}
+
       <ScrollView
         style={[styles.container, { backgroundColor: UIColors.background }]}
         contentInsetAdjustmentBehavior="automatic"
@@ -243,7 +246,7 @@ function AboutScreen({ navigation }) {
             left={<MessageCircle size={20} color={UIColors.text} />}
             center
             chevron
-            onPress={() => openUserLink('https://discord.getpapillon.xyz/')}
+            onPress={() => Linking.openURL('https://discord.getpapillon.xyz/')}
           />
         </View>
 

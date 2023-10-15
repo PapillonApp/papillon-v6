@@ -68,8 +68,6 @@ function GradeView({ route, navigation }) {
         backgroundColor: mainColor,
       },
       headerShadowVisible: false,
-      mdTitleColor: '#ffffff',
-      headerTintColor: '#ffffff',
       headerRight: () => (
         <TouchableOpacity onPress={() => shareGrade()}>
           <Share size={24} color="#fff" />

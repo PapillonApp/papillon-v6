@@ -110,6 +110,8 @@ function normalizeCoursName(courseName = '') {
 }
 
 function getSavedCourseColor(courseName, courseColor) {
+  courseColor = getClosestColor(courseColor);
+  
   courseName = normalizeCoursName(courseName);
   let savedColors = SyncStorage.get('savedColors');
   if (savedColors) {

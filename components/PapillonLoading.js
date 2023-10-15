@@ -18,21 +18,23 @@ function PapillonLoading({ title, subtitle, icon, style }) {
 }
 
 const styles = StyleSheet.create({
-  newsLoading: {
-    marginVertical: 24,
-    marginHorizontal: 24,
-    alignItems: 'center',
-  },
-  newsLoadingText: {
-    fontSize: 17,
-    fontFamily: 'Papillon-Semibold',
-    marginTop: 8,
-  },
-  newsLoadingSubtext: {
-    fontSize: 15,
-    marginTop: 4,
-    opacity: 0.5,
-  },
+    newsLoading: {
+        marginVertical: 24,
+        marginHorizontal: 24,
+        alignItems: 'center',
+    },
+    newsLoadingText: {
+        fontSize: 17,
+        fontFamily: 'Papillon-Semibold',
+        marginTop: 8,
+        textAlign: 'center',
+    },
+    newsLoadingSubtext: {
+        fontSize: 15,
+        marginTop: 4,
+        opacity: 0.5,
+        textAlign: 'center',
+    },
 });
 
 export default PapillonLoading;

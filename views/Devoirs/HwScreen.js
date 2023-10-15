@@ -12,14 +12,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { PressableScale } from 'react-native-pressable-scale';
 
-import { Check, Link, File, Calendar } from 'lucide-react-native';
+import { Check, Link, File } from 'lucide-react-native';
 
 import * as WebBrowser from 'expo-web-browser';
+import ParsedText from 'react-native-parsed-text';
 
-import { Text, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 
-import ListItem from '../../components/ListItem';
 import GetUIColors from '../../utils/GetUIColors';
+
+import NativeList from '../../components/NativeList';
+import NativeItem from '../../components/NativeItem';
+import NativeText from '../../components/NativeText';
 import formatCoursName from '../../utils/FormatCoursName';
 import { useAppContext } from '../../utils/AppContext';
 
@@ -28,7 +32,7 @@ function HomeworkScreen({ route, navigation }) {
   const UIColors = GetUIColors();
 
   const { homework } = route.params;
-
+  console.log("files", homework.files)
   const [thisHwChecked, setThisHwChecked] = React.useState(homework.done);
   const [thisHwLoading, setThisHwLoading] = React.useState(false);
 
@@ -79,25 +83,52 @@ function HomeworkScreen({ route, navigation }) {
                 JSON.stringify(cachedHomeworks)
               );
             });
-
-            // sync with home page
-            AsyncStorage.setItem('homeUpdated', 'true');
-            // sync with devoirs page
-            AsyncStorage.setItem('homeworksUpdated', 'true');
           }
         }
-      });
+        
+        // sync with home page
+        AsyncStorage.setItem('homeUpdated', 'true');
+        // sync with devoirs page
+        AsyncStorage.setItem('homeworksUpdated', 'true');
+
+        // if tomorrow, update badge
+        let tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+
+        let checked = thisHwChecked;
+
+        // if this homework is for tomorrow
+        if (new Date(homework.date).getDate() === tomorrow.getDate()) {
+          AsyncStorage.getItem('badgesStorage').then((value) => {
+            let currentSyncBadges = JSON.parse(value);
+
+            if (currentSyncBadges === null) {
+              currentSyncBadges = {
+                homeworks: 0,
+              };
+            }
+
+            let newBadges = currentSyncBadges;
+            newBadges.homeworks = checked ? newBadges.homeworks + 1 : newBadges.homeworks - 1;
+
+            AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
+          });
+        }
+      })
   };
 
   // add checkbox in header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: `Devoir en ${formatCoursName(homework.subject.name)}`,
-      headerLargeTitle: Platform.OS === 'ios',
+      headerTitle: "Devoir en " + formatCoursName(homework.subject.name),
     });
   }, [navigation, homework]);
 
-  console.log(homework);
+  const handleUrlPress = (url, matchIndex) => {
+    console.log(url);
+    openURL(url);
+  }
 
   return (
     <ScrollView
@@ -114,74 +145,103 @@ function HomeworkScreen({ route, navigation }) {
         />
       )}
 
-      <View style={styles.optionsList}>
-        <Text style={styles.ListTitle}>Description</Text>
-        <View style={[styles.hwContent, { backgroundColor: UIColors.element }]}>
-          <Text style={styles.hwContentText}>{homework.description}</Text>
-        </View>
-        <ListItem
-          left={
+      <View style={{ height: 6 }} />
+
+      <NativeList header="Contenu du devoir">
+        <NativeItem>
+          <ParsedText
+            style={[styles.hwContentText, {color: UIColors.text}]}
+            selectable={true}
+            parse={
+              [
+                {
+                  type: 'url',
+                  style: [styles.url, {color: UIColors.primary}],
+                  onPress: handleUrlPress
+                },
+                {
+                  type: 'email',
+                  style: [styles.url, {color: UIColors.primary}],
+                },
+              ]
+            }
+          >
+            {homework.description}
+          </ParsedText>
+        </NativeItem>
+      </NativeList>
+
+      <View style={{ height: 6 }} />
+
+      <NativeList sideBar header="Statut du devoir">
+        <NativeItem
+          leading={
             <HwCheckbox
               checked={thisHwChecked}
               theme={theme}
-              UIColors={UIColors}
-              loading={thisHwLoading}
               pressed={() => {
                 setThisHwLoading(true);
                 changeHwState();
               }}
+              UIColors={UIColors}
+              loading={thisHwLoading}
             />
           }
-          title="Marquer comme fait"
-          width
-          center
           onPress={() => {
-            setThisHwChecked(!thisHwChecked);
+            setThisHwLoading(true);
             changeHwState();
           }}
-        />
-      </View>
+        >
+          <NativeText heading="b">
+            Marquer comme fait
+          </NativeText>
+        </NativeItem>
+        <NativeItem
+          trailing={
+            <NativeText heading="p2">
+              {new Date(homework.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </NativeText>
+          }
+        >
+          <NativeText>
+            A rendre pour le
+          </NativeText>
+        </NativeItem>
+      </NativeList>
 
-      <View style={styles.optionsList}>
-        <Text style={styles.ListTitle}>Informations</Text>
+      <View style={{ height: 6 }} />
 
-        <ListItem
-          icon={<Calendar size={24} color={UIColors.text} />}
-          title="Donné pour le"
-          subtitle={new Date(homework.date).toLocaleDateString('fr-FR', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
+      { homework.files.length > 0 ? (
+        <NativeList header="Fichiers">
+          {homework.files.map((file, index) => {
+            let fileIcon = <Link size={24} color={UIColors.text} />
+            if (file.type === 1) {
+              fileIcon = <File size={24} color={UIColors.text} />
+            }
+
+            return (
+              <NativeItem
+                key={index}
+                onPress={() => {
+                  openURL(file.url);
+                }}
+                leading={fileIcon}
+              >
+                <View style={{marginRight: 80, paddingLeft: 6}}>
+                  <NativeText heading="h4">
+                    {file.name}
+                  </NativeText>
+                  <NativeText numberOfLines={1}>
+                    {file.url}
+                  </NativeText>
+                </View>
+              </NativeItem>
+            );
+
           })}
-          width
-          center
-        />
-      </View>
+        </NativeList>
+      ) : null }
 
-      {homework.files.length > 0 ? (
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>Fichiers</Text>
-          {homework.files.map((file, index) => (
-            <ListItem
-              key={index}
-              title={file.name}
-              subtitle={file.url}
-              trimSubtitle
-              icon={
-                file.type === 0 ? (
-                  <Link size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-                ) : (
-                  <File size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-                )
-              }
-              onPress={() => openURL(file.url)}
-              width
-              center
-            />
-          ))}
-        </View>
-      ) : null}
     </ScrollView>
   );
 }
@@ -212,15 +272,7 @@ function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
 
 const styles = StyleSheet.create({
   optionsList: {
-    gap: 9,
     marginTop: 16,
-    marginHorizontal: 14,
-  },
-  ListTitle: {
-    paddingLeft: 12,
-    fontSize: 15,
-    fontFamily: 'Papillon-Medium',
-    opacity: 0.5,
   },
 
   checkboxContainer: {},
@@ -247,6 +299,7 @@ const styles = StyleSheet.create({
   },
   hwContentText: {
     fontSize: 16,
+    paddingRight: 16,
   },
 
   homeworkFile: {
@@ -274,6 +327,10 @@ const styles = StyleSheet.create({
     fontWeight: 400,
     fontFamily: 'Papillon-Medium',
     opacity: 0.5,
+  },
+
+  url: {
+    textDecorationLine: 'underline',
   },
 });
 

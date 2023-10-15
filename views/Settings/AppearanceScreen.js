@@ -74,10 +74,15 @@ function AppearanceScreen({ navigation }) {
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
     >
-      <StatusBar
-        animated
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
-      />
+      {Platform.OS === 'ios' ? (
+        <StatusBar animated barStyle="light-content" />
+      ) : (
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
+      )}
 
       <View style={{ gap: 9, marginTop: 24 }}>
         <Text style={styles.ListTitle}>Thèmes et personnalisation</Text>

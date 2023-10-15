@@ -371,6 +371,7 @@ export class SkolengoDatas extends SkolengoBase {
             (1000 * 60 * 60)
         ),
         from: absence.currentState.absenceStartDateTime,
+        to: absence.currentState.absenceEndDateTime,
         reasons: [
           absence.currentState?.comment?.trim().length > 0
             ? absence.currentState.comment

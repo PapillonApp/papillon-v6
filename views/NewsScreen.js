@@ -101,6 +101,7 @@ function NewsScreen({ navigation }) {
   const [finalNews, setFinalNews] = useState([]);
   // eslint-disable-next-line no-unused-vars
   const [showNews, setShowNews] = useState(true);
+  const [currentNewsType, setCurrentNewsType] = useState("Toutes");
 
   function editNews(n) {
     // invert the news array
@@ -110,6 +111,7 @@ function NewsScreen({ navigation }) {
   }
 
   const [isHeadLoading, setIsHeadLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const appctx = useAppContext();
 
@@ -119,6 +121,7 @@ function NewsScreen({ navigation }) {
       setIsHeadLoading(false);
       setNews(editNews(n));
       setFinalNews(editNews(n));
+      setIsLoading(false);
     });
   }, []);
 
@@ -134,7 +137,6 @@ function NewsScreen({ navigation }) {
   // add search bar in the header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (isHeadLoading ? <ActivityIndicator /> : null),
       headerSearchBarOptions: {
         placeholder: 'Rechercher une actualité',
         cancelButtonText: 'Annuler',
@@ -153,8 +155,10 @@ function NewsScreen({ navigation }) {
               }
             });
 
+            setCurrentNewsType("Toutes");
             setNews(newNews);
           } else {
+            setCurrentNewsType("Toutes");
             setNews(finalNews);
           }
         },
@@ -162,7 +166,6 @@ function NewsScreen({ navigation }) {
     });
   }, [navigation, finalNews, isHeadLoading]);
 
-  const [currentNewsType, setCurrentNewsType] = useState('Toutes');
   const [newsTypes, setNewsTypes] = useState([
     {
       name: 'Toutes',
@@ -229,26 +232,24 @@ function NewsScreen({ navigation }) {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: UIColors.background }]}>
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated barStyle="light-content" />
-      ) : (
-        <StatusBar
-          animated
-          barStyle={theme.dark ? 'light-content' : 'dark-content'}
-          backgroundColor="transparent"
-        />
-      )}
+    <View
+      style={[styles.container, { backgroundColor: UIColors.background }]}
+    >
+      <StatusBar
+        animated
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor="transparent"
+      />
 
-      {isHeadLoading ? (
+      {isLoading ? (
         <PapillonLoading
           title="Chargement des actualités..."
           subtitle="Obtention des dernières actualités en cours"
-          style={[{ marginTop: insets.top + 120 }]}
+          style={[{marginTop: insets.top + 160}]}
         />
       ) : null}
 
-      {!isHeadLoading ? (
+      
         <Animated.FlatList
           contentInsetAdjustmentBehavior="automatic"
           style={[styles.newsList]}
@@ -282,7 +283,6 @@ function NewsScreen({ navigation }) {
               refreshing={isHeadLoading}
               onRefresh={onRefresh}
               colors={[UIColors.primary]}
-              tintColor={UIColors.primary}
             />
           }
           renderItem={({ item, index }) =>
@@ -297,7 +297,7 @@ function NewsScreen({ navigation }) {
             ) : null
           }
         />
-      ) : null}
+
     </View>
   );
 }

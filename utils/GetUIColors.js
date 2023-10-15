@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Platform, useColorScheme } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
 function GetUIColors() {
@@ -52,7 +52,7 @@ function GetUIColors() {
   }
 
   return {
-    theme : theme.dark ? 'dark' : 'light',
+    theme: theme.dark ? 'dark' : 'light',
     background,
     element,
     elementHigh,
