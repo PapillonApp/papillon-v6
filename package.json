@@ -20,6 +20,7 @@
     "@react-native-async-storage/async-storage": "1.18.2",
     "@react-native-clipboard/clipboard": "^1.10.0",
     "@react-native-community/datetimepicker": "7.2.0",
+    "@react-native-community/netinfo": "9.3.10",
     "@react-native-masked-view/masked-view": "^0.2.9",
     "@react-native-menu/menu": "^0.8.0",
     "@react-native-segmented-control/segmented-control": "2.4.1",
@@ -29,6 +30,7 @@
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.9.13",
     "@react-navigation/stack": "^6.2.0",
+    "dayjs": "^1.11.10",
     "entities": "^4.5.0",
     "expo": "^49.0.9",
     "expo-app-loading": "^2.1.1",
@@ -84,14 +86,14 @@
     "react-native-smooth-pincode-input": "^1.0.9",
     "react-native-svg": "13.9.0",
     "react-native-swiper": "^1.6.0-rc.3",
+    "react-native-tableview-simple": "^4.4.0",
     "react-native-toast-message": "^2.1.6",
     "react-native-vector-icons": "^9.2.0",
     "react-native-view-shot": "3.7.0",
     "react-native-web": "~0.19.6",
     "reanimated-color-picker": "^2.3.4",
     "swiftui-react-native": "^5.0.0",
-    "sync-storage": "^0.4.2",
-    "@react-native-community/netinfo": "9.3.10"
+    "sync-storage": "^0.4.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

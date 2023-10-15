@@ -14,6 +14,8 @@ import { IndexData } from '../fetch/IndexData';
 
 import GetUIColors from '../utils/GetUIColors';
 
+import { Cell, Section, TableView } from 'react-native-tableview-simple';
+
 import packageJson from '../package.json';
 
 function NewSettings({navigation}) {
@@ -50,10 +52,6 @@ function NewSettings({navigation}) {
       <NativeList
         inset={true}
         sideBar
-        style={{
-          marginTop: 4,
-          marginBottom: 8,
-        }}
       >
         { userData ? (
           <NativeItem
@@ -90,9 +88,6 @@ function NewSettings({navigation}) {
         inset={true}
         sideBar
         header="Options de l'application"
-        style={{
-          marginBottom: 8,
-        }}
       >
         <NativeItem
           leading={
@@ -113,18 +108,10 @@ function NewSettings({navigation}) {
               />
             </View>
           }
-          trailing={
-            <SFSymbol
-              name="chevron.right"
-              weight="semibold"
-              size={16}
-              color={UIColors.text + '40'}
-              style={{marginRight: 12}}
-            />
-          }
+          chevron
           onPress={() => navigation.navigate('Icons')}
         >
-          <NativeText heading="h4" style={{marginBottom: 2}}>
+          <NativeText heading="h4">
             Icône de l'application
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
@@ -150,18 +137,10 @@ function NewSettings({navigation}) {
               />
             </View>
           }
-          trailing={
-            <SFSymbol
-              name="chevron.right"
-              weight="semibold"
-              size={16}
-              color={UIColors.text + '40'}
-              style={{marginRight: 12}}
-            />
-          }
+          chevron
           onPress={() => navigation.navigate('Notifications')}
         >
-          <NativeText heading="h4" style={{marginBottom: 2}}>
+          <NativeText heading="h4">
             Notifications
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
@@ -187,18 +166,10 @@ function NewSettings({navigation}) {
               />
             </View>
           }
-          trailing={
-            <SFSymbol
-              name="chevron.right"
-              weight="semibold"
-              size={16}
-              color={UIColors.text + '40'}
-              style={{marginRight: 12}}
-            />
-          }
+          chevron
           onPress={() => navigation.navigate('Settings')}
         >
-          <NativeText heading="h4" style={{marginBottom: 2}}>
+          <NativeText heading="h4">
             Réglages
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
@@ -211,9 +182,6 @@ function NewSettings({navigation}) {
         inset={true}
         sideBar
         header="A propos"
-        style={{
-          marginBottom: 8,
-        }}
       >
         <NativeItem
           leading={
@@ -234,18 +202,10 @@ function NewSettings({navigation}) {
               />
             </View>
           }
-          trailing={
-            <SFSymbol
-              name="chevron.right"
-              weight="semibold"
-              size={16}
-              color={UIColors.text + '40'}
-              style={{marginRight: 12}}
-            />
-          }
+          chevron
           onPress={() => navigation.navigate('Changelog')}
         >
-          <NativeText heading="h4" style={{marginBottom: 2}}>
+          <NativeText heading="h4">
             Nouveautés
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
@@ -271,18 +231,10 @@ function NewSettings({navigation}) {
               />
             </View>
           }
-          trailing={
-            <SFSymbol
-              name="chevron.right"
-              weight="semibold"
-              size={16}
-              color={UIColors.text + '40'}
-              style={{marginRight: 12}}
-            />
-          }
+          chevron
           onPress={() => navigation.navigate('Appearance')}
         >
-          <NativeText heading="h4" style={{marginBottom: 2}}>
+          <NativeText heading="h4">
           A propos
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>

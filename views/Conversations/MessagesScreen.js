@@ -129,7 +129,7 @@ const MessagesScreen = ({ route, navigation }) => {
           
         }}
 
-        minInputToolbarHeight={52}
+        minInputToolbarHeight={48}
 
         renderInputToolbar={(props) => {
           return (

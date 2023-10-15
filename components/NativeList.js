@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { List } from 'react-native-ios-list';
 
 import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
+
+import { Cell, Section, TableView } from 'react-native-tableview-simple';
 
 import GetUIColors from '../utils/GetUIColors';
 
@@ -13,7 +14,8 @@ function NativeList(props) {
     header,
     footer,
     style,
-    sideBar,
+    tableViewProps,
+    sectionProps,
   } = props;
   const UIColors = GetUIColors();
 
@@ -25,53 +27,39 @@ function NativeList(props) {
   });
 
   return (
-    <>
-      { header ? (
-        <NativeHeader text={header} inset={inset} />
-      ) : null }
-      <List
-        inset={inset}
-        style={[
-          style,
-          {flex: 1}
-        ]}
-        sideBar={sideBar}
+    <TableView
+      {...tableViewProps}
+      appearance={UIColors.dark ? 'dark' : 'light'}
+      style={[
+        style,
+        inset ? {marginHorizontal: 15} : null
+      ]}
+    >
+      <Section
+        {...sectionProps}
+        header={header ? header : null}
+        footer={footer ? footer : null}
 
-        backgroundColor={UIColors.element}
-        containerBackgroundColor={UIColors.background}
-        dividerColor={UIColors.border}
+        roundedCorners={inset ? true : false}
+        hideSurroundingSeparators={inset ? true : false}
+
+        headerTextStyle={{
+          color: UIColors.text,
+          fontSize: 13,
+          fontWeight: '400',
+          opacity: 0.4,
+          textTransform: 'uppercase',
+          marginBottom: 2,
+        }}
       >
         {childrenWithKeys}
-      </List>
-    </>
+      </Section>
+    </TableView>
   );
 }
 
-function NativeHeader(props) {
-  return (
-    <View style={[styles.listHeader, props.inset ? styles.listHeaderInset : null]}>
-      <Text style={styles.listText}>{props.text}</Text>
-    </View>
-  )
-}
-
 const styles = StyleSheet.create({
-  listHeader: {
-    paddingHorizontal: 18,
-    paddingVertical: 8,
-    paddingTop: 10,
-  },
-
-  listHeaderInset: {
-    paddingHorizontal: 32,
-  },
-
-  listText: {
-    fontSize: 13,
-    fontWeight: '400',
-    opacity: 0.6,
-    textTransform: 'uppercase',
-  },
+  
 });
 
 export default NativeList;
