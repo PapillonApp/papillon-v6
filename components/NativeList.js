@@ -29,7 +29,7 @@ function NativeList(props) {
   return (
     <TableView
       {...tableViewProps}
-      appearance={UIColors.dark ? 'dark' : 'light'}
+      appearance="auto"
       style={[
         style,
         inset ? {marginHorizontal: 15} : null
@@ -42,6 +42,8 @@ function NativeList(props) {
 
         roundedCorners={inset ? true : false}
         hideSurroundingSeparators={inset ? true : false}
+
+        separatorTintColor={UIColors.border}
 
         headerTextStyle={{
           color: UIColors.text,

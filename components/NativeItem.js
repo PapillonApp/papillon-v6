@@ -25,6 +25,7 @@ function NativeItem(props) {
   return (
     <Cell
       {...cellProps}
+
       cellImageView={ leading &&
         <View style={styles.cellImageView}>
           {leading}
@@ -50,6 +51,9 @@ function NativeItem(props) {
           }
         </View>
       }
+
+      backgroundColor={UIColors.element}
+
       onPress={onPress}
     />
   );
