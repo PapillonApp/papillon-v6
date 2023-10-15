@@ -33,6 +33,8 @@ import {
   Hourglass,
   Clock8,
   Users,
+  Palette,
+  Bell,
 } from 'lucide-react-native';
 
 import { useState, useEffect } from 'react';
@@ -48,6 +50,10 @@ import getClosestGradeEmoji from '../../utils/EmojiCoursName';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 import { IndexData } from '../../fetch/IndexData';
+
+import NativeList from '../../components/NativeList';
+import NativeItem from '../../components/NativeItem';
+import NativeText from '../../components/NativeText';
 
 /* async function getDefaultCalendarSource() {
 	const defaultCalendar = await Calendar.getDefaultCalendarAsync();
@@ -363,149 +369,131 @@ function LessonScreen({ route, navigation }) {
           backgroundColor={color}
         />
 
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>A propos</Text>
-
+        <NativeList
+          inset
+          header="A propos"
+        >
           { lesson.rooms.length > 0 ? (
-            <ListItem
-              title="Salle de cours"
-              subtitle={lesson.rooms.join(', ')}
-              color={mainColor}
-              left={<DoorOpen size={24} color={mainColor} />}
-              width
-            />
+            <NativeItem
+              leading={<DoorOpen size={24} color={mainColor} />}
+            >
+              <NativeText heading="p2">
+                Salle{lesson.rooms.length > 1 ? 's' : ''} de cours
+              </NativeText>
+              <NativeText heading="h4">
+                {lesson.rooms.join(', ')}
+              </NativeText>
+            </NativeItem>
           ) : null }
           { lesson.teachers.length > 0 ? (
-            <ListItem
-              title={"Professeur" + (lesson.teachers.length > 1 ? "s" : "")}
-              subtitle={lesson.teachers.join(', ')}
-              color={mainColor}
-              left={<User2 size={24} color={mainColor} />}
-              width
-            />
+            <NativeItem
+              leading={<User2 size={24} color={mainColor} />}
+            >
+              <NativeText heading="p2">
+                Professeur{lesson.teachers.length > 1 ? 's' : ''}
+              </NativeText>
+              <NativeText heading="h4">
+                {lesson.teachers.join(', ')}
+              </NativeText>
+            </NativeItem>
           ) : null }
           { lesson.group_names.length > 0 ? (
-            <ListItem
-              title={"Groupe" + (lesson.group_names.length > 1 ? "s" : "")}
-              subtitle={lesson.group_names.join(', ')}
-              color={mainColor}
-              left={<Users size={24} color={mainColor} />}
-              width
-            />
+            <NativeItem
+              leading={<Users size={24} color={mainColor} />}
+            >
+              <NativeText heading="p2">
+                Groupe{lesson.group_names.length > 1 ? 's' : ''}
+              </NativeText>
+              <NativeText heading="h4">
+                {lesson.group_names.join(', ')}
+              </NativeText>
+            </NativeItem>
           ) : null }
-          {lesson.status !== null ? (
-            <ListItem
-              title="Statut du cours"
-              subtitle={lesson.status}
-              color={!lesson.is_cancelled ? mainColor : '#B42828'}
-              left={
-                <Info
-                  size={24}
-                  color={!lesson.is_cancelled ? mainColor : '#ffffff'}
+        </NativeList>
+
+        <NativeList
+          inset
+          header="Horaires"
+        >
+          <NativeItem
+            leading={<Hourglass size={24} color={mainColor} />}
+          >
+            <NativeText heading="p2">
+              Durée du cours
+            </NativeText>
+            <NativeText heading="h4">
+              {lengthString}
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={<Calendar size={24} color={mainColor} />}
+          >
+            <NativeText heading="p2">
+              Date du cours
+            </NativeText>
+            <NativeText heading="h4">
+              {dateCours}
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={<Clock8 size={24} color={mainColor} />}
+          >
+            <NativeText heading="p2">
+              Début du cours
+            </NativeText>
+            <NativeText heading="h4">
+              {startStr}
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={<Clock4 size={24} color={mainColor} />}
+          >
+            <NativeText heading="p2">
+              Fin du cours
+            </NativeText>
+            <NativeText heading="h4">
+              {endStr}
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+
+        <NativeList
+          inset
+          header="Options"
+        >
+          { new Date(lesson.start) > new Date() ? (
+            <NativeItem
+              leading={<Bell size={24} color={mainColor} />}
+              trailing={
+                <Switch
+                  value={isNotified}
+                  onValueChange={(val) => changeIsNotified(val)}
                 />
               }
-              fill={!!lesson.is_cancelled}
-              width
-            />
-          ) : null}
-        </View>
-
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>Horaires</Text>
-
-          <ListItem
-            title="Durée du cours"
-            subtitle={lengthString}
-            color={mainColor}
-            left={<Hourglass size={24} color={mainColor} />}
-            width
-          />
-
-          <ContextMenuView
-            menuConfig={{
-              menuTitle: '',
-              menuItems: [
-                {
-                  actionKey: 'copy',
-                  actionTitle: 'Copier',
-                  icon: {
-                    type: 'IMAGE_SYSTEM',
-                    imageValue: {
-                      systemName: 'doc.on.doc',
-                    },
-                  },
-                },
-              ],
-            }}
-            onPressMenuItem={({ nativeEvent }) => {
-              if (nativeEvent.actionKey === 'copy') {
-                Clipboard.setString(dateCours);
-              }
-            }}
-            previewConfig={{
-              previewType: 'RECT',
-              backgroundColor: theme.colors.surface,
-              borderRadius: 12,
-            }}
-          >
-            <ListItem
-              title="Date du cours"
-              subtitle={dateCours}
-              color={mainColor}
-              left={<Calendar size={24} color={mainColor} />}
-              width
-            />
-          </ContextMenuView>
-
-          <View style={{ flexDirection: 'row', gap: 9 }}>
-            <ListItem
-              title="Début"
-              subtitle={startStr}
-              color={mainColor}
-              left={<Clock8 size={24} color={mainColor} />}
-              style={{ flex: 1, marginHorizontal: 0 }}
-            />
-            <ListItem
-              title="Fin"
-              subtitle={endStr}
-              color={mainColor}
-              left={<Clock4 size={24} color={mainColor} />}
-              style={{ flex: 1, marginHorizontal: 0 }}
-            />
-          </View>
-        </View>
-
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>Options</Text>
-
-          { new Date(lesson.start) > new Date() ? (
-            <ListItem
-              title="Me notifier 5 min. avant"
-              subtitle="Vous serez notifié 5 minutes avant le début du cours."
-              style={{ flex: 1, marginHorizontal: 0 }}
-              center
-              right={
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Switch
-                    value={isNotified}
-                    onValueChange={(val) => changeIsNotified(val)}
-                  />
-                </View>
-              }
-            />
+            >
+              <NativeText heading="h4">
+                Me notifier 5 min. avant
+              </NativeText>
+              <NativeText heading="p2">
+                Vous serez notifié 5 minutes avant le début du cours.
+              </NativeText>
+            </NativeItem>
           ) : null }
-
-          <ListItem
-            title="Changer la couleur de la matière"
-            style={{ flex: 1, marginHorizontal: 0 }}
+          <NativeItem
+            leading={<Palette size={24} color={mainColor} />}
             onPress={() => changeCourseColor()}
-            center
             chevron
-          />
-        </View>
+          >
+            <NativeText heading="h4">
+              Changer la couleur de la matière
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+
+        
         
 
-        <View style={{ height: 78 }} />
+        <View style={{ height: 100 }} />
       </AnimatedScrollView>
 
       <Modal visible={colorModalVisible} animationType='fade' presentationStyle='overFullScreen' transparent={true} >

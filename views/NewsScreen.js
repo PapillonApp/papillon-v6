@@ -263,7 +263,7 @@ function NewsScreen({ navigation }) {
       { !isLoading && news.length !== 0 && (
         <View style={{marginBottom: 18}}>
           {news.map((item, index) => (
-            <NativeList inset style={{marginBottom: -18}} key={index}>
+            <NativeList inset style={{marginBottom: -18}} key={index} >
               <NativeItem
                 leading={
                   <View style={{paddingHorizontal:2}}>
@@ -276,7 +276,7 @@ function NewsScreen({ navigation }) {
                 <NativeText heading="h4" numberOfLines={1}>
                   {item.title}
                 </NativeText>
-                <NativeText heading="p2" numberOfLines={1}>
+                <NativeText heading="p2" numberOfLines={2}>
                   {normalizeContent(item.content)}
                 </NativeText>
 
@@ -288,7 +288,7 @@ function NewsScreen({ navigation }) {
               {item.attachments.map((attachment, index) => (
                 <NativeItem
                   leading={
-                    <View style={{paddingHorizontal:2}}>
+                    <View style={{paddingHorizontal:3.5}}>
                       {attachment.type === 0 ? (
                         <Link size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
                       ) : (

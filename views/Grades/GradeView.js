@@ -13,6 +13,8 @@ import {
   GraduationCap,
   Share,
   SquareAsterisk,
+  TrendingDown,
+  TrendingUp,
   UserMinus,
   UserPlus,
   Users2,
@@ -23,6 +25,10 @@ import { PressableScale } from 'react-native-pressable-scale';
 
 import formatCoursName from '../../utils/FormatCoursName';
 import GetUIColors from '../../utils/GetUIColors';
+
+import NativeList from '../../components/NativeList';
+import NativeItem from '../../components/NativeItem';
+import NativeText from '../../components/NativeText';
 
 function GradeView({ route, navigation }) {
   const theme = useTheme();
@@ -123,43 +129,31 @@ function GradeView({ route, navigation }) {
         contentInsetAdjustmentBehavior="automatic"
         style={{ flex: 1, backgroundColor: UIColors.background }}
       >
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>Détails de la note</Text>
 
-          <PressableScale
-            style={[
-              styles.gradeDetail,
-              {
-                backgroundColor: UIColors.element,
-                borderColor: theme.dark ? '#191919' : '#e5e5e5',
-              },
-            ]}
+        <NativeList
+          inset
+          header="Détails de la note"
+        >
+          <NativeItem
+            leading={
+              <SquareAsterisk color={UIColors.text} />
+            }
+            trailing={
+              <NativeText heading="h4">
+                x {parseFloat(grade.grade.coefficient).toFixed(2)}
+              </NativeText>
+            }
           >
-            <SquareAsterisk
-              color={!theme.dark ? '#000' : '#fff'}
-              style={[styles.averageIcon]}
-            />
-
-            <Text style={[styles.gradeDetailTitle]}>Coeff.</Text>
-            <Text style={[styles.gradeDetailValue]}>
-              x {parseFloat(grade.grade.coefficient).toFixed(2)}
-            </Text>
-          </PressableScale>
-          {grade.grade.significant === 0 && grade.grade.out_of !== 20 ? (
-            <PressableScale
-              style={[
-                styles.gradeDetail,
-                {
-                  backgroundColor: UIColors.element,
-                  borderColor: theme.dark ? '#191919' : '#e5e5e5',
-                },
-              ]}
-            >
-              <GraduationCap
-                color={!theme.dark ? '#000' : '#fff'}
-                style={[styles.averageIcon]}
-              />
-              <Text style={[styles.gradeDetailTitle]}>Remis sur /20</Text>
+            <NativeText heading="p2">
+              Coefficient
+            </NativeText>
+          </NativeItem>
+          
+          <NativeItem
+            leading={
+              <GraduationCap color={UIColors.text} />
+            }
+            trailing= {
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
                   {parseFloat(
@@ -168,83 +162,76 @@ function GradeView({ route, navigation }) {
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>/20</Text>
               </View>
-            </PressableScale>
-          ) : null}
-        </View>
+            }
+          >
+            <NativeText heading="p2">
+              Remis sur /20
+            </NativeText>
+          </NativeItem>
+        </NativeList>
 
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>Moyennes</Text>
-
-          <PressableScale
-            style={[
-              styles.gradeDetail,
-              {
-                backgroundColor: UIColors.element,
-                borderColor: theme.dark ? '#191919' : '#e5e5e5',
-              },
-            ]}
+        <NativeList
+          inset
+          header="Moyennes"
+        >
+          <NativeItem
+            leading={
+              <Users2 color={UIColors.text} />
+            }
+            trailing={
+              <View style={[styles.gradeDetailRight]}>
+                <Text style={[styles.gradeDetailValue]}>
+                  {parseFloat(grade.grade.average).toFixed(2)}
+                </Text>
+                <Text style={[styles.gradeDetailValueSub]}>
+                  /{grade.grade.out_of}
+                </Text>
+              </View>
+            }
           >
-            <Users2
-              color={!theme.dark ? '#000' : '#fff'}
-              style={[styles.averageIcon]}
-            />
-            <Text style={[styles.gradeDetailTitle]}>Classe</Text>
-            <View style={[styles.gradeDetailRight]}>
-              <Text style={[styles.gradeDetailValue]}>
-                {parseFloat(grade.grade.average).toFixed(2)}
-              </Text>
-              <Text style={[styles.gradeDetailValueSub]}>
-                /{grade.grade.out_of}
-              </Text>
-            </View>
-          </PressableScale>
-          <PressableScale
-            style={[
-              styles.gradeDetail,
-              {
-                backgroundColor: UIColors.element,
-                borderColor: theme.dark ? '#191919' : '#e5e5e5',
-              },
-            ]}
+            <NativeText heading="p2">
+              Moy. de la classe
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={
+              <TrendingDown color={UIColors.text} />
+            }
+            trailing={
+              <View style={[styles.gradeDetailRight]}>
+                <Text style={[styles.gradeDetailValue]}>
+                  {parseFloat(grade.grade.average).toFixed(2)}
+                </Text>
+                <Text style={[styles.gradeDetailValueSub]}>
+                  /{grade.grade.out_of}
+                </Text>
+              </View>
+            }
           >
-            <UserPlus
-              color={!theme.dark ? '#000' : '#fff'}
-              style={[styles.averageIcon]}
-            />
-            <Text style={[styles.gradeDetailTitle]}>Max.</Text>
-            <View style={[styles.gradeDetailRight]}>
-              <Text style={[styles.gradeDetailValue]}>
-                {parseFloat(grade.grade.max).toFixed(2)}
-              </Text>
-              <Text style={[styles.gradeDetailValueSub]}>
-                /{grade.grade.out_of}
-              </Text>
-            </View>
-          </PressableScale>
-          <PressableScale
-            style={[
-              styles.gradeDetail,
-              {
-                backgroundColor: UIColors.element,
-                borderColor: theme.dark ? '#191919' : '#e5e5e5',
-              },
-            ]}
+            <NativeText heading="p2">
+              Note minimale
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={
+              <TrendingUp color={UIColors.text} />
+            }
+            trailing={
+              <View style={[styles.gradeDetailRight]}>
+                <Text style={[styles.gradeDetailValue]}>
+                  {parseFloat(grade.grade.max).toFixed(2)}
+                </Text>
+                <Text style={[styles.gradeDetailValueSub]}>
+                  /{grade.grade.out_of}
+                </Text>
+              </View>
+            }
           >
-            <UserMinus
-              color={!theme.dark ? '#000' : '#fff'}
-              style={[styles.averageIcon]}
-            />
-            <Text style={[styles.gradeDetailTitle]}>Min.</Text>
-            <View style={[styles.gradeDetailRight]}>
-              <Text style={[styles.gradeDetailValue]}>
-                {parseFloat(grade.grade.min).toFixed(2)}
-              </Text>
-              <Text style={[styles.gradeDetailValueSub]}>
-                /{grade.grade.out_of}
-              </Text>
-            </View>
-          </PressableScale>
-        </View>
+            <NativeText heading="p2">
+              Note maximale
+            </NativeText>
+          </NativeItem>
+        </NativeList>
       </ScrollView>
     </>
   );

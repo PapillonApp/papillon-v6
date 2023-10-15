@@ -146,7 +146,7 @@ function HomeworkScreen({ route, navigation }) {
 
       <View style={{ height: 6 }} />
 
-      <NativeList header="Contenu du devoir">
+      <NativeList header="Contenu du devoir" inset>
         <NativeItem>
           <ParsedText
             style={[styles.hwContentText, {color: UIColors.text}]}
@@ -172,7 +172,7 @@ function HomeworkScreen({ route, navigation }) {
 
       <View style={{ height: 6 }} />
 
-      <NativeList sideBar header="Statut du devoir">
+      <NativeList inset header="Statut du devoir">
         <NativeItem
           leading={
             <HwCheckbox
@@ -211,7 +211,7 @@ function HomeworkScreen({ route, navigation }) {
       <View style={{ height: 6 }} />
 
       { homework.files.length > 0 ? (
-        <NativeList header="Fichiers">
+        <NativeList inset header="Fichiers">
           {homework.files.map((file, index) => {
             let fileIcon = <Link size={24} color={UIColors.text} />
             if (file.type === 1) {
