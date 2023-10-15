@@ -10,7 +10,9 @@ import {
 import { useTheme, Text } from 'react-native-paper';
 
 import {
+  Diff,
   GraduationCap,
+  Percent,
   Share,
   SquareAsterisk,
   TrendingDown,
@@ -30,9 +32,30 @@ import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
+function calculateAverage(grades, isClass) {
+  let average = 0;
+  let count = 0;
+  for (let i = 0; i < grades.length; i++) {
+    if (grades[i].grade.value !== 0) {
+      let correctedValue = grades[i].grade.value / grades[i].grade.out_of * 20;
+      let correctedClassValue = grades[i].grade.average / grades[i].grade.out_of * 20;
+
+      if (isClass) {
+        average += correctedClassValue * grades[i].grade.coefficient;
+      } else {
+        average += correctedValue * grades[i].grade.coefficient;
+      }
+
+      count += grades[i].grade.coefficient;
+    }
+  }
+  average = average / count;
+  return average;
+}
+
 function GradeView({ route, navigation }) {
   const theme = useTheme();
-  const { grade } = route.params;
+  const { grade, allGrades } = route.params;
   const UIColors = GetUIColors();
 
   function shareGrade() {
@@ -85,6 +108,23 @@ function GradeView({ route, navigation }) {
   const formattedValue = parseFloat(grade.grade.value).toFixed(2);
   const valueTop = formattedValue.split('.')[0];
   const valueBottom = formattedValue.split('.')[1];
+
+  let gradesListWithoutGrade = [];
+  for (let i = 0; i < allGrades.length; i++) {
+    if (allGrades[i].id !== grade.id) {
+      gradesListWithoutGrade.push(allGrades[i]);
+    }
+  }
+
+  const average = calculateAverage(allGrades, false);
+  const averageWithoutGrade = calculateAverage(gradesListWithoutGrade, false);
+  const avgInfluence = average - averageWithoutGrade;
+
+  const avgPercentInfluence = (avgInfluence / average) * 100;
+
+  const classAvg = calculateAverage(allGrades, true);
+  const classAvgWithoutGrade = calculateAverage(gradesListWithoutGrade, true);
+  const classAvgInfluence = classAvg - classAvgWithoutGrade;
 
   return (
     <>
@@ -200,7 +240,7 @@ function GradeView({ route, navigation }) {
             trailing={
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(grade.grade.average).toFixed(2)}
+                  {parseFloat(grade.grade.min).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>
                   /{grade.grade.out_of}
@@ -229,6 +269,101 @@ function GradeView({ route, navigation }) {
           >
             <NativeText heading="p2">
               Note maximale
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+
+        <NativeList
+          inset
+          header="Influence"
+        >
+          <NativeItem
+            leading={
+              <UserPlus color={UIColors.text} />
+            }
+            trailing={
+              avgInfluence > 0 ? (
+                <NativeText heading="h4" style={{ color: "#1AA989" }}>
+                  + {parseFloat(avgInfluence).toFixed(2)} pts
+                </NativeText>
+              ) : (
+                <NativeText heading="h4" style={{ color: "#D81313" }}>
+                  - {parseFloat(avgInfluence).toFixed(2) * -1} pts
+                </NativeText>
+              )
+            }
+          >
+            <NativeText heading="p2">
+              Moyenne générale
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={
+              <Users2 color={UIColors.text} />
+            }
+            trailing={
+              classAvgInfluence > 0 ? (
+                <NativeText heading="h4">
+                  + {parseFloat(classAvgInfluence).toFixed(2)} pts
+                </NativeText>
+              ) : (
+                <NativeText heading="h4">
+                  - {parseFloat(classAvgInfluence).toFixed(2) * -1} pts
+                </NativeText>
+              )
+            }
+          >
+            <NativeText heading="p2">
+              Moyenne de classe
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={
+              <Percent color={UIColors.text} />
+            }
+            trailing={
+              avgPercentInfluence > 0 ? (
+                <NativeText heading="h4" style={{ color: "#1AA989" }}>
+                  + {parseFloat(avgPercentInfluence).toFixed(2)} %
+                </NativeText>
+              ) : (
+                <NativeText heading="h4" style={{ color: "#D81313" }}>
+                  - {parseFloat(avgPercentInfluence).toFixed(2) * -1} %
+                </NativeText>
+              )
+            }
+          >
+            <NativeText heading="p2">
+              Pourcentage d'influence
+            </NativeText>
+            <NativeText heading="subtitle2">
+              sur la moyenne générale
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+
+        <NativeList
+          inset
+          header="Informations"
+        >
+          <NativeItem
+            leading={
+              <Diff color={UIColors.text} />
+            }
+            trailing={
+              (grade.grade.value - grade.grade.average).toFixed(2) > 0 ? (
+                <NativeText heading="h4" style={{ color: "#1AA989" }}>
+                  + {(grade.grade.value - grade.grade.average).toFixed(2)} pts
+                </NativeText>
+              ) : (
+                <NativeText heading="h4" style={{ color: "#D81313" }}>
+                  - {(grade.grade.value - grade.grade.average).toFixed(2) * -1} pts
+                </NativeText>
+              )
+            }
+          >
+            <NativeText heading="p2">
+              Diff. avec la moyenne
             </NativeText>
           </NativeItem>
         </NativeList>

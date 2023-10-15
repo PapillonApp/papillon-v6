@@ -43,6 +43,7 @@ function GradesScreen({ navigation }) {
   const [latestGrades, setLatestGrades] = useState([]);
   const [periodsList, setPeriodsList] = useState([]);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
+  const [allGrades, setAllGrades] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isHeadLoading, setHeadLoading] = useState(false);
@@ -141,6 +142,8 @@ function GradesScreen({ navigation }) {
     const parsedData = JSON.parse(grades);
     const gradesList = parsedData.grades;
     const subjects = [];
+
+    setAllGrades(gradesList);
   
     function calculateAverages(averages) {
       const studentAverage = (averages.reduce((acc, avg) => acc + (avg.average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
@@ -224,7 +227,7 @@ function GradesScreen({ navigation }) {
   }, []);
 
   function showGrade(grade) {
-    navigation.navigate('Grade', { grade });
+    navigation.navigate('Grade', { grade, allGrades });
   }
 
   const onRefresh = React.useCallback(() => {
