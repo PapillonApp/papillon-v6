@@ -252,6 +252,7 @@ const styles = StyleSheet.create({
   mainText: {
     fontSize: 20,
     fontFamily: 'Papillon-Semibold',
+    fontWeight: 600,
   },
   descTest: {
     fontSize: 15,
@@ -279,11 +280,13 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontFamily: 'Papillon-Semibold',
+    fontWeight: 600,
     textAlign: 'center',
   },
   buttonTextTwo: {
     fontSize: 16,
     fontFamily: 'Papillon-Semibold',
+    fontWeight: 600,
     textAlign: 'center',
     color: '#ffffffa9',
   },

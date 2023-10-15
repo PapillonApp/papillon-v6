@@ -49,4 +49,20 @@ function getNews(force = false) {
   );
 }
 
-export { getNews };
+function changeNewsState(id) {
+  return getConsts().then((consts) => {
+    return AsyncStorage.getItem('token').then((token) => {
+      // fetch le timetable
+      fetch(`${consts.API}/news/markAsRead?token=${token}&newsId=${id}`, {
+        method: 'POST',
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          return result;
+        }
+      );
+    });
+  })
+}
+
+export { getNews, changeNewsState };

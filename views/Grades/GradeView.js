@@ -6,6 +6,7 @@ import {
   StatusBar,
   TouchableOpacity,
   Alert,
+  Platform,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -20,6 +21,7 @@ import {
   UserMinus,
   UserPlus,
   Users2,
+  ChevronLeft,
 } from 'lucide-react-native';
 
 import { useLayoutEffect } from 'react';
@@ -101,6 +103,13 @@ function GradeView({ route, navigation }) {
         <TouchableOpacity onPress={() => shareGrade()}>
           <Share size={24} color="#fff" />
         </TouchableOpacity>
+      ),
+      headerLeft: () => (
+        Platform.OS === 'ios' ? (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iosBack}>
+            <ChevronLeft size={26} color="#fff" style={styles.iosBackIcon} />
+          </TouchableOpacity>
+        ) : null
       ),
     });
   }, [navigation, grade]);
@@ -477,6 +486,25 @@ const styles = StyleSheet.create({
     fontFamily: 'Papillon-Medium',
     opacity: 0.6,
     letterSpacing: 0.15,
+  },
+
+  iosBack: {
+    width: 32,
+    height: 32,
+
+    borderRadius: 32,
+
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    backgroundColor: '#ffffff33',
+  },
+
+  iosBackIcon: {
+    width: 0,
+    height: 0,
+    marginTop: -1,
+    marginLeft: -1,
   },
 });
 

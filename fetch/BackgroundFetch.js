@@ -1,7 +1,7 @@
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
 
-import * as Notifications from 'expo-notifications';
+import {Notifications} from 'react-native-notifications';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IndexDataInstance } from './IndexDataInstance';
@@ -20,15 +20,14 @@ TaskManager.defineTask('background-fetch-news', async () => {
 
           const lastNews = news[0];
 
-          Notifications.scheduleNotificationAsync({
-            content: {
-              subtitle: `📰 Nouvelle actualité ${ucFirst(
-                dataInstance.service
-              )}`,
-              body: lastNews.title,
-              sound: 'papillon_ding.wav',
-            },
-            trigger: null,
+          Notifications.postLocalNotification({
+            body: lastNews.title,
+            title: `📰 Nouvelle actualité ${ucFirst(dataInstance.service)}`,
+            sound: 'papillon_ding.wav',
+            silent: false,
+            category: 'PAPILLON_NOTIFICATIONS',
+            userInfo: {},
+            fireDate: new Date(),
           });
 
           // Be sure to return the successful result type!
@@ -37,13 +36,14 @@ TaskManager.defineTask('background-fetch-news', async () => {
       });
     }
     return dataInstance.getNews().then((news) => {
-      Notifications.scheduleNotificationAsync({
-        content: {
-          subtitle: 'Notifications actives !',
-          body: 'Vous recevrez maintenant une notification à chaque nouvelle actualité Pronote',
-          sound: 'papillon_ding.wav',
-        },
-        trigger: null,
+      Notifications.postLocalNotification({
+        body: "Vous recevrez maintenant une notification à chaque nouvelle actualité Pronote",
+        title: "Notifications actives !",
+        sound: "papillon_ding.wav",
+        silent: false,
+        category: "PAPILLON_NOTIFICATIONS",
+        userInfo: { },
+        fireDate: new Date(),
       });
 
       AsyncStorage.setItem('oldNews', JSON.stringify(news));
@@ -65,7 +65,9 @@ async function registerNewsBackgroundFetchAsync() {
   });
 }
 
-function setBackgroundFetch() {
+async function setBackgroundFetch() {
+  Notifications.registerRemoteNotifications();
+
   registerNewsBackgroundFetchAsync()
     ?.then(() => {
       console.log("Successfully registered 'background-fetch-news' fetch task");

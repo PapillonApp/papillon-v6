@@ -474,7 +474,7 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
   const mainColor = theme.dark ? '#ffffff' : '#444444';
 
   return (
-    <View style={[styles.fullCours, cours.is_cancelled ? {opacity: 0.4} : null]}>
+    <View style={[styles.fullCours]}>
       <View style={[styles.coursTimeContainer]}>
         <Text numberOfLines={1} style={[styles.ctStart]}>
           {formattedStartTime()}

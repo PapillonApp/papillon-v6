@@ -141,6 +141,8 @@ function NewsScreen({ navigation }) {
       setNews(editNews(n));
       setFinalNews(editNews(n));
       setIsHeadLoading(false);
+
+      console.log(finalNews);
     });
   }, []);
 
@@ -267,53 +269,91 @@ function NewsScreen({ navigation }) {
       ) : null}
 
       
-      { !isLoading && news.length !== 0 && (
-        <View style={{marginBottom: 18}}>
-          {news.map((item, index) => (
-            <NativeList inset style={{marginBottom: -18}} key={index} >
-              <NativeItem
-                leading={
-                  <View style={{paddingHorizontal:2}}>
-                    <FullNewsIcon title={item.title} />
-                  </View>
-                }
-                onPress={() => navigation.navigate('NewsDetails', { news: item })}
-              >
-                <NativeText heading="h4" numberOfLines={1}>
-                  {item.title}
-                </NativeText>
-                <NativeText heading="p2" numberOfLines={2}>
-                  {normalizeContent(item.content)}
-                </NativeText>
-
-                <NativeText heading="subtitle2" numberOfLines={1} style={{marginTop: 4}}>
-                  il y a {relativeDate(new Date(item.date))}
-                </NativeText>
-              </NativeItem>
-
-              {item.attachments.map((attachment, index) => (
+      {!isLoading && news.length !== 0 && (
+        <View style={{ marginBottom: 18 }}>
+          {news.map((item, index) => {
+            return (
+              <NativeList inset style={{ marginBottom: -18 }} key={index}>
                 <NativeItem
                   leading={
-                    <View style={{paddingHorizontal:3.5}}>
-                      {attachment.type === 0 ? (
-                        <Link size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
-                      ) : (
-                        <File size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
-                      )}
+                    <View style={{ paddingHorizontal: 2 }}>
+                      <FullNewsIcon title={item.title} />
                     </View>
                   }
-                  chevron
-                  onPress={() => openURL(attachment.url)}
-                  key={index}
-                >
-                  <NativeText heading="p2" numberOfLines={1}>
-                    {attachment.name}
-                  </NativeText>
+                  onPress={() => {
+                    navigation.navigate('NewsDetails', { news: item });
 
+                    if (item.read === false) {
+                      console.log('marking as read : ' + item.local_id);
+                      appctx.dataprovider.changeNewsState(item.local_id).then((e) => {
+                        item.read = true;
+                      });
+                    }
+                  }}
+                >
+                  <View
+                    style={[
+                      { gap: 2 },
+                      item.read ? { opacity: 0.4 } : {},
+                    ]}
+                  >
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 7,
+                      }}
+                    >
+                      {!item.read ? (
+                        <View
+                          style={{
+                            backgroundColor: UIColors.primary,
+                            borderRadius: 300,
+                            padding: 2,
+                            width: 8,
+                            height: 8,
+                          }}
+                        />
+                      ) : null}
+
+                      <NativeText heading="h4" numberOfLines={1}>
+                        {item.title}
+                      </NativeText>
+                    </View>
+
+                    <NativeText heading="p2" numberOfLines={2}>
+                      {normalizeContent(item.content)}
+                    </NativeText>
+
+                    <NativeText heading="subtitle2" numberOfLines={1} style={{ marginTop: 4 }}>
+                      il y a {relativeDate(new Date(item.date))}
+                    </NativeText>
+                  </View>
                 </NativeItem>
-              ))}
-            </NativeList>
-          ))}
+
+                {item.attachments.map((attachment, index) => (
+                  <NativeItem
+                    leading={
+                      <View style={{ paddingHorizontal: 3.5 }}>
+                        {attachment.type === 0 ? (
+                          <Link size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
+                        ) : (
+                          <File size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
+                        )}
+                      </View>
+                    }
+                    chevron
+                    onPress={() => openURL(attachment.url)}
+                    key={index}
+                  >
+                    <NativeText heading="p2" numberOfLines={1}>
+                      {attachment.name}
+                    </NativeText>
+                  </NativeItem>
+                ))}
+              </NativeList>
+            );
+          })}
         </View>
       )}
 

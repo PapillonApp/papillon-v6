@@ -559,7 +559,7 @@ function WrappedGradesScreen() {
             ? {
                 headerShown: true,
                 headerLargeTitle: Platform.OS === 'ios',
-                headerTitle: 'Mes notes',
+                headerTitle: 'Notes',
               }
             : null
         }
@@ -936,6 +936,8 @@ function App() {
     };
 
     loadApp();
+
+    setBackgroundFetch();
   }, []);
 
   const [dataprovider, setDataprovider] = React.useState(null);	

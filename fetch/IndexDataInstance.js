@@ -121,6 +121,16 @@ export class IndexDataInstance {
     return [];
   }
 
+  async changeNewsState(id) {
+    await this.waitInit();
+    if (this.service === 'Skolengo')
+      return {status:'', error:'Not implemented'};
+    if (this.service === 'Pronote')
+      return require(`./PronoteData/PronoteNews.js`).changeNewsState(id);
+    // .then((e) => thenHandler('changen', e));
+    return {};
+  }
+
   async getUniqueNews(id, force = false) {
     await this.waitInit();
     if (this.service === 'Skolengo')
