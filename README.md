@@ -41,7 +41,7 @@ Voici un aperçu de ce que nous avons accompli jusqu'à présent et de ce qui re
   - [ ] Contenu des cours
   - [x] Fichiers
   - [x] Actualités
-  - [ ] Conversations
+  - [x] Conversations
   - [x] Vie scolaire
 
 ## 📖 À propos du projet
