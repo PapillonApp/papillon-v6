@@ -18,7 +18,6 @@ import { Text, useTheme } from 'react-native-paper';
 
 import { Newspaper, ChefHat, Projector, Users2, AlertTriangle } from 'lucide-react-native';
 import { BarChart4, Link, File } from 'lucide-react-native';
-import { IndexData } from '../fetch/IndexData';
 import ListItem from '../components/ListItem';
 
 import PapillonLoading from '../components/PapillonLoading';
@@ -125,9 +124,7 @@ function NewsScreen({ navigation }) {
   const appctx = useAppContext();
 
   useEffect(() => {
-    setIsHeadLoading(true);
     appctx.dataprovider.getNews().then((n) => {
-      setIsHeadLoading(false);
       setNews(editNews(n));
       setFinalNews(editNews(n));
       setIsLoading(false);

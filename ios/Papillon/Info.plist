@@ -453,12 +453,6 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>skoapp-prod</string>
-        </array>
-      </dict>
-      <dict>
-        <key>CFBundleURLSchemes</key>
-        <array>
           <string>exp+papillonvex</string>
         </array>
       </dict>
