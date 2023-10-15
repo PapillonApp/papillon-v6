@@ -19,16 +19,23 @@ function getClosestGradeEmoji(subjectName) {
     phys: '🧪',
     accomp: '👨‍🏫',
     tech: '🔧',
+    ingenieur: '🔧',
     musique: '🎼',
     musical: '🎼',
+    classe: '🏫',
     vie: '🧬',
     stage: '👔',
     default: '📝',
   };
 
+  const subjectNameFormatted = subjectName
+    .toLowerCase()
+    ?.normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
   // get emoji with key in subject name
   const closest = Object.keys(gradeEmojiList).reduce((a, b) =>
-    subjectName.toLowerCase().includes(a) ? a : b
+    subjectNameFormatted.includes(a) ? a : b
   );
 
   return gradeEmojiList[closest];

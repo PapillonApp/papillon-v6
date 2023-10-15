@@ -101,7 +101,7 @@ function AppearanceScreen({ navigation }) {
           onPress={() => navigation.navigate('Icons')}
           center
         />
-        { Platform.OS === 'android' && (
+        {Platform.OS === 'android' && (
           <ListItem
             title="Thème de l'application"
             subtitle="Sélectionner le thème de l'application"

@@ -20,14 +20,14 @@ import { PressableScale } from 'react-native-pressable-scale';
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import PapillonIcon from '../components/PapillonIcon';
-import { IndexData } from '../fetch/IndexData';
-import getClosestColor from '../utils/ColorCoursName';
-import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
+import { getSavedCourseColor } from '../utils/ColorCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import formatCoursName from '../utils/FormatCoursName';
 import GetUIColors from '../utils/GetUIColors';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAppContext } from '../utils/AppContext';
 
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
@@ -35,6 +35,7 @@ import NativeText from '../components/NativeText';
 
 function GradesScreen({ navigation }) {
   const theme = useTheme();
+  const appctx = useAppContext();
   const UIColors = GetUIColors();
   const { showActionSheetWithOptions } = useActionSheet();
   const insets = useSafeAreaInsets();
@@ -47,11 +48,6 @@ function GradesScreen({ navigation }) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isHeadLoading, setHeadLoading] = useState(false);
-
-  React.useEffect(() => {
-    // change background color
-    // This effect doesn't contain any code, you can remove it if not needed.
-  }, []);
 
   // add button to header
   React.useLayoutEffect(() => {
@@ -110,16 +106,14 @@ function GradesScreen({ navigation }) {
 
   async function changePeriodPronote(period) {
     setIsLoading(true);
-    await IndexData.changePeriod(period.name);
-    IndexData.getUser(true);
+    await appctx.dataprovider.changePeriod(period.name);
+    appctx.dataprovider.getUser(true);
     loadGrades(true);
     setIsLoading(false);
   }
 
   async function getPeriods() {
-    const result = await IndexData.getUser(false);
-    const userData = result;
-    const allPeriods = userData.periods;
+    const allPeriods = await appctx.dataprovider.getPeriods(false);
 
     const actualPeriod = allPeriods.find((period) => period.actual === true);
     let periods = [];
@@ -138,8 +132,7 @@ function GradesScreen({ navigation }) {
     setSelectedPeriod(actualPeriod);
   }
 
-  async function parseGrades(grades) {
-    const parsedData = JSON.parse(grades);
+  async function parseGrades(parsedData) {
     const gradesList = parsedData.grades;
     const subjects = [];
 
@@ -204,16 +197,16 @@ function GradesScreen({ navigation }) {
     // get grades from cache
     AsyncStorage.getItem('@grades').then((grades) => {
       if (grades) {
-        parseGrades(grades);
+        parseGrades(JSON.parse(grades));
       }
     })
 
     // fetch grades
-    const grades = await IndexData.getGrades(force);
+    const grades = await appctx.dataprovider.getGrades(force);
     parseGrades(grades);
 
     // save grades to cache
-    AsyncStorage.setItem('@grades', grades);
+    AsyncStorage.setItem('@grades', JSON.stringify(grades));
   }
 
   React.useEffect(() => {

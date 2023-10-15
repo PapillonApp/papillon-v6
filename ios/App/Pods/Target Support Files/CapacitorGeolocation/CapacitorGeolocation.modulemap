@@ -1,0 +1,6 @@
+framework module CapacitorGeolocation {
+  umbrella header "CapacitorGeolocation-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,13 +1,28 @@
 import * as React from 'react';
-import { View, ScrollView, StyleSheet, Image, ActivityIndicator, StatusBar } from 'react-native';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  StatusBar,
+  Platform,
+} from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
 import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 
 import { useState, useEffect } from 'react';
-import { Server, Euro, History, Bug, Check, MessageCircle } from 'lucide-react-native';
-import ListItem from '../../components/ListItem';
+import {
+  Server,
+  Euro,
+  History,
+  Check,
+  MessageCircle,
+} from 'lucide-react-native';
 import PapillonIcon from '../../components/PapillonIcon';
+import ListItem from '../../components/ListItem';
 
 import getConsts from '../../fetch/consts';
 import packageJson from '../../package.json';
@@ -17,10 +32,7 @@ import team from './Team.json';
 import { getInfo } from '../../fetch/AuthStack/LoginFlow';
 import GetUIColors from '../../utils/GetUIColors';
 
-import * as Linking from 'expo-linking';
-
 function AboutScreen({ navigation }) {
-  const theme = useTheme();
   const UIColors = GetUIColors();
   const [serverInfo, setServerInfo] = useState({});
 
@@ -35,13 +47,15 @@ function AboutScreen({ navigation }) {
   const [dataList] = useState([
     {
       title: 'Version de Papillon',
-      subtitle: packageJson.version + " " + packageJson.canal,
+      subtitle: `${packageJson.version} ${packageJson.canal}`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
     },
     {
       title: 'Dépendances',
-      subtitle: `RN: ${packageJson.dependencies['react-native'].split('^')[1]}, Expo : ${packageJson.dependencies['expo'].split('^')[1]}`,
+      subtitle: `RN: ${
+        packageJson.dependencies['react-native'].split('^')[1]
+      }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
     },
@@ -65,9 +79,11 @@ function AboutScreen({ navigation }) {
   const [isKnownServer, setIsKnownServer] = useState(false);
   const [serverTag, setServerTag] = useState('Serveur non vérifié');
 
+  const theme = useTheme();
+
   function checkKnownServers() {
     return getConsts().then((consts) => {
-      console.log(consts.API)
+      console.log(consts.API);
 
       for (let i = 0; i < knownServers.length; i++) {
         if (consts.API.includes(knownServers[i])) {
@@ -82,12 +98,12 @@ function AboutScreen({ navigation }) {
   }
 
   checkKnownServers().then((isKnown) => {
-    setIsKnownServer(isKnown)
+    setIsKnownServer(isKnown);
 
-    if(isKnown) {
-      setServerTag('Serveur vérifié')
+    if (isKnown) {
+      setServerTag('Serveur vérifié');
     }
-  }) 
+  });
 
   function openServer() {
     if (isKnownServer) {
@@ -122,7 +138,7 @@ function AboutScreen({ navigation }) {
         <View style={[styles.optionsList]}>
           <Text style={styles.ListTitle}>Serveur</Text>
 
-          { serverInfo.server && serverInfo.version ?
+          {serverInfo.server && serverInfo.version ? (
             <ListItem
               title={serverTag}
               subtitle={`${serverInfo.server} v${serverInfo.version}`}
@@ -144,10 +160,7 @@ function AboutScreen({ navigation }) {
 
                   {isKnownServer ? (
                     <View
-                      style={[
-                        styles.certif,
-                        { borderColor: UIColors.element },
-                      ]}
+                      style={[styles.certif, { borderColor: UIColors.element }]}
                       sharedTransitionTag="serverCheck"
                     >
                       <Check size={16} color="#ffffff" />
@@ -157,35 +170,24 @@ function AboutScreen({ navigation }) {
               }
               onPress={() => openServer()}
             />
-          :
+          ) : (
             <ListItem
-            title={'Connexion au serveur...'}
-            subtitle={`Détermination de la version....`}
-            color="#29947A"
-            center
-            left={
-              <>
+              title="Connexion au serveur..."
+              subtitle="Détermination de la version...."
+              color="#29947A"
+              center
+              left={
                 <PapillonIcon
-                  icon={
-                    <Server
-                      size={24}
-                      color={'#0065A8'}
-                    />
-                  }
-                  color={'#0065A8'}
+                  icon={<Server size={24} color="#0065A8" />}
+                  color="#0065A8"
                   size={24}
                   small
                 />
-              </>
-            }
-            right={
-              <>
-                <ActivityIndicator />
-              </>
-            }
-            onPress={() => openServer()}
-          />
-          }
+              }
+              right={<ActivityIndicator />}
+              onPress={() => openServer()}
+            />
+          )}
         </View>
 
         <View style={styles.optionsList}>
@@ -212,7 +214,10 @@ function AboutScreen({ navigation }) {
         <View style={styles.optionsList}>
           <Text style={styles.ListTitle}>
             Donateurs (au{' '}
-            {new Date(donors.lastupdated).toLocaleDateString('fr', {dateStyle: 'medium'})})
+            {new Date(donors.lastupdated).toLocaleDateString('fr', {
+              dateStyle: 'medium',
+            })}
+            )
           </Text>
 
           {donors.donors.map((item, index) => (
@@ -238,9 +243,7 @@ function AboutScreen({ navigation }) {
           <Text style={styles.ListTitle}>Communauté</Text>
           <ListItem
             title="Rejoindre le Discord"
-            left={
-              <MessageCircle size={20} color={UIColors.text} />
-            }
+            left={<MessageCircle size={20} color={UIColors.text} />}
             center
             chevron
             onPress={() => Linking.openURL('https://discord.getpapillon.xyz/')}

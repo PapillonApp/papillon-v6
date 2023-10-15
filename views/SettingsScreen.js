@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, ScrollView, StyleSheet, StatusBar } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import { Settings, User2, Palette, Info, Sparkles } from 'lucide-react-native';
+import { Settings, User2, Info, Sparkles } from 'lucide-react-native';
 
 import packageJson from '../package.json';
 

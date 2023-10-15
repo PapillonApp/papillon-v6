@@ -91,6 +91,8 @@ PODS:
     - ExpoModulesCore
   - ExpoClipboard (4.3.1):
     - ExpoModulesCore
+  - ExpoCrypto (12.4.1):
+    - ExpoModulesCore
   - ExpoDynamicAppIcon (1.1.8):
     - ExpoModulesCore
   - ExpoHaptics (12.4.0):
@@ -649,6 +651,7 @@ DEPENDENCIES:
   - expo-dev-menu-interface (from `../node_modules/expo-dev-menu-interface/ios`)
   - ExpoBlur (from `../node_modules/expo-blur/ios`)
   - ExpoClipboard (from `../node_modules/expo-clipboard/ios`)
+  - ExpoCrypto (from `../node_modules/expo-crypto/ios`)
   - ExpoDynamicAppIcon (from `../node_modules/expo-dynamic-app-icon/ios`)
   - ExpoHaptics (from `../node_modules/expo-haptics/ios`)
   - ExpoImagePicker (from `../node_modules/expo-image-picker/ios`)
@@ -774,6 +777,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-blur/ios"
   ExpoClipboard:
     :path: "../node_modules/expo-clipboard/ios"
+  ExpoCrypto:
+    :path: "../node_modules/expo-crypto/ios"
   ExpoDynamicAppIcon:
     :path: "../node_modules/expo-dynamic-app-icon/ios"
   ExpoHaptics:
@@ -939,6 +944,7 @@ SPEC CHECKSUMS:
   expo-dev-menu-interface: bda969497e73dadc2663c479e0fa726ca79a306e
   ExpoBlur: a2c90bdfa4ff9f459cdb0f83191bddf020e3e2db
   ExpoClipboard: 695f274f8e028cd113837f917da40c76850877eb
+  ExpoCrypto: a382ab9a2fa91f0b511ce1fe4d6baecee40a1615
   ExpoDynamicAppIcon: 4766a2b57b2cce95559b320b79b0e86772513108
   ExpoHaptics: 360af6898407ee4e8265d30a1a8fb16491a660eb
   ExpoImagePicker: c58fdf28be551681a8edc550bcec76c397a8dfcd

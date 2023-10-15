@@ -10,13 +10,12 @@ import NativeText from '../components/NativeText';
 
 import { SFSymbol } from "react-native-sfsymbols";
 
-import { IndexData } from '../fetch/IndexData';
-
 import GetUIColors from '../utils/GetUIColors';
 
 import { Cell, Section, TableView } from 'react-native-tableview-simple';
 
 import packageJson from '../package.json';
+import { useAppContext } from '../utils/AppContext';
 
 function NewSettings({navigation}) {
   const UIColors = GetUIColors();
@@ -25,8 +24,10 @@ function NewSettings({navigation}) {
   const [userData, setUserData] = useState({});
   const [profilePicture, setProfilePicture] = useState('');
 
+  const appctx = useAppContext();
+
   useEffect(() => {
-    IndexData.getUser(false).then((result) => {
+    appctx.dataprovider.getUser(false).then((result) => {
       setUserData(result);
       setProfilePicture(result.profile_picture);
     });

@@ -1,0 +1,6 @@
+framework module CapacitorStatusBar {
+  umbrella header "CapacitorStatusBar-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -10,7 +10,7 @@ const formatExceptions = {
   'histoire-geographie': 'Histoire-Géographie',
   'sciences economiques et sociales': 'Sciences économiques et sociales',
   'llc angl.mond.cont.': 'LLCER Anglais Monde Contemporain',
-  'accompagnemt. perso.' : 'Accompagnement personnalisé',
+  'accompagnemt. perso.': 'Accompagnement personnalisé',
   'numerique sc.inform.': 'Numérique et Sciences Informatiques',
   'ed.physique & sport.': 'Éducation physique et sportive',
   'sc.econo & sociales': 'Sciences économiques et sociales',

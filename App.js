@@ -2,7 +2,7 @@ import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import "./utils/IgnoreWarnings";
+import './utils/IgnoreWarnings';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BottomNavigation, Appbar, useTheme, PaperProvider } from 'react-native-paper';
@@ -13,6 +13,8 @@ import { getHeaderTitle } from '@react-navigation/elements';
 import { useState, useMemo, useEffect } from 'react';
 import { Platform, useColorScheme, View } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
+import { SFSymbol } from 'react-native-sfsymbols';
+
 import {
   Home,
   CalendarRange,
@@ -71,7 +73,8 @@ import NotificationsScreen from './views/Settings/NotificationsScreen';
 
 import setBackgroundFetch from './fetch/BackgroundFetch';
 
-import { SFSymbol } from "react-native-sfsymbols";
+import { LoginSkolengoSelectSchool } from './views/AuthStack/Skolengo/LoginSkolengoSelectSchool';
+import { IndexDataInstance } from './fetch/IndexDataInstance';
 import GetUIColors from './utils/GetUIColors';
 
 const Tab = createBottomTabNavigator();
@@ -126,7 +129,7 @@ const headerTitleStyles = {
   headerTitleStyle: {
     fontFamily: 'Papillon-Semibold',
   },
-}
+};
 
 const commonScreenOptions = Platform.select({
   android: {
@@ -150,8 +153,8 @@ function InsetSchoolLifeScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -178,8 +181,8 @@ function InsetConversationsScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -206,8 +209,8 @@ function InsetEvaluationsScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -236,8 +239,8 @@ function InsetSettings() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -347,8 +350,8 @@ function WrappedHomeScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -475,8 +478,8 @@ function WrappedCoursScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -509,8 +512,8 @@ function WrappedDevoirsScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -544,8 +547,8 @@ function WrappedGradesScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -587,8 +590,8 @@ function WrappedNewsScreen() {
               header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
-            ...headerTitleStyles
-          }
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -613,6 +616,7 @@ function WrappedNewsScreen() {
 }
 
 function AppStack() {
+
   const theme = useTheme();
 
   const [badges, setBadges] = useState({});
@@ -684,6 +688,7 @@ function AppStack() {
     return undefined;
   }, []);
 
+  
   return (
     <Tab.Navigator
       tabBar={tabBar}
@@ -729,15 +734,16 @@ function AppStack() {
         component={WrappedHomeScreen}
         options={{
           tabBarLabel: 'Accueil',
-          tabBarIcon: ({ color, size, focused }) => (
-            Platform.OS === 'ios' ?
-              focused ?
-                <SFSymbol name="house.fill"  color={color} size={size-2} />
-              :
-                <SFSymbol name="house" color={color} size={size-2} />
-            :
+          tabBarIcon: ({ color, size, focused }) =>
+            Platform.OS === 'ios' ? (
+              focused ? (
+                <SFSymbol name="house.fill" color={color} size={size - 2} />
+              ) : (
+                <SFSymbol name="house" color={color} size={size - 2} />
+              )
+            ) : (
               <Home color={color} size={size} />
-          ),
+            ),
           headerShown: false,
         }}
       />
@@ -755,7 +761,7 @@ function AppStack() {
                 <SFSymbol name="calendar" color={color} size={size-2} />
             :
               <CalendarRange color={color} size={size} />
-          ),
+            ),
           headerShown: false,
         }}
       />
@@ -773,7 +779,7 @@ function AppStack() {
                 <SFSymbol name="book" color={color} size={size-2} />
             :
               <BookOpen color={color} size={size} />
-          ),
+            ),
           headerShown: false,
         }}
       />
@@ -791,7 +797,7 @@ function AppStack() {
                 <SFSymbol name="chart.pie" color={color} size={size-2} />
             :
               <BarChart3 color={color} size={size} />
-          ),
+            ),
           headerShown: false,
         }}
       />
@@ -829,7 +835,18 @@ function AuthStack() {
   });
 
   return (
-    <Stack.Navigator screenOptions={screenOptions}>
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : {
+              ...headerTitleStyles,
+            }
+      }
+    >
       <Stack.Screen
         name="Welcome"
         component={WelcomeScreen}
@@ -860,7 +877,16 @@ function AuthStack() {
         name="changeServer"
         component={ChangeServer}
         options={{
-          headerTitle: "Changer de serveur",
+          headerTitle: 'Changer de serveur',
+          presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
+        name="LoginSkolengoSelectSchool"
+        component={LoginSkolengoSelectSchool}
+        options={{
+          title: 'Se connecter à Skolengo',
           presentation: 'modal',
         }}
       />
@@ -869,14 +895,14 @@ function AuthStack() {
         name="LoginPronoteSelectEtab"
         component={LoginPronoteSelectEtab}
         options={{
-          title: "Se connecter à Pronote",
+          title: 'Se connecter à Pronote',
           presentation: 'modal',
         }}
       />
       <Stack.Screen
         name="LoginPronote"
         component={LoginPronote}
-        options={{ 
+        options={{
           title: 'Se connecter',
           presentation: 'modal',
           headerShown: false,
@@ -912,10 +938,28 @@ function App() {
     loadApp();
   }, []);
 
+  const [dataprovider, setDataprovider] = React.useState(null);	
+
+  React.useEffect(() => {	
+    AsyncStorage.getItem('service').then((value) => {	
+      const provider = new IndexDataInstance(value || null);	
+      setDataprovider(provider);	
+    });	
+  }, []);	
+
+  const ctxValue = React.useMemo(	
+    () => ({	
+      loggedIn,	
+      setLoggedIn,	
+      dataprovider,	
+    }),	
+    [loggedIn, dataprovider]	
+  );
+
   return (
     <View style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff' }}>
       <PaperProvider>
-        <AppContextProvider state={{ loggedIn, setLoggedIn }}>
+        <AppContextProvider state={ctxValue}>
           <View style={{ flex: 1 }}>
             {loggedIn ? <AppStack /> : <AuthStack />}
           </View>

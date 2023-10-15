@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   View,
@@ -6,33 +6,26 @@ import {
   StatusBar,
   Platform,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
-
-import formatCoursName from '../../utils/FormatCoursName';
-
-import ListItem from '../../components/ListItem';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import * as Haptics from 'expo-haptics';
-
 import { PressableScale } from 'react-native-pressable-scale';
 
-import { Check, Link, File, Calendar, List, AlertCircle } from 'lucide-react-native';
+import { Check, Link, File } from 'lucide-react-native';
 
 import * as WebBrowser from 'expo-web-browser';
-
-import { Text, useTheme } from 'react-native-paper';
-import GetUIColors from '../../utils/GetUIColors';
-
 import ParsedText from 'react-native-parsed-text';
+
+import { useTheme } from 'react-native-paper';
+
+import GetUIColors from '../../utils/GetUIColors';
 
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
-
-import { IndexData } from '../../fetch/IndexData';
+import formatCoursName from '../../utils/FormatCoursName';
+import { useAppContext } from '../../utils/AppContext';
 
 function HomeworkScreen({ route, navigation }) {
   const theme = useTheme();
@@ -51,39 +44,48 @@ function HomeworkScreen({ route, navigation }) {
     });
   };
 
+  const appctx = useAppContext();
+
   const changeHwState = () => {
     console.log(`change ${homework.date} : ${homework.local_id}`);
-    IndexData.changeHomeworkState(homework.date, homework.local_id).then((result) => {
-      console.log(result);
+    appctx.dataprovider
+      .changeHomeworkState(!thisHwChecked, homework.date, homework.local_id)
+      .then((result) => {
+        console.log(result);
 
-      if (result.status === 'not found') {
-        setTimeout(() => {
-          setThisHwChecked(homework.done);
-        }, 100);
-        return;
-      }
-      else if (result.status === 'ok') {
-        setThisHwChecked(!thisHwChecked);
-        setThisHwLoading(false);
+        if (result.status === 'not found') {
+          setTimeout(() => {
+            setThisHwChecked(homework.done);
+          }, 100);
+        } else if (result.status === 'ok') {
+          setThisHwChecked(!thisHwChecked);
+          setThisHwLoading(false);
 
-        AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
-          // find the homework
-          let cachedHomeworks = JSON.parse(homeworksCache);
+          if (appctx.dataprovider.service === 'Pronote') {
+            AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
+              // find the homework
+              const cachedHomeworks = JSON.parse(homeworksCache);
 
-          for (let i = 0; i < cachedHomeworks.length; i++) {
-            for (let j = 0; j < cachedHomeworks[i].timetable.length; j++) {
-              if (cachedHomeworks[i].timetable[j].local_id === homework.local_id) {
-                cachedHomeworks[i].timetable[j].done = !cachedHomeworks[i].timetable[j].done;
+              for (let i = 0; i < cachedHomeworks.length; i++) {
+                for (let j = 0; j < cachedHomeworks[i].timetable.length; j++) {
+                  if (
+                    cachedHomeworks[i].timetable[j].local_id ===
+                    homework.local_id
+                  ) {
+                    cachedHomeworks[i].timetable[j].done =
+                      !cachedHomeworks[i].timetable[j].done;
+                  }
+                }
               }
-            }
-          }
-          
-          AsyncStorage.setItem(
-            'homeworksCache',
-            JSON.stringify(cachedHomeworks)
-          );
-        });
 
+              AsyncStorage.setItem(
+                'homeworksCache',
+                JSON.stringify(cachedHomeworks)
+              );
+            });
+          }
+        }
+        
         // sync with home page
         AsyncStorage.setItem('homeUpdated', 'true');
         // sync with devoirs page
@@ -113,8 +115,7 @@ function HomeworkScreen({ route, navigation }) {
             AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
           });
         }
-      }
-    });
+      })
   };
 
   // add checkbox in header
@@ -246,26 +247,26 @@ function HomeworkScreen({ route, navigation }) {
 }
 
 function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
-  return (
-    !loading ? (
-      <PressableScale
-        style={[
-          styles.checkContainer,
-          { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
-          checked ? styles.checkChecked : null,
-          checked ? {backgroundColor: UIColors.primary, borderColor: UIColors.primary} : null,
-        ]}
-        weight="light"
-        activeScale={0.7}
-        onPress={() => {
-          pressed()
-        }}
-      >
-        {checked ? <Check size={20} color="#ffffff" /> : null}
-      </PressableScale>
-    ) : (
-      <ActivityIndicator size={26} />
-    )
+  return !loading ? (
+    <PressableScale
+      style={[
+        styles.checkContainer,
+        { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
+        checked ? styles.checkChecked : null,
+        checked
+          ? { backgroundColor: UIColors.primary, borderColor: UIColors.primary }
+          : null,
+      ]}
+      weight="light"
+      activeScale={0.7}
+      onPress={() => {
+        pressed();
+      }}
+    >
+      {checked ? <Check size={20} color="#ffffff" /> : null}
+    </PressableScale>
+  ) : (
+    <ActivityIndicator size={26} />
   );
 }
 

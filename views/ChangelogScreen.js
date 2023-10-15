@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+/* eslint-disable global-require */
+import React from 'react';
 import {
   StyleSheet,
   View,
@@ -8,52 +9,45 @@ import {
   Image,
 } from 'react-native';
 
-import ListItem from '../components/ListItem';
-
-import packageJson from '../package.json';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import * as Haptics from 'expo-haptics';
-
-import { PressableScale } from 'react-native-pressable-scale';
-
-import { Book, Calendar, BarChart3, AlertCircle, Newspaper, Palette, Bug } from 'lucide-react-native';
+import { Calendar, BarChart3, Palette, Bug } from 'lucide-react-native';
 
 import { Text, useTheme } from 'react-native-paper';
+import packageJson from '../package.json';
+import ListItem from '../components/ListItem';
 import GetUIColors from '../utils/GetUIColors';
 
-import * as Linking from 'expo-linking';
-
-function ChangelogScreen({ navigation }) {
+function ChangelogScreen() {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
   const features = [
     {
-      title: 'Améliorations de l\'interface iOS',
-      subtitle: 'Des légers changements d\'interface sont apparus.',
+      title: "Améliorations de l'interface iOS",
+      subtitle: "Des légers changements d'interface sont apparus.",
       icon: <Palette size={24} color={UIColors.text} />,
     },
-  ]
+  ];
 
   const fixes = [
     {
       title: 'Cours annulés / changements de salle',
-      subtitle: 'Les changements de salle n\'apparaîteront VRAIMENT plus comme des cours annulés.',
+      subtitle:
+        "Les changements de salle n'apparaîteront VRAIMENT plus comme des cours annulés.",
       icon: <Bug size={24} color={UIColors.text} />,
     },
     {
       title: 'Langue du calendrier',
-      subtitle: 'Les dates apparaîssent maintenant dans la bonne langue sous iOS.',
+      subtitle:
+        'Les dates apparaîssent maintenant dans la bonne langue sous iOS.',
       icon: <Calendar size={24} color={UIColors.text} />,
     },
     {
       title: 'Affichage des notes',
-      subtitle: 'Les notes ne se divisent et ne se modifient plus à leur ouverture.',
+      subtitle:
+        'Les notes ne se divisent et ne se modifient plus à leur ouverture.',
       icon: <BarChart3 size={24} color={UIColors.text} />,
     },
-  ]
+  ];
 
   // Easter egg (allez voir :))
   function monTelephoneAunTresTresTresGrosProbleme() {
@@ -61,12 +55,11 @@ function ChangelogScreen({ navigation }) {
   }
 
   return (
-    <View style={{flex: 1, backgroundColor: UIColors.background}}>
+    <View style={{ flex: 1, backgroundColor: UIColors.background }}>
       <Image
         source={require('../assets/bkg_gradient.png')}
         style={styles.headerImage}
       />
-
       <ScrollView
         style={[styles.container]}
         contentInsetAdjustmentBehavior="automatic"
@@ -82,23 +75,27 @@ function ChangelogScreen({ navigation }) {
         )}
 
         <View style={styles.headerChangelogTitle}>
-          <PressableScale delayLongPress={2000} onLongPress={() => monTelephoneAunTresTresTresGrosProbleme()} style={styles.headerLogoContainer}>
-            <Image
-              source={require('../assets/cutted_appicon.png')}
-              style={[styles.headerLogo, Platform.OS == 'android' ? {borderRadius: 200} : null]}
-            />
-          </PressableScale>
+          <Image
+            source={require('../assets/cutted_appicon.png')}
+            style={[
+              styles.headerLogo,
+              Platform.OS === 'android' ? { borderRadius: 200 } : null,
+            ]}
+          />
           <Text style={styles.headerTitleTitle}>
             Quoi de neuf dans Papillon ?
           </Text>
           <Text style={styles.headerTitleText}>
-            Papillon a été mis à jour à la version {packageJson.version}.
-            Découvrons ensemble, pas-à-pas, toutes les nouvelles fonctionnalités !
+            Papillon à été mis à jour à la version {packageJson.version}.
+            Découvrons ensemble, pas-à-pas, toutes les nouvelles fonctionnalités
+            !
           </Text>
         </View>
 
         <View style={styles.optionsList}>
-          <Text style={[styles.ListTitle, {color: '#ffffff'}]}>Nouveautés</Text>
+          <Text style={[styles.ListTitle, { color: '#ffffff' }]}>
+            Nouveautés
+          </Text>
 
           {features.map((feature, index) => (
             <ListItem
@@ -109,7 +106,7 @@ function ChangelogScreen({ navigation }) {
               color={UIColors.element}
               center
               width
-              style={{ backgroundColor: UIColors.element + '99' }}
+              style={{ backgroundColor: `${UIColors.element}99` }}
             />
           ))}
         </View>
@@ -126,7 +123,7 @@ function ChangelogScreen({ navigation }) {
               color={UIColors.element}
               center
               width
-              style={{ backgroundColor: UIColors.element + '99' }}
+              style={{ backgroundColor: `${UIColors.element}99` }}
             />
           ))}
         </View>
@@ -134,27 +131,33 @@ function ChangelogScreen({ navigation }) {
         <View style={styles.optionsList}>
           <Text style={[styles.ListTitle]}>Le mot de l'équipe</Text>
 
-          <View style={[styles.devTextContainer, {backgroundColor: UIColors.element + '99'}]}>
+          <View
+            style={[
+              styles.devTextContainer,
+              { backgroundColor: `${UIColors.element}99` },
+            ]}
+          >
             <Text style={[styles.devText]}>
-              Malgré les bugs et difficultés, on travaille d'arrache pied pour faire de Papillon la meilleure app de vie scolaire {'<'}3
-              Restez à l'affut, des trucs cools arrivent vite ^^
+              Malgré les bugs et difficultés, on travaille d'arrache pied pour
+              faire de Papillon la meilleure app de vie scolaire {'<3'} Restez à
+              l'affut, des trucs cools arrivent vite ^^
             </Text>
 
-            { theme.dark ? 
+            {theme.dark ? (
               <Image
                 source={require('../assets/vincentimes_signature.png')}
                 style={[styles.signature]}
               />
-            :
+            ) : (
               <Image
                 source={require('../assets/vincentimes_signature_light.png')}
                 style={[styles.signature]}
               />
-            }
+            )}
           </View>
         </View>
 
-        <View style={{ height: 20 }}></View>
+        <View style={{ height: 20 }} />
       </ScrollView>
     </View>
   );
@@ -176,7 +179,7 @@ const styles = StyleSheet.create({
   headerImage: {
     width: '100%',
     height: 600,
-    
+
     position: 'absolute',
     top: 0,
     left: 0,

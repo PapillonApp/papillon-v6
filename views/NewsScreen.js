@@ -8,7 +8,6 @@ import {
   RefreshControl,
   Platform,
   ActivityIndicator,
-  FlatList,
   Dimensions,
   ScrollView,
 } from 'react-native';
@@ -19,13 +18,12 @@ import { Text, useTheme } from 'react-native-paper';
 
 import { Newspaper, ChefHat, Projector, Users2, AlertTriangle } from 'lucide-react-native';
 import { BarChart4, Link, File } from 'lucide-react-native';
-import { IndexData } from '../fetch/IndexData';
 import ListItem from '../components/ListItem';
 
 import PapillonLoading from '../components/PapillonLoading';
 
 import GetUIColors from '../utils/GetUIColors';
-import { PressableScale } from 'react-native-pressable-scale';
+import { useAppContext } from '../utils/AppContext';
 
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
@@ -61,16 +59,14 @@ function relativeDate(date) {
 function normalizeText(text) {
   // remove accents and render in lowercase
   return text
-    .normalize('NFD')
+    ?.normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .toLowerCase();
 }
 
 function normalizeContent(text) {
-  return text
-    .replace(/(\r\n|\n|\r)/gm,"")
-    .trim();
+  return text.replace(/(\r\n|\n|\r)/gm, '').trim();
 }
 
 function FullNewsIcon({ title }) {
@@ -78,14 +74,19 @@ function FullNewsIcon({ title }) {
 
   return (
     <View>
-      { normalizeText(title).includes('menu') ? <ChefHat color={UIColors.primary} size={24} /> :
-      normalizeText(title).includes('reunion') ? <Projector color={UIColors.primary} size={24} /> :
-      normalizeText(title).includes('association') ? <Users2 color={UIColors.primary} size={24} /> :
-      normalizeText(title).includes('important') ? <AlertTriangle color={UIColors.primary} size={24} /> :
-      <Newspaper color={UIColors.primary} size={24} />
-      }
+      {normalizeText(title).includes('menu') ? (
+        <ChefHat color={UIColors.primary} size={24} />
+      ) : normalizeText(title).includes('reunion') ? (
+        <Projector color={UIColors.primary} size={24} />
+      ) : normalizeText(title).includes('association') ? (
+        <Users2 color={UIColors.primary} size={24} />
+      ) : normalizeText(title).includes('important') ? (
+        <AlertTriangle color={UIColors.primary} size={24} />
+      ) : (
+        <Newspaper color={UIColors.primary} size={24} />
+      )}
     </View>
-  )
+  );
 }
 
 function NewsScreen({ navigation }) {
@@ -102,10 +103,11 @@ function NewsScreen({ navigation }) {
 
   const insets = useSafeAreaInsets();
 
-  const { height } = Dimensions.get("screen");
+  const { height } = Dimensions.get('screen');
 
   const [news, setNews] = useState([]);
   const [finalNews, setFinalNews] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [showNews, setShowNews] = useState(true);
   const [currentNewsType, setCurrentNewsType] = useState("Toutes");
 
@@ -119,20 +121,21 @@ function NewsScreen({ navigation }) {
   const [isHeadLoading, setIsHeadLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const appctx = useAppContext();
+
   useEffect(() => {
-    setIsLoading(true);
-    IndexData.getNews().then((n) => {
-      setNews(editNews(JSON.parse(n)));
-      setFinalNews(editNews(JSON.parse(n)));
+    appctx.dataprovider.getNews().then((n) => {
+      setNews(editNews(n));
+      setFinalNews(editNews(n));
       setIsLoading(false);
     });
   }, []);
 
   const onRefresh = React.useCallback(() => {
     setIsHeadLoading(true);
-    IndexData.getNews(true).then((n) => {
-      setNews(editNews(JSON.parse(n)));
-      setFinalNews(editNews(JSON.parse(n)));
+    appctx.dataprovider.getNews(true).then((n) => {
+      setNews(editNews(n));
+      setFinalNews(editNews(n));
       setIsHeadLoading(false);
     });
   }, []);
@@ -171,17 +174,17 @@ function NewsScreen({ navigation }) {
 
   const [newsTypes, setNewsTypes] = useState([
     {
-      name: "Toutes",
+      name: 'Toutes',
       icon: <Newspaper color={UIColors.primary} size={20} />,
       enabled: true,
     },
     {
-      name: "Menus",
+      name: 'Menus',
       icon: <ChefHat color={UIColors.primary} size={20} />,
       enabled: false,
     },
     {
-      name: "Réunions",
+      name: 'Réunions',
       icon: <Projector color={UIColors.primary} size={20} />,
       enabled: false,
     },
@@ -189,13 +192,13 @@ function NewsScreen({ navigation }) {
 
   useEffect(() => {
     news.forEach((item) => {
-      if (normalizeText(item.title).includes(normalizeText("menu"))) {
-        newNewsTypes = newsTypes;
+      if (normalizeText(item.title).includes(normalizeText('menu'))) {
+        const newNewsTypes = newsTypes;
         newNewsTypes[1].enabled = true;
         setNewsTypes(newNewsTypes);
       }
-      if (normalizeText(item.title).includes(normalizeText("reunion"))) {
-        newNewsTypes = newsTypes;
+      if (normalizeText(item.title).includes(normalizeText('reunion'))) {
+        const newNewsTypes = newsTypes;
         newNewsTypes[2].enabled = true;
         setNewsTypes(newNewsTypes);
       }
@@ -205,15 +208,15 @@ function NewsScreen({ navigation }) {
   function changeNewsType(type) {
     setCurrentNewsType(type);
 
-    if (type === "Toutes") {
+    if (type === 'Toutes') {
       setNews(finalNews);
     }
 
-    if (type === "Menus") {
+    if (type === 'Menus') {
       const newNews = [];
 
       finalNews.forEach((item) => {
-        if (normalizeText(item.title).includes(normalizeText("menu"))) {
+        if (normalizeText(item.title).includes(normalizeText('menu'))) {
           newNews.push(item);
         }
       });
@@ -221,11 +224,11 @@ function NewsScreen({ navigation }) {
       setNews(newNews);
     }
 
-    if (type === "Réunions") {
+    if (type === 'Réunions') {
       const newNews = [];
 
       finalNews.forEach((item) => {
-        if (normalizeText(item.title).includes(normalizeText("reunion"))) {
+        if (normalizeText(item.title).includes(normalizeText('reunion'))) {
           newNews.push(item);
         }
       });
@@ -319,8 +322,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  newsList: {
-  },
+  newsList: {},
 
   newsItem: {
     marginBottom: 8,

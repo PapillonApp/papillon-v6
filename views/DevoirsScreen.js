@@ -14,8 +14,6 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import * as Haptics from 'expo-haptics';
-
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { useState, useEffect, useRef } from 'react';
@@ -36,7 +34,7 @@ import getClosestColor from '../utils/ColorCoursName';
 import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
-import { IndexData } from '../fetch/IndexData';
+import { useAppContext } from '../utils/AppContext';
 
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
@@ -73,7 +71,7 @@ function DevoirsScreen({ navigation }) {
       presentationStyle: 'pageSheet',
       controlsColor: UIColors.primary,
     });
-    
+
     setBrowserOpen(false);
   };
 
@@ -134,10 +132,12 @@ function DevoirsScreen({ navigation }) {
     });
   }, [navigation, calendarDate]);
 
+  const appctx = useAppContext();
+
   const updateHomeworksForDate = async (dateOffset, setDate) => {
     const newDate = calcDate(setDate, dateOffset);
     if (!hwRef.current[newDate.toLocaleDateString()]) {
-      const result = await IndexData.getHomeworks(newDate);
+      const result = await appctx.dataprovider.getHomeworks(newDate);
       setHomeworks((prevHomeworks) => ({
         ...prevHomeworks,
         [newDate.toLocaleDateString()]: result,
@@ -157,9 +157,9 @@ function DevoirsScreen({ navigation }) {
 
   const forceRefresh = async () => {
     const newDate = calcDate(calendarDate, 0);
-    const result = await IndexData.getHomeworks(newDate, true);
+    const result = await appctx.dataprovider.getHomeworks(newDate, true);
 
-    let oldHws = homeworks;
+    const oldHws = homeworks;
     oldHws[newDate.toLocaleDateString()] = result;
 
     setHomeworks({});
@@ -183,15 +183,15 @@ function DevoirsScreen({ navigation }) {
 
   return (
     <>
-      { browserOpen ? (
-        <StatusBar barStyle={'light-content'} animated />
+      {browserOpen ? (
+        <StatusBar barStyle="light-content" animated />
       ) : (
         <StatusBar
           animated
           barStyle={theme.dark ? 'light-content' : 'dark-content'}
           backgroundColor="transparent"
         />
-      ) }
+      )}
 
       <View
         contentInsetAdjustmentBehavior="automatic"
@@ -258,7 +258,14 @@ function DevoirsScreen({ navigation }) {
   );
 }
 
-function Hwpage({ homeworks, navigation, theme, forceRefresh, openURL, UIColors }) {
+function Hwpage({
+  homeworks,
+  navigation,
+  theme,
+  forceRefresh,
+  openURL,
+  UIColors,
+}) {
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
   const onRefresh = React.useCallback(() => {
@@ -309,26 +316,26 @@ function Hwpage({ homeworks, navigation, theme, forceRefresh, openURL, UIColors 
 }
 
 function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
-  return (
-    !loading ? (
-      <PressableScale
-        style={[
-          styles.checkContainer,
-          { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
-          checked ? styles.checkChecked : null,
-          checked ? {backgroundColor: UIColors.primary, borderColor: UIColors.primary} : null,
-        ]}
-        weight="light"
-        activeScale={0.7}
-        onPress={() => {
-          pressed()
-        }}
-      >
-        {checked ? <Check size={20} color="#ffffff" /> : null}
-      </PressableScale>
-    ) : (
-      <ActivityIndicator size={26} />
-    )
+  return !loading ? (
+    <PressableScale
+      style={[
+        styles.checkContainer,
+        { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
+        checked ? styles.checkChecked : null,
+        checked
+          ? { backgroundColor: UIColors.primary, borderColor: UIColors.primary }
+          : null,
+      ]}
+      weight="light"
+      activeScale={0.7}
+      onPress={() => {
+        pressed();
+      }}
+    >
+      {checked ? <Check size={20} color="#ffffff" /> : null}
+    </PressableScale>
+  ) : (
+    <ActivityIndicator size={26} />
   );
 }
 
@@ -337,44 +344,49 @@ function Hwitem({ homework, theme, openURL, navigation }) {
   const [thisHwLoading, setThisHwLoading] = useState(false);
 
   useEffect(() => {
-    setThisHwChecked(homework.done)
+    setThisHwChecked(homework.done);
   }, [homework]);
+
+  const appctx = useAppContext();
 
   const changeHwState = () => {
     console.log(`change ${homework.date} : ${homework.local_id}`);
-    IndexData.changeHomeworkState(homework.date, homework.local_id).then((result) => {
-      console.log(result);
+    appctx.dataprovider
+      .changeHomeworkState(!thisHwChecked, homework.date, homework.local_id)
+      .then((result) => {
+        console.log(result);
 
-      if (result.status === 'not found') {
-        setTimeout(() => {
-          setThisHwChecked(homework.done);
-        }, 100);
-        return;
-      }
-      else if (result.status === 'ok') {
-        setThisHwChecked(!thisHwChecked);
-        setThisHwLoading(false);
+        if (result.status === 'not found') {
+          setTimeout(() => {
+            setThisHwChecked(homework.done);
+          }, 100);
+        } else if (result.status === 'ok') {
+          setThisHwChecked(!thisHwChecked);
+          setThisHwLoading(false);
 
-        AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
-          // find the homework
-          let cachedHomeworks = JSON.parse(homeworksCache);
+          AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
+            // find the homework
+            const cachedHomeworks = JSON.parse(homeworksCache);
 
-          for (let i = 0; i < cachedHomeworks.length; i++) {
-            for (let j = 0; j < cachedHomeworks[i].timetable.length; j++) {
-              if (cachedHomeworks[i].timetable[j].local_id === homework.local_id) {
-                cachedHomeworks[i].timetable[j].done = !cachedHomeworks[i].timetable[j].done;
+            for (let i = 0; i < cachedHomeworks?.length; i++) {
+              for (let j = 0; j < cachedHomeworks[i].timetable?.length; j++) {
+                if (
+                  cachedHomeworks[i].timetable[j].local_id === homework.local_id
+                ) {
+                  cachedHomeworks[i].timetable[j].done =
+                    !cachedHomeworks[i].timetable[j].done;
+                }
               }
             }
-          }
-          
-          AsyncStorage.setItem(
-            'homeworksCache',
-            JSON.stringify(cachedHomeworks)
-          );
-        });
 
-        // sync with home page
-        AsyncStorage.setItem('homeUpdated', 'true');
+            AsyncStorage.setItem(
+              'homeworksCache',
+              JSON.stringify(cachedHomeworks)
+            );
+          });
+
+          // sync with home page
+          AsyncStorage.setItem('homeUpdated', 'true');
 
         // get homework.date as 2023-01-01
         const date = new Date(homework.date);
@@ -412,6 +424,7 @@ function Hwitem({ homework, theme, openURL, navigation }) {
 
   const UIColors = GetUIColors();
 
+  if (!homework) return;
   return (
     <NativeList
       inset

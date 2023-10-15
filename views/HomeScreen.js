@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+
 // React Native code
 import * as React from 'react';
 import {
@@ -20,22 +22,7 @@ import { useEffect, useState, useRef } from 'react';
 
 // Components & Styles
 import { useTheme, Text } from 'react-native-paper';
-import GetUIColors from '../utils/GetUIColors';
 import { PressableScale } from 'react-native-pressable-scale';
-
-// Fetch
-import { IndexData } from '../fetch/IndexData';
-
-// Custom Components
-import PapillonList from '../components/PapillonList';
-
-// Icons 
-import { DownloadCloud, Check, Gavel, Newspaper, MessagesSquare, CheckCircle, AlertCircle } from 'lucide-react-native';
-
-// Formatting
-import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
-import formatCoursName from '../utils/FormatCoursName';
-import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
 // Modules
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -43,11 +30,24 @@ import * as WebBrowser from 'expo-web-browser';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContextMenuView } from 'react-native-ios-context-menu';
-import { set } from 'sync-storage';
+
+// Icons 
+import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2 } from 'lucide-react-native';
+
+// Formatting
+import GetUIColors from '../utils/GetUIColors';
+import { getSavedCourseColor } from '../utils/ColorCoursName';
+import formatCoursName from '../utils/FormatCoursName';
+import getClosestGradeEmoji from '../utils/EmojiCoursName';
+
+// Custom componant
+import PapillonList from '../components/PapillonList';
+
+import { useAppContext } from '../utils/AppContext';
 
 // Functions
 const openURL = (url) => {
-  isURL = url.includes('http://') || url.includes('https://');
+  const isURL = url.includes('http://') || url.includes('https://');
 
   if (!isURL) {
     Alert.alert(
@@ -72,14 +72,15 @@ const openURL = (url) => {
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
     presentationStyle: 'pageSheet',
-    controlsColor: Platform.OS == 'ios' ? '#29947A' : null,
+    controlsColor: Platform.OS === 'ios' ? '#29947A' : null,
     readerMode: true,
     createTask: false,
   });
 };
 
 // App
-const NewHomeScreen = ({ navigation }) => {
+function NewHomeScreen({ navigation }) {
+  const appctx = useAppContext();
   const theme = useTheme();
   const UIColors = GetUIColors();
 
@@ -136,9 +137,7 @@ const NewHomeScreen = ({ navigation }) => {
       });
 
       // count undone homeworks
-      let undoneTomorrowHomeworks = tomorrowHomeworks.filter((hw) => {
-        return !hw.done;
-      });
+      let undoneTomorrowHomeworks = tomorrowHomeworks.filter((hw) => !hw.done);
 
       console.log(undoneTomorrowHomeworks.length);
 
@@ -190,7 +189,7 @@ const NewHomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     setLoadingUser(true);
-    IndexData.getUser().then((data) => {
+    appctx.dataprovider.getUser().then((data) => {
       const prenom = data.name.split(' ').pop();
       const establishment = data.establishment;
       const avatarURL = data.profile_picture;
@@ -208,8 +207,8 @@ const NewHomeScreen = ({ navigation }) => {
     setLoadingCours(true);
 
     Promise.all([
-      IndexData.getHomeworks(today, force, new Date(today).setDate(today.getDate() + 7)),
-      IndexData.getTimetable(today, force)
+      appctx.dataprovider.getHomeworks(today, force, new Date(today).setDate(today.getDate() + 7)).then(e=>e?.flat()),
+      appctx.dataprovider.getTimetable(today, force)
     ]).then(([hwData, coursData]) => {
       applyLoadedData(hwData, coursData);
       AsyncStorage.setItem('appcache-homedata', JSON.stringify({ homeworks: hwData, timetable: coursData }));
@@ -250,7 +249,7 @@ const NewHomeScreen = ({ navigation }) => {
         <RefreshControl
           progressViewOffset={28}
           refreshing={refreshing}
-          colors={[Platform.OS == 'android' ? UIColors.primary : null]}
+          colors={[Platform.OS === 'android' ? UIColors.primary : null]}
           onRefresh={() => {
             setRefreshing(true);
             setTimeout(() => {
@@ -285,7 +284,7 @@ const NewHomeScreen = ({ navigation }) => {
   );
 };
 
-const TabsElement = ({ navigation, theme, UIColors }) => {
+function TabsElement({ navigation, theme, UIColors }) {
   return (
     <View style={[styles.tabs.tabsContainer]}>
         <View style={[styles.tabs.tabRow]}>
@@ -316,7 +315,7 @@ const TabsElement = ({ navigation, theme, UIColors }) => {
   )
 }
 
-const CoursElement = ({ cours, theme, UIColors, navigation, loading }) => {
+function CoursElement({ cours, theme, UIColors, navigation, loading }) {
   return (
     !loading ? (
       cours.length > 0 ? (
@@ -345,7 +344,7 @@ const CoursElement = ({ cours, theme, UIColors, navigation, loading }) => {
   )
 }
 
-const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
+function CoursItem ({ cours, day, theme, UIColors, navigation, index }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -498,7 +497,7 @@ const CoursItem = ({ cours, day, theme, UIColors, navigation, index }) => {
   );
 }
 
-const DevoirsElement = ({ homeworks, theme, UIColors, navigation, loading }) => {
+function DevoirsElement ({ homeworks, theme, UIColors, navigation, loading }) {
   return (
     !loading ? (
       homeworks.length > 0 ? (
@@ -590,15 +589,16 @@ const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
   );
 }
 
-const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIndex }) => {
+function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIndex }) {
   const [checkLoading, setCheckLoading] = useState(false);
   const [checked, setChecked] = useState(homework.done);
+  const appctx = useAppContext();
 
   const checkThis = () => {
     // définir le loading
     setCheckLoading(true);
 
-    IndexData.changeHomeworkState(homework.date, homework.local_id).then((result) => {
+    appctx.dataprovider.changeHomeworkState(!checked, homework.date, homework.local_id).then((result) => {
       console.log(result);
 
       setCheckLoading(false);
@@ -646,7 +646,8 @@ const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIn
       delay: (index * 50) + (parentIndex * 150) + 100,
     }).start();
   });
-
+  
+  if(!homework || !homework.subject) return;
   return (
     <ContextMenuView
       style={{ flex: 1 }}
@@ -768,8 +769,7 @@ const DevoirsContent = ({ homework, theme, UIColors, navigation, index, parentIn
                     </PressableScale>
                   ))}
                 </View>
-                <View style={styles.homeworks.devoirsContent.footer.done}>
-                </View>
+                <View style={styles.homeworks.devoirsContent.footer.done}/>
               </View>
             )}
           </View>
@@ -1053,15 +1053,18 @@ function HomeHeader({ navigation, timetable, user }) {
             : "Tu n'as aucun cours restant aujourd'hui."}
         </Text>
 
-        {user && user.profile_picture !== null && (
+        {user && (
           <TouchableOpacity
             style={[headerStyles.headerPfpContainer]}
             onPress={openProfile}
           >
-            <Image
+            {user.profile_picture ? (<Image
               source={{ uri: user.profile_picture }}
               style={[headerStyles.headerPfp]}
-            />
+            />) : (
+              <UserCircle2 size={36} style={[headerStyles.headerPfp]} color="#ccc" />
+            )
+            }
           </TouchableOpacity>
         )}
       </View>

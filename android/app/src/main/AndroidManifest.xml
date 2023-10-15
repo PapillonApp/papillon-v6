@@ -38,6 +38,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="xyz.getpapillon.papillonv6"/>
         <data android:scheme="exp+papillonvex"/>
+        <data android:scheme="skoapp-prod"/>
         <data android:scheme="plus.pronote.app"/>
       </intent-filter>
     </activity>

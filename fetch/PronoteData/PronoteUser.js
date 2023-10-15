@@ -5,8 +5,8 @@ import { refreshToken } from '../AuthStack/LoginFlow';
 
 function getUser(force = false) {
   // return cached user if from today and exists
-  return getConsts().then((consts) => {
-    return AsyncStorage.getItem('userCache').then((userCache) => {
+  return getConsts().then((consts) =>
+    AsyncStorage.getItem('userCache').then((userCache) => {
       if (userCache && !force) {
         userCache = JSON.parse(userCache);
 
@@ -40,8 +40,8 @@ function getUser(force = false) {
             .catch(() => {})
         )
         .catch(() => {});
-    });
-  });
+    })
+  );
 }
 
 function editUser(profile) {
@@ -90,6 +90,7 @@ function saveUser(user) {
       };
     })
     .catch((err) => {
+      console.log(err);
       AsyncStorage.setItem(
         'userCache',
         JSON.stringify({

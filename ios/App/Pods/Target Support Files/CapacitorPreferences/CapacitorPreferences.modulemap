@@ -1,0 +1,6 @@
+framework module CapacitorPreferences {
+  umbrella header "CapacitorPreferences-umbrella.h"
+
+  export *
+  module * { export * }
+}

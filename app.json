@@ -14,6 +14,21 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "intentFilters": [
+      {
+        "action": "VIEW",
+        "autoVerify": true,
+        "data": [
+          {
+            "scheme": "skoapp-prod"
+          }
+        ],
+        "category": [
+          "BROWSABLE",
+          "DEFAULT"
+        ]
+      }
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "plus.pronote.app"
@@ -47,7 +62,9 @@
       [
         "expo-notifications",
         {
-          "sounds": ["assets/papillon_ding.wav"]
+          "sounds": [
+            "assets/papillon_ding.wav"
+          ]
         }
       ],
       [
@@ -84,94 +101,93 @@
       [
         "expo-dynamic-app-icon",
         {
-          // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles
           "relief": {
             "image": "./assets/customicons/relief.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "beta": {
             "image": "./assets/customicons/beta.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "black": {
             "image": "./assets/customicons/black.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "chip": {
             "image": "./assets/customicons/chip.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "cutted": {
             "image": "./assets/customicons/cutted.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "classic": {
             "image": "./assets/customicons/classic.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "gold": {
             "image": "./assets/customicons/gold.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "gradient": {
             "image": "./assets/customicons/gradient.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "metal": {
             "image": "./assets/customicons/metal.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "neon": {
             "image": "./assets/customicons/neon.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "pride": {
             "image": "./assets/customicons/pride.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "purple": {
             "image": "./assets/customicons/purple.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "rayspurple": {
             "image": "./assets/customicons/rayspurple.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "rays": {
             "image": "./assets/customicons/rays.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "retro": {
             "image": "./assets/customicons/retro.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "sparkles": {
             "image": "./assets/customicons/sparkles.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "backtoschool": {
             "image": "./assets/customicons/backtoschool.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "barbie": {
             "image": "./assets/customicons/barbie.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "betterneon": {
             "image": "./assets/customicons/betterneon.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "macos": {
             "image": "./assets/customicons/macos.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "oldios": {
             "image": "./assets/customicons/oldios.png",
-            "prerendered": true 
+            "prerendered": true
           },
           "verscinq": {
             "image": "./assets/customicons/verscinq.png",
-            "prerendered": true 
+            "prerendered": true
           }
         }
       ]

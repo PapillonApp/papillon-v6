@@ -11,10 +11,11 @@ import {
 import { Text, useTheme } from 'react-native-paper';
 import GetUIColors from '../utils/GetUIColors';
 
+import { useAppContext } from '../utils/AppContext';
+
 import ListItem from '../components/ListItem';
 import PapillonList from '../components/PapillonList';
 
-import { IndexData } from '../fetch/IndexData';
 import PapillonLoading from '../components/PapillonLoading';
 
 import NativeList from '../components/NativeList';
@@ -31,8 +32,10 @@ function ConversationsScreen({ navigation }) {
   const [loading, setLoading] = React.useState(true);
   const [headLoading, setHeadLoading] = React.useState(false);
 
+  const appctx = useAppContext();
+
   useEffect(() => {
-    IndexData.getConversations().then((v) => {
+    appctx.dataprovider.getConversations().then((v) => {
       console.log(v);
       if (v) {
         setConversations(v);
@@ -65,9 +68,9 @@ function ConversationsScreen({ navigation }) {
 
           if (text.length > 0) {
             // filter conversations
-            let filteredConversations = originalConversations.filter((conversation) => {
-              return conversation.subject.toLowerCase().includes(text.toLowerCase());
-            });
+            const filteredConversations = originalConversations.filter(
+              (conversation) => conversation.subject.toLowerCase().includes(text.toLowerCase())
+            );
 
             setConversations(filteredConversations);
           } else {
@@ -87,7 +90,7 @@ function ConversationsScreen({ navigation }) {
           refreshing={headLoading}
           onRefresh={() => {
             setHeadLoading(true);
-            IndexData.getConversations().then((v) => {
+            appctx.dataprovider.getConversations().then((v) => {
               if (v) {
                 setConversations(v);
                 setOriginalConversations(v);

@@ -5,23 +5,14 @@ import { Text } from 'react-native-paper';
 function PapillonLoading({ title, subtitle, icon, style }) {
   return (
     <View style={[styles.newsLoading, style]}>
-        {icon ?
-            <View style={styles.newsLoadingIcon}>
-                {icon}
-            </View>
-        :
-            <ActivityIndicator
-                style={{ marginTop: 16 }}
-                size={26}
-            />
-        }
+      {icon ? (
+        <View style={styles.newsLoadingIcon}>{icon}</View>
+      ) : (
+        <ActivityIndicator style={{ marginTop: 16 }} size={26} />
+      )}
 
-        <Text style={styles.newsLoadingText}>
-            {title}
-        </Text>
-        <Text style={styles.newsLoadingSubtext}>
-            {subtitle}
-        </Text>
+      <Text style={styles.newsLoadingText}>{title}</Text>
+      <Text style={styles.newsLoadingSubtext}>{subtitle}</Text>
     </View>
   );
 }

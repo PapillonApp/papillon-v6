@@ -8,14 +8,13 @@ import {
 } from 'react-native';
 import { useState, useCallback, useEffect } from 'react';
 
-import { IndexData } from '../../fetch/IndexData';
-
 import GetUIColors from '../../utils/GetUIColors';
 import { Text } from 'react-native-paper';
 
 import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat'
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppContext } from '../../utils/AppContext';
 
 function convertPronoteMessages(messages) {
   let msgs = [];
@@ -45,7 +44,7 @@ function convertPronoteMessages(messages) {
   return msgs;
 }
 
-const MessagesScreen = ({ route, navigation }) => {
+function MessagesScreen ({ route, navigation }) {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
 
@@ -56,8 +55,10 @@ const MessagesScreen = ({ route, navigation }) => {
   const [userData, setUserData] = useState({});
   const [profilePicture, setProfilePicture] = useState('');
 
+  const appctx = useAppContext();
+
   useEffect(() => {
-    IndexData.getUser(false).then((result) => {
+    appctx.dataprovider.getUser(false).then((result) => {
       setUserData(result);
       setProfilePicture(result.profile_picture);
     });

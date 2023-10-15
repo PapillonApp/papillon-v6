@@ -1,0 +1,23 @@
+{
+  "name": "CapacitorPluginSafeArea",
+  "version": "2.0.5",
+  "summary": "a capacitor V3+ plugin to get SafeArea info on Android and IOS",
+  "license": "MIT",
+  "homepage": "git+https://github.com/AlwaysLoveme/capacitor-plugin-safe-area.git.git",
+  "authors": "zhuxian",
+  "source": {
+    "git": "git+https://github.com/AlwaysLoveme/capacitor-plugin-safe-area.git.git",
+    "tag": "2.0.5"
+  },
+  "source_files": "ios/Plugin/**/*.{swift,h,m,c,cc,mm,cpp}",
+  "platforms": {
+    "ios": "13.0"
+  },
+  "dependencies": {
+    "Capacitor": [
+
+    ]
+  },
+  "swift_versions": "5.1",
+  "swift_version": "5.1"
+}
