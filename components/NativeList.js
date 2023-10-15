@@ -21,6 +21,11 @@ function NativeList(props) {
 
   // Automatically assign unique keys to children
   const childrenWithKeys = React.Children.map(children, (child, index) => {
+    // remove null/undefined children
+    if (!child) {
+      return null;
+    }
+
     // Check if this is the last child and add last={true} prop if it is
     const isLastChild = index === React.Children.count(children) - 1;
     return React.cloneElement(child, { key: `child-${index}`, last: isLastChild });

@@ -18,6 +18,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ListItem from '../../components/ListItem';
 import GetUIColors from '../../utils/GetUIColors';
 
+import NativeList from '../../components/NativeList';
+import NativeItem from '../../components/NativeItem';
+import NativeText from '../../components/NativeText';
+
 function NotificationsScreen() {
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -125,26 +129,12 @@ function NotificationsScreen() {
         />
       )}
 
-      <View style={{ gap: 9, marginTop: 24 }}>
-        <Text style={styles.ListTitle}>Rappel des devoirs</Text>
-
-        <ListItem
-          title="Activer le rappel des devoirs"
-          subtitle="Envoie une notification le soir pour te rappeler de faire tes devoirs"
-          color="#29947A"
-          center
-          style={[
-            devoirsReminderEnabled
-              ? {
-                  marginBottom: 0,
-                  borderBottomLeftRadius: 0,
-                  borderBottomRightRadius: 0,
-                  borderBottomColor: `${UIColors.text}17`,
-                  borderBottomWidth: 1,
-                }
-              : null,
-          ]}
-          right={
+      <NativeList
+        header="Notifications"
+        inset
+      >
+        <NativeItem
+          trailing={
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Switch
                 value={devoirsReminderEnabled}
@@ -152,50 +142,42 @@ function NotificationsScreen() {
               />
             </View>
           }
-        />
+        >
+          <NativeText heading="h4">
+            Activer le rappel des devoirs
+          </NativeText>
+          <NativeText heading="p2">
+            Envoie une notification le soir pour te rappeler de faire tes devoirs
+          </NativeText>
+        </NativeItem>
 
         {devoirsReminderEnabled ? (
-          <ListItem
-            subtitle="Sélectionner l'heure du rappel des devoirs"
-            color="#29947A"
-            center
-            style={{
-              marginTop: -9,
-              borderTopLeftRadius: 0,
-              borderTopRightRadius: 0,
-            }}
-            right={
-              <>
-                {timePickerEnabled || Platform.OS === 'ios' ? (
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <DateTimePicker
-                      value={devoirsReminderTime}
-                      mode="time"
-                      is24Hour
-                      display="default"
-                      onChange={(event, time) => {
-                        updateReminderTime(time);
-                      }}
-                    />
-                  </View>
-                ) : null}
-
-                {Platform.OS === 'android' ? (
-                  <Text style={styles.timeText}>
-                    {devoirsReminderTime.toLocaleTimeString('fr', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </Text>
-                ) : null}
-              </>
+          <NativeItem
+            trailing={
+              timePickerEnabled || Platform.OS === 'ios' ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <DateTimePicker
+                    value={devoirsReminderTime}
+                    mode="time"
+                    is24Hour
+                    display="default"
+                    onChange={(event, time) => {
+                      updateReminderTime(time);
+                    }}
+                  />
+                </View>
+              ) : null
             }
-            onPress={() => {
+            onPress={Platform.OS !== 'ios' ? () => {
               openTimePicker();
-            }}
-          />
+            } : null}
+          >
+            <NativeText heading="p">
+              Sélectionner l'heure du rappel des devoirs
+            </NativeText>
+          </NativeItem>
         ) : null}
-      </View>
+      </NativeList>
     </ScrollView>
   );
 }

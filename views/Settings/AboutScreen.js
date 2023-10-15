@@ -32,6 +32,10 @@ import team from './Team.json';
 import { getInfo } from '../../fetch/AuthStack/LoginFlow';
 import GetUIColors from '../../utils/GetUIColors';
 
+import NativeList from '../../components/NativeList';
+import NativeItem from '../../components/NativeItem';
+import NativeText from '../../components/NativeText';
+
 function AboutScreen({ navigation }) {
   const UIColors = GetUIColors();
   const [serverInfo, setServerInfo] = useState({});
@@ -135,99 +139,96 @@ function AboutScreen({ navigation }) {
         style={[styles.container, { backgroundColor: UIColors.background }]}
         contentInsetAdjustmentBehavior="automatic"
       >
-        <View style={[styles.optionsList]}>
-          <Text style={styles.ListTitle}>Serveur</Text>
-
-          {serverInfo.server && serverInfo.version ? (
-            <ListItem
-              title={serverTag}
-              subtitle={`${serverInfo.server} v${serverInfo.version}`}
-              color="#29947A"
-              center
-              left={
-                <>
-                  <PapillonIcon
-                    icon={
-                      <Server
-                        size={24}
-                        color={isKnownServer ? '#29947A' : '#0065A8'}
-                      />
-                    }
-                    color={isKnownServer ? '#29947A' : '#0065A8'}
-                    size={24}
-                    small
-                  />
-
-                  {isKnownServer ? (
-                    <View
-                      style={[styles.certif, { borderColor: UIColors.element }]}
-                      sharedTransitionTag="serverCheck"
-                    >
-                      <Check size={16} color="#ffffff" />
-                    </View>
-                  ) : null}
-                </>
-              }
-              onPress={() => openServer()}
-            />
-          ) : (
-            <ListItem
-              title="Connexion au serveur..."
-              subtitle="Détermination de la version...."
-              color="#29947A"
-              center
-              left={
+        <NativeList
+          inset
+          header="Serveur"
+        >
+          <NativeItem
+            leading = {
+              <>
                 <PapillonIcon
-                  icon={<Server size={24} color="#0065A8" />}
-                  color="#0065A8"
+                  icon={<Server size={24} color={isKnownServer ? '#29947A' : '#0065A8'} />}
+                  color={isKnownServer ? '#29947A' : '#0065A8'}
                   size={24}
                   small
                 />
-              }
-              right={<ActivityIndicator />}
-              onPress={() => openServer()}
-            />
-          )}
-        </View>
 
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>Team Papillon</Text>
+                {isKnownServer ? (
+                  <View
+                    style={[styles.certif, { borderColor: UIColors.element }]}
+                    sharedTransitionTag="serverCheck"
+                  >
+                    <Check size={16} color="#ffffff" />
+                  </View>
+                ) : null}
+              </>
+            }
 
+            trailing={
+              !serverInfo.server || !serverInfo.version ? (
+                <ActivityIndicator />
+              ) : null
+            }
+
+            chevron
+            onPress={() => openServer()}
+          >
+            { serverInfo.server || serverInfo.version ? (
+              <>
+                <NativeText heading="h4">
+                  Serveur {isKnownServer ? 'vérifié' : 'non vérifié'}
+                </NativeText>
+                <NativeText heading="p2">
+                  {serverInfo.server} v{serverInfo.version}
+                </NativeText>
+              </>
+            ) : (
+              <>
+                <NativeText heading="h4">
+                  Connexion au serveur...
+                </NativeText>
+                <NativeText heading="p2">
+                  Détermination de la version...
+                </NativeText>
+              </>
+            )}
+          </NativeItem>
+        </NativeList>
+
+        <NativeList
+          inset
+          header="Équipe Papillon"
+        >
           {team.team.map((item, index) => (
-            <ListItem
+            <NativeItem
               key={index}
-              title={item.name}
-              subtitle={item.role}
-              color="#565EA3"
-              center
-              left={
+              leading={
                 <Image
                   source={{ uri: item.avatar }}
                   style={{ width: 38, height: 38, borderRadius: 12 }}
                 />
               }
+              chevron
               onPress={() => openUserLink(item.link)}
-            />
+            >
+              <NativeText heading="h4">
+                {item.name}
+              </NativeText>
+              <NativeText heading="p2">
+                {item.role}
+              </NativeText>
+            </NativeItem>
           ))}
-        </View>
+        </NativeList>
 
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>
-            Donateurs (au{' '}
-            {new Date(donors.lastupdated).toLocaleDateString('fr', {
-              dateStyle: 'medium',
-            })}
-            )
-          </Text>
-
+        <NativeList
+          inset
+          header={"Donateurs (au " + new Date(donors.lastupdated).toLocaleDateString('fr', { dateStyle: 'medium' }) + ")"}
+        >
           {donors.donors.map((item, index) => (
-            <ListItem
+            <NativeItem
               key={index}
-              title={item.name}
-              subtitle={`${item.name} a donné ${item.times} fois`}
-              color="#565EA3"
-              center
-              left={
+              leading={
                 <PapillonIcon
                   icon={<Euro size={24} color="#565EA3" />}
                   color="#565EA3"
@@ -235,38 +236,62 @@ function AboutScreen({ navigation }) {
                   small
                 />
               }
-            />
+            >
+              <NativeText heading="h4">
+                {item.name}
+              </NativeText>
+              <NativeText heading="p2">
+                à donné {item.times} fois
+              </NativeText>
+            </NativeItem>
           ))}
-        </View>
+        </NativeList>
 
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>Communauté</Text>
-          <ListItem
-            title="Rejoindre le Discord"
-            left={<MessageCircle size={20} color={UIColors.text} />}
-            center
+        <NativeList 
+          inset
+          header="Communauté"
+        >
+          <NativeItem
+            leading={
+              <PapillonIcon
+                icon={<MessageCircle size={24} color="#565EA3" />}
+                color="#565EA3"
+                size={24}
+                small
+              />
+            }
             chevron
             onPress={() => Linking.openURL('https://discord.getpapillon.xyz/')}
-          />
-        </View>
+          >
+            <NativeText heading="h4">
+              Serveur Discord
+            </NativeText>
+            <NativeText heading="p2">
+              Rejoindre le serveur Discord de Papillon
+            </NativeText>
+          </NativeItem>
+        </NativeList>
 
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>Informations sur l'app</Text>
+        <NativeList
+          inset
+          header="Informations sur l'app"
+        >
           {dataList.map((item, index) => (
-            <ListItem
-              key={index}
-              title={item.title}
-              color={item.color}
-              center
-              right={
-                <Text style={{ color: item.color, fontSize: 16, opacity: 0.5 }}>
+            <NativeItem
+              trailing={
+                <NativeText heading="p2">
                   {item.subtitle}
-                </Text>
+                </NativeText>
               }
+              key={index}
               onPress={() => navigation.navigate('Changelog')}
-            />
+            >
+              <NativeText heading="h4">
+                {item.title}
+              </NativeText>
+            </NativeItem>
           ))}
-        </View>
+        </NativeList>
       </ScrollView>
     </View>
   );

@@ -28,6 +28,10 @@ import {
   loginSkolengoWorkflow,
 } from '../../fetch/SkolengoData/SkolengoDatas';
 
+import NativeList from '../../components/NativeList';
+import NativeItem from '../../components/NativeItem';
+import NativeText from '../../components/NativeText';
+
 function SettingsScreen({ navigation }) {
   const UIColors = GetUIColors();
 
@@ -176,114 +180,103 @@ function SettingsScreen({ navigation }) {
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
     >
-      <View style={{ gap: 9, marginTop: 16 }}>
-        <Text style={styles.ListTitle}>Serveur et identifiants (avancé)</Text>
 
-        {appctx.dataprovider.service === 'Pronote' && (
-          <>
-            <ListItem
-              title="Changer de serveur (avancé)"
-              subtitle="Modifier le serveur utilisé dans l'app"
-              color="#B42828"
-              center
-              left={
-                <PapillonIcon
-                  icon={<Server size={24} color="#565EA3" />}
-                  color="#565EA3"
-                  size={24}
-                  small
-                />
-              }
-              onPress={() => navigation.navigate('changeServer')}
-            />
-            <ListItem
-              title="Regénerer le token"
-              subtitle="Regénerer le token de votre compte"
-              color="#B42828"
-              center
-              left={
-                <PapillonIcon
-                  icon={<RefreshCw size={24} color="#565EA3" />}
-                  color="#565EA3"
-                  size={24}
-                  small
-                />
-              }
-              right={tokenLoading ? <ActivityIndicator size="small" /> : null}
-              onPress={() => TokenAction()}
-            />
-            <ListItem
-              title="Forcer l'expiration du token"
-              subtitle="Regénerer le token de votre compte"
-              color="#B42828"
-              center
-              left={
-                <PapillonIcon
-                  icon={<Trash2 size={24} color="#565EA3" />}
-                  color="#565EA3"
-                  size={24}
-                  small
-                />
-              }
-              onPress={() => ExpireAction()}
-            />
-          </>
-        )}
-        {appctx.dataprovider.service === 'Skolengo' && (
-          <>
-            <ListItem
-              title="Vider le cache"
-              subtitle="Supprimer le cache des données de Skolengo"
-              color="#B42828"
-              center
-              left={
-                <PapillonIcon
-                  icon={<Trash2 size={24} color="#565EA3" />}
-                  color="#565EA3"
-                  size={24}
-                  small
-                />
-              }
-              onPress={() => SkolengoCacheClear()}
-            />
-            <ListItem
-              title="Reconnecter son compte Skolengo"
-              subtitle="Et regénérer le token"
-              color="#B42828"
-              center
-              left={
-                <PapillonIcon
-                  icon={<Trash2 size={24} color="#565EA3" />}
-                  color="#565EA3"
-                  size={24}
-                  small
-                />
-              }
-              onPress={() => SkolengoReconnect()}
-            />
-          </>
-        )}
-      </View>
+      {appctx.dataprovider.service === 'Pronote' && ( 
+        <NativeList
+          header="Connexion à Pronote"
+          inset
+        >
+          <NativeItem
+            leading={<Server size={24} color={UIColors.text} />}
+            chevron
+            onPress={() => navigation.navigate('changeServer')}
+          >
+            <NativeText heading="h4">
+              Changer de serveur
+            </NativeText>
+            <NativeText heading="p2">
+              Modifier le serveur utilisé dans l'app
+            </NativeText>
+          </NativeItem>
 
-      <View style={{ gap: 9, marginTop: 16 }}>
-        <Text style={styles.ListTitle}>Mon compte</Text>
+          <NativeItem
+            leading={<RefreshCw size={24} color={UIColors.text} />}
+            chevron
+            onPress={() => TokenAction()}
+          >
+            <NativeText heading="h4">
+              Regénerer le token
+            </NativeText>
+            <NativeText heading="p2">
+              Regénerer le token de votre compte
+            </NativeText>
+          </NativeItem>
 
-        <ListItem
-          title="Déconnexion"
-          subtitle="Se déconnecter de votre compte"
-          color="#B42828"
-          center
-          left={
-            <PapillonIcon
-              icon={<LogOut size={24} color="#B42828" />}
-              color="#B42828"
-              size={24}
-              small
-            />
-          }
+          <NativeItem
+            leading={<Trash2 size={24} color={UIColors.text} />}
+            chevron
+            onPress={() => ExpireAction()}
+          >
+            <NativeText heading="h4">
+              Forcer l'expiration du token
+            </NativeText>
+            <NativeText heading="p2">
+              Regénerer le token de votre compte
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+      )}
+
+      {appctx.dataprovider.service === 'Skolengo' && (
+        <NativeList
+          header="Connexion à Skolengo"
+          inset
+        >
+          <NativeItem
+            leading={<Trash2 size={24} color={UIColors.text} />}
+            chevron
+            onPress={() => SkolengoCacheClear()}
+          >
+            <NativeText heading="h4">
+              Vider le cache
+            </NativeText>
+            <NativeText heading="p2">
+              Supprimer le cache des données de Skolengo
+            </NativeText>
+          </NativeItem>
+
+          <NativeItem
+            leading={<Trash2 size={24} color={UIColors.text} />}
+            chevron
+            onPress={() => SkolengoReconnect()}
+          >
+            <NativeText heading="h4">
+              Reconnecter son compte Skolengo
+            </NativeText>
+            <NativeText heading="p2">
+              & regénérer le token
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+      )}
+
+      <NativeList
+        header="Mon compte"
+        inset
+      >
+        <NativeItem
+          leading={<LogOut size={24} color="#D81313" />}
+          chevron
           onPress={() => LogOutAction()}
-        />
-      </View>
+        >
+          <NativeText heading="h4" style={{ color: '#D81313' }}>
+            Déconnexion
+          </NativeText>
+          <NativeText heading="p2">
+            Se déconnecter de votre compte
+          </NativeText>
+        </NativeItem>
+      </NativeList>
     </ScrollView>
   );
 }

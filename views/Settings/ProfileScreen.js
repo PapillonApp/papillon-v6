@@ -47,6 +47,10 @@ import PapillonIcon from '../../components/PapillonIcon';
 import GetUIColors from '../../utils/GetUIColors';
 import { useAppContext } from '../../utils/AppContext';
 
+import NativeList from '../../components/NativeList';
+import NativeItem from '../../components/NativeItem';
+import NativeText from '../../components/NativeText';
+
 function ProfileScreen({ route, navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -357,168 +361,83 @@ function ProfileScreen({ route, navigation }) {
         )}
       </View>
 
-      {userData.email !== '' && userData.phone !== '' ? (
-        <View style={{ gap: 9, paddingHorizontal: 14 }}>
-          <Text style={styles.ListTitle2}>Données de contact</Text>
-          {userData.email !== '' ? (
-            <ListItem
-              title="Adresse e-mail"
-              subtitle={userData.email}
-              color="#565EA3"
-              width
-              center
-              left={
-                <PapillonIcon
-                  icon={<Mail size={24} color="#565EA3" />}
-                  color="#565EA3"
-                  size={24}
-                  small
-                />
-              }
-            />
-          ) : null}
-          {userData.phone !== '' && userData.phone !== '+' ? (
-            <ListItem
-              title="Téléphone"
-              subtitle={userData.phone}
-              color="#B9670F"
-              width
-              center
-              left={
-                <PapillonIcon
-                  icon={<Phone size={24} color="#B9670F" />}
-                  color="#B9670F"
-                  size={24}
-                  small
-                />
-              }
-            />
-          ) : null}
-          {typeof userData?.ine === 'string' && userData?.ine?.length > 0 ? (
-            <ContextMenuButton
-              isMenuPrimaryAction
-              menuConfig={{
-                menuTitle: '',
-                menuItems: [
-                  {
-                    actionKey: 'reveal',
-                    actionTitle: shownINE === '' ? 'Révéler' : 'Cacher',
-                    icon: {
-                      type: 'IMAGE_SYSTEM',
-                      imageValue: {
-                        systemName: shownINE === '' ? 'eye' : 'eye.slash',
-                      },
-                    },
-                  },
-                  {
-                    actionKey: 'copy',
-                    actionTitle: 'Copier',
-                    icon: {
-                      type: 'IMAGE_SYSTEM',
-                      imageValue: {
-                        systemName: 'doc.on.doc',
-                      },
-                    },
-                  },
-                ],
-              }}
-              onPressMenuItem={({ nativeEvent }) => {
-                if (nativeEvent.actionKey === 'copy') {
-                  Clipboard.setString(userData.ine);
-                } else if (nativeEvent.actionKey === 'reveal') {
-                  getINE();
-                }
-              }}
-              previewConfig={{
-                borderRadius: 12,
-              }}
-            >
-              <ListItem
-                title="Numéro INE"
-                subtitle={shownINE}
-                color="#0065A8"
-                width
-                center
-                left={
-                  <>
-                    <PapillonIcon
-                      icon={<Contact2 size={24} color="#0065A8" />}
-                      color="#0065A8"
-                      size={24}
-                      small
-                    />
+      <NativeList
+        inset
+        header="Données de contact"
+      >
+        {userData.email !== '' ? (
+          <NativeItem
+            leading={<Mail size={24} color="#565EA3" />}
+          >
+            <NativeText heading="h4">
+              Adresse e-mail
+            </NativeText>
+            <NativeText heading="p2">
+              {userData.email}
+            </NativeText>
+          </NativeItem>
+        ) : null}
 
-                    {shownINE === '' ? (
-                      <View style={[styles.infoLocked]}>
-                        <Lock color="#fff" size={16} />
-                      </View>
-                    ) : null}
-                  </>
-                }
-                onPress={() => showIneIfAndroid()}
-              />
-            </ContextMenuButton>
-          ) : null}
-        </View>
-      ) : null}
+        {userData.phone !== '' && userData.phone !== '+' ? (
+          <NativeItem
+            leading={<Phone size={24} color="#B9670F" />}
+          >
+            <NativeText heading="h4">
+              Téléphone
+            </NativeText>
+            <NativeText heading="p2">
+              {userData.phone}
+            </NativeText>
+          </NativeItem>
+        ) : null}
 
-      <View style={{ gap: 9, marginTop: 24 }}>
-        <Text style={styles.ListTitle}>Options</Text>
-        <ListItem
-          title="Modifier le nom utilisé"
-          subtitle="Utilisez un prénom ou un pseudonyme différent dans l'app Papillon"
-          color="#29947A"
-          left={
-            <PapillonIcon
-              icon={<Edit size={24} color="#FFF" />}
-              color="#29947A"
-              size={24}
-              small
-              fill
-            />
-          }
+        {typeof userData?.ine === 'string' && userData?.ine?.length > 0 ? (
+          <NativeItem
+            leading={<Contact2 size={24} color="#0065A8" />}
+            onPress={() => getINE()}
+            trailing={ shownINE === '' &&
+              <Lock size={16} color={UIColors.text} style={{ opacity: 0.6 }} />
+            }
+          >
+            <NativeText heading="h4">
+              Numéro INE
+            </NativeText>
+            <NativeText heading="p2">
+              {shownINE ? shownINE : 'Appuyez pour révéler'}
+            </NativeText>
+          </NativeItem>
+        ) : null}
+      </NativeList>
+
+      <NativeList
+        inset
+        header="Options"
+      >
+        <NativeItem
+          leading={<Edit size={24} color="#29947A" />}
           onPress={() => EditName()}
-        />
-        <ListItem
-          title="Réinitialiser la photo de profil"
-          subtitle="Utilise la photo de profil par défaut"
-          color="#c44b1b"
-          center
-          left={
-            <PapillonIcon
-              icon={<Trash2 size={24} color="#FFF" />}
-              color="#c44b1b"
-              size={24}
-              small
-              fill
-            />
-          }
+        >
+          <NativeText heading="h4">
+            Modifier le nom utilisé
+          </NativeText>
+          <NativeText heading="p2">
+            Utilisez un prénom ou un pseudonyme différent dans l'app Papillon
+          </NativeText>
+        </NativeItem>
+
+        <NativeItem
+          leading={<Trash2 size={24} color="#c44b1b" />}
           onPress={() => ResetProfilePic()}
-        />
-      </View>
-
-      <View style={{ gap: 9, marginTop: 24 }}>
-        <Text style={styles.ListTitle}>Connexion</Text>
-
-        <ListItem
-          title="Déconnexion"
-          subtitle="Se déconnecter de votre compte"
-          color="#B42828"
-          center
-          left={
-            <PapillonIcon
-              icon={<LogOut size={24} color="#ffffff" />}
-              color="#B42828"
-              size={24}
-              small
-              fill
-            />
-          }
-          onPress={() => LogOutAction()}
-        />
-      </View>
-
-      <View style={{ height: 20 }} />
+        >
+          <NativeText heading="h4">
+            Réinitialiser la photo de profil
+          </NativeText>
+          <NativeText heading="p2">
+            Utilise la photo de profil par défaut
+          </NativeText>
+        </NativeItem>
+      </NativeList>
+      
     </ScrollView>
   );
 }
@@ -544,7 +463,7 @@ const styles = StyleSheet.create({
   },
   userData: {
     fontSize: 15,
-    marginBottom: 4,
+    marginBottom: -10,
     opacity: 0.6,
     marginHorizontal: 20,
     textAlign: 'center',
