@@ -28,13 +28,19 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import FormatCoursName from '../utils/FormatCoursName';
 
+import PapillonLoading from '../components/PapillonLoading';
+
 import * as WebBrowser from 'expo-web-browser';
-import { Calendar, Check, File, AlertCircle, Link } from 'lucide-react-native';
+import { Calendar, Check, File, AlertCircle, Link, BookOpen } from 'lucide-react-native';
 import getClosestColor from '../utils/ColorCoursName';
 import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
 import { IndexData } from '../fetch/IndexData';
+
+import NativeList from '../components/NativeList';
+import NativeItem from '../components/NativeItem';
+import NativeText from '../components/NativeText';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -238,7 +244,11 @@ function DevoirsScreen({ navigation }) {
               />
             ) : (
               <View style={[styles.homeworksContainer]}>
-                <ActivityIndicator size="small" />
+                <PapillonLoading
+                  title="Chargement des devoirs..."
+                  subtitle="Obtention des derniers devoirs en cours"
+                  style={{ marginTop: 32 }}
+                />
               </View>
             )
           }
@@ -273,10 +283,15 @@ function Hwpage({ homeworks, navigation, theme, forceRefresh, openURL, UIColors 
       }
     >
       {homeworks.length === 0 ? (
-        <Text style={styles.noHomework}>Aucun devoir pour cette date.</Text>
+        <PapillonLoading
+          icon={<BookOpen size={26} color={UIColors.text} />}
+          title="Aucun devoir"
+          subtitle="Aucun devoir n'est disponible pour cette date"
+          style={{ marginTop: 48 }}
+        />
       ) : null}
 
-      <View style={styles.hwList}>
+      <View>
         {homeworks.map((homework, index) => (
           <Hwitem
             homework={homework}
@@ -398,101 +413,69 @@ function Hwitem({ homework, theme, openURL, navigation }) {
   const UIColors = GetUIColors();
 
   return (
-    <PressableScale
-      style={[
-        styles.homeworkItemContainer,
-        { backgroundColor: UIColors.elementHigh },
-      ]}
-      onPress={() => {
-        navigation.navigate('Devoir', { homework: {
-          ...homework,
-          done: thisHwChecked,
-        } });
+    <NativeList
+      inset
+      style={{
+        marginBottom: -20,
       }}
     >
-      <View style={[styles.homeworkItem]}>
-        <View style={[styles.checkboxContainer]}>
+      <NativeItem
+        leading={
           <HwCheckbox
-            checked={thisHwChecked}
-            theme={theme}
-            UIColors={UIColors}
-            loading={thisHwLoading}
-            pressed={() => {
-              setThisHwLoading(true);
-              changeHwState();
-            }}
+              checked={thisHwChecked}
+              theme={theme}
+              UIColors={UIColors}
+              loading={thisHwLoading}
+              pressed={() => {
+                setThisHwLoading(true);
+                changeHwState();
+              }}
           />
-        </View>
-        <View style={[styles.hwItem]}>
-          <View style={[styles.hwItemHeader]}>
-            <View
-              style={[
-                styles.hwItemColor,
-                { backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color) },
-              ]}
-            />
-            <Text
-              style={[
-                styles.hwItemTitle,
-                { color: theme.dark ? '#ffffff' : '#000000' },
-              ]}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {homework.subject.name.toUpperCase()}
-            </Text>
-          </View>
-          <Text
+        }
+        onPress={() => {
+          navigation.navigate('Devoir', { homework: {
+            ...homework,
+            done: thisHwChecked,
+          } });
+        }}
+      >
+        <View style={[styles.hwItemHeader]}>
+          <View
             style={[
-              styles.hwItemDescription,
-              { color: theme.dark ? '#ffffff' : '#000000' },
+              styles.hwItemColor,
+              { backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color) },
             ]}
-          >
-            {homework.description}
-          </Text>
+          />
+          <NativeText heading="subtitle1" style={{fontSize: 14}}>
+            {homework.subject.name.toUpperCase()}
+          </NativeText>
         </View>
-      </View>
+        <NativeText>
+          {homework.description}
+        </NativeText>
+      </NativeItem>
 
-      {homework.files.length > 0 ? (
-        <View style={[styles.homeworkFiles]}>
-          {homework.files.map((file, index) => (
-            <View
-              style={[
-                styles.homeworkFileContainer,
-                { borderColor: theme.dark ? '#ffffff10' : '#00000010' },
-              ]}
-              key={index}
-            >
-              <PressableScale
-                style={[styles.homeworkFile]}
-                weight="light"
-                activeScale={0.9}
-                onPress={() => file.url ? openURL(file.url) : null}
-              >
-                {file.url ? file.type === 0 ? (
-                  <Link size={20} color={theme.dark ? '#ffffff' : '#000000'} />
-                ) : (
-                  <File size={20} color={theme.dark ? '#ffffff' : '#000000'} />
-                ) : <AlertCircle size={20} color={"#ff0000"} />
-                }
-
-                <View style={[styles.homeworkFileData]}>
-                  <Text style={[styles.homeworkFileText]}>{file.name ? file.name : "Lien invalide"}</Text>
-                  <Text
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                    style={[styles.homeworkFileUrl]}
-                  >
-                    {file.url ? file.url : "Un lien vide a été renvoyé"}
-                  </Text>
-                </View>
-              </PressableScale>
-            </View>
-          ))}
-        </View>
-      ) : null}
-    </PressableScale>
-  );
+      {homework.files.map((file, index) => (
+        <NativeItem
+          key={index}
+          leading={
+            <File size={20} color={UIColors.text} style={{marginHorizontal: 3}} />
+          }
+          onPress={() => {
+            openURL(file.url);
+          }}
+          chevron
+        >
+          <NativeText heading="h4">
+            {file.name}
+          </NativeText>
+          <NativeText heading="p2" numberOfLines={1}>
+            {file.url}
+          </NativeText>
+        </NativeItem>
+      ))}
+    </NativeList>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -508,7 +491,6 @@ const styles = StyleSheet.create({
 
   homeworksContainer: {
     flex: 1,
-    padding: 12,
   },
 
   hwList: {

@@ -112,7 +112,7 @@ function ConversationsScreen({ navigation }) {
       ) }
 
       { conversations.length > 0 && (
-        <NativeList>
+        <NativeList inset>
           { conversations.map((conversation, index) => (
             <NativeItem
               key={index}
@@ -129,6 +129,9 @@ function ConversationsScreen({ navigation }) {
               <NativeText heading="h4">{conversation.subject}</NativeText>
               <NativeText heading="p2" numberOfLines={1}>
                 {conversation.messages[conversation.messages.length - 1].content.replace(/(\r\n|\n|\r)/gm," ")}
+              </NativeText>
+              <NativeText heading="subtitle2" style={{marginTop: 5}} numberOfLines={1}>
+                {new Date(conversation.messages[conversation.messages.length - 1].date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}
               </NativeText>
             </NativeItem>
           )) }

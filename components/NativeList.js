@@ -32,7 +32,8 @@ function NativeList(props) {
       appearance="auto"
       style={[
         style,
-        inset ? {marginHorizontal: 15} : null
+        inset ? {marginHorizontal: 15} : null,
+        tableViewProps?.style,
       ]}
     >
       <Section
@@ -40,19 +41,20 @@ function NativeList(props) {
         header={header ? header : null}
         footer={footer ? footer : null}
 
-        roundedCorners={inset ? true : false}
-        hideSurroundingSeparators={inset ? true : false}
+        roundedCorners={sectionProps?.roundedCorners ? sectionProps.roundedCorners : inset ? true : false}
+        hideSurroundingSeparators={sectionProps?.hideSurroundingSeparators ? sectionProps.hideSurroundingSeparators : inset ? true : false}
+        separatorTintColor={sectionProps?.separatorTintColor ? sectionProps.separatorTintColor : UIColors.border}
 
-        separatorTintColor={UIColors.border}
+        hideSeparator={sectionProps?.hideSeparator ? sectionProps.hideSeparator : false}
 
-        headerTextStyle={{
+        headerTextStyle={[{
           color: UIColors.text,
           fontSize: 13,
           fontWeight: '400',
           opacity: 0.4,
           textTransform: 'uppercase',
           marginBottom: 2,
-        }}
+        }, sectionProps?.headerTextStyle]}
       >
         {childrenWithKeys}
       </Section>

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 
 import { Cell, Section, TableView } from 'react-native-tableview-simple';
 
@@ -16,6 +16,7 @@ function NativeItem(props) {
     onPress,
     chevron,
     cellProps,
+    style,
   } = props;
 
   const UIColors = GetUIColors();
@@ -40,7 +41,7 @@ function NativeItem(props) {
         <View style={styles.cellAccessoryView}>
           {trailing}
 
-          {chevron &&
+          {chevron && Platform.OS === 'ios' &&
             <SFSymbol
               name="chevron.right"
               weight="semibold"

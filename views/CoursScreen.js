@@ -31,6 +31,8 @@ import { IndexData } from '../fetch/IndexData';
 
 import ListItem from '../components/ListItem';
 
+import PapillonLoading from '../components/PapillonLoading';
+
 import {
   X,
   DoorOpen,
@@ -410,7 +412,10 @@ Statut : ${cours.status || 'Aucun'}
             />
           ) : (
             <View style={[styles.coursContainer]}>
-              <ActivityIndicator size="small" />
+              <PapillonLoading
+                title="Chargement des cours..."
+                subtitle="Obtention des cours en cours"
+              />
             </View>
           )
         }
@@ -670,7 +675,12 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
       }
     >
       {cours.length === 0 ? (
-        <Text style={[styles.noCourses]}>Aucun cours</Text>
+        <PapillonLoading
+          icon={<IconCalendar size={26} color={UIColors.text} />}
+          title="Aucun cours"
+          subtitle="Vous n'avez aucun cours aujourd'hui"
+          style={{ marginTop: 36 }}
+        />
       ) : null}
 
       {cours.map((_cours, index) => (
