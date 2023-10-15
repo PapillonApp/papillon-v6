@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { Row } from 'react-native-ios-list';
 
-import { View } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
+
+import { Cell, Section, TableView } from 'react-native-tableview-simple';
 
 import GetUIColors from '../utils/GetUIColors';
 
@@ -13,9 +14,9 @@ function NativeItem(props) {
     leading,
     trailing,
     onPress,
-    last,
+    chevron,
+    cellProps,
     style,
-    chevron
   } = props;
 
   const UIColors = GetUIColors();
@@ -23,33 +24,54 @@ function NativeItem(props) {
   console.log(leading);
 
   return (
-    <Row
-      leading={leading}
-      trailing={
-        <View style={{paddingRight: 6}}>
-          { trailing }
+    <Cell
+      {...cellProps}
 
-          { chevron &&
-          <SFSymbol
-                name="chevron.right"
-                weight="semibold"
-                size={16}
-                color={UIColors.text + '40'}
-              />
+      cellImageView={ leading &&
+        <View style={styles.cellImageView}>
+          {leading}
+        </View>
+      }
+      cellContentView={ children &&
+        <View style={styles.cellContentView}>
+          {children}
+        </View>
+      }
+      cellAccessoryView={ trailing || chevron &&
+        <View style={styles.cellAccessoryView}>
+          {trailing}
+
+          {chevron && Platform.OS === 'ios' &&
+            <SFSymbol
+              name="chevron.right"
+              weight="semibold"
+              size={16}
+              color={UIColors.text + '40'}
+              style={{marginRight: 4}}
+            />
           }
         </View>
       }
-      hideDivider={last}
+
+      backgroundColor={UIColors.element}
+
       onPress={onPress}
-      style={[
-        style,
-        {flex: 1, maxWidth: '100%'},
-      ]}
-      highlightColor={UIColors.text + '12'}
-    >
-      {children}
-    </Row>
+    />
   );
 }
+
+const styles = StyleSheet.create({
+  cellImageView: {
+    marginRight: 14,
+  },
+  cellContentView: {
+    flex: 1,
+    paddingVertical: 9,
+    gap: 2,
+  },
+  cellAccessoryView: {
+    marginLeft: 14,
+  },
+})
 
 export default NativeItem;

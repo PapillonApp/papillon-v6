@@ -27,6 +27,8 @@ import * as Notifications from 'expo-notifications';
 import * as Calendar from 'expo-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import PapillonLoading from '../components/PapillonLoading';
+
 import {
   DoorOpen,
   User2,
@@ -417,7 +419,10 @@ Statut : ${cours.status || 'Aucun'}
             />
           ) : (
             <View style={[styles.coursContainer]}>
-              <ActivityIndicator size="small" />
+              <PapillonLoading
+                title="Chargement des cours..."
+                subtitle="Obtention des cours en cours"
+              />
             </View>
           )
         }
@@ -469,7 +474,7 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
   const mainColor = theme.dark ? '#ffffff' : '#444444';
 
   return (
-    <View style={[styles.fullCours]}>
+    <View style={[styles.fullCours, cours.is_cancelled ? {opacity: 0.4} : null]}>
       <View style={[styles.coursTimeContainer]}>
         <Text numberOfLines={1} style={[styles.ctStart]}>
           {formattedStartTime()}
@@ -705,7 +710,12 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
       }
     >
       {cours.length === 0 ? (
-        <Text style={[styles.noCourses]}>Aucun cours</Text>
+        <PapillonLoading
+          icon={<IconCalendar size={26} color={UIColors.text} />}
+          title="Aucun cours"
+          subtitle="Vous n'avez aucun cours aujourd'hui"
+          style={{ marginTop: 36 }}
+        />
       ) : null}
 
       {cours.map((_cours, index) => (

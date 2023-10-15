@@ -10,9 +10,13 @@ import {
 import { useTheme, Text } from 'react-native-paper';
 
 import {
+  Diff,
   GraduationCap,
+  Percent,
   Share,
   SquareAsterisk,
+  TrendingDown,
+  TrendingUp,
   UserMinus,
   UserPlus,
   Users2,
@@ -24,9 +28,34 @@ import { PressableScale } from 'react-native-pressable-scale';
 import formatCoursName from '../../utils/FormatCoursName';
 import GetUIColors from '../../utils/GetUIColors';
 
+import NativeList from '../../components/NativeList';
+import NativeItem from '../../components/NativeItem';
+import NativeText from '../../components/NativeText';
+
+function calculateAverage(grades, isClass) {
+  let average = 0;
+  let count = 0;
+  for (let i = 0; i < grades.length; i++) {
+    if (grades[i].grade.value !== 0) {
+      let correctedValue = grades[i].grade.value / grades[i].grade.out_of * 20;
+      let correctedClassValue = grades[i].grade.average / grades[i].grade.out_of * 20;
+
+      if (isClass) {
+        average += correctedClassValue * grades[i].grade.coefficient;
+      } else {
+        average += correctedValue * grades[i].grade.coefficient;
+      }
+
+      count += grades[i].grade.coefficient;
+    }
+  }
+  average = average / count;
+  return average;
+}
+
 function GradeView({ route, navigation }) {
   const theme = useTheme();
-  const { grade } = route.params;
+  const { grade, allGrades } = route.params;
   const UIColors = GetUIColors();
 
   function shareGrade() {
@@ -80,6 +109,23 @@ function GradeView({ route, navigation }) {
   const valueTop = formattedValue.split('.')[0];
   const valueBottom = formattedValue.split('.')[1];
 
+  let gradesListWithoutGrade = [];
+  for (let i = 0; i < allGrades.length; i++) {
+    if (allGrades[i].id !== grade.id) {
+      gradesListWithoutGrade.push(allGrades[i]);
+    }
+  }
+
+  const average = calculateAverage(allGrades, false);
+  const averageWithoutGrade = calculateAverage(gradesListWithoutGrade, false);
+  const avgInfluence = average - averageWithoutGrade;
+
+  const avgPercentInfluence = (avgInfluence / average) * 100;
+
+  const classAvg = calculateAverage(allGrades, true);
+  const classAvgWithoutGrade = calculateAverage(gradesListWithoutGrade, true);
+  const classAvgInfluence = classAvg - classAvgWithoutGrade;
+
   return (
     <>
       <StatusBar
@@ -123,43 +169,31 @@ function GradeView({ route, navigation }) {
         contentInsetAdjustmentBehavior="automatic"
         style={{ flex: 1, backgroundColor: UIColors.background }}
       >
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>Détails de la note</Text>
 
-          <PressableScale
-            style={[
-              styles.gradeDetail,
-              {
-                backgroundColor: UIColors.element,
-                borderColor: theme.dark ? '#191919' : '#e5e5e5',
-              },
-            ]}
+        <NativeList
+          inset
+          header="Détails de la note"
+        >
+          <NativeItem
+            leading={
+              <SquareAsterisk color={UIColors.text} />
+            }
+            trailing={
+              <NativeText heading="h4">
+                x {parseFloat(grade.grade.coefficient).toFixed(2)}
+              </NativeText>
+            }
           >
-            <SquareAsterisk
-              color={!theme.dark ? '#000' : '#fff'}
-              style={[styles.averageIcon]}
-            />
-
-            <Text style={[styles.gradeDetailTitle]}>Coeff.</Text>
-            <Text style={[styles.gradeDetailValue]}>
-              x {parseFloat(grade.grade.coefficient).toFixed(2)}
-            </Text>
-          </PressableScale>
-          {grade.grade.significant === 0 && grade.grade.out_of !== 20 ? (
-            <PressableScale
-              style={[
-                styles.gradeDetail,
-                {
-                  backgroundColor: UIColors.element,
-                  borderColor: theme.dark ? '#191919' : '#e5e5e5',
-                },
-              ]}
-            >
-              <GraduationCap
-                color={!theme.dark ? '#000' : '#fff'}
-                style={[styles.averageIcon]}
-              />
-              <Text style={[styles.gradeDetailTitle]}>Remis sur /20</Text>
+            <NativeText heading="p2">
+              Coefficient
+            </NativeText>
+          </NativeItem>
+          
+          <NativeItem
+            leading={
+              <GraduationCap color={UIColors.text} />
+            }
+            trailing= {
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
                   {parseFloat(
@@ -168,83 +202,171 @@ function GradeView({ route, navigation }) {
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>/20</Text>
               </View>
-            </PressableScale>
-          ) : null}
-        </View>
+            }
+          >
+            <NativeText heading="p2">
+              Remis sur /20
+            </NativeText>
+          </NativeItem>
+        </NativeList>
 
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>Moyennes</Text>
+        <NativeList
+          inset
+          header="Moyennes"
+        >
+          <NativeItem
+            leading={
+              <Users2 color={UIColors.text} />
+            }
+            trailing={
+              <View style={[styles.gradeDetailRight]}>
+                <Text style={[styles.gradeDetailValue]}>
+                  {parseFloat(grade.grade.average).toFixed(2)}
+                </Text>
+                <Text style={[styles.gradeDetailValueSub]}>
+                  /{grade.grade.out_of}
+                </Text>
+              </View>
+            }
+          >
+            <NativeText heading="p2">
+              Moy. de la classe
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={
+              <TrendingDown color={UIColors.text} />
+            }
+            trailing={
+              <View style={[styles.gradeDetailRight]}>
+                <Text style={[styles.gradeDetailValue]}>
+                  {parseFloat(grade.grade.min).toFixed(2)}
+                </Text>
+                <Text style={[styles.gradeDetailValueSub]}>
+                  /{grade.grade.out_of}
+                </Text>
+              </View>
+            }
+          >
+            <NativeText heading="p2">
+              Note minimale
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={
+              <TrendingUp color={UIColors.text} />
+            }
+            trailing={
+              <View style={[styles.gradeDetailRight]}>
+                <Text style={[styles.gradeDetailValue]}>
+                  {parseFloat(grade.grade.max).toFixed(2)}
+                </Text>
+                <Text style={[styles.gradeDetailValueSub]}>
+                  /{grade.grade.out_of}
+                </Text>
+              </View>
+            }
+          >
+            <NativeText heading="p2">
+              Note maximale
+            </NativeText>
+          </NativeItem>
+        </NativeList>
 
-          <PressableScale
-            style={[
-              styles.gradeDetail,
-              {
-                backgroundColor: UIColors.element,
-                borderColor: theme.dark ? '#191919' : '#e5e5e5',
-              },
-            ]}
+        <NativeList
+          inset
+          header="Influence"
+        >
+          <NativeItem
+            leading={
+              <UserPlus color={UIColors.text} />
+            }
+            trailing={
+              avgInfluence > 0 ? (
+                <NativeText heading="h4" style={{ color: "#1AA989" }}>
+                  + {parseFloat(avgInfluence).toFixed(2)} pts
+                </NativeText>
+              ) : (
+                <NativeText heading="h4" style={{ color: "#D81313" }}>
+                  - {parseFloat(avgInfluence).toFixed(2) * -1} pts
+                </NativeText>
+              )
+            }
           >
-            <Users2
-              color={!theme.dark ? '#000' : '#fff'}
-              style={[styles.averageIcon]}
-            />
-            <Text style={[styles.gradeDetailTitle]}>Classe</Text>
-            <View style={[styles.gradeDetailRight]}>
-              <Text style={[styles.gradeDetailValue]}>
-                {parseFloat(grade.grade.average).toFixed(2)}
-              </Text>
-              <Text style={[styles.gradeDetailValueSub]}>
-                /{grade.grade.out_of}
-              </Text>
-            </View>
-          </PressableScale>
-          <PressableScale
-            style={[
-              styles.gradeDetail,
-              {
-                backgroundColor: UIColors.element,
-                borderColor: theme.dark ? '#191919' : '#e5e5e5',
-              },
-            ]}
+            <NativeText heading="p2">
+              Moyenne générale
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={
+              <Users2 color={UIColors.text} />
+            }
+            trailing={
+              classAvgInfluence > 0 ? (
+                <NativeText heading="h4">
+                  + {parseFloat(classAvgInfluence).toFixed(2)} pts
+                </NativeText>
+              ) : (
+                <NativeText heading="h4">
+                  - {parseFloat(classAvgInfluence).toFixed(2) * -1} pts
+                </NativeText>
+              )
+            }
           >
-            <UserPlus
-              color={!theme.dark ? '#000' : '#fff'}
-              style={[styles.averageIcon]}
-            />
-            <Text style={[styles.gradeDetailTitle]}>Max.</Text>
-            <View style={[styles.gradeDetailRight]}>
-              <Text style={[styles.gradeDetailValue]}>
-                {parseFloat(grade.grade.max).toFixed(2)}
-              </Text>
-              <Text style={[styles.gradeDetailValueSub]}>
-                /{grade.grade.out_of}
-              </Text>
-            </View>
-          </PressableScale>
-          <PressableScale
-            style={[
-              styles.gradeDetail,
-              {
-                backgroundColor: UIColors.element,
-                borderColor: theme.dark ? '#191919' : '#e5e5e5',
-              },
-            ]}
+            <NativeText heading="p2">
+              Moyenne de classe
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={
+              <Percent color={UIColors.text} />
+            }
+            trailing={
+              avgPercentInfluence > 0 ? (
+                <NativeText heading="h4" style={{ color: "#1AA989" }}>
+                  + {parseFloat(avgPercentInfluence).toFixed(2)} %
+                </NativeText>
+              ) : (
+                <NativeText heading="h4" style={{ color: "#D81313" }}>
+                  - {parseFloat(avgPercentInfluence).toFixed(2) * -1} %
+                </NativeText>
+              )
+            }
           >
-            <UserMinus
-              color={!theme.dark ? '#000' : '#fff'}
-              style={[styles.averageIcon]}
-            />
-            <Text style={[styles.gradeDetailTitle]}>Min.</Text>
-            <View style={[styles.gradeDetailRight]}>
-              <Text style={[styles.gradeDetailValue]}>
-                {parseFloat(grade.grade.min).toFixed(2)}
-              </Text>
-              <Text style={[styles.gradeDetailValueSub]}>
-                /{grade.grade.out_of}
-              </Text>
-            </View>
-          </PressableScale>
-        </View>
+            <NativeText heading="p2">
+              Pourcentage d'influence
+            </NativeText>
+            <NativeText heading="subtitle2">
+              sur la moyenne générale
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+
+        <NativeList
+          inset
+          header="Informations"
+        >
+          <NativeItem
+            leading={
+              <Diff color={UIColors.text} />
+            }
+            trailing={
+              (grade.grade.value - grade.grade.average).toFixed(2) > 0 ? (
+                <NativeText heading="h4" style={{ color: "#1AA989" }}>
+                  + {(grade.grade.value - grade.grade.average).toFixed(2)} pts
+                </NativeText>
+              ) : (
+                <NativeText heading="h4" style={{ color: "#D81313" }}>
+                  - {(grade.grade.value - grade.grade.average).toFixed(2) * -1} pts
+                </NativeText>
+              )
+            }
+          >
+            <NativeText heading="p2">
+              Diff. avec la moyenne
+            </NativeText>
+          </NativeItem>
+        </NativeList>
       </ScrollView>
     </>
   );

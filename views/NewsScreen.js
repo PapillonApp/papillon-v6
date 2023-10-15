@@ -16,20 +16,21 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text, useTheme } from 'react-native-paper';
 
-import {
-  Newspaper,
-  ChefHat,
-  Projector,
-  Users2,
-  AlertTriangle,
-} from 'lucide-react-native';
-import { PressableScale } from 'react-native-pressable-scale';
+import { Newspaper, ChefHat, Projector, Users2, AlertTriangle } from 'lucide-react-native';
+import { BarChart4, Link, File } from 'lucide-react-native';
+import { IndexData } from '../fetch/IndexData';
 import ListItem from '../components/ListItem';
 
 import PapillonLoading from '../components/PapillonLoading';
 
 import GetUIColors from '../utils/GetUIColors';
 import { useAppContext } from '../utils/AppContext';
+
+import NativeList from '../components/NativeList';
+import NativeItem from '../components/NativeItem';
+import NativeText from '../components/NativeText';
+
+import * as WebBrowser from 'expo-web-browser';
 
 function relativeDate(date) {
   const now = new Date();
@@ -92,6 +93,14 @@ function FullNewsIcon({ title }) {
 function NewsScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
+
+  const openURL = async (url) => {
+    await WebBrowser.openBrowserAsync(url, {
+      dismissButtonStyle: 'done',
+      presentationStyle: 'currentContext',
+      controlsColor: UIColors.primary,
+    });
+  };
 
   const insets = useSafeAreaInsets();
 
@@ -232,8 +241,16 @@ function NewsScreen({ navigation }) {
   }
 
   return (
-    <View
+    <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
+      contentInsetAdjustmentBehavior='automatic'
+
+      refreshControl={
+        <RefreshControl
+          refreshing={isHeadLoading}
+          onRefresh={onRefresh}
+        />
+      }
     >
       <StatusBar
         animated
@@ -245,150 +262,61 @@ function NewsScreen({ navigation }) {
         <PapillonLoading
           title="Chargement des actualités..."
           subtitle="Obtention des dernières actualités en cours"
-          style={[{marginTop: insets.top + 160}]}
         />
       ) : null}
 
       
-        <Animated.FlatList
-          contentInsetAdjustmentBehavior="automatic"
-          style={[styles.newsList]}
-          contentContainerStyle={{
-            paddingBottom: insets.bottom,
-          }}
-          data={news}
-          keyExtractor={(item) => item.id.toString()}
-          ListHeaderComponent={
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={[styles.selectTypes]}>
-                {newsTypes.map((item, index) =>
-                  item.enabled ? (
-                    <NewsChip
-                      key={index}
-                      title={item.name}
-                      enabled={currentNewsType === item.name}
-                      icon={item.icon}
-                      onPress={() => {
-                        changeNewsType(item.name);
-                      }}
-                    />
-                  ) : null
-                )}
-                <View style={{ width: 18 }} />
-              </View>
-            </ScrollView>
-          }
-          refreshControl={
-            <RefreshControl
-              refreshing={isHeadLoading}
-              onRefresh={onRefresh}
-              colors={[UIColors.primary]}
-            />
-          }
-          renderItem={({ item, index }) =>
-            showNews ? (
-              <NewsItem
-                item={item}
-                navigation={navigation}
-                UIColors={UIColors}
-                height={height}
-                index={index}
-              />
-            ) : null
-          }
-        />
+      { !isLoading && news.length !== 0 && (
+        <View style={{marginBottom: 18}}>
+          {news.map((item, index) => (
+            <NativeList inset style={{marginBottom: -18}} key={index} >
+              <NativeItem
+                leading={
+                  <View style={{paddingHorizontal:2}}>
+                    <FullNewsIcon title={item.title} />
+                  </View>
+                }
+                onPress={() => navigation.navigate('NewsDetails', { news: item })}
+              >
+                <NativeText heading="h4" numberOfLines={1}>
+                  {item.title}
+                </NativeText>
+                <NativeText heading="p2" numberOfLines={2}>
+                  {normalizeContent(item.content)}
+                </NativeText>
 
-    </View>
-  );
-}
+                <NativeText heading="subtitle2" numberOfLines={1} style={{marginTop: 4}}>
+                  il y a {relativeDate(new Date(item.date))}
+                </NativeText>
+              </NativeItem>
 
-// eslint-disable-next-line no-unused-vars
-function NewsItem({ item, navigation, UIColors, height, index }) {
-  let content = item.content.trim();
-  if (content.length > 50) {
-    content = `${content.substring(0, 50)}...`;
-  }
+              {item.attachments.map((attachment, index) => (
+                <NativeItem
+                  leading={
+                    <View style={{paddingHorizontal:3.5}}>
+                      {attachment.type === 0 ? (
+                        <Link size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
+                      ) : (
+                        <File size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
+                      )}
+                    </View>
+                  }
+                  chevron
+                  onPress={() => openURL(attachment.url)}
+                  key={index}
+                >
+                  <NativeText heading="p2" numberOfLines={1}>
+                    {attachment.name}
+                  </NativeText>
 
-  // Animation
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+                </NativeItem>
+              ))}
+            </NativeList>
+          ))}
+        </View>
+      )}
 
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      easing: Easing.elastic(1),
-      useNativeDriver: true,
-      delay: index * 50,
-    }).start();
-  });
-
-  return (
-    <Animated.View
-      style={[
-        {
-          // Bind opacity to animated value
-          opacity: fadeAnim,
-          transform: [
-            {
-              translateY: fadeAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [50, 0],
-              }),
-            },
-            {
-              scale: fadeAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0.9, 1],
-              }),
-            },
-          ],
-        },
-      ]}
-    >
-      <ListItem
-        title={item.title}
-        subtitle={normalizeContent(content)}
-        icon={<FullNewsIcon title={item.title} />}
-        color={UIColors.primary}
-        onPress={() => navigation.navigate('NewsDetails', { news: item })}
-        right={
-          <Text style={{ fontSize: 13, opacity: 0.5 }}>
-            il y a {relativeDate(new Date(item.date))}
-          </Text>
-        }
-        style={styles.newsItem}
-      />
-    </Animated.View>
-  );
-}
-
-function NewsChip({ title, enabled, onPress, icon }) {
-  const UIColors = GetUIColors();
-
-  return (
-    <PressableScale
-      style={[
-        styles.newsChip,
-        enabled ? styles.newsChipEnabled : null,
-        {
-          backgroundColor: enabled ? `${UIColors.primary}22` : UIColors.element,
-        },
-      ]}
-      onPress={onPress}
-      activeScale={0.92}
-      weight="medium"
-    >
-      {icon}
-      <Text
-        style={[
-          styles.newsChipText,
-          enabled ? styles.newsChipTextEnabled : null,
-          { color: enabled ? UIColors.primary : UIColors.text },
-        ]}
-      >
-        {title}
-      </Text>
-    </PressableScale>
+    </ScrollView>
   );
 }
 

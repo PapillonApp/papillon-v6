@@ -18,6 +18,10 @@ import PapillonList from '../components/PapillonList';
 
 import PapillonLoading from '../components/PapillonLoading';
 
+import NativeList from '../components/NativeList';
+import NativeItem from '../components/NativeItem';
+import NativeText from '../components/NativeText';
+
 function ConversationsScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -111,17 +115,12 @@ function ConversationsScreen({ navigation }) {
       ) }
 
       { conversations.length > 0 && (
-        <PapillonList inset grouped>
+        <NativeList inset>
           { conversations.map((conversation, index) => (
-            <ListItem
+            <NativeItem
               key={index}
-              title={conversation.subject}
-              subtitle={conversation.messages[conversation.messages.length - 1].content.replace(/(\r\n|\n|\r)/gm," ")}
-              width
-              trimSubtitle
               chevron
-              center
-              left={
+              leading={
                 <View style={{ width: 36, height: 36, borderRadius: 38, backgroundColor: UIColors.primary + '22', justifyContent: 'center', alignItems: 'center' }}>
                   <Text style={{ fontSize: 18, color: UIColors.primary }}>{getInitials(conversation.creator)}</Text>
                 </View>
@@ -129,9 +128,17 @@ function ConversationsScreen({ navigation }) {
               onPress={() => {
                 navigation.navigate('InsetConversationsItem', { conversation: conversation });
               }}
-            />
+            >
+              <NativeText heading="h4">{conversation.subject}</NativeText>
+              <NativeText heading="p2" numberOfLines={1}>
+                {conversation.messages[conversation.messages.length - 1].content.replace(/(\r\n|\n|\r)/gm," ")}
+              </NativeText>
+              <NativeText heading="subtitle2" style={{marginTop: 5}} numberOfLines={1}>
+                {new Date(conversation.messages[conversation.messages.length - 1].date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}
+              </NativeText>
+            </NativeItem>
           )) }
-        </PapillonList>
+        </NativeList>
       ) }
     </ScrollView>
   );
