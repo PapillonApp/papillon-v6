@@ -2,7 +2,7 @@
   "expo": {
     "name": "Papillon",
     "slug": "papillonvex",
-    "version": "6.2.0",
+    "version": "6.2.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",

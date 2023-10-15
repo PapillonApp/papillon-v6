@@ -233,7 +233,7 @@ function NewSettings({navigation}) {
             </View>
           }
           chevron
-          onPress={() => navigation.navigate('Appearance')}
+          onPress={() => navigation.navigate('About')}
         >
           <NativeText heading="h4">
           A propos

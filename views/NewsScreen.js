@@ -112,8 +112,12 @@ function NewsScreen({ navigation }) {
   const [currentNewsType, setCurrentNewsType] = useState("Toutes");
 
   function editNews(n) {
-    // invert the news array
-    const newNews = n.reverse();
+    let newNews = n;
+
+    // sort news by date
+    newNews.sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    });
 
     return newNews;
   }
