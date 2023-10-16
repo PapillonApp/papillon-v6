@@ -76,13 +76,13 @@ async function sendToSharedGroupGetEdtF(timetableData) {
               "LE BELLEC J."
           ],
           "rooms": [
-              "A203"
+              "A2089"
           ],
           "group_names": [],
           "memo": null,
           "virtual": [],
-          "start": "2023-09-26 09:20",
-          "end": "2023-09-26 10:20",
+          "start": "2023-10-16 09:10",
+          "end": "2023-10-16 09:50",
           "background_color": "#C0C0C0",
           "status": null,
           "is_cancelled": false,
@@ -103,16 +103,16 @@ async function sendToSharedGroupGetEdtF(timetableData) {
               "DE BREMOND D'ARS L."
           ],
           "rooms": [
-              "C003"
+              "B202"
           ],
           "group_names": [],
           "memo": null,
           "virtual": [],
-          "start": "2023-09-26 10:20",
-          "end": "2023-09-26 11:25",
+          "start": "2023-10-16 22:50",
+          "end": "2023-10-16 23:00",
           "background_color": "#FFED00",
           "status": null,
-          "is_cancelled": false,
+          "is_cancelled": true,
           "is_outing": false,
           "is_detention": false,
           "is_exempted": false,
@@ -130,15 +130,15 @@ async function sendToSharedGroupGetEdtF(timetableData) {
               "DUNY S."
           ],
           "rooms": [
-              "B209"
+              "B20009"
           ],
           "group_names": [
               "[TANG3]"
           ],
           "memo": null,
           "virtual": [],
-          "start": "2023-09-26 13:49",
-          "end": "2023-09-26 14:50",
+          "start": "2023-10-16 23:20",
+          "end": "2023-10-16 23:50",
           "background_color": "#F49737",
           "status": null,
           "is_cancelled": false,
@@ -166,8 +166,8 @@ async function sendToSharedGroupGetEdtF(timetableData) {
           ],
           "memo": null,
           "virtual": [],
-          "start": "2023-09-26 16:00",
-          "end": "2023-09-26 17:50",
+          "start": "2023-10-16 23:50",
+          "end": "2023-10-10 00:59",
           "background_color": "#EC6719",
           "status": null,
           "is_cancelled": false,
