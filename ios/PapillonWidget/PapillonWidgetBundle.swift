@@ -11,6 +11,6 @@ import SwiftUI
 @main
 struct PapillonWidgetBundle: WidgetBundle {
     var body: some Widget {
-        PapillonWidget()
+      CourseWidget()
     }
 }
