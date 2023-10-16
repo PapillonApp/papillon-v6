@@ -99,7 +99,9 @@
     "react-native-web": "~0.19.6",
     "reanimated-color-picker": "^2.3.4",
     "swiftui-react-native": "^5.0.0",
-    "sync-storage": "^0.4.2"
+    "sync-storage": "^0.4.2",
+    "expo-file-system": "~15.4.4",
+    "expo-sqlite": "~11.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
