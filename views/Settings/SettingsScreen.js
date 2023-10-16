@@ -11,7 +11,7 @@ import { Text } from 'react-native-paper';
 import { useState } from 'react';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LogOut, RefreshCw, Server, Trash2 } from 'lucide-react-native';
+import { LogOut, RefreshCw, Server, Trash2, FileClock } from 'lucide-react-native';
 import { showMessage } from 'react-native-flash-message';
 import { revokeAsync } from 'expo-auth-session';
 
@@ -259,6 +259,24 @@ function SettingsScreen({ navigation }) {
           </NativeItem>
         </NativeList>
       )}
+
+      <NativeList
+        header="Autre"
+        inset
+      >
+        <NativeItem
+          leading={<FileClock size={24} color={UIColors.text} />}
+          chevron
+          onPress={() => navigation.navigate('applicationLogs')}
+        >
+          <NativeText heading="h4">
+            Logs
+          </NativeText>
+          <NativeText heading="p2">
+            Voir les logs de l'application
+          </NativeText>
+        </NativeItem>
+      </NativeList>
 
       <NativeList
         header="Mon compte"

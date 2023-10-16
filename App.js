@@ -45,6 +45,7 @@ import AppearanceScreen from './views/Settings/AppearanceScreen';
 import SettingsScreen2 from './views/Settings/SettingsScreen';
 import IconsScreen from './views/Settings/IconsScreen';
 import ChangeServer from './views/Settings/ChangeServer';
+import ApplicationLogs from './views/Settings/ApplicationLogs';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -309,6 +310,15 @@ function InsetSettings() {
         }}
       />
       <Stack.Screen
+        name="applicationLogs"
+        component={ApplicationLogs}
+        options={{
+          headerTitle: "Logs",
+          presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
         name="changeServer"
         component={ChangeServer}
         options={{
@@ -316,6 +326,7 @@ function InsetSettings() {
           presentation: 'modal',
         }}
       />
+
       <Stack.Screen
         name="Settings"
         component={SettingsScreen2}
