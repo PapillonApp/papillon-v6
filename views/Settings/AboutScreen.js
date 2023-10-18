@@ -1,13 +1,28 @@
 import * as React from 'react';
-import { View, ScrollView, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  StatusBar,
+  Platform,
+} from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
 import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 
 import { useState, useEffect } from 'react';
-import { Server, Euro, History, Bug, Check } from 'lucide-react-native';
-import ListItem from '../../components/ListItem';
+import {
+  Server,
+  Euro,
+  History,
+  Check,
+  MessageCircle,
+} from 'lucide-react-native';
 import PapillonIcon from '../../components/PapillonIcon';
+import ListItem from '../../components/ListItem';
 
 import getConsts from '../../fetch/consts';
 import packageJson from '../../package.json';
@@ -17,8 +32,11 @@ import team from './Team.json';
 import { getInfo } from '../../fetch/AuthStack/LoginFlow';
 import GetUIColors from '../../utils/GetUIColors';
 
+import NativeList from '../../components/NativeList';
+import NativeItem from '../../components/NativeItem';
+import NativeText from '../../components/NativeText';
+
 function AboutScreen({ navigation }) {
-  const theme = useTheme();
   const UIColors = GetUIColors();
   const [serverInfo, setServerInfo] = useState({});
 
@@ -33,13 +51,15 @@ function AboutScreen({ navigation }) {
   const [dataList] = useState([
     {
       title: 'Version de Papillon',
-      subtitle: packageJson.version + " " + packageJson.canal,
+      subtitle: `${packageJson.version} ${packageJson.canal}`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
     },
     {
       title: 'Dépendances',
-      subtitle: `RN: ${packageJson.dependencies['react-native'].split('^')[1]}, Expo : ${packageJson.dependencies['expo'].split('^')[1]}`,
+      subtitle: `RN: ${
+        packageJson.dependencies['react-native'].split('^')[1]
+      }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
     },
@@ -63,9 +83,11 @@ function AboutScreen({ navigation }) {
   const [isKnownServer, setIsKnownServer] = useState(false);
   const [serverTag, setServerTag] = useState('Serveur non vérifié');
 
+  const theme = useTheme();
+
   function checkKnownServers() {
     return getConsts().then((consts) => {
-      console.log(consts.API)
+      console.log(consts.API);
 
       for (let i = 0; i < knownServers.length; i++) {
         if (consts.API.includes(knownServers[i])) {
@@ -80,23 +102,12 @@ function AboutScreen({ navigation }) {
   }
 
   checkKnownServers().then((isKnown) => {
-    setIsKnownServer(isKnown)
+    setIsKnownServer(isKnown);
 
-    if(isKnown) {
-      setServerTag('Serveur vérifié')
+    if (isKnown) {
+      setServerTag('Serveur vérifié');
     }
-  }) 
-
-  const [versionTaps, setVersionTaps] = useState(0);
-
-  function addVersionTap() {
-    setVersionTaps(versionTaps + 1);
-
-    if (versionTaps >= 7) {
-      setVersionTaps(0);
-      WebBrowser.openBrowserAsync('https://matias.ma/nsfw');
-    }
-  }
+  });
 
   function openServer() {
     if (isKnownServer) {
@@ -114,114 +125,110 @@ function AboutScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
+      {Platform.OS === 'ios' ? (
+        <StatusBar animated barStyle="light-content" />
+      ) : (
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
+      )}
+
       <ScrollView
         style={[styles.container, { backgroundColor: UIColors.background }]}
         contentInsetAdjustmentBehavior="automatic"
       >
-        <View style={[styles.optionsList]}>
-          <Text style={styles.ListTitle}>Serveur</Text>
-
-          { serverInfo.server && serverInfo.version ?
-            <ListItem
-              title={serverTag}
-              subtitle={`${serverInfo.server} v${serverInfo.version}`}
-              color="#29947A"
-              center
-              left={
-                <>
-                  <PapillonIcon
-                    icon={
-                      <Server
-                        size={24}
-                        color={isKnownServer ? '#29947A' : '#0065A8'}
-                      />
-                    }
-                    color={isKnownServer ? '#29947A' : '#0065A8'}
-                    size={24}
-                    small
-                  />
-
-                  {isKnownServer ? (
-                    <View
-                      style={[
-                        styles.certif,
-                        { borderColor: theme.dark ? '#111' : '#fff' },
-                      ]}
-                      sharedTransitionTag="serverCheck"
-                    >
-                      <Check size={16} color="#ffffff" />
-                    </View>
-                  ) : null}
-                </>
-              }
-              onPress={() => openServer()}
-            />
-          :
-            <ListItem
-            title={'Connexion au serveur...'}
-            subtitle={`Détermination de la version....`}
-            color="#29947A"
-            center
-            left={
+        <NativeList
+          inset
+          header="Serveur"
+        >
+          <NativeItem
+            leading = {
               <>
                 <PapillonIcon
-                  icon={
-                    <Server
-                      size={24}
-                      color={'#0065A8'}
-                    />
-                  }
-                  color={'#0065A8'}
+                  icon={<Server size={24} color={isKnownServer ? '#29947A' : '#0065A8'} />}
+                  color={isKnownServer ? '#29947A' : '#0065A8'}
                   size={24}
                   small
                 />
+
+                {isKnownServer ? (
+                  <View
+                    style={[styles.certif, { borderColor: UIColors.element }]}
+                    sharedTransitionTag="serverCheck"
+                  >
+                    <Check size={16} color="#ffffff" />
+                  </View>
+                ) : null}
               </>
             }
-            right={
-              <>
+
+            trailing={
+              !serverInfo.server || !serverInfo.version ? (
                 <ActivityIndicator />
-              </>
+              ) : null
             }
+
+            chevron
             onPress={() => openServer()}
-          />
-          }
-        </View>
+          >
+            { serverInfo.server || serverInfo.version ? (
+              <>
+                <NativeText heading="h4">
+                  Serveur {isKnownServer ? 'vérifié' : 'non vérifié'}
+                </NativeText>
+                <NativeText heading="p2">
+                  {serverInfo.server} v{serverInfo.version}
+                </NativeText>
+              </>
+            ) : (
+              <>
+                <NativeText heading="h4">
+                  Connexion au serveur...
+                </NativeText>
+                <NativeText heading="p2">
+                  Détermination de la version...
+                </NativeText>
+              </>
+            )}
+          </NativeItem>
+        </NativeList>
 
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>Team Papillon</Text>
-
+        <NativeList
+          inset
+          header="Équipe Papillon"
+        >
           {team.team.map((item, index) => (
-            <ListItem
+            <NativeItem
               key={index}
-              title={item.name}
-              subtitle={item.role}
-              color="#565EA3"
-              center
-              left={
+              leading={
                 <Image
                   source={{ uri: item.avatar }}
                   style={{ width: 38, height: 38, borderRadius: 12 }}
                 />
               }
+              chevron
               onPress={() => openUserLink(item.link)}
-            />
+            >
+              <NativeText heading="h4">
+                {item.name}
+              </NativeText>
+              <NativeText heading="p2">
+                {item.role}
+              </NativeText>
+            </NativeItem>
           ))}
-        </View>
+        </NativeList>
 
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>
-            Donateurs (au{' '}
-            {new Date(donors.lastupdated).toLocaleDateString('fr', {dateStyle: 'medium'})})
-          </Text>
-
+        <NativeList
+          inset
+          header={"Donateurs (au " + new Date(donors.lastupdated).toLocaleDateString('fr', { dateStyle: 'medium' }) + ")"}
+        >
           {donors.donors.map((item, index) => (
-            <ListItem
+            <NativeItem
               key={index}
-              title={item.name}
-              subtitle={`${item.name} à donné ${item.times} fois`}
-              color="#565EA3"
-              center
-              left={
+              leading={
                 <PapillonIcon
                   icon={<Euro size={24} color="#565EA3" />}
                   color="#565EA3"
@@ -229,27 +236,62 @@ function AboutScreen({ navigation }) {
                   small
                 />
               }
-            />
+            >
+              <NativeText heading="h4">
+                {item.name}
+              </NativeText>
+              <NativeText heading="p2">
+                à donné {item.times} fois
+              </NativeText>
+            </NativeItem>
           ))}
-        </View>
+        </NativeList>
 
-        <View style={styles.optionsList}>
-          <Text style={styles.ListTitle}>Informations sur l'app</Text>
+        <NativeList 
+          inset
+          header="Communauté"
+        >
+          <NativeItem
+            leading={
+              <PapillonIcon
+                icon={<MessageCircle size={24} color="#565EA3" />}
+                color="#565EA3"
+                size={24}
+                small
+              />
+            }
+            chevron
+            onPress={() => Linking.openURL('https://discord.getpapillon.xyz/')}
+          >
+            <NativeText heading="h4">
+              Serveur Discord
+            </NativeText>
+            <NativeText heading="p2">
+              Rejoindre le serveur Discord de Papillon
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+
+        <NativeList
+          inset
+          header="Informations sur l'app"
+        >
           {dataList.map((item, index) => (
-            <ListItem
-              key={index}
-              title={item.title}
-              color={item.color}
-              center
-              right={
-                <Text style={{ color: item.color, fontSize: 16, opacity: 0.5 }}>
+            <NativeItem
+              trailing={
+                <NativeText heading="p2">
                   {item.subtitle}
-                </Text>
+                </NativeText>
               }
-              onPress={() => addVersionTap()}
-            />
+              key={index}
+              onPress={() => navigation.navigate('Changelog')}
+            >
+              <NativeText heading="h4">
+                {item.title}
+              </NativeText>
+            </NativeItem>
           ))}
-        </View>
+        </NativeList>
       </ScrollView>
     </View>
   );

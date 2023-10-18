@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { Alert } from 'react-native';
+
 import { showMessage } from 'react-native-flash-message';
 import getConsts from '../consts';
 
@@ -40,13 +42,13 @@ function getENTs(_url) {
 }
 
 function getInfo() {
-  return getConsts().then((consts) => {
-    return fetch(`${consts.API}/infos`, {
+  return getConsts().then((consts) =>
+    fetch(`${consts.API}/infos`, {
       method: 'GET',
     })
       .then((response) => response.json())
-      .then((result) => result);
-  });
+      .then((result) => result)
+  );
 }
 
 function getToken(credentials) {
@@ -63,8 +65,8 @@ function getToken(credentials) {
     credentials.url += '?login=true';
   }
 
-  return getConsts().then((consts) => {
-    return fetch(`${consts.API}/generatetoken`, {
+  return getConsts().then((consts) =>
+    fetch(`${consts.API}/generatetoken`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -78,66 +80,92 @@ function getToken(credentials) {
         }
 
         return JSON.parse(result);
-      });
-  });
+      })
+  );
 }
 
 function loginQR(credentials) {
-  var formdata = new FormData();
-  formdata.append("url", credentials.url);
-  formdata.append("qrToken", credentials.qrToken);
-  formdata.append("login", credentials.login);
-  formdata.append("checkCode", credentials.checkCode);
-  formdata.append("uuid", credentials.uuid);
+  const formdata = new FormData();
+  formdata.append('url', credentials.url);
+  formdata.append('qrToken', credentials.qrToken);
+  formdata.append('login', credentials.login);
+  formdata.append('checkCode', credentials.checkCode);
+  formdata.append('uuid', credentials.uuid);
 
-  var requestOptions = {
+  const requestOptions = {
     method: 'POST',
     body: formdata,
-    redirect: 'follow'
+    redirect: 'follow',
   };
 
-  return getConsts().then((consts) => {
-    return fetch(`${consts.API}/generatetoken?method=qrcode`, requestOptions)
+  return getConsts().then((consts) =>
+    fetch(`${consts.API}/generatetoken?method=qrcode`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
         // add uuid to result
         result.uuid = credentials.uuid;
 
         return result;
-      });
-  });
+      })
+  );
 }
 
-function refreshQRToken(qr_result) {
+function refreshQRToken(qrResult) {
   return getConsts().then((consts) => {
-    var formdata = new FormData();
-    formdata.append("url", qr_result.qr_credentials.url);
-    formdata.append("username", qr_result.qr_credentials.username);
-    formdata.append("password", qr_result.qr_credentials.password);
-    formdata.append("uuid", qr_result.uuid);
+    const formdata = new FormData();
+    formdata.append('url', qrResult.qr_credentials.url);
+    formdata.append('username', qrResult.qr_credentials.username);
+    formdata.append('password', qrResult.qr_credentials.password);
+    formdata.append('uuid', qrResult.uuid);
 
-    var requestOptions = {
+    const requestOptions = {
       method: 'POST',
       body: formdata,
-      redirect: 'follow'
+      redirect: 'follow',
     };
 
     return fetch(`${consts.API}/generatetoken?method=token`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log(result);
         AsyncStorage.setItem('token', result.token);
 
+        // if no result.token
+        if (!result.token) {
+          const URL = qrResult.qr_credentials.url;
+          AsyncStorage.setItem('old_login', JSON.stringify({ url: URL }));
+
+          AsyncStorage.clear();
+
+          Alert.alert(
+            'Impossible de se reconnecter',
+            'Veuillez vous reconnecter manuellement à votre compte Pronote',
+            [
+              {
+                text: 'OK',
+              },
+            ],
+            { cancelable: false }
+          );
+
+          return false;
+        }
+
         // change password
-        return AsyncStorage.getItem('qr_credentials').then((qr_result) => {
-          if(qr_result) {
-            const qr_credentials = JSON.parse(qr_result);
+        return AsyncStorage.getItem('qr_credentials').then((_qrResult) => {
+          if (_qrResult) {
+            const qrCredentials = JSON.parse(_qrResult);
 
-            qr_credentials.qr_credentials.password = result.qr_credentials.password;
+            qrCredentials.qr_credentials.password =
+              result.qr_credentials.password;
 
-            console.log('Nouveau mot de passe: ' + result.qr_credentials.password);
+            console.log(
+              `Nouveau mot de passe: ${result.qr_credentials.password}`
+            );
 
-            AsyncStorage.setItem('qr_credentials', JSON.stringify(qr_credentials));
+            AsyncStorage.setItem(
+              'qr_credentials',
+              JSON.stringify(qrCredentials)
+            );
           }
 
           return result;
@@ -147,22 +175,21 @@ function refreshQRToken(qr_result) {
 }
 
 function refreshToken() {
-  return AsyncStorage.getItem('qr_credentials').then((qr_result) => {
-    if(qr_result) {
-      return refreshQRToken(JSON.parse(qr_result));
+  return AsyncStorage.getItem('qr_credentials').then((qrResult) => {
+    if (qrResult) {
+      return refreshQRToken(JSON.parse(qrResult));
     }
-    else {
-      return AsyncStorage.getItem('credentials').then((result) => {
-        const credentials = JSON.parse(result);
+    return AsyncStorage.getItem('credentials').then((result) => {
+      if (!result) return;
+      const credentials = JSON.parse(result);
 
-        return getToken(credentials).then((res) => {
-          if (res.token !== false || res.token !== null) {
-            AsyncStorage.setItem('token', res.token);
-            return res;
-          }
-        });
+      return getToken(credentials).then((res) => {
+        if (res.token !== false || res.token !== null) {
+          AsyncStorage.setItem('token', res.token);
+          return res;
+        }
       });
-    }
+    });
   });
 }
 

@@ -24,8 +24,6 @@ import { useState } from 'react';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import Fade from 'react-native-fade';
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import * as Location from 'expo-location';
@@ -43,7 +41,6 @@ import {
   Clock3,
 } from 'lucide-react-native';
 
-import { PressableScale } from 'react-native-pressable-scale';
 import ListItem from '../../../components/ListItem';
 import PapillonIcon from '../../../components/PapillonIcon';
 import { getENTs } from '../../../fetch/AuthStack/LoginFlow';
@@ -53,7 +50,7 @@ import {
 } from '../../../fetch/AuthStack/SearchEtabs';
 import GetUIColors from '../../../utils/GetUIColors';
 
-const entities = require("entities");
+const entities = require('entities');
 
 function LoginPronoteSelectEtab({ navigation }) {
   const theme = useTheme();
@@ -234,6 +231,7 @@ function LoginPronoteSelectEtab({ navigation }) {
   }, [oldLoginEtab]);
 
   const [qrModalVisible, setQrModalVisible] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [qrEtabDetected, setQrEtabDetected] = useState(false);
 
   async function scanQR() {
@@ -254,12 +252,12 @@ function LoginPronoteSelectEtab({ navigation }) {
   const [currentEtabURL, setCurrentEtabURL] = useState('');
 
   function qrScanned(event) {
-    Haptics.notificationAsync("success")
+    Haptics.notificationAsync('success');
 
     // close modal
     setQrModalVisible(false);
 
-    let data = JSON.parse(event.data);
+    const data = JSON.parse(event.data);
 
     console.log(data);
 
@@ -274,6 +272,7 @@ function LoginPronoteSelectEtab({ navigation }) {
     setQrEtabDetected(false);
   }
 
+  // eslint-disable-next-line no-unused-vars
   function openEtab() {
     closeModal();
     navigation.navigate('LoginPronote', {
@@ -381,6 +380,11 @@ function LoginPronoteSelectEtab({ navigation }) {
           <Text style={[styles.qrModalText]}>
             Scannez le QR Code de votre établissement pour vous connecter.
           </Text>
+          <Text style={[styles.qrModalText, styles.qrDanger]}>
+            ATTENTION : ce mode de connexion est instable et peut causer des
+            plantages et autres comportements innatendus. Si c'est le cas,
+            connectez vous d'une autre manière.
+          </Text>
 
           <View style={[styles.qrModalScannerContainer]}>
             {qrModalVisible ? (
@@ -455,7 +459,7 @@ function LoginPronoteSelectEtab({ navigation }) {
         </>
       ) : null}
 
-      { loading ? (
+      {loading ? (
         <View style={{ alignItems: 'center', marginTop: 30 }}>
           <ActivityIndicator
             size={38}
@@ -559,6 +563,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     textAlign: 'center',
     marginHorizontal: 30,
+  },
+  qrDanger: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#ff0000',
   },
 
   qrBtn: {

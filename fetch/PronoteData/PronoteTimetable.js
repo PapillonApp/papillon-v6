@@ -4,27 +4,24 @@ import getConsts from '../consts';
 import { refreshToken } from '../AuthStack/LoginFlow';
 
 function removeDuplicateCourses(courses) {
-  const courseMap = new Map();
+  const result = courses;
 
-  for (const course of courses) {
-    const startTime = course.start;
-    if (!courseMap.has(startTime)) {
-      courseMap.set(startTime, course);
-    } else {
-      const existingCourse = courseMap.get(startTime);
-      if (course.isCancelled && !existingCourse.isCancelled) {
-        // Replace the existing course with the new one
-        courseMap.set(startTime, course);
+  for (let i = 0; i < courses.length; i += 1) {
+    // if next cours starts at the same time
+    if (i + 1 < courses.length && courses[i].start === courses[i + 1].start) {
+      console.log('duplicate found');
+      console.log(courses[i]);
+      console.log(courses[i + 1]);
+
+      if (courses[i + 1].is_cancelled) {
+        result.splice(i + 1, 1);
       }
-      if (!course.isCancelled && existingCourse.isCancelled) {
-        // Replace the new course with the existing one
-        courseMap.set(startTime, existingCourse);
+
+      if (courses[i].is_cancelled) {
+        result.splice(i, 1);
       }
     }
   }
-
-  // Convert the map back to an array of courses
-  const result = Array.from(courseMap.values());
 
   return result;
 }
@@ -33,31 +30,33 @@ function getTimetable(day, force = false) {
   // TEMPORARY : remove 1 month
   day = new Date(day);
 
-  return getConsts().then((consts) => {
-    return AsyncStorage.getItem('timetableCache').then((timetableCache) => {
+  console.log('ttForce : ', force);
+
+  return getConsts().then((consts) =>
+    AsyncStorage.getItem('timetableCache').then((timetableCache) => {
       if (timetableCache && !force) {
         // if day is in cache, return it
         timetableCache = JSON.parse(timetableCache);
 
         for (let i = 0; i < timetableCache.length; i += 1) {
-          let thisDay = new Date(day);
-          let cacheDay = new Date(timetableCache[i].date);
+          const thisDay = new Date(day);
+          const cacheDay = new Date(timetableCache[i].date);
 
           thisDay.setHours(0, 0, 0, 0);
           cacheDay.setHours(0, 0, 0, 0);
 
-        if ( thisDay.getTime() === cacheDay.getTime()) {
-          let currentTime = new Date();
-          currentTime.setHours(0, 0, 0, 0);
+          if (thisDay.getTime() === cacheDay.getTime()) {
+            const currentTime = new Date();
+            currentTime.setHours(0, 0, 0, 0);
 
-          let cacheTime = new Date(timetableCache[i].dateSaved);
-          cacheTime.setHours(0, 0, 0, 0);
+            const cacheTime = new Date(timetableCache[i].dateSaved);
+            cacheTime.setHours(0, 0, 0, 0);
 
-          if (currentTime.getTime() === cacheTime.getTime()) {
-            console.log('timetable from cache');
-            return timetableCache[i].timetable;
+            if (currentTime.getTime() === cacheTime.getTime()) {
+              console.log('timetable from cache');
+              return timetableCache[i].timetable;
+            }
           }
-        }
         }
       }
 
@@ -93,23 +92,23 @@ function getTimetable(day, force = false) {
             result.sort((a, b) => a.start.localeCompare(b.start));
 
             // if two cours start at the same time, remove the cours with isCancelled = true
-            result = removeDuplicateCourses(result)
+            result = removeDuplicateCourses(result);
 
             // save in cache
-            AsyncStorage.getItem('timetableCache').then((timetableCache) => {
+            AsyncStorage.getItem('timetableCache').then((_timetableCache) => {
               let cachedTimetable = [];
 
-              if (timetableCache) {
-                cachedTimetable = JSON.parse(timetableCache);
+              if (_timetableCache) {
+                cachedTimetable = JSON.parse(_timetableCache);
               }
 
-              cachedTimetable = cachedTimetable.filter((entry) => {
-                return entry.date !== day;
-              });
+              cachedTimetable = cachedTimetable.filter(
+                (entry) => entry.date !== day
+              );
 
               cachedTimetable.push({
                 date: day,
-                dateSaved : new Date(),
+                dateSaved: new Date(),
                 timetable: result,
               });
 
@@ -120,7 +119,7 @@ function getTimetable(day, force = false) {
             });
 
             console.log(date);
-            console.log(result)
+            console.log(result);
 
             return result;
           })
@@ -128,8 +127,8 @@ function getTimetable(day, force = false) {
             console.error('Error fetching Pronote timetable');
           })
       );
-    });
-  });
+    })
+  );
 }
 
 export { getTimetable };

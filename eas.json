@@ -1,10 +1,15 @@
 {
   "build": {
+    "base": {
+      "node": "18.18.1",
+    },
     "development": {
+      "extends": "base",
       "developmentClient": true,
       "distribution": "internal"
     },
     "preview": {
+      "extends": "base",
       "android": {
         "buildType": "apk"
       },
@@ -13,6 +18,8 @@
         "simulator": true
       }
     },
-    "production": {}
+    "production": {
+      "extends": "base"
+    }
   }
 }

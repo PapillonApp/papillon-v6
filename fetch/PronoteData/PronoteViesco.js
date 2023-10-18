@@ -13,8 +13,8 @@ const getViescoNotValidate = (e) =>
 
 function getViesco(force = false) {
   // obtenir le token
-  return getConsts().then((consts) => {
-    return AsyncStorage.getItem('viescoCache').then((viescoCache) => {
+  return getConsts().then((consts) =>
+    AsyncStorage.getItem('viescoCache').then((viescoCache) => {
       if (viescoCache && !force) {
         viescoCache = JSON.parse(viescoCache);
 
@@ -79,8 +79,8 @@ function getViesco(force = false) {
               });
           })
       );
-    });
-  });
+    })
+  );
 }
 
 export { getViesco };

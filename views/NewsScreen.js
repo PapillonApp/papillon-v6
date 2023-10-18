@@ -1,21 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   StyleSheet,
   View,
-  ScrollView,
+  Animated,
+  Easing,
   StatusBar,
   RefreshControl,
   Platform,
   ActivityIndicator,
+  Dimensions,
+  ScrollView,
 } from 'react-native';
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text, useTheme } from 'react-native-paper';
 
-import { Newspaper, Utensils } from 'lucide-react-native';
-import { IndexData } from '../fetch/IndexData';
+import { Newspaper, ChefHat, Projector, Users2, AlertTriangle } from 'lucide-react-native';
+import { BarChart4, Link, File } from 'lucide-react-native';
 import ListItem from '../components/ListItem';
 
+import PapillonLoading from '../components/PapillonLoading';
+
 import GetUIColors from '../utils/GetUIColors';
+import { useAppContext } from '../utils/AppContext';
+
+import NativeList from '../components/NativeList';
+import NativeItem from '../components/NativeItem';
+import NativeText from '../components/NativeText';
+
+import * as WebBrowser from 'expo-web-browser';
 
 function relativeDate(date) {
   const now = new Date();
@@ -45,16 +59,14 @@ function relativeDate(date) {
 function normalizeText(text) {
   // remove accents and render in lowercase
   return text
-    .normalize('NFD')
+    ?.normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .toLowerCase();
 }
 
 function normalizeContent(text) {
-  return text
-    .replace(/(\r\n|\n|\r)/gm,"")
-    .trim();
+  return text.replace(/(\r\n|\n|\r)/gm, '').trim();
 }
 
 function FullNewsIcon({ title }) {
@@ -62,56 +74,81 @@ function FullNewsIcon({ title }) {
 
   return (
     <View>
-      { normalizeText(title).includes('menu')
-        ? <Utensils color={UIColors.primary} size={24} />
-        : <Newspaper color={UIColors.primary} size={24} />
-      }
+      {normalizeText(title).includes('menu') ? (
+        <ChefHat color={UIColors.primary} size={24} />
+      ) : normalizeText(title).includes('reunion') ? (
+        <Projector color={UIColors.primary} size={24} />
+      ) : normalizeText(title).includes('association') ? (
+        <Users2 color={UIColors.primary} size={24} />
+      ) : normalizeText(title).includes('important') ? (
+        <AlertTriangle color={UIColors.primary} size={24} />
+      ) : (
+        <Newspaper color={UIColors.primary} size={24} />
+      )}
     </View>
-  )
+  );
 }
 
 function NewsScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
+  const openURL = async (url) => {
+    await WebBrowser.openBrowserAsync(url, {
+      dismissButtonStyle: 'done',
+      presentationStyle: 'currentContext',
+      controlsColor: UIColors.primary,
+    });
+  };
+
+  const insets = useSafeAreaInsets();
+
+  const { height } = Dimensions.get('screen');
+
   const [news, setNews] = useState([]);
-  let finalNews = [];
+  const [finalNews, setFinalNews] = useState([]);
+  // eslint-disable-next-line no-unused-vars
+  const [showNews, setShowNews] = useState(true);
+  const [currentNewsType, setCurrentNewsType] = useState("Toutes");
 
   function editNews(n) {
-    // invert the news array
-    const newNews = n.reverse();
+    let newNews = n;
+
+    // sort news by date
+    newNews.sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    });
 
     return newNews;
   }
 
   const [isHeadLoading, setIsHeadLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const appctx = useAppContext();
 
   useEffect(() => {
-    setIsHeadLoading(true);
-    IndexData.getNews().then((n) => {
-      setIsHeadLoading(false);
-      setNews(editNews(JSON.parse(n)));
-      finalNews = editNews(JSON.parse(n));
+    appctx.dataprovider.getNews().then((n) => {
+      setNews(editNews(n));
+      setFinalNews(editNews(n));
+      setIsLoading(false);
     });
   }, []);
 
   const onRefresh = React.useCallback(() => {
     setIsHeadLoading(true);
-    IndexData.getNews(true).then((n) => {
-      setNews(editNews(JSON.parse(n)));
-      finalNews = editNews(JSON.parse(n));
+    appctx.dataprovider.getNews(true).then((n) => {
+      setNews(editNews(n));
+      setFinalNews(editNews(n));
       setIsHeadLoading(false);
+
+      console.log(finalNews);
     });
   }, []);
 
   // add search bar in the header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (
-        ( isHeadLoading ?
-          <ActivityIndicator/>
-        : null )
-      ),
       headerSearchBarOptions: {
         placeholder: 'Rechercher une actualité',
         cancelButtonText: 'Annuler',
@@ -130,67 +167,231 @@ function NewsScreen({ navigation }) {
               }
             });
 
+            setCurrentNewsType("Toutes");
             setNews(newNews);
           } else {
+            setCurrentNewsType("Toutes");
             setNews(finalNews);
           }
         },
       },
     });
-  }, [navigation]);
+  }, [navigation, finalNews, isHeadLoading]);
+
+  const [newsTypes, setNewsTypes] = useState([
+    {
+      name: 'Toutes',
+      icon: <Newspaper color={UIColors.primary} size={20} />,
+      enabled: true,
+    },
+    {
+      name: 'Menus',
+      icon: <ChefHat color={UIColors.primary} size={20} />,
+      enabled: false,
+    },
+    {
+      name: 'Réunions',
+      icon: <Projector color={UIColors.primary} size={20} />,
+      enabled: false,
+    },
+  ]);
+
+  useEffect(() => {
+    news.forEach((item) => {
+      if (normalizeText(item.title).includes(normalizeText('menu'))) {
+        const newNewsTypes = newsTypes;
+        newNewsTypes[1].enabled = true;
+        setNewsTypes(newNewsTypes);
+      }
+      if (normalizeText(item.title).includes(normalizeText('reunion'))) {
+        const newNewsTypes = newsTypes;
+        newNewsTypes[2].enabled = true;
+        setNewsTypes(newNewsTypes);
+      }
+    });
+  }, [news]);
+
+  function changeNewsType(type) {
+    setCurrentNewsType(type);
+
+    if (type === 'Toutes') {
+      setNews(finalNews);
+    }
+
+    if (type === 'Menus') {
+      const newNews = [];
+
+      finalNews.forEach((item) => {
+        if (normalizeText(item.title).includes(normalizeText('menu'))) {
+          newNews.push(item);
+        }
+      });
+
+      setNews(newNews);
+    }
+
+    if (type === 'Réunions') {
+      const newNews = [];
+
+      finalNews.forEach((item) => {
+        if (normalizeText(item.title).includes(normalizeText('reunion'))) {
+          newNews.push(item);
+        }
+      });
+
+      setNews(newNews);
+    }
+  }
 
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
-      contentInsetAdjustmentBehavior="automatic"
-    >
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated barStyle="light-content" />
-      ) : (
-        <StatusBar
-          animated
-          barStyle={theme.dark ? 'light-content' : 'dark-content'}
-          backgroundColor="transparent"
+      contentInsetAdjustmentBehavior='automatic'
+
+      refreshControl={
+        <RefreshControl
+          refreshing={isHeadLoading}
+          onRefresh={onRefresh}
         />
-      )}
+      }
+    >
+      <StatusBar
+        animated
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor="transparent"
+      />
 
-      {news.length > 0 ? (
-        <View style={styles.newsList}>
+      {isLoading ? (
+        <PapillonLoading
+          title="Chargement des actualités..."
+          subtitle="Obtention des dernières actualités en cours"
+        />
+      ) : null}
+
+      
+      {!isLoading && news.length !== 0 && (
+        <View style={{ marginBottom: 18 }}>
           {news.map((item, index) => {
-            let content = item.content.trim();
-            if (content.length > 50) {
-              content = `${content.substring(0, 50)}...`;
-            }
-
             return (
-              <ListItem
-                key={index}
-                title={item.title}
-                subtitle={normalizeContent(content)}
-                icon={<FullNewsIcon title={item.title} />}
-                color={theme.colors.primary}
-                onPress={() =>
-                  navigation.navigate('NewsDetails', { news: item })
-                }
-                right={
-                  <Text style={{ fontSize: 13, opacity: 0.5 }}>
-                    il y a {relativeDate(new Date(item.date))}
-                  </Text>
-                }
-              />
+              <NativeList inset style={{ marginBottom: -18 }} key={index}>
+                <NativeItem
+                  leading={
+                    <View style={{ paddingHorizontal: 2 }}>
+                      <FullNewsIcon title={item.title} />
+                    </View>
+                  }
+                  onPress={() => {
+                    navigation.navigate('NewsDetails', { news: item });
+
+                    if (item.read === false) {
+                      console.log('marking as read : ' + item.local_id);
+                      appctx.dataprovider.changeNewsState(item.local_id).then((e) => {
+                        item.read = true;
+                      });
+                    }
+                  }}
+                >
+                  <View
+                    style={[
+                      { gap: 2 },
+                      item.read ? { opacity: 0.4 } : {},
+                    ]}
+                  >
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 7,
+                      }}
+                    >
+                      {!item.read ? (
+                        <View
+                          style={{
+                            backgroundColor: UIColors.primary,
+                            borderRadius: 300,
+                            padding: 2,
+                            width: 8,
+                            height: 8,
+                          }}
+                        />
+                      ) : null}
+
+                      <NativeText heading="h4" numberOfLines={1}>
+                        {item.title}
+                      </NativeText>
+                    </View>
+
+                    <NativeText heading="p2" numberOfLines={2}>
+                      {normalizeContent(item.content)}
+                    </NativeText>
+
+                    <NativeText heading="subtitle2" numberOfLines={1} style={{ marginTop: 4 }}>
+                      il y a {relativeDate(new Date(item.date))}
+                    </NativeText>
+                  </View>
+                </NativeItem>
+
+                {item.attachments.map((attachment, index) => (
+                  <NativeItem
+                    leading={
+                      <View style={{ paddingHorizontal: 3.5 }}>
+                        {attachment.type === 0 ? (
+                          <Link size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
+                        ) : (
+                          <File size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
+                        )}
+                      </View>
+                    }
+                    chevron
+                    onPress={() => openURL(attachment.url)}
+                    key={index}
+                  >
+                    <NativeText heading="p2" numberOfLines={1}>
+                      {attachment.name}
+                    </NativeText>
+                  </NativeItem>
+                ))}
+              </NativeList>
             );
           })}
         </View>
-      ) : null}
+      )}
+
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  newsList: {
-    marginTop: 16,
-    marginBottom: 16,
-    gap: 10,
+  container: {
+    flex: 1,
+  },
+
+  newsList: {},
+
+  newsItem: {
+    marginBottom: 8,
+  },
+
+  selectTypes: {
+    flex: 1,
+    flexDirection: 'row',
+    marginVertical: 16,
+    paddingHorizontal: 16,
+  },
+
+  newsChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 7,
+    paddingHorizontal: 14,
+    borderRadius: 300,
+    gap: 7,
+    marginRight: 9,
+  },
+
+  newsChipText: {
+    fontSize: 15,
+    fontFamily: 'Papillon-Medium',
   },
 });
 

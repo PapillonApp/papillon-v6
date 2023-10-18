@@ -15,6 +15,7 @@ import * as Haptics from 'expo-haptics';
 function ListItem({
   title,
   subtitle,
+  undertitle,
   left,
   right,
   icon,
@@ -27,6 +28,8 @@ function ListItem({
   width,
   center,
   chevron,
+  trimSubtitle,
+  bottom,
 }) {
   const theme = useTheme();
 
@@ -47,11 +50,11 @@ function ListItem({
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
-  let pressScale = 0.89;
+  let pressScale = 0.92;
   // let clickable = true;
 
   if (!onPress) {
-    pressScale = 1;
+    pressScale = 0.92;
     // clickable = false;
   }
 
@@ -90,15 +93,25 @@ function ListItem({
         ) : null}
 
         <View style={[styles.listItemText, { gap: isLarge ? 8 : 2 }]}>
-          { title ? (
+          {title ? (
             <Text style={[styles.listItemTextTitle, { color: textColor }]}>
               {title}
             </Text>
-          ) : null }
+          ) : null}
 
           {subtitle ? (
-            <Text style={[styles.listItemTextSubtitle, { color: textColor }]}>
+            <Text
+              style={[styles.listItemTextSubtitle, { color: textColor }]}
+              numberOfLines={trimSubtitle ? 1 : null}
+              ellipsizeMode="tail"
+            >
               {subtitle}
+            </Text>
+          ) : null}
+
+          {undertitle ? (
+            <Text style={[styles.listItemTextUndertitle, { color: textColor }]}>
+              {undertitle}
             </Text>
           ) : null}
         </View>
@@ -163,10 +176,16 @@ function ListItem({
             ) : null}
 
             {subtitle ? (
-              <Text style={[styles.listItemTextSubtitle, { color: textColor }]}>
+              <Text
+                style={[styles.listItemTextSubtitle, { color: textColor }]}
+                numberOfLines={trimSubtitle ? 1 : null}
+                ellipsizeMode="tail"
+              >
                 {subtitle}
               </Text>
             ) : null}
+
+            {bottom ? <View style={[]}>{bottom}</View> : null}
           </View>
 
           {right ? <View style={[styles.right]}>{right}</View> : null}
@@ -209,6 +228,11 @@ const styles = StyleSheet.create({
   listItemTextSubtitle: {
     fontSize: 15,
     opacity: 0.6,
+  },
+  listItemTextUndertitle: {
+    fontSize: 13,
+    opacity: 0.6,
+    marginTop: 4,
   },
   left: {
     marginRight: 14,

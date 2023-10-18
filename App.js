@@ -2,24 +2,30 @@ import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BottomNavigation, Appbar } from 'react-native-paper';
+import './utils/IgnoreWarnings';
 
-import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { BottomNavigation, Appbar, useTheme, PaperProvider } from 'react-native-paper';
+
 import FlashMessage from 'react-native-flash-message';
 
 import { getHeaderTitle } from '@react-navigation/elements';
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Platform, useColorScheme, View } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
+import { SFSymbol } from 'react-native-sfsymbols';
+
 import {
   Home,
   CalendarRange,
   BookOpen,
   BarChart3,
   UserCircle,
+  Newspaper,
 } from 'lucide-react-native';
 import useFonts from './hooks/useFonts';
+
+import { BlurView } from 'expo-blur';
 
 import HomeScreen from './views/HomeScreen';
 
@@ -27,6 +33,9 @@ import CoursScreen from './views/CoursScreen';
 import LessonScreen from './views/Cours/LessonScreen';
 
 import DevoirsScreen from './views/DevoirsScreen';
+import HomeworkScreen from './views/Devoirs/HwScreen';
+
+import ChangelogScreen from './views/ChangelogScreen';
 
 import SettingsScreen from './views/SettingsScreen';
 import AboutScreen from './views/Settings/AboutScreen';
@@ -55,11 +64,18 @@ import NewsItem from './views/News/NewsItem';
 import SchoolLifeScreen from './views/SchoolLifeScreen';
 
 import ConversationsScreen from './views/ConversationsScreen';
+import MessagesScreen from './views/Conversations/MessagesScreen';
 
 import EvaluationsScreen from './views/EvaluationsScreen';
 import { AppContextProvider, baseColor } from './utils/AppContext';
 
 import NotificationsScreen from './views/Settings/NotificationsScreen';
+
+import setBackgroundFetch from './fetch/BackgroundFetch';
+
+import { LoginSkolengoSelectSchool } from './views/AuthStack/Skolengo/LoginSkolengoSelectSchool';
+import { IndexDataInstance } from './fetch/IndexDataInstance';
+import GetUIColors from './utils/GetUIColors';
 
 const Tab = createBottomTabNavigator();
 
@@ -105,38 +121,26 @@ function CustomNavigationBar({ navigation, route, options, back }) {
   );
 }
 
-function InsetNewsScreen() {
-  return (
-    <Stack.Navigator
-      screenOptions={
-        Platform.OS === 'android'
-          ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
-            }
-          : null
-      }
-    >
-      <Stack.Screen
-        name="News"
-        component={NewsScreen}
-        options={{
-          headerShown: true,
-          headerLargeTitle: false,
-          headerTitle: 'Actualités',
-        }}
-      />
-      <Stack.Screen
-        name="NewsDetails"
-        component={NewsItem}
-        options={{
-          headerShown: true,
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
+const headerTitleStyles = {
+  headerLargeTitleStyle: {
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 28,
+  },
+  headerTitleStyle: {
+    fontFamily: 'Papillon-Semibold',
+  },
+};
+
+const commonScreenOptions = Platform.select({
+  android: {
+    animation: 'fade_from_bottom',
+    navigationBarColor: '#00000000',
+    header: (props) => <CustomNavigationBar {...props} />,
+  },
+  ios: {
+    ...headerTitleStyles,
+  },
+});
 
 function InsetSchoolLifeScreen() {
   return (
@@ -148,7 +152,9 @@ function InsetSchoolLifeScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -156,7 +162,7 @@ function InsetSchoolLifeScreen() {
         component={SchoolLifeScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Vie scolaire',
         }}
       />
@@ -174,7 +180,9 @@ function InsetConversationsScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -182,7 +190,7 @@ function InsetConversationsScreen() {
         component={ConversationsScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Conversations',
         }}
       />
@@ -200,7 +208,9 @@ function InsetEvaluationsScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -208,7 +218,7 @@ function InsetEvaluationsScreen() {
         component={EvaluationsScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: false,
+          headerLargeTitle: Platform.OS === 'ios',
           headerTitle: 'Compétences',
         }}
       />
@@ -216,7 +226,9 @@ function InsetEvaluationsScreen() {
   );
 }
 
-function WrappedHomeScreen() {
+function InsetSettings() {
+  const UIColors = GetUIColors();
+  
   return (
     <Stack.Navigator
       screenOptions={
@@ -226,195 +238,29 @@ function WrappedHomeScreen() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
-      }
-    >
-      <Stack.Screen
-        name="Vue d'ensemble"
-        component={HomeScreen}
-        options={{
-          headerShown: true,
-        }}
-      />
-
-      <Stack.Screen
-        name="InsetNews"
-        component={InsetNewsScreen}
-        options={{
-          headerShown: false,
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="InsetSchoollife"
-        component={InsetSchoolLifeScreen}
-        options={{
-          headerShown: false,
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="InsetConversations"
-        component={InsetConversationsScreen}
-        options={{
-          headerShown: false,
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="InsetEvaluations"
-        component={InsetEvaluationsScreen}
-        options={{
-          headerShown: false,
-          presentation: 'modal',
-        }}
-      />
-
-      <Stack.Screen
-        name="Lesson"
-        component={LessonScreen}
-        options={{
-          headerShown: false,
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          headerTitle: 'Mon profil',
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="Grade"
-        component={GradeView}
-        options={{
-          headerShown: true,
-          headerLargeTitle: false,
-          presentation: 'modal',
-          headerTintColor: '#ffffff',
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
-
-function WrappedCoursScreen() {
-  return (
-    <Stack.Navigator
-      screenOptions={
-        Platform.OS === 'android'
-          ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
+          : {
+              ...headerTitleStyles,
             }
-          : null
-      }
-    >
-      <Stack.Screen
-        name="Cours"
-        component={CoursScreen}
-        options={{
-          headerShown: true,
-        }}
-      />
-      <Stack.Screen
-        name="Lesson"
-        component={LessonScreen}
-        options={{
-          headerShown: false,
-          presentation: 'modal',
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
-
-function WrappedDevoirsScreen() {
-  return (
-    <Stack.Navigator
-      screenOptions={
-        Platform.OS === 'android'
-          ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
-            }
-          : null
-      }
-    >
-      <Stack.Screen
-        name="Devoirs"
-        component={DevoirsScreen}
-        options={{
-          headerShown: true,
-          headerLargeTitle: false,
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
-
-function WrappedGradesScreen() {
-  return (
-    <Stack.Navigator
-      screenOptions={
-        Platform.OS === 'android'
-          ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
-            }
-          : null
-      }
-    >
-      <Stack.Screen
-        name="Notes"
-        component={GradesScreen}
-        options={
-          Platform.OS === 'ios'
-            ? {
-                headerShown: true,
-                headerLargeTitle: false,
-              }
-            : null
-        }
-      />
-      <Stack.Screen
-        name="Grade"
-        component={GradeView}
-        options={{
-          headerShown: true,
-          headerLargeTitle: false,
-          headerTintColor: '#ffffff',
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
-
-function WrappedSettings() {
-  return (
-    <Stack.Navigator
-      screenOptions={
-        Platform.OS === 'android'
-          ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
-            }
-          : null
       }
     >
       <Stack.Screen
         name="Compte"
         component={SettingsScreen}
-        options={{
-          headerLargeTitle: Platform.OS === 'ios',
-          headerTitle: 'Compte',
-        }}
+        options={
+          Platform.OS === 'ios' ?
+            {
+              headerTitle: 'Réglages',
+              headerLargeTitle: Platform.OS === 'ios',
+              headerLargeStyle: {
+                backgroundColor: UIColors.background,
+              },
+              headerLargeTitleShadowVisible: false,
+            }
+          :
+            {
+              headerTitle: 'Compte',
+            }
+        }
       />
       <Stack.Screen
         name="Profile"
@@ -477,72 +323,383 @@ function WrappedSettings() {
           headerTitle: 'Réglages',
         }}
       />
+
+      <Stack.Screen
+        name="Changelog"
+        component={ChangelogScreen}
+        options={{
+          headerTitle: 'Quoi de neuf ?',
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function WrappedHomeScreen() {
+  const theme = useTheme();
+
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : {
+              ...headerTitleStyles,
+            }
+      }
+    >
+      <Stack.Screen
+        name="Vue d'ensemble"
+        component={HomeScreen}
+        options={{
+          headerShown: true,
+          headerLargeTitle: Platform.OS === 'ios',
+          headerBlurEffect: 'systemUltraThinMaterial',
+          headerStyle: {
+            backgroundColor: theme.dark ? '#00000050' : '#ffffff50',
+          },
+          headerLargeStyle: {
+            backgroundColor: theme.dark ? '#00000000' : '#ffffff90',
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name="Changelog"
+        component={ChangelogScreen}
+        options={{
+          headerTitle: 'Quoi de neuf ?',
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
+
+
+      <Stack.Screen
+        name="InsetSchoollife"
+        component={InsetSchoolLifeScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="InsetEvaluations"
+        component={InsetEvaluationsScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
+        name="InsetConversations"
+        component={ConversationsScreen}
+        options={{
+          headerBackTitle: 'Accueil',
+          headerTitle: 'Conversations',
+          headerLargeTitle: Platform.OS === 'ios',
+          headerSearchBarOptions: {
+            placeholder: 'Rechercher une conversation',
+            cancelButtonText: 'Annuler',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="InsetConversationsItem"
+        component={MessagesScreen}
+        options={{
+          headerBackTitle: 'Retour',
+          headerTitle: 'Conversation',
+        }}
+      />
+
+      <Stack.Screen
+        name="InsetSettings"
+        component={InsetSettings}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
+        name="Lesson"
+        component={LessonScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="Devoir"
+        component={HomeworkScreen}
+        options={{
+          headerShown: true,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          headerTitle: 'Mon profil',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="Grade"
+        component={GradeView}
+        options={{
+          headerShown: true,
+          headerLargeTitle: false,
+          presentation: 'modal',
+          headerTintColor: '#ffffff',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function WrappedCoursScreen() {
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : {
+              ...headerTitleStyles,
+            }
+      }
+    >
+      <Stack.Screen
+        name="Cours"
+        component={CoursScreen}
+        options={{
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="Lesson"
+        component={LessonScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function WrappedDevoirsScreen() {
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : {
+              ...headerTitleStyles,
+            }
+      }
+    >
+      <Stack.Screen
+        name="Devoirs"
+        component={DevoirsScreen}
+        options={{
+          headerShown: true,
+          headerLargeTitle: false,
+        }}
+      />
+      <Stack.Screen
+        name="Devoir"
+        component={HomeworkScreen}
+        options={{
+          headerShown: true,
+          presentation: 'modal',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function WrappedGradesScreen() {
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : {
+              ...headerTitleStyles,
+            }
+      }
+    >
+      <Stack.Screen
+        name="Notes"
+        component={GradesScreen}
+        options={
+          Platform.OS === 'ios'
+            ? {
+                headerShown: true,
+                headerLargeTitle: Platform.OS === 'ios',
+                headerTitle: 'Notes',
+              }
+            : null
+        }
+      />
+      <Stack.Screen
+        name="Grade"
+        component={GradeView}
+        options={{
+          headerShown: true,
+          headerLargeTitle: false,
+          headerBackTitle: 'Notes',
+          mdTitleColor: '#ffffff',
+          headerTintColor: '#ffffff',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function WrappedNewsScreen() {
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : {
+              ...headerTitleStyles,
+            }
+      }
+    >
+      <Stack.Screen
+        name="News"
+        component={NewsScreen}
+        options={{
+          headerShown: true,
+          headerLargeTitle: Platform.OS === 'ios',
+          headerTitle: 'Actualités',
+        }}
+      />
+      <Stack.Screen
+        name="NewsDetails"
+        component={NewsItem}
+        options={{
+          headerShown: true,
+          headerTitle: 'Actualité',
+        }}
+      />
     </Stack.Navigator>
   );
 }
 
 function AppStack() {
+
+  const theme = useTheme();
+
+  const [badges, setBadges] = useState({});
+
+  const loadBadges = async () => {
+    try {
+      const value = await AsyncStorage.getItem('badgesStorage');
+      if (value !== null) {
+        const parsedBadges = JSON.parse(value);
+        setBadges(parsedBadges);
+      }
+    } catch (error) {
+      console.error('Error loading badges:', error);
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(loadBadges, 2400);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const tabBar = useMemo(() => {
+    if (Platform.OS !== 'ios') {
+      return ({ navigation, state, descriptors, insets }) => (
+        <BottomNavigation.Bar
+          navigationState={state}
+          compact={false}
+          shifting={false}
+          safeAreaInsets={{
+            ...insets,
+            right: 12,
+            left: 12,
+          }}
+          onTabPress={({ route, preventDefault }) => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!event.defaultPrevented) {
+              navigation.navigate(route.name);
+            } else {
+              preventDefault();
+            }
+          }}
+          renderIcon={({ route, focused, color }) => {
+            const { options } = descriptors[route.key];
+            if (options.tabBarIcon) {
+              return options.tabBarIcon({ focused, color, size: 24 });
+            }
+            return null;
+          }}
+          getLabelText={({ route }) => {
+            const { options } = descriptors[route.key];
+            const label =
+              options.tabBarLabel !== undefined
+                ? options.tabBarLabel
+                : options.title !== undefined
+                ? options.title
+                : route.title;
+
+            return label;
+          }}
+        />
+      );
+    }
+    return undefined;
+  }, []);
+
+  
   return (
     <Tab.Navigator
-      tabBar={
-        Platform.OS !== 'ios'
-          ? ({ navigation, state, descriptors, insets }) => (
-              <BottomNavigation.Bar
-                navigationState={state}
-                compact={false}
-                shifting={false}
-                safeAreaInsets={{
-                  ...insets,
-                  right: 12,
-                  left: 12,
-                }}
-                onTabPress={({ route, preventDefault }) => {
-                  const event = navigation.emit({
-                    type: 'tabPress',
-                    target: route.key,
-                    canPreventDefault: true,
-                  });
-
-                  if (event.defaultPrevented) {
-                    preventDefault();
-                  } else {
-                    navigation.navigate(route.name);
-                  }
-                }}
-                renderIcon={({ route, focused, color }) => {
-                  const { options } = descriptors[route.key];
-                  if (options.tabBarIcon) {
-                    return options.tabBarIcon({ focused, color, size: 24 });
-                  }
-
-                  return null;
-                }}
-                getLabelText={({ route }) => {
-                  const { options } = descriptors[route.key];
-                  const label =
-                    options.tabBarLabel !== undefined
-                      ? options.tabBarLabel
-                      : options.title !== undefined
-                      ? options.title
-                      : route.title;
-
-                  return label;
-                }}
-              />
-            )
-          : undefined
-      }
+      tabBar={tabBar}
       screenOptions={{
         headerTruncatedBackTitle: 'Retour',
         elevated: false,
         tabBarLabelStyle: {
           fontFamily: 'Papillon-Medium',
-          fontSize: 13,
+          fontSize: 12.5,
           letterSpacing: 0.2,
-        },
-        tabBarBadgeStyle: {
-          fontFamily: 'Papillon-Medium',
-          fontSize: 13,
+          marginTop: 1,
         },
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
@@ -553,8 +710,12 @@ function AppStack() {
           paddingRight: 12,
           paddingTop: 2,
         },
+        tabBarBadgeStyle: {
+          backgroundColor: "#B42828",
+          color: '#fff',
+        },
         tabBarButton: (props) => (
-          <PressableScale {...props} activeScale={0.7} weight="light">
+          <PressableScale {...props} activeScale={0.85} weight="heavy">
             <View
               style={{
                 flex: 1,
@@ -573,7 +734,16 @@ function AppStack() {
         component={WrappedHomeScreen}
         options={{
           tabBarLabel: 'Accueil',
-          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) =>
+            Platform.OS === 'ios' ? (
+              focused ? (
+                <SFSymbol name="house.fill" color={color} size={size - 2} />
+              ) : (
+                <SFSymbol name="house" color={color} size={size - 2} />
+              )
+            ) : (
+              <Home color={color} size={size} />
+            ),
           headerShown: false,
         }}
       />
@@ -582,9 +752,16 @@ function AppStack() {
         component={WrappedCoursScreen}
         options={{
           tabBarLabel: 'Cours',
-          tabBarIcon: ({ color, size }) => (
-            <CalendarRange color={color} size={size} />
-          ),
+          tabBarBadge: badges.courses > 0 ? badges.courses : null,
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="calendar" weight='semibold' color={color} size={size-2} />
+              :
+                <SFSymbol name="calendar" color={color} size={size-2} />
+            :
+              <CalendarRange color={color} size={size} />
+            ),
           headerShown: false,
         }}
       />
@@ -593,9 +770,16 @@ function AppStack() {
         component={WrappedDevoirsScreen}
         options={{
           tabBarLabel: 'Devoirs',
-          tabBarIcon: ({ color, size }) => (
-            <BookOpen color={color} size={size} />
-          ),
+          tabBarBadge: badges.homeworks > 0 ? badges.homeworks : null,
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="book.fill" color={color} size={size-2} />
+              :
+                <SFSymbol name="book" color={color} size={size-2} />
+            :
+              <BookOpen color={color} size={size} />
+            ),
           headerShown: false,
         }}
       />
@@ -604,19 +788,33 @@ function AppStack() {
         component={WrappedGradesScreen}
         options={{
           tabBarLabel: 'Notes',
-          tabBarIcon: ({ color, size }) => (
-            <BarChart3 color={color} size={size} />
-          ),
+          tabBarBadge: badges.grades > 0 ? badges.grades : null,
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="chart.pie.fill" color={color} size={size-2} />
+              :
+                <SFSymbol name="chart.pie" color={color} size={size-2} />
+            :
+              <BarChart3 color={color} size={size} />
+            ),
           headerShown: false,
         }}
       />
       <Tab.Screen
-        name="ParamètresHandler"
-        component={WrappedSettings}
+        name="NewsHandler"
+        component={WrappedNewsScreen}
         options={{
-          tabBarLabel: 'Compte',
-          tabBarIcon: ({ color, size }) => (
-            <UserCircle color={color} size={size} />
+          tabBarLabel: 'Actualités',
+          tabBarBadge: badges.news > 0 ? badges.news : null,
+          tabBarIcon: ({ color, size, focused }) => (
+            Platform.OS === 'ios' ?
+              focused ?
+                <SFSymbol name="newspaper.fill" color={color} size={size-2} />
+              :
+                <SFSymbol name="newspaper" color={color} size={size-2} />
+            :
+              <Newspaper color={color} size={size} />
           ),
           headerShown: false,
         }}
@@ -626,6 +824,16 @@ function AppStack() {
 }
 
 function AuthStack() {
+  const screenOptions = Platform.select({
+    android: {
+      navigationBarColor: '#00000000',
+      header: (props) => <CustomNavigationBar {...props} />,
+    },
+    ios: {
+      ...headerTitleStyles,
+    },
+  });
+
   return (
     <Stack.Navigator
       screenOptions={
@@ -634,7 +842,9 @@ function AuthStack() {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
             }
-          : null
+          : {
+              ...headerTitleStyles,
+            }
       }
     >
       <Stack.Screen
@@ -650,11 +860,7 @@ function AuthStack() {
         component={LoginScreen}
         options={{
           title: 'Connexion',
-          headerLargeTitle: Platform.OS === 'iOS',
-          headerLargeTitleStyle: {
-            color: baseColor,
-            fontFamily: 'Papillon-Semibold',
-          },
+          headerLargeTitle: Platform.OS === 'ios',
         }}
       />
 
@@ -671,7 +877,16 @@ function AuthStack() {
         name="changeServer"
         component={ChangeServer}
         options={{
-          headerTitle: "Changer de serveur",
+          headerTitle: 'Changer de serveur',
+          presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
+        name="LoginSkolengoSelectSchool"
+        component={LoginSkolengoSelectSchool}
+        options={{
+          title: 'Se connecter à Skolengo',
           presentation: 'modal',
         }}
       />
@@ -680,14 +895,18 @@ function AuthStack() {
         name="LoginPronoteSelectEtab"
         component={LoginPronoteSelectEtab}
         options={{
-          title: "Sélection de l'établissement",
+          title: 'Se connecter à Pronote',
           presentation: 'modal',
         }}
       />
       <Stack.Screen
         name="LoginPronote"
         component={LoginPronote}
-        options={{ title: 'Se connecter', presentation: 'modal' }}
+        options={{
+          title: 'Se connecter',
+          presentation: 'modal',
+          headerShown: false,
+        }}
       />
 
       <Stack.Screen
@@ -701,127 +920,53 @@ function AuthStack() {
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [loggedInLoaded, setLoggedInLoaded] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
-  // check if the user is logged in or not
-  AsyncStorage.getItem('token').then((value) => {
-    if (value !== null) {
-      // user is logged in
-      setLoggedIn(true);
-    }
-    setLoggedInLoaded(true);
-  });
-
-  // while not logged in, check if the user is logged in
-
-  const [IsReady, SetIsReady] = useState(false);
-
-  // load fonts
-  const LoadFonts = async () => {
-    await useFonts();
-  };
-
-  // dark mode
   const scheme = useColorScheme();
 
-  // toasts
-  const toastConfig = {
-    success: ({ ...rest }) => (
-      <BaseToast
-        {...rest}
-        contentContainerStyle={{
-          paddingHorizontal: 15,
-        }}
-        style={{
-          backgroundColor: scheme === 'dark' ? '#252525' : '#fff',
-          width: '90%',
-          marginTop: 10,
-          borderRadius: 10,
-          borderCurve: 'continuous',
-          shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: 1.5,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3,
-          elevation: 5,
-          borderLeftWidth: 3,
-          borderLeftColor: baseColor,
-        }}
-        text1Style={{
-          color: scheme === 'dark' ? '#fff' : '#000',
-          fontSize: 17,
-          fontFamily: 'Papillon-Semibold',
-        }}
-        text2Style={{
-          color: scheme === 'dark' ? '#fff' : '#000',
-          fontSize: 15,
-        }}
-      />
-    ),
-    error: ({ ...rest }) => (
-      <ErrorToast
-        {...rest}
-        contentContainerStyle={{
-          paddingHorizontal: 15,
-        }}
-        style={{
-          backgroundColor: scheme === 'dark' ? '#252525' : '#fff',
-          width: '90%',
-          marginTop: 10,
-          borderRadius: 10,
-          borderCurve: 'continuous',
-          shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: 1.5,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3,
-          elevation: 5,
-          borderLeftWidth: 3,
-          borderLeftColor: '#A84700',
-        }}
-        text1Style={{
-          color: scheme === 'dark' ? '#fff' : '#000',
-          fontSize: 17,
-          fontFamily: 'Papillon-Semibold',
-        }}
-        text2Style={{
-          color: scheme === 'dark' ? '#fff' : '#000',
-          fontSize: 15,
-        }}
-      />
-    ),
-  };
+  useEffect(() => {
+    // Load fonts and check if the user is logged in
+    const loadApp = async () => {
+      await useFonts();
+      const value = await AsyncStorage.getItem('token');
+      if (value !== null) {
+        setLoggedIn(true);
+      }
+      setIsReady(true);
+    };
 
-  React.useEffect(() => {
-    console.log(loggedIn);
-  }, [loggedIn]);
+    loadApp();
 
-  if (!IsReady) {
-    // load fonts
-    LoadFonts().then(() => {
-      SetIsReady(true);
-    });
+    setBackgroundFetch();
+  }, []);
 
-    return null;
-  }
+  const [dataprovider, setDataprovider] = React.useState(null);	
 
-  // load fonts
+  React.useEffect(() => {	
+    AsyncStorage.getItem('service').then((value) => {	
+      const provider = new IndexDataInstance(value || null);	
+      setDataprovider(provider);	
+    });	
+  }, []);	
+
+  const ctxValue = React.useMemo(	
+    () => ({	
+      loggedIn,	
+      setLoggedIn,	
+      dataprovider,	
+    }),	
+    [loggedIn, dataprovider]	
+  );
+
   return (
-    <View
-      style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff' }}
-    >
-      <AppContextProvider state={{ loggedIn, setLoggedIn }}>
-        {loggedInLoaded ? (
+    <View style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff' }}>
+      <PaperProvider>
+        <AppContextProvider state={ctxValue}>
           <View style={{ flex: 1 }}>
             {loggedIn ? <AppStack /> : <AuthStack />}
           </View>
-        ) : null}
-      </AppContextProvider>
-      <Toast config={toastConfig} />
+        </AppContextProvider>
+      </PaperProvider>
       <FlashMessage position="top" />
     </View>
   );

@@ -12,6 +12,9 @@ import { useState } from 'react';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LogOut, RefreshCw, Server, Trash2 } from 'lucide-react-native';
+import { showMessage } from 'react-native-flash-message';
+import { revokeAsync } from 'expo-auth-session';
+
 import { refreshToken, expireToken } from '../../fetch/AuthStack/LoginFlow';
 
 import ListItem from '../../components/ListItem';
@@ -19,11 +22,20 @@ import PapillonIcon from '../../components/PapillonIcon';
 
 import GetUIColors from '../../utils/GetUIColors';
 import { useAppContext } from '../../utils/AppContext';
+import { SkolengoCache } from '../../fetch/SkolengoData/SkolengoCache';
+import {
+  SkolengoDatas,
+  loginSkolengoWorkflow,
+} from '../../fetch/SkolengoData/SkolengoDatas';
+
+import NativeList from '../../components/NativeList';
+import NativeItem from '../../components/NativeItem';
+import NativeText from '../../components/NativeText';
 
 function SettingsScreen({ navigation }) {
   const UIColors = GetUIColors();
 
-  const appCtx = useAppContext();
+  const appctx = useAppContext();
 
   function LogOutAction() {
     Alert.alert('Déconnexion', 'Êtes-vous sûr de vouloir vous déconnecter ?', [
@@ -37,16 +49,22 @@ function SettingsScreen({ navigation }) {
         onPress: async () => {
           try {
             AsyncStorage.getItem('credentials').then((result) => {
-              const URL = JSON.parse(result).url;
-              AsyncStorage.setItem('old_login', JSON.stringify({ url: URL }));
+              const res = JSON.parse(result || 'null');
+              if (res)
+                AsyncStorage.setItem(
+                  'old_login',
+                  JSON.stringify({ url: res.url })
+                );
             });
+            if (appctx.dataprovider.service === 'Skolengo')
+              appctx.dataprovider.skolengoInstance?.skolengoDisconnect();
           } catch (e) {
             /* empty */
           }
 
           AsyncStorage.clear();
 
-          appCtx.setLoggedIn(false);
+          appctx.setLoggedIn(false);
           navigation.popToTop();
         },
       },
@@ -76,80 +94,189 @@ function SettingsScreen({ navigation }) {
     expireToken('expireAction');
   }
 
+  function SkolengoCacheClear() {
+    if (appctx.dataprovider.service === 'Skolengo') {
+      Alert.alert(
+        'Vider le cache',
+        'Êtes-vous sûr de vouloir vider le cache ?',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+          {
+            text: 'Vider le cache',
+            style: 'destructive',
+            onPress: async () => {
+              SkolengoCache.clearItems().then(() =>
+                showMessage({
+                  message: 'Cache vidé avec succès',
+                  type: 'success',
+                  icon: 'auto',
+                  floating: true,
+                })
+              );
+            },
+          },
+        ]
+      );
+    }
+  }
+
+  function SkolengoReconnect() {
+    if (appctx.dataprovider.service === 'Skolengo') {
+      Alert.alert(
+        'Reconnecter son compte Skolengo',
+        'Êtes-vous sûr de vouloir reconnecter votre compte Skolengo ?',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+          {
+            text: 'Reconnecter',
+            style: 'destructive',
+            onPress: async () => {
+              if (!appctx?.dataprovider?.skolengoInstance) return;
+              if (!appctx?.dataprovider?.skolengoInstance.rtInstance)
+                await appctx?.dataprovider?.init();
+              const validRetry = await loginSkolengoWorkflow(
+                appctx,
+                null,
+                appctx.dataprovider.skolengoInstance.school,
+                appctx.dataprovider.skolengoInstance
+              );
+              if (validRetry === true) {
+                SkolengoCache.clearItems();
+                const discovery = AsyncStorage.getItem(
+                  SkolengoDatas.DISCOVERY_PATH
+                )?.then((_disco) => _disco && JSON.parse(_disco));
+                revokeAsync(
+                  {
+                    ...appctx.dataprovider.skolengoInstance?.rtInstance,
+                    token:
+                      appctx.dataprovider.skolengoInstance?.rtInstance
+                        .accessToken,
+                  },
+                  discovery
+                ).then(() => {
+                  showMessage({
+                    message: 'Compte déconnecté avec succès',
+                    type: 'success',
+                    icon: 'auto',
+                    floating: true,
+                  });
+                  navigation.navigate('login');
+                });
+              }
+            },
+          },
+        ]
+      );
+    }
+  }
+
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
     >
-    <View style={{ gap: 9, marginTop: 16 }}>
-      <Text style={styles.ListTitle}>Serveur et identifiants (avancé)</Text>
 
-        <ListItem
-          title="Changer de serveur (avancé)"
-          subtitle="Modifier le serveur utilisé dans l'app"
-          color="#B42828"
-          center
-          left={
-            <PapillonIcon
-              icon={<Server size={24} color="#565EA3" />}
-              color="#565EA3"
-              size={24}
-              small
-            />
-          }
-          onPress={() => navigation.navigate('changeServer')}
-        />
-        <ListItem
-          title="Regénerer le token"
-          subtitle="Regénerer le token de votre compte"
-          color="#B42828"
-          center
-          left={
-            <PapillonIcon
-              icon={<RefreshCw size={24} color="#565EA3" />}
-              color="#565EA3"
-              size={24}
-              small
-            />
-          }
-          right={tokenLoading ? <ActivityIndicator size="small" /> : null}
-          onPress={() => TokenAction()}
-        />
-        <ListItem
-          title="Forcer l'expiration du token"
-          subtitle="Regénerer le token de votre compte"
-          color="#B42828"
-          center
-          left={
-            <PapillonIcon
-              icon={<Trash2 size={24} color="#565EA3" />}
-              color="#565EA3"
-              size={24}
-              small
-            />
-          }
-          onPress={() => ExpireAction()}
-        />
-      </View>
+      {appctx.dataprovider.service === 'Pronote' && ( 
+        <NativeList
+          header="Connexion à Pronote"
+          inset
+        >
+          <NativeItem
+            leading={<Server size={24} color={UIColors.text} />}
+            chevron
+            onPress={() => navigation.navigate('changeServer')}
+          >
+            <NativeText heading="h4">
+              Changer de serveur
+            </NativeText>
+            <NativeText heading="p2">
+              Modifier le serveur utilisé dans l'app
+            </NativeText>
+          </NativeItem>
 
-      <View style={{ gap: 9, marginTop: 16 }}>
-        <Text style={styles.ListTitle}>Mon compte</Text>
+          <NativeItem
+            leading={<RefreshCw size={24} color={UIColors.text} />}
+            chevron
+            onPress={() => TokenAction()}
+          >
+            <NativeText heading="h4">
+              Regénerer le token
+            </NativeText>
+            <NativeText heading="p2">
+              Regénerer le token de votre compte
+            </NativeText>
+          </NativeItem>
 
-        <ListItem
-          title="Déconnexion"
-          subtitle="Se déconnecter de votre compte"
-          color="#B42828"
-          center
-          left={
-            <PapillonIcon
-              icon={<LogOut size={24} color="#B42828" />}
-              color="#B42828"
-              size={24}
-              small
-            />
-          }
+          <NativeItem
+            leading={<Trash2 size={24} color={UIColors.text} />}
+            chevron
+            onPress={() => ExpireAction()}
+          >
+            <NativeText heading="h4">
+              Forcer l'expiration du token
+            </NativeText>
+            <NativeText heading="p2">
+              Regénerer le token de votre compte
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+      )}
+
+      {appctx.dataprovider.service === 'Skolengo' && (
+        <NativeList
+          header="Connexion à Skolengo"
+          inset
+        >
+          <NativeItem
+            leading={<Trash2 size={24} color={UIColors.text} />}
+            chevron
+            onPress={() => SkolengoCacheClear()}
+          >
+            <NativeText heading="h4">
+              Vider le cache
+            </NativeText>
+            <NativeText heading="p2">
+              Supprimer le cache des données de Skolengo
+            </NativeText>
+          </NativeItem>
+
+          <NativeItem
+            leading={<Trash2 size={24} color={UIColors.text} />}
+            chevron
+            onPress={() => SkolengoReconnect()}
+          >
+            <NativeText heading="h4">
+              Reconnecter son compte Skolengo
+            </NativeText>
+            <NativeText heading="p2">
+              & regénérer le token
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+      )}
+
+      <NativeList
+        header="Mon compte"
+        inset
+      >
+        <NativeItem
+          leading={<LogOut size={24} color="#D81313" />}
+          chevron
           onPress={() => LogOutAction()}
-        />
-      </View>
+        >
+          <NativeText heading="h4" style={{ color: '#D81313' }}>
+            Déconnexion
+          </NativeText>
+          <NativeText heading="p2">
+            Se déconnecter de votre compte
+          </NativeText>
+        </NativeItem>
+      </NativeList>
     </ScrollView>
   );
 }

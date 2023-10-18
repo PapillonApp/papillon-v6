@@ -12,14 +12,12 @@ import {
 } from 'react-native';
 
 import { Text, useTheme } from 'react-native-paper';
+import { Server } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import GetUIColors from '../../utils/GetUIColors';
 
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
-
-import { Server } from 'lucide-react-native';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function ChangeServer() {
   const theme = useTheme();
@@ -30,18 +28,16 @@ function ChangeServer() {
 
   useEffect(() => {
     AsyncStorage.getItem('custom_server').then((server) => {
-      if(server) {
+      if (server) {
         server = JSON.parse(server);
 
-        if(server.custom) {
-          setTextInputValue(server.url)
-          setCurrentServer(server.url)
+        if (server.custom) {
+          setTextInputValue(server.url);
+          setCurrentServer(server.url);
+        } else {
+          setCurrentServer(server.url);
         }
-        else {
-          setCurrentServer(server.url)
-        }
-      }
-      else {
+      } else {
         setCurrentServer('https://api.getpapillon.xyz');
       }
     });
@@ -49,39 +45,39 @@ function ChangeServer() {
 
   const defaultServerslist = [
     {
-      title: "Papillon-API (automatique)",
-      url: "https://api.getpapillon.xyz",
-      pretty_url: "api.getpapillon.xyz",
+      title: 'Papillon-API (automatique)',
+      url: 'https://api.getpapillon.xyz',
+      pretty_url: 'api.getpapillon.xyz',
       custom: false,
     },
-  ]
+  ];
 
   const officialServerslist = [
     {
-      title: "Papillon-NODE-API-01",
-      url: "https://api-01.getpapillon.xyz",
-      pretty_url: "api-01.getpapillon.xyz",
+      title: 'Papillon-NODE-API-01',
+      url: 'https://api-01.getpapillon.xyz',
+      pretty_url: 'api-01.getpapillon.xyz',
       custom: false,
     },
     {
-      title: "Papillon-NODE-API-02",
-      url: "https://api-02.getpapillon.xyz",
-      pretty_url: "api-02.getpapillon.xyz",
+      title: 'Papillon-NODE-API-02',
+      url: 'https://api-02.getpapillon.xyz',
+      pretty_url: 'api-02.getpapillon.xyz',
       custom: false,
     },
     {
-      title: "Papillon-NODE-API-03",
-      url: "https://api-03.getpapillon.xyz",
-      pretty_url: "api-03.getpapillon.xyz",
+      title: 'Papillon-NODE-API-03',
+      url: 'https://api-03.getpapillon.xyz',
+      pretty_url: 'api-03.getpapillon.xyz',
       custom: false,
     },
     {
-      title: "Papillon-NODE-API-04",
-      url: "https://api-04.getpapillon.xyz",
-      pretty_url: "api-04.getpapillon.xyz",
+      title: 'Papillon-NODE-API-04',
+      url: 'https://api-04.getpapillon.xyz',
+      pretty_url: 'api-04.getpapillon.xyz',
       custom: false,
     },
-  ]
+  ];
 
   function applyServer(server) {
     AsyncStorage.setItem('custom_server', JSON.stringify(server));
@@ -91,18 +87,18 @@ function ChangeServer() {
   }
 
   function isValidURL(string) {
-    if(string.startsWith('https://')) {
-      return true
+    if (string.startsWith('https://')) {
+      return true;
     }
-    if(string.startsWith('http://')) {
-      return true
+    if (string.startsWith('http://')) {
+      return true;
     }
 
-    return false
-  };  
+    return false;
+  }
 
   function confirmURLCustom() {
-    if(!isValidURL(textInputValue.trim())) {
+    if (!isValidURL(textInputValue.trim())) {
       Alert.alert(
         'URL invalide',
         'Entrez une URL valide accessible depuis votre appareil',
@@ -117,12 +113,12 @@ function ChangeServer() {
       return;
     }
 
-    let server = {
+    const server = {
       title: textInputValue,
       url: textInputValue,
-      pretty_url: textInputValue.replace("https://", "").replace("http://", ""),
+      pretty_url: textInputValue.replace('https://', '').replace('http://', ''),
       custom: true,
-    }
+    };
 
     setCurrentServer(server.url);
 
@@ -130,7 +126,7 @@ function ChangeServer() {
 
     Alert.alert(
       'Serveur personnalisé enregistré',
-      'Papillon se connecte maintenant à '+server.pretty_url,
+      `Papillon se connecte maintenant à ${server.pretty_url}`,
       [
         {
           text: 'OK',
@@ -141,84 +137,104 @@ function ChangeServer() {
   }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, flexDirection: 'column',justifyContent: 'center',}} behavior="padding" enabled   keyboardVerticalOffset={100}>
-    <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
-      contentInsetAdjustmentBehavior="automatic"
+    <KeyboardAvoidingView
+      style={{ flex: 1, flexDirection: 'column', justifyContent: 'center' }}
+      behavior="padding"
+      enabled
+      keyboardVerticalOffset={100}
     >
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated barStyle="light-content" />
-      ) : (
-        <StatusBar
-          animated
-          barStyle={theme.dark ? 'light-content' : 'dark-content'}
-          backgroundColor="transparent"
-        />
-      )}
-
-      <View style={{ gap: 9, marginTop: 16 }}>
-        <Text style={styles.ListTitle}>Serveurs de base</Text>
-
-        {defaultServerslist.map((item, index) => (
-          <ListItem
-            key={index}
-            title={item.title}
-            subtitle={item.pretty_url}
-            center
-            left={
-              <PapillonIcon
-                icon={<Server size={24} color={UIColors.primary} />}
-                color={UIColors.primary}
-                size={24}
-                small
-              />
-            }
-            style={[{borderColor: UIColors.primary}, currentServer == item.url ? styles.current : styles.urlchoice]}
-            onPress={() => applyServer(item)}
+      <ScrollView
+        style={[styles.container, { backgroundColor: UIColors.background }]}
+        contentInsetAdjustmentBehavior="automatic"
+      >
+        {Platform.OS === 'ios' ? (
+          <StatusBar animated barStyle="light-content" />
+        ) : (
+          <StatusBar
+            animated
+            barStyle={theme.dark ? 'light-content' : 'dark-content'}
+            backgroundColor="transparent"
           />
-        ))}
-      </View>
+        )}
 
-      <View style={{ gap: 9, marginTop: 16 }}>
-        <Text style={styles.ListTitle}>Serveurs Papillon (sélection manuelle)</Text>
+        <View style={{ gap: 9, marginTop: 16 }}>
+          <Text style={styles.ListTitle}>Serveurs de base</Text>
 
-        {officialServerslist.map((item, index) => (
-          <ListItem
-            key={index}
-            title={item.title}
-            subtitle={item.pretty_url}
-            center
-            left={
-              <PapillonIcon
-                icon={<Server size={24} color={UIColors.primary} />}
-                color={UIColors.primary}
-                size={24}
-                small
-              />
-            }
-            style={[{borderColor: UIColors.primary}, currentServer == item.url ? styles.current : styles.urlchoice]}
-            onPress={() => applyServer(item)}
-          />
-        ))}
-      </View>
-
-      <View style={{ gap: 9, marginTop: 16 }}>
-        <Text style={styles.ListTitle}>Personnalisé</Text>
-
-        <View style={styles.urlinput}>
-          <TextInput
-            placeholder="https://192.168.1.32:8000"
-            style={[styles.urltext, {backgroundColor: UIColors.element, color: UIColors.text}]}
-            onChangeText={text => setTextInputValue(text)}
-            value={textInputValue}
-          />
-
-          <Button title="Confirmer" color={UIColors.primary} onPress={confirmURLCustom} />
+          {defaultServerslist.map((item, index) => (
+            <ListItem
+              key={index}
+              title={item.title}
+              subtitle={item.pretty_url}
+              center
+              left={
+                <PapillonIcon
+                  icon={<Server size={24} color={UIColors.primary} />}
+                  color={UIColors.primary}
+                  size={24}
+                  small
+                />
+              }
+              style={[
+                { borderColor: UIColors.primary },
+                currentServer === item.url ? styles.current : styles.urlchoice,
+              ]}
+              onPress={() => applyServer(item)}
+            />
+          ))}
         </View>
-      </View>
 
-      <View style={{ height: 30 }} />
-    </ScrollView>
+        <View style={{ gap: 9, marginTop: 16 }}>
+          <Text style={styles.ListTitle}>
+            Serveurs Papillon (sélection manuelle)
+          </Text>
+
+          {officialServerslist.map((item, index) => (
+            <ListItem
+              key={index}
+              title={item.title}
+              subtitle={item.pretty_url}
+              center
+              left={
+                <PapillonIcon
+                  icon={<Server size={24} color={UIColors.primary} />}
+                  color={UIColors.primary}
+                  size={24}
+                  small
+                />
+              }
+              style={[
+                { borderColor: UIColors.primary },
+                currentServer === item.url ? styles.current : styles.urlchoice,
+              ]}
+              onPress={() => applyServer(item)}
+            />
+          ))}
+        </View>
+
+        <View style={{ gap: 9, marginTop: 16 }}>
+          <Text style={styles.ListTitle}>Personnalisé</Text>
+
+          <View style={styles.urlinput}>
+            <TextInput
+              placeholder="https://192.168.1.32:8000"
+              style={[
+                styles.urltext,
+                { backgroundColor: UIColors.element, color: UIColors.text },
+              ]}
+              onChangeText={(text) => setTextInputValue(text)}
+              value={textInputValue}
+            />
+
+            <Button
+              title="Confirmer"
+              color={UIColors.primary}
+              onPress={() => confirmURLCustom()}
+            />
+          </View>
+        </View>
+
+        <View style={{ height: 30 }} />
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -251,7 +267,7 @@ const styles = StyleSheet.create({
   },
   current: {
     borderWidth: 2,
-  }
+  },
 });
 
 export default ChangeServer;

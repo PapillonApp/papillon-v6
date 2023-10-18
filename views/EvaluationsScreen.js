@@ -6,7 +6,6 @@ import {
   StatusBar,
   Pressable,
   TouchableOpacity,
-  RefreshControl,
   Platform,
 } from 'react-native';
 
@@ -16,10 +15,14 @@ import { Text, useTheme } from 'react-native-paper';
 import { PressableScale } from 'react-native-pressable-scale';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Newspaper } from 'lucide-react-native';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
-import { IndexData } from '../fetch/IndexData';
 import GetUIColors from '../utils/GetUIColors';
+import PapillonLoading from '../components/PapillonLoading';
+
+import { useAppContext } from '../utils/AppContext';
+import { WillBeSoon } from './Global/Soon';
 
 function EvaluationsScreen({ navigation }) {
   const theme = useTheme();
@@ -34,6 +37,8 @@ function EvaluationsScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const [refreshCount, setRefreshCount] = useState(0);
+
+  const appctx = useAppContext();
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -90,25 +95,25 @@ function EvaluationsScreen({ navigation }) {
 
   async function changePeriodPronote(period) {
     setIsLoading(true);
-    await IndexData.changePeriod(period.name);
-    IndexData.getUser(true);
+    await appctx.dataprovider.changePeriod(period.name);
+    appctx.dataprovider.getUser(true);
     setRefreshCount(refreshCount + 1);
     setIsLoading(false);
   }
 
   async function getPeriods() {
-    const result = await IndexData.getUser(false);
-    const userData = result;
-    const allPeriods = userData.periods;
+    const allPeriods = await appctx.dataprovider.getPeriods(false);
 
-    const actualPeriod = allPeriods.find((period) => period.actual === true);
+    const actualPeriod = allPeriods?.find((period) => period.actual === true);
     let periods = [];
 
-    if (actualPeriod.name.toLowerCase().includes('trimestre')) {
+    console.log('peri', actualPeriod);
+
+    if (actualPeriod?.name.toLowerCase().includes('trimestre')) {
       periods = allPeriods.filter((period) =>
         period.name.toLowerCase().includes('trimestre')
       );
-    } else if (actualPeriod.name.toLowerCase().includes('semestre')) {
+    } else if (actualPeriod?.name.toLowerCase().includes('semestre')) {
       periods = allPeriods.filter((period) =>
         period.name.toLowerCase().includes('semestre')
       );
@@ -116,6 +121,8 @@ function EvaluationsScreen({ navigation }) {
 
     setPeriodsList(periods);
     setSelectedPeriod(actualPeriod);
+
+    return actualPeriod;
   }
 
   React.useEffect(() => {
@@ -130,7 +137,7 @@ function EvaluationsScreen({ navigation }) {
     let isForced = false;
     if (refreshCount > 0) isForced = true;
 
-    IndexData.getEvaluations(isForced).then((_evals) => {
+    appctx.dataprovider.getEvaluations(isForced).then((_evals) => {
       setIsLoading(false);
       const evals = JSON.parse(_evals);
 
@@ -161,21 +168,36 @@ function EvaluationsScreen({ navigation }) {
 
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
+  // eslint-disable-next-line no-unused-vars
   const onRefresh = React.useCallback(() => {
     setRefreshCount(refreshCount + 1);
   }, []);
+
+  if (appctx.dataprovider.service === 'Skolengo') {
+    return (
+      <ScrollView
+        style={[styles.container, { backgroundColor: UIColors.background }]}
+        contentInsetAdjustmentBehavior="automatic"
+      >
+        {Platform.OS === 'ios' ? (
+          <StatusBar animated barStyle="light-content" />
+        ) : (
+          <StatusBar
+            animated
+            barStyle={theme.dark ? 'light-content' : 'dark-content'}
+            backgroundColor="transparent"
+          />
+        )}
+
+        <WillBeSoon name="Les compétences" plural />
+      </ScrollView>
+    );
+  }
 
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
       contentInsetAdjustmentBehavior="automatic"
-      refreshControl={
-        <RefreshControl
-          refreshing={isHeadLoading}
-          onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? UIColors.primary : null]}
-        />
-      }
     >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
@@ -186,6 +208,21 @@ function EvaluationsScreen({ navigation }) {
           backgroundColor="transparent"
         />
       )}
+
+      {isHeadLoading ? (
+        <PapillonLoading
+          title="Chargement des évaluations"
+          subtitle="Veuillez patienter quelques instants..."
+        />
+      ) : null}
+
+      {evaluations.length === 0 && !isHeadLoading ? (
+        <PapillonLoading
+          title="Aucune évaluation"
+          subtitle="Vous n'avez aucune évaluation pour le moment"
+          icon={<Newspaper size={24} color={UIColors.primary} />}
+        />
+      ) : null}
 
       {evaluations.length > 0
         ? evaluations.map((subject, index) => (

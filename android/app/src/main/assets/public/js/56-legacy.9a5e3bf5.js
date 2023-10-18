@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkpapillon"]=self["webpackChunkpapillon"]||[]).push([[56],{5056:(e,t,n)=>{n.r(t),n.d(t,{ToastWeb:()=>o});var a=n(9895);class o extends a.Uw{async show(e){if("undefined"!==typeof document){let t=2e3;e.duration&&(t="long"===e.duration?3500:2e3);const n=document.createElement("pwa-toast");n.duration=t,n.message=e.text,document.body.appendChild(n)}}}}}]);
+//# sourceMappingURL=56-legacy.9a5e3bf5.js.map

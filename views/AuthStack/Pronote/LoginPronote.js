@@ -7,7 +7,13 @@ import {
   TextInput,
   StatusBar,
   ActivityIndicator,
+  Alert,
+  Image,
 } from 'react-native';
+
+import { useActionSheet } from '@expo/react-native-action-sheet';
+
+import LinearGradient from 'react-native-linear-gradient';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -17,54 +23,25 @@ import { showMessage } from 'react-native-flash-message';
 
 import { useState } from 'react';
 
-import { School, UserCircle, KeyRound } from 'lucide-react-native';
+import { UserCircle, KeyRound } from 'lucide-react-native';
 import { getENTs, getInfo, getToken } from '../../../fetch/AuthStack/LoginFlow';
-import ListItem from '../../../components/ListItem';
 
 import PapillonButton from '../../../components/PapillonButton';
 import GetUIColors from '../../../utils/GetUIColors';
 import { useAppContext } from '../../../utils/AppContext';
 
-function LoginTextInput({
-  label,
-  icon,
-  value,
-  onChangeText,
-  secureTextEntry,
-  style,
-}) {
-  const theme = useTheme();
-
-  return (
-    <View
-      style={[
-        styles.loginTextInput,
-        { borderColor: theme.dark ? '#191919' : '#e5e5e5' },
-        style,
-      ]}
-    >
-      {icon}
-      <TextInput
-        style={[
-          styles.loginTextInputText,
-          { color: theme.dark ? '#fff' : '#000' },
-        ]}
-        placeholder={label}
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
-        placeholderTextColor={theme.dark ? '#ffffff55' : '#00000055'}
-      />
-    </View>
-  );
-}
+const entities = require('entities');
 
 function LoginPronote({ route, navigation }) {
   const theme = useTheme();
+  const { showActionSheetWithOptions } = useActionSheet();
 
   const { etab, useDemo } = route.params;
+  // eslint-disable-next-line no-unused-vars
   const [etabName, setEtabName] = useState(etab.nomEtab);
+  const [etabInfo, setEtabInfo] = useState(etab);
 
+  // eslint-disable-next-line no-unused-vars
   const [useEduconnect, setUseEduconnect] = React.useState(false);
 
   const [isENTUsed, setIsENTUsed] = React.useState(false);
@@ -97,10 +74,9 @@ function LoginPronote({ route, navigation }) {
   React.useEffect(() => {
     getENTs(etab.url).then((result) => {
       CAS = result.CAS;
-      navigation.setOptions({
-        headerTitle: `Se connecter à ${result.nomEtab}`,
-      });
+      navigation.setOptions({});
 
+      setEtabInfo(result);
       setEtabName(result.nomEtab);
 
       const hostname = CAS.casURL.split('/')[2];
@@ -108,10 +84,40 @@ function LoginPronote({ route, navigation }) {
       getInfo().then((r) => {
         const ents = r?.ent_list;
 
-        // find ent in ents where url = hostname
-        const ent = ents.find(
-          (_ent) => removeSubdomain(_ent.url) === removeSubdomain(hostname)
+        // find all ent in ents where url = hostname
+        const entList = ents.filter(
+          (ent) => removeSubdomain(ent.url) === removeSubdomain(hostname)
         );
+
+        let ent = entList[0];
+
+        if (entList.length > 1) {
+          showActionSheetWithOptions(
+            {
+              title: 'Choisissez votre ENT',
+              options: entList.map((_ent) => _ent.name),
+              cancelButtonIndex: entList.length,
+              tintColor: UIColors.primary,
+            },
+            (buttonIndex) => {
+              if (buttonIndex < entList.length) {
+                ent = entList[buttonIndex];
+                setENTs(ent);
+
+                if (ent?.educonnect) {
+                  setUseEduconnect(ent.educonnect);
+                } else {
+                  setUseEduconnect(false);
+                }
+
+                if (ent) {
+                  setIsENTUsed(true);
+                }
+              }
+            }
+          );
+        }
+
         setENTs(ent);
 
         if (ent?.educonnect) {
@@ -131,7 +137,7 @@ function LoginPronote({ route, navigation }) {
   const [password, setPassword] = useState('');
   const [connecting, setConnecting] = useState(false);
 
-  const appCtx = useAppContext();
+  const appctx = useAppContext();
 
   function login() {
     const credentials = {
@@ -165,14 +171,16 @@ function LoginPronote({ route, navigation }) {
       const token = result.token;
 
       if (!token) {
-        showMessage({
-          message: 'Échec de la connexion',
-          description: 'Veuillez vérifier vos identifiants.',
-          type: 'danger',
-          icon: 'auto',
-          floating: true,
-          duration: 5000,
-        });
+        Alert.alert(
+          'Échec de la connexion',
+          'Vérifiez vos identifiants et réessayez.',
+          [
+            {
+              text: 'OK',
+              style: 'cancel',
+            },
+          ]
+        );
       } else {
         AsyncStorage.setItem('token', token);
         AsyncStorage.setItem('credentials', JSON.stringify(credentials));
@@ -184,11 +192,13 @@ function LoginPronote({ route, navigation }) {
           icon: 'auto',
           floating: true,
         });
-        
-        navigation.goBack();
-        navigation.goBack();
 
-        appCtx.setLoggedIn(true);
+        appctx.dataprovider.service = 'Pronote';
+        appctx.dataprovider.init('Pronote').then(() => {
+          navigation.goBack();
+          navigation.goBack();
+          appctx.setLoggedIn(true);
+        });
       }
     });
   }
@@ -216,16 +226,30 @@ function LoginPronote({ route, navigation }) {
         />
       )}
 
-      <ListItem
-        title={`Connexion à l'établissement ${etabName}`}
-        subtitle={`Vous pouvez vous connecter à l’aide de vos identifiants ${
-          useEduconnect ? 'EduConnect' : 'Pronote'
-        }.`}
-        icon={<School color="#159C5E" />}
-        color="#159C5E"
-        style={{ marginTop: 14 }}
-        isLarge
-      />
+      <LinearGradient
+        style={styles.loginHeader}
+        colors={['#159C5E55', UIColors.background]}
+        locations={[0, 1]}
+      >
+        <Image
+          style={styles.loginHeaderLogo}
+          // eslint-disable-next-line global-require
+          source={require('../../../assets/logo_pronote.png')}
+        />
+        <Text style={styles.loginHeaderText}>
+          {entities.decodeHTML(etab.nomEtab)}
+        </Text>
+
+        {!isENTUsed ? (
+          <Text style={styles.loginHeaderDescription}>
+            Connexion via Pronote
+          </Text>
+        ) : (
+          <Text style={styles.loginHeaderDescription}>
+            Connexion avec l'ENT {ENTs.name}
+          </Text>
+        )}
+      </LinearGradient>
 
       <View style={[styles.loginForm]}>
         <View
@@ -286,25 +310,101 @@ function LoginPronote({ route, navigation }) {
 
         <View style={[styles.buttons]}>
           <PapillonButton
-              title="Se connecter"
-              color="#159C5E"
-              onPress={() => login()}
-              style={[styles.button]}
-              right={
-                (connecting &&
-                  <ActivityIndicator color={'#ffffff'} />
-                )
-              }
-            />
+            title="Se connecter"
+            color="#159C5E"
+            onPress={() => login()}
+            style={[styles.button]}
+            right={connecting && <ActivityIndicator color="#ffffff" />}
+          />
+        </View>
+
+        <View style={[styles.bottomText]}>
+          <Text style={[styles.bottomTextText]}>
+            En vous connectant, vous acceptez les{' '}
+            <Text style={{ fontWeight: 'bold' }}>conditions d'utilisation</Text>{' '}
+            de Papillon.
+          </Text>
+
+          {etabInfo.version && etabInfo.version.length > 0 ? (
+            <Text style={[styles.bottomTextText]}>
+              Pronote Espace Élèves ver. {etabInfo.version.join('.')}
+            </Text>
+          ) : null}
         </View>
       </View>
     </ScrollView>
   );
 }
 
+function LoginTextInput({
+  label,
+  icon,
+  value,
+  onChangeText,
+  secureTextEntry,
+  style,
+}) {
+  const theme = useTheme();
+
+  return (
+    <View
+      style={[
+        styles.loginTextInput,
+        { borderColor: theme.dark ? '#191919' : '#e5e5e5' },
+        style,
+      ]}
+    >
+      {icon}
+      <TextInput
+        style={[
+          styles.loginTextInputText,
+          { color: theme.dark ? '#fff' : '#000' },
+        ]}
+        placeholder={label}
+        value={value}
+        onChangeText={onChangeText}
+        secureTextEntry={secureTextEntry}
+        placeholderTextColor={theme.dark ? '#ffffff55' : '#00000055'}
+      />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  loginForm: {
+  loginHeader: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 50,
+    paddingHorizontal: 28,
+    paddingBottom: 28,
+  },
+  loginHeaderLogo: {
+    width: 52,
+    height: 52,
+    resizeMode: 'contain',
+  },
+  loginHeaderText: {
+    fontSize: 18,
+    fontFamily: 'Papillon-Semibold',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  loginHeaderDescription: {
+    fontSize: 15,
+    marginTop: 2,
+    opacity: 0.5,
+    textAlign: 'center',
+  },
+  loginHeaderError: {
+    fontSize: 15,
     marginTop: 10,
+    color: '#159C5E',
+    fontWeight: 500,
+    textDecorationLine: 'underline',
+  },
+
+  loginForm: {
+    marginTop: -10,
   },
   switchGroup: {
     flexDirection: 'row',
@@ -344,6 +444,19 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 8,
     flex: 1,
+  },
+
+  bottomText: {
+    marginHorizontal: 14,
+    marginTop: 16,
+    marginBottom: 32,
+    gap: 4,
+  },
+
+  bottomTextText: {
+    fontSize: 13,
+    textAlign: 'center',
+    opacity: 0.5,
   },
 });
 

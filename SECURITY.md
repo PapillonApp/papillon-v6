@@ -4,7 +4,9 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 6.0.0   | :white_check_mark: |
+| 6.2.0   | :white_check_mark: |
+| 6.1.0   | :x:                |
+| 6.0.0   | :x:                |
 | < 6.0   | :x:                |
 
 ## Signalement d'une vulnérabilité ou d'un problème

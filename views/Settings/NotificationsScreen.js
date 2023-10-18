@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -8,18 +8,19 @@ import {
   Switch,
 } from 'react-native';
 
-import {useState, useEffect} from 'react';
-
 import { Text, useTheme } from 'react-native-paper';
-import GetUIColors from '../../utils/GetUIColors';
 
 import * as Notifications from 'expo-notifications';
-
-import ListItem from '../../components/ListItem';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ListItem from '../../components/ListItem';
+import GetUIColors from '../../utils/GetUIColors';
+
+import NativeList from '../../components/NativeList';
+import NativeItem from '../../components/NativeItem';
+import NativeText from '../../components/NativeText';
 
 function NotificationsScreen() {
   const theme = useTheme();
@@ -31,7 +32,7 @@ function NotificationsScreen() {
   const [timePickerEnabled, setTimePickerEnabled] = useState(false);
 
   useEffect(() => {
-    if(Platform.OS === 'ios') {
+    if (Platform.OS === 'ios') {
       setTimePickerEnabled(true);
     }
 
@@ -54,16 +55,22 @@ function NotificationsScreen() {
 
     if (val) {
       updateReminderTime(devoirsReminderTime);
-      await AsyncStorage.setItem('devoirsReminder', JSON.stringify({
-        enabled: true,
-        time: devoirsReminderTime,
-      }));
+      await AsyncStorage.setItem(
+        'devoirsReminder',
+        JSON.stringify({
+          enabled: true,
+          time: devoirsReminderTime,
+        })
+      );
     } else {
       Notifications.cancelScheduledNotificationAsync('devoirsReminder');
-      await AsyncStorage.setItem('devoirsReminder', JSON.stringify({
-        enabled: false,
-        time: devoirsReminderTime,
-      }));
+      await AsyncStorage.setItem(
+        'devoirsReminder',
+        JSON.stringify({
+          enabled: false,
+          time: devoirsReminderTime,
+        })
+      );
     }
   }
 
@@ -71,10 +78,13 @@ function NotificationsScreen() {
     setDevoirsReminderTime(time);
     closeTimePicker();
 
-    await AsyncStorage.setItem('devoirsReminder', JSON.stringify({
-      enabled: devoirsReminderEnabled,
-      time: time,
-    }));
+    await AsyncStorage.setItem(
+      'devoirsReminder',
+      JSON.stringify({
+        enabled: devoirsReminderEnabled,
+        time,
+      })
+    );
 
     // edit notification
     Notifications.requestPermissionsAsync();
@@ -109,71 +119,65 @@ function NotificationsScreen() {
       style={[styles.container, { backgroundColor: UIColors.background }]}
       contentInsetAdjustmentBehavior="automatic"
     >
-      <StatusBar
-        animated
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
-        backgroundColor="transparent"
-      />
+      {Platform.OS === 'ios' ? (
+        <StatusBar animated barStyle="light-content" />
+      ) : (
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
+      )}
 
-      <View style={{ gap: 9, marginTop: 24 }}>
-        <Text style={styles.ListTitle}>Rappel des devoirs</Text>
-
-        <ListItem
-          title="Activer le rappel des devoirs"
-          subtitle="Envoie une notification le soir pour te rappeler de faire tes devoirs"
-          color="#29947A"
-          center
-          style={[
-            devoirsReminderEnabled ? (
-              {
-                marginBottom: 0,
-                borderBottomLeftRadius: 0,
-                borderBottomRightRadius: 0,
-                borderBottomColor: UIColors.text + "17",
-                borderBottomWidth: 1,
-              }
-            ) : null
-          ]}
-          right={
+      <NativeList
+        header="Notifications"
+        inset
+      >
+        <NativeItem
+          trailing={
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Switch value={devoirsReminderEnabled} onValueChange={(val) => enableDevoirsReminder(val)} />
+              <Switch
+                value={devoirsReminderEnabled}
+                onValueChange={(val) => enableDevoirsReminder(val)}
+              />
             </View>
           }
-        />
+        >
+          <NativeText heading="h4">
+            Activer le rappel des devoirs
+          </NativeText>
+          <NativeText heading="p2">
+            Envoie une notification le soir pour te rappeler de faire tes devoirs
+          </NativeText>
+        </NativeItem>
 
-        { devoirsReminderEnabled ? (
-        <ListItem
-          subtitle="Sélectionner l'heure du rappel des devoirs"
-          color="#29947A"
-          center
-          style={{
-            marginTop: -9,
-            borderTopLeftRadius: 0,
-            borderTopRightRadius: 0,
-          }}
-          right={
-            <>
-              {timePickerEnabled || Platform.OS == 'ios' ?
+        {devoirsReminderEnabled ? (
+          <NativeItem
+            trailing={
+              timePickerEnabled || Platform.OS === 'ios' ? (
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <DateTimePicker
                     value={devoirsReminderTime}
                     mode="time"
-                    is24Hour={true}
+                    is24Hour
                     display="default"
-                    onChange={(event, time) => {updateReminderTime(time)}}
+                    onChange={(event, time) => {
+                      updateReminderTime(time);
+                    }}
                   />
                 </View>
-              : null}
-
-              {Platform.OS === 'android' ?
-               <Text style={styles.timeText}>{devoirsReminderTime.toLocaleTimeString('fr', {hour: '2-digit', 'minute': '2-digit'})}</Text>
-              : null}
-            </>
-          }
-          onPress={() => {openTimePicker()}}
-                  />
-        ) : null }
-      </View>
+              ) : null
+            }
+            onPress={Platform.OS !== 'ios' ? () => {
+              openTimePicker();
+            } : null}
+          >
+            <NativeText heading="p">
+              Sélectionner l'heure du rappel des devoirs
+            </NativeText>
+          </NativeItem>
+        ) : null}
+      </NativeList>
     </ScrollView>
   );
 }
@@ -189,7 +193,7 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 17,
     fontWeight: 500,
-  }
+  },
 });
 
 export default NotificationsScreen;

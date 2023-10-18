@@ -14,8 +14,6 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import * as Haptics from 'expo-haptics';
-
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { useState, useEffect, useRef } from 'react';
@@ -26,19 +24,21 @@ import InfinitePager from 'react-native-infinite-pager';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+import FormatCoursName from '../utils/FormatCoursName';
+
+import PapillonLoading from '../components/PapillonLoading';
+
 import * as WebBrowser from 'expo-web-browser';
-import { Calendar, Check, File, Link } from 'lucide-react-native';
+import { Calendar, Check, File, AlertCircle, Link, BookOpen } from 'lucide-react-native';
 import getClosestColor from '../utils/ColorCoursName';
+import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
-import { IndexData } from '../fetch/IndexData';
+import { useAppContext } from '../utils/AppContext';
 
-const openURL = (url) => {
-  WebBrowser.openBrowserAsync(url, {
-    dismissButtonStyle: 'done',
-    presentationStyle: 'pageSheet'
-  });
-};
+import NativeList from '../components/NativeList';
+import NativeItem from '../components/NativeItem';
+import NativeText from '../components/NativeText';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -57,7 +57,23 @@ function DevoirsScreen({ navigation }) {
   const todayRef = useRef(today);
   const hwRef = useRef(homeworks);
 
+  const [browserOpen, setBrowserOpen] = useState(false);
+
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
+
+  const openURL = async (url) => {
+    if (Platform.OS === 'ios') {
+      setBrowserOpen(true);
+    }
+
+    await WebBrowser.openBrowserAsync(url, {
+      dismissButtonStyle: 'done',
+      presentationStyle: 'pageSheet',
+      controlsColor: UIColors.primary,
+    });
+
+    setBrowserOpen(false);
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -78,7 +94,7 @@ function DevoirsScreen({ navigation }) {
         Platform.OS === 'ios' ? (
           <DateTimePicker
             value={calendarDate}
-            locale="fr-FR"
+            locale="fr_FR"
             mode="date"
             display="compact"
             onChange={(event, date) => {
@@ -116,10 +132,12 @@ function DevoirsScreen({ navigation }) {
     });
   }, [navigation, calendarDate]);
 
+  const appctx = useAppContext();
+
   const updateHomeworksForDate = async (dateOffset, setDate) => {
     const newDate = calcDate(setDate, dateOffset);
     if (!hwRef.current[newDate.toLocaleDateString()]) {
-      const result = await IndexData.getHomeworks(newDate);
+      const result = await appctx.dataprovider.getHomeworks(newDate);
       setHomeworks((prevHomeworks) => ({
         ...prevHomeworks,
         [newDate.toLocaleDateString()]: result,
@@ -128,7 +146,7 @@ function DevoirsScreen({ navigation }) {
   };
 
   const handlePageChange = (page) => {
-    const newDate = calcDate(todayRef.current, page);
+    const newDate = calcDate(calendarDate, page);
     setCurrentIndex(page);
     setCalendarDate(newDate);
 
@@ -138,17 +156,16 @@ function DevoirsScreen({ navigation }) {
   };
 
   const forceRefresh = async () => {
-    const newDate = calcDate(todayRef.current, 0);
-    const result = await IndexData.getHomeworks(newDate, true);
-    setHomeworks((prevHomeworks) => ({
-      ...prevHomeworks,
-      [newDate.toLocaleDateString()]: result,
-    }));
+    const newDate = calcDate(calendarDate, 0);
+    const result = await appctx.dataprovider.getHomeworks(newDate, true);
 
-    // if date already loaded, update it
-    if (hwRef.current[newDate.toLocaleDateString()]) {
-      hwRef.current[newDate.toLocaleDateString()] = result;
-    }
+    const oldHws = homeworks;
+    oldHws[newDate.toLocaleDateString()] = result;
+
+    setHomeworks({});
+    setTimeout(() => {
+      setHomeworks(oldHws);
+    }, 200);
   };
 
   useEffect(() => {
@@ -166,11 +183,15 @@ function DevoirsScreen({ navigation }) {
 
   return (
     <>
-      <StatusBar
-        animated
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
-        backgroundColor="transparent"
-      />
+      {browserOpen ? (
+        <StatusBar barStyle="light-content" animated />
+      ) : (
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
+      )}
 
       <View
         contentInsetAdjustmentBehavior="automatic"
@@ -218,10 +239,16 @@ function DevoirsScreen({ navigation }) {
                 navigation={navigation}
                 theme={theme}
                 forceRefresh={forceRefresh}
+                openURL={openURL}
+                UIColors={UIColors}
               />
             ) : (
               <View style={[styles.homeworksContainer]}>
-                <ActivityIndicator size="small" />
+                <PapillonLoading
+                  title="Chargement des devoirs..."
+                  subtitle="Obtention des derniers devoirs en cours"
+                  style={{ marginTop: 32 }}
+                />
               </View>
             )
           }
@@ -231,7 +258,14 @@ function DevoirsScreen({ navigation }) {
   );
 }
 
-function Hwpage({ homeworks, navigation, theme, forceRefresh }) {
+function Hwpage({
+  homeworks,
+  navigation,
+  theme,
+  forceRefresh,
+  openURL,
+  UIColors,
+}) {
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
   const onRefresh = React.useCallback(() => {
@@ -251,21 +285,27 @@ function Hwpage({ homeworks, navigation, theme, forceRefresh }) {
         <RefreshControl
           refreshing={isHeadLoading}
           onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? '#29947A' : null]}
+          colors={[Platform.OS === 'android' ? UIColors.primary : null]}
         />
       }
     >
       {homeworks.length === 0 ? (
-        <Text style={styles.noHomework}>Aucun devoir pour cette date.</Text>
+        <PapillonLoading
+          icon={<BookOpen size={26} color={UIColors.text} />}
+          title="Aucun devoir"
+          subtitle="Aucun devoir n'est disponible pour cette date"
+          style={{ marginTop: 48 }}
+        />
       ) : null}
 
-      <View style={styles.hwList}>
+      <View>
         {homeworks.map((homework, index) => (
           <Hwitem
             homework={homework}
             navigation={navigation}
             theme={theme}
             key={index}
+            openURL={openURL}
           />
         ))}
       </View>
@@ -275,148 +315,180 @@ function Hwpage({ homeworks, navigation, theme, forceRefresh }) {
   );
 }
 
-function HwCheckbox({ checked, theme, pressed }) {
-  return (
+function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
+  return !loading ? (
     <PressableScale
       style={[
         styles.checkContainer,
         { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
         checked ? styles.checkChecked : null,
+        checked
+          ? { backgroundColor: UIColors.primary, borderColor: UIColors.primary }
+          : null,
       ]}
       weight="light"
       activeScale={0.7}
       onPress={() => {
-        Haptics.notificationAsync('success')
-        pressed()
+        pressed();
       }}
     >
       {checked ? <Check size={20} color="#ffffff" /> : null}
     </PressableScale>
+  ) : (
+    <ActivityIndicator size={26} />
   );
 }
 
-function Hwitem({ homework, theme }) {
+function Hwitem({ homework, theme, openURL, navigation }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
+  const [thisHwLoading, setThisHwLoading] = useState(false);
 
   useEffect(() => {
-    setThisHwChecked(homework.done)
+    setThisHwChecked(homework.done);
   }, [homework]);
+
+  const appctx = useAppContext();
 
   const changeHwState = () => {
     console.log(`change ${homework.date} : ${homework.local_id}`);
-    IndexData.changeHomeworkState(homework.date, homework.local_id).then((result) => {
-      console.log(result);
+    appctx.dataprovider
+      .changeHomeworkState(!thisHwChecked, homework.date, homework.local_id)
+      .then((result) => {
+        console.log(result);
 
-      if (result.status === 'not found') {
-        setTimeout(() => {
-          setThisHwChecked(homework.done);
-        }, 100);
-        return;
+        if (result.status === 'not found') {
+          setTimeout(() => {
+            setThisHwChecked(homework.done);
+          }, 100);
+        } else if (result.status === 'ok') {
+          setThisHwChecked(!thisHwChecked);
+          setThisHwLoading(false);
+
+          AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
+            // find the homework
+            const cachedHomeworks = JSON.parse(homeworksCache);
+
+            for (let i = 0; i < cachedHomeworks?.length; i++) {
+              for (let j = 0; j < cachedHomeworks[i].timetable?.length; j++) {
+                if (
+                  cachedHomeworks[i].timetable[j].local_id === homework.local_id
+                ) {
+                  cachedHomeworks[i].timetable[j].done =
+                    !cachedHomeworks[i].timetable[j].done;
+                }
+              }
+            }
+
+            AsyncStorage.setItem(
+              'homeworksCache',
+              JSON.stringify(cachedHomeworks)
+            );
+          });
+
+          // sync with home page
+          AsyncStorage.setItem('homeUpdated', 'true');
+
+        // get homework.date as 2023-01-01
+        const date = new Date(homework.date);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+
+        // if tomorrow, update badge
+        let tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+
+        let checked = thisHwChecked;
+
+        // if this homework is for tomorrow
+        if (new Date(homework.date).getDate() === tomorrow.getDate()) {
+          AsyncStorage.getItem('badgesStorage').then((value) => {
+            let currentSyncBadges = JSON.parse(value);
+
+            if (currentSyncBadges === null) {
+              currentSyncBadges = {
+                homeworks: 0,
+              };
+            }
+
+            let newBadges = currentSyncBadges;
+            newBadges.homeworks = checked ? newBadges.homeworks + 1 : newBadges.homeworks - 1;
+
+            AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
+          });
+        }
       }
-
-      // sync with home page
-      AsyncStorage.setItem('homeUpdated', 'true');
-
-      // get homework.date as 2023-01-01
-      const date = new Date(homework.date);
-      const year = date.getFullYear();
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
-
-      const dateStr = `${year}-${month}-${day}`;
-
-      // load devoirs
-      IndexData.getHomeworks(dateStr, true);
     });
   };
 
   const UIColors = GetUIColors();
 
+  if (!homework) return;
   return (
-    <PressableScale
-      style={[
-        styles.homeworkItemContainer,
-        { backgroundColor: UIColors.elementHigh },
-      ]}
+    <NativeList
+      inset
+      style={{
+        marginBottom: -20,
+      }}
     >
-      <View style={[styles.homeworkItem]}>
-        <View style={[styles.checkboxContainer]}>
+      <NativeItem
+        leading={
           <HwCheckbox
-            checked={thisHwChecked}
-            theme={theme}
-            pressed={() => {
-              setThisHwChecked(!thisHwChecked);
-              changeHwState();
-            }}
+              checked={thisHwChecked}
+              theme={theme}
+              UIColors={UIColors}
+              loading={thisHwLoading}
+              pressed={() => {
+                setThisHwLoading(true);
+                changeHwState();
+              }}
           />
-        </View>
-        <View style={[styles.hwItem]}>
-          <View style={[styles.hwItemHeader]}>
-            <View
-              style={[
-                styles.hwItemColor,
-                { backgroundColor: getClosestColor(homework.background_color) },
-              ]}
-            />
-            <Text
-              style={[
-                styles.hwItemTitle,
-                { color: theme.dark ? '#ffffff' : '#000000' },
-              ]}
-            >
-              {homework.subject.name}
-            </Text>
-          </View>
-          <Text
+        }
+        onPress={() => {
+          navigation.navigate('Devoir', { homework: {
+            ...homework,
+            done: thisHwChecked,
+          } });
+        }}
+      >
+        <View style={[styles.hwItemHeader]}>
+          <View
             style={[
-              styles.hwItemDescription,
-              { color: theme.dark ? '#ffffff' : '#000000' },
+              styles.hwItemColor,
+              { backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color) },
             ]}
-          >
-            {homework.description}
-          </Text>
+          />
+          <NativeText heading="subtitle1" style={{fontSize: 14}}>
+            {homework.subject.name.toUpperCase()}
+          </NativeText>
         </View>
-      </View>
+        <NativeText>
+          {homework.description}
+        </NativeText>
+      </NativeItem>
 
-      {homework.files.length > 0 ? (
-        <View style={[styles.homeworkFiles]}>
-          {homework.files.map((file, index) => (
-            <View
-              style={[
-                styles.homeworkFileContainer,
-                { borderColor: theme.dark ? '#ffffff10' : '#00000010' },
-              ]}
-              key={index}
-            >
-              <PressableScale
-                style={[styles.homeworkFile]}
-                weight="light"
-                activeScale={0.9}
-                onPress={() => openURL(file.url)}
-              >
-                {file.type === 0 ? (
-                  <Link size={20} color={theme.dark ? '#ffffff' : '#000000'} />
-                ) : (
-                  <File size={20} color={theme.dark ? '#ffffff' : '#000000'} />
-                )}
-
-                <View style={[styles.homeworkFileData]}>
-                  <Text style={[styles.homeworkFileText]}>{file.name}</Text>
-                  <Text
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                    style={[styles.homeworkFileUrl]}
-                  >
-                    {file.url}
-                  </Text>
-                </View>
-              </PressableScale>
-            </View>
-          ))}
-        </View>
-      ) : null}
-    </PressableScale>
-  );
+      {homework.files.map((file, index) => (
+        <NativeItem
+          key={index}
+          leading={
+            <File size={20} color={UIColors.text} style={{marginHorizontal: 3}} />
+          }
+          onPress={() => {
+            openURL(file.url);
+          }}
+          chevron
+        >
+          <NativeText heading="h4">
+            {file.name}
+          </NativeText>
+          <NativeText heading="p2" numberOfLines={1}>
+            {file.url}
+          </NativeText>
+        </NativeItem>
+      ))}
+    </NativeList>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -432,7 +504,6 @@ const styles = StyleSheet.create({
 
   homeworksContainer: {
     flex: 1,
-    padding: 12,
   },
 
   hwList: {

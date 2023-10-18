@@ -4,8 +4,8 @@ import { refreshToken } from '../AuthStack/LoginFlow';
 
 function getNews(force = false) {
   // obtenir le token
-  return getConsts().then((consts) => {
-    return AsyncStorage.getItem('newsCache').then((newsCache) => {
+  return getConsts().then((consts) =>
+    AsyncStorage.getItem('newsCache').then((newsCache) => {
       if (newsCache && !force) {
         newsCache = JSON.parse(newsCache);
 
@@ -45,8 +45,24 @@ function getNews(force = false) {
             return result;
           })
       );
-    });
-  });
+    })
+  );
 }
 
-export { getNews };
+function changeNewsState(id) {
+  return getConsts().then((consts) => {
+    return AsyncStorage.getItem('token').then((token) => {
+      // fetch le timetable
+      fetch(`${consts.API}/news/markAsRead?token=${token}&newsId=${id}`, {
+        method: 'POST',
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          return result;
+        }
+      );
+    });
+  })
+}
+
+export { getNews, changeNewsState };

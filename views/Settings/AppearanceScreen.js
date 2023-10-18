@@ -74,10 +74,15 @@ function AppearanceScreen({ navigation }) {
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
     >
-      <StatusBar
-        animated
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
-      />
+      {Platform.OS === 'ios' ? (
+        <StatusBar animated barStyle="light-content" />
+      ) : (
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
+      )}
 
       <View style={{ gap: 9, marginTop: 24 }}>
         <Text style={styles.ListTitle}>Thèmes et personnalisation</Text>
@@ -96,7 +101,7 @@ function AppearanceScreen({ navigation }) {
           onPress={() => navigation.navigate('Icons')}
           center
         />
-        { Platform.OS === 'android' && (
+        {Platform.OS === 'android' && (
           <ListItem
             title="Thème de l'application"
             subtitle="Sélectionner le thème de l'application"

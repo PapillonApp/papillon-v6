@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, ScrollView, StyleSheet, StatusBar } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import { Settings, User2, Palette, Info, Sparkles } from 'lucide-react-native';
+import { Settings, User2, Info, Sparkles } from 'lucide-react-native';
 
 import packageJson from '../package.json';
 
@@ -21,11 +21,15 @@ function SettingsScreen({ navigation }) {
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}
     >
-      <StatusBar
-        animated
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
-        backgroundColor="transparent"
-      />
+      {Platform.OS === 'ios' ? (
+        <StatusBar animated barStyle="light-content" />
+      ) : (
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
+      )}
 
       <View style={styles.optionsList}>
         <Text style={styles.ListTitle}>Mon profil</Text>
@@ -119,6 +123,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Papillon-Medium',
     opacity: 0.5,
   },
+  
 });
 
 export default SettingsScreen;

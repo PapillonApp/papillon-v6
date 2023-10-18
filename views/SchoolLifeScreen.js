@@ -5,17 +5,17 @@ import {
   ScrollView,
   StatusBar,
   Platform,
-  RefreshControl,
 } from 'react-native';
 
 import { Text, useTheme } from 'react-native-paper';
 
 import { Clock3, UserX } from 'lucide-react-native';
 import { PressableScale } from 'react-native-pressable-scale';
-import { IndexData } from '../fetch/IndexData';
 
 import PapillonIcon from '../components/PapillonIcon';
 import GetUIColors from '../utils/GetUIColors';
+import PapillonLoading from '../components/PapillonLoading';
+import { useAppContext } from '../utils/AppContext';
 
 function SchoolLifeScreen() {
   const [viesco, setViesco] = useState(null);
@@ -24,17 +24,20 @@ function SchoolLifeScreen() {
 
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
+  const appctx = useAppContext();
+
   useEffect(() => {
     setIsHeadLoading(true);
-    IndexData.getViesco().then((v) => {
+    appctx.dataprovider.getViesco().then((v) => {
       setIsHeadLoading(false);
       setViesco(v);
     });
   }, []);
 
+  // eslint-disable-next-line no-unused-vars
   const onRefresh = React.useCallback(() => {
     setIsHeadLoading(true);
-    IndexData.getViesco(true).then((v) => {
+    appctx.dataprovider.getViesco(true).then((v) => {
       setIsHeadLoading(false);
       setViesco(v);
     });
@@ -44,13 +47,6 @@ function SchoolLifeScreen() {
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
       contentInsetAdjustmentBehavior="automatic"
-      refreshControl={
-        <RefreshControl
-          refreshing={isHeadLoading}
-          onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? '#29947A' : null]}
-        />
-      }
     >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
@@ -62,8 +58,25 @@ function SchoolLifeScreen() {
         />
       )}
 
+      {isHeadLoading ? (
+        <PapillonLoading
+          title="Chargement des évenements"
+          subtitle="Veuillez patienter quelques instants..."
+        />
+      ) : null}
+
       {viesco ? (
         <>
+          {viesco.absences.length === 0 &&
+          viesco.delays.length === 0 &&
+          !isHeadLoading ? (
+            <PapillonLoading
+              title="Aucun évenement"
+              subtitle="Vous n'avez aucun évenement à afficher"
+              icon={<UserX size={26} color={UIColors.primary} />}
+            />
+          ) : null}
+
           {viesco.absences && viesco.absences.length > 0 ? (
             <View style={styles.optionsList}>
               <Text style={styles.ListTitle}>Absences</Text>
@@ -85,16 +98,34 @@ function SchoolLifeScreen() {
                   />
                   <View style={styles.absenceItemData}>
                     <Text style={styles.absenceItemTitle}>
-                      {absence.hours} manquées
+                      {absence.hours}h manquées
                     </Text>
-                    <Text style={styles.absenceItemSubtitle}>
+                    
+                    {
+                      // if from and to is same day :
+                      (!absence.to || (new Date(absence.from).getDate() === new Date(absence.to).getDate())) ? (
+<Text style={styles.absenceItemSubtitle}>
                       le{' '}
                       {new Date(absence.from).toLocaleDateString('fr', {
                         weekday: 'long',
                         day: '2-digit',
                         month: 'short',
                       })}
+                    </Text>) : (
+                      <Text style={styles.absenceItemSubtitle}>
+                      du{' '}
+                      {new Date(absence.from).toLocaleDateString('fr', {
+                        weekday: 'long',
+                        day: '2-digit',
+                        month: 'short',
+                      })} au {new Date(absence.to).toLocaleDateString('fr', {
+                        weekday: 'long',
+                        day: '2-digit',
+                        month: 'short',
+                      })}
                     </Text>
+                    )
+                    }
 
                     {absence.reasons.length > 0 ? (
                       <Text

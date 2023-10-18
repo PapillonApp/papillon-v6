@@ -15,15 +15,11 @@ function PapillonButton({ title, color, onPress, style, light, left, right }) {
         style,
       ]}
     >
-      <View style={styles.left}>
-        {left}
-      </View>
+      <View style={styles.left}>{left}</View>
       <Text style={[styles.btnBackText, { color: light ? color : '#fff' }]}>
         {title}
       </Text>
-      <View style={styles.right}>
-        {right}
-      </View>
+      <View style={styles.right}>{right}</View>
     </Pressable>
   );
 }

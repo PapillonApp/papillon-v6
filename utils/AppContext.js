@@ -13,10 +13,14 @@ import { useMaterial3Theme } from '@pchmn/expo-material3-theme';
 import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-const AppContext = React.createContext({
+/** @type {{logged: boolean, setLogged: (logged: boolean) => void, dataprovider: import('../fetch/IndexDataInstance').IndexDataInstance, setDataprovider: (dataprovider: import('../fetch/IndexDataInstance').IndexDataInstance) => void}} */
+export const DefaultValuesAppContext = {
   loggedIn: false,
   setLoggedIn: () => {},
-});
+  dataprovider: null,
+};
+
+const AppContext = React.createContext(DefaultValuesAppContext);
 
 export const baseColor = '#29947a';
 
