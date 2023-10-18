@@ -44,6 +44,7 @@ import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import PapillonList from '../components/PapillonList';
 
 import { useAppContext } from '../utils/AppContext';
+import sendToSharedGroup from '../fetch/SharedValues';
 
 // Functions
 const openURL = (url) => {
@@ -165,6 +166,8 @@ function NewHomeScreen({ navigation }) {
     setLoadingHw(false);
     setTimetable(coursData);
     setLoadingCours(false);
+
+    sendToSharedGroup(coursData);
   }
 
   useEffect(() => {
