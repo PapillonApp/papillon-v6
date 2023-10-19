@@ -3,7 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getTimetable } from './PronoteTimetable';
 import { getHomeworks } from './PronoteHomeworks';
 import { getGrades } from './PronoteGrades';
-import { sendToSharedGroupGetEdtF } from '../SharedValues';
 
 function addDays(date, days) {
   date = new Date(date);
@@ -36,8 +35,6 @@ function getRecap(day, force) {
       getHomeworks(addDays(day, 2), force),
     ]).then((result) => {
       // send to widget
-      sendToSharedGroupGetEdtF(result[0]);
-
       AsyncStorage.setItem(
         'recapCache',
         JSON.stringify({

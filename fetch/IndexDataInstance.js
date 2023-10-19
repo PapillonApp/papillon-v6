@@ -1,7 +1,6 @@
 /* eslint-disable global-require */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { sendToSharedGroupGetEdtF } from './SharedValues';
 
 export class IndexDataInstance {
   initialized = false;
@@ -142,7 +141,6 @@ export class IndexDataInstance {
   async getRecap(day, force = false) {
     await this.waitInit();
     const storeShared = (e) => {
-      sendToSharedGroupGetEdtF(e[0]);
       return e;
     };
     if (this.service === 'Skolengo')
