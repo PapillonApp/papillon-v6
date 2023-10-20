@@ -54,18 +54,25 @@ function ApplicationLogs() {
         }
         list.push(obj)
     })
-
+    
     return (
         <View style={{ gap: 9, marginTop: 16 }}>
 
         <FlatList
             data={list}
-            renderItem={({item}) => <Text style={[styles.item, {color: item.color }]}>{item.message}</Text>}
+            renderItem={({item}) => (<Text style={[styles.item, {color: item.color }]}>{JSON.stringify(item.message, getCircularReplacer())}</Text>)}
         />
-          
+        
+
         </View>
     )
 
+}
+
+function renderLogs(item) {
+    return (
+        <Text>{item}</Text>
+    )
 }
 
 const styles = StyleSheet.create({
