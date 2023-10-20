@@ -39,6 +39,24 @@ function ApplicationLogs() {
         };
     };
 
+    function objToString(obj, ndeep) {
+        switch(typeof obj){
+          case "string": return '"'+obj+'"';
+          case "function": return obj.name || obj.toString();
+          case "object":
+            if(obj === null) return "null"
+            var indent = Array(ndeep||1).join('\t'), isArray = Array.isArray(obj);
+            return ('{['[+isArray] + Object.keys(obj).map(function(key){
+                 return '\n\t' + indent +(isArray?'': key + ': ' )+ objToString(obj[key], (ndeep||1)+1);
+               }).join(',') + '\n' + indent + '}]'[+isArray]).replace(/[\s\t\n]+(?=(?:[^\'"]*[\'"][^\'"]*[\'"])*[^\'"]*$)/g,'');
+          case "symbol":
+               return "symbol"
+          case 'undefined':
+            return "undefined"
+          default: return obj.toString();
+        }
+      }
+
     CaptureLogs.messages.forEach(obj => {
         switch(obj.type) {
             case 'log':
@@ -54,15 +72,15 @@ function ApplicationLogs() {
         }
         list.push(obj)
     })
-    
+
     return (
         <View style={{ gap: 9, marginTop: 16 }}>
 
         <FlatList
             data={list}
-            renderItem={({item}) => (<Text style={[styles.item, {color: item.color }]}>{JSON.stringify(item.message, getCircularReplacer())}</Text>)}
+            renderItem={({item}) => <Text style={[styles.item, {color: item.color }]}>{objToString(item.message)}</Text>}
         />
-        
+          
         </View>
     )
 
