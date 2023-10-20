@@ -63,16 +63,9 @@ function ApplicationLogs() {
             renderItem={({item}) => (<Text style={[styles.item, {color: item.color }]}>{JSON.stringify(item.message, getCircularReplacer())}</Text>)}
         />
         
-
         </View>
     )
 
-}
-
-function renderLogs(item) {
-    return (
-        <Text>{item}</Text>
-    )
 }
 
 const styles = StyleSheet.create({
