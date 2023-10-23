@@ -18,6 +18,8 @@ import {
 
 import PdfRendererView from 'react-native-pdf-renderer';
 
+import { ContextMenuView } from 'react-native-ios-context-menu';
+
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text, useTheme } from 'react-native-paper';
@@ -413,41 +415,31 @@ function PapillonAttachment({ attachment, index, theme, openURL, setIsModalOpen,
   }, []);
 
   return (
-    <NativeItem
-      leading={
-        <View style={{ paddingHorizontal: 3.5 }}>
-          {attachment.type === 0 ? (
-            <Link size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
-          ) : (
-            <File size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
-          )}
-        </View>
-      }
-      trailing={ !downloaded ?
-        <ActivityIndicator />
-        : savedLocally ?
-        <DownloadCloud
-          size={22}
-          color={theme.dark ? '#ffffff' : '#000000'}
-          style={{ opacity: 0.7, marginLeft: 10 }}
-        />
-        : null
-      }
-      chevron={downloaded ? true : false}
-      onPress={downloaded ? () => {
-        if (formattedFileExtension === "pdf") {
-          setModalURL(fileURL);
-          setIsModalOpen(true);
+      <NativeItem
+        leading={
+          <View style={{ paddingHorizontal: 3.5 }}>
+            {attachment.type === 0 ? (
+              <Link size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
+            ) : (
+              <File size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
+            )}
+          </View>
         }
-        else {
-          openURL(fileURL);
-        }
-      } : null}
-    >
-      <NativeText heading="p2" numberOfLines={1}>
-        {attachment.name}
-      </NativeText>
-    </NativeItem>
+        chevron={true}
+        onPress={() => {
+          if (formattedFileExtension === "pdf") {
+            setModalURL(fileURL);
+            setIsModalOpen(true);
+          }
+          else {
+            openURL(fileURL);
+          }
+        }}
+      >
+        <NativeText heading="p2" numberOfLines={1}>
+          {attachment.name}
+        </NativeText>
+      </NativeItem>
   )
 }
 

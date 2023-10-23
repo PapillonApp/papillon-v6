@@ -133,7 +133,7 @@ function NewsItem({ route, navigation }) {
           </TouchableOpacity>
 
           <PdfRendererView
-            style={{ flex: 1 }}
+            style={{ flex: 1, backgroundColor: UIColors.background }}
             source={modalURL}
           />
         </SafeAreaView>
@@ -194,7 +194,7 @@ function NewsItem({ route, navigation }) {
       {news.attachments.length > 0 ? (
         <View style={[styles.homeworkFiles]}>
           {news.attachments.map((file, index) => (
-            <PapillonAttachment file={file} index={index} theme={theme} UIColors={UIColors} setModalURL={setModalURL} setIsModalOpen={setIsModalOpen} openURL={openURL} />
+            <PapillonAttachment key={index} file={file} index={index} theme={theme} UIColors={UIColors} setModalURL={setModalURL} setIsModalOpen={setIsModalOpen} openURL={openURL} />
           ))}
         </View>
       ) : null}
@@ -217,24 +217,24 @@ function PapillonAttachment({file, index, theme, UIColors, setModalURL, setIsMod
 
   useEffect(() => {
     if (formattedFileExtension == 'pdf') {
-          FileSystem.getInfoAsync(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
-            if (e.exists) {
-              setDownloaded(true);
-              setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
-              setSavedLocally(true);
-            }
-            else {
-              FileSystem.downloadAsync(attachment.url, FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
-                setDownloaded(true);
-                setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
-                setSavedLocally(true);
-              });
-            }
-          });
+      FileSystem.getInfoAsync(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
+        if (e.exists) {
+          setDownloaded(true);
+          setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
+          setSavedLocally(true);
         }
         else {
-          setDownloaded(true);
+          FileSystem.downloadAsync(attachment.url, FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
+            setDownloaded(true);
+            setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
+            setSavedLocally(true);
+          });
         }
+      });
+    }
+    else {
+      setDownloaded(true);
+    }
   }, []);
 
   return (
@@ -256,11 +256,13 @@ function PapillonAttachment({file, index, theme, UIColors, setModalURL, setIsMod
                   }
                 } : null}
               >
-                {file.type === 0 ? (
-                  <Link size={20} color={theme.dark ? '#ffffff' : '#000000'} />
-                ) : (
-                  <File size={20} color={theme.dark ? '#ffffff' : '#000000'} />
-                )}
+                { 
+                  file.type === 0 ? (
+                    <Link size={20} color={theme.dark ? '#ffffff' : '#000000'} />
+                  ) : (
+                    <File size={20} color={theme.dark ? '#ffffff' : '#000000'} />
+                  )
+                }
 
                 <View style={[styles.homeworkFileData]}>
                   <Text style={[styles.homeworkFileText]}>{file.name}</Text>
