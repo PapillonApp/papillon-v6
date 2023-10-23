@@ -10,13 +10,19 @@ import {
   ActivityIndicator,
   Dimensions,
   ScrollView,
+  Linking,
+  Modal,
+  Button,
+  TouchableOpacity,
 } from 'react-native';
 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import PdfRendererView from 'react-native-pdf-renderer';
+
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text, useTheme } from 'react-native-paper';
 
-import { Newspaper, ChefHat, Projector, Users2, AlertTriangle } from 'lucide-react-native';
+import { Newspaper, ChefHat, Projector, Users2, AlertTriangle, X, DownloadCloud } from 'lucide-react-native';
 import { BarChart4, Link, File } from 'lucide-react-native';
 import ListItem from '../components/ListItem';
 
@@ -30,6 +36,7 @@ import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
 import * as WebBrowser from 'expo-web-browser';
+import * as FileSystem from 'expo-file-system';
 
 function relativeDate(date) {
   const now = new Date();
@@ -243,6 +250,9 @@ function NewsScreen({ navigation }) {
     }
   }
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ modalURL , setModalURL ] = useState('');
+
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
@@ -257,7 +267,11 @@ function NewsScreen({ navigation }) {
     >
       <StatusBar
         animated
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        barStyle={
+          ! isModalOpen ?
+          theme.dark ? 'light-content' : 'dark-content'
+          : 'light-content'
+        }
         backgroundColor="transparent"
       />
 
@@ -267,6 +281,29 @@ function NewsScreen({ navigation }) {
           subtitle="Obtention des dernières actualités en cours"
         />
       ) : null}
+
+      <Modal
+        animationType="slide"
+        presentationStyle='pageSheet'
+        visible={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+      >
+        <SafeAreaView style={{ flex: 1, backgroundColor: theme.dark ? '#000000' : '#ffffff' }}>
+          <TouchableOpacity style={[styles.pdfClose, Platform.OS === 'android' ? { top: insets.top } : null]}
+            onPress={() => setIsModalOpen(false)}
+          >
+            <X
+              color='#ffffff'
+              style={styles.pdfCloseIcon}
+            />
+          </TouchableOpacity>
+
+          <PdfRendererView
+            style={{ flex: 1 }}
+            source={modalURL}
+          />
+        </SafeAreaView>
+      </Modal>
 
       
       {!isLoading && news.length !== 0 && (
@@ -331,26 +368,9 @@ function NewsScreen({ navigation }) {
                   </View>
                 </NativeItem>
 
-                {item.attachments.map((attachment, index) => (
-                  <NativeItem
-                    leading={
-                      <View style={{ paddingHorizontal: 3.5 }}>
-                        {attachment.type === 0 ? (
-                          <Link size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
-                        ) : (
-                          <File size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
-                        )}
-                      </View>
-                    }
-                    chevron
-                    onPress={() => openURL(attachment.url)}
-                    key={index}
-                  >
-                    <NativeText heading="p2" numberOfLines={1}>
-                      {attachment.name}
-                    </NativeText>
-                  </NativeItem>
-                ))}
+                {item.attachments.map((attachment, index) => 
+                  <PapillonAttachment attachment={attachment} key={index} index={index} theme={theme} openURL={openURL} setIsModalOpen={setIsModalOpen} setModalURL={setModalURL} />
+                )}
               </NativeList>
             );
           })}
@@ -359,6 +379,76 @@ function NewsScreen({ navigation }) {
 
     </ScrollView>
   );
+}
+
+function PapillonAttachment({ attachment, index, theme, openURL, setIsModalOpen, setModalURL }) {
+  const [downloaded, setDownloaded] = useState(false);
+  const [savedLocally, setSavedLocally] = useState(false);
+
+  const formattedAttachmentName = attachment.name.replace(/ /g, '_');
+  const formattedFileExtension = attachment.url.split('.').pop().split(/\#|\?/)[0];
+
+  const [fileURL, setFileURL] = useState(attachment.url);
+
+  useEffect(() => {
+    if (formattedFileExtension == 'pdf') {
+          FileSystem.getInfoAsync(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
+            if (e.exists) {
+              setDownloaded(true);
+              setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
+              setSavedLocally(true);
+            }
+            else {
+              FileSystem.downloadAsync(attachment.url, FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
+                setDownloaded(true);
+                setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
+                setSavedLocally(true);
+              });
+            }
+          });
+        }
+        else {
+          setDownloaded(true);
+        }
+  }, []);
+
+  return (
+    <NativeItem
+      leading={
+        <View style={{ paddingHorizontal: 3.5 }}>
+          {attachment.type === 0 ? (
+            <Link size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
+          ) : (
+            <File size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
+          )}
+        </View>
+      }
+      trailing={ !downloaded ?
+        <ActivityIndicator />
+        : savedLocally ?
+        <DownloadCloud
+          size={22}
+          color={theme.dark ? '#ffffff' : '#000000'}
+          style={{ opacity: 0.7, marginLeft: 10 }}
+        />
+        : null
+      }
+      chevron={downloaded ? true : false}
+      onPress={downloaded ? () => {
+        if (formattedFileExtension === "pdf") {
+          setModalURL(fileURL);
+          setIsModalOpen(true);
+        }
+        else {
+          openURL(fileURL);
+        }
+      } : null}
+    >
+      <NativeText heading="p2" numberOfLines={1}>
+        {attachment.name}
+      </NativeText>
+    </NativeItem>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -393,6 +483,20 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'Papillon-Medium',
   },
+
+  pdfClose: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 300,
+    backgroundColor: '#00000099',
+    zIndex: 100,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 });
 
 export default NewsScreen;

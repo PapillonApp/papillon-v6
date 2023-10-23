@@ -10,17 +10,7 @@ function getUser(force = false) {
       if (userCache && !force) {
         userCache = JSON.parse(userCache);
 
-        const userCacheDate = new Date(userCache.date);
-        const today = new Date();
-
-        userCacheDate.setHours(0, 0, 0, 0);
-        today.setHours(0, 0, 0, 0);
-
-        if (userCacheDate.getTime() === today.getTime()) {
-          return editUser(userCache.user);
-        }
-        AsyncStorage.removeItem('userCache');
-        return getUser(true);
+        return editUser(userCache.user);
       }
       // obtenir le token
       return AsyncStorage.getItem('token')

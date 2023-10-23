@@ -46,6 +46,7 @@
     "expo-dev-client": "~2.4.8",
     "expo-dev-launcher": "^3.0.0",
     "expo-dynamic-app-icon": "^1.1.8",
+    "expo-file-system": "~15.4.4",
     "expo-font": "~11.4.0",
     "expo-haptics": "~12.4.0",
     "expo-image-picker": "~14.3.2",
@@ -57,6 +58,7 @@
     "expo-notifications": "~0.20.1",
     "expo-sharing": "~11.5.0",
     "expo-splash-screen": "~0.20.5",
+    "expo-sqlite": "~11.3.3",
     "expo-status-bar": "~1.6.0",
     "expo-store-review": "~6.4.0",
     "expo-system-ui": "~2.4.0",
@@ -80,6 +82,7 @@
     "react-native-notifications": "^5.1.0",
     "react-native-paper": "^5.9.1",
     "react-native-parsed-text": "^0.0.22",
+    "react-native-pdf-renderer": "^1.2.0",
     "react-native-pressable-scale": "^2.1.0",
     "react-native-prompt-android": "^1.1.0",
     "react-native-reanimated": "~3.4.2",
@@ -97,11 +100,10 @@
     "react-native-vector-icons": "^9.2.0",
     "react-native-view-shot": "3.7.0",
     "react-native-web": "~0.19.6",
+    "react-native-webview": "^13.6.2",
     "reanimated-color-picker": "^2.3.4",
     "swiftui-react-native": "^5.0.0",
-    "sync-storage": "^0.4.2",
-    "expo-file-system": "~15.4.4",
-    "expo-sqlite": "~11.3.3"
+    "sync-storage": "^0.4.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

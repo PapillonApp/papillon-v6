@@ -6,6 +6,8 @@ import {
   StatusBar,
   useWindowDimensions,
   Platform,
+  Modal,
+  TouchableOpacity,
 } from 'react-native';
 
 import { Text, useTheme } from 'react-native-paper';
@@ -14,17 +16,25 @@ import RenderHtml from 'react-native-render-html';
 
 import * as WebBrowser from 'expo-web-browser';
 
-import { BarChart4, Link, File } from 'lucide-react-native';
+import { BarChart4, Link, File, X, DownloadCloud } from 'lucide-react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import ListItem from '../../components/ListItem';
 import GetUIColors from '../../utils/GetUIColors';
 import { useAppContext } from '../../utils/AppContext';
+
+import PdfRendererView from 'react-native-pdf-renderer';
+import * as FileSystem from 'expo-file-system';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 function NewsItem({ route, navigation }) {
   const [news, setNews] = useState(route.params.news);
   const theme = useTheme();
   const UIColors = GetUIColors();
   const { width } = useWindowDimensions();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ modalURL , setModalURL ] = useState('');
 
   const appctx = useAppContext();
 
@@ -99,9 +109,35 @@ function NewsItem({ route, navigation }) {
     >
       <StatusBar
         animated
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        barStyle={
+          isModalOpen ? 'light-content' :
+          theme.dark ? 'light-content' : 'dark-content'
+        }
         backgroundColor="transparent"
       />
+
+      <Modal
+        animationType="slide"
+        presentationStyle='pageSheet'
+        visible={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+      >
+        <SafeAreaView style={{ flex: 1, backgroundColor: theme.dark ? '#000000' : '#ffffff' }}>
+          <TouchableOpacity style={[styles.pdfClose, Platform.OS === 'android' ? { top: insets.top } : null]}
+            onPress={() => setIsModalOpen(false)}
+          >
+            <X
+              color='#ffffff'
+              style={styles.pdfCloseIcon}
+            />
+          </TouchableOpacity>
+
+          <PdfRendererView
+            style={{ flex: 1 }}
+            source={modalURL}
+          />
+        </SafeAreaView>
+      </Modal>
 
       {news.survey ? (
         <ListItem
@@ -158,7 +194,51 @@ function NewsItem({ route, navigation }) {
       {news.attachments.length > 0 ? (
         <View style={[styles.homeworkFiles]}>
           {news.attachments.map((file, index) => (
-            <View style={[styles.homeworkFileContainer]} key={index}>
+            <PapillonAttachment file={file} index={index} theme={theme} UIColors={UIColors} setModalURL={setModalURL} setIsModalOpen={setIsModalOpen} openURL={openURL} />
+          ))}
+        </View>
+      ) : null}
+
+      <View style={{ height: 20 }} />
+    </ScrollView>
+  );
+}
+
+function PapillonAttachment({file, index, theme, UIColors, setModalURL, setIsModalOpen, openURL}) {
+  const attachment = file;
+
+  const [downloaded, setDownloaded] = useState(false);
+  const [savedLocally, setSavedLocally] = useState(false);
+
+  const formattedAttachmentName = attachment.name.replace(/ /g, '_');
+  const formattedFileExtension = attachment.url.split('.').pop().split(/\#|\?/)[0];
+
+  const [fileURL, setFileURL] = useState(attachment.url);
+
+  useEffect(() => {
+    if (formattedFileExtension == 'pdf') {
+          FileSystem.getInfoAsync(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
+            if (e.exists) {
+              setDownloaded(true);
+              setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
+              setSavedLocally(true);
+            }
+            else {
+              FileSystem.downloadAsync(attachment.url, FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
+                setDownloaded(true);
+                setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
+                setSavedLocally(true);
+              });
+            }
+          });
+        }
+        else {
+          setDownloaded(true);
+        }
+  }, []);
+
+  return (
+    <View style={[styles.homeworkFileContainer]} key={index}>
               <PressableScale
                 style={[
                   styles.homeworkFile,
@@ -166,7 +246,15 @@ function NewsItem({ route, navigation }) {
                 ]}
                 weight="light"
                 activeScale={0.9}
-                onPress={() => openURL(file.url)}
+                onPress={downloaded ? () => {
+                  if (formattedFileExtension === "pdf") {
+                    setModalURL(fileURL);
+                    setIsModalOpen(true);
+                  }
+                  else {
+                    openURL(fileURL);
+                  }
+                } : null}
               >
                 {file.type === 0 ? (
                   <Link size={20} color={theme.dark ? '#ffffff' : '#000000'} />
@@ -184,15 +272,17 @@ function NewsItem({ route, navigation }) {
                     {file.url}
                   </Text>
                 </View>
+
+                { savedLocally ? (
+                  <DownloadCloud
+                    size={22}
+                    color={UIColors.text}
+                    style={{ opacity: 0.7 }}
+                  />
+                ) : null }
               </PressableScale>
             </View>
-          ))}
-        </View>
-      ) : null}
-
-      <View style={{ height: 20 }} />
-    </ScrollView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -282,6 +372,20 @@ const styles = StyleSheet.create({
     fontSize: 19,
     fontFamily: 'Papillon-Medium',
   },
+
+  pdfClose: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 300,
+    backgroundColor: '#00000099',
+    zIndex: 100,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 });
 
 export default NewsItem;
