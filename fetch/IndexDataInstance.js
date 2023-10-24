@@ -11,6 +11,7 @@ export class IndexDataInstance {
    * @type {import('./SkolengoData/SkolengoDatas.js').SkolengoDatas | null}
    */
   skolengoInstance = null;
+  ecoledirecteInstance = null;
 
   constructor(service = null) {
     this.service = service;
@@ -19,8 +20,8 @@ export class IndexDataInstance {
 
   async waitInit() {
     if (this.initialized) return true;
-    if (this.service === 'Skolengo' && this.skolengoInstance === null)
-      await this.init('Skolengo');
+    if (this.service === 'Skolengo' && this.skolengoInstance === null) await this.init('Skolengo');
+    if (this.service === 'EcoleDirecte' && this.ecoledirecteInstance === null) await this.init('EcoleDirecte');
     return new Promise((resolve) => {
       const interval = setInterval(() => {
         if (this.initialized) {
@@ -34,12 +35,8 @@ export class IndexDataInstance {
   async init(service = null) {
     this.service = service || (await AsyncStorage.getItem('service')) || null;
     console.log('seriv', this.service);
-    this.skolengoInstance =
-      this.service === 'Skolengo'
-        ? await require(
-            `./SkolengoData/SkolengoDatas.js`
-          ).SkolengoDatas?.initSkolengoDatas()
-        : null;
+    this.skolengoInstance = this.service === 'Skolengo' ? await require(`./SkolengoData/SkolengoDatas.js`).SkolengoDatas?.initSkolengoDatas() : null;
+    this.ecoledirecteInstance = this.service === 'EcoleDirecte' ? await require("./EcoleDirecteData/ED_init.js").default() : null;
     this.initialized = true;
   }
 
@@ -56,6 +53,7 @@ export class IndexDataInstance {
     // .then((e) => thenHandler('grades', e));
     return require(`./SkolengoData/SkolengoDatas.js`).SkolengoDatas
       .gradesDefault;
+    
   }
 
   async getEvaluations(force = false) {
@@ -158,6 +156,8 @@ export class IndexDataInstance {
     await this.waitInit();
     if (this.service === 'Skolengo')
       return this.skolengoInstance.getTimetable(day, force);
+    if (this.service === 'EcoleDirecte') 
+      return require("./EcoleDirecteData/EcoleDirecteTimetable.js").getTimetable(day, force, this.ecoledirecteInstance);
     if (this.service === 'Pronote')
       return require(`./PronoteData/PronoteTimetable.js`).getTimetable(
         day,
