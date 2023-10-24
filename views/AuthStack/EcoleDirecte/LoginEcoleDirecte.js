@@ -32,11 +32,13 @@ import PapillonButton from '../../../components/PapillonButton';
 import GetUIColors from '../../../utils/GetUIColors';
 import { useAppContext } from '../../../utils/AppContext';
 
-const entities = require('entities');
+import ED from 'papillon-ed-core';
+
+//const entities = require('entities');
 
 function LoginEcoleDirecte({ route, navigation }) {
   const theme = useTheme();
-  const { showActionSheetWithOptions } = useActionSheet();
+  //const { showActionSheetWithOptions } = useActionSheet();
 
 
   React.useLayoutEffect(() => {
@@ -76,42 +78,42 @@ function LoginEcoleDirecte({ route, navigation }) {
 
     setConnecting(true);
 
+    let ed = new ED();
 
-    /*getToken(credentials).then((result) => {
+    ed.auth.login(username, password).then(() => {
+
+      AsyncStorage.setItem('token', ed._token);
+      AsyncStorage.setItem('ED_ID', JSON.stringify(ed.student.id));
+      AsyncStorage.setItem('credentials', JSON.stringify(credentials));
+      AsyncStorage.setItem('service', 'EcoleDirecte');
+
+      showMessage({
+        message: 'Connecté avec succès',
+        type: 'success',
+        icon: 'auto',
+        floating: true,
+      });
+
+      appctx.dataprovider.service = 'EcoleDirecte';
+      appctx.dataprovider.init('EcoleDirecte').then(() => {
+        navigation.goBack();
+        navigation.goBack();
+        appctx.setLoggedIn(true);
+      });
+      
+    }).catch(err => {
       setConnecting(false);
-      const token = result.token;
-
-      if (!token) {
-        Alert.alert(
-          'Échec de la connexion',
-          'Vérifiez vos identifiants et réessayez.',
-          [
-            {
-              text: 'OK',
-              style: 'cancel',
-            },
-          ]
-        );
-      } else {
-        AsyncStorage.setItem('token', token);
-        AsyncStorage.setItem('credentials', JSON.stringify(credentials));
-        AsyncStorage.setItem('service', 'Pronote');
-
-        showMessage({
-          message: 'Connecté avec succès',
-          type: 'success',
-          icon: 'auto',
-          floating: true,
-        });
-
-        appctx.dataprovider.service = 'Pronote';
-        appctx.dataprovider.init('Pronote').then(() => {
-          navigation.goBack();
-          navigation.goBack();
-          appctx.setLoggedIn(true);
-        });
-      }
-    });*/
+      Alert.alert(
+        'Échec de la connexion',
+        'Vérifiez vos identifiants et réessayez.',
+        [
+          {
+            text: 'OK',
+            style: 'cancel',
+          },
+        ]
+      );
+    })
   }
 
 
