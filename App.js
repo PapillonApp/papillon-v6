@@ -73,6 +73,8 @@ import NotificationsScreen from './views/Settings/NotificationsScreen';
 
 import setBackgroundFetch from './fetch/BackgroundFetch';
 
+import LoginEcoleDirecte from './views/AuthStack/EcoleDirecte/LoginEcoleDirecte';
+
 import { LoginSkolengoSelectSchool } from './views/AuthStack/Skolengo/LoginSkolengoSelectSchool';
 import { IndexDataInstance } from './fetch/IndexDataInstance';
 import GetUIColors from './utils/GetUIColors';
@@ -887,6 +889,15 @@ function AuthStack() {
         component={LoginSkolengoSelectSchool}
         options={{
           title: 'Se connecter à Skolengo',
+          presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
+        name="LoginEcoleDirecte"
+        component={LoginEcoleDirecte}
+        options={{
+          title: 'Se connecter à EcoleDirecte',
           presentation: 'modal',
         }}
       />

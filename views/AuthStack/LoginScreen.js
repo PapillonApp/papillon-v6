@@ -74,7 +74,7 @@ function LoginScreen({ navigation }) {
       identitifants: 'Pronote ou ENT',
     },
     {
-      name: 'ÉcoleDirecte',
+      name: 'EcoleDirecte',
       color: '#0062A6',
       logo: require('../../assets/logo_ed.png'),
       identitifants: 'ÉcoleDirecte',
@@ -89,6 +89,7 @@ function LoginScreen({ navigation }) {
 
   function pressedService(service, color) {
     if (service === 'Pronote') navigation.navigate('LoginPronoteSelectEtab');
+    else if(service === "EcoleDirecte") navigation.navigate("LoginEcoleDirecte");
     else if (service === 'Skolengo')
       navigation.navigate('LoginSkolengoSelectSchool');
     else
