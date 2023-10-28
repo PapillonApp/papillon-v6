@@ -1,6 +1,6 @@
 const widgetConfig = {
   // Paths to all custom fonts used in all widgets
-  fonts: ['./assets/fonts/Inter.ttf'],
+  fonts: ['./assets/fonts/FixelText-Regular.ttf'],
   widgets: [
     {
       name: 'Hello', // This name will be the **name** with which we will reference our widget.
