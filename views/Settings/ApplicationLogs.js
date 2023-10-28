@@ -1,5 +1,7 @@
 import CaptureLogs from "../../utils/CaptureLogs";
 
+import * as React from "react"
+
 import {
     StyleSheet,
     View,
@@ -12,7 +14,7 @@ import {
     KeyboardAvoidingView,
     Button,
 } from 'react-native';
-  
+
 import ListItem from '../../components/ListItem';
 import NativeList from '../../components/NativeList'
 
@@ -20,10 +22,17 @@ import { Text, useTheme } from 'react-native-paper';
 import GetUIColors from '../../utils/GetUIColors';
 
 
+async function sleep(num) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve()
+        }, num)
+    })
+}
 function ApplicationLogs() {
-
+    const theme = useTheme();
     const UIColors = GetUIColors();
-
+    const [isSwitchOn, setIsSwitchOn] = React.useState(null)
     let list = [];
 
     const getCircularReplacer = () => {
@@ -40,6 +49,7 @@ function ApplicationLogs() {
     };
 
     function objToString(obj, ndeep) {
+        //sleep(10000)
         switch(typeof obj){
           case "string": return '"'+obj+'"';
           case "function": return obj.name || obj.toString();
@@ -56,11 +66,13 @@ function ApplicationLogs() {
           default: return obj.toString();
         }
       }
-
+    let captured = 0
     CaptureLogs.messages.forEach(obj => {
+        if(captured === 100) return;
+        captured ++
         switch(obj.type) {
             case 'log':
-                obj.color = "black"
+                obj.color = "white"
             break;
             case 'warn':
                 obj.color = "yellow"
@@ -74,14 +86,14 @@ function ApplicationLogs() {
     })
 
     return (
-        <View style={{ gap: 9, marginTop: 16 }}>
+        <ScrollView style={{ gap: 9, backgroundColor: UIColors.background }}>
 
         <FlatList
             data={list}
             renderItem={({item}) => <Text style={[styles.item, {color: item.color }]}>{objToString(item.message)}</Text>}
         />
-          
-        </View>
+        <Text>{list.length} logs restants</Text>
+        </ScrollView>
     )
 
 }
