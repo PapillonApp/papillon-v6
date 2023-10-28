@@ -8,7 +8,7 @@ const widgetConfig = {
       minWidth: '320dp',
       minHeight: '120dp',
       description: 'This is my first widget', // Description shown in the widget picker
-      previewImage: './assets/widget-preview/hello.png', // Path to widget preview image
+      previewImage: './android-widgets/hello.png', // Path to widget preview image
 
       // How often, in milliseconds, that this AppWidget wants to be updated.
       // The task handler will be called with widgetAction = 'UPDATE_WIDGET'.
