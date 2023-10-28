@@ -1,8 +1,29 @@
-{
+const widgetConfig = {
+  // Paths to all custom fonts used in all widgets
+  fonts: ['./assets/fonts/Inter.ttf'],
+  widgets: [
+    {
+      name: 'Hello', // This name will be the **name** with which we will reference our widget.
+      label: 'My Hello Widget', // Label shown in the widget picker
+      minWidth: '320dp',
+      minHeight: '120dp',
+      description: 'This is my first widget', // Description shown in the widget picker
+      previewImage: './assets/widget-preview/hello.png', // Path to widget preview image
+
+      // How often, in milliseconds, that this AppWidget wants to be updated.
+      // The task handler will be called with widgetAction = 'UPDATE_WIDGET'.
+      // Default is 0 (no automatic updates)
+      // Minimum is 1800000 (30 minutes == 30 * 60 * 1000).
+      updatePeriodMillis: 1800000,
+    },
+  ],
+};
+
+module.exports = {
   "expo": {
-    "name": "Papillon",
+    "name": "Papillon Dev",
     "slug": "papillonvex",
-    "version": "6.2.3",
+    "version": "6.2.3-test-widget",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -31,7 +52,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "plus.pronote.app"
+      "bundleIdentifier": "plus.pronote.app.dev"
     },
     "android": {
       "adaptiveIcon": {
@@ -43,7 +64,7 @@
         "backgroundColor": "#34AC90",
         "resizeMode": "cover"
       },
-      "package": "plus.pronote.app",
+      "package": "plus.pronote.app.dev",
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
@@ -59,6 +80,7 @@
       }
     },
     "plugins": [
+      ['react-native-android-widget', widgetConfig],
       [
         "expo-notifications",
         {
