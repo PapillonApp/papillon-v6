@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="320dp"
+    android:minHeight="120dp"
+
+
+
+    android:resizeMode="horizontal"
+
+    android:description="@string/widget_clickdemo_description"
+
+    android:initialLayout="@layout/rn_widget"
+    android:previewImage="@drawable/clickdemo_preview"
+
+
+
+    android:updatePeriodMillis="1800000"
+    android:widgetCategory="home_screen">
+</appwidget-provider>
