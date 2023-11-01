@@ -1,10 +1,12 @@
 import React from 'react';
 import type { WidgetTaskHandlerProps } from 'react-native-android-widget';
 import { HelloWidget } from './HelloWidget';
+import { ClickDemoWidget } from './ClickWidget';
 
 const nameToWidget = {
   // Hello will be the **name** with which we will reference our widget.
   Hello: HelloWidget,
+  ClickDemo: ClickDemoWidget
 };
 
 export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
@@ -18,11 +20,11 @@ export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
       break;
 
     case 'WIDGET_UPDATE':
-      // Not needed for now
+      props.renderWidget(<Widget />);
       break;
 
     case 'WIDGET_RESIZED':
-      // Not needed for now
+      props.renderWidget(<Widget />);
       break;
 
     case 'WIDGET_DELETED':
