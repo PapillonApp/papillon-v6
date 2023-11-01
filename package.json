@@ -102,11 +102,10 @@
     "react-native-web": "~0.19.6",
     "react-native-webview": "^13.6.2",
     "reanimated-color-picker": "^2.3.4",
-    "swiftui-react-native": "^5.0.0",
-    "sync-storage": "^0.4.2"
+    "swiftui-react-native": "^5.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
+    "@babel/core": "^7.23.2",
     "eslint": "^8.48.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^9.0.0",
