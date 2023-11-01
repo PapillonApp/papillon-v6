@@ -1,6 +1,12 @@
 const widgetConfig = {
   // Paths to all custom fonts used in all widgets
-  fonts: ['./assets/fonts/FixelText-Regular.ttf'],
+  fonts: [
+    './assets/fonts/FixelText-Bold.ttf',
+    './assets/fonts/FixelText-Light.ttf',
+    './assets/fonts/FixelText-Medium.ttf',
+    './assets/fonts/FixelText-Regular.ttf',
+    './assets/fonts/FixelText-SemiBold.ttf'
+  ],
   widgets: [
     {
       name: 'Hello', // This name will be the **name** with which we will reference our widget.
@@ -15,6 +21,27 @@ const widgetConfig = {
       // Default is 0 (no automatic updates)
       // Minimum is 1800000 (30 minutes == 30 * 60 * 1000).
       updatePeriodMillis: 1800000,
+      resizeMode: "horizontal"
+    },
+    {
+      name: 'ClickDemo',
+      label: 'My Hello Widget',
+      minWidth: '320dp',
+      minHeight: '120dp',
+      description: 'This is my first widget',
+      previewImage: './android-widgets/hello.png',
+      updatePeriodMillis: 1800000,
+      resizeMode: "horizontal"
+    },
+    {
+      name: 'EDT',
+      label: 'Emploi du temps (3 cours)',
+      minWidth: '320dp',
+      minHeight: '120dp',
+      description: 'Affiche les 3 prochains cours de votre emploi du temps au jour d\'aujourd\'hui',
+      previewImage: './android-widgets/EDTWidget-preview.png',
+      updatePeriodMillis: 1800000,
+      resizeMode: "horizontal"
     },
   ],
 };
