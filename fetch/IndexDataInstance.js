@@ -33,6 +33,7 @@ export class IndexDataInstance {
 
   async init(service = null) {
     this.service = service || (await AsyncStorage.getItem('service')) || null;
+    if(!this.service) return Error("[ERR_NO_ACCOUNT]: Aucun compte connecté")
     console.log('seriv', this.service);
     this.skolengoInstance =
       this.service === 'Skolengo'
