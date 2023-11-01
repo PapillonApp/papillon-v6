@@ -17,6 +17,3 @@ web-build/
 .metro-health-check*
 
 %ProgramData%/
-
-package-lock.json
-yarn.lock
