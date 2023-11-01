@@ -1,11 +1,11 @@
 import React from 'react';
 import type { WidgetTaskHandlerProps } from 'react-native-android-widget';
-import { HelloWidget } from './HelloWidget';
+import { EDTWidget } from './EDTWidget';
 import { ClickDemoWidget } from './ClickWidget';
 
 const nameToWidget = {
   // Hello will be the **name** with which we will reference our widget.
-  Hello: HelloWidget,
+  EDTWidget: EDTWidget,
   ClickDemo: ClickDemoWidget
 };
 
