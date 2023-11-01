@@ -59,25 +59,25 @@ function getNextCours(classes) {
 }
 
 module.exports = (Widget, name) => {
-    instance.getTimetable(Date.now())
+    instance.getTimetable("2023-11-06")
     .then((edt) => {
         let next = getNextCours(edt)
         if(next.next === null) next = null
         requestWidgetUpdate({
-            widgetName: "Hello",
+            widgetName: name,
             renderWidget: () => <Widget edt={next} />
         })
     })
     .catch(err => {
         if(err.include("ERR_NO_ACCOUNT")) {
             requestWidgetUpdate({
-                widgetName: "Hello",
+                widgetName: name,
                 renderWidget: () => <Widget noaccount={true} />
             })
         }
         else {
             requestWidgetUpdate({
-                widgetName: "Hello",
+                widgetName: name,
                 renderWidget: () => <Widget error={true} />
             })
         }

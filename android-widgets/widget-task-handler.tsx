@@ -5,7 +5,7 @@ import { ClickDemoWidget } from './ClickWidget';
 
 const nameToWidget = {
   // Hello will be the **name** with which we will reference our widget.
-  EDTWidget: EDTWidget,
+  EDT: EDTWidget,
   ClickDemo: ClickDemoWidget
 };
 

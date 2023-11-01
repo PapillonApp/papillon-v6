@@ -1,0 +1,197 @@
+[
+    {
+        "background_color": "#21BBEF",
+        "end": "2023-11-07 08:50",
+        "group_names": [],
+        "id": "31#zSQmJ09kf_TDzUFwNzkDY12K1qvzV4oRM2b8oNqjZCs",
+        "is_cancelled": false,
+        "is_detention": false,
+        "is_exempted": false,
+        "is_outing": false,
+        "is_test": false,
+        "memo": null,
+        "num": 1574,
+        "rooms": [
+            "A 009"
+        ],
+        "start": "2023-11-07 07:55",
+        "status": null,
+        "subject": {
+            "groups": false,
+            "id": "82#ahNd0TJV8OrsZ4pDgNq92017120LF3_poQfADQApwOg",
+            "name": "ESPAGNOL"
+        },
+        "teachers": [
+            "GALARRAGA M."
+        ],
+        "virtual": []
+    },
+    {
+        "background_color": "#C0C0C0",
+        "end": "2023-11-07 09:50",
+        "group_names": [],
+        "id": "31#EJ3JxBQaaU8b_dbkP9yYM4FYA_vsI381oTox6436rLI",
+        "is_cancelled": true,
+        "is_detention": false,
+        "is_exempted": false,
+        "is_outing": false,
+        "is_test": false,
+        "memo": null,
+        "num": 1590,
+        "rooms": [
+            "A 108"
+        ],
+        "start": "2023-11-07 08:55",
+        "status": "Prof. absent",
+        "subject": {
+            "groups": false,
+            "id": "82#Ofqb5ZFYq1g-rmxM8GaChjLyxEn6G9PQtdDTXfXoqcs",
+            "name": "HISTOIRE-GEOGRAPHIE"
+        },
+        "teachers": [
+            "DABADIE C."
+        ],
+        "virtual": []
+    },
+    {
+        "background_color": "#FFCA7F",
+        "end": "2023-11-07 11:00",
+        "group_names": [],
+        "id": "31#XcrThfXM8cHWRjp8cwMX5Cnl34T5KipVglhpMQtfxdk",
+        "is_cancelled": true,
+        "is_detention": false,
+        "is_exempted": false,
+        "is_outing": false,
+        "is_test": false,
+        "memo": null,
+        "num": 1605,
+        "rooms": [
+            "A 201"
+        ],
+        "start": "2023-11-07 10:05",
+        "status": "Prof. absent",
+        "subject": {
+            "groups": false,
+            "id": "82#P_MI9mC3IxkW0vdmg2dfoQ7AYGFEBJyrZ3yi-6ZdAGw",
+            "name": "ENS. MORAL & CIVIQUE"
+        },
+        "teachers": [
+            "DABADIE C."
+        ],
+        "virtual": []
+    },
+    {
+        "background_color": "#59BEBD",
+        "end": "2023-11-07 12:30",
+        "group_names": [
+            "[1 STI2D 1]"
+        ],
+        "id": "31#T593wnFVQ4UmsUIleIM8DxmzsJb1OVkXSHc7rLZnzcM",
+        "is_cancelled": false,
+        "is_detention": false,
+        "is_exempted": false,
+        "is_outing": false,
+        "is_test": false,
+        "memo": null,
+        "num": 618,
+        "rooms": [
+            "F 311 (I2D)"
+        ],
+        "start": "2023-11-07 11:05",
+        "status": null,
+        "subject": {
+            "groups": false,
+            "id": "82#9CgVav0OWzbNx4Be4byXACyEG08VMvFz8ifsnxtrD-g",
+            "name": "I2D-INGENIER.&DEV.DURAB."
+        },
+        "teachers": [
+            "BRIAT M."
+        ],
+        "virtual": []
+    },
+    {
+        "background_color": "#59BEBD",
+        "end": "2023-11-07 14:50",
+        "group_names": [
+            "[1 STI2D 1]"
+        ],
+        "id": "31#l7D1tL66_RjVjoH-WMWJlBftBjp0QE_Cr9knYwJczD8",
+        "is_cancelled": false,
+        "is_detention": false,
+        "is_exempted": false,
+        "is_outing": false,
+        "is_test": false,
+        "memo": null,
+        "num": 653,
+        "rooms": [
+            "F 311 (I2D)"
+        ],
+        "start": "2023-11-07 13:25",
+        "status": null,
+        "subject": {
+            "groups": false,
+            "id": "82#9CgVav0OWzbNx4Be4byXACyEG08VMvFz8ifsnxtrD-g",
+            "name": "I2D-INGENIER.&DEV.DURAB."
+        },
+        "teachers": [
+            "BRIAT M."
+        ],
+        "virtual": []
+    },
+    {
+        "background_color": "#000000",
+        "end": "2023-11-07 16:55",
+        "group_names": [],
+        "id": "31#xNjLtPxmILRx5P6bUi4MuAP10v8DstZo4q2ZY_5YDVc",
+        "is_cancelled": false,
+        "is_detention": false,
+        "is_exempted": false,
+        "is_outing": false,
+        "is_test": false,
+        "memo": null,
+        "num": 1563,
+        "rooms": [
+            "A 106"
+        ],
+        "start": "2023-11-07 16:00",
+        "status": null,
+        "subject": {
+            "groups": false,
+            "id": "82#HCK9RS2suKDO6Cu-bfths9ch5xHDc3Ww84WMAM4XdrM",
+            "name": "ANGLAIS"
+        },
+        "teachers": [
+            "MICHAUD M."
+        ],
+        "virtual": []
+    },
+    {
+        "background_color": "#00FFFF",
+        "end": "2023-11-07 17:55",
+        "group_names": [
+            "[1 STI2D 1]"
+        ],
+        "id": "31#OCzYEA0Nw0_EoY-MM4h-xiN0clfpumoRbhTNuCMHbEA",
+        "is_cancelled": false,
+        "is_detention": false,
+        "is_exempted": false,
+        "is_outing": false,
+        "is_test": false,
+        "memo": null,
+        "num": 641,
+        "rooms": [
+            "F 310 (IT I2D)"
+        ],
+        "start": "2023-11-07 17:00",
+        "status": null,
+        "subject": {
+            "groups": false,
+            "id": "82#jwJYgF7wysDggt9jlLkSaXcSVDCN7cmoYasiC9uUq4c",
+            "name": "MATH-PHYSIQUE-CHIMIE"
+        },
+        "teachers": [
+            "JOLY S."
+        ],
+        "virtual": []
+    }
+]
