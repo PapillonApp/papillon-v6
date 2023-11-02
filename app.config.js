@@ -108,6 +108,7 @@ module.exports = {
     },
     "plugins": [
       ['react-native-android-widget', widgetConfig],
+      "@notifee/react-native",
       [
         "expo-notifications",
         {
