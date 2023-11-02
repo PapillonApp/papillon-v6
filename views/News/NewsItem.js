@@ -26,12 +26,14 @@ import PdfRendererView from 'react-native-pdf-renderer';
 import * as FileSystem from 'expo-file-system';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function NewsItem({ route, navigation }) {
   const [news, setNews] = useState(route.params.news);
   const theme = useTheme();
   const UIColors = GetUIColors();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ modalURL , setModalURL ] = useState('');

@@ -428,7 +428,8 @@ function Hwitem({ homework, theme, openURL, navigation }) {
   return (
     <NativeList
       inset
-      style={{
+      style={
+        Platform.OS === 'ios' && {
         marginBottom: -20,
       }}
     >

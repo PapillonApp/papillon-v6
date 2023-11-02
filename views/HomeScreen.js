@@ -571,12 +571,12 @@ const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
     >
 
       <View
-        style={[styles.homeworks.devoirsDay.header.container, { backgroundColor: UIColors.primary + '22' }]}
+        style={[styles.homeworks.devoirsDay.header.container, UIColors.theme == 'dark' && Platform.OS !== 'ios' ? { backgroundColor: UIColors.text + '22' } : { backgroundColor: UIColors.primary + '22' }]}
       >
         <Text
           style={[
             styles.homeworks.devoirsDay.header.title,
-            { color: UIColors.primary }
+            UIColors.theme == 'dark' && Platform.OS !== 'ios' ? { color: UIColors.text } : { color: UIColors.primary }
           ]}
         >
           pour {homeworks.formattedDate}

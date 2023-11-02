@@ -23,52 +23,7 @@ function AppearanceScreen({ navigation }) {
   const { showActionSheetWithOptions } = useActionSheet();
   const insets = useSafeAreaInsets();
 
-  const changeTheme = () => {
-    const options = [
-      {
-        label: 'Par défaut',
-        value: null,
-      },
-      {
-        label: 'Clair',
-        value: 'light',
-      },
-      {
-        label: 'Sombre',
-        value: 'dark',
-      },
-      {
-        label: 'Annuler',
-        value: 'cancel',
-      },
-    ];
-    showActionSheetWithOptions(
-      {
-        options: options.map((option) => option.label),
-        cancelButtonIndex: options.length - 1,
-        containerStyle: {
-          paddingBottom: insets.bottom,
-          backgroundColor: UIColors.elementHigh,
-        },
-        textStyle: {
-          color: UIColors.text,
-        },
-        titleTextStyle: {
-          color: UIColors.text,
-          fontWeight: 'bold',
-        },
-        messageTextStyle: {
-          color: UIColors.text,
-        },
-      },
-      (selectedIndex) => {
-        if (selectedIndex === undefined) return;
-        const newTheme = options[selectedIndex];
-        if (newTheme.value === 'cancel') return;
-        Appearance.setColorScheme(newTheme.value);
-      }
-    );
-  };
+
 
   return (
     <ScrollView
@@ -101,23 +56,6 @@ function AppearanceScreen({ navigation }) {
           onPress={() => navigation.navigate('Icons')}
           center
         />
-        {Platform.OS === 'android' && (
-          <ListItem
-            title="Thème de l'application"
-            subtitle="Sélectionner le thème de l'application"
-            color="#29947A"
-            left={
-              <PapillonIcon
-                icon={<SunMoon size={24} color="#29947A" />}
-                color="#29947A"
-                size={24}
-                small
-              />
-            }
-            onPress={() => changeTheme()}
-            center
-          />
-        )}
       </View>
 
       <View style={{ gap: 9, marginTop: 24 }}>
