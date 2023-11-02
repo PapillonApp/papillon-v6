@@ -12,6 +12,7 @@ if (__DEV__) {
     "exported from 'deprecated-react-native-prop-types'.",
     'Non-serializable values were found in the navigation state.',
     'VirtualizedLists should never be nested inside plain ScrollViews',
+    'Modal with \'pageSheet\' presentation style and \'transparent\' value is not supported.',
   ];
 
   const warn = console.warn;

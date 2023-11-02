@@ -43,6 +43,7 @@ function NativeList(props) {
     header,
     footer,
     style,
+    containerStyle,
     tableViewProps,
     sectionProps,
   } = props;
@@ -64,7 +65,7 @@ function NativeList(props) {
     <List.Section style={[styles.container, style]}>
       {header && <List.Subheader>{header}</List.Subheader>}
 
-      <View style={[styles.children, {backgroundColor: UIColors.element}]}>
+      <View style={[styles.children, {backgroundColor: UIColors.element}, containerStyle]}>
         {childrenWithKeys}
       </View>
 
