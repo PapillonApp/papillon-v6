@@ -33,7 +33,6 @@ export class IndexDataInstance {
 
   async init(service = null) {
     this.service = service || (await AsyncStorage.getItem('service')) || null;
-    console.log('seriv', this.service);
     this.skolengoInstance =
       this.service === 'Skolengo'
         ? await require(
@@ -174,7 +173,6 @@ export class IndexDataInstance {
         .getUser(force)
         .then((e) => editUser(e))
         .then((e) => {
-          console.log('usr', e);
           return e;
         });
     if (this.service === 'Pronote')

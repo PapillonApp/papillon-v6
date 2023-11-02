@@ -21,8 +21,6 @@ function NativeItem(props) {
 
   const UIColors = GetUIColors();
 
-  console.log(leading);
-
   return (
     <Cell
       {...cellProps}
