@@ -87,7 +87,6 @@ function AboutScreen({ navigation }) {
 
   function checkKnownServers() {
     return getConsts().then((consts) => {
-      console.log(consts.API);
 
       for (let i = 0; i < knownServers.length; i++) {
         if (consts.API.includes(knownServers[i])) {

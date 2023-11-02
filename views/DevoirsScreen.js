@@ -79,7 +79,6 @@ function DevoirsScreen({ navigation }) {
     React.useCallback(() => {
       AsyncStorage.getItem('homeworksUpdated').then((value) => {
         if (value === 'true') {
-          console.log('homeworks updated');
           forceRefresh();
 
           AsyncStorage.setItem('homeworksUpdated', 'false');
@@ -350,11 +349,9 @@ function Hwitem({ homework, theme, openURL, navigation }) {
   const appctx = useAppContext();
 
   const changeHwState = () => {
-    console.log(`change ${homework.date} : ${homework.local_id}`);
     appctx.dataprovider
       .changeHomeworkState(!thisHwChecked, homework.date, homework.local_id)
       .then((result) => {
-        console.log(result);
 
         if (result.status === 'not found') {
           setTimeout(() => {
