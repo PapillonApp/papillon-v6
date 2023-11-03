@@ -39,7 +39,7 @@ function editUser(profile) {
 
   return AsyncStorage.getItem('custom_profile_picture').then(
     (customProfilePicture) => {
-      console.log(customProfilePicture);
+      (customProfilePicture);
 
       if (customProfilePicture) {
         user.profile_picture = customProfilePicture;
@@ -80,7 +80,6 @@ function saveUser(user) {
       };
     })
     .catch((err) => {
-      console.log(err);
       AsyncStorage.setItem(
         'userCache',
         JSON.stringify({

@@ -32,7 +32,6 @@ function HomeworkScreen({ route, navigation }) {
   const UIColors = GetUIColors();
 
   const { homework } = route.params;
-  console.log("files", homework.files)
   const [thisHwChecked, setThisHwChecked] = React.useState(homework.done);
   const [thisHwLoading, setThisHwLoading] = React.useState(false);
 
@@ -47,11 +46,9 @@ function HomeworkScreen({ route, navigation }) {
   const appctx = useAppContext();
 
   const changeHwState = () => {
-    console.log(`change ${homework.date} : ${homework.local_id}`);
     appctx.dataprovider
       .changeHomeworkState(!thisHwChecked, homework.date, homework.local_id)
       .then((result) => {
-        console.log(result);
 
         if (result.status === 'not found') {
           setTimeout(() => {
@@ -126,7 +123,6 @@ function HomeworkScreen({ route, navigation }) {
   }, [navigation, homework]);
 
   const handleUrlPress = (url, matchIndex) => {
-    console.log(url);
     openURL(url);
   }
 

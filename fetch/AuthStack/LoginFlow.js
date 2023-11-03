@@ -158,10 +158,6 @@ function refreshQRToken(qrResult) {
             qrCredentials.qr_credentials.password =
               result.qr_credentials.password;
 
-            console.log(
-              `Nouveau mot de passe: ${result.qr_credentials.password}`
-            );
-
             AsyncStorage.setItem(
               'qr_credentials',
               JSON.stringify(qrCredentials)

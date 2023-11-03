@@ -41,7 +41,6 @@ async function getHomeworks(day, force = false, day2 = null) {
             cacheTime.setHours(0, 0, 0, 0);
 
             if (currentTime.getTime() === cacheTime.getTime()) {
-              console.log('homeworks from cache');
               return homeworksCache[i].timetable;
             }
           }
@@ -85,9 +84,6 @@ async function getHomeworks(day, force = false, day2 = null) {
 
       day2 = `${year2}-${month2}-${dayOfMonth2}`;
 
-      console.log(day);
-      console.log(day2);
-
       // obtenir le token
       return AsyncStorage.getItem('token').then((token) =>
         // fetch les devoirs
@@ -100,11 +96,9 @@ async function getHomeworks(day, force = false, day2 = null) {
         )
           .then((response) => response.json())
           .catch((e) => {
-            console.log('ERR : PronoteHomeworks', e);
             return [];
           })
           .then((result) => {
-            console.log(result);
 
             if (result === 'notfound') {
               return refreshToken().then(() => getHomeworks(day));
@@ -141,7 +135,6 @@ async function getHomeworks(day, force = false, day2 = null) {
             return result;
           })
           .catch((e) => {
-            console.log(e);
             return [];
           })
       );
@@ -152,8 +145,6 @@ async function getHomeworks(day, force = false, day2 = null) {
 function changeHomeworkState(day, id) {
   // TEMPORARY : remove 1 month
   day = day.split(' ')[0];
-  console.log(`i:${id}`);
-  console.log(`d:${day}`);
 
   id = id.replace('#', '%23');
 
@@ -169,9 +160,6 @@ function changeHomeworkState(day, id) {
       )
         .then((response) => response.json())
         .then((result) => {
-          console.log(
-            `${consts.API}/homework/changeState?token=${token}&dateFrom=${day}&dateTo=${day}&homeworkId=${id}`
-          );
           if (result === 'expired' || result === 'notfound') {
             return refreshToken().then(() => changeHomeworkState(day, id));
           }

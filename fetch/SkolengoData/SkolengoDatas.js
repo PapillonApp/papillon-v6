@@ -109,7 +109,7 @@ export class SkolengoDatas extends SkolengoBase {
           JSON.stringify(discovery)
         ),
     ])
-      .then(() => console.log('token-saved'))
+      .then(() => ('token-saved'))
       .then(() => this);
 
   static initSkolengoDatas = async () => {
@@ -196,8 +196,8 @@ export class SkolengoDatas extends SkolengoBase {
         );
       }
       if (!res.ok || res.status >= 400) {
-        console.log('error', res.status, res.statusText);
-        console.log('error.body', await res.text());
+        ('error', res.status, res.statusText);
+        ('error.body', await res.text());
         errStatus = res.status;
         throw new Error(`Error ${res.status} : ${res.statusText}`);
       }
@@ -211,7 +211,7 @@ export class SkolengoDatas extends SkolengoBase {
         await this.retrying(e);
         return this.request(method, url, params, body, responseType, true);
       }
-      console.log('retry failed', e.message, e);
+      ('retry failed', e.message, e);
     }
   };
 
@@ -219,8 +219,8 @@ export class SkolengoDatas extends SkolengoBase {
     if (this.retry === false) {
       // Après des tests, le refreshAsync de Expo-Auth-Session ne semble pas fonctionné avec les CAS Skolengo.
       this.retry = true;
-      console.log('retry', e);
-      console.log(e?.message);
+      ('retry', e);
+      (e?.message);
       const disco = await AsyncStorage.getItem(
         SkolengoDatas.DISCOVERY_PATH
       ).then((_discovery) => JSON.parse(_discovery));
@@ -238,8 +238,8 @@ export class SkolengoDatas extends SkolengoBase {
         },
       })
         .catch((_e) => {
-          console.log('refresh error', _e);
-          console.log(_e.response);
+          ('refresh error', _e);
+          (_e.response);
         })
         .then(async (res) => res.json());
       const newRtInstance = new TokenResponse({
@@ -637,7 +637,7 @@ export class SkolengoDatas extends SkolengoBase {
       periodId = await this.getPeriods(false).then(
         (periods) => periods.find((period) => period.actual)?.id
       );
-    console.log('pId', periodId);
+    ('pId', periodId);
     if (typeof periodId !== 'string' && typeof periodId !== 'number')
       return this.gradesTransform([]);
 
@@ -702,7 +702,7 @@ export class SkolengoDatas extends SkolengoBase {
             ])
       )
       .catch((e) => {
-        console.log('perioderr', periodId, e);
+        ('perioderr', periodId, e);
       });
 
   /**
@@ -765,7 +765,7 @@ export class SkolengoDatas extends SkolengoBase {
       );
       if (!cachedRecap.expired) return cachedRecap.data;
     }
-    console.log('fetch hw', dayFormatted);
+    ('fetch hw', dayFormatted);
     const datas = await this.getAgendas(
       dayFormatted,
       day2Formatted,
@@ -933,7 +933,7 @@ export class SkolengoDatas extends SkolengoBase {
       );
       return res;
     } catch (e) {
-      console.log('recap err', e);
+      ('recap err', e);
       return [[], [], SkolengoDatas.gradesDefault];
     }
   };
@@ -1066,7 +1066,7 @@ export class SkolengoDatas extends SkolengoBase {
           color: evalSubj.subject.color,
         })) || [];
 
-    console.log(
+    (
       'av',
       averages.map((e) => e)
     );
@@ -1076,7 +1076,7 @@ export class SkolengoDatas extends SkolengoBase {
       .filter((e) => typeof e === 'number');
     const overall_average =
       countedAverages.reduce((a, b) => a + b, 0) / countedAverages.length;
-    console.log(overall_average);
+    (overall_average);
     const countedOverallAverages = averages
       .map((e) => e.class_average)
       .filter((e) => e);
@@ -1098,7 +1098,7 @@ export class SkolengoDatas extends SkolengoBase {
   homeworkTransform = (homework) => {
     const dat = new Date(homework.dueDateTime || homework.dueDate);
     if (Number.isNaN(dat.getTime()))
-      console.log({
+      ({
         homework,
       });
     return {
@@ -1148,7 +1148,7 @@ export class SkolengoDatas extends SkolengoBase {
           revocationEndpoint: 
             discovery.revocationEndpoint || discovery.revocation_endpoint
         }
-      ).then(() => console.log('token revoked')),
+      ).then(() => ('token revoked')),
       AsyncStorage.removeItem(SkolengoDatas.TOKEN_PATH),
       AsyncStorage.removeItem(SkolengoDatas.SCHOOL_PATH),
       AsyncStorage.removeItem(SkolengoDatas.CURRENT_USER_PATH),

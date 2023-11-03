@@ -8,6 +8,7 @@ import {
   Pressable,
   TouchableOpacity,
   RefreshControl,
+  Modal,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -48,6 +49,9 @@ function GradesScreen({ navigation }) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isHeadLoading, setHeadLoading] = useState(false);
+
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [courseModalVisible, setCourseModalVisible] = useState(false);
 
   // add button to header
   React.useLayoutEffect(() => {
@@ -229,6 +233,11 @@ function GradesScreen({ navigation }) {
     setHeadLoading(false);
   }, []);
 
+  const openSubject = (subject) => {
+    setSelectedCourse(subject);
+    setCourseModalVisible(true);
+  }
+
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
@@ -243,9 +252,107 @@ function GradesScreen({ navigation }) {
     >
       <StatusBar
         animated
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        barStyle={
+          courseModalVisible ? 'light-content' :
+          theme.dark ? 'light-content' : 'dark-content'
+        }
         backgroundColor="transparent"
       />
+
+      <Modal
+        animationType="slide"
+        visible={courseModalVisible}
+        onRequestClose={() => setCourseModalVisible(false)}
+        presentationStyle='pageSheet'
+        transparent
+      >
+        <Pressable
+          style={{flex: 1}}
+          onPress={() => setCourseModalVisible(false)}
+        />
+        <View style={[styles.modalContainer, { backgroundColor: UIColors.background }]}>
+          {selectedCourse !== null && (
+            <View>
+              <View style={[styles.modalSubjectNameContainer, { backgroundColor: selectedCourse?.averages.color }]}>
+                <Text style={[styles.subjectName]} numberOfLines={1}>
+                  {formatCoursName(selectedCourse?.name)}
+                </Text>
+              </View>
+
+            
+              <NativeList inset header="Moyennes de l'élève">
+                <NativeItem
+                  trailing={
+                    <View style={{flexDirection:'row', alignItems:'flex-end'}}>
+                      <NativeText heading="h3">
+                        {parseFloat(selectedCourse.averages.average).toFixed(2)}
+                      </NativeText>
+                      <NativeText heading="h4" style={{opacity: 0.5}}>
+                        /{selectedCourse.averages.out_of}
+                      </NativeText>
+                    </View>
+                  }
+                >
+                  <NativeText heading="p2">
+                    Moyenne élève
+                  </NativeText>
+                </NativeItem>
+              </NativeList>
+
+              <NativeList inset header="Moyennes de la classe">
+                <NativeItem
+                  trailing={
+                    <View style={{flexDirection:'row', alignItems:'flex-end'}}>
+                      <NativeText heading="h3">
+                        {parseFloat(selectedCourse.averages.class_average).toFixed(2)}
+                      </NativeText>
+                      <NativeText heading="h4" style={{opacity: 0.5}}>
+                        /{selectedCourse.averages.out_of}
+                      </NativeText>
+                    </View>
+                  }
+                >
+                  <NativeText heading="p2">
+                    Moyenne de classe
+                  </NativeText>
+                </NativeItem>
+                <NativeItem
+                  trailing={
+                    <View style={{flexDirection:'row', alignItems:'flex-end'}}>
+                      <NativeText heading="h3">
+                        {parseFloat(selectedCourse.averages.min).toFixed(2)}
+                      </NativeText>
+                      <NativeText heading="h4" style={{opacity: 0.5}}>
+                        /{selectedCourse.averages.out_of}
+                      </NativeText>
+                    </View>
+                  }
+                >
+                  <NativeText heading="p2">
+                    Moyenne min.
+                  </NativeText>
+                </NativeItem>
+                <NativeItem
+                  trailing={
+                    <View style={{flexDirection:'row', alignItems:'flex-end'}}>
+                      <NativeText heading="h3">
+                        {parseFloat(selectedCourse.averages.max).toFixed(2)}
+                      </NativeText>
+                      <NativeText heading="h4" style={{opacity: 0.5}}>
+                        /{selectedCourse.averages.out_of}
+                      </NativeText>
+                    </View>
+                  }
+                >
+                  <NativeText heading="p2">
+                    Moyenne max.
+                  </NativeText>
+                </NativeItem>
+              </NativeList>
+            </View>
+          )}
+        </View>
+      </Modal>
 
       {subjectsList.length === 0 && !isLoading ? (
         <Text style={[styles.noGrades]}>Aucune note à afficher.</Text>
@@ -260,11 +367,17 @@ function GradesScreen({ navigation }) {
               marginLeft: 15,
             },
           }}
+          containerStyle={
+            Platform.OS !== 'ios' && { backgroundColor: 'transparent' }
+          }
         >
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={[styles.latestGradesList]}
+            contentContainerStyle={[
+              styles.latestGradesList,
+              Platform.OS !== 'ios' && {paddingLeft: 0}
+            ]}
           >
             {latestGrades.map((grade, index) => (
               <PressableScale
@@ -417,6 +530,7 @@ function GradesScreen({ navigation }) {
                   styles.subjectNameContainer,
                   { backgroundColor: subject.averages.color },
                 ]}
+                onPress={() => openSubject(subject)}
               >
                 <Text style={[styles.subjectName]} numberOfLines={1}>
                   {formatCoursName(subject.name)}
@@ -761,6 +875,29 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 17,
     fontFamily: 'Papillon-Semibold',
+  },
+
+  modalContainer: {
+    height: '60%',
+    width: '100%',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+  },
+  modalSubjectNameContainer: {
+    height: 52,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    borderCurve: 'continuous',
   },
 });
 

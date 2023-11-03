@@ -70,10 +70,8 @@ async function setBackgroundFetch() {
 
   registerNewsBackgroundFetchAsync()
     ?.then(() => {
-      console.log("Successfully registered 'background-fetch-news' fetch task");
     })
     .catch((err) => {
-      console.log("Task 'background-fetch-news' not registered", err);
     });
 }
 

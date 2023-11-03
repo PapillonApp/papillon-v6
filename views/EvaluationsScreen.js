@@ -107,8 +107,6 @@ function EvaluationsScreen({ navigation }) {
     const actualPeriod = allPeriods?.find((period) => period.actual === true);
     let periods = [];
 
-    console.log('peri', actualPeriod);
-
     if (actualPeriod?.name.toLowerCase().includes('trimestre')) {
       periods = allPeriods.filter((period) =>
         period.name.toLowerCase().includes('trimestre')
@@ -160,7 +158,6 @@ function EvaluationsScreen({ navigation }) {
         }
       });
 
-      console.log(finalEvals);
       setEvaluations(finalEvals);
       setIsHeadLoading(false);
     });
