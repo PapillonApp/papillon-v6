@@ -177,6 +177,11 @@ export class IndexDataInstance {
         .then((e) => {
           return e;
         });
+    if (this.service === 'EcoleDirecte')
+    return require(`./EcoleDirecteData/EDUser.js`)
+      .getUser(force, this.ecoledirecteInstance)
+      .then((e) => ({ ...e, periods: undefined }))
+      .then((e) => editUser(e));
     if (this.service === 'Pronote')
       return require(`./PronoteData/PronoteUser.js`)
         .getUser(force)
