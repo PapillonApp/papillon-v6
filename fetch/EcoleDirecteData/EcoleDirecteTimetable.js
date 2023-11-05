@@ -26,98 +26,125 @@ function removeDuplicateCourses(courses) {
 
 function getTimetable(day, force = false, ecoledirecteInstance) {
 
-   console.log(ecoledirecteInstance)
   // TEMPORARY : remove 1 month
   day = new Date(day);
 
   console.log('ttForce : ', force);
 
-    AsyncStorage.getItem('timetableCache').then((timetableCache) => {
-        if (timetableCache && !force) {
-        // if day is in cache, return it
-        timetableCache = JSON.parse(timetableCache);
+  AsyncStorage.getItem('timetableCache').then((timetableCache) => {
+    if (timetableCache && !force) {
+      // if day is in cache, return it
+      timetableCache = JSON.parse(timetableCache);
+      console.log(timetableCache)
 
-        for (let i = 0; i < timetableCache.length; i += 1) {
-            const thisDay = new Date(day);
-            const cacheDay = new Date(timetableCache[i].date);
+      for (let i = 0; i < timetableCache.length; i += 1) {
+        const thisDay = new Date(day);
+        const cacheDay = new Date(timetableCache[i].date);
 
-            thisDay.setHours(0, 0, 0, 0);
-            cacheDay.setHours(0, 0, 0, 0);
+        thisDay.setHours(0, 0, 0, 0);
+        cacheDay.setHours(0, 0, 0, 0);
 
-            if (thisDay.getTime() === cacheDay.getTime()) {
-            const currentTime = new Date();
-            currentTime.setHours(0, 0, 0, 0);
+        if (thisDay.getTime() === cacheDay.getTime()) {
+          const currentTime = new Date();
+          currentTime.setHours(0, 0, 0, 0);
 
-            const cacheTime = new Date(timetableCache[i].dateSaved);
-            cacheTime.setHours(0, 0, 0, 0);
+          const cacheTime = new Date(timetableCache[i].dateSaved);
+          cacheTime.setHours(0, 0, 0, 0);
 
-            if (currentTime.getTime() === cacheTime.getTime()) {
-                console.log('timetable from cache');
-                return timetableCache[i].timetable;
-            }
-            }
+          if (currentTime.getTime() === cacheTime.getTime()) {
+              console.log('timetable from cache');
+              let objecttest = [{"background_color": "#173ED9", "end": "2023-11-08 10:00", "group_names": [], "id": "31#Bjren-WufehJ6HU4QWBRStFCpWllpIrvQ_vqUCQaNI0", "is_cancelled": false, "is_detention": false, "is_exempted": false, "is_outing": false, "is_test": false, "memo": null, "num": 410, "rooms": ["205"], "start": "2023-11-08 09:00", "status": null, "subject": {"groups": false, "id": "82#KHFm8_2TckkHflLLnKEMWOpM5x9EHumkFv4dGzFVq2k", "name": "ARTS PLASTIQUES"}, "teachers": ["DIALO H."], "virtual": []}]
+              return objecttest; //timetableCache[i].timetable;
+          }
         }
+      }
     }
 
-      // date = '2021-09-13' (YYYY-MM-DD)
-      const date = new Date(day);
-      const year = date.getFullYear();
-      let month = date.getMonth() + 1;
-      let dayOfMonth = date.getDate();
+    // date = '2021-09-13' (YYYY-MM-DD)
+    const date = new Date(day);
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let dayOfMonth = date.getDate();
 
-      if (month < 10) {
-        month = `0${month}`;
-      }
+    if (month < 10) {
+      month = `0${month}`;
+    }
 
-      if (dayOfMonth < 10) {
-        dayOfMonth = `0${dayOfMonth}`;
-      }
+    if (dayOfMonth < 10) {
+      dayOfMonth = `0${dayOfMonth}`;
+    }
 
-      day = `${year}-${month}-${dayOfMonth}`;
+    day = `${year}-${month}-${dayOfMonth}`;
 
 
-      ecoledirecteInstance.timetable.fetchByDay(day).then(result => {
-            console.log(result)
+    ecoledirecteInstance.timetable.fetchByDay(day).then(data => {
+      let courses = data.data;
+      let result = [];
 
-            /*result.sort((a, b) => a.start.localeCompare(b.start));
+      // if two cours start at the same time, remove the cours with isCancelled = true
+      //result = removeDuplicateCourses(result);
 
-            // if two cours start at the same time, remove the cours with isCancelled = true
-            result = removeDuplicateCourses(result);
 
-            // save in cache
-            AsyncStorage.getItem('timetableCache').then((_timetableCache) => {
-              let cachedTimetable = [];
+      //Restructure data for papillon
+      courses.forEach(course => {
+        let newData = {
+          "background_color": course.color,
+          "end": course.end_date,
+          "group_names": course.groupe.split(""),
+          "is_cancelled": course.isAnnule,
+          "is_detention": false,
+          "is_exempted": false,
+          "is_outing": false,
+          "is_test": false,
+          "memo": null,
+          "num": 410,
+          "rooms": course.salle.split(" "),
+          "start": course.start_date,
+          "status": null,
+          "subject": {
+            "groups": false,
+            "name": "ARTS PLASTIQUES"
+          },
+          "teachers": course.prof.split(""),
+          "virtual": []
+        }
+        result.push(newData)
+      })
 
-              if (_timetableCache) {
-                cachedTimetable = JSON.parse(_timetableCache);
-              }
+      result.sort((a, b) => a.start.localeCompare(b.start));
 
-              cachedTimetable = cachedTimetable.filter(
-                (entry) => entry.date !== day
-              );
 
-              cachedTimetable.push({
-                date: day,
-                dateSaved: new Date(),
-                timetable: result,
-              });
 
-              AsyncStorage.setItem(
-                'timetableCache',
-                JSON.stringify(cachedTimetable)
-              );
-            });
+      // save in cache
+      AsyncStorage.getItem('timetableCache').then((_timetableCache) => {
+        let cachedTimetable = [];
 
-            console.log(date);
-            console.log(result);
+        if (_timetableCache) {
+          cachedTimetable = JSON.parse(_timetableCache);
+        }
 
-            return result;*/
-            return []
-          })
-          .catch(() => {
-            require("./EcoleDirecteRefreshToken").default()
-          })
-        })
+        cachedTimetable = cachedTimetable.filter(
+          (entry) => entry.date !== day
+        );
+
+        cachedTimetable.push({
+          date: day,
+          dateSaved: new Date(),
+          timetable: result,
+        });
+
+        AsyncStorage.setItem(
+          'timetableCache',
+          JSON.stringify(cachedTimetable)
+        );
+      });
+
+      return result;
+
+    }).catch(() => {
+      require("./EcoleDirecteRefreshToken").default()
+    })
+  })
 }
 
 export { getTimetable };
