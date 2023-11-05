@@ -6,8 +6,6 @@ import getClosestGradeEmoji from '../utils/EmojiCoursName';
 const appGroupIdentifier = 'group.plus.pronote';
 
 async function sendToSharedGroup(timetableData) {
-  console.log('Sending to shared group');
-
   const coursSharedTable = [];
 
   // for each cours in timetableData

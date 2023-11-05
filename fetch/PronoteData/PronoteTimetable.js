@@ -9,9 +9,6 @@ function removeDuplicateCourses(courses) {
   for (let i = 0; i < courses.length; i += 1) {
     // if next cours starts at the same time
     if (i + 1 < courses.length && courses[i].start === courses[i + 1].start) {
-      console.log('duplicate found');
-      console.log(courses[i]);
-      console.log(courses[i + 1]);
 
       if (courses[i + 1].is_cancelled) {
         result.splice(i + 1, 1);
@@ -29,8 +26,6 @@ function removeDuplicateCourses(courses) {
 function getTimetable(day, force = false) {
   // TEMPORARY : remove 1 month
   day = new Date(day);
-
-  console.log('ttForce : ', force);
 
   return getConsts().then((consts) =>
     AsyncStorage.getItem('timetableCache').then((timetableCache) => {
@@ -53,7 +48,6 @@ function getTimetable(day, force = false) {
             cacheTime.setHours(0, 0, 0, 0);
 
             if (currentTime.getTime() === cacheTime.getTime()) {
-              console.log('timetable from cache');
               return timetableCache[i].timetable;
             }
           }
@@ -118,13 +112,9 @@ function getTimetable(day, force = false) {
               );
             });
 
-            console.log(date);
-            console.log(result);
-
             return result;
           })
           .catch(() => {
-            console.error('Error fetching Pronote timetable');
           })
       );
     })

@@ -1,12 +1,8 @@
 import * as React from 'react';
-
-import { View, StyleSheet, Platform } from 'react-native';
-
-import { Cell, Section, TableView } from 'react-native-tableview-simple';
+import { View, StyleSheet, Platform, TouchableNativeFeedback } from 'react-native';
+import { List, Text } from 'react-native-paper';
 
 import GetUIColors from '../utils/GetUIColors';
-
-import { SFSymbol } from "react-native-sfsymbols";
 
 function NativeItem(props) {
   const { 
@@ -21,57 +17,49 @@ function NativeItem(props) {
 
   const UIColors = GetUIColors();
 
-  console.log(leading);
-
   return (
-    <Cell
-      {...cellProps}
+    <TouchableNativeFeedback
+      style={[
+        styles.elem,
+        style,
+      ]}
+      onPress={onPress}
+    >
+      <View style={[styles.content]}>
+        {leading && (
+          <View style={styles.leading}>
+            {leading}
+          </View>
+        )}
 
-      cellImageView={ leading &&
-        <View style={styles.cellImageView}>
-          {leading}
-        </View>
-      }
-      cellContentView={ children &&
-        <View style={styles.cellContentView}>
+        <View style={styles.children}>
           {children}
         </View>
-      }
-      cellAccessoryView={ trailing || chevron &&
-        <View style={styles.cellAccessoryView}>
-          {trailing}
 
-          {chevron && Platform.OS === 'ios' &&
-            <SFSymbol
-              name="chevron.right"
-              weight="semibold"
-              size={16}
-              color={UIColors.text + '40'}
-              style={{marginRight: 4}}
-            />
-          }
-        </View>
-      }
-
-      backgroundColor={UIColors.element}
-
-      onPress={onPress}
-    />
-  );
+        {trailing && (
+          <View style={styles.trailing}>
+            {trailing}
+          </View>
+        )}
+      </View>
+    </TouchableNativeFeedback>
+  )
 }
 
 const styles = StyleSheet.create({
-  cellImageView: {
-    marginRight: 14,
+  elem: {
+    
   },
-  cellContentView: {
+  content: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  children: {
     flex: 1,
-    paddingVertical: 9,
-    gap: 2,
-  },
-  cellAccessoryView: {
-    marginLeft: 14,
-  },
-})
+  }
+});
 
 export default NativeItem;

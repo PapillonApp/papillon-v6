@@ -57,7 +57,6 @@ function LoginPronoteQR({ route, navigation }) {
       login: qrData.login,
       uuid: makeUUID(),
     }).then((res) => {
-      console.log(res);
 
       if (res.error) {
         if (res.error === 'invalid confirmation code') {

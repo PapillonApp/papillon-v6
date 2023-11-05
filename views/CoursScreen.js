@@ -142,7 +142,6 @@ Statut : ${cours.status || 'Aucun'}
         );
       }
       else {
-        console.log('Permission refusée');
         Alert.alert(
           'Permission refusée',
           'Vous devez autoriser l\'application à accéder à votre calendrier pour pouvoir ajouter des cours au calendrier.',
