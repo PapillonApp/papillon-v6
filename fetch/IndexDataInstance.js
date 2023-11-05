@@ -37,6 +37,7 @@ export class IndexDataInstance {
     console.log('seriv', this.service);
     this.skolengoInstance = this.service === 'Skolengo' ? await require(`./SkolengoData/SkolengoDatas.js`).SkolengoDatas?.initSkolengoDatas() : null;
     this.ecoledirecteInstance = this.service === 'EcoleDirecte' ? await require("./EcoleDirecteData/ED_init.js").default() : null;
+
     this.initialized = true;
   }
 
@@ -174,7 +175,6 @@ export class IndexDataInstance {
         .getUser(force)
         .then((e) => editUser(e))
         .then((e) => {
-          console.log('usr', e);
           return e;
         });
     if (this.service === 'Pronote')

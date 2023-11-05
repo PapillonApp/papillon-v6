@@ -33,7 +33,7 @@ export class SkolengoStatic extends SkolengoBase {
       offset: 0,
     }
   ) => {
-    console.log('search');
+    ('search');
     return fetch({
       url: `${SkolengoStatic.BASE_URL}/schools`,
       method: 'GET',
@@ -51,6 +51,6 @@ export class SkolengoStatic extends SkolengoBase {
     })
       .then((res) => res.json())
       .then((res) => deserialize(res))
-      .catch((err) => console.log(err));
+      .catch((err) => (err));
   };
 }

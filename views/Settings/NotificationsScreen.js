@@ -46,7 +46,7 @@ function NotificationsScreen() {
     });
 
     Notifications.getAllScheduledNotificationsAsync().then((value) => {
-      console.log(value);
+      return;
     });
   }, []);
 

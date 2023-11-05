@@ -150,8 +150,6 @@ function NewsScreen({ navigation }) {
       setNews(editNews(n));
       setFinalNews(editNews(n));
       setIsHeadLoading(false);
-
-      console.log(finalNews);
     });
   }, []);
 
@@ -312,7 +310,7 @@ function NewsScreen({ navigation }) {
         <View style={{ marginBottom: 18 }}>
           {news.map((item, index) => {
             return (
-              <NativeList inset style={{ marginBottom: -18 }} key={index}>
+              <NativeList inset style={Platform.OS == 'ios' && { marginBottom: -18 }} key={index}>
                 <NativeItem
                   leading={
                     <View style={{ paddingHorizontal: 2 }}>
@@ -323,7 +321,6 @@ function NewsScreen({ navigation }) {
                     navigation.navigate('NewsDetails', { news: item });
 
                     if (item.read === false) {
-                      console.log('marking as read : ' + item.local_id);
                       appctx.dataprovider.changeNewsState(item.local_id).then((e) => {
                         item.read = true;
                       });

@@ -36,7 +36,6 @@ function ConversationsScreen({ navigation }) {
 
   useEffect(() => {
     appctx.dataprovider.getConversations().then((v) => {
-      console.log(v);
       if (v) {
         setConversations(v);
         setOriginalConversations(v);

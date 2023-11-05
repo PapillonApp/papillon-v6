@@ -140,8 +140,6 @@ function NewHomeScreen({ navigation }) {
       // count undone homeworks
       let undoneTomorrowHomeworks = tomorrowHomeworks.filter((hw) => !hw.done);
 
-      console.log(undoneTomorrowHomeworks.length);
-
       AsyncStorage.getItem('badgesStorage').then((value) => {
         let currentSyncBadges = JSON.parse(value);
 
@@ -223,7 +221,6 @@ function NewHomeScreen({ navigation }) {
     React.useCallback(() => {
       AsyncStorage.getItem('homeUpdated').then((value) => {
         if (value === 'true') {
-          console.log('home updated');
           setRefreshCount((prevCount) => prevCount + 1);
           AsyncStorage.setItem('homeUpdated', 'false');
         }
@@ -571,12 +568,12 @@ const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
     >
 
       <View
-        style={[styles.homeworks.devoirsDay.header.container, { backgroundColor: UIColors.primary + '22' }]}
+        style={[styles.homeworks.devoirsDay.header.container, UIColors.theme == 'dark' && Platform.OS !== 'ios' ? { backgroundColor: UIColors.text + '22' } : { backgroundColor: UIColors.primary + '22' }]}
       >
         <Text
           style={[
             styles.homeworks.devoirsDay.header.title,
-            { color: UIColors.primary }
+            UIColors.theme == 'dark' && Platform.OS !== 'ios' ? { color: UIColors.text } : { color: UIColors.primary }
           ]}
         >
           pour {homeworks.formattedDate}
@@ -602,7 +599,6 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
     setCheckLoading(true);
 
     appctx.dataprovider.changeHomeworkState(!checked, homework.date, homework.local_id).then((result) => {
-      console.log(result);
 
       setCheckLoading(false);
 

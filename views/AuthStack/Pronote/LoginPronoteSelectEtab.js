@@ -259,8 +259,6 @@ function LoginPronoteSelectEtab({ navigation }) {
 
     const data = JSON.parse(event.data);
 
-    console.log(data);
-
     // open LoginQR with data
     navigation.navigate('LoginPronoteQR', { qrData: data });
   }
