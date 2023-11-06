@@ -35,7 +35,6 @@ function getTimetable(day, force = false, ecoledirecteInstance) {
     if (timetableCache && !force) {
       // if day is in cache, return it
       timetableCache = JSON.parse(timetableCache);
-      console.log(timetableCache)
 
       for (let i = 0; i < timetableCache.length; i += 1) {
         const thisDay = new Date(day);
@@ -98,7 +97,7 @@ function getTimetable(day, force = false, ecoledirecteInstance) {
           "is_test": false,
           "memo": null,
           "num": 410,
-          "rooms": course.salle.split(" "),
+          "rooms": course.salle.split(""),
           "start": course.start_date,
           "status": null,
           "subject": {
