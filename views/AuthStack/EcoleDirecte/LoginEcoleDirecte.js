@@ -83,7 +83,10 @@ function LoginEcoleDirecte({ route, navigation }) {
     ed.auth.login(username, password).then(() => {
 
       AsyncStorage.setItem('token', ed._token);
-      AsyncStorage.setItem('ED_ID', JSON.stringify(ed.student.id));
+      AsyncStorage.setItem('ED_USERDATA', JSON.stringify(ed.student));
+      AsyncStorage.setItem('ED_SCHOOLDATA', JSON.stringify(ed.school));
+      AsyncStorage.setItem('ED_MODULES', JSON.stringify(ed.modules));
+
       AsyncStorage.setItem('credentials', JSON.stringify(credentials));
       AsyncStorage.setItem('service', 'EcoleDirecte');
 
