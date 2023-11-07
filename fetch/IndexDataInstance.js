@@ -83,6 +83,8 @@ export class IndexDataInstance {
     await this.waitInit();
     if (this.service === 'Skolengo')
       return this.skolengoInstance.getHomeworks(day, force, day2) || [];
+    if (this.service === 'EcoleDirecte')
+      return require("./EcoleDirecteData/EcoleDirecteHomeworks.js").getHomeworks(day, force, day2, this.ecoledirecteInstance);
     if (this.service === 'Pronote')
       return require(`./PronoteData/PronoteHomeworks.js`).getHomeworks(
         day,
