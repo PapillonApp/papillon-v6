@@ -61,6 +61,14 @@ function getNextCours(classes) {
 module.exports = (Widget, name) => {
     instance.getTimetable("2023-11-06")
     .then((edt) => {
+        console.log("edt", edt)
+        if(edt.includes("ERR_NO_ACCOUNT")) {
+            requestWidgetUpdate({
+                widgetName: name,
+                renderWidget: () => <Widget noaccount={true} />
+            })
+            return;
+        }
         let next = getNextCours(edt)
         if(next.next === null) next = null
         requestWidgetUpdate({
