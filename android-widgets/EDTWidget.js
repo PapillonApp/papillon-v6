@@ -23,10 +23,14 @@ export function Loading(account = true, error = false) {
       {error ? <TextWidget
         text="Une erreur est survenue"
         style={{fontSize: 20, color:"#fff"}}
-      /> : <TextWidget
-      text={account ? "Chargement des données..." : "Aucun compte connecté, veuillez ouvrir l'application Papillon et vous connecter."}
+      /> : account ? <TextWidget
+      text="Chargement des données..."
       style={{fontSize: 20, color:"#fff"}}
-    />
+      /> :
+      <TextWidget
+      text="Aucun compte connecté, veuillez ouvrir l'application Papillon et vous connecter."
+      style={{fontSize: 20, color:"#fff"}}
+      />
       }
     </FlexWidget>
   )
