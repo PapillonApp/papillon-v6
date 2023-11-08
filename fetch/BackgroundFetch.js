@@ -18,7 +18,7 @@ TaskManager.defineTask('background-fetch-news', async () => {
         if (news.length !== oldNews.length) {
           AsyncStorage.setItem('oldNews', JSON.stringify(news));
 
-          const lastNews = news[0];
+          const lastNews = news[news.length - 1];
 
           Notifications.postLocalNotification({
             body: lastNews.title,
