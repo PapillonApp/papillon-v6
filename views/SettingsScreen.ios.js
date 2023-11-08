@@ -54,7 +54,7 @@ function NewSettings({navigation}) {
         inset={true}
         sideBar
       >
-        { userData ? (
+        { userData && userData.name ? (
           <NativeItem
             style={
               styles.profile.container

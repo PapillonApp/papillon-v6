@@ -250,11 +250,7 @@ function InsetSettings() {
           Platform.OS === 'ios' ?
             {
               headerTitle: 'Réglages',
-              headerLargeTitle: Platform.OS === 'ios',
-              headerLargeStyle: {
-                backgroundColor: UIColors.background,
-              },
-              headerLargeTitleShadowVisible: false,
+              headerLargeTitle: false,
             }
           :
             {
