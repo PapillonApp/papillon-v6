@@ -10,13 +10,16 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+import { ContextMenuButton } from 'react-native-ios-context-menu';
+
 import { Text, useTheme } from 'react-native-paper';
 
 import RenderHtml from 'react-native-render-html';
 
 import * as WebBrowser from 'expo-web-browser';
+import * as Clipboard from 'expo-clipboard';
 
-import { BarChart4, Link, File, X, DownloadCloud } from 'lucide-react-native';
+import { BarChart4, Link, File, X, DownloadCloud, MoreHorizontal, MoreVertical } from 'lucide-react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import ListItem from '../../components/ListItem';
 import GetUIColors from '../../utils/GetUIColors';
@@ -40,6 +43,8 @@ function NewsItem({ route, navigation }) {
 
   const appctx = useAppContext();
 
+  const [isRead, setIsRead] = useState(news.read);
+
   const loadNews = async (id) => {
     if (!id) return;
     if (appctx.dataprovider.service === 'Skolengo') {
@@ -47,6 +52,64 @@ function NewsItem({ route, navigation }) {
       setNews(newNews);
     }
   };
+
+  // add mark as read/not read button in the header
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+          <ContextMenuButton
+            isMenuPrimaryAction={true}
+            menuConfig={{
+              menuTitle: 'Actions',
+              menuItems: [
+                  {
+                    actionKey  : 'read',
+                    actionTitle: 'Marquer comme lu',
+                    icon: {
+                      type: 'IMAGE_SYSTEM',
+                      imageValue: {
+                        systemName: 'flag',
+                      },
+                    },
+                    menuState: isRead ? 'on' : 'off',
+                  },
+                  {
+                    actionKey  : 'copy',
+                    actionTitle: 'Copier le contenu',
+                    icon: {
+                      type: 'IMAGE_SYSTEM',
+                      imageValue: {
+                        systemName: 'doc.on.doc',
+                      },
+                    },
+                  }
+              ],
+            }}
+            onPressMenuItem={async ({nativeEvent}) => {
+              if (nativeEvent.actionKey === 'read') {
+                markNewsAsRead(news.local_id).then((e) => {
+                  console.log(e);
+                  setIsRead(e.current_state);
+                });
+              }
+              else if (nativeEvent.actionKey === 'copy') {
+                await Clipboard.setStringAsync(news.html_content[0].texte.V);
+              }
+            }}
+        >
+          <TouchableOpacity>
+            <MoreHorizontal size={24} color={UIColors.primary} />
+          </TouchableOpacity>
+        </ContextMenuButton>
+      ),
+    });
+  }, [navigation, isRead]);
+
+  function markNewsAsRead(id) {
+    return appctx.dataprovider.changeNewsState(id).then((result) => {
+      return result;
+    });
+  }
 
   React.useEffect(() => {
     setNews(route.params.news);

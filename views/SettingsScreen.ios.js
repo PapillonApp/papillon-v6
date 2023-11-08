@@ -51,7 +51,7 @@ function NewSettings({navigation}) {
       )}
       
       <NativeList
-        inset={true}
+        inset
         sideBar
       >
         { userData && userData.name ? (
@@ -86,7 +86,7 @@ function NewSettings({navigation}) {
       </NativeList>
 
       <NativeList
-        inset={true}
+        
         sideBar
         header="Options de l'application"
       >
@@ -180,7 +180,7 @@ function NewSettings({navigation}) {
       </NativeList>
 
       <NativeList
-        inset={true}
+        
         sideBar
         header="A propos"
       >
@@ -252,6 +252,7 @@ const styles = StyleSheet.create({
   profile: {
     container: {
       marginVertical: 2,
+      paddingVertical: 5,
     },
     pic: {
       width: 48,

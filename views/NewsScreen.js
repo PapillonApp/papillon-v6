@@ -255,7 +255,7 @@ function NewsScreen({ navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.element }]}
       contentInsetAdjustmentBehavior='automatic'
 
       refreshControl={
@@ -305,12 +305,11 @@ function NewsScreen({ navigation }) {
         </SafeAreaView>
       </Modal>
 
-      
+      <NativeList style={{marginTop: Platform.OS === 'ios' ? -16 : 0}}>
       {!isLoading && news.length !== 0 && (
-        <View style={{ marginBottom: 18 }}>
-          {news.map((item, index) => {
+          (news.map((item, index) => {
             return (
-              <NativeList inset style={Platform.OS == 'ios' && { marginBottom: -18 }} key={index}>
+              <View key={index}>
                 <NativeItem
                   leading={
                     <View style={{ paddingHorizontal: 2 }}>
@@ -319,18 +318,11 @@ function NewsScreen({ navigation }) {
                   }
                   onPress={() => {
                     navigation.navigate('NewsDetails', { news: item });
-
-                    if (item.read === false) {
-                      appctx.dataprovider.changeNewsState(item.local_id).then((e) => {
-                        item.read = true;
-                      });
-                    }
                   }}
                 >
                   <View
                     style={[
                       { gap: 2 },
-                      item.read ? { opacity: 0.4 } : {},
                     ]}
                   >
                     <View
@@ -345,9 +337,10 @@ function NewsScreen({ navigation }) {
                           style={{
                             backgroundColor: UIColors.primary,
                             borderRadius: 300,
-                            padding: 2,
-                            width: 8,
-                            height: 8,
+                            padding: 4,
+                            marginRight: 2,
+                            width: 9,
+                            height: 9,
                           }}
                         />
                       ) : null}
@@ -364,17 +357,19 @@ function NewsScreen({ navigation }) {
                     <NativeText heading="subtitle2" numberOfLines={1} style={{ marginTop: 4 }}>
                       il y a {relativeDate(new Date(item.date))}
                     </NativeText>
+
+                    { item.attachments.length !== 0 ? (
+                    <NativeText heading="subtitle2" numberOfLines={1} style={[styles.pj, {backgroundColor: UIColors.text + '22'}]}>
+                      contient {item.attachments.length} pièce(s) jointe(s)
+                    </NativeText>
+                    ) : null }
                   </View>
                 </NativeItem>
-
-                {item.attachments.map((attachment, index) => 
-                  <PapillonAttachment attachment={attachment} key={index} index={index} theme={theme} openURL={openURL} setIsModalOpen={setIsModalOpen} setModalURL={setModalURL} />
-                )}
-              </NativeList>
+              </View>
             );
-          })}
-        </View>
+          }))
       )}
+      </NativeList>
 
     </ScrollView>
   );
@@ -485,6 +480,16 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+
+  pj: {
+    marginTop: 4,
+
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    overflow: 'hidden',
   }
 });
 
