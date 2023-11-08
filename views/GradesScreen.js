@@ -142,11 +142,21 @@ function GradesScreen({ navigation }) {
 
     setAllGrades(gradesList);
   
-    function calculateAverages(averages) {
-      const studentAverage = (averages.reduce((acc, avg) => acc + (avg.average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
-      const classAverage = (averages.reduce((acc, avg) => acc + (avg.class_average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
+    function calculateAverages(averages, overall=0, classOverall=0) {
+      let studentAverage = (averages.reduce((acc, avg) => acc + (avg.average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
+      let classAverage = (averages.reduce((acc, avg) => acc + (avg.class_average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
       const minAverage = (averages.reduce((acc, avg) => acc + (avg.min / avg.out_of) * 20, 0) / averages.length).toFixed(2);
       const maxAverage = (averages.reduce((acc, avg) => acc + (avg.max / avg.out_of) * 20, 0) / averages.length).toFixed(2);
+
+      if (overall !== 0 && !isNaN(overall)) {
+        overall = overall.toFixed(2);
+        studentAverage = overall;
+      }
+
+      if (classOverall !== 0 && !isNaN(classOverall)) {
+        classOverall = classOverall.toFixed(2);
+        classAverage = classOverall;
+      }
   
       setAveragesData({
         studentAverage: studentAverage,
@@ -188,12 +198,14 @@ function GradesScreen({ navigation }) {
       }
     });
   
-    calculateAverages(averagesList);
+    calculateAverages(averagesList, parseFloat(parsedData.overall_average));
   
     subjects.sort((a, b) => a.name.localeCompare(b.name));
   
     setSubjectsList(subjects);
-    setLatestGrades(gradesList.slice(0, 10));
+
+    latestGradesList = gradesList.sort((a, b) => new Date(b.date) - new Date(a.date));
+    setLatestGrades(latestGradesList.slice(0, 10));
   }
   
 
