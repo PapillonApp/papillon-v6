@@ -36,16 +36,6 @@ TaskManager.defineTask('background-fetch-news', async () => {
       });
     }
     return dataInstance.getNews().then((news) => {
-      Notifications.postLocalNotification({
-        body: "Vous recevrez maintenant une notification à chaque nouvelle actualité Pronote",
-        title: "Notifications actives !",
-        sound: "papillon_ding.wav",
-        silent: false,
-        category: "PAPILLON_NOTIFICATIONS",
-        userInfo: { },
-        fireDate: new Date(),
-      });
-
       AsyncStorage.setItem('oldNews', JSON.stringify(news));
     });
   });
