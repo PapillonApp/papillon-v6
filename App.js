@@ -573,6 +573,7 @@ function WrappedGradesScreen() {
           headerBackTitle: 'Notes',
           mdTitleColor: '#ffffff',
           headerTintColor: '#ffffff',
+          presentation: 'modal',
         }}
       />
     </Stack.Navigator>

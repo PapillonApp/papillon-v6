@@ -461,6 +461,11 @@ PODS:
     - ReactCommon/turbomodule/core
   - react-native-sfsymbols (1.2.1):
     - React
+  - react-native-skia (0.1.218):
+    - RCT-Folly (= 2021.07.22.00)
+    - React
+    - React-callinvoker
+    - React-Core
   - react-native-view-shot (3.7.0):
     - React-Core
   - react-native-webview (13.6.2):
@@ -702,6 +707,7 @@ DEPENDENCIES:
   - react-native-render-html (from `../node_modules/react-native-render-html`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-sfsymbols (from `../node_modules/react-native-sfsymbols`)
+  - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
   - react-native-view-shot (from `../node_modules/react-native-view-shot`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -872,6 +878,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-sfsymbols:
     :path: "../node_modules/react-native-sfsymbols"
+  react-native-skia:
+    :path: "../node_modules/@shopify/react-native-skia"
   react-native-view-shot:
     :path: "../node_modules/react-native-view-shot"
   react-native-webview:
@@ -1004,6 +1012,7 @@ SPEC CHECKSUMS:
   react-native-render-html: 984dfe2294163d04bf5fe25d7c9f122e60e05ebe
   react-native-safe-area-context: 36cc67648134e89465663b8172336a19eeda493d
   react-native-sfsymbols: bd3a0d3eab185e80b571bae60753dcf5a0d57967
+  react-native-skia: 7f27fb1b5a82d9d7e091700f41978ff114445e9d
   react-native-view-shot: f5507655f122e6b104888a11130f267a427f0d57
   react-native-webview: 8fc09f66a1a5b16bbe37c3878fda27d5982bb776
   React-NativeModulesApple: 02e35e9a51e10c6422f04f5e4076a7c02243fff2
