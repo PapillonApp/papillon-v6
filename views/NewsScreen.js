@@ -18,6 +18,9 @@ import {
 
 import PdfRendererView from 'react-native-pdf-renderer';
 
+import { SFSymbol } from 'react-native-sfsymbols';
+import PapillonInsetHeader from '../components/PapillonInsetHeader';
+
 import { ContextMenuView } from 'react-native-ios-context-menu';
 
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -84,15 +87,15 @@ function FullNewsIcon({ title }) {
   return (
     <View>
       {normalizeText(title).includes('menu') ? (
-        <ChefHat color={UIColors.primary} size={24} />
+        <ChefHat color={'#B42828'} size={24} />
       ) : normalizeText(title).includes('reunion') ? (
-        <Projector color={UIColors.primary} size={24} />
+        <Projector color={'#B42828'} size={24} />
       ) : normalizeText(title).includes('association') ? (
-        <Users2 color={UIColors.primary} size={24} />
+        <Users2 color={'#B42828'} size={24} />
       ) : normalizeText(title).includes('important') ? (
-        <AlertTriangle color={UIColors.primary} size={24} />
+        <AlertTriangle color={'#B42828'} size={24} />
       ) : (
-        <Newspaper color={UIColors.primary} size={24} />
+        <Newspaper color={'#B42828'} size={24} />
       )}
     </View>
   );
@@ -106,7 +109,7 @@ function NewsScreen({ navigation }) {
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
       presentationStyle: 'currentContext',
-      controlsColor: UIColors.primary,
+      controlsColor: '#B42828',
     });
   };
 
@@ -156,6 +159,13 @@ function NewsScreen({ navigation }) {
   // add search bar in the header
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitle: () => Platform.OS === 'ios' && (
+        <PapillonInsetHeader
+          icon={<SFSymbol name="newspaper.fill" />}
+          title="Actualités"
+          color="#B42828"
+        />
+      ),
       headerSearchBarOptions: {
         placeholder: 'Rechercher une actualité',
         cancelButtonText: 'Annuler',
@@ -188,17 +198,17 @@ function NewsScreen({ navigation }) {
   const [newsTypes, setNewsTypes] = useState([
     {
       name: 'Toutes',
-      icon: <Newspaper color={UIColors.primary} size={20} />,
+      icon: <Newspaper color={'#B42828'} size={20} />,
       enabled: true,
     },
     {
       name: 'Menus',
-      icon: <ChefHat color={UIColors.primary} size={20} />,
+      icon: <ChefHat color={'#B42828'} size={20} />,
       enabled: false,
     },
     {
       name: 'Réunions',
-      icon: <Projector color={UIColors.primary} size={20} />,
+      icon: <Projector color={'#B42828'} size={20} />,
       enabled: false,
     },
   ]);
@@ -335,7 +345,7 @@ function NewsScreen({ navigation }) {
                       {!item.read ? (
                         <View
                           style={{
-                            backgroundColor: UIColors.primary,
+                            backgroundColor: '#B42828',
                             borderRadius: 300,
                             padding: 4,
                             marginRight: 2,

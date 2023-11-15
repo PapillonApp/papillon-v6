@@ -12,6 +12,9 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
+import { SFSymbol } from 'react-native-sfsymbols';
+import PapillonInsetHeader from '../components/PapillonInsetHeader';
+
 import Fade from 'react-native-fade';
 
 import { User2, Users2, TrendingDown, TrendingUp } from 'lucide-react-native';
@@ -56,6 +59,13 @@ function GradesScreen({ navigation }) {
   // add button to header
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitle: () => Platform.OS === 'ios' && (
+        <PapillonInsetHeader
+          icon={<SFSymbol name="chart.pie.fill" />}
+          title="Notes"
+          color="#A84700"
+        />
+      ),
       headerRight: () => (
         <Fade visible={selectedPeriod} direction="up" duration={200}>
           <TouchableOpacity

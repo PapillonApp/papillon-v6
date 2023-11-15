@@ -12,6 +12,9 @@ import {
 
 import { ContextMenuButton } from 'react-native-ios-context-menu';
 
+import { SFSymbol } from 'react-native-sfsymbols';
+import PapillonInsetHeader from '../../components/PapillonInsetHeader';
+
 import { Text, useTheme } from 'react-native-paper';
 
 import RenderHtml from 'react-native-render-html';
@@ -56,6 +59,15 @@ function NewsItem({ route, navigation }) {
   // add mark as read/not read button in the header
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerTintColor: '#B42828',
+      headerBackTitleVisible: false,
+      headerTitle: () => Platform.OS === 'ios' && (
+        <PapillonInsetHeader
+          title={news.title}
+          color="#B42828"
+          inset
+        />
+      ),
       headerRight: () => (
           <ContextMenuButton
             isMenuPrimaryAction={true}
@@ -98,7 +110,7 @@ function NewsItem({ route, navigation }) {
             }}
         >
           <TouchableOpacity>
-            <MoreHorizontal size={24} color={UIColors.primary} />
+            <MoreHorizontal size={24} color={'#B42828'} />
           </TouchableOpacity>
         </ContextMenuButton>
       ),
@@ -120,7 +132,7 @@ function NewsItem({ route, navigation }) {
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
       presentationStyle: 'currentContext',
-      controlsColor: UIColors.primary,
+      controlsColor: '#B42828',
     });
   };
 
@@ -138,14 +150,6 @@ function NewsItem({ route, navigation }) {
 
     return names?.at(0)?.at(0);
   }
-
-  // change the header of the screen
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: news.title,
-      headerBackTitle: 'Retour',
-    });
-  }, [navigation, news]);
 
   function trimHtml(html) {
     // remove &nbsp;
@@ -232,11 +236,11 @@ function NewsItem({ route, navigation }) {
             <View
               style={[
                 styles.userPfp,
-                { backgroundColor: `${UIColors.primary}22` },
+                { backgroundColor: `${'#B42828'}22` },
               ]}
             >
               <Text
-                style={[styles.userPfpText, { color: UIColors.primary }]}
+                style={[styles.userPfpText, { color: '#B42828' }]}
                 numberOfLines={1}
                 ellipsizeMode="tail"
               >
