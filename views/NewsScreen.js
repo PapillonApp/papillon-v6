@@ -255,7 +255,7 @@ function NewsScreen({ navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.element }]}
+      style={[styles.container, { backgroundColor: UIColors.background }]}
       contentInsetAdjustmentBehavior='automatic'
 
       refreshControl={
@@ -305,7 +305,7 @@ function NewsScreen({ navigation }) {
         </SafeAreaView>
       </Modal>
 
-      <NativeList style={{marginTop: Platform.OS === 'ios' ? -16 : 0}}>
+      <NativeList inset>
       {!isLoading && news.length !== 0 && (
           (news.map((item, index) => {
             return (

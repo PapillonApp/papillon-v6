@@ -86,7 +86,7 @@ function NewSettings({navigation}) {
       </NativeList>
 
       <NativeList
-        
+        inset
         sideBar
         header="Options de l'application"
       >
@@ -180,7 +180,7 @@ function NewSettings({navigation}) {
       </NativeList>
 
       <NativeList
-        
+        inset
         sideBar
         header="A propos"
       >

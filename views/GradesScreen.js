@@ -210,19 +210,9 @@ function GradesScreen({ navigation }) {
   
 
   async function loadGrades(force = false) {
-    // get grades from cache
-    AsyncStorage.getItem('@grades').then((grades) => {
-      if (grades) {
-        parseGrades(JSON.parse(grades));
-      }
-    })
-
     // fetch grades
     const grades = await appctx.dataprovider.getGrades(force);
     parseGrades(grades);
-
-    // save grades to cache
-    AsyncStorage.setItem('@grades', JSON.stringify(grades));
   }
 
   React.useEffect(() => {
