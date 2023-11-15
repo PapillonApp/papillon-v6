@@ -50,21 +50,20 @@ struct systemMediumCourseWidget: View {
                     .font(.headline)
                   if currentCourse.isCancelled == true {
                     Text("Annulé")
-                      .font(.subheadline)
-                      .textCase(.uppercase)
+                      .font(.system(.subheadline, design: .rounded))
                       .foregroundStyle(Color.white.opacity(0.5))
                   } else {
                     Text("salle \(currentCourse.room)")
-                      .font(.subheadline)
+                      .font(.system(.subheadline, design: .rounded))
                       .foregroundStyle(Color.white.opacity(0.5))
                   }
                 }
                 Spacer()
                 VStack(alignment: .trailing){
                   Text("\(formattedTime(currentCourse.start))")
-                    .font(.headline)
+                    .font(.system(.headline, design: .rounded))
                   Text("Maintenant")
-                    .font(.subheadline)
+                    .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(Color.white.opacity(0.5))
                 }
               }
@@ -89,16 +88,15 @@ struct systemMediumCourseWidget: View {
                   Text(course.subject)
                     .foregroundStyle(Color(hex: course.backgroundColor))
                     .lineLimit(1)
-                    .font(.headline)
+                    .font(.system(.headline, design: .rounded))
                   Spacer()
                   if course.isCancelled == true {
                     Text("Annulé")
-                      .font(.headline)
-                      .textCase(.uppercase)
+                      .font(.system(.headline, design: .rounded))
                       .foregroundStyle(Color.black.opacity(0.5))
                   } else {
                     Text("\(formattedTime(course.start))")
-                      .font(.headline)
+                      .font(.system(.headline, design: .rounded))
                       .foregroundStyle(Color.primary.opacity(0.5))
                   }
                 }
@@ -132,19 +130,18 @@ struct systemMediumCourseWidget: View {
                     .font(.headline)
                   if upcomingCourses.first!.isCancelled == true {
                     Text("Annulé")
-                      .font(.subheadline)
-                      .textCase(.uppercase)
+                      .font(.system(.subheadline, design: .rounded))
                       .foregroundStyle(Color.white.opacity(0.5))
                   } else {
                     Text("salle \(upcomingCourses.first!.room)")
-                      .font(.subheadline)
+                      .font(.system(.subheadline, design: .rounded))
                       .foregroundStyle(Color.white.opacity(0.5))
                   }
                 }
                 Spacer()
                 VStack(alignment: .trailing){
                   Text("\(formattedTime(upcomingCourses.first!.start))")
-                    .font(.headline)
+                    .font(.system(.headline, design: .rounded))
                 }
               }
               .padding(.horizontal)
@@ -159,25 +156,23 @@ struct systemMediumCourseWidget: View {
                 VStack {
                   HStack {
                     Circle()
-                      .strokeBorder(Color.white.opacity(0), lineWidth: 3)
+                      .strokeBorder(Color.white.opacity(0), lineWidth: 2)
                       .background(Circle().fill(Color.white.opacity(0)))
                       .frame(width: 40, height: 40, alignment: .center)
                       .overlay(
                         Text(course.emoji)
                       )
                     Text(course.subject)
-                      .foregroundStyle(Color(hex: course.backgroundColor))
                       .lineLimit(1)
-                      .font(.headline)
+                      .font(.system(.headline, design: .rounded))
                     Spacer()
                     if course.isCancelled == true {
                       Text("Annulé")
-                        .font(.headline)
-                        .textCase(.uppercase)
+                        .font(.system(.headline, design: .rounded))
                         .foregroundStyle(Color.black.opacity(0.5))
                     } else {
                       Text("\(formattedTime(course.start))")
-                        .font(.headline)
+                        .font(.system(.headline, design: .rounded))
                         .foregroundStyle(Color.primary.opacity(0.5))
                     }
                   }.padding(.horizontal)
@@ -198,7 +193,7 @@ struct systemMediumCourseWidget: View {
               VStack {
                 HStack {
                   Circle()
-                    .strokeBorder(Color.white.opacity(0.5), lineWidth: 3)
+                    .strokeBorder(Color.white.opacity(0.5), lineWidth: 2)
                     .background(Circle().fill(Color.white.opacity(0.2)))
                     .frame(width: 40, height: 40, alignment: .center)
                     .overlay(
@@ -206,10 +201,9 @@ struct systemMediumCourseWidget: View {
                     )
                   VStack(alignment: .leading) {
                     Text("Plus de cours pour aujourd'hui")
-                      .font(.headline)
+                      .font(.system(.headline, design: .rounded))
                     Text("Repose-toi bien !")
-                      .font(.subheadline)
-                      .textCase(.uppercase)
+                      .font(.system(.subheadline, design: .rounded))
                       .foregroundStyle(Color.white.opacity(0.5))
                   }
                   Spacer()
