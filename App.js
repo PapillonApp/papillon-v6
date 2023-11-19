@@ -251,12 +251,8 @@ function InsetSettings() {
         options={
           Platform.OS === 'ios' ?
             {
-              headerTitle: 'Réglages',
-              headerLargeTitle: Platform.OS === 'ios',
-              headerLargeStyle: {
-                backgroundColor: UIColors.background,
-              },
-              headerLargeTitleShadowVisible: false,
+              headerTitle: 'Préférences',
+              headerLargeTitle: false,
             }
           :
             {
@@ -269,6 +265,7 @@ function InsetSettings() {
         component={ProfileScreen}
         options={{
           headerTitle: 'Mon profil',
+          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -276,7 +273,6 @@ function InsetSettings() {
         component={OfficialServer}
         options={{
           headerTitle: 'Serveur officiel',
-
           headerBackTitle: 'Retour',
         }}
       />
@@ -285,6 +281,7 @@ function InsetSettings() {
         component={AboutScreen}
         options={{
           headerTitle: 'A propos de Papillon',
+          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -292,6 +289,7 @@ function InsetSettings() {
         component={AppearanceScreen}
         options={{
           headerTitle: 'Fonctionnalités',
+          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -300,6 +298,7 @@ function InsetSettings() {
         options={{
           headerTitle: 'Notifications',
           headerBackTitle: 'Retour',
+          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -323,6 +322,7 @@ function InsetSettings() {
         component={SettingsScreen2}
         options={{
           headerTitle: 'Réglages',
+          headerBackTitle: 'Préférences',
         }}
       />
 
@@ -333,6 +333,7 @@ function InsetSettings() {
           headerTitle: 'Quoi de neuf ?',
           presentation: 'modal',
           headerShown: false,
+          headerBackTitle: 'Préférences',
         }}
       />
     </Stack.Navigator>
@@ -385,10 +386,9 @@ function WrappedHomeScreen() {
 
       <Stack.Screen
         name="InsetSchoollife"
-        component={InsetSchoolLifeScreen}
+        component={SchoolLifeScreen}
         options={{
-          headerShown: false,
-          presentation: 'modal',
+          headerTitle: 'Vie scolaire',
         }}
       />
       <Stack.Screen
@@ -406,7 +406,7 @@ function WrappedHomeScreen() {
         options={{
           headerBackTitle: 'Accueil',
           headerTitle: 'Conversations',
-          headerLargeTitle: Platform.OS === 'ios',
+          headerLargeTitle: false,
           headerSearchBarOptions: {
             placeholder: 'Rechercher une conversation',
             cancelButtonText: 'Annuler',
@@ -560,7 +560,7 @@ function WrappedGradesScreen() {
           Platform.OS === 'ios'
             ? {
                 headerShown: true,
-                headerLargeTitle: Platform.OS === 'ios',
+                headerLargeTitle: false,
                 headerTitle: 'Notes',
               }
             : null
@@ -575,6 +575,7 @@ function WrappedGradesScreen() {
           headerBackTitle: 'Notes',
           mdTitleColor: '#ffffff',
           headerTintColor: '#ffffff',
+          presentation: 'modal',
         }}
       />
     </Stack.Navigator>
@@ -601,7 +602,7 @@ function WrappedNewsScreen() {
         component={NewsScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: Platform.OS === 'ios',
+          headerLargeTitle: false,
           headerTitle: 'Actualités',
         }}
       />

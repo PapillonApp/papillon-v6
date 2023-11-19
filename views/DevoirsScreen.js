@@ -10,6 +10,9 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
+import { SFSymbol } from 'react-native-sfsymbols';
+import PapillonInsetHeader from '../components/PapillonInsetHeader';
+
 import { useFocusEffect } from '@react-navigation/native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -89,6 +92,13 @@ function DevoirsScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitle: () => Platform.OS === 'ios' && (
+        <PapillonInsetHeader
+          icon={<SFSymbol name="checkmark.rectangle.stack.fill" />}
+          title="Devoirs"
+          color="#29947A"
+        />
+      ),
       headerRight: () =>
         Platform.OS === 'ios' ? (
           <DateTimePicker
