@@ -77,6 +77,14 @@ import { LoginSkolengoSelectSchool } from './views/AuthStack/Skolengo/LoginSkole
 import { IndexDataInstance } from './fetch/IndexDataInstance';
 import GetUIColors from './utils/GetUIColors';
 
+import PushNotification from "react-native-push-notification";
+PushNotification.localNotification({
+  channelId: "channel-id",
+  vibrate: true,
+  title: "Une notif",
+  message: "Test"
+})
+
 const Tab = createBottomTabNavigator();
 
 // stack
