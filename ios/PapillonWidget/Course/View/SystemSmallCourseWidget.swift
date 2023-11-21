@@ -35,7 +35,7 @@ struct SystemSmallCourseWidget: View {
         VStack {
           HStack(alignment: .top){
             Circle()
-              .strokeBorder(Color.white.opacity(0.5), lineWidth: 3)
+              .strokeBorder(Color.white.opacity(0.5), lineWidth: 2)
               .background(Circle().fill(Color.white.opacity(0.2)))
               .frame(width: 50, height: 50, alignment: .center)
               .overlay(
@@ -44,23 +44,21 @@ struct SystemSmallCourseWidget: View {
             Spacer()
             Image("logo")
               .resizable()
-              .frame(width: 35, height: 35)
+              .frame(width: 30, height: 30)
             }
             Spacer()
             HStack {
               VStack(alignment: .leading) {
                 Text(currentCourse.subject)
-                  .textCase(.uppercase)
-                  .font(.headline)
+                  .font(.system(.headline, design: .rounded))
                 if currentCourse.isCancelled == true {
                   Text("Annulé")
                     .foregroundStyle(Color.white.opacity(0.5))
-                    .font(.subheadline)
-                    .textCase(.uppercase)
+                    .font(.system(.subheadline, design: .rounded))
                 } else {
                   Text("salle \(currentCourse.room)")
                     .foregroundStyle(Color.white.opacity(0.5))
-                    .font(.subheadline)
+                    .font(.system(.subheadline, design: .rounded))
                 }
               }
               Spacer()
@@ -73,7 +71,7 @@ struct SystemSmallCourseWidget: View {
           VStack {
             HStack(alignment: .top){
               Circle()
-                .strokeBorder(Color.white.opacity(0.5), lineWidth: 3)
+                .strokeBorder(Color.white.opacity(0.5), lineWidth: 2)
                 .background(Circle().fill(Color.white.opacity(0.2)))
                 .frame(width: 50, height: 50, alignment: .center)
                 .overlay(
@@ -82,23 +80,21 @@ struct SystemSmallCourseWidget: View {
                 Spacer()
                 Image("logo")
                   .resizable()
-                  .frame(width: 35, height: 35)
+                  .frame(width: 30, height: 30)
                       }
               Spacer()
               HStack {
                 VStack(alignment: .leading) {
                   Text(upcomingCourses.first!.subject)
-                      .textCase(.uppercase)
-                      .font(.headline)
+                      .font(.system(.headline, design: .rounded))
                   if upcomingCourses.first!.isCancelled == true {
                     Text("Annulé ")
                         .foregroundStyle(Color.white.opacity(0.5))
-                        .font(.subheadline)
-                        .textCase(.uppercase)
+                        .font(.system(.subheadline, design: .rounded))
                   } else {
                     Text("debut à \(formattedTime(upcomingCourses.first!.start))")
                         .foregroundStyle(Color.white.opacity(0.5))
-                        .font(.subheadline)
+                        .font(.system(.subheadline, design: .rounded))
                   }
                 }
               Spacer()
@@ -111,7 +107,7 @@ struct SystemSmallCourseWidget: View {
               VStack {
                 HStack(alignment: .top){
                   Circle()
-                    .strokeBorder(Color.white.opacity(0.5), lineWidth: 3)
+                    .strokeBorder(Color.white.opacity(0.5), lineWidth: 2)
                     .background(Circle().fill(Color.white.opacity(0.2)))
                     .frame(width: 50, height: 50, alignment: .center)
                     .overlay(
@@ -120,14 +116,13 @@ struct SystemSmallCourseWidget: View {
                   Spacer()
                   Image("logo")
                     .resizable()
-                    .frame(width: 35, height: 35)
+                    .frame(width: 30, height: 30)
                 }
                 Spacer()
                 HStack {
                   VStack(alignment: .leading) {
                     Text("Plus de cours pour aujourd'hui")
-                      .textCase(.uppercase)
-                      .font(.headline)
+                      .font(.system(.headline, design: .rounded))
                   }
                 Spacer()
                 }

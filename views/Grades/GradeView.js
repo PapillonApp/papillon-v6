@@ -114,24 +114,29 @@ function GradeView({ route, navigation }) {
     });
   }, [navigation, grade]);
 
+  let date = new Date(grade.date);
+  let formattedGrades = allGrades.filter((grade) => {
+    return new Date(grade.date).getTime() <= date.getTime();
+  });
+
   const formattedValue = parseFloat(grade.grade.value).toFixed(2);
   const valueTop = formattedValue.split('.')[0];
   const valueBottom = formattedValue.split('.')[1];
 
   let gradesListWithoutGrade = [];
-  for (let i = 0; i < allGrades.length; i++) {
-    if (allGrades[i].id !== grade.id) {
-      gradesListWithoutGrade.push(allGrades[i]);
+  for (let i = 0; i < formattedGrades.length; i++) {
+    if (formattedGrades[i].id !== grade.id) {
+      gradesListWithoutGrade.push(formattedGrades[i]);
     }
   }
 
-  const average = calculateAverage(allGrades, false);
+  const average = calculateAverage(formattedGrades, false);
   const averageWithoutGrade = calculateAverage(gradesListWithoutGrade, false);
   const avgInfluence = average - averageWithoutGrade;
 
   const avgPercentInfluence = (avgInfluence / average) * 100;
 
-  const classAvg = calculateAverage(allGrades, true);
+  const classAvg = calculateAverage(formattedGrades, true);
   const classAvgWithoutGrade = calculateAverage(gradesListWithoutGrade, true);
   const classAvgInfluence = classAvg - classAvgWithoutGrade;
 

@@ -53,7 +53,7 @@ function changeNewsState(id) {
   return getConsts().then((consts) => {
     return AsyncStorage.getItem('token').then((token) => {
       // fetch le timetable
-      fetch(`${consts.API}/news/markAsRead?token=${token}&newsId=${id}`, {
+      return fetch(`${consts.API}/news/markAsRead?token=${token}&newsId=${id}`, {
         method: 'POST',
       })
         .then((response) => response.json())

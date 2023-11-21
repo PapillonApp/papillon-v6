@@ -1008,9 +1008,7 @@ function HomeHeader({ navigation, timetable, user }) {
   };
 
   const openProfile = () => {
-    if (user) {
-      navigation.navigate('InsetSettings', { isModal: true });
-    }
+    navigation.navigate('InsetSettings', { isModal: true });
   };
 
   const openNextCours = () => {
@@ -1052,12 +1050,12 @@ function HomeHeader({ navigation, timetable, user }) {
             : "Tu n'as aucun cours restant aujourd'hui."}
         </Text>
 
-        {user && (
+        
           <TouchableOpacity
             style={[headerStyles.headerPfpContainer]}
             onPress={openProfile}
           >
-            {user.profile_picture ? (<Image
+            {user && user.profile_picture ? (<Image
               source={{ uri: user.profile_picture }}
               style={[headerStyles.headerPfp]}
             />) : (
@@ -1065,7 +1063,7 @@ function HomeHeader({ navigation, timetable, user }) {
             )
             }
           </TouchableOpacity>
-        )}
+        
       </View>
 
       { !loading && nextCourse && (
@@ -1570,14 +1568,17 @@ const headerStyles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     top: 0,
+    width: 36,
+    height: 36,
+    backgroundColor: '#ffffff10',
+    borderColor: '#ffffff25',
+    borderWidth: 1,
+    borderRadius: 24,
   },
   headerPfp: {
     width: 36,
     height: 36,
     borderRadius: 24,
-    backgroundColor: '#ffffff10',
-    borderColor: '#ffffff25',
-    borderWidth: 1,
   },
 });
 
