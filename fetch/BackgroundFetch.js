@@ -1,11 +1,11 @@
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
 
-import {Notifications} from 'react-native-notifications';
-
+import PushNotification from "react-native-push-notification";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IndexDataInstance } from './IndexDataInstance';
 import { ucFirst } from './SkolengoData/SkolengoDatas';
+import notifee, {AndroidImportance} from '@notifee/react-native';
 
 // Actualités
 TaskManager.defineTask('background-fetch-news', async () => {
@@ -13,27 +13,44 @@ TaskManager.defineTask('background-fetch-news', async () => {
   return AsyncStorage.getItem('oldNews').then((oldNews) => {
     if (oldNews) {
       oldNews = JSON.parse(oldNews);
-
+      notifee.displayNotification({
+        title: "Récupération des données en arrière-plan",
+        id: "background-fetch",
+        android: {
+          channelId: "silent",
+          progress: {
+            max: 10,
+            current: 5,
+            indeterminate: true
+          },
+        },
+      });
       return dataInstance.getNews().then((news) => {
         if (news.length !== oldNews.length) {
           AsyncStorage.setItem('oldNews', JSON.stringify(news));
 
           const lastNews = news[news.length - 1];
 
-          Notifications.postLocalNotification({
-            body: lastNews.title,
+          PushNotification.localNotification({
+            channelId: "channel-id",
+            vibrate: true,
             title: `📰 Nouvelle actualité ${ucFirst(dataInstance.service)}`,
-            sound: 'papillon_ding.wav',
-            silent: false,
-            category: 'PAPILLON_NOTIFICATIONS',
-            userInfo: {},
-            fireDate: new Date(),
-          });
-
+            message: lastNews.title
+          })
+          notifee.displayNotification({
+            title: `📰 Nouvelle actualité ${ucFirst(dataInstance.service)}`,
+            body: lastNews.title,
+            android: {
+              channelId: ""
+            }
+          })
           // Be sure to return the successful result type!
           return BackgroundFetch.BackgroundFetchResult.NewData;
         }
       });
+    }
+    else {
+
     }
     return dataInstance.getNews().then((news) => {
       AsyncStorage.setItem('oldNews', JSON.stringify(news));
@@ -56,8 +73,6 @@ async function registerNewsBackgroundFetchAsync() {
 }
 
 async function setBackgroundFetch() {
-  Notifications.registerRemoteNotifications();
-
   registerNewsBackgroundFetchAsync()
     ?.then(() => {
     })
