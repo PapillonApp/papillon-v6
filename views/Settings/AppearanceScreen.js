@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import { Bell, Maximize, SunMoon } from 'lucide-react-native';
+import { Bell, Maximize, Palette, SunMoon } from 'lucide-react-native';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ListItem from '../../components/ListItem';
@@ -54,6 +54,21 @@ function AppearanceScreen({ navigation }) {
             />
           }
           onPress={() => navigation.navigate('Icons')}
+          center
+        />
+        <ListItem
+          title="Couleur des matières"
+          subtitle="Changer la couleur des matières"
+          color="#29947A"
+          left={
+            <PapillonIcon
+              icon={<Palette size={24} color="#29947A" />}
+              color="#29947A"
+              size={24}
+              small
+            />
+          }
+          onPress={() => navigation.navigate('CoursColor')}
           center
         />
       </View>
