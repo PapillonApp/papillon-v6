@@ -47,7 +47,7 @@ struct systemMediumCourseWidget: View {
                   )
                 VStack(alignment: .leading) {
                   Text(currentCourse.subject)
-                    .font(.headline)
+                    .font(.system(.headline, design: .rounded))
                   if currentCourse.isCancelled == true {
                     Text("Annulé")
                       .font(.system(.subheadline, design: .rounded))
