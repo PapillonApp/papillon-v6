@@ -113,9 +113,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace 'plus.pronote.app.dev'
+    namespace 'plus.pronote.app'
     defaultConfig {
-        applicationId 'plus.pronote.app.dev'
+        applicationId 'plus.pronote.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

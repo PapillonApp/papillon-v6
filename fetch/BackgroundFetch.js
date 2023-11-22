@@ -93,10 +93,15 @@ async function checkUndoneHomeworks() {
   if (notifHasAlreadyBeenSent == (fireDate.getTime()).toString()) {
     return;
   }
-  else if (undone.length > 0 && new Date() < fireDate) {
+  else if (undone.length > 0 && new Date() > fireDate) {
+    let plural = '';
+    if (undone.length > 1) {
+      plural = 's';
+    }
+
     notifee.displayNotification({
       title: `📚 Il te reste des devoirs pour demain !`,
-      body: `Tu as ${undone.length} devoir${(undone.length > 1) && 's'} à faire pour demain`,
+      body: `Tu as ${undone.length} devoir${plural} à faire pour demain`,
       android: {
         channelId: "newdata-group"
       },

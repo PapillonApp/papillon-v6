@@ -78,7 +78,7 @@ import { LoginSkolengoSelectSchool } from './views/AuthStack/Skolengo/LoginSkole
 import { IndexDataInstance } from './fetch/IndexDataInstance';
 import GetUIColors from './utils/GetUIColors';
 import { showMessage } from 'react-native-flash-message';
-import notifee, {AndroidImportance} from '@notifee/react-native';
+import notifee, {AndroidImportance, AuthorizationStatus} from '@notifee/react-native';
 /*notifee.getChannels().then(channels => {
   channels.forEach(ch => {
     notifee.deleteChannel(ch.id)
@@ -141,76 +141,111 @@ async function registerNotifs() {
   },])
 }
 async function checkNotifPerm(next = function(){}) {
-  PermissionsAndroid.check("android.permission.POST_NOTIFICATIONS").then((granted) => {
-    if(granted) {
-      console.log("notif permission ok")
-      next()
-    }
-    else askNotifPerm()
-  })
+  if(Platform.OS === "android") {
+    PermissionsAndroid.check("android.permission.POST_NOTIFICATIONS").then((granted) => {
+      if(granted) {
+        console.log("notif permission ok")
+        next()
+      }
+      else askNotifPerm()
+    })
+  }
 }
 async function askNotifPerm() {
-  PermissionsAndroid.request("android.permission.POST_NOTIFICATIONS").then((result) => {
-    console.log("permission request,", result)
-    if(result === "granted") {
-      showMessage({
-        message: 'Notifications activées',
-        type: 'success',
-        icon: 'auto',
-        floating: true,
-      });
-    }
-    else {
-      result !== "never_ask_again" ? Alert.alert(
+  if(Platform.OS === "android") {
+    PermissionsAndroid.request("android.permission.POST_NOTIFICATIONS").then((result) => {
+      console.log("permission request,", result)
+      if(result === "granted") {
+        showMessage({
+          message: 'Notifications activées',
+          type: 'success',
+          icon: 'auto',
+          floating: true,
+        });
+      }
+      else {
+        result !== "never_ask_again" ? Alert.alert(
+          'Notifications',
+          'Vous avez refusé les notifications. Si vous les refusez, vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Souhaitez-vous continuer ?',
+          [
+            {
+              text: 'Continuer',
+              style: 'cancel',
+              onPress: () => {
+                showMessage({
+                  message: 'Notifications désactivées',
+                  type: 'danger',
+                  icon: 'auto',
+                  floating: true,
+                });
+              }
+            },
+            {
+              text:"Autoriser",
+              onPress: () => {
+                askNotifPerm()
+              }
+            }
+          ]
+        ) : Alert.alert(
+          'Notifications',
+          'Vous avez refusé les notifications. Si vous les refusez, vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Pour les autoriser, veuillez vous rendre dans les paramètres de votre téléphone.',
+          [
+            {
+              text: 'Continuer',
+              style: 'cancel',
+              onPress: () => {
+                showMessage({
+                  message: 'Notifications désactivées',
+                  type: 'danger',
+                  icon: 'auto',
+                  floating: true,
+                });
+              }
+            },
+            {
+              text: 'Ouvrir les paramètres',
+              style: 'cancel',
+              onPress: () => {
+                Linking.openSettings()
+              }
+            },
+          ]
+        )
+      }
+    })
+  }
+  else if(Platform.OS === "ios") {
+    const settings = await notifee.requestPermission({sound: true, badge: true, alert: true, inAppNotificationSettings: true, announcement: true});
+
+    if(settings.authorizationStatus === AuthorizationStatus.DENIED) {
+      Alert.alert(
         'Notifications',
-        'Vous avez refusé les notifications. Si vous les refusez, vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Souhaitez-vous continuer ?',
+        'Vous avez refusé les notifications. Vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Pour les autoriser, veuillez vous rendre dans les paramètres de votre appareil.',
         [
-          {
-            text: 'Continuer',
-            style: 'cancel',
-            onPress: () => {
-              showMessage({
-                message: 'Notifications désactivées',
-                type: 'danger',
-                icon: 'auto',
-                floating: true,
-              });
-            }
-          },
-          {
-            text:"Autoriser",
-            onPress: () => {
-              askNotifPerm()
-            }
-          }
-        ]
-      ) : Alert.alert(
-        'Notifications',
-        'Vous avez refusé les notifications. Si vous les refusez, vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Pour les autoriser, veuillez vous rendre dans les paramètres de votre téléphone.',
-        [
-          {
-            text: 'Continuer',
-            style: 'cancel',
-            onPress: () => {
-              showMessage({
-                message: 'Notifications désactivées',
-                type: 'danger',
-                icon: 'auto',
-                floating: true,
-              });
-            }
-          },
           {
             text: 'Ouvrir les paramètres',
-            style: 'cancel',
             onPress: () => {
               Linking.openSettings()
+            }
+          },
+          {
+            text: 'Continuer',
+            style: 'cancel',
+            onPress: () => {
+              showMessage({
+                message: 'Notifications désactivées',
+                type: 'danger',
+                icon: 'auto',
+                floating: true,
+              });
             }
           },
         ]
       )
     }
-  })
+
+  }
 }
 initNotifs()
 const Tab = createBottomTabNavigator();
