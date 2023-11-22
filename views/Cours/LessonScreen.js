@@ -157,57 +157,6 @@ function LessonScreen({ route, navigation }) {
   // main color
   const mainColor = theme.dark ? '#ffffff' : '#444444';
 
-  const [isNotified, setIsNotified] = useState(false);
-
-  function changeIsNotified(val) {
-    setIsNotified(val);
-
-    const time = new Date(lesson.start);
-    time.setMinutes(time.getMinutes() - 5);
-
-    if (time < new Date()) {
-      setTimeout(() => {
-        setIsNotified(false);
-      }, 200);
-      return;
-    }
-
-    if (val) {
-      Notifications.scheduleNotificationAsync({
-        identifier: lesson.subject.name + new Date(lesson.start).getTime(),
-        content: {
-          title: `${getClosestGradeEmoji(lesson.subject.name)} ${
-            lesson.subject.name
-          } - Ça commence dans 5 minutes`,
-          body: `Le cours est en salle ${lesson.rooms[0]} avec ${lesson.teachers[0]}.`,
-          sound: 'papillon_ding.wav',
-        },
-        trigger: {
-          channelId: 'coursReminder',
-          date: new Date(time),
-        },
-      });
-    } else {
-      Notifications.cancelScheduledNotificationAsync(
-        lesson.subject.name + new Date(lesson.start).getTime()
-      );
-    }
-  }
-
-  useEffect(() => {
-    Notifications.getAllScheduledNotificationsAsync().then((value) => {
-      for (const notification of value) {
-        if (
-          notification.identifier ===
-          lesson.subject.name + new Date(lesson.start).getTime()
-        ) {
-          setIsNotified(true);
-          break;
-        }
-      }
-    });
-  }, []);
-
   const [countdown, setCountdown] = useState(
     Math.floor((new Date(lesson.start) - new Date()) / 1000)
   );
@@ -561,42 +510,6 @@ function LessonScreen({ route, navigation }) {
             )) }
           </NativeList>
         ) : <View /> }
-
-        <NativeList
-          inset
-          header="Options"
-        >
-          { new Date(lesson.start) > new Date() ? (
-            <NativeItem
-              leading={<Bell size={24} color={mainColor} />}
-              trailing={
-                <Switch
-                  value={isNotified}
-                  onValueChange={(val) => changeIsNotified(val)}
-                />
-              }
-            >
-              <NativeText heading="h4">
-                Me notifier 5 min. avant
-              </NativeText>
-              <NativeText heading="p2">
-                Vous serez notifié 5 minutes avant le début du cours.
-              </NativeText>
-            </NativeItem>
-          ) : null }
-          <NativeItem
-            leading={<Palette size={24} color={mainColor} />}
-            onPress={() => changeCourseColor()}
-            chevron
-          >
-            <NativeText heading="h4">
-              Changer la couleur de la matière
-            </NativeText>
-          </NativeItem>
-        </NativeList>
-
-        
-        
 
         <View style={{ height: 100 }} />
       </AnimatedScrollView>
