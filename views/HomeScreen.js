@@ -100,6 +100,7 @@ function NewHomeScreen({ navigation }) {
   const [loadingCours, setLoadingCours] = useState(true);
 
   const [usesCache, setUsesCache] = useState(false);
+  const [showsTomorrow, setShowsTomorrow] = useState(false);
 
   const today = new Date();
 
@@ -183,6 +184,10 @@ function NewHomeScreen({ navigation }) {
         const data = JSON.parse(value);
         applyLoadedData(data.homeworks, data.timetable);
 
+        if (new Date(data.timetable[0].start).getDate() === today.getDate() + 1) {
+          setShowsTomorrow(true);
+        }
+
         setUsesCache(true);
       }
     });
@@ -211,9 +216,32 @@ function NewHomeScreen({ navigation }) {
       appctx.dataprovider.getHomeworks(today, force, new Date(today).setDate(today.getDate() + 7)).then(e=>e?.flat()),
       appctx.dataprovider.getTimetable(today, force)
     ]).then(([hwData, coursData]) => {
-      applyLoadedData(hwData, coursData);
-      AsyncStorage.setItem('appcache-homedata', JSON.stringify({ homeworks: hwData, timetable: coursData }));
-      setUsesCache(false);
+      if (showsTomorrow == false) {
+        applyLoadedData(hwData, coursData);
+        AsyncStorage.setItem('appcache-homedata', JSON.stringify({ homeworks: hwData, timetable: coursData }));
+        setUsesCache(false);
+      }
+
+      // check if all cours are done
+      let doneCours = 0;
+      coursData.forEach((cours) => {
+        if (new Date(cours.end) < new Date()) {
+          doneCours++;
+        }
+      });
+
+      console.log(doneCours, coursData.length);
+
+      if (doneCours === coursData.length) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        appctx.dataprovider.getTimetable(tomorrow, true).then((data) => {
+          applyLoadedData(hwData, data);
+          AsyncStorage.setItem('appcache-homedata', JSON.stringify({ homeworks: hwData, timetable: data }));
+          setUsesCache(false);
+          setShowsTomorrow(true);
+        });
+      }
     });
   }, [refreshCount]);
 
@@ -236,10 +264,11 @@ function NewHomeScreen({ navigation }) {
           user={user}
           timetable={timetable}
           navigation={navigation}
+          showsTomorrow={showsTomorrow}
         />
       ),
     });
-  }, [navigation, timetable, user]);
+  }, [navigation, timetable, user, showsTomorrow]);
 
   return (
     <ScrollView
@@ -318,7 +347,7 @@ function TabsElement({ navigation, theme, UIColors }) {
 function CoursElement({ cours, theme, UIColors, navigation, loading }) {
   return (
     !loading ? (
-      cours.length > 0 ? (
+      cours && cours.length > 0 ? (
         <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
           {cours.map((day, index) => (
             <View key={index}>
@@ -846,7 +875,7 @@ function NextCours({ cours, navigation }) {
         return `dans ${lz(diffMinutes)}:${lz(diffSeconds)}`;
       }
 
-      return `dans ${Math.ceil((diffMinutes / 60) - 1)}h ${lz(diffMinutes % 60)}m`;
+      return `dans ${Math.ceil((diffMinutes / 60) - 1)}h${lz(diffMinutes % 60)}`;
     }
     return 'maintenant';
   };
@@ -972,7 +1001,7 @@ function getNextCours(classes) {
   };
 }
 
-function HomeHeader({ navigation, timetable, user }) {
+function HomeHeader({ navigation, timetable, user, showsTomorrow }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -1022,6 +1051,29 @@ function HomeHeader({ navigation, timetable, user }) {
   const UIColors = GetUIColors();
   const hasTimetable = timetable && leftCourses && leftCourses.length > 0;
 
+  let plural = false;
+  if (leftCourses && leftCourses.length > 1) {
+    plural = true;
+  }
+
+  let atAGlance = '';
+  if (hasTimetable) {
+    if(!showsTomorrow) {
+      atAGlance = `${leftCourses.length + 1} cours restant${plural && 's'} dans ta journée.`;
+    }
+    else {
+      atAGlance = `${leftCourses.length + 1} cours ${plural ? 'sont' : 'est'} prévu${plural && 's'} demain.`;
+    }
+  }
+  else {
+    if(!showsTomorrow) {
+      atAGlance = "Aucun cours restant aujourd'hui.";
+    }
+    else {
+      atAGlance = "Aucun cours prévu demain.";
+    }
+  }
+
   return (
     <View
       style={[
@@ -1045,9 +1097,7 @@ function HomeHeader({ navigation, timetable, user }) {
           {`${getFormulePolitesse()}${user ? `, ${getPrenom(user.name)} !` : ' !'}`}
         </Text>
         <Text style={[headerStyles.headerCoursesText]}>
-          {hasTimetable
-            ? `Il te reste ${leftCourses.length + 1} cours dans ta journée.`
-            : "Tu n'as aucun cours restant aujourd'hui."}
+          {atAGlance}
         </Text>
 
         

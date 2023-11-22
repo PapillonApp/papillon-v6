@@ -195,6 +195,42 @@ function NewSettings({navigation}) {
       <NativeList
         inset
         sideBar
+        header="Options du contenu"
+      >
+        <NativeItem
+          leading={
+            <View
+              style={[
+                styles.item.leadingContainer,
+                {
+                  backgroundColor: '#7a9543',
+                }
+              ]}
+            >
+              <SFSymbol
+                name="swatchpalette.fill"
+                weight="semibold"
+                size={16}
+                color="#ffffff"
+                style={styles.item.symbol}
+              />
+            </View>
+          }
+          chevron
+          onPress={() => navigation.navigate('CoursColor')}
+        >
+          <NativeText heading="h4">
+            Couleurs des matières
+          </NativeText>
+          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+            Personnaliser les matières
+          </NativeText>
+        </NativeItem>
+      </NativeList>
+
+      <NativeList
+        inset
+        sideBar
         header="A propos"
       >
         <NativeItem
