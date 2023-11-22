@@ -80,7 +80,7 @@ function GradesScreen({ navigation }) {
           color="#A84700"
         />
       ),
-      headerShadowVisible: false,
+      headerShadowVisible: true,
       headerStyle : {
         backgroundColor: UIColors.element,
       },
@@ -166,7 +166,10 @@ function GradesScreen({ navigation }) {
     let average = 0;
     let count = 0;
     for (let i = 0; i < grades.length; i++) {
-      if (grades[i].grade.value !== 0) {
+      if(grades[i].grade.value < 0) {
+        // ignorer
+      }
+      else if (grades[i].grade.value !== 0) {
         let correctedValue = grades[i].grade.value / grades[i].grade.out_of * 20;
         let correctedClassValue = grades[i].grade.average / grades[i].grade.out_of * 20;
   
@@ -810,11 +813,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    overflow: 'hidden',
+    marginRight: 10,
   },
   subjectName: {
     fontSize: 17,
     fontFamily: 'Papillon-Semibold',
     color: '#FFFFFF',
+    flex: 1,
   },
   subjectSub: {
     fontSize: 17,
@@ -1084,25 +1090,24 @@ const styles = StyleSheet.create({
 
   averageChart: {
     borderRadius: 0,
-    marginHorizontal: 0,
+    marginHorizontal: 14,
     marginBottom: 14,
     paddingHorizontal: 0,
     paddingVertical: 14,
     paddingBottom: 6,
-
-    paddingTop: 200,
-    marginTop: -190,
-
-    height: 360,
+    marginTop: 14,
 
     shadowColor: '#000000',
-    shadowOpacity: 0.3,
-    shadowRadius: 1,
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
     shadowOffset: {
-      height: 0,
-      width: 1,
+      height: 1,
+      width: 0,
     },
     elevation: 1,
+
+    borderRadius: 12,
+    borderCurve: 'continuous',
   },
 
   averagesgrClassContainer: {
