@@ -10,6 +10,7 @@ import {
   Image,
   Modal,
   Button,
+  Alert,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -27,6 +28,7 @@ import { ContextMenuView } from 'react-native-ios-context-menu';
 import { AnimatedScrollView } from '@kanelloc/react-native-animated-header-scroll-view';
 
 import * as Notifications from 'expo-notifications';
+import * as WebBrowser from 'expo-web-browser';
 
 import {
   X,
@@ -40,6 +42,9 @@ import {
   Users,
   Palette,
   Bell,
+  ClipboardList,
+  BookOpen,
+  File as FileLucide,
 } from 'lucide-react-native';
 
 import { useState, useEffect } from 'react';
@@ -97,6 +102,14 @@ function LessonScreen({ route, navigation }) {
   const [blurPic2, setBlurPic2] = useState(null);
 
   const appctx = useAppContext();
+
+  const openURL = async (url) => {
+    await WebBrowser.openBrowserAsync(url, {
+      dismissButtonStyle: 'done',
+      presentationStyle: 'formSheet',
+      controlsColor: UIColors.primary,
+    });
+  };
 
   React.useLayoutEffect(() => {
     setBlurPic1(blurPics[Math.floor(Math.random() * 6) + 1]);
@@ -237,11 +250,16 @@ function LessonScreen({ route, navigation }) {
 
       // a venir
 
-      if (hours < -1 && hours > -48) {
+      if (hours < -1 && hours > -25) {
         setCountdownString(`il y a ${lz(-hours)} heures`);
-      } else if (hours <= -48) {
-        setCountdownString(`il y a ${Math.floor(-hours / 24)} jours`);
-      } else {
+      }
+      else if (hours <= -25 && hours > -48) {
+        setCountdownString(`il y a ${Math.floor(-hours / 24)} jour et ${Math.floor(-hours % 24)} heure` + (Math.floor(-hours % 24) > 1 ? 's' : ''));
+      }
+      else if (hours <= -25) {
+        setCountdownString(`il y a ${Math.floor(-hours / 24)} jour` + (Math.floor(-hours / 24) > 1 ? 's' : ''));
+      }
+      else {
         setCountdownString(`il y a ${lz(-minutes)} minutes`);
       }
     }, 1000);
@@ -475,6 +493,74 @@ function LessonScreen({ route, navigation }) {
             </NativeText>
           </NativeItem>
         </NativeList>
+
+        { lesson.content && lesson.content.description ? (
+          <NativeList
+            inset
+            header="Contenu du cours"
+          >
+            <NativeItem
+              leading={<BookOpen size={24} color={mainColor} />}
+            >
+              <NativeText heading="p2">
+                Titre
+              </NativeText>
+              <NativeText heading="h4">
+                {lesson.content.title || 'Non spécifié'}
+              </NativeText>
+            </NativeItem>
+            <NativeItem
+              leading={<ClipboardList size={24} color={mainColor} />}
+            >
+              <NativeText heading="p2">
+                Description
+              </NativeText>
+              <NativeText heading="h4">
+                {lesson.content.description || 'Non spécifié'}
+              </NativeText>
+            </NativeItem>
+          </NativeList>
+        ) : <View /> }
+
+        { lesson.content && lesson.content.files && lesson.content.files.length > 0 ? (
+          <NativeList
+            inset
+            header="Fichiers"
+          >
+            { lesson.content.files.map((file, index) => (
+              <NativeItem
+                key={index}
+                leading={<FileLucide size={24} color={mainColor} />}
+                onPress={() => {
+                  if (file.url.startsWith('http')) {
+                    openURL(file.url);
+                  }
+                  else {
+                    Alert.alert(
+                      'Impossible d\'ouvrir le fichier',
+                      'Le fichier n\'est pas disponible en ligne.',
+                      [
+                        {
+                          text: 'OK',
+                          style: 'cancel',
+                        },
+                      ],
+                      { cancelable: true }
+                    );
+                  }
+                }}
+                chevron
+              >
+                <NativeText heading="h4" numberOfLines={1}>
+                  {file.name}
+                </NativeText>
+                <NativeText heading="p2" numberOfLines={1}>
+                  {file.url}
+                </NativeText>
+              </NativeItem>
+            )) }
+          </NativeList>
+        ) : <View /> }
 
         <NativeList
           inset

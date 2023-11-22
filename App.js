@@ -45,6 +45,7 @@ import AppearanceScreen from './views/Settings/AppearanceScreen';
 import SettingsScreen2 from './views/Settings/SettingsScreen';
 import IconsScreen from './views/Settings/IconsScreen';
 import ChangeServer from './views/Settings/ChangeServer';
+import CoursColor from './views/Settings/CoursColor';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -406,6 +407,14 @@ function InsetSettings() {
         component={OfficialServer}
         options={{
           headerTitle: 'Serveur officiel',
+          headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
+        name="CoursColor"
+        component={CoursColor}
+        options={{
+          headerTitle: 'Couleur des matières',
           headerBackTitle: 'Retour',
         }}
       />
