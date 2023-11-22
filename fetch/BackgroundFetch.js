@@ -95,7 +95,7 @@ async function checkUndoneHomeworks() {
   }
   else if (undone.length > 0 && new Date() < fireDate) {
     notifee.displayNotification({
-      title: `📰 Nouvelle actualité ${ucFirst(dataInstance.service)}``📚 Il te reste des devoirs pour demain !`,
+      title: `📚 Il te reste des devoirs pour demain !`,
       body: `Tu as ${undone.length} devoir${(undone.length > 1) && 's'} à faire pour demain`,
       android: {
         channelId: "newdata-group"
