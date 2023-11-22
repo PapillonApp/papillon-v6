@@ -318,7 +318,7 @@ function TabsElement({ navigation, theme, UIColors }) {
 function CoursElement({ cours, theme, UIColors, navigation, loading }) {
   return (
     !loading ? (
-      cours.length > 0 ? (
+      cours && cours.length > 0 ? (
         <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
           {cours.map((day, index) => (
             <View key={index}>
