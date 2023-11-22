@@ -81,9 +81,6 @@ function GradesScreen({ navigation }) {
         />
       ),
       headerShadowVisible: true,
-      headerStyle : {
-        backgroundColor: UIColors.element,
-      },
       headerRight: () => (
         <TouchableOpacity
           onPress={newPeriod}
