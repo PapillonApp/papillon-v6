@@ -1,11 +1,10 @@
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
 
-import PushNotification from "react-native-push-notification";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IndexDataInstance } from './IndexDataInstance';
 import { ucFirst } from './SkolengoData/SkolengoDatas';
-import notifee, {AndroidImportance} from '@notifee/react-native';
+import notifee from '@notifee/react-native';
 
 // Actualités
 TaskManager.defineTask('background-fetch-news', async () => {
@@ -31,17 +30,11 @@ TaskManager.defineTask('background-fetch-news', async () => {
 
           const lastNews = news[news.length - 1];
 
-          PushNotification.localNotification({
-            channelId: "channel-id",
-            vibrate: true,
-            title: `📰 Nouvelle actualité ${ucFirst(dataInstance.service)}`,
-            message: lastNews.title
-          })
           notifee.displayNotification({
             title: `📰 Nouvelle actualité ${ucFirst(dataInstance.service)}`,
             body: lastNews.title,
             android: {
-              channelId: ""
+              channelId: "newdata-group"
             }
           })
           // Be sure to return the successful result type!
