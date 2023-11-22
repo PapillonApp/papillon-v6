@@ -106,8 +106,8 @@ function LessonScreen({ route, navigation }) {
   const openURL = async (url) => {
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
-      presentationStyle: 'currentContext',
-      controlsColor: '#B42828',
+      presentationStyle: 'formSheet',
+      controlsColor: UIColors.primary,
     });
   };
 
@@ -551,10 +551,10 @@ function LessonScreen({ route, navigation }) {
                 }}
                 chevron
               >
-                <NativeText heading="h4">
+                <NativeText heading="h4" numberOfLines={1}>
                   {file.name}
                 </NativeText>
-                <NativeText heading="p2">
+                <NativeText heading="p2" numberOfLines={1}>
                   {file.url}
                 </NativeText>
               </NativeItem>
