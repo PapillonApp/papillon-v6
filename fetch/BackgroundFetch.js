@@ -40,6 +40,9 @@ TaskManager.defineTask('background-fetch-news', async () => {
             body: lastNews.title,
             android: {
               channelId: "newdata-group"
+            },
+            ios: {
+              sound: 'papillon_ding.wav',
             }
           })
           // Be sure to return the successful result type!
@@ -91,15 +94,16 @@ async function checkUndoneHomeworks() {
     return;
   }
   else if (undone.length > 0 && new Date() < fireDate) {
-    /*Notifications.postLocalNotification({
+    notifee.displayNotification({
+      title: `📰 Nouvelle actualité ${ucFirst(dataInstance.service)}``📚 Il te reste des devoirs pour demain !`,
       body: `Tu as ${undone.length} devoir${(undone.length > 1) && 's'} à faire pour demain`,
-      title: `📚 Il te reste des devoirs pour demain !`,
-      sound: 'papillon_ding.wav',
-      silent: false,
-      category: 'PAPILLON_NOTIFICATIONS',
-      userInfo: {},
-      fireDate: new Date(),
-    });*/
+      android: {
+        channelId: "newdata-group"
+      },
+      ios: {
+        sound: 'papillon_ding.wav',
+      }
+    })
 
     await AsyncStorage.setItem('notifHasAlreadyBeenSent', fireDate.getTime().toString());
   }
