@@ -93,6 +93,7 @@ async function checkUndoneHomeworks() {
   fireDate.setHours(19);
   fireDate.setMinutes(0);
   fireDate.setSeconds(0);
+  fireDate.setMilliseconds(0); 
 
   const notifHasAlreadyBeenSent = await AsyncStorage.getItem('notifHasAlreadyBeenSent');
 
