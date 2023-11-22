@@ -10,6 +10,7 @@ import {
   Image,
   Modal,
   Button,
+  Alert,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -27,6 +28,7 @@ import { ContextMenuView } from 'react-native-ios-context-menu';
 import { AnimatedScrollView } from '@kanelloc/react-native-animated-header-scroll-view';
 
 import * as Notifications from 'expo-notifications';
+import * as WebBrowser from 'expo-web-browser';
 
 import {
   X,
@@ -40,6 +42,9 @@ import {
   Users,
   Palette,
   Bell,
+  ClipboardList,
+  BookOpen,
+  File as FileLucide,
 } from 'lucide-react-native';
 
 import { useState, useEffect } from 'react';
@@ -98,6 +103,14 @@ function LessonScreen({ route, navigation }) {
 
   const appctx = useAppContext();
 
+  const openURL = async (url) => {
+    await WebBrowser.openBrowserAsync(url, {
+      dismissButtonStyle: 'done',
+      presentationStyle: 'formSheet',
+      controlsColor: UIColors.primary,
+    });
+  };
+
   React.useLayoutEffect(() => {
     setBlurPic1(blurPics[Math.floor(Math.random() * 6) + 1]);
     setBlurPic2(blurPics[Math.floor(Math.random() * 6) + 1]);
@@ -144,57 +157,6 @@ function LessonScreen({ route, navigation }) {
   // main color
   const mainColor = theme.dark ? '#ffffff' : '#444444';
 
-  const [isNotified, setIsNotified] = useState(false);
-
-  function changeIsNotified(val) {
-    setIsNotified(val);
-
-    const time = new Date(lesson.start);
-    time.setMinutes(time.getMinutes() - 5);
-
-    if (time < new Date()) {
-      setTimeout(() => {
-        setIsNotified(false);
-      }, 200);
-      return;
-    }
-
-    if (val) {
-      Notifications.scheduleNotificationAsync({
-        identifier: lesson.subject.name + new Date(lesson.start).getTime(),
-        content: {
-          title: `${getClosestGradeEmoji(lesson.subject.name)} ${
-            lesson.subject.name
-          } - Ça commence dans 5 minutes`,
-          body: `Le cours est en salle ${lesson.rooms[0]} avec ${lesson.teachers[0]}.`,
-          sound: 'papillon_ding.wav',
-        },
-        trigger: {
-          channelId: 'coursReminder',
-          date: new Date(time),
-        },
-      });
-    } else {
-      Notifications.cancelScheduledNotificationAsync(
-        lesson.subject.name + new Date(lesson.start).getTime()
-      );
-    }
-  }
-
-  useEffect(() => {
-    Notifications.getAllScheduledNotificationsAsync().then((value) => {
-      for (const notification of value) {
-        if (
-          notification.identifier ===
-          lesson.subject.name + new Date(lesson.start).getTime()
-        ) {
-          setIsNotified(true);
-          break;
-        }
-      }
-    });
-  }, []);
-
   const [countdown, setCountdown] = useState(
     Math.floor((new Date(lesson.start) - new Date()) / 1000)
   );
@@ -237,11 +199,16 @@ function LessonScreen({ route, navigation }) {
 
       // a venir
 
-      if (hours < -1 && hours > -48) {
+      if (hours < -1 && hours > -25) {
         setCountdownString(`il y a ${lz(-hours)} heures`);
-      } else if (hours <= -48) {
-        setCountdownString(`il y a ${Math.floor(-hours / 24)} jours`);
-      } else {
+      }
+      else if (hours <= -25 && hours > -48) {
+        setCountdownString(`il y a ${Math.floor(-hours / 24)} jour et ${Math.floor(-hours % 24)} heure` + (Math.floor(-hours % 24) > 1 ? 's' : ''));
+      }
+      else if (hours <= -25) {
+        setCountdownString(`il y a ${Math.floor(-hours / 24)} jour` + (Math.floor(-hours / 24) > 1 ? 's' : ''));
+      }
+      else {
         setCountdownString(`il y a ${lz(-minutes)} minutes`);
       }
     }, 1000);
@@ -476,41 +443,73 @@ function LessonScreen({ route, navigation }) {
           </NativeItem>
         </NativeList>
 
-        <NativeList
-          inset
-          header="Options"
-        >
-          { new Date(lesson.start) > new Date() ? (
+        { lesson.content && lesson.content.description ? (
+          <NativeList
+            inset
+            header="Contenu du cours"
+          >
             <NativeItem
-              leading={<Bell size={24} color={mainColor} />}
-              trailing={
-                <Switch
-                  value={isNotified}
-                  onValueChange={(val) => changeIsNotified(val)}
-                />
-              }
+              leading={<BookOpen size={24} color={mainColor} />}
             >
-              <NativeText heading="h4">
-                Me notifier 5 min. avant
-              </NativeText>
               <NativeText heading="p2">
-                Vous serez notifié 5 minutes avant le début du cours.
+                Titre
+              </NativeText>
+              <NativeText heading="h4">
+                {lesson.content.title || 'Non spécifié'}
               </NativeText>
             </NativeItem>
-          ) : null }
-          <NativeItem
-            leading={<Palette size={24} color={mainColor} />}
-            onPress={() => changeCourseColor()}
-            chevron
-          >
-            <NativeText heading="h4">
-              Changer la couleur de la matière
-            </NativeText>
-          </NativeItem>
-        </NativeList>
+            <NativeItem
+              leading={<ClipboardList size={24} color={mainColor} />}
+            >
+              <NativeText heading="p2">
+                Description
+              </NativeText>
+              <NativeText heading="h4">
+                {lesson.content.description || 'Non spécifié'}
+              </NativeText>
+            </NativeItem>
+          </NativeList>
+        ) : <View /> }
 
-        
-        
+        { lesson.content && lesson.content.files && lesson.content.files.length > 0 ? (
+          <NativeList
+            inset
+            header="Fichiers"
+          >
+            { lesson.content.files.map((file, index) => (
+              <NativeItem
+                key={index}
+                leading={<FileLucide size={24} color={mainColor} />}
+                onPress={() => {
+                  if (file.url.startsWith('http')) {
+                    openURL(file.url);
+                  }
+                  else {
+                    Alert.alert(
+                      'Impossible d\'ouvrir le fichier',
+                      'Le fichier n\'est pas disponible en ligne.',
+                      [
+                        {
+                          text: 'OK',
+                          style: 'cancel',
+                        },
+                      ],
+                      { cancelable: true }
+                    );
+                  }
+                }}
+                chevron
+              >
+                <NativeText heading="h4" numberOfLines={1}>
+                  {file.name}
+                </NativeText>
+                <NativeText heading="p2" numberOfLines={1}>
+                  {file.url}
+                </NativeText>
+              </NativeItem>
+            )) }
+          </NativeList>
+        ) : <View /> }
 
         <View style={{ height: 100 }} />
       </AnimatedScrollView>

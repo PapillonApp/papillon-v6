@@ -52,6 +52,7 @@ function NewsItem({ route, navigation }) {
   const appctx = useAppContext();
 
   const [isRead, setIsRead] = useState(news.read);
+  const [readChanged, setReadChanged] = useState(false);
 
   const loadNews = async (id) => {
     if (!id) return;
@@ -105,8 +106,8 @@ function NewsItem({ route, navigation }) {
             onPressMenuItem={async ({nativeEvent}) => {
               if (nativeEvent.actionKey === 'read') {
                 markNewsAsRead(news.local_id).then((e) => {
-                  console.log(e);
                   setIsRead(e.current_state);
+                  setReadChanged(true);
                 });
               }
               else if (nativeEvent.actionKey === 'copy') {
@@ -120,7 +121,7 @@ function NewsItem({ route, navigation }) {
         </ContextMenuButton>
       ),
     });
-  }, [navigation, isRead]);
+  }, [navigation, isRead, readChanged]);
 
   function markNewsAsRead(id) {
     return appctx.dataprovider.changeNewsState(id).then((result) => {
@@ -131,7 +132,14 @@ function NewsItem({ route, navigation }) {
   React.useEffect(() => {
     setNews(route.params.news);
     loadNews(route.params.news.id);
-  }, [route.params.news]);
+
+    if (!route.params.news.read && !readChanged) {
+      markNewsAsRead(route.params.news.local_id).then((e) => {
+        setIsRead(e.current_state);
+        setReadChanged(true);
+      });
+    }
+  }, [route.params.news, isRead, readChanged]);
 
   const openURL = async (url) => {
     await WebBrowser.openBrowserAsync(url, {
