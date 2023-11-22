@@ -11,6 +11,9 @@ import {
 import { Text, useTheme } from 'react-native-paper';
 import GetUIColors from '../utils/GetUIColors';
 
+import { SFSymbol } from 'react-native-sfsymbols';
+import PapillonInsetHeader from '../components/PapillonInsetHeader';
+
 import { useAppContext } from '../utils/AppContext';
 
 import ListItem from '../components/ListItem';
@@ -59,6 +62,16 @@ function ConversationsScreen({ navigation }) {
   // add search functionality
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitle: () => Platform.OS === 'ios' && (
+        <PapillonInsetHeader
+          icon={<SFSymbol name="bubble.left.circle.fill" />}
+          title="Conversations"
+          color="#B18619"
+          inset
+        />
+      ),
+      headerBackTitleVisible: false,
+      headerTintColor: UIColors.text,
       headerSearchBarOptions: {
         placeholder: 'Rechercher une conversation',
         cancelButtonText: 'Annuler',

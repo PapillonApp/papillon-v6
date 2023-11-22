@@ -13,6 +13,7 @@ import { SFSymbol } from "react-native-sfsymbols";
 import GetUIColors from '../utils/GetUIColors';
 
 import { Cell, Section, TableView } from 'react-native-tableview-simple';
+import PapillonInsetHeader from '../components/PapillonInsetHeader';
 
 import packageJson from '../package.json';
 import { useAppContext } from '../utils/AppContext';
@@ -33,6 +34,18 @@ function NewSettings({navigation}) {
     });
   }, []);
 
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => Platform.OS === 'ios' && (
+        <PapillonInsetHeader
+          icon={<SFSymbol name="gear" />}
+          title="Préférences"
+          color="#888888"
+        />
+      ),
+    });
+  });
+
   return (
     <ScrollView
       contentInsetAdjustmentBehavior='automatic'
@@ -51,10 +64,10 @@ function NewSettings({navigation}) {
       )}
       
       <NativeList
-        inset={true}
+        inset
         sideBar
       >
-        { userData ? (
+        { userData && userData.name ? (
           <NativeItem
             style={
               styles.profile.container
@@ -86,7 +99,7 @@ function NewSettings({navigation}) {
       </NativeList>
 
       <NativeList
-        inset={true}
+        inset
         sideBar
         header="Options de l'application"
       >
@@ -180,7 +193,43 @@ function NewSettings({navigation}) {
       </NativeList>
 
       <NativeList
-        inset={true}
+        inset
+        sideBar
+        header="Options du contenu"
+      >
+        <NativeItem
+          leading={
+            <View
+              style={[
+                styles.item.leadingContainer,
+                {
+                  backgroundColor: '#7a9543',
+                }
+              ]}
+            >
+              <SFSymbol
+                name="swatchpalette.fill"
+                weight="semibold"
+                size={16}
+                color="#ffffff"
+                style={styles.item.symbol}
+              />
+            </View>
+          }
+          chevron
+          onPress={() => navigation.navigate('CoursColor')}
+        >
+          <NativeText heading="h4">
+            Couleurs des matières
+          </NativeText>
+          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+            Personnaliser les matières
+          </NativeText>
+        </NativeItem>
+      </NativeList>
+
+      <NativeList
+        inset
         sideBar
         header="A propos"
       >
@@ -252,6 +301,7 @@ const styles = StyleSheet.create({
   profile: {
     container: {
       marginVertical: 2,
+      paddingVertical: 5,
     },
     pic: {
       width: 48,

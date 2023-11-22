@@ -13,6 +13,9 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
+import { SFSymbol } from 'react-native-sfsymbols';
+import PapillonInsetHeader from '../components/PapillonInsetHeader';
+
 import { ContextMenuView } from 'react-native-ios-context-menu';
 
 import { ScrollView } from 'react-native-gesture-handler';
@@ -35,6 +38,7 @@ import {
   Info,
   Calendar as IconCalendar,
   Users,
+  CalendarDays,
 } from 'lucide-react-native';
 
 import formatCoursName from '../utils/FormatCoursName';
@@ -209,6 +213,13 @@ Statut : ${cours.status || 'Aucun'}
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitle: () => Platform.OS === 'ios' && (
+        <PapillonInsetHeader
+          icon={<SFSymbol name="calendar" />}
+          title="Emploi du temps"
+          color="#0065A8"
+        />
+      ),
       headerRight: () =>
         Platform.OS === 'ios' ? (
           <ContextMenuView

@@ -2,6 +2,10 @@ import SharedGroupPreferences from 'react-native-shared-group-preferences';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestColor from '../utils/ColorCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
+import {
+  forceSavedCourseColor,
+  getSavedCourseColor,
+} from '../utils/ColorCoursName';
 
 const appGroupIdentifier = 'group.plus.pronote';
 
@@ -18,7 +22,7 @@ async function sendToSharedGroup(timetableData) {
       room: cours.rooms.join(', '),
       start: new Date(cours.start).getTime(),
       end: new Date(cours.end).getTime(),
-      background_color: getClosestColor(cours.background_color),
+      background_color: getSavedCourseColor(cours.subject.name, cours.background_color),
       emoji: getClosestGradeEmoji(cours.subject.name),
       is_cancelled: cours.is_cancelled,
     });

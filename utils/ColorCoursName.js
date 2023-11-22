@@ -112,6 +112,7 @@ function normalizeCoursName(courseName = '') {
 function getSavedCourseColor(courseName, courseColor) {
   courseColor = getClosestColor(courseColor);
   
+  let originalCourseName = courseName;
   courseName = normalizeCoursName(courseName);
   let savedColors = SyncStorage.get('savedColors');
   if (savedColors) {
@@ -120,12 +121,16 @@ function getSavedCourseColor(courseName, courseColor) {
     savedColors = {};
   }
 
-  if (savedColors[courseName]) {
-    return savedColors[courseName];
+  if (savedColors[courseName] && savedColors[courseName].color) {
+    return savedColors[courseName].color;
   }
   // find a color that is not used
   const color = courseColor;
-  savedColors[courseName] = color;
+  savedColors[courseName] = {
+    color: color,
+    originalCourseName: originalCourseName,
+    systemCourseName: courseName,
+  };
   SyncStorage.set('savedColors', JSON.stringify(savedColors));
   return color;
 }
@@ -140,7 +145,7 @@ function forceSavedCourseColor(courseName, courseColor) {
   }
 
   const color = courseColor;
-  savedColors[courseName] = color;
+  savedColors[courseName].color = color;
   SyncStorage.set('savedColors', JSON.stringify(savedColors));
   return color;
 }

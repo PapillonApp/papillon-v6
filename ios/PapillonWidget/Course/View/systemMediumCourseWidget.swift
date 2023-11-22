@@ -34,44 +34,45 @@ struct systemMediumCourseWidget: View {
         }
         //S'il y a un cours en cours
         if let currentCourse = currentCourse {
-          VStack {
-            HStack {
-              Circle()
-                .strokeBorder(Color.white.opacity(0.5), lineWidth: 3)
-                .background(Circle().fill(Color.white.opacity(0.2)))
-                .frame(width: 40, height: 40, alignment: .center)
-                .overlay(
-                  Text(currentCourse.emoji)
-                )
-              VStack(alignment: .leading) {
-                Text(currentCourse.subject)
-                  .font(.headline)
-                if currentCourse.isCancelled == true {
-                  Text("Annulé")
-                    .font(.subheadline)
-                    .textCase(.uppercase)
-                    .foregroundStyle(Color.white.opacity(0.5))
-                } else {
-                  Text("salle \(currentCourse.room)")
-                    .font(.subheadline)
+          ZStack {
+            Color(hex: currentCourse.backgroundColor)
+            VStack {
+              HStack {
+                Circle()
+                  .strokeBorder(Color.white.opacity(0.5), lineWidth: 3)
+                  .background(Circle().fill(Color.white.opacity(0.2)))
+                  .frame(width: 40, height: 40, alignment: .center)
+                  .overlay(
+                    Text(currentCourse.emoji)
+                  )
+                VStack(alignment: .leading) {
+                  Text(currentCourse.subject)
+                    .font(.system(.headline, design: .rounded))
+                  if currentCourse.isCancelled == true {
+                    Text("Annulé")
+                      .font(.system(.subheadline, design: .rounded))
+                      .foregroundStyle(Color.white.opacity(0.5))
+                  } else {
+                    Text("salle \(currentCourse.room)")
+                      .font(.system(.subheadline, design: .rounded))
+                      .foregroundStyle(Color.white.opacity(0.5))
+                  }
+                }
+                Spacer()
+                VStack(alignment: .trailing){
+                  Text("\(formattedTime(currentCourse.start))")
+                    .font(.system(.headline, design: .rounded))
+                  Text("Maintenant")
+                    .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(Color.white.opacity(0.5))
                 }
               }
-              Spacer()
-              VStack(alignment: .trailing){
-                Text("\(formattedTime(currentCourse.start))")
-                  .font(.headline)
-                Text("Maintenant")
-                  .font(.subheadline)
-                  .foregroundStyle(Color.white.opacity(0.5))
-              }
+              .padding(.horizontal)
+              .lineLimit(1)
+              .foregroundStyle(.white)
             }
-            .padding(.horizontal)
-            .lineLimit(1)
-            .foregroundStyle(.white)
           }
           .frame(height: 60)
-          .background(Color(hex: currentCourse.backgroundColor))
           // S'il reste au moins un cours
           if !upcomingCourses.isEmpty {
             ForEach(upcomingCourses.prefix(2), id: \.id) { course in
@@ -87,16 +88,15 @@ struct systemMediumCourseWidget: View {
                   Text(course.subject)
                     .foregroundStyle(Color(hex: course.backgroundColor))
                     .lineLimit(1)
-                    .font(.headline)
+                    .font(.system(.headline, design: .rounded))
                   Spacer()
                   if course.isCancelled == true {
                     Text("Annulé")
-                      .font(.headline)
-                      .textCase(.uppercase)
+                      .font(.system(.headline, design: .rounded))
                       .foregroundStyle(Color.black.opacity(0.5))
                   } else {
                     Text("\(formattedTime(course.start))")
-                      .font(.headline)
+                      .font(.system(.headline, design: .rounded))
                       .foregroundStyle(Color.primary.opacity(0.5))
                   }
                 }
@@ -114,6 +114,8 @@ struct systemMediumCourseWidget: View {
         } 
         // S'il reste au moins un cours suivant
         else if !upcomingCourses.isEmpty {
+          ZStack {
+            Color(hex: upcomingCourses.first!.backgroundColor)
             VStack {
               HStack {
                 Circle()
@@ -128,52 +130,49 @@ struct systemMediumCourseWidget: View {
                     .font(.headline)
                   if upcomingCourses.first!.isCancelled == true {
                     Text("Annulé")
-                      .font(.subheadline)
-                      .textCase(.uppercase)
+                      .font(.system(.subheadline, design: .rounded))
                       .foregroundStyle(Color.white.opacity(0.5))
                   } else {
                     Text("salle \(upcomingCourses.first!.room)")
-                      .font(.subheadline)
+                      .font(.system(.subheadline, design: .rounded))
                       .foregroundStyle(Color.white.opacity(0.5))
                   }
                 }
                 Spacer()
                 VStack(alignment: .trailing){
                   Text("\(formattedTime(upcomingCourses.first!.start))")
-                    .font(.headline)
+                    .font(.system(.headline, design: .rounded))
                 }
               }
               .padding(.horizontal)
               .lineLimit(1)
               .foregroundStyle(.white)
             }
-            .frame(height: 60)
-            .background(Color(hex: upcomingCourses.first!.backgroundColor))
-            // S'il reste au moins un cours
+          }
+           .frame(height: 60)
+            //S'il reste au moins un cours
             if !upcomingCourses.isEmpty {
               ForEach(upcomingCourses.dropFirst(1).prefix(2), id: \.id) { course in
                 VStack {
                   HStack {
                     Circle()
-                      .strokeBorder(Color.white.opacity(0), lineWidth: 3)
+                      .strokeBorder(Color.white.opacity(0), lineWidth: 2)
                       .background(Circle().fill(Color.white.opacity(0)))
                       .frame(width: 40, height: 40, alignment: .center)
                       .overlay(
                         Text(course.emoji)
                       )
                     Text(course.subject)
-                      .foregroundStyle(Color(hex: course.backgroundColor))
                       .lineLimit(1)
-                      .font(.headline)
+                      .font(.system(.headline, design: .rounded))
                     Spacer()
                     if course.isCancelled == true {
                       Text("Annulé")
-                        .font(.headline)
-                        .textCase(.uppercase)
+                        .font(.system(.headline, design: .rounded))
                         .foregroundStyle(Color.black.opacity(0.5))
                     } else {
                       Text("\(formattedTime(course.start))")
-                        .font(.headline)
+                        .font(.system(.headline, design: .rounded))
                         .foregroundStyle(Color.primary.opacity(0.5))
                     }
                   }.padding(.horizontal)
@@ -189,30 +188,31 @@ struct systemMediumCourseWidget: View {
           }
           // S'il y a plus rien
           else {
-            VStack {
-              HStack {
-                Circle()
-                  .strokeBorder(Color.white.opacity(0.5), lineWidth: 3)
-                  .background(Circle().fill(Color.white.opacity(0.2)))
-                  .frame(width: 40, height: 40, alignment: .center)
-                  .overlay(
-                    Text("😴")
-                  )
-                VStack(alignment: .leading) {
-                  Text("Plus de cours pour aujourd'hui")
-                    .font(.headline)
-                  Text("Repose-toi bien !")
-                    .font(.subheadline)
-                    .textCase(.uppercase)
-                    .foregroundStyle(Color.white.opacity(0.5))
+            ZStack {
+              Color("WidgetBackground")
+              VStack {
+                HStack {
+                  Circle()
+                    .strokeBorder(Color.white.opacity(0.5), lineWidth: 2)
+                    .background(Circle().fill(Color.white.opacity(0.2)))
+                    .frame(width: 40, height: 40, alignment: .center)
+                    .overlay(
+                      Text("😴")
+                    )
+                  VStack(alignment: .leading) {
+                    Text("Plus de cours pour aujourd'hui")
+                      .font(.system(.headline, design: .rounded))
+                    Text("Repose-toi bien !")
+                      .font(.system(.subheadline, design: .rounded))
+                      .foregroundStyle(Color.white.opacity(0.5))
+                  }
+                  Spacer()
                 }
-                Spacer()
-              }.padding(.horizontal)
+                .padding(.horizontal)
                 .lineLimit(1)
                 .foregroundStyle(.white)
-            }
-            .frame(height: 60)
-            .background(Color("WidgetBackground"))
+              }
+            }.frame(maxHeight: 60)
             Spacer()
           }
         }

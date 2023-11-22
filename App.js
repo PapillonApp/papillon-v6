@@ -11,7 +11,7 @@ import FlashMessage from 'react-native-flash-message';
 
 import { getHeaderTitle } from '@react-navigation/elements';
 import { useState, useMemo, useEffect } from 'react';
-import { Platform, useColorScheme, View } from 'react-native';
+import { Platform, useColorScheme, View, PermissionsAndroid, Alert, Linking } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import { SFSymbol } from 'react-native-sfsymbols';
 
@@ -46,6 +46,7 @@ import SettingsScreen2 from './views/Settings/SettingsScreen';
 import IconsScreen from './views/Settings/IconsScreen';
 import ChangeServer from './views/Settings/ChangeServer';
 import ApplicationLogs from './views/Settings/ApplicationLogs';
+import CoursColor from './views/Settings/CoursColor';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -77,7 +78,177 @@ import setBackgroundFetch from './fetch/BackgroundFetch';
 import { LoginSkolengoSelectSchool } from './views/AuthStack/Skolengo/LoginSkolengoSelectSchool';
 import { IndexDataInstance } from './fetch/IndexDataInstance';
 import GetUIColors from './utils/GetUIColors';
+import { showMessage } from 'react-native-flash-message';
+import notifee, {AndroidImportance, AuthorizationStatus} from '@notifee/react-native';
+/*notifee.getChannels().then(channels => {
+  channels.forEach(ch => {
+    notifee.deleteChannel(ch.id)
+  })
+})
+notifee.getChannelGroups().then(groups => {
+  groups.forEach(g => {
+    notifee.deleteChannelGroup(g.id)
+  })
+})*/
+async function initNotifs() {
+  notifee.getChannels().then(channels => {
+    if(channels.length === 0) checkNotifPerm(registerNotifs)
+  })
+}
+async function registerNotifs() {
+  await notifee.createChannelGroups([
+  {
+    name: "Nouvelles données disponibles",
+    description: "Notifications en arrière-plan",
+    id: "newdata-group"
+  },
+  {
+    name:"Rappels",
+    description: "Notifications de rappels",
+    id:"remind-group"
+  },
+  {
+    name: "Notifications silencieuses",
+    description: "Notifications en arrière-plan",
+    id: "silent-group"
+  }])
+  notifee.createChannels([{
+    id:"silent",
+    groupId: "silent-group",
+    name: "Données en arrière-plan",
+    description: "Notifie quand l'application récupère les données en arrière-plan",
+    importance: AndroidImportance.LOW
+  },
+  {
+    name: "Rappels de devoirs",
+    id:"works-remind",
+    groupId: "remind-group",
+    description: "Notifications de rappels de devoirs",
+    importance: AndroidImportance.HIGH
+  },
+  {
+    name: "Rappels de cours",
+    id: "course-remind",
+    groupId: "remind-group",
+    description: "Notifications de rappels de cours (configurable dans l'application)",
+    importance: AndroidImportance.HIGH
+  },
+  {
+    name: "Nouvelles actualités",
+    id: "new-news",
+    groupId: "newdata-group",
+    description: "Indique quand une nouvelle actualité est disponible",
+    importance: AndroidImportance.HIGH
+  },])
+}
+async function checkNotifPerm(next = function(){}) {
+  if(Platform.OS === "android") {
+    PermissionsAndroid.check("android.permission.POST_NOTIFICATIONS").then((granted) => {
+      if(granted) {
+        console.log("notif permission ok")
+        next()
+      }
+      else askNotifPerm()
+    })
+  }
+}
+async function askNotifPerm() {
+  if(Platform.OS === "android") {
+    PermissionsAndroid.request("android.permission.POST_NOTIFICATIONS").then((result) => {
+      console.log("permission request,", result)
+      if(result === "granted") {
+        showMessage({
+          message: 'Notifications activées',
+          type: 'success',
+          icon: 'auto',
+          floating: true,
+        });
+      }
+      else {
+        result !== "never_ask_again" ? Alert.alert(
+          'Notifications',
+          'Vous avez refusé les notifications. Si vous les refusez, vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Souhaitez-vous continuer ?',
+          [
+            {
+              text: 'Continuer',
+              style: 'cancel',
+              onPress: () => {
+                showMessage({
+                  message: 'Notifications désactivées',
+                  type: 'danger',
+                  icon: 'auto',
+                  floating: true,
+                });
+              }
+            },
+            {
+              text:"Autoriser",
+              onPress: () => {
+                askNotifPerm()
+              }
+            }
+          ]
+        ) : Alert.alert(
+          'Notifications',
+          'Vous avez refusé les notifications. Si vous les refusez, vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Pour les autoriser, veuillez vous rendre dans les paramètres de votre téléphone.',
+          [
+            {
+              text: 'Continuer',
+              style: 'cancel',
+              onPress: () => {
+                showMessage({
+                  message: 'Notifications désactivées',
+                  type: 'danger',
+                  icon: 'auto',
+                  floating: true,
+                });
+              }
+            },
+            {
+              text: 'Ouvrir les paramètres',
+              style: 'cancel',
+              onPress: () => {
+                Linking.openSettings()
+              }
+            },
+          ]
+        )
+      }
+    })
+  }
+  else if(Platform.OS === "ios") {
+    const settings = await notifee.requestPermission({sound: true, badge: true, alert: true, inAppNotificationSettings: true, announcement: true});
 
+    if(settings.authorizationStatus === AuthorizationStatus.DENIED) {
+      Alert.alert(
+        'Notifications',
+        'Vous avez refusé les notifications. Vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Pour les autoriser, veuillez vous rendre dans les paramètres de votre appareil.',
+        [
+          {
+            text: 'Ouvrir les paramètres',
+            onPress: () => {
+              Linking.openSettings()
+            }
+          },
+          {
+            text: 'Continuer',
+            style: 'cancel',
+            onPress: () => {
+              showMessage({
+                message: 'Notifications désactivées',
+                type: 'danger',
+                icon: 'auto',
+                floating: true,
+              });
+            }
+          },
+        ]
+      )
+    }
+
+  }
+}
+initNotifs()
 const Tab = createBottomTabNavigator();
 
 // stack
@@ -250,12 +421,8 @@ function InsetSettings() {
         options={
           Platform.OS === 'ios' ?
             {
-              headerTitle: 'Réglages',
-              headerLargeTitle: Platform.OS === 'ios',
-              headerLargeStyle: {
-                backgroundColor: UIColors.background,
-              },
-              headerLargeTitleShadowVisible: false,
+              headerTitle: 'Préférences',
+              headerLargeTitle: false,
             }
           :
             {
@@ -268,6 +435,7 @@ function InsetSettings() {
         component={ProfileScreen}
         options={{
           headerTitle: 'Mon profil',
+          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -275,7 +443,14 @@ function InsetSettings() {
         component={OfficialServer}
         options={{
           headerTitle: 'Serveur officiel',
-
+          headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
+        name="CoursColor"
+        component={CoursColor}
+        options={{
+          headerTitle: 'Couleur des matières',
           headerBackTitle: 'Retour',
         }}
       />
@@ -284,6 +459,7 @@ function InsetSettings() {
         component={AboutScreen}
         options={{
           headerTitle: 'A propos de Papillon',
+          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -291,6 +467,7 @@ function InsetSettings() {
         component={AppearanceScreen}
         options={{
           headerTitle: 'Fonctionnalités',
+          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -299,6 +476,7 @@ function InsetSettings() {
         options={{
           headerTitle: 'Notifications',
           headerBackTitle: 'Retour',
+          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -332,6 +510,7 @@ function InsetSettings() {
         component={SettingsScreen2}
         options={{
           headerTitle: 'Réglages',
+          headerBackTitle: 'Préférences',
         }}
       />
 
@@ -342,6 +521,7 @@ function InsetSettings() {
           headerTitle: 'Quoi de neuf ?',
           presentation: 'modal',
           headerShown: false,
+          headerBackTitle: 'Préférences',
         }}
       />
     </Stack.Navigator>
@@ -394,10 +574,9 @@ function WrappedHomeScreen() {
 
       <Stack.Screen
         name="InsetSchoollife"
-        component={InsetSchoolLifeScreen}
+        component={SchoolLifeScreen}
         options={{
-          headerShown: false,
-          presentation: 'modal',
+          headerTitle: 'Vie scolaire',
         }}
       />
       <Stack.Screen
@@ -415,7 +594,7 @@ function WrappedHomeScreen() {
         options={{
           headerBackTitle: 'Accueil',
           headerTitle: 'Conversations',
-          headerLargeTitle: Platform.OS === 'ios',
+          headerLargeTitle: false,
           headerSearchBarOptions: {
             placeholder: 'Rechercher une conversation',
             cancelButtonText: 'Annuler',
@@ -569,7 +748,7 @@ function WrappedGradesScreen() {
           Platform.OS === 'ios'
             ? {
                 headerShown: true,
-                headerLargeTitle: Platform.OS === 'ios',
+                headerLargeTitle: false,
                 headerTitle: 'Notes',
               }
             : null
@@ -584,6 +763,7 @@ function WrappedGradesScreen() {
           headerBackTitle: 'Notes',
           mdTitleColor: '#ffffff',
           headerTintColor: '#ffffff',
+          presentation: 'modal',
         }}
       />
     </Stack.Navigator>
@@ -610,7 +790,7 @@ function WrappedNewsScreen() {
         component={NewsScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: Platform.OS === 'ios',
+          headerLargeTitle: false,
           headerTitle: 'Actualités',
         }}
       />
