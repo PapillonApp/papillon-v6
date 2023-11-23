@@ -71,6 +71,7 @@ const CoursColor = ({ navigation }) => {
     >
       <NativeList
         header="Matières enregistrées"
+        inset
       >
         {savedColors && Object.keys(savedColors).map((key, index) => {
           return (
@@ -79,6 +80,7 @@ const CoursColor = ({ navigation }) => {
               leading={
                 <View style={{ width: 18, height: 18, borderRadius: 12, backgroundColor: savedColors[key].color }} />
               }
+
 
               onPress={() => {
                 setColorModalOpen(true);
@@ -91,12 +93,14 @@ const CoursColor = ({ navigation }) => {
                 {formatCoursName(savedColors[key].originalCourseName)}
               </NativeText>
               <NativeText heading="subtitle2">
-                [{savedColors[key].systemCourseName}]
+                {savedColors[key].color.toUpperCase()}
               </NativeText>
             </NativeItem>
           )
         })}
       </NativeList>
+
+      <View style={{ height: 20 }} />
 
       <Modal visible={colorModalOpen} animationType='fade' transparent={true}>
         <View style={[styles.colorModalContainer]}>
