@@ -1059,7 +1059,7 @@ function HomeHeader({ navigation, timetable, user, showsTomorrow }) {
   let atAGlance = '';
   if (hasTimetable) {
     if(!showsTomorrow) {
-      atAGlance = `${leftCourses.length + 1} cours restant${plural && 's'} dans ta journée.`;
+      atAGlance = `${leftCourses.length + 1} cours ${plural ? 'restants' : 'restant'} dans ta journée.`;
     }
     else {
       atAGlance = `${leftCourses.length + 1} cours ${plural ? 'sont' : 'est'} prévu${plural && 's'} demain.`;
