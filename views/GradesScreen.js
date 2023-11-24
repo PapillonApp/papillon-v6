@@ -133,8 +133,10 @@ function GradesScreen({ navigation }) {
 
   async function changePeriodPronote(period) {
     setIsLoading(true);
-    await appctx.dataprovider.changePeriod(period.name);
-    appctx.dataprovider.getUser(true);
+    console.log(period);
+    let newPeriod = await appctx.dataprovider.changePeriod(period.name);
+    console.log(newPeriod);
+    await appctx.dataprovider.getUser(true);
     loadGrades(true);
     setIsLoading(false);
   }
@@ -286,7 +288,7 @@ function GradesScreen({ navigation }) {
 
   async function loadGrades(force = false) {
     // fetch grades
-    const grades = await appctx.dataprovider.getGrades(force);
+    const grades = await appctx.dataprovider.getGrades('', force);
     parseGrades(grades);
   }
 
@@ -440,7 +442,7 @@ function GradesScreen({ navigation }) {
         <Text style={[styles.noGrades]}>Aucune note à afficher.</Text>
       ) : null}
 
-{ avgChartData.length > 0 && averagesData && (
+      { subjectsList.length !== 0 && !isLoading && avgChartData.length > 0 && averagesData && (
         <View 
           style={[
             styles.averageChart,
