@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   Animated,
+  Alert,
   View,
   ScrollView,
   StyleSheet,
@@ -21,7 +22,7 @@ import LineChart from 'react-native-simple-line-chart';
 
 import Fade from 'react-native-fade';
 
-import { User2, Users2, TrendingDown, TrendingUp } from 'lucide-react-native';
+import { User2, Users2, TrendingDown, TrendingUp, Info, AlertTriangle } from 'lucide-react-native';
 
 import { useState } from 'react';
 import { PressableScale } from 'react-native-pressable-scale';
@@ -65,6 +66,9 @@ function GradesScreen({ navigation }) {
 
   const [scrollX, setScrollX] = useState(new Animated.Value(0));
   const [scrollDistance, setScrollDistance] = useState(0);
+
+  const [calculatedAvg, setCalculatedAvg] = useState(false);
+  const [calculatedClassAvg, setCalculatedClassAvg] = useState(false);
 
   function handleScroll(event) {
     setScrollDistance(event.nativeEvent.contentOffset.y);
@@ -200,11 +204,21 @@ function GradesScreen({ navigation }) {
       if (overall !== 0 && !isNaN(overall)) {
         overall = overall.toFixed(2);
         studentAverage = overall;
+
+        setCalculatedAvg(false);
+      }
+      else {
+        setCalculatedAvg(true);
       }
 
       if (classOverall !== 0 && !isNaN(classOverall)) {
         classOverall = classOverall.toFixed(2);
         classAverage = classOverall;
+
+        setCalculatedClassAvg(false);
+      }
+      else {
+        setCalculatedClassAvg(true);
       }
   
       setAveragesData({
@@ -272,13 +286,6 @@ function GradesScreen({ navigation }) {
       chartData.push({
         x: new Date(gradesFinalList[i].date).getTime(),
         y: avg
-      });
-    }
-
-    if(parsedData.overall_average !== 0 && !isNaN(parsedData.overall_average)) {
-      chartData.push({
-        x: new Date().getTime(),
-        y: parseFloat(parsedData.overall_average)
       });
     }
 
@@ -453,6 +460,24 @@ function GradesScreen({ navigation }) {
             <Text style={[styles.averagegrTitle]}>
               Moyenne générale
             </Text>
+
+            <TouchableOpacity 
+              style={[styles.averagegrTitleInfo]}
+              onPress={() => Alert.alert(
+                `${calculatedAvg ? 'Moyenne générale calculée' : 'Moyenne générale réelle'}`,
+                calculatedAvg ? 
+                  `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant votre moyenne de chaque matière.`
+                :
+                  `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`
+                ,
+              )}
+            >
+              <AlertTriangle size='20' color={UIColors.primary} />
+              <Text style={[styles.averagegrTitleInfoText, {color: UIColors.primary}]}>
+                {calculatedAvg ? 'Estimation' : 'Moyenne réelle'}
+              </Text>
+            </TouchableOpacity>
+
             <View style={[styles.averagegrValCont]}>
               <Text style={[styles.averagegrValue]}>
                 {averagesData.studentAverage}
@@ -622,6 +647,26 @@ function GradesScreen({ navigation }) {
                 <Users2 color={UIColors.text} />
               </View>
             }
+            trailing={
+              calculatedClassAvg && (
+              <TouchableOpacity
+                onPress={() => Alert.alert(
+                  'Moyenne de classe calculée',
+                  `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant la moyenne de chaque matière.
+
+Il s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`,
+                  [
+                    {
+                      text: 'Compris !',
+                      style: 'cancel',
+                    },
+                  ],
+                  { cancelable: true }
+                )}
+              >
+                <AlertTriangle color={UIColors.primary} />
+              </TouchableOpacity>
+            )}
           >
             <Text style={[styles.averageText]}>Moy. de classe</Text>
             <View style={[styles.averageValueContainer]}>
@@ -637,6 +682,25 @@ function GradesScreen({ navigation }) {
                 <TrendingDown color={UIColors.text} />
               </View>
             }
+            trailing={
+              <TouchableOpacity
+                onPress={() => Alert.alert(
+                  'Moyenne la plus faible',
+                  `La moyenne la plus faible est calculée en prenant la moyenne la plus basse de chaque matière.
+
+Il s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`,
+                  [
+                    {
+                      text: 'Compris !',
+                      style: 'cancel',
+                    },
+                  ],
+                  { cancelable: true }
+                )}
+              >
+                <Info color={UIColors.text + '22'} />
+              </TouchableOpacity>
+            }
           >
             <Text style={[styles.averageText]}>Moy. la plus faible</Text>
             <View style={[styles.averageValueContainer]}>
@@ -651,6 +715,25 @@ function GradesScreen({ navigation }) {
               <View style={{marginHorizontal: 4}}>
                 <TrendingUp color={UIColors.text} />
               </View>
+            }
+            trailing={
+              <TouchableOpacity
+                onPress={() => Alert.alert(
+                  'Moyenne la plus élevée',
+                  `La moyenne la plus élevée est calculée en prenant la moyenne la plus élevée de chaque matière.
+
+Il s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`,
+                  [
+                    {
+                      text: 'Compris !',
+                      style: 'cancel',
+                    },
+                  ],
+                  { cancelable: true }
+                )}
+              >
+                <Info color={UIColors.text + '22'} />
+              </TouchableOpacity>
             }
           >
             <Text style={[styles.averageText]}>Moy. la plus élevée</Text>
@@ -1118,6 +1201,20 @@ const styles = StyleSheet.create({
     fontSize: 15,
     opacity: 0.5,
     marginBottom: 2,
+  },
+
+  averagegrTitleInfo: {
+    position: 'absolute',
+    right: 0,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+
+  averagegrTitleInfoText: {
+    fontSize: 15,
+    fontWeight: 500,
   },
 
   averagegrValCont: {
