@@ -470,6 +470,13 @@ function GradesScreen({ navigation }) {
                 :
                   `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`
                 ,
+                [
+                  {
+                    text: 'Compris !',
+                    style: 'cancel',
+                  },
+                ],
+                { cancelable: true }
               )}
             >
               <AlertTriangle size='20' color={UIColors.primary} />
