@@ -1085,6 +1085,7 @@ function AuthStack() {
           ? {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
+              animation: 'fade_from_bottom',
             }
           : {
               ...headerTitleStyles,

@@ -146,6 +146,8 @@ const styles = StyleSheet.create({
   loginBtnPronote: {
     backgroundColor: '#12835F',
     marginTop: 25,
+
+    elevation: 3,
   },
   loginBtnTextPronote: {
     color: '#FFFFFF',

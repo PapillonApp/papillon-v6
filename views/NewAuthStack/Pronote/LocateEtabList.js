@@ -190,6 +190,8 @@ const LocateEtabList = ({ route, navigation }) => {
         </NativeList>
       ) : null}
 
+      <View style={{padding: 8}}/>
+
     </ScrollView>
   )
 };

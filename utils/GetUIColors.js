@@ -32,17 +32,23 @@ function GetUIColors() {
   const text = isDark ? '#ffffff' : '#000000';
 
   // main
-  // let primary = '';
   let primaryBackground = '';
+  let primary = '';
 
   if (Platform.OS === 'ios') {
     // primary = '#29947A';
-    primaryBackground = '#29947A';
+    primary = '#29947A';
   } else {
     // primary = theme.colors.primary;
-    primaryBackground = isDark
-      ? theme.colors.primaryContainer
+    primary = isDark
+      ? theme.colors.primary
       : theme.colors.primary;
+  }
+
+  primaryBackground = primary;
+
+  if (Platform.OS === 'android' && isDark) {
+    primaryBackground = theme.colors.primaryContainer;
   }
 
   // border
@@ -60,7 +66,7 @@ function GetUIColors() {
     element,
     elementHigh,
     text,
-    primary: primaryBackground,
+    primary,
     primaryBackground,
     border: borderColor,
   };
