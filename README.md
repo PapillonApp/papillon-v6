@@ -31,13 +31,13 @@ Voici un aperçu de ce que nous avons accompli jusqu'à présent et de ce qui re
   - [x] Interface de sélection de l'établissement
   - [x] Interface de connexion au service
   - [x] Appel à l'API pour se connecter et conservation de la session
-- [ ] Affichage des données _(Pronote en priorité)_
+- [x] Affichage des données _(Pronote en priorité)_
   - [x] Données utilisateur
   - [x] Emploi du temps
   - [x] Devoirs
   - [x] Notes
   - [x] Compétences
-  - [ ] Contenu des cours
+  - [x] Contenu des cours
   - [x] Fichiers
   - [x] Actualités
   - [x] Conversations
