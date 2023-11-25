@@ -1,4 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SyncStorage from 'sync-storage';
+
+SyncStorage.init();
 
 import { Alert } from 'react-native';
 
@@ -150,22 +153,22 @@ function refreshQRToken(qrResult) {
           return false;
         }
 
-        // change password
-        return AsyncStorage.getItem('qr_credentials').then((_qrResult) => {
-          if (_qrResult) {
-            const qrCredentials = JSON.parse(_qrResult);
+        const _qrResult = SyncStorage.get('qr_credentials');
 
-            qrCredentials.qr_credentials.password =
-              result.qr_credentials.password;
+        if (_qrResult) {
+          const qrCredentials = JSON.parse(_qrResult);
 
-            AsyncStorage.setItem(
-              'qr_credentials',
-              JSON.stringify(qrCredentials)
-            );
-          }
+          qrCredentials.qr_credentials.password =
+            result.qr_credentials.password;
 
-          return result;
-        });
+          SyncStorage.set(
+            'qr_credentials',
+            JSON.stringify(qrCredentials)
+          );
+        }
+          
+
+        return result;
       });
   });
 }

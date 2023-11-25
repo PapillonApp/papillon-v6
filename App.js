@@ -72,6 +72,10 @@ import { AppContextProvider, baseColor } from './utils/AppContext';
 
 import NotificationsScreen from './views/Settings/NotificationsScreen';
 
+import LoginView from './views/NewAuthStack/LoginView';
+import FindEtab from './views/NewAuthStack/Pronote/FindEtab';
+import LocateEtab from './views/NewAuthStack/Pronote/LocateEtab';
+
 import setBackgroundFetch from './fetch/BackgroundFetch';
 
 import { LoginSkolengoSelectSchool } from './views/AuthStack/Skolengo/LoginSkolengoSelectSchool';
@@ -79,6 +83,9 @@ import { IndexDataInstance } from './fetch/IndexDataInstance';
 import GetUIColors from './utils/GetUIColors';
 import { showMessage } from 'react-native-flash-message';
 import notifee, {AndroidImportance, AuthorizationStatus} from '@notifee/react-native';
+import LocateEtabList from './views/NewAuthStack/Pronote/LocateEtabList';
+import LoginURL from './views/NewAuthStack/Pronote/LoginURL';
+import NewPronoteQR from './views/NewAuthStack/Pronote/NewPronoteQR';
 /*notifee.getChannels().then(channels => {
   channels.forEach(ch => {
     notifee.deleteChannel(ch.id)
@@ -795,6 +802,56 @@ function WrappedNewsScreen() {
   );
 }
 
+function ModalPronoteLogin() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: true,
+      }}
+    >
+      <Stack.Screen
+        name="FindEtab"
+        component={FindEtab}
+        options={{
+          headerTitle: 'Connexion via PRONOTE',
+        }}
+      />
+      <Stack.Screen
+        name="LocateEtab"
+        component={LocateEtab}
+        options={{
+          headerTitle: 'Ville de l\'établissement',
+          headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
+        name="LocateEtabList"
+        component={LocateEtabList}
+        options={{
+          headerTitle: 'Établissements',
+          headerBackTitle: 'Ville',
+        }}
+      />
+      <Stack.Screen
+        name="LoginURL"
+        component={LoginURL}
+        options={{
+          headerTitle: 'Utiliser une URL',
+          headerBackTitle: 'Connexion',
+        }}
+      />
+      <Stack.Screen
+        name="NewPronoteQR"
+        component={NewPronoteQR}
+        options={{
+          headerTitle: 'Scanner un QR-Code',
+          headerBackTitle: 'Retour',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 function AppStack() {
 
   const theme = useTheme();
@@ -1028,6 +1085,23 @@ function AuthStack() {
       }
     >
       <Stack.Screen
+        name="NewLogin"
+        component={LoginView}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="PronoteFindEtab"
+        component={ModalPronoteLogin}
+        options={{
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
         name="Welcome"
         component={WelcomeScreen}
         options={{
@@ -1066,7 +1140,7 @@ function AuthStack() {
         name="LoginSkolengoSelectSchool"
         component={LoginSkolengoSelectSchool}
         options={{
-          title: 'Se connecter à Skolengo',
+          title: 'Se connecter via Skolengo',
           presentation: 'modal',
         }}
       />
@@ -1107,11 +1181,11 @@ function App() {
   useEffect(() => {
     // Load fonts and check if the user is logged in
     const loadApp = async () => {
-      await useFonts();
       const value = await AsyncStorage.getItem('token');
       if (value !== null) {
         setLoggedIn(true);
       }
+      await useFonts();
       setIsReady(true);
     };
 
@@ -1139,12 +1213,14 @@ function App() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff' }}>
+    <View style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#f2f2f7' }}>
       <PaperProvider>
         <AppContextProvider state={ctxValue}>
+          {isReady ? (
           <View style={{ flex: 1 }}>
             {loggedIn ? <AppStack /> : <AuthStack />}
           </View>
+          ) : null}
         </AppContextProvider>
       </PaperProvider>
       <FlashMessage position="top" />
