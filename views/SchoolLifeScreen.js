@@ -48,7 +48,7 @@ function SchoolLifeScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => Platform.OS === 'ios' ? (
+      headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
           icon={<SFSymbol name="person.badge.clock.fill" />}
           title="Vie scolaire"
