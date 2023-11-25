@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { View, StatusBar, StyleSheet, TouchableOpacity, Image, TextInput, Alert, ScrollView } from 'react-native';
+import { View, StatusBar, StyleSheet, TouchableOpacity, Image, TextInput, Alert, ScrollView, Platform } from 'react-native';
 
 import { Text } from 'react-native-paper';
 
@@ -27,7 +27,15 @@ const FindEtab = ({ navigation }) => {
     >
       <StatusBar
         animated
-        barStyle={'light-content'}
+        barStyle={
+          Platform.OS === 'ios' ?
+            'light-content'
+          :
+            UIColors.theme == 'light' ?
+              'dark-content'
+            :
+              'light-content'
+        }
       />
 
       <NativeList

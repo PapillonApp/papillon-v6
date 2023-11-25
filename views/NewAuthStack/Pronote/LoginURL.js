@@ -89,7 +89,15 @@ const LoginURL = ({ route, navigation }) => {
     >
       <StatusBar
         animated
-        barStyle={'light-content'}
+        barStyle={
+          Platform.OS === 'ios' ?
+            'light-content'
+          :
+            UIColors.theme == 'light' ?
+              'dark-content'
+            :
+              'light-content'
+        }
       />
 
       <NativeList

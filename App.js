@@ -805,9 +805,16 @@ function WrappedNewsScreen() {
 function ModalPronoteLogin() {
   return (
     <Stack.Navigator
-      screenOptions={{
-        headerShown: true,
-      }}
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              navigationBarColor: '#00000000',
+              header: (props) => <CustomNavigationBar {...props} />,
+            }
+          : {
+              ...headerTitleStyles,
+            }
+      }
     >
       <Stack.Screen
         name="FindEtab"

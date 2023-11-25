@@ -68,12 +68,9 @@ const LocateEtabList = ({ route, navigation }) => {
     navigation.setOptions({
       headerBackTitle: location.nom,
       headerRight: () => (
-        isLoading ? (
+        isEtabLoading ? (
           <ActivityIndicator />
-        ) :
-          isEtabLoading ? (
-            <ActivityIndicator />
-          ) : null
+        ) : null
       )
     });
   }, [isLoading, isEtabLoading]);
@@ -126,7 +123,15 @@ const LocateEtabList = ({ route, navigation }) => {
     >
       <StatusBar
         animated
-        barStyle={'light-content'}
+        barStyle={
+          Platform.OS === 'ios' ?
+            'light-content'
+          :
+            UIColors.theme == 'light' ?
+              'dark-content'
+            :
+              'light-content'
+        }
       />
 
       {isLoading && (

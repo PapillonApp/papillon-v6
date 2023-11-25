@@ -34,6 +34,7 @@ const LoginView = ({ navigation }) => {
       <StatusBar
         animated
         barStyle={UIColors.theme == 'light' ? 'dark-content' : 'light-content'}
+        backgroundColor={'transparent'}
       />
 
       <Image

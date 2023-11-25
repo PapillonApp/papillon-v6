@@ -245,7 +245,11 @@ const LockToggle = ({ value, onValueChange, color }) => {
           borderRadius: 100,
         },
         locked ? {
-          backgroundColor: UIColors.text,
+          backgroundColor: 
+            UIColors.theme === 'dark' ?
+              UIColors.text
+            :
+              UIColors.primary,
         } : {},
       ]}
     >
