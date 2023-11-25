@@ -89,6 +89,7 @@ import notifee, {AndroidImportance, AuthorizationStatus} from '@notifee/react-na
 import LocateEtabList from './views/NewAuthStack/Pronote/LocateEtabList';
 import LoginURL from './views/NewAuthStack/Pronote/LoginURL';
 import NewPronoteQR from './views/NewAuthStack/Pronote/NewPronoteQR';
+import NGPronoteLogin from './views/NewAuthStack/Pronote/NGPronoteLogin';
 /*notifee.getChannels().then(channels => {
   channels.forEach(ch => {
     notifee.deleteChannel(ch.id)
@@ -967,6 +968,14 @@ function ModalPronoteLogin() {
           headerBackTitle: 'Retour',
           headerTransparent: true,
           headerForceDarkContent: true,
+        }}
+      />
+      <Stack.Screen
+        name="NGPronoteLogin"
+        component={NGPronoteLogin}
+        options={{
+          headerTitle: 'Se connecter',
+          headerTransparent: true,
         }}
       />
     </Stack.Navigator>

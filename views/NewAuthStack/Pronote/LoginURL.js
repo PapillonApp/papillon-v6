@@ -44,7 +44,7 @@ const LoginURL = ({ route, navigation }) => {
         url,
       };
 
-      navigation.navigate('LoginPronote', {
+      navigation.navigate('NGPronoteLogin', {
         etab,
         useDemo: false,
       });
@@ -71,7 +71,7 @@ const LoginURL = ({ route, navigation }) => {
                 url,
               };
 
-              navigation.navigate('LoginPronote', {
+              navigation.navigate('NGPronoteLogin', {
                 etab,
                 useDemo: true,
               });

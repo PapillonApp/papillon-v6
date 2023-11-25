@@ -47,7 +47,7 @@ const LocateEtabList = ({ route, navigation }) => {
         url: finalURL,
       };
 
-      navigation.navigate('LoginPronote', { etab });
+      navigation.navigate('NGPronoteLogin', { etab });
     }).catch((error) => {
       setIsEtabLoading(false);
       Alert.alert(
