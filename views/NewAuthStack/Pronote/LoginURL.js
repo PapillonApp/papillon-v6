@@ -116,7 +116,6 @@ const LoginURL = ({ route, navigation }) => {
             onChangeText={text => {
               setCurrentURL(text);
             }}
-            autoFocus={true}
           />
         </NativeItem>
         <NativeItem

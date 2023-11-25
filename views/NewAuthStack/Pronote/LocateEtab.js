@@ -24,6 +24,19 @@ const LocateEtab = ({ navigation }) => {
   const [results, setResults] = useState([]);
   const [currentSearch, setCurrentSearch] = useState('');
 
+  const inputRef = React.createRef();
+
+  // focus on input when screen when transition is done and when it's the first open
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('transitionEnd', () => {
+      if (inputRef.current !== null) {
+        inputRef.current.focus();
+      }
+    });
+    
+    return unsubscribe;
+  }, [navigation]);
+
   function searchCity(text) {
     setCurrentSearch(text);
     if (text.length > 2) {
@@ -90,7 +103,7 @@ const LocateEtab = ({ navigation }) => {
             onChangeText={text => {
               searchCity(text);
             }}
-            autoFocus={true}
+            ref={inputRef}
           />
         </NativeItem>
       </NativeList>

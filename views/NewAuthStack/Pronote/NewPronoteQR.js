@@ -18,6 +18,8 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 
 import * as Haptics from 'expo-haptics';
 
+import { LinearGradient } from 'expo-linear-gradient';
+
 const NewPronoteQR = ({ route, navigation }) => {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
@@ -58,6 +60,19 @@ const NewPronoteQR = ({ route, navigation }) => {
             :
               'light-content'
         }
+      />
+
+      <LinearGradient
+        colors={['#000000cc', '#00000000']}
+        locations={[0, 1]}
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 0,
+          height: 100,
+          zIndex: 9999
+        }}
       />
 
       <View style={[styles.warn, {paddingBottom: insets.bottom}]}>

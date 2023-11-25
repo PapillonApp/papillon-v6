@@ -5,15 +5,17 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import './utils/IgnoreWarnings';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BottomNavigation, Appbar, useTheme, PaperProvider } from 'react-native-paper';
+import { BottomNavigation, Appbar, useTheme, PaperProvider, Text } from 'react-native-paper';
 
 import FlashMessage from 'react-native-flash-message';
 
 import { getHeaderTitle } from '@react-navigation/elements';
 import { useState, useMemo, useEffect } from 'react';
-import { Platform, useColorScheme, View, PermissionsAndroid, Alert, Linking } from 'react-native';
+import { Platform, StyleSheet, useColorScheme, View, PermissionsAndroid, Alert, Linking, TouchableOpacity } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import { SFSymbol } from 'react-native-sfsymbols';
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   Home,
@@ -22,6 +24,7 @@ import {
   BarChart3,
   UserCircle,
   Newspaper,
+  ChevronLeft,
 } from 'lucide-react-native';
 import useFonts from './hooks/useFonts';
 
@@ -802,6 +805,112 @@ function WrappedNewsScreen() {
   );
 }
 
+const styles = StyleSheet.create({
+  header: {
+    display: 'flex',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+
+  headerContent: {
+    width: '60%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerText: {
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 17,
+  },
+
+  headerSide: {
+    width: '20%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    gap: 20,
+  },
+
+  hsL: {
+    alignItems: 'flex-start',
+    paddingRight: 0,
+  },
+  hsR: {
+    alignItems: 'flex-end',
+    paddingLeft: 0,
+    paddingRight: 26,
+  },
+
+  headerSideButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
+
+function Header(props) {
+  const scheme = useColorScheme();
+  const UIColors = GetUIColors(props.options.headerForceDarkContent && 'dark');
+
+  const insets = useSafeAreaInsets();
+
+  let isModal = false;
+
+  if(props.options.presentation === 'modal') {
+    isModal = true;
+  }
+  if(props.options.modalStatus === true) {
+    isModal = true;
+  }
+
+  const title = props.options.headerTitle !== undefined ? props.options.headerTitle : props.route.name;
+
+  const translucent = props.options.headerTransparent !== undefined ? props.options.headerTransparent : false;
+
+  let finalInsets = insets.top;
+  if (isModal) {
+    finalInsets = 4;
+  }
+
+  let showBack = props.back !== undefined;
+  if (props.options.headerBackVisible === false) {
+    showBack = false;
+  }
+
+  return (
+    <View
+      style={[
+        {
+          paddingTop: finalInsets,
+          height: 56 + finalInsets,
+          backgroundColor: !translucent ? UIColors.background : UIColors.background + '00',
+        },
+        styles.header,
+      ]}
+    >
+      <View style={[styles.headerSide, styles.hsL]}>
+        { props.options.headerLeft ? props.options.headerLeft() : showBack ?
+          <TouchableOpacity
+            onPress={() => props.navigation.goBack()}
+            style={[styles.headerSideButton, {backgroundColor: UIColors.text + '22'}]}
+          >
+            <ChevronLeft size={28} color={UIColors.text + 'e5'} />
+          </TouchableOpacity>
+        : null }
+      </View>
+      <View style={styles.headerContent}>
+        <Text style={[styles.headerText, {color: UIColors.text}]}>
+          {title}
+        </Text>
+      </View>
+      <View style={[styles.headerSide, styles.hsR]}>
+        {props.options.headerRight ? props.options.headerRight() : null}
+      </View>
+    </View>
+  );
+}
+
 function ModalPronoteLogin() {
   return (
     <Stack.Navigator
@@ -809,10 +918,13 @@ function ModalPronoteLogin() {
         Platform.OS === 'android'
           ? {
               navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
+              header: (props) => <Header {...props} />,
+              animation: 'fade_from_bottom',
             }
           : {
               ...headerTitleStyles,
+              header: (props) => <Header {...props} />,
+              modalStatus: true,
             }
       }
     >
@@ -853,6 +965,8 @@ function ModalPronoteLogin() {
         options={{
           headerTitle: 'Scanner un QR-Code',
           headerBackTitle: 'Retour',
+          headerTransparent: true,
+          headerForceDarkContent: true,
         }}
       />
     </Stack.Navigator>

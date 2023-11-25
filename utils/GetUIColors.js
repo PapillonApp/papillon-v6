@@ -1,11 +1,19 @@
 import { Platform, useColorScheme } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
-function GetUIColors() {
+function GetUIColors(schemeForce) {
   const theme = useTheme();
   const scheme = useColorScheme();
 
-  const isDark = scheme === 'dark';
+  let isDark = scheme === 'dark';
+
+  if (schemeForce) {
+    if (schemeForce === 'dark') {
+      isDark = true;
+    } else if (schemeForce === 'light') {
+      isDark = false;
+    }
+  }
 
   // background
   let background = '';
@@ -22,7 +30,7 @@ function GetUIColors() {
 
   if (Platform.OS === 'ios') {
     element = isDark ? '#151515' : '#ffffff';
-    elementHigh = isDark ? '#151515' : '#ffffff';
+    elementHigh = isDark ? '#222222' : '#ffffff';
   } else {
     element = theme.colors.elevation.level1;
     elementHigh = theme.colors.elevation.level2;
