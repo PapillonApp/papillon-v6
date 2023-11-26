@@ -230,8 +230,6 @@ function NewHomeScreen({ navigation }) {
         }
       });
 
-      console.log(doneCours, coursData.length);
-
       if (doneCours === coursData.length) {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);

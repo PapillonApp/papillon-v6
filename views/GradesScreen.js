@@ -137,9 +137,7 @@ function GradesScreen({ navigation }) {
 
   async function changePeriodPronote(period) {
     setIsLoading(true);
-    console.log(period);
     let newPeriod = await appctx.dataprovider.changePeriod(period.name);
-    console.log(newPeriod);
     await appctx.dataprovider.getUser(true);
     loadGrades(true);
     setIsLoading(false);

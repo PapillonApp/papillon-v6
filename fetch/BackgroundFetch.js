@@ -148,11 +148,9 @@ async function setBackgroundFetch() {
   //Notifications.registerRemoteNotifications();
 
   registerNewsBackgroundFetchAsync().then((res) => {
-    console.log('News background fetch registered', res);
   });
 
   registerHomeworksBackgroundFetchAsync().then((res) => {
-    console.log('Homeworks background fetch registered', res);
   });
 
   checkUndoneHomeworks();

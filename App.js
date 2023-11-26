@@ -155,7 +155,6 @@ async function checkNotifPerm(next = function(){}) {
   if(Platform.OS === "android") {
     PermissionsAndroid.check("android.permission.POST_NOTIFICATIONS").then((granted) => {
       if(granted) {
-        console.log("notif permission ok")
         next()
       }
       else askNotifPerm()
@@ -165,7 +164,6 @@ async function checkNotifPerm(next = function(){}) {
 async function askNotifPerm() {
   if(Platform.OS === "android") {
     PermissionsAndroid.request("android.permission.POST_NOTIFICATIONS").then((result) => {
-      console.log("permission request,", result)
       if(result === "granted") {
         showMessage({
           message: 'Notifications activées',
