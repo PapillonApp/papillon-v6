@@ -18,6 +18,8 @@ import { useTheme, Text } from 'react-native-paper';
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
 
+import { BlurView } from 'expo-blur';
+
 import LineChart from 'react-native-simple-line-chart';
 
 import Fade from 'react-native-fade';
@@ -41,6 +43,7 @@ import { useAppContext } from '../utils/AppContext';
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
+import { LinearGradient } from 'expo-linear-gradient';
 
 function GradesScreen({ navigation }) {
   const theme = useTheme();
@@ -72,9 +75,20 @@ function GradesScreen({ navigation }) {
 
   const [hasSimulatedGrades, setHasSimulatedGrades] = useState(false);
 
-  function handleScroll(event) {
-    setScrollDistance(event.nativeEvent.contentOffset.y);
-  }
+  const yOffset = new Animated.Value(0);
+
+  const scrollHandler = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: yOffset } } }],
+    { useNativeDriver: false }
+  );
+
+  const scrollY = Animated.add(yOffset, 0);
+
+  const headerOpacity = yOffset.interpolate({
+    inputRange: [-70, 0],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
 
   // add button to header
   React.useLayoutEffect(() => {
@@ -86,7 +100,29 @@ function GradesScreen({ navigation }) {
           color="#A84700"
         />
       ),
-      headerShadowVisible: true,
+      headerTransparent: Platform.OS === 'ios' ? true : false,
+      headerBackground: Platform.OS === 'ios' ? () => (
+        <Animated.View 
+          style={[
+            styles.header,
+            {
+              flex: 1,
+              backgroundColor: UIColors.element + '00',
+              opacity: headerOpacity,
+              borderBottomColor: theme.dark ? UIColors.text + '22' : UIColors.text + '55',
+              borderBottomWidth: 0.5,
+            }
+          ]}
+        >
+          <BlurView
+            tint={theme.dark ? 'dark' : 'light'}
+            intensity={120}
+            style={{
+              flex: 1,
+            }}
+          />
+        </Animated.View>
+      ) : undefined,
       headerRight: () => (
         <View style={styles.rightActions}>
           <TouchableOpacity
@@ -111,7 +147,7 @@ function GradesScreen({ navigation }) {
         </View>
       ),
     });
-  }, [navigation, selectedPeriod, isLoading, UIColors, scrollDistance]);
+  }, [navigation, selectedPeriod, isLoading, UIColors]);
 
   function newPeriod() {
     const options = periodsList.map((period) => period.name);
@@ -381,6 +417,7 @@ function GradesScreen({ navigation }) {
   }
 
   return (
+    <>
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       style={[styles.container, { backgroundColor: UIColors.background }]}
@@ -391,11 +428,8 @@ function GradesScreen({ navigation }) {
           colors={[Platform.OS === 'android' ? UIColors.primary : null]}
         />
       }
-      onScroll={Animated.event(
-        [{ nativeEvent: { contentOffset: { y: scrollX } } }],
-        { useNativeDriver: false, listener: handleScroll }
-      )}
-      scrollEventThrottle={0.01}
+      onScroll={scrollHandler}
+      scrollEventThrottle={16}
     >
       <StatusBar
         animated
@@ -509,7 +543,9 @@ function GradesScreen({ navigation }) {
         <View 
           style={[
             styles.averageChart,
-            { backgroundColor: UIColors.element },
+            {
+              backgroundColor: UIColors.element,
+            }
           ]}
         >
           <View style={[styles.averagesgrClassContainer]}>
@@ -940,6 +976,7 @@ Il s'agit uniquement d'une estimation qui variera en fonction de vos options, la
         </View>
       ) : null}
     </ScrollView>
+    </>
   );
 }
 
