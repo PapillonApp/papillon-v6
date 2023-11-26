@@ -50,14 +50,6 @@ const GradesSimulatorAdd = ({ navigation }) => {
         }
       });
 
-      let newSubject = {
-        "name": "Nouvelle matière",
-        "id": "new",
-        "color": "#888888"
-      }
-
-      subjects.push(newSubject);
-
       setSubjectList(subjects);
       console.log(subjects);
     });
@@ -144,6 +136,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
   return (
     <ScrollView 
       contentInsetAdjustmentBehavior='automatic'
+      style={{ backgroundColor: UIColors.background }}
     >
       { Platform.OS === 'ios' ? <StatusBar barStyle='light-content' /> : <StatusBar barStyle={theme.dark ? 'light-content' : 'dark-content'} /> }
 
@@ -169,7 +162,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
           trailing={
             <TextInput
               style={[
-                styles.inputText,
+                styles.inputText, Platform.OS !== 'ios' && styles.inputValueAndroid,
                 {color: UIColors.text}
               ]}
               placeholder='Aucune description'
@@ -193,7 +186,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
           trailing= {
             <TextInput
               style={[
-                styles.inputValue,
+                styles.inputValue, Platform.OS !== 'ios' && styles.inputValueAndroid,
                 {color: UIColors.text}
               ]}
               keyboardType="numeric"
@@ -213,7 +206,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
           trailing= {
             <TextInput
               style={[
-                styles.inputValue,
+                styles.inputValue, Platform.OS !== 'ios' && styles.inputValueAndroid,
                 {color: UIColors.text}
               ]}
               keyboardType="numeric"
@@ -239,7 +232,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
           trailing= {
             <TextInput
               style={[
-                styles.inputValue,
+                styles.inputValue, Platform.OS !== 'ios' && styles.inputValueAndroid,
                 {color: UIColors.text}
               ]}
               keyboardType="numeric"
@@ -259,7 +252,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
           trailing= {
             <TextInput
               style={[
-                styles.inputValue,
+                styles.inputValue, Platform.OS !== 'ios' && styles.inputValueAndroid,
                 {color: UIColors.text}
               ]}
               keyboardType="numeric"
@@ -286,6 +279,8 @@ const GradesSimulatorAdd = ({ navigation }) => {
         }}
         onPress={() => addGrade()}
       />
+
+      <View style={{height: insets.bottom}} />
 
       <Modal
         animationType="fade"
@@ -344,7 +339,9 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontVariant: ['tabular-nums'],
   },
-
+  inputValueAndroid : {
+    paddingVertical: 0,
+  },
   inputText: {
     fontSize: 17,
     paddingVertical: 12,
@@ -354,7 +351,6 @@ const styles = StyleSheet.create({
     width: '70%',
   },
 
-  
 });
 
 export default GradesSimulatorAdd;

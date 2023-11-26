@@ -70,6 +70,8 @@ function GradesScreen({ navigation }) {
   const [calculatedAvg, setCalculatedAvg] = useState(false);
   const [calculatedClassAvg, setCalculatedClassAvg] = useState(false);
 
+  const [hasSimulatedGrades, setHasSimulatedGrades] = useState(false);
+
   function handleScroll(event) {
     setScrollDistance(event.nativeEvent.contentOffset.y);
   }
@@ -202,14 +204,14 @@ function GradesScreen({ navigation }) {
     const gradesList = parsedData.grades;
     const subjects = [];
 
-    let hasSimulatedGrades = false;
+    let hasSimulated = false;
 
     // add simulated grades
     let customGrades = await AsyncStorage.getItem('custom-grades');
     if (customGrades !== null) {
       customGrades = JSON.parse(customGrades);
       customGrades.forEach((grade) => {
-        hasSimulatedGrades = true;
+        hasSimulated = true;
 
         newGrade = {
           ...grade,
@@ -334,7 +336,7 @@ function GradesScreen({ navigation }) {
     }
 
     // if simulated, set overall average to the last chart point
-    if (hasSimulatedGrades == true) {
+    if (hasSimulated == true) {
       let lastPoint = chartData[chartData.length - 1];
       calculateAverages(averagesList, lastPoint.y);
 
@@ -343,6 +345,7 @@ function GradesScreen({ navigation }) {
     }
 
     setAvgChartData(chartData);
+    setHasSimulatedGrades(hasSimulated);
   }
   
 
@@ -519,6 +522,9 @@ function GradesScreen({ navigation }) {
               onPress={() => Alert.alert(
                 `${calculatedAvg ? 'Moyenne générale calculée' : 'Moyenne générale réelle'}`,
                 calculatedAvg ? 
+                hasSimulatedGrades ?
+                  `La moyenne affichée ici est une moyenne calculée à partir de vos notes réelles et de vos notes simulées.`
+                :
                   `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant votre moyenne de chaque matière.`
                 :
                   `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`
@@ -534,7 +540,9 @@ function GradesScreen({ navigation }) {
             >
               <AlertTriangle size='20' color={UIColors.primary} />
               <Text style={[styles.averagegrTitleInfoText, {color: UIColors.primary}]}>
-                {calculatedAvg ? 'Estimation' : 'Moyenne réelle'}
+                {calculatedAvg ? 
+                  hasSimulatedGrades ? 'Simulée' : 'Estimation' 
+                : 'Moyenne réelle'}
               </Text>
             </TouchableOpacity>
 
