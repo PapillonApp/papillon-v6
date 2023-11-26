@@ -90,6 +90,8 @@ import LocateEtabList from './views/NewAuthStack/Pronote/LocateEtabList';
 import LoginURL from './views/NewAuthStack/Pronote/LoginURL';
 import NewPronoteQR from './views/NewAuthStack/Pronote/NewPronoteQR';
 import NGPronoteLogin from './views/NewAuthStack/Pronote/NGPronoteLogin';
+import GradesSimulatorMenu from './views/Grades/GradesSimulatorMenu';
+import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
 /*notifee.getChannels().then(channels => {
   channels.forEach(ch => {
     notifee.deleteChannel(ch.id)
@@ -738,6 +740,45 @@ function WrappedDevoirsScreen() {
   );
 }
 
+function ModalGradesSimulator() {
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              navigationBarColor: '#00000000',
+              header: (props) => <Header {...props} />,
+              animation: 'fade_from_bottom',
+            }
+          : {
+              ...headerTitleStyles,
+              header: (props) => <Header {...props} />,
+              modalStatus: true,
+            }
+      }
+    >
+      <Stack.Screen
+        name="GradesSimulatorMenu"
+        component={GradesSimulatorMenu}
+        options={{
+          presentation: 'modal',
+          headerTitle: 'Simulateur de notes',
+          modalStatus: Platform.OS === 'ios',
+        }}
+      />
+      <Stack.Screen
+        name="GradesSimulatorAdd"
+        component={GradesSimulatorAdd}
+        options={{
+          presentation: 'modal',
+          headerTitle: 'Nouvelle note',
+          modalStatus: Platform.OS === 'ios',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 function WrappedGradesScreen() {
   return (
     <Stack.Navigator
@@ -775,6 +816,15 @@ function WrappedGradesScreen() {
           headerBackTitle: 'Notes',
           mdTitleColor: '#ffffff',
           headerTintColor: '#ffffff',
+          presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
+        name="ModalGradesSimulator"
+        component={ModalGradesSimulator}
+        options={{
+          headerShown: false,
           presentation: 'modal',
         }}
       />

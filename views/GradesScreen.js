@@ -22,7 +22,7 @@ import LineChart from 'react-native-simple-line-chart';
 
 import Fade from 'react-native-fade';
 
-import { User2, Users2, TrendingDown, TrendingUp, Info, AlertTriangle } from 'lucide-react-native';
+import { User2, Users2, TrendingDown, TrendingUp, Info, AlertTriangle, FlaskConical, Plus, PlusCircle } from 'lucide-react-native';
 
 import { useState } from 'react';
 import { PressableScale } from 'react-native-pressable-scale';
@@ -86,16 +86,27 @@ function GradesScreen({ navigation }) {
       ),
       headerShadowVisible: true,
       headerRight: () => (
-        <TouchableOpacity
-          onPress={newPeriod}
-          style={styles.periodButtonContainer}
-        >
-          <Text
-            style={[styles.periodButtonText, { color: UIColors.primary }]}
+        <View style={styles.rightActions}>
+          <TouchableOpacity
+            onPress={newPeriod}
+            style={styles.periodButtonContainer}
           >
-            {selectedPeriod?.name || ''}
-          </Text>
-        </TouchableOpacity>
+            <Text
+              style={[styles.periodButtonText, { color: UIColors.primary }]}
+            >
+              {selectedPeriod?.name || ''}
+            </Text>
+          </TouchableOpacity>
+
+          { subjectsList.length > 0 && (
+            <TouchableOpacity
+              style={[styles.addButtonContainer, {backgroundColor: UIColors.primary + '22'}]}
+              onPress={() => navigation.navigate('ModalGradesSimulator')}
+            >
+              <FlaskConical size='22' color={UIColors.primary} />
+            </TouchableOpacity>
+          )}
+        </View>
       ),
     });
   }, [navigation, selectedPeriod, isLoading, UIColors, scrollDistance]);
@@ -191,6 +202,41 @@ function GradesScreen({ navigation }) {
     const gradesList = parsedData.grades;
     const subjects = [];
 
+    let hasSimulatedGrades = false;
+
+    // add simulated grades
+    let customGrades = await AsyncStorage.getItem('custom-grades');
+    if (customGrades !== null) {
+      customGrades = JSON.parse(customGrades);
+      customGrades.forEach((grade) => {
+        hasSimulatedGrades = true;
+
+        newGrade = {
+          ...grade,
+          isSimulated: true,
+        }
+
+        // check if grade is already in the list
+        let index = gradesList.findIndex((item) => item.id === grade.id);
+        
+        if (index !== -1) {
+        }
+        else {
+          gradesList.push(newGrade);
+        }
+      });
+
+      // update average of subject
+      let averagesList = parsedData.averages;
+      customGrades.forEach((grade) => {
+        const subject = averagesList.find((subj) => subj.subject.name === grade.subject.name);
+        if (subject) {
+          subject.average = calculateAverage(gradesList.filter((grade) => grade.subject.name === subject.subject.name), false);
+          subject.class_average = calculateAverage(gradesList.filter((grade) => grade.subject.name === subject.subject.name), true);
+        }
+      });
+    }
+
     setAllGrades(gradesList);
   
     function calculateAverages(averages, overall=0, classOverall=0) {
@@ -285,6 +331,15 @@ function GradesScreen({ navigation }) {
         x: new Date(gradesFinalList[i].date).getTime(),
         y: avg
       });
+    }
+
+    // if simulated, set overall average to the last chart point
+    if (hasSimulatedGrades == true) {
+      let lastPoint = chartData[chartData.length - 1];
+      calculateAverages(averagesList, lastPoint.y);
+
+      // average is now calculated, set the flag to false
+      setCalculatedAvg(true);
     }
 
     setAvgChartData(chartData);
@@ -623,6 +678,12 @@ function GradesScreen({ navigation }) {
                   </Text>
                 </View>
 
+                { grade.isSimulated && (
+                    <Text style={[styles.smallGradeSimulated, {color: grade.color, borderColor: grade.color}]}>
+                      Simulée
+                    </Text>
+                  )}
+
                 <View style={[styles.smallGradeValueContainer]}>
                   {grade.grade.significant === 0 ? (
                     <Text style={[styles.smallGradeValue]}>
@@ -820,6 +881,12 @@ Il s'agit uniquement d'une estimation qui variera en fonction de vos options, la
                             /{grade.grade.out_of}
                           </Text>
                         </View>
+
+                        { grade.isSimulated && (
+                          <Text style={[styles.gradeSimulated, {color: grade.color, borderColor: grade.color}]}>
+                            Simulée
+                          </Text>
+                        )}
                       </View>
                     }
                   >
@@ -1081,7 +1148,7 @@ const styles = StyleSheet.create({
     left: 16,
   },
   smallGradeValue: {
-    fontSize: 17,
+    fontSize: 20,
     fontFamily: 'Papillon-Semibold',
   },
   smallGradeOutOf: {
@@ -1251,7 +1318,63 @@ const styles = StyleSheet.create({
 
   grTextWh: {
     color: '#FFFFFF',
-  }
+  },
+
+  rightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+  },
+
+  addButtonContainer: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  smallGradeSimulated: {
+    fontSize: 16,
+    fontFamily: 'Papillon-Semibold',
+    letterSpacing: 0.15,
+
+    borderRadius: 8,
+    borderCurve: 'continuous',
+
+    borderWidth: 1,
+    alignSelf: 'flex-start',
+
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+  },
+
+  gradeDataContainer : {
+    alignItems: 'flex-end',
+  },
+
+  gradeSimulated: {
+    fontSize: 16,
+    fontFamily: 'Papillon-Semibold',
+    letterSpacing: 0.15,
+
+    borderRadius: 8,
+    borderCurve: 'continuous',
+
+    borderWidth: 1,
+    alignSelf: 'flex-start',
+
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+
+    marginTop: 4,
+  },
 });
 
 export default GradesScreen;
