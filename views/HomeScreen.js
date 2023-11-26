@@ -45,6 +45,7 @@ import PapillonList from '../components/PapillonList';
 
 import { useAppContext } from '../utils/AppContext';
 import sendToSharedGroup from '../fetch/SharedValues';
+import { expireToken } from '../fetch/AuthStack/LoginFlow';
 
 // Functions
 const openURL = (url) => {
@@ -205,6 +206,18 @@ function NewHomeScreen({ navigation }) {
       setLoadingUser(false);
 
       AsyncStorage.setItem('appcache-user', JSON.stringify(data));
+
+      if (data.client.type === 'ParentClient') {
+        AsyncStorage.getItem('parent-unlocked').then((value) => {
+          if (value === 'true') {
+            return;
+          }
+
+          expireToken('parentClient', true);
+
+          AsyncStorage.setItem('parent-unlocked', 'true');
+        });
+      }
     });
 
     let force = refreshCount > 0;

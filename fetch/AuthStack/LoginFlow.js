@@ -60,6 +60,12 @@ function getToken(credentials) {
     loginTrue = true;
   }
 
+  let flags = "";
+
+  if (credentials.parent && credentials.parent === true) {
+    flags += "?type=parent";
+  }
+
   // eslint-disable-next-line no-param-reassign
   credentials.url = `${fixURL(credentials.url)}eleve.html`;
 
@@ -68,8 +74,14 @@ function getToken(credentials) {
     credentials.url += '?login=true';
   }
 
+  if (credentials.parent && credentials.parent === true) {
+    credentials.url = credentials.url.replace('eleve.html', 'parent.html');
+  }
+
+  console.log(credentials);
+
   return getConsts().then((consts) =>
-    fetch(`${consts.API}/generatetoken`, {
+    fetch(`${consts.API}/generatetoken${flags}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -192,7 +204,7 @@ function refreshToken() {
   });
 }
 
-function expireToken(reason) {
+function expireToken(reason, hideMessage = false) {
   AsyncStorage.setItem('token', 'expired');
 
   let reasonMessage = '';
@@ -201,6 +213,10 @@ function expireToken(reason) {
     reasonMessage = ` (${reason})`;
   }
 
+  if (hideMessage) {
+    return;
+  }
+  
   showMessage({
     message: 'Token supprimé',
     description: `Le token a expiré${reasonMessage}`,

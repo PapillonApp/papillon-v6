@@ -47,6 +47,8 @@ function SettingsScreen({ navigation }) {
         text: 'Déconnexion',
         style: 'destructive',
         onPress: async () => {
+          let server = null;
+          
           try {
             AsyncStorage.getItem('credentials').then((result) => {
               const res = JSON.parse(result || 'null');
@@ -56,13 +58,22 @@ function SettingsScreen({ navigation }) {
                   JSON.stringify({ url: res.url })
                 );
             });
+            AsyncStorage.getItem('custom_server').then((server) => {
+              if (server) {
+                server = JSON.parse(server);
+              }
+            });
             if (appctx.dataprovider.service === 'Skolengo')
               appctx.dataprovider.skolengoInstance?.skolengoDisconnect();
           } catch (e) {
             /* empty */
           }
 
-          AsyncStorage.clear();
+          AsyncStorage.clear().then(() => {
+            if (server) {
+              AsyncStorage.setItem('custom_server', JSON.stringify(server));
+            }
+          });
 
           appctx.setLoggedIn(false);
           navigation.popToTop();

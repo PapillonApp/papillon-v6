@@ -24,8 +24,8 @@ import { showMessage } from 'react-native-flash-message';
 
 import { useState } from 'react';
 
-import { UserCircle, KeyRound } from 'lucide-react-native';
-import { getENTs, getInfo, getToken } from '../../../fetch/AuthStack/LoginFlow';
+import { UserCircle, KeyRound, AlertTriangle } from 'lucide-react-native';
+import { expireToken, getENTs, getInfo, getToken, refreshToken } from '../../../fetch/AuthStack/LoginFlow';
 
 import PapillonButton from '../../../components/PapillonButton';
 import GetUIColors from '../../../utils/GetUIColors';
@@ -34,6 +34,8 @@ import { useAppContext } from '../../../utils/AppContext';
 import NativeList from '../../../components/NativeList';
 import NativeItem from '../../../components/NativeItem';
 import NativeText from '../../../components/NativeText';
+
+import SegmentedControl from "react-native-segmented-control-2";
 
 const entities = require('entities');
 
@@ -52,8 +54,12 @@ function NGPronoteLogin({ route, navigation }) {
   const [isENTUsed, setIsENTUsed] = React.useState(false);
   const onToggleSwitch = () => setIsENTUsed(!isENTUsed);
 
+  const onToggleParent = () => setModeParent(!modeParent);
+
   let CAS = null;
   const [ENTs, setENTs] = useState([]);
+
+  const [modeParent, setModeParent] = useState(false);
 
   function removeSubdomain(hostname) {
     if (!hostname) return;
@@ -139,11 +145,14 @@ function NGPronoteLogin({ route, navigation }) {
   const appctx = useAppContext();
 
   function login() {
+    let finalURL = etab.url.toLowerCase();
+
     const credentials = {
       username,
       password,
-      url: etab.url.toLowerCase(),
+      url: finalURL,
       ent: isENTUsed ? ENTs.py : '',
+      parent: modeParent,
     };
 
     if (!isENTUsed && ENTs !== undefined && ENTs.py !== undefined) {
@@ -189,7 +198,6 @@ function NGPronoteLogin({ route, navigation }) {
           message: 'Connecté avec succès',
           type: 'success',
           icon: 'auto',
-          floating: true,
         });
 
         appctx.dataprovider.service = 'Pronote';
@@ -265,6 +273,24 @@ function NGPronoteLogin({ route, navigation }) {
         )}
       </View>
 
+      <SegmentedControl
+        tabs={["Espace élèves", "Espace parents"]}
+        style={{ 
+          backgroundColor: UIColors.text + '12',
+          marginHorizontal: 15
+        }}
+        activeTabColor={
+          theme.dark ? "#333333" :
+          UIColors.element
+        }
+        activeTextColor={UIColors.text}
+        textStyle={{ color: UIColors.text + '55' }}
+        onChange={(index) => {
+          console.log(index);
+          setModeParent(index === 1);
+        }}
+      />
+
       <NativeList inset>
         <NativeItem
           leading={
@@ -329,6 +355,25 @@ function NGPronoteLogin({ route, navigation }) {
           />
         </View>
 
+        { modeParent ? (
+        <NativeList inset>
+          <NativeItem
+            leading={
+              <AlertTriangle
+                color={'#FFC107'}
+              />
+            }
+          >
+            <NativeText heading="h4">
+              Support des comptes parents en beta
+            </NativeText>
+            <NativeText heading="p2">
+              Il est possible que certaines fonctionnalités ne soient pas disponibles ou ne fonctionnent pas correctement.
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+        ) : null }
+
         <View style={[styles.bottomText]}>
           <Text style={[styles.bottomTextText]}>
             En vous connectant, vous acceptez les{' '}
@@ -338,7 +383,7 @@ function NGPronoteLogin({ route, navigation }) {
 
           {etabInfo.version && etabInfo.version.length > 0 ? (
             <Text style={[styles.bottomTextText]}>
-              Pronote Espace Élèves ver. {etabInfo.version.join('.')}
+              Pronote Espace {!modeParent ? 'Élèves' : 'Parents'} ver. {etabInfo.version.join('.')}
             </Text>
           ) : null}
         </View>
@@ -383,16 +428,12 @@ function LoginTextInput({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   loginHeader: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 70,
     paddingHorizontal: 28,
     paddingBottom: 18,
-    flex: 1,
   },
   loginHeaderLogo: {
     width: 52,
