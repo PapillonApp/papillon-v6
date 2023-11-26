@@ -416,10 +416,12 @@ function InsetSettings() {
           ? {
               animation: 'fade_from_bottom',
               navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
+              header: (props) => <Header {...props} />,
             }
           : {
               ...headerTitleStyles,
+              header: (props) => <Header {...props} />,
+              modalStatus: true,
             }
       }
     >
@@ -493,6 +495,7 @@ function InsetSettings() {
         options={{
           headerTitle: "Icône de l'application",
           presentation: 'modal',
+          modalStatus: Platform.OS === 'ios',
         }}
       />
       <Stack.Screen
@@ -862,6 +865,9 @@ function Header(props) {
   if(props.options.modalStatus === true) {
     isModal = true;
   }
+  else if(props.options.modalStatus === false) {
+    isModal = false;
+  }
 
   const title = props.options.headerTitle !== undefined ? props.options.headerTitle : props.route.name;
 
@@ -883,7 +889,11 @@ function Header(props) {
         {
           paddingTop: finalInsets,
           height: 56 + finalInsets,
-          backgroundColor: !translucent ? UIColors.background : UIColors.background + '00',
+          backgroundColor: !translucent ? 
+            isModal ?
+              UIColors.modalBackground
+            : UIColors.background
+          : UIColors.background + '00',
         },
         styles.header,
       ]}

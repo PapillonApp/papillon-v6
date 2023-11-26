@@ -98,7 +98,7 @@ const LocateEtabList = ({ route, navigation }) => {
   return (
     <ScrollView
       contentInsetAdjustmentBehavior='automatic'
-      style={[styles.container, {backgroundColor: UIColors.background}]}
+      style={[styles.container, {backgroundColor: UIColors.modalBackground}]}
     >
       <StatusBar
         animated

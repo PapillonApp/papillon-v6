@@ -24,6 +24,11 @@ function GetUIColors(schemeForce) {
     background = theme.colors.background;
   }
 
+  let modalBackground = background;
+  if (Platform.OS === 'ios') {
+    modalBackground = isDark ? '#0c0c0c' : '#f2f2f7';
+  }
+
   // element
   let element = '';
   let elementHigh = '';
@@ -71,6 +76,7 @@ function GetUIColors(schemeForce) {
   return {
     theme: isDark ? 'dark' : 'light',
     background,
+    modalBackground,
     element,
     elementHigh,
     text,

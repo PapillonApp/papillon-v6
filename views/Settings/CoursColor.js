@@ -139,7 +139,7 @@ const CoursColor = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
     >
       <NativeList
         header="Matières enregistrées"
@@ -256,7 +256,7 @@ const LockToggle = ({ value, onValueChange, color }) => {
       <Lock 
         size={19}
         color={
-          locked ? UIColors.background : UIColors.text
+          locked ? UIColors.modalBackground : UIColors.text
         }
         style={[
           !locked ? {opacity: 0.4} : {},

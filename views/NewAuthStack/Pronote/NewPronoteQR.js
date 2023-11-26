@@ -47,7 +47,7 @@ const NewPronoteQR = ({ route, navigation }) => {
   return (
     <View
       contentInsetAdjustmentBehavior='automatic'
-      style={[styles.container, {backgroundColor: UIColors.background}]}
+      style={[styles.container, {backgroundColor: UIColors.modalBackground}]}
     >
       <StatusBar
         animated
