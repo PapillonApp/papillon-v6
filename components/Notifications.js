@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { Platform, PermissionsAndroid, Linking } from "react-native";
+import { Platform, PermissionsAndroid, Linking, Alert } from "react-native";
 import packageJson from '../package.json'
 
 import { showMessage } from 'react-native-flash-message';
@@ -9,7 +9,9 @@ import notifee, {AndroidImportance, AuthorizationStatus} from '@notifee/react-na
 let vars = {}
 async function setVars() {
     return new Promise(async (resolve) => {
-        vars = JSON.parse(await AsyncStorage.getItem("notifs") || {lastUpdatedVersion: null, permStatus: null})
+        let vars1 = await AsyncStorage.getItem("notifs")
+        console.log("vars1")
+        vars = vars1 ? JSON.parse(vars1) : {lastUpdatedVersion: null, permStatus: null}
         resolve()
     })
 }
@@ -201,14 +203,14 @@ export async function init() {
     await setVars()
     let perm = await checkNotifPerm()
     if(perm.authorized) {
-        showMessage({
-            message: 'Notifications activées',
-            type: 'success',
-            icon: 'auto',
-            floating: true,
-        });
         if(vars.permStatus !== "granted") {
             vars.permStatus = "granted"
+            showMessage({
+                message: 'Notifications activées',
+                type: 'success',
+                icon: 'auto',
+                floating: true,
+            });
             updateVars()
         }
     }
@@ -233,7 +235,8 @@ export async function init() {
                 icon: 'auto',
                 floating: true,
             });
-            vars.permStatus = "granted"
+            vars.permStatus = "neverAskAgain"
+            vars.lastUpdatedVersion = null
             updateVars()
         }
     }
