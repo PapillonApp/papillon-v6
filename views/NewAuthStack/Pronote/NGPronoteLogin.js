@@ -9,7 +9,8 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-  Switch
+  Switch,
+  Dimensions
 } from 'react-native';
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
@@ -36,6 +37,7 @@ import NativeItem from '../../../components/NativeItem';
 import NativeText from '../../../components/NativeText';
 
 import SegmentedControl from "react-native-segmented-control-2";
+import { width } from 'deprecated-react-native-prop-types/DeprecatedImagePropType';
 
 const entities = require('entities');
 
@@ -277,9 +279,13 @@ function NGPronoteLogin({ route, navigation }) {
       { Platform.OS === 'ios' ? (
         <SegmentedControl
           tabs={["Espace élèves", "Espace parents"]}
+          width={
+            Dimensions.get('window').width > 600 ? 600 : undefined
+          }
           style={{ 
             backgroundColor: UIColors.text + '12',
-            marginHorizontal: 15
+            marginHorizontal: 15,
+            alignSelf: 'center',
           }}
           activeTabColor={
             theme.dark ? "#333333" :
@@ -288,7 +294,6 @@ function NGPronoteLogin({ route, navigation }) {
           activeTextColor={UIColors.text}
           textStyle={{ color: UIColors.text + '55' }}
           onChange={(index) => {
-            console.log(index);
             setModeParent(index === 1);
           }}
         />
@@ -318,7 +323,6 @@ function NGPronoteLogin({ route, navigation }) {
           activeTextColor={UIColors.primary}
           textStyle={{ color: UIColors.text + '55', marginTop: -2, fontSize:16, fontFamily: 'Papillon-Semibold' }}
           onChange={(index) => {
-            console.log(index);
             setModeParent(index === 1);
           }}
         />
