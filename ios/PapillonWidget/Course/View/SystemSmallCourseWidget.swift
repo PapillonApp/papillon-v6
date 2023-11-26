@@ -92,7 +92,7 @@ struct SystemSmallCourseWidget: View {
                         .foregroundStyle(Color.white.opacity(0.5))
                         .font(.system(.subheadline, design: .rounded))
                   } else {
-                    Text("debut à \(formattedTime(upcomingCourses.first!.start))")
+                    Text("début à \(formattedTime(upcomingCourses.first!.start))")
                         .foregroundStyle(Color.white.opacity(0.5))
                         .font(.system(.subheadline, design: .rounded))
                   }
