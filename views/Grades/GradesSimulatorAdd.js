@@ -61,8 +61,10 @@ const GradesSimulatorAdd = ({ navigation }) => {
     let nValue = value.replace(',', '.');
     nValue = parseFloat(nValue);
 
-    if (nValue > 20) {
-      nValue = 20;
+    const maxVal = parseFloat(out_of.replace(',', '.'));
+
+    if (nValue > maxVal) {
+      nValue = maxVal;
     }
 
     if (nValue < 0) {
@@ -136,7 +138,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
   return (
     <ScrollView 
       contentInsetAdjustmentBehavior='automatic'
-      style={{ backgroundColor: UIColors.background }}
+      style={{ backgroundColor: UIColors.modalBackground }}
     >
       { Platform.OS === 'ios' ? <StatusBar barStyle='light-content' /> : <StatusBar barStyle={theme.dark ? 'light-content' : 'dark-content'} /> }
 
@@ -219,7 +221,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
           } 
         >
           <NativeText heading="h4">
-            Note de la classe
+            Moyenne de la classe
           </NativeText>
         </NativeItem>
       </NativeList>
@@ -259,7 +261,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
               placeholder='1,00'
               placeholderTextColor={UIColors.text + '50'}
               value={coefficient}
-              onChangeText={text => changeValue(text, setCoefficient)}
+              onChangeText={text => setCoefficient(text)}
               maxLength={4}
             />
           }

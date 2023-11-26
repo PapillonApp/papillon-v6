@@ -18,6 +18,9 @@ import { useTheme, Text } from 'react-native-paper';
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
 
+import { BlurView } from 'expo-blur';
+import { ContextMenuButton, ContextMenuView } from 'react-native-ios-context-menu';
+
 import LineChart from 'react-native-simple-line-chart';
 
 import Fade from 'react-native-fade';
@@ -41,6 +44,7 @@ import { useAppContext } from '../utils/AppContext';
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
+import { LinearGradient } from 'expo-linear-gradient';
 
 function GradesScreen({ navigation }) {
   const theme = useTheme();
@@ -52,6 +56,7 @@ function GradesScreen({ navigation }) {
   const [averagesData, setAveragesData] = useState([]);
   const [latestGrades, setLatestGrades] = useState([]);
   const [periodsList, setPeriodsList] = useState([]);
+  const [remainingPeriods, setRemainingPeriods] = useState([]);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [allGrades, setAllGrades] = useState([]);
 
@@ -72,9 +77,20 @@ function GradesScreen({ navigation }) {
 
   const [hasSimulatedGrades, setHasSimulatedGrades] = useState(false);
 
-  function handleScroll(event) {
-    setScrollDistance(event.nativeEvent.contentOffset.y);
-  }
+  const yOffset = new Animated.Value(0);
+
+  const scrollHandler = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: yOffset } } }],
+    { useNativeDriver: false }
+  );
+
+  const scrollY = Animated.add(yOffset, 0);
+
+  const headerOpacity = yOffset.interpolate({
+    inputRange: [-70, 0],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
 
   // add button to header
   React.useLayoutEffect(() => {
@@ -86,32 +102,74 @@ function GradesScreen({ navigation }) {
           color="#A84700"
         />
       ),
-      headerShadowVisible: true,
+      headerTransparent: Platform.OS === 'ios' ? true : false,
+      headerBackground: Platform.OS === 'ios' ? () => (
+        <Animated.View 
+          style={[
+            styles.header,
+            {
+              flex: 1,
+              backgroundColor: UIColors.element + '00',
+              opacity: headerOpacity,
+              borderBottomColor: theme.dark ? UIColors.text + '22' : UIColors.text + '55',
+              borderBottomWidth: 0.5,
+            }
+          ]}
+        >
+          <BlurView
+            tint={theme.dark ? 'dark' : 'light'}
+            intensity={120}
+            style={{
+              flex: 1,
+            }}
+          />
+        </Animated.View>
+      ) : undefined,
       headerRight: () => (
         <View style={styles.rightActions}>
-          <TouchableOpacity
-            onPress={newPeriod}
-            style={styles.periodButtonContainer}
+          <ContextMenuButton
+            isMenuPrimaryAction={true}
+            menuConfig={{
+              menuTitle: 'Périodes',
+                menuItems: periodsList.map((period) => {
+                  return {
+                    actionKey: period.name,
+                    actionTitle: period.name,
+                    menuState : selectedPeriod?.name === period.name ? 'on' : 'off',
+                  }
+                }),
+            }}
+            onPressMenuItem={({nativeEvent}) => {
+              setSelectedPeriod(periodsList.find((period) => period.name === nativeEvent.actionKey));
+              changePeriodPronote(periodsList.find((period) => period.name === nativeEvent.actionKey));
+            }}
           >
-            <Text
-              style={[styles.periodButtonText, { color: UIColors.primary }]}
+            <TouchableOpacity
+              onPress={() => {
+                if (Platform.OS !== 'ios') {
+                  newPeriod();
+                }
+              }}
+              style={styles.periodButtonContainer}
             >
-              {selectedPeriod?.name || ''}
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={[styles.periodButtonText, { color: UIColors.primary }]}
+              >
+                {selectedPeriod?.name || ''}
+              </Text>
+            </TouchableOpacity>
+          </ContextMenuButton>
 
-          { subjectsList.length > 0 && (
             <TouchableOpacity
               style={[styles.addButtonContainer, {backgroundColor: UIColors.primary + '22'}]}
               onPress={() => navigation.navigate('ModalGradesSimulator')}
             >
               <FlaskConical size='22' color={UIColors.primary} />
             </TouchableOpacity>
-          )}
         </View>
       ),
     });
-  }, [navigation, selectedPeriod, isLoading, UIColors, scrollDistance]);
+  }, [navigation, selectedPeriod, isLoading, UIColors]);
 
   function newPeriod() {
     const options = periodsList.map((period) => period.name);
@@ -156,11 +214,14 @@ function GradesScreen({ navigation }) {
     setIsLoading(false);
   }
 
+  const [finalPeriodList, setFinalPeriodList] = useState([]);
+
   async function getPeriods() {
     const allPeriods = await appctx.dataprovider.getPeriods(false);
 
     const actualPeriod = allPeriods.find((period) => period.actual === true);
     let periods = [];
+    let remaining = [];
 
     if (actualPeriod.name.toLowerCase().includes('trimestre')) {
       periods = allPeriods.filter((period) =>
@@ -171,9 +232,33 @@ function GradesScreen({ navigation }) {
         period.name.toLowerCase().includes('semestre')
       );
     }
+    else {
+      // just add the actual period
+      periods.push(actualPeriod);
+    }
+
+    // add remaining periods to the list
+    remaining = allPeriods.filter((period) => !periods.includes(period));
 
     setPeriodsList(periods);
     setSelectedPeriod(actualPeriod);
+    setRemainingPeriods(remaining);
+
+    let finalList = [];
+    periods.forEach((period) => {
+      finalList.push({
+        ...period,
+        category : 'main'
+      });
+    });
+    remaining.forEach((period) => {
+      finalList.push({
+        ...period,
+        category : 'secondary'
+      });
+    });
+
+    setFinalPeriodList(finalList);
   }
 
   function calculateAverage(grades, isClass) {
@@ -381,6 +466,7 @@ function GradesScreen({ navigation }) {
   }
 
   return (
+    <>
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       style={[styles.container, { backgroundColor: UIColors.background }]}
@@ -391,11 +477,8 @@ function GradesScreen({ navigation }) {
           colors={[Platform.OS === 'android' ? UIColors.primary : null]}
         />
       }
-      onScroll={Animated.event(
-        [{ nativeEvent: { contentOffset: { y: scrollX } } }],
-        { useNativeDriver: false, listener: handleScroll }
-      )}
-      scrollEventThrottle={0.01}
+      onScroll={scrollHandler}
+      scrollEventThrottle={16}
     >
       <StatusBar
         animated
@@ -509,7 +592,9 @@ function GradesScreen({ navigation }) {
         <View 
           style={[
             styles.averageChart,
-            { backgroundColor: UIColors.element },
+            {
+              backgroundColor: UIColors.element,
+            }
           ]}
         >
           <View style={[styles.averagesgrClassContainer]}>
@@ -940,6 +1025,7 @@ Il s'agit uniquement d'une estimation qui variera en fonction de vos options, la
         </View>
       ) : null}
     </ScrollView>
+    </>
   );
 }
 
