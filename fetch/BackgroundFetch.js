@@ -35,7 +35,9 @@ TaskManager.defineTask('background-fetch-news', async () => {
         });
       }
       return dataInstance.getNews().then((news) => {
-        notifee.cancelNotification("background-fetch")
+        setTimeout(() => {
+          notifee.cancelNotification("background-fetch")
+        }, 200)
         if (news.length !== oldNews.length) {
           AsyncStorage.setItem('oldNews', JSON.stringify(news));
 
