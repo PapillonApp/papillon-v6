@@ -173,54 +173,61 @@ async function askNotifPerm() {
         });
       }
       else {
-        result !== "never_ask_again" ? Alert.alert(
-          'Notifications',
-          'Vous avez refusé les notifications. Si vous les refusez, vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Souhaitez-vous continuer ?',
-          [
-            {
-              text: 'Continuer',
-              style: 'cancel',
-              onPress: () => {
-                showMessage({
-                  message: 'Notifications désactivées',
-                  type: 'danger',
-                  icon: 'auto',
-                  floating: true,
-                });
+        AsyncStorage.getItem("notifAlert").then((value) => {
+          if (value === 'true') {
+            return;
+          }
+
+          result !== "never_ask_again" ? Alert.alert(
+            'Notifications',
+            'Vous avez refusé les notifications. Si vous les refusez, vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Souhaitez-vous continuer ?',
+            [
+              {
+                text: 'Continuer',
+                style: 'cancel',
+                onPress: () => {
+                  showMessage({
+                    message: 'Notifications désactivées',
+                    type: 'danger',
+                    icon: 'auto',
+                  });
+                }
+              },
+              {
+                text:"Autoriser",
+                onPress: () => {
+                  askNotifPerm()
+                }
               }
-            },
-            {
-              text:"Autoriser",
-              onPress: () => {
-                askNotifPerm()
-              }
-            }
-          ]
-        ) : Alert.alert(
-          'Notifications',
-          'Vous avez refusé les notifications. Si vous les refusez, vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Pour les autoriser, veuillez vous rendre dans les paramètres de votre téléphone.',
-          [
-            {
-              text: 'Continuer',
-              style: 'cancel',
-              onPress: () => {
-                showMessage({
-                  message: 'Notifications désactivées',
-                  type: 'danger',
-                  icon: 'auto',
-                  floating: true,
-                });
-              }
-            },
-            {
-              text: 'Ouvrir les paramètres',
-              style: 'cancel',
-              onPress: () => {
-                Linking.openSettings()
-              }
-            },
-          ]
-        )
+            ]
+          ) : Alert.alert(
+            'Notifications',
+            'Vous avez refusé les notifications. Si vous les refusez, vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Pour les autoriser, veuillez vous rendre dans les paramètres de votre téléphone.',
+            [
+              {
+                text: 'Continuer',
+                style: 'cancel',
+                onPress: () => {
+                  showMessage({
+                    message: 'Notifications désactivées',
+                    type: 'danger',
+                    icon: 'auto',
+                    floating: true,
+                  });
+                }
+              },
+              {
+                text: 'Ouvrir les paramètres',
+                style: 'cancel',
+                onPress: () => {
+                  Linking.openSettings()
+                }
+              },
+            ]
+          )
+
+          AsyncStorage.setItem('notifAlert', 'true');
+        })
       }
     })
   }
@@ -634,6 +641,8 @@ function WrappedHomeScreen() {
         options={{
           headerShown: true,
           presentation: 'modal',
+          header: (props) => <Header {...props} />,
+          modalStatus: Platform.OS === 'ios',
         }}
       />
       <Stack.Screen
@@ -721,6 +730,8 @@ function WrappedDevoirsScreen() {
         options={{
           headerShown: true,
           presentation: 'modal',
+          header: (props) => <Header {...props} />,
+          modalStatus: Platform.OS === 'ios',
         }}
       />
     </Stack.Navigator>
@@ -815,17 +826,19 @@ const styles = StyleSheet.create({
   },
 
   headerContent: {
-    width: '60%',
     justifyContent: 'center',
     alignItems: 'center',
+    flex: 1,
   },
   headerText: {
     fontFamily: 'Papillon-Semibold',
     fontSize: 17,
+    width: '100%',
+    textAlign: 'center',
   },
 
   headerSide: {
-    width: '20%',
+    minWidth: 60,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -909,7 +922,7 @@ function Header(props) {
         : null }
       </View>
       <View style={styles.headerContent}>
-        <Text style={[styles.headerText, {color: UIColors.text}]}>
+        <Text style={[styles.headerText, {color: UIColors.text}]} numberOfLines={1} ellipsizeMode="tail">
           {title}
         </Text>
       </View>

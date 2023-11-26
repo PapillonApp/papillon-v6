@@ -128,7 +128,7 @@ function HomeworkScreen({ route, navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
       contentInsetAdjustmentBehavior="automatic"
     >
       {Platform.OS === 'ios' ? (
