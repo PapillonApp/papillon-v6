@@ -274,7 +274,7 @@ function ProfileScreen({ route, navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
     >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />

@@ -49,7 +49,6 @@ function LoginSkolengoSelectSchool({ navigation }) {
       text,
     })
       .then(setResults)
-      .catch(console.log);
   }
 
   async function searchSchoolByCoords() {

@@ -1,11 +1,19 @@
 import { Platform, useColorScheme } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
-function GetUIColors() {
+function GetUIColors(schemeForce) {
   const theme = useTheme();
   const scheme = useColorScheme();
 
-  const isDark = scheme === 'dark';
+  let isDark = scheme === 'dark';
+
+  if (schemeForce) {
+    if (schemeForce === 'dark') {
+      isDark = true;
+    } else if (schemeForce === 'light') {
+      isDark = false;
+    }
+  }
 
   // background
   let background = '';
@@ -16,13 +24,18 @@ function GetUIColors() {
     background = theme.colors.background;
   }
 
+  let modalBackground = background;
+  if (Platform.OS === 'ios') {
+    modalBackground = isDark ? '#0c0c0c' : '#f2f2f7';
+  }
+
   // element
   let element = '';
   let elementHigh = '';
 
   if (Platform.OS === 'ios') {
     element = isDark ? '#151515' : '#ffffff';
-    elementHigh = isDark ? '#151515' : '#ffffff';
+    elementHigh = isDark ? '#222222' : '#ffffff';
   } else {
     element = theme.colors.elevation.level1;
     elementHigh = theme.colors.elevation.level2;
@@ -32,17 +45,23 @@ function GetUIColors() {
   const text = isDark ? '#ffffff' : '#000000';
 
   // main
-  // let primary = '';
   let primaryBackground = '';
+  let primary = '';
 
   if (Platform.OS === 'ios') {
     // primary = '#29947A';
-    primaryBackground = '#29947A';
+    primary = '#29947A';
   } else {
     // primary = theme.colors.primary;
-    primaryBackground = isDark
-      ? theme.colors.primaryContainer
+    primary = isDark
+      ? theme.colors.primary
       : theme.colors.primary;
+  }
+
+  primaryBackground = primary;
+
+  if (Platform.OS === 'android' && isDark) {
+    primaryBackground = theme.colors.primaryContainer;
   }
 
   // border
@@ -57,10 +76,11 @@ function GetUIColors() {
   return {
     theme: isDark ? 'dark' : 'light',
     background,
+    modalBackground,
     element,
     elementHigh,
     text,
-    primary: primaryBackground,
+    primary,
     primaryBackground,
     border: borderColor,
   };

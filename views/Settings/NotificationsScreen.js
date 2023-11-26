@@ -116,7 +116,7 @@ function NotificationsScreen() {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
       contentInsetAdjustmentBehavior="automatic"
     >
       {Platform.OS === 'ios' ? (

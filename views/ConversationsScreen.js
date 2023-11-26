@@ -48,6 +48,8 @@ function ConversationsScreen({ navigation }) {
   }, []);
 
   function getInitials(name) {
+    if (name == null) return '';
+
     let initials = name.match(/\b\w/g) || [];
 
     // if first initial is M and there is a second initial, use the second initial
@@ -62,14 +64,14 @@ function ConversationsScreen({ navigation }) {
   // add search functionality
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => Platform.OS === 'ios' && (
+      headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
           icon={<SFSymbol name="bubble.left.circle.fill" />}
           title="Conversations"
           color="#B18619"
           inset
         />
-      ),
+      ) : 'Conversations',
       headerBackTitleVisible: false,
       headerTintColor: UIColors.text,
       headerSearchBarOptions: {
