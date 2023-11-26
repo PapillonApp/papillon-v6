@@ -61,8 +61,10 @@ const GradesSimulatorAdd = ({ navigation }) => {
     let nValue = value.replace(',', '.');
     nValue = parseFloat(nValue);
 
-    if (nValue > 20) {
-      nValue = 20;
+    const maxVal = parseFloat(out_of.replace(',', '.'));
+
+    if (nValue > maxVal) {
+      nValue = maxVal;
     }
 
     if (nValue < 0) {
@@ -259,7 +261,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
               placeholder='1,00'
               placeholderTextColor={UIColors.text + '50'}
               value={coefficient}
-              onChangeText={text => changeValue(text, setCoefficient)}
+              onChangeText={text => setCoefficient(text)}
               maxLength={4}
             />
           }

@@ -222,7 +222,7 @@ function NGPronoteLogin({ route, navigation }) {
   return (
     <>
     <LinearGradient
-      colors={[UIColors.background, UIColors.background + '00']}
+      colors={[UIColors.modalBackground, UIColors.modalBackground + '00']}
       locations={[0, 1]}
       style={{
         position: 'absolute',
@@ -234,7 +234,7 @@ function NGPronoteLogin({ route, navigation }) {
       }}
     />
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
     >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
