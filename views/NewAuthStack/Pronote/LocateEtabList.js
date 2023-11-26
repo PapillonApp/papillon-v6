@@ -12,7 +12,7 @@ import NativeList from '../../../components/NativeList';
 import NativeItem from '../../../components/NativeItem';
 import NativeText from '../../../components/NativeText';
 
-import { School } from 'lucide-react-native';
+import { School, Search, X } from 'lucide-react-native';
 import PapillonLoading from '../../../components/PapillonLoading';
 
 const LocateEtabList = ({ route, navigation }) => {
@@ -92,29 +92,8 @@ const LocateEtabList = ({ route, navigation }) => {
       });
   });
 
-  // add a native search bar
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerSearchBarOptions: {
-        placeholder: 'Rechercher un établissement',
-        onChangeText: (data) => {
-          const text = data.nativeEvent.text;
-          if (text.length > 2) {
-            setResults({
-              results: finalResults.results.filter((result) => {
-                return result.nom_etablissement.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ""));
-              })
-            });
-          }
-          else {
-            setResults(finalResults);
-          }
-        },
-        cancelButtonText: 'Annuler',
-        hideWhenScrolling: false,
-      },
-    });
-  }, [results]);
+  const [currentSearch, setCurrentSearch] = useState('');
+  const inputRef = React.createRef();
 
   return (
     <ScrollView
@@ -134,6 +113,52 @@ const LocateEtabList = ({ route, navigation }) => {
         }
       />
 
+      {!isLoading ? (
+        <NativeList
+          inset
+        >
+          <NativeItem
+            leading={
+              <Search color={UIColors.text + '88'} />
+            }
+            trailing={
+              isLoading ? 
+                <ActivityIndicator /> : 
+                currentSearch.length > 0 ?
+                  <TouchableOpacity
+                    onPress={() => {
+                      setCurrentSearch('');
+                      setResults(finalResults);
+                    }}
+                  >
+                    <X size={20} color={UIColors.text + '88'} />
+                  </TouchableOpacity> : null
+            }
+          >
+            <TextInput 
+              placeholder="Rechercher"
+              placeholderTextColor={UIColors.text + '88'}
+              style={[styles.input, {color: UIColors.text}]}
+              value={currentSearch}
+              onChangeText={text => {
+                setCurrentSearch(text);
+                if (text.length > 2) {
+                  setResults({
+                    results: finalResults.results.filter((result) => {
+                      return result.nom_etablissement.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ""));
+                    })
+                  });
+                }
+                else {
+                  setResults(finalResults);
+                }
+              }}
+              ref={inputRef}
+            />
+          </NativeItem>
+        </NativeList>
+      ) : null}
+
       {isLoading && (
         <PapillonLoading 
           title="Recherche en cours"
@@ -141,7 +166,7 @@ const LocateEtabList = ({ route, navigation }) => {
         />
       )}
 
-      {!isLoading && results !== null && results.results.length == 0 && (
+      {!isLoading && results !== null && results.results.length == 0 && currentSearch.length == 0 && (
         <PapillonLoading 
           icon={
             <School color={UIColors.text} size={26} style={{margin:8}} />
@@ -151,7 +176,15 @@ const LocateEtabList = ({ route, navigation }) => {
         />
       )}
 
-      <View style={{padding: 8}}/>
+      {!isLoading && results !== null && results.results.length == 0 && currentSearch.length > 0 && (
+        <PapillonLoading 
+          icon={
+            <School color={UIColors.text} size={26} style={{margin:8}} />
+          }
+          title="Aucun résulat"
+          subtitle={`Aucun établissement n'a été trouvé pour la recherche "${currentSearch}"`}
+        />
+      )}
 
       {!isLoading && results !== null && results.results.length > 0 ? (
         <NativeList
@@ -199,6 +232,10 @@ const LocateEtabList = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1
+  },
+  input: {
+    fontSize: 16,
+    fontFamily: 'Papillon-Medium',
   },
 });
 

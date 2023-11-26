@@ -153,6 +153,7 @@ const styles = StyleSheet.create({
   input: {
     fontSize: 16,
     fontFamily: 'Papillon-Medium',
+    paddingVertical: 4,
   },
 });
 

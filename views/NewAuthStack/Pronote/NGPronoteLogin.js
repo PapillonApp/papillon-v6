@@ -478,6 +478,7 @@ const styles = StyleSheet.create({
   nginput: {
     fontSize: 16,
     fontFamily: 'Papillon-Medium',
+    paddingVertical: 4,
   },
 });
 
