@@ -155,12 +155,15 @@ async function registerNotifs() {
 }
 async function checkNotifPerm(next = function(){}) {
   if(Platform.OS === "android") {
-    PermissionsAndroid.check("android.permission.POST_NOTIFICATIONS").then((granted) => {
-      if(granted) {
-        next()
-      }
-      else askNotifPerm()
-    })
+    if(Platform.Version >= 33) {
+      PermissionsAndroid.check("android.permission.POST_NOTIFICATIONS").then((granted) => {
+        if(granted) {
+          next()
+        }
+        else askNotifPerm()
+      })
+    }
+    else next()
   }
 }
 async function askNotifPerm() {
