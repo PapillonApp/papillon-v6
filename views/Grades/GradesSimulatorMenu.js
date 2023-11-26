@@ -95,6 +95,7 @@ const GradesSimulatorMenu = ({ navigation }) => {
   return (
     <ScrollView 
       contentInsetAdjustmentBehavior='automatic'
+      style={{ backgroundColor: UIColors.background }}
     >
       { Platform.OS === 'ios' ? <StatusBar barStyle='light-content' /> : <StatusBar barStyle={theme.dark ? 'light-content' : 'dark-content'} /> }
 
