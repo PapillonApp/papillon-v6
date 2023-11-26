@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   Animated,
+  Alert,
   View,
   ScrollView,
   StyleSheet,
@@ -21,7 +22,7 @@ import LineChart from 'react-native-simple-line-chart';
 
 import Fade from 'react-native-fade';
 
-import { User2, Users2, TrendingDown, TrendingUp } from 'lucide-react-native';
+import { User2, Users2, TrendingDown, TrendingUp, Info, AlertTriangle, FlaskConical, Plus, PlusCircle } from 'lucide-react-native';
 
 import { useState } from 'react';
 import { PressableScale } from 'react-native-pressable-scale';
@@ -66,6 +67,9 @@ function GradesScreen({ navigation }) {
   const [scrollX, setScrollX] = useState(new Animated.Value(0));
   const [scrollDistance, setScrollDistance] = useState(0);
 
+  const [calculatedAvg, setCalculatedAvg] = useState(false);
+  const [calculatedClassAvg, setCalculatedClassAvg] = useState(false);
+
   function handleScroll(event) {
     setScrollDistance(event.nativeEvent.contentOffset.y);
   }
@@ -82,16 +86,27 @@ function GradesScreen({ navigation }) {
       ),
       headerShadowVisible: true,
       headerRight: () => (
-        <TouchableOpacity
-          onPress={newPeriod}
-          style={styles.periodButtonContainer}
-        >
-          <Text
-            style={[styles.periodButtonText, { color: UIColors.primary }]}
+        <View style={styles.rightActions}>
+          <TouchableOpacity
+            onPress={newPeriod}
+            style={styles.periodButtonContainer}
           >
-            {selectedPeriod?.name || ''}
-          </Text>
-        </TouchableOpacity>
+            <Text
+              style={[styles.periodButtonText, { color: UIColors.primary }]}
+            >
+              {selectedPeriod?.name || ''}
+            </Text>
+          </TouchableOpacity>
+
+          { subjectsList.length > 0 && (
+            <TouchableOpacity
+              style={[styles.addButtonContainer, {backgroundColor: UIColors.primary + '22'}]}
+              onPress={() => navigation.navigate('ModalGradesSimulator')}
+            >
+              <FlaskConical size='22' color={UIColors.primary} />
+            </TouchableOpacity>
+          )}
+        </View>
       ),
     });
   }, [navigation, selectedPeriod, isLoading, UIColors, scrollDistance]);
@@ -133,8 +148,8 @@ function GradesScreen({ navigation }) {
 
   async function changePeriodPronote(period) {
     setIsLoading(true);
-    await appctx.dataprovider.changePeriod(period.name);
-    appctx.dataprovider.getUser(true);
+    let newPeriod = await appctx.dataprovider.changePeriod(period.name);
+    await appctx.dataprovider.getUser(true);
     loadGrades(true);
     setIsLoading(false);
   }
@@ -187,6 +202,41 @@ function GradesScreen({ navigation }) {
     const gradesList = parsedData.grades;
     const subjects = [];
 
+    let hasSimulatedGrades = false;
+
+    // add simulated grades
+    let customGrades = await AsyncStorage.getItem('custom-grades');
+    if (customGrades !== null) {
+      customGrades = JSON.parse(customGrades);
+      customGrades.forEach((grade) => {
+        hasSimulatedGrades = true;
+
+        newGrade = {
+          ...grade,
+          isSimulated: true,
+        }
+
+        // check if grade is already in the list
+        let index = gradesList.findIndex((item) => item.id === grade.id);
+        
+        if (index !== -1) {
+        }
+        else {
+          gradesList.push(newGrade);
+        }
+      });
+
+      // update average of subject
+      let averagesList = parsedData.averages;
+      customGrades.forEach((grade) => {
+        const subject = averagesList.find((subj) => subj.subject.name === grade.subject.name);
+        if (subject) {
+          subject.average = calculateAverage(gradesList.filter((grade) => grade.subject.name === subject.subject.name), false);
+          subject.class_average = calculateAverage(gradesList.filter((grade) => grade.subject.name === subject.subject.name), true);
+        }
+      });
+    }
+
     setAllGrades(gradesList);
   
     function calculateAverages(averages, overall=0, classOverall=0) {
@@ -198,11 +248,21 @@ function GradesScreen({ navigation }) {
       if (overall !== 0 && !isNaN(overall)) {
         overall = overall.toFixed(2);
         studentAverage = overall;
+
+        setCalculatedAvg(false);
+      }
+      else {
+        setCalculatedAvg(true);
       }
 
       if (classOverall !== 0 && !isNaN(classOverall)) {
         classOverall = classOverall.toFixed(2);
         classAverage = classOverall;
+
+        setCalculatedClassAvg(false);
+      }
+      else {
+        setCalculatedClassAvg(true);
       }
   
       setAveragesData({
@@ -273,11 +333,13 @@ function GradesScreen({ navigation }) {
       });
     }
 
-    if(parsedData.overall_average !== 0 && !isNaN(parsedData.overall_average)) {
-      chartData.push({
-        x: new Date().getTime(),
-        y: parseFloat(parsedData.overall_average)
-      });
+    // if simulated, set overall average to the last chart point
+    if (hasSimulatedGrades == true) {
+      let lastPoint = chartData[chartData.length - 1];
+      calculateAverages(averagesList, lastPoint.y);
+
+      // average is now calculated, set the flag to false
+      setCalculatedAvg(true);
     }
 
     setAvgChartData(chartData);
@@ -286,7 +348,7 @@ function GradesScreen({ navigation }) {
 
   async function loadGrades(force = false) {
     // fetch grades
-    const grades = await appctx.dataprovider.getGrades(force);
+    const grades = await appctx.dataprovider.getGrades('', force);
     parseGrades(grades);
   }
 
@@ -440,7 +502,7 @@ function GradesScreen({ navigation }) {
         <Text style={[styles.noGrades]}>Aucune note à afficher.</Text>
       ) : null}
 
-{ avgChartData.length > 0 && averagesData && (
+      { subjectsList.length !== 0 && !isLoading && avgChartData.length > 0 && averagesData && (
         <View 
           style={[
             styles.averageChart,
@@ -451,6 +513,31 @@ function GradesScreen({ navigation }) {
             <Text style={[styles.averagegrTitle]}>
               Moyenne générale
             </Text>
+
+            <TouchableOpacity 
+              style={[styles.averagegrTitleInfo]}
+              onPress={() => Alert.alert(
+                `${calculatedAvg ? 'Moyenne générale calculée' : 'Moyenne générale réelle'}`,
+                calculatedAvg ? 
+                  `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant votre moyenne de chaque matière.`
+                :
+                  `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`
+                ,
+                [
+                  {
+                    text: 'Compris !',
+                    style: 'cancel',
+                  },
+                ],
+                { cancelable: true }
+              )}
+            >
+              <AlertTriangle size='20' color={UIColors.primary} />
+              <Text style={[styles.averagegrTitleInfoText, {color: UIColors.primary}]}>
+                {calculatedAvg ? 'Estimation' : 'Moyenne réelle'}
+              </Text>
+            </TouchableOpacity>
+
             <View style={[styles.averagegrValCont]}>
               <Text style={[styles.averagegrValue]}>
                 {averagesData.studentAverage}
@@ -591,6 +678,12 @@ function GradesScreen({ navigation }) {
                   </Text>
                 </View>
 
+                { grade.isSimulated && (
+                    <Text style={[styles.smallGradeSimulated, {color: grade.color, borderColor: grade.color}]}>
+                      Simulée
+                    </Text>
+                  )}
+
                 <View style={[styles.smallGradeValueContainer]}>
                   {grade.grade.significant === 0 ? (
                     <Text style={[styles.smallGradeValue]}>
@@ -620,6 +713,26 @@ function GradesScreen({ navigation }) {
                 <Users2 color={UIColors.text} />
               </View>
             }
+            trailing={
+              calculatedClassAvg && (
+              <TouchableOpacity
+                onPress={() => Alert.alert(
+                  'Moyenne de classe calculée',
+                  `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant la moyenne de chaque matière.
+
+Il s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`,
+                  [
+                    {
+                      text: 'Compris !',
+                      style: 'cancel',
+                    },
+                  ],
+                  { cancelable: true }
+                )}
+              >
+                <AlertTriangle color={UIColors.primary} />
+              </TouchableOpacity>
+            )}
           >
             <Text style={[styles.averageText]}>Moy. de classe</Text>
             <View style={[styles.averageValueContainer]}>
@@ -635,6 +748,25 @@ function GradesScreen({ navigation }) {
                 <TrendingDown color={UIColors.text} />
               </View>
             }
+            trailing={
+              <TouchableOpacity
+                onPress={() => Alert.alert(
+                  'Moyenne la plus faible',
+                  `La moyenne la plus faible est calculée en prenant la moyenne la plus basse de chaque matière.
+
+Il s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`,
+                  [
+                    {
+                      text: 'Compris !',
+                      style: 'cancel',
+                    },
+                  ],
+                  { cancelable: true }
+                )}
+              >
+                <Info color={UIColors.text + '22'} />
+              </TouchableOpacity>
+            }
           >
             <Text style={[styles.averageText]}>Moy. la plus faible</Text>
             <View style={[styles.averageValueContainer]}>
@@ -649,6 +781,25 @@ function GradesScreen({ navigation }) {
               <View style={{marginHorizontal: 4}}>
                 <TrendingUp color={UIColors.text} />
               </View>
+            }
+            trailing={
+              <TouchableOpacity
+                onPress={() => Alert.alert(
+                  'Moyenne la plus élevée',
+                  `La moyenne la plus élevée est calculée en prenant la moyenne la plus élevée de chaque matière.
+
+Il s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`,
+                  [
+                    {
+                      text: 'Compris !',
+                      style: 'cancel',
+                    },
+                  ],
+                  { cancelable: true }
+                )}
+              >
+                <Info color={UIColors.text + '22'} />
+              </TouchableOpacity>
             }
           >
             <Text style={[styles.averageText]}>Moy. la plus élevée</Text>
@@ -730,6 +881,12 @@ function GradesScreen({ navigation }) {
                             /{grade.grade.out_of}
                           </Text>
                         </View>
+
+                        { grade.isSimulated && (
+                          <Text style={[styles.gradeSimulated, {color: grade.color, borderColor: grade.color}]}>
+                            Simulée
+                          </Text>
+                        )}
                       </View>
                     }
                   >
@@ -991,7 +1148,7 @@ const styles = StyleSheet.create({
     left: 16,
   },
   smallGradeValue: {
-    fontSize: 17,
+    fontSize: 20,
     fontFamily: 'Papillon-Semibold',
   },
   smallGradeOutOf: {
@@ -1118,6 +1275,20 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
 
+  averagegrTitleInfo: {
+    position: 'absolute',
+    right: 0,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+
+  averagegrTitleInfoText: {
+    fontSize: 15,
+    fontWeight: 500,
+  },
+
   averagegrValCont: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -1147,7 +1318,63 @@ const styles = StyleSheet.create({
 
   grTextWh: {
     color: '#FFFFFF',
-  }
+  },
+
+  rightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+  },
+
+  addButtonContainer: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  smallGradeSimulated: {
+    fontSize: 16,
+    fontFamily: 'Papillon-Semibold',
+    letterSpacing: 0.15,
+
+    borderRadius: 8,
+    borderCurve: 'continuous',
+
+    borderWidth: 1,
+    alignSelf: 'flex-start',
+
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+  },
+
+  gradeDataContainer : {
+    alignItems: 'flex-end',
+  },
+
+  gradeSimulated: {
+    fontSize: 16,
+    fontFamily: 'Papillon-Semibold',
+    letterSpacing: 0.15,
+
+    borderRadius: 8,
+    borderCurve: 'continuous',
+
+    borderWidth: 1,
+    alignSelf: 'flex-start',
+
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+
+    marginTop: 4,
+  },
 });
 
 export default GradesScreen;

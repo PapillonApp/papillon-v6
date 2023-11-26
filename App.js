@@ -5,15 +5,17 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import './utils/IgnoreWarnings';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BottomNavigation, Appbar, useTheme, PaperProvider } from 'react-native-paper';
+import { BottomNavigation, Appbar, useTheme, PaperProvider, Text } from 'react-native-paper';
 
 import FlashMessage from 'react-native-flash-message';
 
 import { getHeaderTitle } from '@react-navigation/elements';
 import { useState, useMemo, useEffect } from 'react';
-import { Platform, useColorScheme, View, PermissionsAndroid, Alert, Linking } from 'react-native';
+import { Platform, StyleSheet, useColorScheme, View, PermissionsAndroid, Alert, Linking, TouchableOpacity } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import { SFSymbol } from 'react-native-sfsymbols';
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   Home,
@@ -22,6 +24,7 @@ import {
   BarChart3,
   UserCircle,
   Newspaper,
+  ChevronLeft,
 } from 'lucide-react-native';
 import useFonts from './hooks/useFonts';
 
@@ -72,6 +75,10 @@ import { AppContextProvider, baseColor } from './utils/AppContext';
 
 import NotificationsScreen from './views/Settings/NotificationsScreen';
 
+import LoginView from './views/NewAuthStack/LoginView';
+import FindEtab from './views/NewAuthStack/Pronote/FindEtab';
+import LocateEtab from './views/NewAuthStack/Pronote/LocateEtab';
+
 import setBackgroundFetch from './fetch/BackgroundFetch';
 
 import { LoginSkolengoSelectSchool } from './views/AuthStack/Skolengo/LoginSkolengoSelectSchool';
@@ -79,6 +86,12 @@ import { IndexDataInstance } from './fetch/IndexDataInstance';
 import GetUIColors from './utils/GetUIColors';
 import { showMessage } from 'react-native-flash-message';
 import notifee, {AndroidImportance, AuthorizationStatus} from '@notifee/react-native';
+import LocateEtabList from './views/NewAuthStack/Pronote/LocateEtabList';
+import LoginURL from './views/NewAuthStack/Pronote/LoginURL';
+import NewPronoteQR from './views/NewAuthStack/Pronote/NewPronoteQR';
+import NGPronoteLogin from './views/NewAuthStack/Pronote/NGPronoteLogin';
+import GradesSimulatorMenu from './views/Grades/GradesSimulatorMenu';
+import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
 /*notifee.getChannels().then(channels => {
   channels.forEach(ch => {
     notifee.deleteChannel(ch.id)
@@ -144,7 +157,6 @@ async function checkNotifPerm(next = function(){}) {
   if(Platform.OS === "android") {
     PermissionsAndroid.check("android.permission.POST_NOTIFICATIONS").then((granted) => {
       if(granted) {
-        console.log("notif permission ok")
         next()
       }
       else askNotifPerm()
@@ -154,7 +166,6 @@ async function checkNotifPerm(next = function(){}) {
 async function askNotifPerm() {
   if(Platform.OS === "android") {
     PermissionsAndroid.request("android.permission.POST_NOTIFICATIONS").then((result) => {
-      console.log("permission request,", result)
       if(result === "granted") {
         showMessage({
           message: 'Notifications activées',
@@ -164,54 +175,61 @@ async function askNotifPerm() {
         });
       }
       else {
-        result !== "never_ask_again" ? Alert.alert(
-          'Notifications',
-          'Vous avez refusé les notifications. Si vous les refusez, vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Souhaitez-vous continuer ?',
-          [
-            {
-              text: 'Continuer',
-              style: 'cancel',
-              onPress: () => {
-                showMessage({
-                  message: 'Notifications désactivées',
-                  type: 'danger',
-                  icon: 'auto',
-                  floating: true,
-                });
+        AsyncStorage.getItem("notifAlert").then((value) => {
+          if (value === 'true') {
+            return;
+          }
+
+          result !== "never_ask_again" ? Alert.alert(
+            'Notifications',
+            'Vous avez refusé les notifications. Si vous les refusez, vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Souhaitez-vous continuer ?',
+            [
+              {
+                text: 'Continuer',
+                style: 'cancel',
+                onPress: () => {
+                  showMessage({
+                    message: 'Notifications désactivées',
+                    type: 'danger',
+                    icon: 'auto',
+                  });
+                }
+              },
+              {
+                text:"Autoriser",
+                onPress: () => {
+                  askNotifPerm()
+                }
               }
-            },
-            {
-              text:"Autoriser",
-              onPress: () => {
-                askNotifPerm()
-              }
-            }
-          ]
-        ) : Alert.alert(
-          'Notifications',
-          'Vous avez refusé les notifications. Si vous les refusez, vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Pour les autoriser, veuillez vous rendre dans les paramètres de votre téléphone.',
-          [
-            {
-              text: 'Continuer',
-              style: 'cancel',
-              onPress: () => {
-                showMessage({
-                  message: 'Notifications désactivées',
-                  type: 'danger',
-                  icon: 'auto',
-                  floating: true,
-                });
-              }
-            },
-            {
-              text: 'Ouvrir les paramètres',
-              style: 'cancel',
-              onPress: () => {
-                Linking.openSettings()
-              }
-            },
-          ]
-        )
+            ]
+          ) : Alert.alert(
+            'Notifications',
+            'Vous avez refusé les notifications. Si vous les refusez, vous ne pourrez pas reçevoir de rappel de devoirs, des cours ou de nouvelles actualités, etc. Pour les autoriser, veuillez vous rendre dans les paramètres de votre téléphone.',
+            [
+              {
+                text: 'Continuer',
+                style: 'cancel',
+                onPress: () => {
+                  showMessage({
+                    message: 'Notifications désactivées',
+                    type: 'danger',
+                    icon: 'auto',
+                    floating: true,
+                  });
+                }
+              },
+              {
+                text: 'Ouvrir les paramètres',
+                style: 'cancel',
+                onPress: () => {
+                  Linking.openSettings()
+                }
+              },
+            ]
+          )
+
+          AsyncStorage.setItem('notifAlert', 'true');
+        })
       }
     })
   }
@@ -407,10 +425,12 @@ function InsetSettings() {
           ? {
               animation: 'fade_from_bottom',
               navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
+              header: (props) => <Header {...props} />,
             }
           : {
               ...headerTitleStyles,
+              header: (props) => <Header {...props} />,
+              modalStatus: true,
             }
       }
     >
@@ -484,6 +504,7 @@ function InsetSettings() {
         options={{
           headerTitle: "Icône de l'application",
           presentation: 'modal',
+          modalStatus: Platform.OS === 'ios',
         }}
       />
       <Stack.Screen
@@ -622,6 +643,8 @@ function WrappedHomeScreen() {
         options={{
           headerShown: true,
           presentation: 'modal',
+          header: (props) => <Header {...props} />,
+          modalStatus: Platform.OS === 'ios',
         }}
       />
       <Stack.Screen
@@ -709,6 +732,47 @@ function WrappedDevoirsScreen() {
         options={{
           headerShown: true,
           presentation: 'modal',
+          header: (props) => <Header {...props} />,
+          modalStatus: Platform.OS === 'ios',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function ModalGradesSimulator() {
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              navigationBarColor: '#00000000',
+              header: (props) => <Header {...props} />,
+              animation: 'fade_from_bottom',
+            }
+          : {
+              ...headerTitleStyles,
+              header: (props) => <Header {...props} />,
+              modalStatus: true,
+            }
+      }
+    >
+      <Stack.Screen
+        name="GradesSimulatorMenu"
+        component={GradesSimulatorMenu}
+        options={{
+          presentation: 'modal',
+          headerTitle: 'Simulateur de notes',
+          modalStatus: Platform.OS === 'ios',
+        }}
+      />
+      <Stack.Screen
+        name="GradesSimulatorAdd"
+        component={GradesSimulatorAdd}
+        options={{
+          presentation: 'modal',
+          headerTitle: 'Nouvelle note',
+          modalStatus: Platform.OS === 'ios',
         }}
       />
     </Stack.Navigator>
@@ -755,6 +819,15 @@ function WrappedGradesScreen() {
           presentation: 'modal',
         }}
       />
+
+      <Stack.Screen
+        name="ModalGradesSimulator"
+        component={ModalGradesSimulator}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -789,6 +862,191 @@ function WrappedNewsScreen() {
         options={{
           headerShown: true,
           headerTitle: 'Actualité',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+const styles = StyleSheet.create({
+  header: {
+    display: 'flex',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+
+  headerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+  },
+  headerText: {
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 17,
+    width: '100%',
+    textAlign: 'center',
+  },
+
+  headerSide: {
+    minWidth: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    gap: 20,
+  },
+
+  hsL: {
+    alignItems: 'flex-start',
+    paddingRight: 0,
+  },
+  hsR: {
+    alignItems: 'flex-end',
+    paddingLeft: 0,
+    paddingRight: 26,
+  },
+
+  headerSideButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
+
+function Header(props) {
+  const scheme = useColorScheme();
+  const UIColors = GetUIColors(props.options.headerForceDarkContent && 'dark');
+
+  const insets = useSafeAreaInsets();
+
+  let isModal = false;
+
+  if(props.options.presentation === 'modal') {
+    isModal = true;
+  }
+  if(props.options.modalStatus === true) {
+    isModal = true;
+  }
+  else if(props.options.modalStatus === false) {
+    isModal = false;
+  }
+
+  const title = props.options.headerTitle !== undefined ? props.options.headerTitle : props.route.name;
+
+  const translucent = props.options.headerTransparent !== undefined ? props.options.headerTransparent : false;
+
+  let finalInsets = insets.top;
+  if (isModal) {
+    finalInsets = 4;
+  }
+
+  let showBack = props.back !== undefined;
+  if (props.options.headerBackVisible === false) {
+    showBack = false;
+  }
+
+  return (
+    <View
+      style={[
+        {
+          paddingTop: finalInsets,
+          height: 56 + finalInsets,
+          backgroundColor: !translucent ? 
+            isModal ?
+              UIColors.modalBackground
+            : UIColors.background
+          : UIColors.background + '00',
+        },
+        styles.header,
+      ]}
+    >
+      <View style={[styles.headerSide, styles.hsL]}>
+        { props.options.headerLeft ? props.options.headerLeft() : showBack ?
+          <TouchableOpacity
+            onPress={() => props.navigation.goBack()}
+            style={[styles.headerSideButton, {backgroundColor: UIColors.text + '22'}]}
+          >
+            <ChevronLeft size={28} color={UIColors.text + 'e5'} />
+          </TouchableOpacity>
+        : null }
+      </View>
+      <View style={styles.headerContent}>
+        <Text style={[styles.headerText, {color: UIColors.text}]} numberOfLines={1} ellipsizeMode="tail">
+          {title}
+        </Text>
+      </View>
+      <View style={[styles.headerSide, styles.hsR]}>
+        {props.options.headerRight ? props.options.headerRight() : null}
+      </View>
+    </View>
+  );
+}
+
+function ModalPronoteLogin() {
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              navigationBarColor: '#00000000',
+              header: (props) => <Header {...props} />,
+              animation: 'fade_from_bottom',
+            }
+          : {
+              ...headerTitleStyles,
+              header: (props) => <Header {...props} />,
+              modalStatus: true,
+            }
+      }
+    >
+      <Stack.Screen
+        name="FindEtab"
+        component={FindEtab}
+        options={{
+          headerTitle: 'Connexion via PRONOTE',
+        }}
+      />
+      <Stack.Screen
+        name="LocateEtab"
+        component={LocateEtab}
+        options={{
+          headerTitle: 'Ville de l\'établissement',
+          headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
+        name="LocateEtabList"
+        component={LocateEtabList}
+        options={{
+          headerTitle: 'Établissements',
+          headerBackTitle: 'Ville',
+        }}
+      />
+      <Stack.Screen
+        name="LoginURL"
+        component={LoginURL}
+        options={{
+          headerTitle: 'Utiliser une URL',
+          headerBackTitle: 'Connexion',
+        }}
+      />
+      <Stack.Screen
+        name="NewPronoteQR"
+        component={NewPronoteQR}
+        options={{
+          headerTitle: 'Scanner un QR-Code',
+          headerBackTitle: 'Retour',
+          headerTransparent: true,
+          headerForceDarkContent: true,
+        }}
+      />
+      <Stack.Screen
+        name="NGPronoteLogin"
+        component={NGPronoteLogin}
+        options={{
+          headerTitle: 'Se connecter',
+          headerTransparent: true,
         }}
       />
     </Stack.Navigator>
@@ -1021,12 +1279,30 @@ function AuthStack() {
           ? {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
+              animation: 'fade_from_bottom',
             }
           : {
               ...headerTitleStyles,
             }
       }
     >
+      <Stack.Screen
+        name="NewLogin"
+        component={LoginView}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="PronoteFindEtab"
+        component={ModalPronoteLogin}
+        options={{
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
+
       <Stack.Screen
         name="Welcome"
         component={WelcomeScreen}
@@ -1066,7 +1342,7 @@ function AuthStack() {
         name="LoginSkolengoSelectSchool"
         component={LoginSkolengoSelectSchool}
         options={{
-          title: 'Se connecter à Skolengo',
+          title: 'Se connecter via Skolengo',
           presentation: 'modal',
         }}
       />
@@ -1107,11 +1383,11 @@ function App() {
   useEffect(() => {
     // Load fonts and check if the user is logged in
     const loadApp = async () => {
-      await useFonts();
       const value = await AsyncStorage.getItem('token');
       if (value !== null) {
         setLoggedIn(true);
       }
+      await useFonts();
       setIsReady(true);
     };
 
@@ -1139,12 +1415,14 @@ function App() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff' }}>
+    <View style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#f2f2f7' }}>
       <PaperProvider>
         <AppContextProvider state={ctxValue}>
+          {isReady ? (
           <View style={{ flex: 1 }}>
             {loggedIn ? <AppStack /> : <AuthStack />}
           </View>
+          ) : null}
         </AppContextProvider>
       </PaperProvider>
       <FlashMessage position="top" />

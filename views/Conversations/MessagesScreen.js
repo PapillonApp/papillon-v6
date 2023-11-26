@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
+  Alert,
 } from 'react-native';
 import { useState, useCallback, useEffect } from 'react';
 
@@ -21,6 +22,11 @@ function convertPronoteMessages(messages) {
 
   for (let i = messages.length - 1; i >= 0; i--) {
     let msg = messages[i];
+
+    if (msg.author === null) {
+      msg.author = 'Inconnu';
+    }
+
     msgs.push({
       _id: msg.id,
       text: msg.content,
@@ -49,6 +55,8 @@ function MessagesScreen ({ route, navigation }) {
   const insets = useSafeAreaInsets();
 
   const conversation = route.params.conversation;
+  console.log(conversation);
+
   const [msgs, setMsgs] = useState(convertPronoteMessages(conversation.messages));
 
   // User data
@@ -70,15 +78,24 @@ function MessagesScreen ({ route, navigation }) {
   }, [navigation, conversation]);
 
   const sendMessage = (msg) => {
-
-
     let newMessage = {
       ...msg,
       _id: msgs.length + 1,
       date: new Date().toISOString(),
     };
 
-    setMsgs(GiftedChat.append(msgs, newMessage));
+    // setMsgs(GiftedChat.append(msgs, newMessage));
+    
+    Alert.alert(
+      "Envoi de message indisponible",
+      "L'envoi de message n'est pas encore disponible sur Papillon, ça arrive bientôt...",
+      [
+        {
+          text: "Ok",
+          style: "cancel"
+        }
+      ]
+    );
   }
 
   return (

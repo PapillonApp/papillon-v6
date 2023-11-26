@@ -135,7 +135,7 @@ function AboutScreen({ navigation }) {
       )}
 
       <ScrollView
-        style={[styles.container, { backgroundColor: UIColors.background }]}
+        style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
         contentInsetAdjustmentBehavior="automatic"
       >
         <NativeList

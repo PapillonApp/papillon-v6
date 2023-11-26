@@ -36,13 +36,7 @@ function NewSettings({navigation}) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => Platform.OS === 'ios' && (
-        <PapillonInsetHeader
-          icon={<SFSymbol name="gear" />}
-          title="Préférences"
-          color="#888888"
-        />
-      ),
+      
     });
   });
 
@@ -50,7 +44,7 @@ function NewSettings({navigation}) {
     <ScrollView
       contentInsetAdjustmentBehavior='automatic'
       style={{
-        backgroundColor: UIColors.background,
+        backgroundColor: UIColors.modalBackground,
       }}
     >
       {Platform.OS === 'ios' ? (

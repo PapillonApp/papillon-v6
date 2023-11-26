@@ -118,8 +118,8 @@ android {
         applicationId 'plus.pronote.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "6.2.5"
+        versionCode 6260
+        versionName "6.2.6"
     }
 
     splits {
