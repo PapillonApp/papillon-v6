@@ -45,6 +45,7 @@ import PapillonList from '../components/PapillonList';
 
 import { useAppContext } from '../utils/AppContext';
 import sendToSharedGroup from '../fetch/SharedValues';
+import { expireToken } from '../fetch/AuthStack/LoginFlow';
 
 // Functions
 const openURL = (url) => {
@@ -205,6 +206,18 @@ function NewHomeScreen({ navigation }) {
       setLoadingUser(false);
 
       AsyncStorage.setItem('appcache-user', JSON.stringify(data));
+
+      if (data.client.type === 'ParentClient') {
+        AsyncStorage.getItem('parent-unlocked').then((value) => {
+          if (value === 'true') {
+            return;
+          }
+
+          expireToken('parentClient', true);
+
+          AsyncStorage.setItem('parent-unlocked', 'true');
+        });
+      }
     });
 
     let force = refreshCount > 0;
@@ -229,8 +242,6 @@ function NewHomeScreen({ navigation }) {
           doneCours++;
         }
       });
-
-      console.log(doneCours, coursData.length);
 
       if (doneCours === coursData.length) {
         const tomorrow = new Date();
@@ -1059,7 +1070,7 @@ function HomeHeader({ navigation, timetable, user, showsTomorrow }) {
   let atAGlance = '';
   if (hasTimetable) {
     if(!showsTomorrow) {
-      atAGlance = `${leftCourses.length + 1} cours restant${plural && 's'} dans ta journée.`;
+      atAGlance = `${leftCourses.length + 1} cours ${plural ? 'restants' : 'restant'} dans ta journée.`;
     }
     else {
       atAGlance = `${leftCourses.length + 1} cours ${plural ? 'sont' : 'est'} prévu${plural && 's'} demain.`;

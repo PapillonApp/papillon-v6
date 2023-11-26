@@ -511,6 +511,8 @@ const styles = StyleSheet.create({
     marginTop: -1,
     marginLeft: -1,
   },
+
+  
 });
 
 export default GradeView;

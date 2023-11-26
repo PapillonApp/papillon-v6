@@ -11,40 +11,46 @@ import { IndexDataInstance } from './IndexDataInstance';
 import { ucFirst } from './SkolengoData/SkolengoDatas';
 import notifee from '@notifee/react-native';
 
+import { Platform } from 'react-native';
+
 // Actualités
 TaskManager.defineTask('background-fetch-news', async () => {
   const dataInstance = new IndexDataInstance();
   return AsyncStorage.getItem('oldNews').then((oldNews) => {
     if (oldNews) {
       oldNews = JSON.parse(oldNews);
-      notifee.displayNotification({
-        title: "Récupération des données en arrière-plan",
-        id: "background-fetch",
-        android: {
-          channelId: "silent",
-          progress: {
-            max: 10,
-            current: 5,
-            indeterminate: true
+      if (Platform.OS === 'android') {
+        notifee.displayNotification({
+          title: "Récupération des données en arrière-plan",
+          id: "background-fetch",
+          android: {
+            channelId: "silent",
+            progress: {
+              max: 10,
+              current: 5,
+              indeterminate: true
+            },
           },
-        },
-      });
+        });
+      }
       return dataInstance.getNews().then((news) => {
         if (news.length !== oldNews.length) {
           AsyncStorage.setItem('oldNews', JSON.stringify(news));
 
           const lastNews = news[news.length - 1];
 
-          notifee.displayNotification({
-            title: `📰 Nouvelle actualité ${ucFirst(dataInstance.service)}`,
-            body: lastNews.title,
-            android: {
-              channelId: "newdata-group"
-            },
-            ios: {
-              sound: 'papillon_ding.wav',
-            }
-          })
+          if (lastNews.read == false) {
+            notifee.displayNotification({
+              title: `📰 Nouvelle actualité ${ucFirst(dataInstance.service)}`,
+              body: lastNews.title,
+              android: {
+                channelId: "newdata-group"
+              },
+              ios: {
+                sound: 'papillon_ding.wav',
+              }
+            })
+          }
           // Be sure to return the successful result type!
           return BackgroundFetch.BackgroundFetchResult.NewData;
         }
@@ -87,6 +93,7 @@ async function checkUndoneHomeworks() {
   fireDate.setHours(19);
   fireDate.setMinutes(0);
   fireDate.setSeconds(0);
+  fireDate.setMilliseconds(0); 
 
   const notifHasAlreadyBeenSent = await AsyncStorage.getItem('notifHasAlreadyBeenSent');
 
@@ -141,11 +148,9 @@ async function setBackgroundFetch() {
   //Notifications.registerRemoteNotifications();
 
   registerNewsBackgroundFetchAsync().then((res) => {
-    console.log('News background fetch registered', res);
   });
 
   registerHomeworksBackgroundFetchAsync().then((res) => {
-    console.log('Homeworks background fetch registered', res);
   });
 
   checkUndoneHomeworks();
