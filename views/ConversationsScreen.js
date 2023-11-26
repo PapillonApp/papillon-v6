@@ -48,6 +48,8 @@ function ConversationsScreen({ navigation }) {
   }, []);
 
   function getInitials(name) {
+    if (name == null) return '';
+
     let initials = name.match(/\b\w/g) || [];
 
     // if first initial is M and there is a second initial, use the second initial
