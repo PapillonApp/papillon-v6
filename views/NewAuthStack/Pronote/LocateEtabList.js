@@ -189,7 +189,9 @@ const LocateEtabList = ({ route, navigation }) => {
       {!isLoading && results !== null && results.results.length > 0 ? (
         <NativeList
           inset
-          style={{marginTop: -14}}
+          style={{
+            marginTop: Platform.OS === 'ios' ? -14 : 0
+          }}
         >
           {results.results.map((result, index) => {
             return (

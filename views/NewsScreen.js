@@ -159,13 +159,13 @@ function NewsScreen({ navigation }) {
   // add search bar in the header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => Platform.OS === 'ios' && (
+      headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
           icon={<SFSymbol name="newspaper.fill" />}
           title="Actualités"
           color="#B42828"
         />
-      ),
+      ) : 'Actualités',
       headerSearchBarOptions: {
         placeholder: 'Rechercher une actualité',
         cancelButtonText: 'Annuler',

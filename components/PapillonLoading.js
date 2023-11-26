@@ -1,14 +1,24 @@
 import * as React from 'react';
-import { StyleSheet, ActivityIndicator, View } from 'react-native';
+import { StyleSheet, ActivityIndicator, View, Platform } from 'react-native';
 import { Text } from 'react-native-paper';
 
+import GetUIColors from '../utils/GetUIColors';
+
 function PapillonLoading({ title, subtitle, icon, style }) {
+  const UIColors = GetUIColors();
+
   return (
     <View style={[styles.newsLoading, style]}>
       {icon ? (
         <View style={styles.newsLoadingIcon}>{icon}</View>
       ) : (
-        <ActivityIndicator style={{ marginTop: 16 }} size={26} />
+        <ActivityIndicator
+          style={{ marginTop: 16 }}
+          size={26}
+          color={
+            Platform.OS !== 'ios' && UIColors.primary
+          }
+        />
       )}
 
       <Text style={styles.newsLoadingText}>{title}</Text>

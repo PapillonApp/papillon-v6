@@ -273,23 +273,60 @@ function NGPronoteLogin({ route, navigation }) {
         )}
       </View>
 
-      <SegmentedControl
-        tabs={["Espace élèves", "Espace parents"]}
-        style={{ 
-          backgroundColor: UIColors.text + '12',
-          marginHorizontal: 15
-        }}
-        activeTabColor={
-          theme.dark ? "#333333" :
-          UIColors.element
-        }
-        activeTextColor={UIColors.text}
-        textStyle={{ color: UIColors.text + '55' }}
-        onChange={(index) => {
-          console.log(index);
-          setModeParent(index === 1);
-        }}
-      />
+
+      { Platform.OS === 'ios' ? (
+        <SegmentedControl
+          tabs={["Espace élèves", "Espace parents"]}
+          style={{ 
+            backgroundColor: UIColors.text + '12',
+            marginHorizontal: 15
+          }}
+          activeTabColor={
+            theme.dark ? "#333333" :
+            UIColors.element
+          }
+          activeTextColor={UIColors.text}
+          textStyle={{ color: UIColors.text + '55' }}
+          onChange={(index) => {
+            console.log(index);
+            setModeParent(index === 1);
+          }}
+        />
+      ) : (
+        <SegmentedControl
+          tabs={["Espace élèves", "Espace parents"]}
+          style={{ 
+            backgroundColor: UIColors.text + '00',
+            marginHorizontal: 15,
+            borderRadius: 0,
+            height: 42,
+          }}
+          tabStyle={{
+            borderRadius: 0,
+          }}
+          selectedTabStyle={{
+            borderRadius: 0,
+            elevation: 0,
+            borderBottomColor: UIColors.primary,
+            borderBottomWidth: 2,
+            borderTopLeftRadius: 4,
+            borderTopRightRadius: 4,
+          }}
+          activeTabColor={
+            UIColors.primary + '00'
+          }
+          activeTextColor={UIColors.primary}
+          textStyle={{ color: UIColors.text + '55', marginTop: -2, fontSize:16, fontFamily: 'Papillon-Semibold' }}
+          onChange={(index) => {
+            console.log(index);
+            setModeParent(index === 1);
+          }}
+        />
+      )}
+
+      {Platform.OS === 'android' ? (
+        <View style={{ height: 15 }} />
+      ) : null}
 
       <NativeList inset>
         <NativeItem
@@ -344,7 +381,7 @@ function NGPronoteLogin({ route, navigation }) {
         ) : <View/>}
       </NativeList>
 
-      <View style={[styles.loginForm]}>
+      <View style={[styles.loginForm, Platform.OS !== 'ios' && styles.loginFormAndroid]}>
         <View style={[styles.buttons]}>
           <PapillonButton
             title="Se connecter"
@@ -354,6 +391,10 @@ function NGPronoteLogin({ route, navigation }) {
             right={connecting && <ActivityIndicator color="#ffffff" />}
           />
         </View>
+
+        {Platform.OS === 'android' ? (
+        <View style={{ height: 15 }} />
+      ) : null}
 
         { modeParent ? (
         <NativeList inset>
@@ -462,6 +503,9 @@ const styles = StyleSheet.create({
 
   loginForm: {
     marginTop: -10,
+  },
+  loginFormAndroid: {
+    marginTop: 0,
   },
   switchGroup: {
     flexDirection: 'row',
