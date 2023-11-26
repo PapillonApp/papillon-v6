@@ -219,7 +219,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
           } 
         >
           <NativeText heading="h4">
-            Note de la classe
+            Moyenne de la classe
           </NativeText>
         </NativeItem>
       </NativeList>
