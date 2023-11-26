@@ -46,7 +46,7 @@ TaskManager.defineTask('background-fetch-news', async () => {
               title: `📰 Nouvelle actualité ${ucFirst(dataInstance.service)}`,
               body: lastNews.title,
               android: {
-                channelId: "newdata-group"
+                channelId: "new-news"
               },
               ios: {
                 sound: 'papillon_ding.wav',
@@ -112,7 +112,7 @@ async function checkUndoneHomeworks() {
       title: `📚 Il te reste des devoirs pour demain !`,
       body: `Tu as ${undone.length} devoir${plural} à faire pour demain`,
       android: {
-        channelId: "newdata-group"
+        channelId: "works-remind"
       },
       ios: {
         sound: 'papillon_ding.wav',
