@@ -55,7 +55,6 @@ function MessagesScreen ({ route, navigation }) {
   const insets = useSafeAreaInsets();
 
   const conversation = route.params.conversation;
-  console.log(conversation);
 
   const [msgs, setMsgs] = useState(convertPronoteMessages(conversation.messages));
 

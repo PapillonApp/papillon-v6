@@ -41,7 +41,6 @@ const GradesSimulatorAdd = ({ navigation }) => {
 
   useEffect(() => {
     appctx.dataprovider.getGrades('', false).then((grades) => {
-      console.log(grades);
       let subjects = [];
       grades.grades.forEach((grade) => {
         // if subject name is not in the list
@@ -51,7 +50,6 @@ const GradesSimulatorAdd = ({ navigation }) => {
       });
 
       setSubjectList(subjects);
-      console.log(subjects);
     });
   }, []);
 

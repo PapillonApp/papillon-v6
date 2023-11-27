@@ -87,7 +87,7 @@ function GradesScreen({ navigation }) {
   const scrollY = Animated.add(yOffset, 0);
 
   const headerOpacity = yOffset.interpolate({
-    inputRange: [-70, 0],
+    inputRange: [-75, -60],
     outputRange: [0, 1],
     extrapolate: 'clamp',
   });
