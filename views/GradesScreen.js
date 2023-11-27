@@ -403,8 +403,6 @@ function GradesScreen({ navigation }) {
     const gradesList = parsedData.grades;
     const subjects = [];
 
-    console.log(parsedData);
-
     let hasSimulated = false;
 
     // add simulated grades
@@ -487,17 +485,11 @@ function GradesScreen({ navigation }) {
       maxAverage: parseFloat(avgCalc.max).toFixed(2),
     });
 
-    if (parsedData.overall_average > 0) {
-      let avgPron = parseFloat(parsedData.overall_average).toFixed(2);
-      setAveragesData({
-        ...averagesData,
-        studentAverage: avgPron,
-      });
-
-      setCalculatedClassAvg(false);
+    if (parseFloat(parsedData.overall_average).toFixed(2) !== parseFloat(avgCalc.average).toFixed(2)) {
+      setCalculatedAvg(true);
     }
     else {
-      setCalculatedAvg(true);
+      setCalculatedAvg(false);
     }
   
     subjects.sort((a, b) => a.name.localeCompare(b.name));
