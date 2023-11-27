@@ -14,9 +14,12 @@ import notifee from '@notifee/react-native';
 import { Platform } from 'react-native';
 
 // Actualités
-TaskManager.defineTask('background-fetch-news', async () => {
+
+async function newsFetch() {
   const dataInstance = new IndexDataInstance();
   return AsyncStorage.getItem('oldNews').then((oldNews) => {
+    console.log("---- Début fetch news ----")
+    console.log("oldNews type:", typeof oldNews)
     if (oldNews) {
       oldNews = JSON.parse(oldNews);
       if (Platform.OS === 'android') {
@@ -34,9 +37,17 @@ TaskManager.defineTask('background-fetch-news', async () => {
           },
         });
       }
+      console.log("fetch news")
       return dataInstance.getNews().then((news) => {
+        console.log("fetch news terminé")
         setTimeout(() => {
-          notifee.cancelDisplayedNotification("background-fetch")
+          console.log("cancel notif")
+          notifee.cancelDisplayedNotification("background-fetch").then((value) => {
+            console.log("cancel notif ok", value)
+          })
+          .catch(err => {
+            console.log("cancel notif err", err)
+          })
         }, 1000)
         if (news.length !== oldNews.length) {
           AsyncStorage.setItem('oldNews', JSON.stringify(news));
@@ -67,7 +78,9 @@ TaskManager.defineTask('background-fetch-news', async () => {
       AsyncStorage.setItem('oldNews', JSON.stringify(news));
     });
   });
-});
+}
+
+TaskManager.defineTask('background-fetch-news', newsFetch);
 
 // News Register
 async function registerNewsBackgroundFetchAsync() {
@@ -153,6 +166,7 @@ async function setBackgroundFetch() {
 
   registerNewsBackgroundFetchAsync().then((res) => {
   });
+  newsFetch()
 
   registerHomeworksBackgroundFetchAsync().then((res) => {
   });
