@@ -14,7 +14,8 @@ import notifee from '@notifee/react-native';
 import { Platform } from 'react-native';
 
 // Actualités
-TaskManager.defineTask('background-fetch-news', async () => {
+
+async function newsFetch() {
   const dataInstance = new IndexDataInstance();
   return AsyncStorage.getItem('oldNews').then((oldNews) => {
     if (oldNews) {
@@ -30,10 +31,15 @@ TaskManager.defineTask('background-fetch-news', async () => {
               current: 5,
               indeterminate: true
             },
+            ongoing: true
           },
         });
       }
+      
       return dataInstance.getNews().then((news) => {
+        setTimeout(() => {
+          notifee.cancelDisplayedNotification("background-fetch")
+        }, 1000)
         if (news.length !== oldNews.length) {
           AsyncStorage.setItem('oldNews', JSON.stringify(news));
 
@@ -44,7 +50,7 @@ TaskManager.defineTask('background-fetch-news', async () => {
               title: `📰 Nouvelle actualité ${ucFirst(dataInstance.service)}`,
               body: lastNews.title,
               android: {
-                channelId: "newdata-group"
+                channelId: "new-news"
               },
               ios: {
                 sound: 'papillon_ding.wav',
@@ -63,7 +69,9 @@ TaskManager.defineTask('background-fetch-news', async () => {
       AsyncStorage.setItem('oldNews', JSON.stringify(news));
     });
   });
-});
+}
+
+TaskManager.defineTask('background-fetch-news', newsFetch);
 
 // News Register
 async function registerNewsBackgroundFetchAsync() {
@@ -110,7 +118,7 @@ async function checkUndoneHomeworks() {
       title: `📚 Il te reste des devoirs pour demain !`,
       body: `Tu as ${undone.length} devoir${plural} à faire pour demain`,
       android: {
-        channelId: "newdata-group"
+        channelId: "works-remind"
       },
       ios: {
         sound: 'papillon_ding.wav',
@@ -149,6 +157,7 @@ async function setBackgroundFetch() {
 
   registerNewsBackgroundFetchAsync().then((res) => {
   });
+  newsFetch()
 
   registerHomeworksBackgroundFetchAsync().then((res) => {
   });
