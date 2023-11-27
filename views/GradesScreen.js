@@ -92,6 +92,100 @@ function GradesScreen({ navigation }) {
     extrapolate: 'clamp',
   });
 
+  function calculateSubjectAverage(grades) {
+    // for each grade, calculate average for all
+    let student = 0;
+    let classAverage = 0;
+    let min = 0;
+    let max = 0;
+
+    let count = 0;
+    let out_of_total = 0;
+
+    for (let i = 0; i < grades.length; i++) {
+      student += grades[i].grade.value * grades[i].grade.coefficient;
+      classAverage += grades[i].grade.average * grades[i].grade.coefficient;
+      min += grades[i].grade.min * grades[i].grade.coefficient;
+      max += grades[i].grade.max * grades[i].grade.coefficient;
+
+      out_of_total += grades[i].grade.out_of * grades[i].grade.coefficient;
+    }
+
+    student = (student / out_of_total) * 20;
+    classAverage = (classAverage / out_of_total) * 20;
+    min = (min / out_of_total) * 20;
+    max = (max / out_of_total) * 20;
+
+    return {
+      average: student,
+      class_average: classAverage,
+      min: min,
+      max: max,
+      out_of: 20,
+    }
+  }
+
+  function calculateExactGrades(grades) {
+    // step 1 : subject list
+    let subjects = [];
+    grades.forEach((grade) => {
+      const subjectIndex = subjects.findIndex((subject) => subject.name === grade.subject.name);
+      if (subjectIndex !== -1) {
+        subjects[subjectIndex].grades.push(grade);
+      } else {
+        subjects.push({
+          name: grade.subject.name,
+          subject: grade.subject,
+          grades: [grade],
+          averages: {
+            average: -1,
+            class_average: -1,
+            min: -1,
+            max: -1,
+            out_of: 20,
+          },
+        });
+      }
+    });
+
+    // calculate averages for each subject
+    subjects.forEach((subject) => {
+      subject.averages = calculateSubjectAverage(subject.grades);
+    });
+
+    console.log(subjects);
+
+    // step 2 : calculate averages of all subjects
+    let student = 0;
+    let classAverage = 0;
+    let min = 0;
+    let max = 0;
+
+    let count = 0;
+
+    for (let i = 0; i < subjects.length; i++) {
+      student += subjects[i].averages.average;
+      classAverage += subjects[i].averages.class_average;
+      min += subjects[i].averages.min;
+      max += subjects[i].averages.max;
+
+      count += 1;
+    }
+
+    student = student / count;
+    classAverage = classAverage / count;
+    min = min / count;
+    max = max / count;
+
+    return {
+      average: student,
+      class_average: classAverage,
+      min: min,
+      max: max,
+      out_of: 20,
+    }
+  }
+
   // add button to header
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -326,40 +420,6 @@ function GradesScreen({ navigation }) {
 
     setAllGrades(gradesList);
   
-    function calculateAverages(averages, overall=0, classOverall=0) {
-      let studentAverage = (averages.reduce((acc, avg) => acc + (avg.average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
-      let classAverage = (averages.reduce((acc, avg) => acc + (avg.class_average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
-      const minAverage = (averages.reduce((acc, avg) => acc + (avg.min / avg.out_of) * 20, 0) / averages.length).toFixed(2);
-      const maxAverage = (averages.reduce((acc, avg) => acc + (avg.max / avg.out_of) * 20, 0) / averages.length).toFixed(2);
-
-      if (overall !== 0 && !isNaN(overall)) {
-        overall = overall.toFixed(2);
-        studentAverage = overall;
-
-        setCalculatedAvg(false);
-      }
-      else {
-        setCalculatedAvg(true);
-      }
-
-      if (classOverall !== 0 && !isNaN(classOverall)) {
-        classOverall = classOverall.toFixed(2);
-        classAverage = classOverall;
-
-        setCalculatedClassAvg(false);
-      }
-      else {
-        setCalculatedClassAvg(true);
-      }
-  
-      setAveragesData({
-        studentAverage: studentAverage,
-        classAverage: classAverage,
-        minAverage: minAverage,
-        maxAverage: maxAverage,
-      });
-    }
-  
     gradesList.forEach((grade) => {
       const subjectIndex = subjects.findIndex((subject) => subject.name === grade.subject.name);
       if (subjectIndex !== -1) {
@@ -396,7 +456,15 @@ function GradesScreen({ navigation }) {
       }
     });
   
-    calculateAverages(averagesList, parseFloat(parsedData.overall_average));
+    // calculate averages
+    let avgCalc = calculateExactGrades(gradesList);
+    setAveragesData({
+      studentAverage: parseFloat(avgCalc.average).toFixed(2),
+      classAverage: parseFloat(avgCalc.class_average).toFixed(2),
+      minAverage: parseFloat(avgCalc.min).toFixed(2),
+      maxAverage: parseFloat(avgCalc.max).toFixed(2),
+    });
+    setCalculatedAvg(false);
   
     subjects.sort((a, b) => a.name.localeCompare(b.name));
   
@@ -412,7 +480,7 @@ function GradesScreen({ navigation }) {
 
     for (let i = 0; i < gradesFinalList.length; i++) {
       let gradesBefore = gradesList.filter((grade) => new Date(grade.date) <= new Date(gradesFinalList[i].date));
-      let avg = calculateAverage(gradesBefore, false);
+      let avg = calculateExactGrades(gradesBefore).average;
 
       chartData.push({
         x: new Date(gradesFinalList[i].date).getTime(),
