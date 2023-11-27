@@ -145,7 +145,6 @@ function GradesScreen({ navigation }) {
   }
 
   function calculateExactGrades(grades) {
-    console.log(grades);
     // step 1 : subject list
     let subjects = [];
     grades.forEach((grade) => {

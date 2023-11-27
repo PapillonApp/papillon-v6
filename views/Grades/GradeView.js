@@ -47,7 +47,7 @@ function calculateSubjectAverage(grades) {
   let useless = 0;
 
   for (let i = 0; i < grades.length; i++) {
-    if (grades[i].grade.significant !== 0 || grades[i].grade.value < 0) {
+    if (grades[i].grade.significant !== 0 || grades[i].grade.value < 0 || grades[i].grade.coefficient === 0) {
       useless += 1;
     }
     else {
@@ -75,6 +75,8 @@ function calculateSubjectAverage(grades) {
     }
   }
 
+  console.log(grades[0].subject.name, student);
+
   return {
     average: student,
     class_average: classAverage,
@@ -83,7 +85,6 @@ function calculateSubjectAverage(grades) {
     out_of: 20,
   }
 }
-
 function calculateExactGrades(grades, isClass) {
   // step 1 : subject list
   let subjects = [];
