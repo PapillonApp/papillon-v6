@@ -1139,7 +1139,13 @@ function AppStack() {
           fontFamily: 'Papillon-Medium',
           fontSize: 12.5,
           letterSpacing: 0.2,
-          marginTop: 1,
+
+          margin: 0,
+          padding: 0,
+
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
         },
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
@@ -1148,25 +1154,12 @@ function AppStack() {
         tabBarStyle: {
           paddingLeft: 12,
           paddingRight: 12,
-          paddingTop: 2,
+          paddingTop: 0,
         },
         tabBarBadgeStyle: {
           backgroundColor: "#B42828",
           color: '#fff',
         },
-        tabBarButton: (props) => (
-          <PressableScale {...props} activeScale={0.85} weight="heavy">
-            <View
-              style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {props.children}
-            </View>
-          </PressableScale>
-        ),
       }}
     >
       <Tab.Screen

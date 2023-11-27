@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StatusBar, StyleSheet, TouchableOpacity, Image, TextInput, Alert, ScrollView } from 'react-native';
+import { View, StatusBar, StyleSheet, TouchableOpacity, Image, TextInput, Alert, ScrollView, Dimensions } from 'react-native';
 
 import { PressableScale } from 'react-native-pressable-scale';
 
@@ -16,6 +16,11 @@ import * as WebBrowser from 'expo-web-browser';
 const LoginView = ({ navigation }) => {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
+
+  const dimensions = {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height
+  }
 
   const openURL = async (url) => {
     await WebBrowser.openBrowserAsync(url, {
@@ -37,10 +42,12 @@ const LoginView = ({ navigation }) => {
         backgroundColor={'transparent'}
       />
 
-      <Image
-        source={require('../../assets/welcome_ailes.png')}
-        style={styles.aile}
-      />
+      { dimensions.width < 500 && (
+        <Image
+          source={require('../../assets/welcome_ailes.png')}
+          style={styles.aile}
+        />
+      )}
 
       <View style={[styles.loginButtons, {bottom: insets.bottom}]}>
         <View style={styles.head}>
@@ -102,10 +109,13 @@ const styles = StyleSheet.create({
   },
 
   aile: {
-    width: '85%',
-    height: '62%',
-    resizeMode: 'contain',
-    marginLeft: '15%',
+    position: 'absolute',
+    right: 0,
+
+    objectFit: 'contain',
+
+    width: '80%',
+    height: '70%',
   },
 
   loginButtons: {
