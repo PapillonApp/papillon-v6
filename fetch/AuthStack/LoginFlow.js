@@ -78,8 +78,6 @@ function getToken(credentials) {
     credentials.url = credentials.url.replace('eleve.html', 'parent.html');
   }
 
-  console.log(credentials);
-
   return getConsts().then((consts) =>
     fetch(`${consts.API}/generatetoken${flags}`, {
       method: 'POST',
