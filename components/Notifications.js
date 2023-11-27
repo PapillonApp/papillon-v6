@@ -10,7 +10,6 @@ let vars = {}
 async function setVars() {
     return new Promise(async (resolve) => {
         let vars1 = await AsyncStorage.getItem("notifs")
-        console.log("vars1")
         vars = vars1 ? JSON.parse(vars1) : {lastUpdatedVersion: null, permStatus: null}
         resolve()
     })
@@ -203,6 +202,7 @@ export async function init() {
     await setVars()
     let perm = await checkNotifPerm()
     if(perm.authorized) {
+        checkRegisteredChannels()
         if(vars.permStatus !== "granted") {
             vars.permStatus = "granted"
             showMessage({
