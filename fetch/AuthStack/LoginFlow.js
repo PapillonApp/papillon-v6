@@ -1,12 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SyncStorage from 'sync-storage';
 
+global.Buffer = require('buffer').Buffer;
+
 SyncStorage.init();
 
 import { Alert } from 'react-native';
 
 import { showMessage } from 'react-native-flash-message';
 import getConsts from '../consts';
+
+function toBase64(str) {
+  return Buffer.from(str).toString('base64');
+}
 
 function fixURL(_url) {
   let url = _url.toLowerCase();
@@ -81,18 +87,20 @@ function getToken(credentials) {
   console.log(credentials);
 
   return getConsts().then((consts) =>
-    fetch(`${consts.API}/generatetoken${flags}`, {
+    fetch(`${consts.API}/generatetoken${flags}?version=2`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: `username=${credentials.username}&password=${credentials.password}&url=${credentials.url}&ent=${credentials.ent}`,
+      body: `username=${toBase64(credentials.username)}&password=${toBase64(credentials.password)}&url=${toBase64(credentials.url)}&ent=${toBase64(credentials.ent)}`,
     })
       .then((response) => response.text())
       .then((result) => {
         if (result.startsWith('A server error occurred.')) {
           return { token: false };
         }
+
+        console.log(result);
 
         return JSON.parse(result);
       })
