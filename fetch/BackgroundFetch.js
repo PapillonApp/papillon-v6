@@ -18,8 +18,6 @@ import { Platform } from 'react-native';
 async function newsFetch() {
   const dataInstance = new IndexDataInstance();
   return AsyncStorage.getItem('oldNews').then((oldNews) => {
-    console.log("---- Début fetch news ----")
-    console.log("oldNews type:", typeof oldNews)
     if (oldNews) {
       oldNews = JSON.parse(oldNews);
       if (Platform.OS === 'android') {
@@ -37,17 +35,10 @@ async function newsFetch() {
           },
         });
       }
-      console.log("fetch news")
+      
       return dataInstance.getNews().then((news) => {
-        console.log("fetch news terminé")
         setTimeout(() => {
-          console.log("cancel notif")
-          notifee.cancelDisplayedNotification("background-fetch").then((value) => {
-            console.log("cancel notif ok", value)
-          })
-          .catch(err => {
-            console.log("cancel notif err", err)
-          })
+          notifee.cancelDisplayedNotification("background-fetch")
         }, 1000)
         if (news.length !== oldNews.length) {
           AsyncStorage.setItem('oldNews', JSON.stringify(news));
