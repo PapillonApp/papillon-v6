@@ -102,19 +102,36 @@ function GradesScreen({ navigation }) {
     let count = 0;
     let out_of_total = 0;
 
-    for (let i = 0; i < grades.length; i++) {
-      student += grades[i].grade.value * grades[i].grade.coefficient;
-      classAverage += grades[i].grade.average * grades[i].grade.coefficient;
-      min += grades[i].grade.min * grades[i].grade.coefficient;
-      max += grades[i].grade.max * grades[i].grade.coefficient;
+    let useless = 0;
 
-      out_of_total += grades[i].grade.out_of * grades[i].grade.coefficient;
+    for (let i = 0; i < grades.length; i++) {
+      if (grades[i].grade.significant !== 0 || grades[i].grade.value < 0) {
+        useless += 1;
+      }
+      else {
+        student += grades[i].grade.value * grades[i].grade.coefficient;
+        classAverage += grades[i].grade.average * grades[i].grade.coefficient;
+        min += grades[i].grade.min * grades[i].grade.coefficient;
+        max += grades[i].grade.max * grades[i].grade.coefficient;
+
+        out_of_total += grades[i].grade.out_of * grades[i].grade.coefficient;
+      }
     }
 
     student = (student / out_of_total) * 20;
     classAverage = (classAverage / out_of_total) * 20;
     min = (min / out_of_total) * 20;
     max = (max / out_of_total) * 20;
+
+    if (useless === grades.length) {
+      return {
+        average: -1,
+        class_average: -1,
+        min: -1,
+        max: -1,
+        out_of: 20,
+      }
+    }
 
     return {
       average: student,
@@ -153,8 +170,6 @@ function GradesScreen({ navigation }) {
       subject.averages = calculateSubjectAverage(subject.grades);
     });
 
-    console.log(subjects);
-
     // step 2 : calculate averages of all subjects
     let student = 0;
     let classAverage = 0;
@@ -164,12 +179,17 @@ function GradesScreen({ navigation }) {
     let count = 0;
 
     for (let i = 0; i < subjects.length; i++) {
-      student += subjects[i].averages.average;
-      classAverage += subjects[i].averages.class_average;
-      min += subjects[i].averages.min;
-      max += subjects[i].averages.max;
+      if (subjects[i].averages.average === -1) {
+        // ignore
+      }
+      else {
+        student += subjects[i].averages.average;
+        classAverage += subjects[i].averages.class_average;
+        min += subjects[i].averages.min;
+        max += subjects[i].averages.max;
 
-      count += 1;
+        count += 1;
+      }
     }
 
     student = student / count;
