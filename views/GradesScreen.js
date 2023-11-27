@@ -105,7 +105,7 @@ function GradesScreen({ navigation }) {
     let useless = 0;
 
     for (let i = 0; i < grades.length; i++) {
-      if (grades[i].grade.significant !== 0 || grades[i].grade.value < 0) {
+      if (grades[i].grade.significant !== 0 || grades[i].grade.value < 0 || grades[i].grade.coefficient === 0) {
         useless += 1;
       }
       else {
@@ -133,6 +133,8 @@ function GradesScreen({ navigation }) {
       }
     }
 
+    console.log(grades[0].subject.name, student);
+
     return {
       average: student,
       class_average: classAverage,
@@ -143,6 +145,7 @@ function GradesScreen({ navigation }) {
   }
 
   function calculateExactGrades(grades) {
+    console.log(grades);
     // step 1 : subject list
     let subjects = [];
     grades.forEach((grade) => {
@@ -478,15 +481,25 @@ function GradesScreen({ navigation }) {
   
     // calculate averages
     let avgCalc = calculateExactGrades(gradesList);
-    setAveragesData({
+    let avgNg = {
       studentAverage: parseFloat(avgCalc.average).toFixed(2),
       classAverage: parseFloat(avgCalc.class_average).toFixed(2),
       minAverage: parseFloat(avgCalc.min).toFixed(2),
       maxAverage: parseFloat(avgCalc.max).toFixed(2),
-    });
+    }
+    setAveragesData(avgNg);
 
     if (parseFloat(parsedData.overall_average).toFixed(2) !== parseFloat(avgCalc.average).toFixed(2)) {
       setCalculatedAvg(true);
+
+      if(parseFloat(parsedData.overall_average) > 0) {
+        setAveragesData({
+          ...avgNg,
+          studentAverage: parseFloat(parsedData.overall_average).toFixed(2),
+        });
+
+        setCalculatedAvg(false);
+      }
     }
     else {
       setCalculatedAvg(false);
@@ -507,6 +520,11 @@ function GradesScreen({ navigation }) {
     for (let i = 0; i < gradesFinalList.length; i++) {
       let gradesBefore = gradesList.filter((grade) => new Date(grade.date) <= new Date(gradesFinalList[i].date));
       let avg = calculateExactGrades(gradesBefore).average;
+      
+      // if Nan, set to 0
+      if (isNaN(avg)) {
+        avg = 0;
+      }
 
       chartData.push({
         x: new Date(gradesFinalList[i].date).getTime(),
