@@ -133,8 +133,6 @@ function GradesScreen({ navigation }) {
       }
     }
 
-    console.log(grades[0].subject.name, student);
-
     return {
       average: student,
       class_average: classAverage,
@@ -198,6 +196,19 @@ function GradesScreen({ navigation }) {
     classAverage = classAverage / count;
     min = min / count;
     max = max / count;
+
+    if (isNaN(student)) {
+      student = 0;
+    }
+    if (isNaN(classAverage)) {
+      classAverage = 0;
+    }
+    if (isNaN(min)) {
+      min = 0;
+    }
+    if (isNaN(max)) {
+      max = 0;
+    }
 
     return {
       average: student,
