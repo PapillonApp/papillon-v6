@@ -1645,7 +1645,7 @@ const headerStyles = StyleSheet.create({
 
 const nextCoursStyles = StyleSheet.create({
   nextCoursContainer: {
-    width: '92%',
+    marginHorizontal: 16,
     height: 68,
     borderRadius: 12,
     borderCurve: 'continuous',

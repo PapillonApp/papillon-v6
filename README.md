@@ -133,7 +133,7 @@ Le scan du QR Code sera requis pour connecter le téléphone au PC.
 
 ## 📈 Avancement
 
-Nous travaillons actuellement sur la version 6.0.0 de l'application.
+Nous travaillons actuellement sur la version 6.3.0 de l'application.
 
 ## 👥 Contribuer
 

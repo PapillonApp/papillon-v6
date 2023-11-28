@@ -18,6 +18,9 @@ import { useTheme, Text } from 'react-native-paper';
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
 
+import { BlurView } from 'expo-blur';
+import { ContextMenuButton, ContextMenuView } from 'react-native-ios-context-menu';
+
 import LineChart from 'react-native-simple-line-chart';
 
 import Fade from 'react-native-fade';
@@ -41,6 +44,7 @@ import { useAppContext } from '../utils/AppContext';
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
+import { LinearGradient } from 'expo-linear-gradient';
 
 function GradesScreen({ navigation }) {
   const theme = useTheme();
@@ -52,6 +56,7 @@ function GradesScreen({ navigation }) {
   const [averagesData, setAveragesData] = useState([]);
   const [latestGrades, setLatestGrades] = useState([]);
   const [periodsList, setPeriodsList] = useState([]);
+  const [remainingPeriods, setRemainingPeriods] = useState([]);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [allGrades, setAllGrades] = useState([]);
 
@@ -72,8 +77,135 @@ function GradesScreen({ navigation }) {
 
   const [hasSimulatedGrades, setHasSimulatedGrades] = useState(false);
 
-  function handleScroll(event) {
-    setScrollDistance(event.nativeEvent.contentOffset.y);
+  const yOffset = new Animated.Value(0);
+
+  const scrollHandler = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: yOffset } } }],
+    { useNativeDriver: false }
+  );
+
+  const scrollY = Animated.add(yOffset, 0);
+
+  const headerOpacity = yOffset.interpolate({
+    inputRange: [-75, -60],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+
+  function calculateSubjectAverage(grades) {
+    // for each grade, calculate average for all
+    let student = 0;
+    let classAverage = 0;
+    let min = 0;
+    let max = 0;
+
+    let count = 0;
+    let out_of_total = 0;
+
+    let useless = 0;
+
+    for (let i = 0; i < grades.length; i++) {
+      if (grades[i].grade.significant !== 0 || grades[i].grade.value < 0 || grades[i].grade.coefficient === 0) {
+        useless += 1;
+      }
+      else {
+        student += grades[i].grade.value * grades[i].grade.coefficient;
+        classAverage += grades[i].grade.average * grades[i].grade.coefficient;
+        min += grades[i].grade.min * grades[i].grade.coefficient;
+        max += grades[i].grade.max * grades[i].grade.coefficient;
+
+        out_of_total += grades[i].grade.out_of * grades[i].grade.coefficient;
+      }
+    }
+
+    student = (student / out_of_total) * 20;
+    classAverage = (classAverage / out_of_total) * 20;
+    min = (min / out_of_total) * 20;
+    max = (max / out_of_total) * 20;
+
+    if (useless === grades.length) {
+      return {
+        average: -1,
+        class_average: -1,
+        min: -1,
+        max: -1,
+        out_of: 20,
+      }
+    }
+
+    console.log(grades[0].subject.name, student);
+
+    return {
+      average: student,
+      class_average: classAverage,
+      min: min,
+      max: max,
+      out_of: 20,
+    }
+  }
+
+  function calculateExactGrades(grades) {
+    // step 1 : subject list
+    let subjects = [];
+    grades.forEach((grade) => {
+      const subjectIndex = subjects.findIndex((subject) => subject.name === grade.subject.name);
+      if (subjectIndex !== -1) {
+        subjects[subjectIndex].grades.push(grade);
+      } else {
+        subjects.push({
+          name: grade.subject.name,
+          subject: grade.subject,
+          grades: [grade],
+          averages: {
+            average: -1,
+            class_average: -1,
+            min: -1,
+            max: -1,
+            out_of: 20,
+          },
+        });
+      }
+    });
+
+    // calculate averages for each subject
+    subjects.forEach((subject) => {
+      subject.averages = calculateSubjectAverage(subject.grades);
+    });
+
+    // step 2 : calculate averages of all subjects
+    let student = 0;
+    let classAverage = 0;
+    let min = 0;
+    let max = 0;
+
+    let count = 0;
+
+    for (let i = 0; i < subjects.length; i++) {
+      if (subjects[i].averages.average === -1) {
+        // ignore
+      }
+      else {
+        student += subjects[i].averages.average;
+        classAverage += subjects[i].averages.class_average;
+        min += subjects[i].averages.min;
+        max += subjects[i].averages.max;
+
+        count += 1;
+      }
+    }
+
+    student = student / count;
+    classAverage = classAverage / count;
+    min = min / count;
+    max = max / count;
+
+    return {
+      average: student,
+      class_average: classAverage,
+      min: min,
+      max: max,
+      out_of: 20,
+    }
   }
 
   // add button to header
@@ -86,32 +218,74 @@ function GradesScreen({ navigation }) {
           color="#A84700"
         />
       ),
-      headerShadowVisible: true,
+      headerTransparent: Platform.OS === 'ios' ? true : false,
+      headerBackground: Platform.OS === 'ios' ? () => (
+        <Animated.View 
+          style={[
+            styles.header,
+            {
+              flex: 1,
+              backgroundColor: UIColors.element + '00',
+              opacity: headerOpacity,
+              borderBottomColor: theme.dark ? UIColors.text + '22' : UIColors.text + '55',
+              borderBottomWidth: 0.5,
+            }
+          ]}
+        >
+          <BlurView
+            tint={theme.dark ? 'dark' : 'light'}
+            intensity={120}
+            style={{
+              flex: 1,
+            }}
+          />
+        </Animated.View>
+      ) : undefined,
       headerRight: () => (
         <View style={styles.rightActions}>
-          <TouchableOpacity
-            onPress={newPeriod}
-            style={styles.periodButtonContainer}
+          <ContextMenuButton
+            isMenuPrimaryAction={true}
+            menuConfig={{
+              menuTitle: 'Périodes',
+                menuItems: periodsList.map((period) => {
+                  return {
+                    actionKey: period.name,
+                    actionTitle: period.name,
+                    menuState : selectedPeriod?.name === period.name ? 'on' : 'off',
+                  }
+                }),
+            }}
+            onPressMenuItem={({nativeEvent}) => {
+              setSelectedPeriod(periodsList.find((period) => period.name === nativeEvent.actionKey));
+              changePeriodPronote(periodsList.find((period) => period.name === nativeEvent.actionKey));
+            }}
           >
-            <Text
-              style={[styles.periodButtonText, { color: UIColors.primary }]}
+            <TouchableOpacity
+              onPress={() => {
+                if (Platform.OS !== 'ios') {
+                  newPeriod();
+                }
+              }}
+              style={styles.periodButtonContainer}
             >
-              {selectedPeriod?.name || ''}
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={[styles.periodButtonText, { color: UIColors.primary }]}
+              >
+                {selectedPeriod?.name || ''}
+              </Text>
+            </TouchableOpacity>
+          </ContextMenuButton>
 
-          { subjectsList.length > 0 && (
             <TouchableOpacity
               style={[styles.addButtonContainer, {backgroundColor: UIColors.primary + '22'}]}
               onPress={() => navigation.navigate('ModalGradesSimulator')}
             >
               <FlaskConical size='22' color={UIColors.primary} />
             </TouchableOpacity>
-          )}
         </View>
       ),
     });
-  }, [navigation, selectedPeriod, isLoading, UIColors, scrollDistance]);
+  }, [navigation, selectedPeriod, isLoading, UIColors]);
 
   function newPeriod() {
     const options = periodsList.map((period) => period.name);
@@ -156,11 +330,14 @@ function GradesScreen({ navigation }) {
     setIsLoading(false);
   }
 
+  const [finalPeriodList, setFinalPeriodList] = useState([]);
+
   async function getPeriods() {
     const allPeriods = await appctx.dataprovider.getPeriods(false);
 
     const actualPeriod = allPeriods.find((period) => period.actual === true);
     let periods = [];
+    let remaining = [];
 
     if (actualPeriod.name.toLowerCase().includes('trimestre')) {
       periods = allPeriods.filter((period) =>
@@ -171,9 +348,33 @@ function GradesScreen({ navigation }) {
         period.name.toLowerCase().includes('semestre')
       );
     }
+    else {
+      // just add the actual period
+      periods.push(actualPeriod);
+    }
+
+    // add remaining periods to the list
+    remaining = allPeriods.filter((period) => !periods.includes(period));
 
     setPeriodsList(periods);
     setSelectedPeriod(actualPeriod);
+    setRemainingPeriods(remaining);
+
+    let finalList = [];
+    periods.forEach((period) => {
+      finalList.push({
+        ...period,
+        category : 'main'
+      });
+    });
+    remaining.forEach((period) => {
+      finalList.push({
+        ...period,
+        category : 'secondary'
+      });
+    });
+
+    setFinalPeriodList(finalList);
   }
 
   function calculateAverage(grades, isClass) {
@@ -241,40 +442,6 @@ function GradesScreen({ navigation }) {
 
     setAllGrades(gradesList);
   
-    function calculateAverages(averages, overall=0, classOverall=0) {
-      let studentAverage = (averages.reduce((acc, avg) => acc + (avg.average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
-      let classAverage = (averages.reduce((acc, avg) => acc + (avg.class_average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
-      const minAverage = (averages.reduce((acc, avg) => acc + (avg.min / avg.out_of) * 20, 0) / averages.length).toFixed(2);
-      const maxAverage = (averages.reduce((acc, avg) => acc + (avg.max / avg.out_of) * 20, 0) / averages.length).toFixed(2);
-
-      if (overall !== 0 && !isNaN(overall)) {
-        overall = overall.toFixed(2);
-        studentAverage = overall;
-
-        setCalculatedAvg(false);
-      }
-      else {
-        setCalculatedAvg(true);
-      }
-
-      if (classOverall !== 0 && !isNaN(classOverall)) {
-        classOverall = classOverall.toFixed(2);
-        classAverage = classOverall;
-
-        setCalculatedClassAvg(false);
-      }
-      else {
-        setCalculatedClassAvg(true);
-      }
-  
-      setAveragesData({
-        studentAverage: studentAverage,
-        classAverage: classAverage,
-        minAverage: minAverage,
-        maxAverage: maxAverage,
-      });
-    }
-  
     gradesList.forEach((grade) => {
       const subjectIndex = subjects.findIndex((subject) => subject.name === grade.subject.name);
       if (subjectIndex !== -1) {
@@ -311,7 +478,31 @@ function GradesScreen({ navigation }) {
       }
     });
   
-    calculateAverages(averagesList, parseFloat(parsedData.overall_average));
+    // calculate averages
+    let avgCalc = calculateExactGrades(gradesList);
+    let avgNg = {
+      studentAverage: parseFloat(avgCalc.average).toFixed(2),
+      classAverage: parseFloat(avgCalc.class_average).toFixed(2),
+      minAverage: parseFloat(avgCalc.min).toFixed(2),
+      maxAverage: parseFloat(avgCalc.max).toFixed(2),
+    }
+    setAveragesData(avgNg);
+
+    if (parseFloat(parsedData.overall_average).toFixed(2) !== parseFloat(avgCalc.average).toFixed(2)) {
+      setCalculatedAvg(true);
+
+      if(parseFloat(parsedData.overall_average) > 0) {
+        setAveragesData({
+          ...avgNg,
+          studentAverage: parseFloat(parsedData.overall_average).toFixed(2),
+        });
+
+        setCalculatedAvg(false);
+      }
+    }
+    else {
+      setCalculatedAvg(false);
+    }
   
     subjects.sort((a, b) => a.name.localeCompare(b.name));
   
@@ -327,7 +518,12 @@ function GradesScreen({ navigation }) {
 
     for (let i = 0; i < gradesFinalList.length; i++) {
       let gradesBefore = gradesList.filter((grade) => new Date(grade.date) <= new Date(gradesFinalList[i].date));
-      let avg = calculateAverage(gradesBefore, false);
+      let avg = calculateExactGrades(gradesBefore).average;
+      
+      // if Nan, set to 0
+      if (isNaN(avg)) {
+        avg = 0;
+      }
 
       chartData.push({
         x: new Date(gradesFinalList[i].date).getTime(),
@@ -381,6 +577,7 @@ function GradesScreen({ navigation }) {
   }
 
   return (
+    <>
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       style={[styles.container, { backgroundColor: UIColors.background }]}
@@ -391,11 +588,8 @@ function GradesScreen({ navigation }) {
           colors={[Platform.OS === 'android' ? UIColors.primary : null]}
         />
       }
-      onScroll={Animated.event(
-        [{ nativeEvent: { contentOffset: { y: scrollX } } }],
-        { useNativeDriver: false, listener: handleScroll }
-      )}
-      scrollEventThrottle={0.01}
+      onScroll={scrollHandler}
+      scrollEventThrottle={16}
     >
       <StatusBar
         animated
@@ -509,7 +703,9 @@ function GradesScreen({ navigation }) {
         <View 
           style={[
             styles.averageChart,
-            { backgroundColor: UIColors.element },
+            {
+              backgroundColor: UIColors.element,
+            }
           ]}
         >
           <View style={[styles.averagesgrClassContainer]}>
@@ -940,6 +1136,7 @@ Il s'agit uniquement d'une estimation qui variera en fonction de vos options, la
         </View>
       ) : null}
     </ScrollView>
+    </>
   );
 }
 
