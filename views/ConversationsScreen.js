@@ -6,6 +6,7 @@ import {
   StatusBar,
   Platform,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
 
 import moment from 'moment/moment';
@@ -31,6 +32,8 @@ import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
+import { Plus } from 'lucide-react-native';
+
 function ConversationsScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -52,6 +55,24 @@ function ConversationsScreen({ navigation }) {
       }
     });
   }, []);
+
+  // add plus button to header
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('InsetNewConversation');
+          }}
+          style={{
+            
+          }}
+        >
+          <Plus size={24} color="#B18619" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   // force refresh when screen is focused
   useEffect(() => {

@@ -235,6 +235,24 @@ export class IndexDataInstance {
       );
     return {};
   }
+
+  async createDiscussion(subject, content, participants) {
+    await this.waitInit();
+    if (this.service === 'Pronote')
+      return require(`./PronoteData/PronoteConversations.js`).createDiscussion(
+        subject,
+        content,
+        participants
+      );
+    return {};
+  }
+
+  async getRecipients() {
+    await this.waitInit();
+    if (this.service === 'Pronote')
+      return require(`./PronoteData/PronoteConversations.js`).getRecipients();
+    return [];
+  }
 }
 
 async function editUser(profile) {

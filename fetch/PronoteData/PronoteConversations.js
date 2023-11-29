@@ -79,4 +79,54 @@ function readStateConversation(id) {
   );
 }
 
-export { getConversations, replyToConversation, readStateConversation };
+function getRecipients() {
+  return getConsts().then((consts) =>
+    AsyncStorage.getItem('token')
+      .then((token) =>
+        // fetch le discussions
+        fetch(`${consts.API}/recipients?token=${token}`, {
+          method: 'GET',
+        })
+          .then((response) => response.json())
+          .then(async (result) => {
+            if (result === 'expired' || result === 'notfound') {
+              return refreshToken().then(() => getRecipients());
+            }
+            return result;
+          })
+          .catch(() => {})
+      )
+      .catch(() => {})
+  );
+}
+
+function createDiscussion(subject, message, recipientsId) {
+  message = encodeURIComponent(message);
+  subject = encodeURIComponent(subject);
+
+  return getConsts().then((consts) =>
+    AsyncStorage.getItem('token')
+      .then((token) =>
+        // fetch le discussions
+        fetch(`${consts.API}/discussion/create`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `token=${token}&recipientsId=${JSON.stringify(recipientsId)}&content=${message}&subject=${subject}`,
+        })
+          .then((response) => response.json())
+          .then(async (result) => {
+            if (result === 'expired' || result === 'notfound') {
+              return refreshToken().then(() => createDiscussion(subject, message, recipientsId));
+            }
+            console.log(result);
+            return result;
+          })
+          .catch(() => {})
+      )
+      .catch(() => {})
+  );
+}
+
+export { getConversations, replyToConversation, readStateConversation, getRecipients, createDiscussion };
