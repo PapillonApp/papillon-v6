@@ -7,6 +7,8 @@ import {
   TextInput,
   Alert,
   StatusBar,
+  TouchableOpacity,
+  Modal,
 } from 'react-native';
 import { useState, useCallback, useEffect } from 'react';
 
@@ -24,11 +26,15 @@ import { useAppContext } from '../../utils/AppContext';
 
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
-import { Send as SendLucide } from 'lucide-react-native';
+import { Send as SendLucide, X } from 'lucide-react-native';
 
 import { Linking } from 'react-native';
 
 import * as WebBrowser from 'expo-web-browser';
+
+import NativeList from '../../components/NativeList';
+import NativeItem from '../../components/NativeItem';
+import NativeText from '../../components/NativeText';
 
 function getInitials(name) {
   if (name === undefined) {
@@ -101,6 +107,8 @@ function MessagesScreen ({ route, navigation }) {
   const conversation = route.params.conversation;
   const [msgs, setMsgs] = useState([]);
 
+  const [recipientsModalVisible, setRecipientsModalVisible] = useState(false);
+
   // User data
   const [userData, setUserData] = useState({});
   const [profilePicture, setProfilePicture] = useState('');
@@ -145,17 +153,22 @@ function MessagesScreen ({ route, navigation }) {
     navigation.setOptions({
       headerBackTitleVisible: false,
       headerTitle : Platform.OS === 'ios' ? () => (
-        <View style={{flexDirection: 'column', alignItems: 'center', width: '80%', overflow: 'hidden'}}>
+        <TouchableOpacity style={{flexDirection: 'column', alignItems: 'flex-start', overflow: 'hidden', width: '100%', paddingRight: 56}} onPress={() => openModal()}>
           <Text style={{fontFamily: 'Papillon-Semibold', fontSize: 17, color: UIColors.text, flex: 1}} numberOfLines={1}>
             {conversation.subject}
           </Text>
           <Text style={{fontFamily: 'Papillon-Medium', fontSize: 14.5, color: UIColors.text + '99', flex: 1}} numberOfLines={1}>
             {conversation.participants.join(', ')}
           </Text>
-        </View>
+        </TouchableOpacity>
       ) : conversation.subject,
     });
   }, [navigation, conversation]);
+
+  const openModal = () => {
+    setRecipientsModalVisible(true)
+    setUrlOpened(true);
+  }
 
   const sendMessage = (msg) => {
     let newMessage = {
@@ -307,6 +320,59 @@ function MessagesScreen ({ route, navigation }) {
           minInputToolbarHeight={50}
           bottomOffset={tabBarHeight}
         />
+
+      <Modal
+        animationType="slide"
+        presentationStyle='pageSheet'
+        visible={recipientsModalVisible}
+        onRequestClose={() => {
+          setRecipientsModalVisible(false);
+          setUrlOpened(false);
+        }}
+      >
+        <View style={{flex: 1, backgroundColor: UIColors.modalBackground}}>
+          <View style={[styles.modalHeader, {backgroundColor: UIColors.element, borderColor: UIColors.text + '18'}]}>
+            <NativeText heading="h4">
+              Liste des participants
+            </NativeText>
+
+            <TouchableOpacity
+              onPress={() => {
+                setRecipientsModalVisible(false);
+                setUrlOpened(false);
+              }}
+              style={{
+                position: 'absolute',
+                right: 18,
+                backgroundColor: UIColors.text + '18',
+                borderRadius: 100,
+                padding: 4,
+              }}
+            >
+              <X size={24} color={UIColors.text + '99'} />
+            </TouchableOpacity>
+          </View>
+          <ScrollView>
+            <NativeList
+              inset
+              header="Participants"
+            >
+              
+              { conversation.participants.map((participant, index) => (
+                <NativeItem
+                  key={index}
+                >
+                  <NativeText heading="p">
+                    {participant}
+                  </NativeText>
+                </NativeItem>
+              )) }
+            </NativeList>
+
+            <View style={{height: 20}} />
+          </ScrollView>
+        </View>
+      </Modal>
     </View>
   )
 }
@@ -319,6 +385,15 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: 40,
+  },
+
+  modalHeader: {
+    padding: 18,
+    borderBottomWidth: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
