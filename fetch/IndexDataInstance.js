@@ -206,6 +206,7 @@ export class IndexDataInstance {
     return [];
   }
 
+  // [Service]Conversations.js
   async getConversations(force = false) {
     await this.waitInit();
     if (this.service === 'Pronote')
@@ -213,6 +214,26 @@ export class IndexDataInstance {
         force
       );
     return [];
+  }
+
+  // [Service]Conversations.js
+  async replyToConversation(id, message) {
+    await this.waitInit();
+    if (this.service === 'Pronote')
+      return require(`./PronoteData/PronoteConversations.js`).replyToConversation(
+        id,
+        message
+      );
+    return {};
+  }
+
+  async readStateConversation(id) {
+    await this.waitInit();
+    if (this.service === 'Pronote')
+      return require(`./PronoteData/PronoteConversations.js`).readStateConversation(
+        id
+      );
+    return {};
   }
 }
 

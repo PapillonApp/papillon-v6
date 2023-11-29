@@ -6,25 +6,65 @@ import {
   StyleSheet,
   TextInput,
   Alert,
+  StatusBar,
 } from 'react-native';
 import { useState, useCallback, useEffect } from 'react';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import fr from 'dayjs/locale/fr';
 
 import GetUIColors from '../../utils/GetUIColors';
 import { Text } from 'react-native-paper';
 
-import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat'
+import { GiftedChat, Bubble, InputToolbar, Send } from 'react-native-gifted-chat'
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppContext } from '../../utils/AppContext';
 
-function convertPronoteMessages(messages) {
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+
+import { Send as SendLucide } from 'lucide-react-native';
+
+import { Linking } from 'react-native';
+
+import * as WebBrowser from 'expo-web-browser';
+
+function getInitials(name) {
+  if (name === undefined) {
+    return 'M';
+  }
+
+  // if first letter is M, remove it
+  if (name.startsWith('M. ')) {
+    name = name.substring(3);
+  }
+
+  let initials = name[0];
+
+  for (let i = 0; i < name.length; i++) {
+    if (name[i] === ' ' && initials.length < 2) {
+      initials += name[i + 1];
+    }
+  }
+
+  return initials;
+}
+
+function convertPronoteMessages(messages, userData) {
   let msgs = [];
 
-  for (let i = messages.length - 1; i >= 0; i--) {
-    let msg = messages[i];
+  console.log(messages);
 
-    if (msg.author === null) {
-      msg.author = 'Inconnu';
+  for (let i = messages.length - 1; i >= 0; i--) {
+    let msg = JSON.parse(JSON.stringify(messages[i]));
+
+    let avatar = undefined;
+    let id = null;
+
+    if (msg.author === null || msg.author === 'Inconnu') {
+      msg.author = undefined;
+      id = 1;
     }
 
     msgs.push({
@@ -32,11 +72,13 @@ function convertPronoteMessages(messages) {
       text: msg.content,
       createdAt: new Date(msg.date),
       user: {
-        _id: msg.author[0] + msg.author[1] + msg.author[2],
+        _id: id || getInitials(msg.author),
         name: msg.author,
+        avatar: avatar,
+        initials: getInitials(msg.author),
       },
       sent: true,
-      received: true,
+      received: msg.seen,
     });
   }
 
@@ -54,9 +96,10 @@ function MessagesScreen ({ route, navigation }) {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
 
-  const conversation = route.params.conversation;
+  const tabBarHeight = useBottomTabBarHeight(); 
 
-  const [msgs, setMsgs] = useState(convertPronoteMessages(conversation.messages));
+  const conversation = route.params.conversation;
+  const [msgs, setMsgs] = useState([]);
 
   // User data
   const [userData, setUserData] = useState({});
@@ -64,16 +107,54 @@ function MessagesScreen ({ route, navigation }) {
 
   const appctx = useAppContext();
 
+  const [urlOpened, setUrlOpened] = useState(false);
+
+  function openURL(url) {
+    setUrlOpened(true);
+
+    WebBrowser.openBrowserAsync(url, {
+      dismissButtonStyle: 'done',
+      presentationStyle: 'pageSheet',
+      controlsColor: UIColors.primary,
+    }).then(() => {
+      setUrlOpened(false);
+    });
+  }
+
+  useEffect(() => {
+    if (conversation.unread > 0) {
+      appctx.dataprovider.readStateConversation(conversation.local_id).then((result) => {
+        if (result.status === 'ok') {
+          AsyncStorage.setItem('hasNewMessagesSent', 'true');
+        }
+      });
+    }
+  }, []);
+
   useEffect(() => {
     appctx.dataprovider.getUser(false).then((result) => {
       setUserData(result);
       setProfilePicture(result.profile_picture);
+
+      setMsgs(convertPronoteMessages(conversation.messages, result));
     });
   }, []);
     
   // set header title
   React.useLayoutEffect(() => {
-    navigation.setOptions({ headerTitle: conversation.subject });
+    navigation.setOptions({
+      headerBackTitleVisible: false,
+      headerTitle : Platform.OS === 'ios' ? () => (
+        <View style={{flexDirection: 'column', alignItems: 'center', width: '80%', overflow: 'hidden'}}>
+          <Text style={{fontFamily: 'Papillon-Semibold', fontSize: 17, color: UIColors.text, flex: 1}} numberOfLines={1}>
+            {conversation.subject}
+          </Text>
+          <Text style={{fontFamily: 'Papillon-Medium', fontSize: 14.5, color: UIColors.text + '99', flex: 1}} numberOfLines={1}>
+            {conversation.participants.join(', ')}
+          </Text>
+        </View>
+      ) : conversation.subject,
+    });
   }, [navigation, conversation]);
 
   const sendMessage = (msg) => {
@@ -81,86 +162,151 @@ function MessagesScreen ({ route, navigation }) {
       ...msg,
       _id: msgs.length + 1,
       date: new Date().toISOString(),
+      user: {
+        _id: 1,
+      },
     };
-
-    // setMsgs(GiftedChat.append(msgs, newMessage));
+   
     
-    Alert.alert(
-      "Envoi de message indisponible",
-      "L'envoi de message n'est pas encore disponible sur Papillon, ça arrive bientôt...",
-      [
-        {
-          text: "Ok",
-          style: "cancel"
-        }
-      ]
-    );
+    let content = msg[0].text;
+
+    appctx.dataprovider.replyToConversation(conversation.local_id, content).then((result) => {
+      console.log(result);
+      if (result.status === 'ok') {
+        setMsgs(GiftedChat.append(msgs, msg));
+      }
+    });
+
+    // save newMessages to AsyncStorage
+    AsyncStorage.setItem('hasNewMessagesSent', 'true');
   }
 
   return (
     <View style={{backgroundColor: UIColors.background, flex: 1}}>
-      <GiftedChat
-        style={{ backgroundColor: UIColors.element }}
-        messages={msgs}
-        onSend={messages => {
-          sendMessage(messages[0]);
-        }}
-        user={{
-          _id: '1',
-          name: userData.name,
-          avatar: profilePicture,
-        }}
-
-        placeholder='Écrire un message...'
-        locale={require('dayjs/locale/fr')}
-
-        renderUsernameOnMessage
-
-        bottomOffset={insets.bottom + 48}
-
-        renderBubble={(props) => {
-          return (
-            <Bubble
-              {...props}
-              wrapperStyle={{
-                left: {
-                  backgroundColor: UIColors.element,
-                },
-                right: {
-                  backgroundColor: UIColors.primary,
-                },
-              }}
-            />
-          )
-        }}
-
-        renderMessageText={(props) => {
-          return (
-            <Text style={{ color: UIColors.text, fontSize: 16, padding: 10, paddingBottom: 0 }}>{props.currentMessage.text}</Text>
-          )
-        }}
-
-        textInputStyle={{
-          color: UIColors.text,
-          marginTop: 10,
-          
-        }}
-
-        minInputToolbarHeight={48}
-
-        renderInputToolbar={(props) => {
-          return (
-            <InputToolbar
-              {...props}
-              containerStyle={{
-                backgroundColor: UIColors.element,
-                borderTopColor: UIColors.text + '26',
-                paddingHorizontal: 5,
-              }}
-            />
-          )
-        }}
+      <StatusBar
+        animated
+        barStyle={
+          !urlOpened ?
+            UIColors.theme === 'dark' ? 'light-content' : 'dark-content'
+          : 'light-content'
+        }
       />
+
+        <GiftedChat
+
+          messages={msgs}
+          onSend={sendMessage}
+          user={{
+            _id: 1,
+          }}
+
+          renderUsernameOnMessage={true}
+
+          timeFormat="HH:mm"
+          dateFormat="dddd DD MMMM"
+
+          locale='fr'
+
+          renderAvatar={(props) => {
+            return (
+              <View style={{width: 40, height: 40, borderRadius: 20, overflow: 'hidden', backgroundColor: UIColors.primary + '22', alignItems: 'center', justifyContent: 'center'}}>
+                <Text style={{fontFamily: 'Papillon-Medium', fontSize: 20, textAlign: 'center', color: UIColors.primary}}>
+                  {props.currentMessage.user.initials}
+                </Text>
+              </View>
+            )
+          }}
+
+          renderBubble={(props) => {
+            return (
+              <Bubble
+                {...props}
+                textStyle={{
+                  right: {
+                    color: "#ffffff",
+                    fontFamily: 'Papillon-Medium',
+                  },
+                  left: {
+                    color: UIColors.text,
+                    fontFamily: 'Papillon-Medium',
+                  },
+                }}
+                wrapperStyle={{
+                  left: {
+                    backgroundColor: UIColors.element,
+                    borderRadius: 14,
+                    borderCurve: 'continuous',
+                    paddingHorizontal: 2,
+                    paddingVertical: 3,
+                  },
+                  right: {
+                    backgroundColor: UIColors.primary,
+                    borderRadius: 14,
+                    borderCurve: 'continuous',
+                    paddingHorizontal: 2,
+                    paddingVertical: 3,
+                  }
+                }}
+              />
+            )
+          }}
+
+          parsePatterns={(linkStyle) => [
+            {
+              type: 'url',
+              style: {
+                textDecorationLine: 'underline',
+              },
+              onPress: (url) => {
+                openURL(url);
+              },
+            },
+          ]}
+
+          renderInputToolbar={(props) => {
+            return (
+              <InputToolbar
+                {...props}
+                containerStyle={{
+                  backgroundColor: UIColors.element + 'FF',
+                  borderTopColor: UIColors.border,
+                  borderTopWidth: 1,
+                  padding: 0,
+                  paddingTop: 6,
+                }}
+                primaryStyle={{
+                  backgroundColor: UIColors.element + '00',
+                  paddingLeft: 10,
+                }}
+                textInputStyle={{
+                  color: UIColors.text,
+                  fontFamily: 'Papillon-Medium',
+                }}
+              />
+            )
+          }}
+
+          renderSend={(props) => {
+            return (
+              <Send
+                {...props}
+                containerStyle={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <View style={{marginRight: 18, alignSelf: 'center', marginTop:-6}}>
+                  <SendLucide {...props} color={UIColors.primary} />
+                </View>
+              </Send>
+            )
+          }}
+
+          placeholder="Écrire un message..."
+
+          minInputToolbarHeight={50}
+          bottomOffset={tabBarHeight}
+        />
     </View>
   )
 }
