@@ -48,9 +48,15 @@ const FindEtab = ({ navigation }) => {
           }
           onPress={() => navigation.navigate('LocateEtab')}
         >
-          <NativeText heading="h4">
-            Rechercher un établissement
-          </NativeText>
+          
+          <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
+            <NativeText heading="h4" style={{flex: 1}}>
+              Trouver mon collège ou mon lycée
+            </NativeText>
+              <NativeText heading="h4" style={{paddingHorizontal: 10, paddingVertical: 5, backgroundColor: UIColors.primary + '22', borderRadius: 5, alignSelf: 'flex-start', color: UIColors.primary, overflow: 'hidden', marginRight: -10}}>
+                Recommandé
+              </NativeText>
+            </View>
           <NativeText heading="p2">
             Trouver un établissement à partir d'une recherche
           </NativeText>
@@ -68,10 +74,7 @@ const FindEtab = ({ navigation }) => {
           onPress={() => navigation.navigate('LoginURL')}
         >
           <NativeText heading="h4">
-            Se connecter avec une URL
-          </NativeText>
-          <NativeText heading="p2">
-            Connectez-vous en indiquant l'URL de votre établissement
+            Utiliser une URL Pronote
           </NativeText>
         </NativeItem>
         <NativeItem
@@ -82,9 +85,6 @@ const FindEtab = ({ navigation }) => {
         >
           <NativeText heading="h4">
             Se connecter avec un QR Code
-          </NativeText>
-          <NativeText heading="p2">
-            Connectez-vous en scannant le QR Code de votre espace web
           </NativeText>
         </NativeItem>
       </NativeList>
@@ -101,16 +101,6 @@ const FindEtab = ({ navigation }) => {
         >
           <NativeText heading="p2">
             Utiliser un serveur personnalisé
-          </NativeText>
-        </NativeItem>
-        <NativeItem
-          leading={
-            <ChevronUpSquare size={20} color={UIColors.text + '88'} />
-          }
-          onPress={() => navigation.navigate('LoginPronoteSelectEtab')}
-        >
-          <NativeText heading="p2">
-            Ouvrir l'ancienne interface de connexion
           </NativeText>
         </NativeItem>
       </NativeList>

@@ -71,6 +71,9 @@ function getToken(credentials) {
   if (credentials.parent && credentials.parent === true) {
     flags += "?type=parent";
   }
+  else {
+    flags += "?type=eleve";
+  }
 
   // eslint-disable-next-line no-param-reassign
   credentials.url = `${fixURL(credentials.url)}eleve.html`;
@@ -85,7 +88,7 @@ function getToken(credentials) {
   }
 
   return getConsts().then((consts) =>
-    fetch(`${consts.API}/generatetoken${flags}?version=2`, {
+    fetch(`${consts.API}/generatetoken${flags}&version=2`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
