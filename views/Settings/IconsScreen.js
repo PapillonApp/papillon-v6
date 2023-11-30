@@ -227,7 +227,7 @@ function AppearanceScreen({ navigation }) {
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
     >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />

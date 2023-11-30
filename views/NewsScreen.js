@@ -16,7 +16,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+import moment from 'moment/moment';
+import 'moment/locale/fr';
+moment.locale('fr');
+
 import PdfRendererView from 'react-native-pdf-renderer';
+
+import { SFSymbol } from 'react-native-sfsymbols';
+import PapillonInsetHeader from '../components/PapillonInsetHeader';
 
 import { ContextMenuView } from 'react-native-ios-context-menu';
 
@@ -41,28 +48,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as FileSystem from 'expo-file-system';
 
 function relativeDate(date) {
-  const now = new Date();
-  const diff = now - date;
-
-  if (diff < 1000 * 60) {
-    return "À l'instant";
-  }
-  if (diff < 1000 * 60 * 60) {
-    return `${Math.floor(diff / (1000 * 60))} minute(s)`;
-  }
-  if (diff < 1000 * 60 * 60 * 24) {
-    return `${Math.floor(diff / (1000 * 60 * 60))} heure(s)`;
-  }
-  if (diff < 1000 * 60 * 60 * 24 * 7) {
-    return `${Math.floor(diff / (1000 * 60 * 60 * 24))} jour(s)`;
-  }
-  if (diff < 1000 * 60 * 60 * 24 * 30) {
-    return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 7))} semaine(s)`;
-  }
-  if (diff < 1000 * 60 * 60 * 24 * 365) {
-    return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 30))} moi(s)`;
-  }
-  return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 365))} an(s)`;
+  return moment(date).fromNow();
 }
 
 function normalizeText(text) {
@@ -84,15 +70,15 @@ function FullNewsIcon({ title }) {
   return (
     <View>
       {normalizeText(title).includes('menu') ? (
-        <ChefHat color={UIColors.primary} size={24} />
+        <ChefHat color={'#B42828'} size={24} />
       ) : normalizeText(title).includes('reunion') ? (
-        <Projector color={UIColors.primary} size={24} />
+        <Projector color={'#B42828'} size={24} />
       ) : normalizeText(title).includes('association') ? (
-        <Users2 color={UIColors.primary} size={24} />
+        <Users2 color={'#B42828'} size={24} />
       ) : normalizeText(title).includes('important') ? (
-        <AlertTriangle color={UIColors.primary} size={24} />
+        <AlertTriangle color={'#B42828'} size={24} />
       ) : (
-        <Newspaper color={UIColors.primary} size={24} />
+        <Newspaper color={'#B42828'} size={24} />
       )}
     </View>
   );
@@ -106,7 +92,7 @@ function NewsScreen({ navigation }) {
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
       presentationStyle: 'currentContext',
-      controlsColor: UIColors.primary,
+      controlsColor: '#B42828',
     });
   };
 
@@ -156,6 +142,13 @@ function NewsScreen({ navigation }) {
   // add search bar in the header
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitle: Platform.OS === 'ios' ? () => (
+        <PapillonInsetHeader
+          icon={<SFSymbol name="newspaper.fill" />}
+          title="Actualités"
+          color="#B42828"
+        />
+      ) : 'Actualités',
       headerSearchBarOptions: {
         placeholder: 'Rechercher une actualité',
         cancelButtonText: 'Annuler',
@@ -188,17 +181,17 @@ function NewsScreen({ navigation }) {
   const [newsTypes, setNewsTypes] = useState([
     {
       name: 'Toutes',
-      icon: <Newspaper color={UIColors.primary} size={20} />,
+      icon: <Newspaper color={'#B42828'} size={20} />,
       enabled: true,
     },
     {
       name: 'Menus',
-      icon: <ChefHat color={UIColors.primary} size={20} />,
+      icon: <ChefHat color={'#B42828'} size={20} />,
       enabled: false,
     },
     {
       name: 'Réunions',
-      icon: <Projector color={UIColors.primary} size={20} />,
+      icon: <Projector color={'#B42828'} size={20} />,
       enabled: false,
     },
   ]);
@@ -305,12 +298,11 @@ function NewsScreen({ navigation }) {
         </SafeAreaView>
       </Modal>
 
-      
+      <NativeList inset>
       {!isLoading && news.length !== 0 && (
-        <View style={{ marginBottom: 18 }}>
-          {news.map((item, index) => {
+          (news.map((item, index) => {
             return (
-              <NativeList inset style={Platform.OS == 'ios' && { marginBottom: -18 }} key={index}>
+              <View key={index}>
                 <NativeItem
                   leading={
                     <View style={{ paddingHorizontal: 2 }}>
@@ -319,18 +311,11 @@ function NewsScreen({ navigation }) {
                   }
                   onPress={() => {
                     navigation.navigate('NewsDetails', { news: item });
-
-                    if (item.read === false) {
-                      appctx.dataprovider.changeNewsState(item.local_id).then((e) => {
-                        item.read = true;
-                      });
-                    }
                   }}
                 >
                   <View
                     style={[
                       { gap: 2 },
-                      item.read ? { opacity: 0.4 } : {},
                     ]}
                   >
                     <View
@@ -343,11 +328,12 @@ function NewsScreen({ navigation }) {
                       {!item.read ? (
                         <View
                           style={{
-                            backgroundColor: UIColors.primary,
+                            backgroundColor: '#B42828',
                             borderRadius: 300,
-                            padding: 2,
-                            width: 8,
-                            height: 8,
+                            padding: 4,
+                            marginRight: 2,
+                            width: 9,
+                            height: 9,
                           }}
                         />
                       ) : null}
@@ -362,19 +348,21 @@ function NewsScreen({ navigation }) {
                     </NativeText>
 
                     <NativeText heading="subtitle2" numberOfLines={1} style={{ marginTop: 4 }}>
-                      il y a {relativeDate(new Date(item.date))}
+                      {relativeDate(new Date(item.date))}
                     </NativeText>
+
+                    { item.attachments.length !== 0 ? (
+                    <NativeText heading="subtitle2" numberOfLines={1} style={[styles.pj, {backgroundColor: UIColors.text + '22'}]}>
+                      contient {item.attachments.length} pièce(s) jointe(s)
+                    </NativeText>
+                    ) : null }
                   </View>
                 </NativeItem>
-
-                {item.attachments.map((attachment, index) => 
-                  <PapillonAttachment attachment={attachment} key={index} index={index} theme={theme} openURL={openURL} setIsModalOpen={setIsModalOpen} setModalURL={setModalURL} />
-                )}
-              </NativeList>
+              </View>
             );
-          })}
-        </View>
+          }))
       )}
+      </NativeList>
 
     </ScrollView>
   );
@@ -485,6 +473,16 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+
+  pj: {
+    marginTop: 4,
+
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    overflow: 'hidden',
   }
 });
 

@@ -9,6 +9,9 @@ import {
 
 import { Text, useTheme } from 'react-native-paper';
 
+import { SFSymbol } from 'react-native-sfsymbols';
+import PapillonInsetHeader from '../components/PapillonInsetHeader';
+
 import { Clock3, UserX } from 'lucide-react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 
@@ -17,7 +20,7 @@ import GetUIColors from '../utils/GetUIColors';
 import PapillonLoading from '../components/PapillonLoading';
 import { useAppContext } from '../utils/AppContext';
 
-function SchoolLifeScreen() {
+function SchoolLifeScreen({ navigation }) {
   const [viesco, setViesco] = useState(null);
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -43,20 +46,31 @@ function SchoolLifeScreen() {
     });
   }, []);
 
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: Platform.OS === 'ios' ? () => (
+        <PapillonInsetHeader
+          icon={<SFSymbol name="person.badge.clock.fill" />}
+          title="Vie scolaire"
+          color="#8F3D9D"
+          inset
+        />
+      ) : 'Vie scolaire',
+      headerBackTitleVisible: false,
+      headerTintColor: UIColors.text,
+    });
+  });
+
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.background }]}
       contentInsetAdjustmentBehavior="automatic"
     >
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated barStyle="light-content" />
-      ) : (
-        <StatusBar
+      <StatusBar
           animated
           barStyle={theme.dark ? 'light-content' : 'dark-content'}
           backgroundColor="transparent"
         />
-      )}
 
       {isHeadLoading ? (
         <PapillonLoading

@@ -5,15 +5,17 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import './utils/IgnoreWarnings';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BottomNavigation, Appbar, useTheme, PaperProvider } from 'react-native-paper';
+import { BottomNavigation, Appbar, useTheme, PaperProvider, Text } from 'react-native-paper';
 
 import FlashMessage from 'react-native-flash-message';
 
 import { getHeaderTitle } from '@react-navigation/elements';
 import { useState, useMemo, useEffect } from 'react';
-import { Platform, useColorScheme, View } from 'react-native';
+import { Platform, StyleSheet, useColorScheme, View, PermissionsAndroid, Alert, Linking, TouchableOpacity } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import { SFSymbol } from 'react-native-sfsymbols';
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   Home,
@@ -22,6 +24,7 @@ import {
   BarChart3,
   UserCircle,
   Newspaper,
+  ChevronLeft,
 } from 'lucide-react-native';
 import useFonts from './hooks/useFonts';
 
@@ -45,6 +48,7 @@ import AppearanceScreen from './views/Settings/AppearanceScreen';
 import SettingsScreen2 from './views/Settings/SettingsScreen';
 import IconsScreen from './views/Settings/IconsScreen';
 import ChangeServer from './views/Settings/ChangeServer';
+import CoursColor from './views/Settings/CoursColor';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -65,18 +69,32 @@ import SchoolLifeScreen from './views/SchoolLifeScreen';
 
 import ConversationsScreen from './views/ConversationsScreen';
 import MessagesScreen from './views/Conversations/MessagesScreen';
+import NewConversation from './views/Conversations/NewConversation';
 
 import EvaluationsScreen from './views/EvaluationsScreen';
 import { AppContextProvider, baseColor } from './utils/AppContext';
 
 import NotificationsScreen from './views/Settings/NotificationsScreen';
 
+import LoginView from './views/NewAuthStack/LoginView';
+import FindEtab from './views/NewAuthStack/Pronote/FindEtab';
+import LocateEtab from './views/NewAuthStack/Pronote/LocateEtab';
+
 import setBackgroundFetch from './fetch/BackgroundFetch';
 
 import { LoginSkolengoSelectSchool } from './views/AuthStack/Skolengo/LoginSkolengoSelectSchool';
 import { IndexDataInstance } from './fetch/IndexDataInstance';
 import GetUIColors from './utils/GetUIColors';
+import { showMessage } from 'react-native-flash-message';
 
+import LocateEtabList from './views/NewAuthStack/Pronote/LocateEtabList';
+import LoginURL from './views/NewAuthStack/Pronote/LoginURL';
+import NewPronoteQR from './views/NewAuthStack/Pronote/NewPronoteQR';
+import NGPronoteLogin from './views/NewAuthStack/Pronote/NGPronoteLogin';
+import GradesSimulatorMenu from './views/Grades/GradesSimulatorMenu';
+import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
+import * as notifs from './components/Notifications'
+notifs.init()
 const Tab = createBottomTabNavigator();
 
 // stack
@@ -236,10 +254,12 @@ function InsetSettings() {
           ? {
               animation: 'fade_from_bottom',
               navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
+              header: (props) => <Header {...props} />,
             }
           : {
               ...headerTitleStyles,
+              header: (props) => <Header {...props} />,
+              modalStatus: true,
             }
       }
     >
@@ -249,12 +269,8 @@ function InsetSettings() {
         options={
           Platform.OS === 'ios' ?
             {
-              headerTitle: 'Réglages',
-              headerLargeTitle: Platform.OS === 'ios',
-              headerLargeStyle: {
-                backgroundColor: UIColors.background,
-              },
-              headerLargeTitleShadowVisible: false,
+              headerTitle: 'Préférences',
+              headerLargeTitle: false,
             }
           :
             {
@@ -267,6 +283,7 @@ function InsetSettings() {
         component={ProfileScreen}
         options={{
           headerTitle: 'Mon profil',
+          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -274,7 +291,14 @@ function InsetSettings() {
         component={OfficialServer}
         options={{
           headerTitle: 'Serveur officiel',
-
+          headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
+        name="CoursColor"
+        component={CoursColor}
+        options={{
+          headerTitle: 'Couleur des matières',
           headerBackTitle: 'Retour',
         }}
       />
@@ -283,6 +307,7 @@ function InsetSettings() {
         component={AboutScreen}
         options={{
           headerTitle: 'A propos de Papillon',
+          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -290,6 +315,7 @@ function InsetSettings() {
         component={AppearanceScreen}
         options={{
           headerTitle: 'Fonctionnalités',
+          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -298,6 +324,7 @@ function InsetSettings() {
         options={{
           headerTitle: 'Notifications',
           headerBackTitle: 'Retour',
+          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -306,6 +333,7 @@ function InsetSettings() {
         options={{
           headerTitle: "Icône de l'application",
           presentation: 'modal',
+          modalStatus: Platform.OS === 'ios',
         }}
       />
       <Stack.Screen
@@ -321,6 +349,7 @@ function InsetSettings() {
         component={SettingsScreen2}
         options={{
           headerTitle: 'Réglages',
+          headerBackTitle: 'Préférences',
         }}
       />
 
@@ -331,6 +360,7 @@ function InsetSettings() {
           headerTitle: 'Quoi de neuf ?',
           presentation: 'modal',
           headerShown: false,
+          headerBackTitle: 'Préférences',
         }}
       />
     </Stack.Navigator>
@@ -383,10 +413,9 @@ function WrappedHomeScreen() {
 
       <Stack.Screen
         name="InsetSchoollife"
-        component={InsetSchoolLifeScreen}
+        component={SchoolLifeScreen}
         options={{
-          headerShown: false,
-          presentation: 'modal',
+          headerTitle: 'Vie scolaire',
         }}
       />
       <Stack.Screen
@@ -404,7 +433,7 @@ function WrappedHomeScreen() {
         options={{
           headerBackTitle: 'Accueil',
           headerTitle: 'Conversations',
-          headerLargeTitle: Platform.OS === 'ios',
+          headerLargeTitle: false,
           headerSearchBarOptions: {
             placeholder: 'Rechercher une conversation',
             cancelButtonText: 'Annuler',
@@ -417,6 +446,16 @@ function WrappedHomeScreen() {
         options={{
           headerBackTitle: 'Retour',
           headerTitle: 'Conversation',
+        }}
+      />
+      <Stack.Screen
+        name="InsetNewConversation"
+        component={NewConversation}
+        options={{
+          headerTitle: 'Nouvelle conversation',
+          header: (props) => <Header {...props} />,
+          presentation: 'modal',
+          modalStatus: Platform.OS === 'ios',
         }}
       />
 
@@ -443,6 +482,8 @@ function WrappedHomeScreen() {
         options={{
           headerShown: true,
           presentation: 'modal',
+          header: (props) => <Header {...props} />,
+          modalStatus: Platform.OS === 'ios',
         }}
       />
       <Stack.Screen
@@ -530,6 +571,47 @@ function WrappedDevoirsScreen() {
         options={{
           headerShown: true,
           presentation: 'modal',
+          header: (props) => <Header {...props} />,
+          modalStatus: Platform.OS === 'ios',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function ModalGradesSimulator() {
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              navigationBarColor: '#00000000',
+              header: (props) => <Header {...props} />,
+              animation: 'fade_from_bottom',
+            }
+          : {
+              ...headerTitleStyles,
+              header: (props) => <Header {...props} />,
+              modalStatus: true,
+            }
+      }
+    >
+      <Stack.Screen
+        name="GradesSimulatorMenu"
+        component={GradesSimulatorMenu}
+        options={{
+          presentation: 'modal',
+          headerTitle: 'Simulateur de notes',
+          modalStatus: Platform.OS === 'ios',
+        }}
+      />
+      <Stack.Screen
+        name="GradesSimulatorAdd"
+        component={GradesSimulatorAdd}
+        options={{
+          presentation: 'modal',
+          headerTitle: 'Nouvelle note',
+          modalStatus: Platform.OS === 'ios',
         }}
       />
     </Stack.Navigator>
@@ -558,7 +640,7 @@ function WrappedGradesScreen() {
           Platform.OS === 'ios'
             ? {
                 headerShown: true,
-                headerLargeTitle: Platform.OS === 'ios',
+                headerLargeTitle: false,
                 headerTitle: 'Notes',
               }
             : null
@@ -573,6 +655,16 @@ function WrappedGradesScreen() {
           headerBackTitle: 'Notes',
           mdTitleColor: '#ffffff',
           headerTintColor: '#ffffff',
+          presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
+        name="ModalGradesSimulator"
+        component={ModalGradesSimulator}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
         }}
       />
     </Stack.Navigator>
@@ -599,7 +691,7 @@ function WrappedNewsScreen() {
         component={NewsScreen}
         options={{
           headerShown: true,
-          headerLargeTitle: Platform.OS === 'ios',
+          headerLargeTitle: false,
           headerTitle: 'Actualités',
         }}
       />
@@ -609,6 +701,191 @@ function WrappedNewsScreen() {
         options={{
           headerShown: true,
           headerTitle: 'Actualité',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+const styles = StyleSheet.create({
+  header: {
+    display: 'flex',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+
+  headerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+  },
+  headerText: {
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 17,
+    width: '100%',
+    textAlign: 'center',
+  },
+
+  headerSide: {
+    minWidth: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    gap: 20,
+  },
+
+  hsL: {
+    alignItems: 'flex-start',
+    paddingRight: 0,
+  },
+  hsR: {
+    alignItems: 'flex-end',
+    paddingLeft: 0,
+    paddingRight: 26,
+  },
+
+  headerSideButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
+
+function Header(props) {
+  const scheme = useColorScheme();
+  const UIColors = GetUIColors(props.options.headerForceDarkContent && 'dark');
+
+  const insets = useSafeAreaInsets();
+
+  let isModal = false;
+
+  if(props.options.presentation === 'modal') {
+    isModal = true;
+  }
+  if(props.options.modalStatus === true) {
+    isModal = true;
+  }
+  else if(props.options.modalStatus === false) {
+    isModal = false;
+  }
+
+  const title = props.options.headerTitle !== undefined ? props.options.headerTitle : props.route.name;
+
+  const translucent = props.options.headerTransparent !== undefined ? props.options.headerTransparent : false;
+
+  let finalInsets = insets.top;
+  if (isModal) {
+    finalInsets = 4;
+  }
+
+  let showBack = props.back !== undefined;
+  if (props.options.headerBackVisible === false) {
+    showBack = false;
+  }
+
+  return (
+    <View
+      style={[
+        {
+          paddingTop: finalInsets,
+          height: 56 + finalInsets,
+          backgroundColor: !translucent ? 
+            isModal ?
+              UIColors.modalBackground
+            : UIColors.background
+          : UIColors.background + '00',
+        },
+        styles.header,
+      ]}
+    >
+      <View style={[styles.headerSide, styles.hsL]}>
+        { props.options.headerLeft ? props.options.headerLeft() : showBack ?
+          <TouchableOpacity
+            onPress={() => props.navigation.goBack()}
+            style={[styles.headerSideButton, {backgroundColor: UIColors.text + '18'}]}
+          >
+            <ChevronLeft size={28} color={UIColors.text + 'e5'} />
+          </TouchableOpacity>
+        : null }
+      </View>
+      <View style={styles.headerContent}>
+        <Text style={[styles.headerText, {color: UIColors.text}]} numberOfLines={1} ellipsizeMode="tail">
+          {title}
+        </Text>
+      </View>
+      <View style={[styles.headerSide, styles.hsR]}>
+        {props.options.headerRight ? props.options.headerRight() : null}
+      </View>
+    </View>
+  );
+}
+
+function ModalPronoteLogin() {
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              navigationBarColor: '#00000000',
+              header: (props) => <Header {...props} />,
+              animation: 'fade_from_bottom',
+            }
+          : {
+              ...headerTitleStyles,
+              header: (props) => <Header {...props} />,
+              modalStatus: true,
+            }
+      }
+    >
+      <Stack.Screen
+        name="FindEtab"
+        component={FindEtab}
+        options={{
+          headerTitle: 'Connexion via PRONOTE',
+        }}
+      />
+      <Stack.Screen
+        name="LocateEtab"
+        component={LocateEtab}
+        options={{
+          headerTitle: 'Ville de l\'établissement',
+          headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
+        name="LocateEtabList"
+        component={LocateEtabList}
+        options={{
+          headerTitle: 'Établissements',
+          headerBackTitle: 'Ville',
+        }}
+      />
+      <Stack.Screen
+        name="LoginURL"
+        component={LoginURL}
+        options={{
+          headerTitle: 'Utiliser une URL',
+          headerBackTitle: 'Connexion',
+        }}
+      />
+      <Stack.Screen
+        name="NewPronoteQR"
+        component={NewPronoteQR}
+        options={{
+          headerTitle: 'Scanner un QR-Code',
+          headerBackTitle: 'Retour',
+          headerTransparent: true,
+          headerForceDarkContent: true,
+        }}
+      />
+      <Stack.Screen
+        name="NGPronoteLogin"
+        component={NGPronoteLogin}
+        options={{
+          headerTitle: 'Se connecter',
+          headerTransparent: true,
         }}
       />
     </Stack.Navigator>
@@ -699,7 +976,13 @@ function AppStack() {
           fontFamily: 'Papillon-Medium',
           fontSize: 12.5,
           letterSpacing: 0.2,
-          marginTop: 1,
+
+          margin: 0,
+          padding: 0,
+
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
         },
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
@@ -708,25 +991,12 @@ function AppStack() {
         tabBarStyle: {
           paddingLeft: 12,
           paddingRight: 12,
-          paddingTop: 2,
+          paddingTop: 0,
         },
         tabBarBadgeStyle: {
           backgroundColor: "#B42828",
           color: '#fff',
         },
-        tabBarButton: (props) => (
-          <PressableScale {...props} activeScale={0.85} weight="heavy">
-            <View
-              style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {props.children}
-            </View>
-          </PressableScale>
-        ),
       }}
     >
       <Tab.Screen
@@ -841,12 +1111,30 @@ function AuthStack() {
           ? {
               navigationBarColor: '#00000000',
               header: (props) => <CustomNavigationBar {...props} />,
+              animation: 'fade_from_bottom',
             }
           : {
               ...headerTitleStyles,
             }
       }
     >
+      <Stack.Screen
+        name="NewLogin"
+        component={LoginView}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="PronoteFindEtab"
+        component={ModalPronoteLogin}
+        options={{
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
+
       <Stack.Screen
         name="Welcome"
         component={WelcomeScreen}
@@ -886,7 +1174,7 @@ function AuthStack() {
         name="LoginSkolengoSelectSchool"
         component={LoginSkolengoSelectSchool}
         options={{
-          title: 'Se connecter à Skolengo',
+          title: 'Se connecter via Skolengo',
           presentation: 'modal',
         }}
       />
@@ -927,11 +1215,11 @@ function App() {
   useEffect(() => {
     // Load fonts and check if the user is logged in
     const loadApp = async () => {
-      await useFonts();
       const value = await AsyncStorage.getItem('token');
       if (value !== null) {
         setLoggedIn(true);
       }
+      await useFonts();
       setIsReady(true);
     };
 
@@ -959,12 +1247,14 @@ function App() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#fff' }}>
+    <View style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#f2f2f7' }}>
       <PaperProvider>
         <AppContextProvider state={ctxValue}>
+          {isReady ? (
           <View style={{ flex: 1 }}>
             {loggedIn ? <AppStack /> : <AuthStack />}
           </View>
+          ) : null}
         </AppContextProvider>
       </PaperProvider>
       <FlashMessage position="top" />

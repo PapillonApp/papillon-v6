@@ -45,6 +45,7 @@ import PapillonList from '../components/PapillonList';
 
 import { useAppContext } from '../utils/AppContext';
 import sendToSharedGroup from '../fetch/SharedValues';
+import { expireToken } from '../fetch/AuthStack/LoginFlow';
 
 // Functions
 const openURL = (url) => {
@@ -100,6 +101,7 @@ function NewHomeScreen({ navigation }) {
   const [loadingCours, setLoadingCours] = useState(true);
 
   const [usesCache, setUsesCache] = useState(false);
+  const [showsTomorrow, setShowsTomorrow] = useState(false);
 
   const today = new Date();
 
@@ -183,6 +185,10 @@ function NewHomeScreen({ navigation }) {
         const data = JSON.parse(value);
         applyLoadedData(data.homeworks, data.timetable);
 
+        if (new Date(data.timetable[0].start).getDate() === today.getDate() + 1) {
+          setShowsTomorrow(true);
+        }
+
         setUsesCache(true);
       }
     });
@@ -200,6 +206,18 @@ function NewHomeScreen({ navigation }) {
       setLoadingUser(false);
 
       AsyncStorage.setItem('appcache-user', JSON.stringify(data));
+
+      if (data.client.type === 'ParentClient') {
+        AsyncStorage.getItem('parent-unlocked').then((value) => {
+          if (value === 'true') {
+            return;
+          }
+
+          expireToken('parentClient', true);
+
+          AsyncStorage.setItem('parent-unlocked', 'true');
+        });
+      }
     });
 
     let force = refreshCount > 0;
@@ -211,9 +229,30 @@ function NewHomeScreen({ navigation }) {
       appctx.dataprovider.getHomeworks(today, force, new Date(today).setDate(today.getDate() + 7)).then(e=>e?.flat()),
       appctx.dataprovider.getTimetable(today, force)
     ]).then(([hwData, coursData]) => {
-      applyLoadedData(hwData, coursData);
-      AsyncStorage.setItem('appcache-homedata', JSON.stringify({ homeworks: hwData, timetable: coursData }));
-      setUsesCache(false);
+      if (showsTomorrow == false) {
+        applyLoadedData(hwData, coursData);
+        AsyncStorage.setItem('appcache-homedata', JSON.stringify({ homeworks: hwData, timetable: coursData }));
+        setUsesCache(false);
+      }
+
+      // check if all cours are done
+      let doneCours = 0;
+      coursData.forEach((cours) => {
+        if (new Date(cours.end) < new Date()) {
+          doneCours++;
+        }
+      });
+
+      if (doneCours === coursData.length) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        appctx.dataprovider.getTimetable(tomorrow, true).then((data) => {
+          applyLoadedData(hwData, data);
+          AsyncStorage.setItem('appcache-homedata', JSON.stringify({ homeworks: hwData, timetable: data }));
+          setUsesCache(false);
+          setShowsTomorrow(true);
+        });
+      }
     });
   }, [refreshCount]);
 
@@ -236,10 +275,11 @@ function NewHomeScreen({ navigation }) {
           user={user}
           timetable={timetable}
           navigation={navigation}
+          showsTomorrow={showsTomorrow}
         />
       ),
     });
-  }, [navigation, timetable, user]);
+  }, [navigation, timetable, user, showsTomorrow]);
 
   return (
     <ScrollView
@@ -318,7 +358,7 @@ function TabsElement({ navigation, theme, UIColors }) {
 function CoursElement({ cours, theme, UIColors, navigation, loading }) {
   return (
     !loading ? (
-      cours.length > 0 ? (
+      cours && cours.length > 0 ? (
         <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
           {cours.map((day, index) => (
             <View key={index}>
@@ -846,7 +886,7 @@ function NextCours({ cours, navigation }) {
         return `dans ${lz(diffMinutes)}:${lz(diffSeconds)}`;
       }
 
-      return `dans ${Math.ceil((diffMinutes / 60) - 1)}h ${lz(diffMinutes % 60)}m`;
+      return `dans ${Math.ceil((diffMinutes / 60) - 1)}h${lz(diffMinutes % 60)}`;
     }
     return 'maintenant';
   };
@@ -972,7 +1012,7 @@ function getNextCours(classes) {
   };
 }
 
-function HomeHeader({ navigation, timetable, user }) {
+function HomeHeader({ navigation, timetable, user, showsTomorrow }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -1008,9 +1048,7 @@ function HomeHeader({ navigation, timetable, user }) {
   };
 
   const openProfile = () => {
-    if (user) {
-      navigation.navigate('InsetSettings', { isModal: true });
-    }
+    navigation.navigate('InsetSettings', { isModal: true });
   };
 
   const openNextCours = () => {
@@ -1023,6 +1061,29 @@ function HomeHeader({ navigation, timetable, user }) {
 
   const UIColors = GetUIColors();
   const hasTimetable = timetable && leftCourses && leftCourses.length > 0;
+
+  let plural = false;
+  if (leftCourses && leftCourses.length > 1) {
+    plural = true;
+  }
+
+  let atAGlance = '';
+  if (hasTimetable) {
+    if(!showsTomorrow) {
+      atAGlance = `${leftCourses.length + 1} cours ${plural ? 'restants' : 'restant'} dans ta journée.`;
+    }
+    else {
+      atAGlance = `${leftCourses.length + 1} cours ${plural ? 'sont' : 'est'} prévu${plural ? 's' : ''} demain.`;
+    }
+  }
+  else {
+    if(!showsTomorrow) {
+      atAGlance = "Aucun cours restant aujourd'hui.";
+    }
+    else {
+      atAGlance = "Aucun cours prévu demain.";
+    }
+  }
 
   return (
     <View
@@ -1047,17 +1108,15 @@ function HomeHeader({ navigation, timetable, user }) {
           {`${getFormulePolitesse()}${user ? `, ${getPrenom(user.name)} !` : ' !'}`}
         </Text>
         <Text style={[headerStyles.headerCoursesText]}>
-          {hasTimetable
-            ? `Il te reste ${leftCourses.length + 1} cours dans ta journée.`
-            : "Tu n'as aucun cours restant aujourd'hui."}
+          {atAGlance}
         </Text>
 
-        {user && (
+        
           <TouchableOpacity
             style={[headerStyles.headerPfpContainer]}
             onPress={openProfile}
           >
-            {user.profile_picture ? (<Image
+            {user && user.profile_picture ? (<Image
               source={{ uri: user.profile_picture }}
               style={[headerStyles.headerPfp]}
             />) : (
@@ -1065,7 +1124,7 @@ function HomeHeader({ navigation, timetable, user }) {
             )
             }
           </TouchableOpacity>
-        )}
+        
       </View>
 
       { !loading && nextCourse && (
@@ -1570,20 +1629,23 @@ const headerStyles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     top: 0,
+    width: 36,
+    height: 36,
+    backgroundColor: '#ffffff10',
+    borderColor: '#ffffff25',
+    borderWidth: 1,
+    borderRadius: 24,
   },
   headerPfp: {
     width: 36,
     height: 36,
     borderRadius: 24,
-    backgroundColor: '#ffffff10',
-    borderColor: '#ffffff25',
-    borderWidth: 1,
   },
 });
 
 const nextCoursStyles = StyleSheet.create({
   nextCoursContainer: {
-    width: '92%',
+    marginHorizontal: 16,
     height: 68,
     borderRadius: 12,
     borderCurve: 'continuous',

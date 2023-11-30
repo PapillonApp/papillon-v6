@@ -1,5 +1,7 @@
 import * as React from 'react';
 import {
+  Animated,
+  Alert,
   View,
   ScrollView,
   StyleSheet,
@@ -9,12 +11,21 @@ import {
   TouchableOpacity,
   RefreshControl,
   Modal,
+  Dimensions,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
+import { SFSymbol } from 'react-native-sfsymbols';
+import PapillonInsetHeader from '../components/PapillonInsetHeader';
+
+import { BlurView } from 'expo-blur';
+import { ContextMenuButton, ContextMenuView } from 'react-native-ios-context-menu';
+
+import LineChart from 'react-native-simple-line-chart';
+
 import Fade from 'react-native-fade';
 
-import { User2, Users2, TrendingDown, TrendingUp } from 'lucide-react-native';
+import { User2, Users2, TrendingDown, TrendingUp, Info, AlertTriangle, FlaskConical, Plus, PlusCircle } from 'lucide-react-native';
 
 import { useState } from 'react';
 import { PressableScale } from 'react-native-pressable-scale';
@@ -33,6 +44,7 @@ import { useAppContext } from '../utils/AppContext';
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
+import { LinearGradient } from 'expo-linear-gradient';
 
 function GradesScreen({ navigation }) {
   const theme = useTheme();
@@ -44,6 +56,7 @@ function GradesScreen({ navigation }) {
   const [averagesData, setAveragesData] = useState([]);
   const [latestGrades, setLatestGrades] = useState([]);
   const [periodsList, setPeriodsList] = useState([]);
+  const [remainingPeriods, setRemainingPeriods] = useState([]);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [allGrades, setAllGrades] = useState([]);
 
@@ -53,22 +66,234 @@ function GradesScreen({ navigation }) {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [courseModalVisible, setCourseModalVisible] = useState(false);
 
+  const [avgValueHistory, setAvgValueHistory] = useState([]);
+  const [avgChartData, setAvgChartData] = useState([]);
+
+  const [scrollX, setScrollX] = useState(new Animated.Value(0));
+  const [scrollDistance, setScrollDistance] = useState(0);
+
+  const [calculatedAvg, setCalculatedAvg] = useState(false);
+  const [calculatedClassAvg, setCalculatedClassAvg] = useState(false);
+
+  const [hasSimulatedGrades, setHasSimulatedGrades] = useState(false);
+
+  const yOffset = new Animated.Value(0);
+
+  const scrollHandler = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: yOffset } } }],
+    { useNativeDriver: false }
+  );
+
+  const scrollY = Animated.add(yOffset, 0);
+
+  const headerOpacity = yOffset.interpolate({
+    inputRange: [-75, -60],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+
+  function calculateSubjectAverage(grades) {
+    // for each grade, calculate average for all
+    let student = 0;
+    let classAverage = 0;
+    let min = 0;
+    let max = 0;
+
+    let count = 0;
+    let out_of_total = 0;
+
+    let useless = 0;
+
+    for (let i = 0; i < grades.length; i++) {
+      if (grades[i].grade.significant !== 0 || grades[i].grade.value < 0 || grades[i].grade.coefficient === 0) {
+        useless += 1;
+      }
+      else {
+        student += grades[i].grade.value * grades[i].grade.coefficient;
+        classAverage += grades[i].grade.average * grades[i].grade.coefficient;
+        min += grades[i].grade.min * grades[i].grade.coefficient;
+        max += grades[i].grade.max * grades[i].grade.coefficient;
+
+        out_of_total += grades[i].grade.out_of * grades[i].grade.coefficient;
+      }
+    }
+
+    student = (student / out_of_total) * 20;
+    classAverage = (classAverage / out_of_total) * 20;
+    min = (min / out_of_total) * 20;
+    max = (max / out_of_total) * 20;
+
+    if (useless === grades.length) {
+      return {
+        average: -1,
+        class_average: -1,
+        min: -1,
+        max: -1,
+        out_of: 20,
+      }
+    }
+
+    return {
+      average: student,
+      class_average: classAverage,
+      min: min,
+      max: max,
+      out_of: 20,
+    }
+  }
+
+  function calculateExactGrades(grades) {
+    // step 1 : subject list
+    let subjects = [];
+    grades.forEach((grade) => {
+      const subjectIndex = subjects.findIndex((subject) => subject.name === grade.subject.name);
+      if (subjectIndex !== -1) {
+        subjects[subjectIndex].grades.push(grade);
+      } else {
+        subjects.push({
+          name: grade.subject.name,
+          subject: grade.subject,
+          grades: [grade],
+          averages: {
+            average: -1,
+            class_average: -1,
+            min: -1,
+            max: -1,
+            out_of: 20,
+          },
+        });
+      }
+    });
+
+    // calculate averages for each subject
+    subjects.forEach((subject) => {
+      subject.averages = calculateSubjectAverage(subject.grades);
+    });
+
+    // step 2 : calculate averages of all subjects
+    let student = 0;
+    let classAverage = 0;
+    let min = 0;
+    let max = 0;
+
+    let count = 0;
+
+    for (let i = 0; i < subjects.length; i++) {
+      if (subjects[i].averages.average === -1) {
+        // ignore
+      }
+      else {
+        student += subjects[i].averages.average;
+        classAverage += subjects[i].averages.class_average;
+        min += subjects[i].averages.min;
+        max += subjects[i].averages.max;
+
+        count += 1;
+      }
+    }
+
+    student = student / count;
+    classAverage = classAverage / count;
+    min = min / count;
+    max = max / count;
+
+    if (isNaN(student)) {
+      student = 0;
+    }
+    if (isNaN(classAverage)) {
+      classAverage = 0;
+    }
+    if (isNaN(min)) {
+      min = 0;
+    }
+    if (isNaN(max)) {
+      max = 0;
+    }
+
+    return {
+      average: student,
+      class_average: classAverage,
+      min: min,
+      max: max,
+      out_of: 20,
+    }
+  }
+
   // add button to header
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitle: () => Platform.OS === 'ios' && (
+        <PapillonInsetHeader
+          icon={<SFSymbol name="chart.pie.fill" />}
+          title="Notes"
+          color="#A84700"
+        />
+      ),
+      headerTransparent: Platform.OS === 'ios' ? true : false,
+      headerBackground: Platform.OS === 'ios' ? () => (
+        <Animated.View 
+          style={[
+            styles.header,
+            {
+              flex: 1,
+              backgroundColor: UIColors.element + '00',
+              opacity: headerOpacity,
+              borderBottomColor: theme.dark ? UIColors.text + '22' : UIColors.text + '55',
+              borderBottomWidth: 0.5,
+            }
+          ]}
+        >
+          <BlurView
+            tint={theme.dark ? 'dark' : 'light'}
+            intensity={120}
+            style={{
+              flex: 1,
+            }}
+          />
+        </Animated.View>
+      ) : undefined,
       headerRight: () => (
-        <Fade visible={selectedPeriod} direction="up" duration={200}>
-          <TouchableOpacity
-            onPress={newPeriod}
-            style={styles.periodButtonContainer}
+        <View style={styles.rightActions}>
+          <ContextMenuButton
+            isMenuPrimaryAction={true}
+            menuConfig={{
+              menuTitle: 'Périodes',
+                menuItems: periodsList.map((period) => {
+                  return {
+                    actionKey: period.name,
+                    actionTitle: period.name,
+                    menuState : selectedPeriod?.name === period.name ? 'on' : 'off',
+                  }
+                }),
+            }}
+            onPressMenuItem={({nativeEvent}) => {
+              setSelectedPeriod(periodsList.find((period) => period.name === nativeEvent.actionKey));
+              changePeriodPronote(periodsList.find((period) => period.name === nativeEvent.actionKey));
+            }}
           >
-            <Text
-              style={[styles.periodButtonText, { color: UIColors.primary }]}
+            <TouchableOpacity
+              onPress={() => {
+                if (Platform.OS !== 'ios') {
+                  newPeriod();
+                }
+              }}
+              style={styles.periodButtonContainer}
             >
-              {selectedPeriod?.name || ''}
-            </Text>
-          </TouchableOpacity>
-        </Fade>
+              <Text
+                style={[styles.periodButtonText, { color: UIColors.primary }]}
+              >
+                {selectedPeriod?.name || ''}
+              </Text>
+            </TouchableOpacity>
+          </ContextMenuButton>
+
+            <TouchableOpacity
+              style={[styles.addButtonContainer, {backgroundColor: UIColors.primary + '22'}]}
+              onPress={() => navigation.navigate('ModalGradesSimulator')}
+            >
+              <FlaskConical size='22' color={UIColors.primary} />
+            </TouchableOpacity>
+        </View>
       ),
     });
   }, [navigation, selectedPeriod, isLoading, UIColors]);
@@ -110,17 +335,20 @@ function GradesScreen({ navigation }) {
 
   async function changePeriodPronote(period) {
     setIsLoading(true);
-    await appctx.dataprovider.changePeriod(period.name);
-    appctx.dataprovider.getUser(true);
+    let newPeriod = await appctx.dataprovider.changePeriod(period.name);
+    await appctx.dataprovider.getUser(true);
     loadGrades(true);
     setIsLoading(false);
   }
+
+  const [finalPeriodList, setFinalPeriodList] = useState([]);
 
   async function getPeriods() {
     const allPeriods = await appctx.dataprovider.getPeriods(false);
 
     const actualPeriod = allPeriods.find((period) => period.actual === true);
     let periods = [];
+    let remaining = [];
 
     if (actualPeriod.name.toLowerCase().includes('trimestre')) {
       periods = allPeriods.filter((period) =>
@@ -131,30 +359,99 @@ function GradesScreen({ navigation }) {
         period.name.toLowerCase().includes('semestre')
       );
     }
+    else {
+      // just add the actual period
+      periods.push(actualPeriod);
+    }
+
+    // add remaining periods to the list
+    remaining = allPeriods.filter((period) => !periods.includes(period));
 
     setPeriodsList(periods);
     setSelectedPeriod(actualPeriod);
+    setRemainingPeriods(remaining);
+
+    let finalList = [];
+    periods.forEach((period) => {
+      finalList.push({
+        ...period,
+        category : 'main'
+      });
+    });
+    remaining.forEach((period) => {
+      finalList.push({
+        ...period,
+        category : 'secondary'
+      });
+    });
+
+    setFinalPeriodList(finalList);
+  }
+
+  function calculateAverage(grades, isClass) {
+    let average = 0;
+    let count = 0;
+    for (let i = 0; i < grades.length; i++) {
+      if(grades[i].grade.value < 0) {
+        // ignorer
+      }
+      else if (grades[i].grade.value !== 0) {
+        let correctedValue = grades[i].grade.value / grades[i].grade.out_of * 20;
+        let correctedClassValue = grades[i].grade.average / grades[i].grade.out_of * 20;
+  
+        if (isClass) {
+          average += correctedClassValue * grades[i].grade.coefficient;
+        } else {
+          average += correctedValue * grades[i].grade.coefficient;
+        }
+  
+        count += grades[i].grade.coefficient;
+      }
+    }
+    average = average / count;
+    return average;
   }
 
   async function parseGrades(parsedData) {
     const gradesList = parsedData.grades;
     const subjects = [];
 
-    setAllGrades(gradesList);
-  
-    function calculateAverages(averages) {
-      const studentAverage = (averages.reduce((acc, avg) => acc + (avg.average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
-      const classAverage = (averages.reduce((acc, avg) => acc + (avg.class_average / avg.out_of) * 20, 0) / averages.length).toFixed(2);
-      const minAverage = (averages.reduce((acc, avg) => acc + (avg.min / avg.out_of) * 20, 0) / averages.length).toFixed(2);
-      const maxAverage = (averages.reduce((acc, avg) => acc + (avg.max / avg.out_of) * 20, 0) / averages.length).toFixed(2);
-  
-      setAveragesData({
-        studentAverage: studentAverage,
-        classAverage: classAverage,
-        minAverage: minAverage,
-        maxAverage: maxAverage,
+    let hasSimulated = false;
+
+    // add simulated grades
+    let customGrades = await AsyncStorage.getItem('custom-grades');
+    if (customGrades !== null) {
+      customGrades = JSON.parse(customGrades);
+      customGrades.forEach((grade) => {
+        hasSimulated = true;
+
+        newGrade = {
+          ...grade,
+          isSimulated: true,
+        }
+
+        // check if grade is already in the list
+        let index = gradesList.findIndex((item) => item.id === grade.id);
+        
+        if (index !== -1) {
+        }
+        else {
+          gradesList.push(newGrade);
+        }
+      });
+
+      // update average of subject
+      let averagesList = parsedData.averages;
+      customGrades.forEach((grade) => {
+        const subject = averagesList.find((subj) => subj.subject.name === grade.subject.name);
+        if (subject) {
+          subject.average = calculateAverage(gradesList.filter((grade) => grade.subject.name === subject.subject.name), false);
+          subject.class_average = calculateAverage(gradesList.filter((grade) => grade.subject.name === subject.subject.name), true);
+        }
       });
     }
+
+    setAllGrades(gradesList);
   
     gradesList.forEach((grade) => {
       const subjectIndex = subjects.findIndex((subject) => subject.name === grade.subject.name);
@@ -163,6 +460,10 @@ function GradesScreen({ navigation }) {
       } else {
         subjects.push({
           name: grade.subject.name,
+          parsedName: {
+            name: grade.subject.name.split(' > ')[0],
+            sub: grade.subject.name.split(' > ').length > 0 ? grade.subject.name.split(' > ')[1] : null,
+          },
           grades: [grade],
         });
       }
@@ -173,7 +474,7 @@ function GradesScreen({ navigation }) {
     averagesList.forEach((average) => {
       const subject = subjects.find((subj) => subj.name === average.subject.name);
       if (subject) {
-        average.color = getSavedCourseColor(average.subject.name, average.color);
+        average.color = getSavedCourseColor(average.subject.name.split(' > ')[0], average.color);
         subject.averages = average;
   
         latestGrades.forEach((grade) => {
@@ -188,29 +489,68 @@ function GradesScreen({ navigation }) {
       }
     });
   
-    calculateAverages(averagesList);
+    // calculate averages
+    let avgCalc = calculateExactGrades(gradesList);
+    let avgNg = {
+      studentAverage: parseFloat(avgCalc.average).toFixed(2),
+      classAverage: parseFloat(avgCalc.class_average).toFixed(2),
+      minAverage: parseFloat(avgCalc.min).toFixed(2),
+      maxAverage: parseFloat(avgCalc.max).toFixed(2),
+    }
+    setAveragesData(avgNg);
   
     subjects.sort((a, b) => a.name.localeCompare(b.name));
   
     setSubjectsList(subjects);
-    setLatestGrades(gradesList.slice(0, 10));
+
+    latestGradesList = gradesList.sort((a, b) => new Date(b.date) - new Date(a.date));
+    setLatestGrades(latestGradesList.slice(0, 10));
+
+    // for each last grade, calculate average
+    let gradesFinalList = gradesList.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    let chartData = [];
+
+    for (let i = 0; i < gradesFinalList.length; i++) {
+      let gradesBefore = gradesList.filter((grade) => new Date(grade.date) <= new Date(gradesFinalList[i].date));
+      let avg = calculateExactGrades(gradesBefore).average;
+      
+      // if Nan, set to 0
+      if (isNaN(avg)) {
+        avg = 0;
+      }
+
+      chartData.push({
+        x: new Date(gradesFinalList[i].date).getTime(),
+        y: avg
+      });
+    }
+
+    setAvgChartData(chartData);
+    setHasSimulatedGrades(hasSimulated);
+
+    if (parseFloat(parsedData.overall_average).toFixed(2) !== parseFloat(avgCalc.average).toFixed(2)) {
+      setCalculatedAvg(true);
+
+      if(parseFloat(parsedData.overall_average) > 0 && !hasSimulatedGrades) {
+        setAveragesData({
+          ...avgNg,
+          studentAverage: parseFloat(parsedData.overall_average).toFixed(2),
+        });
+
+        setCalculatedAvg(false);
+      }
+    }
+    else {
+      setCalculatedAvg(false);
+    }
   }
   
 
   async function loadGrades(force = false) {
-    // get grades from cache
-    AsyncStorage.getItem('@grades').then((grades) => {
-      if (grades) {
-        parseGrades(JSON.parse(grades));
-      }
-    })
-
     // fetch grades
-    const grades = await appctx.dataprovider.getGrades(force);
+    const grades = await appctx.dataprovider.getGrades('', force);
     parseGrades(grades);
-
-    // save grades to cache
-    AsyncStorage.setItem('@grades', JSON.stringify(grades));
   }
 
   React.useEffect(() => {
@@ -239,6 +579,7 @@ function GradesScreen({ navigation }) {
   }
 
   return (
+    <>
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       style={[styles.container, { backgroundColor: UIColors.background }]}
@@ -249,6 +590,8 @@ function GradesScreen({ navigation }) {
           colors={[Platform.OS === 'android' ? UIColors.primary : null]}
         />
       }
+      onScroll={scrollHandler}
+      scrollEventThrottle={16}
     >
       <StatusBar
         animated
@@ -358,6 +701,115 @@ function GradesScreen({ navigation }) {
         <Text style={[styles.noGrades]}>Aucune note à afficher.</Text>
       ) : null}
 
+      { subjectsList.length !== 0 && !isLoading && avgChartData.length > 0 && averagesData && (
+        <View 
+          style={[
+            styles.averageChart,
+            {
+              backgroundColor: UIColors.element,
+            }
+          ]}
+        >
+          <View style={[styles.averagesgrClassContainer]}>
+            <Text style={[styles.averagegrTitle]}>
+              Moyenne générale
+            </Text>
+
+            <TouchableOpacity 
+              style={[styles.averagegrTitleInfo]}
+              onPress={() => Alert.alert(
+                `${calculatedAvg ? 'Moyenne générale calculée' : 'Moyenne générale réelle'}`,
+                calculatedAvg ? 
+                hasSimulatedGrades ?
+                  `La moyenne affichée ici est une moyenne calculée à partir de vos notes réelles et de vos notes simulées.`
+                :
+                  `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant votre moyenne de chaque matière.`
+                :
+                  `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`
+                ,
+                [
+                  {
+                    text: 'Compris !',
+                    style: 'cancel',
+                  },
+                ],
+                { cancelable: true }
+              )}
+            >
+              <AlertTriangle size='20' color={UIColors.primary} />
+              <Text style={[styles.averagegrTitleInfoText, {color: UIColors.primary}]}>
+                {calculatedAvg ? 
+                  hasSimulatedGrades ? 'Simulée' : 'Estimation' 
+                : 'Moyenne réelle'}
+              </Text>
+            </TouchableOpacity>
+
+            <View style={[styles.averagegrValCont]}>
+              <Text style={[styles.averagegrValue]}>
+                {averagesData.studentAverage}
+              </Text>
+              <Text style={[styles.averagegrOof]}>
+                /20
+              </Text>
+            </View>
+          </View>
+
+          <LineChart
+            lines={[
+              {
+                data: avgChartData,
+                activePointConfig: {
+                  color: 'black',
+                  showVerticalLine: true,
+                },
+                lineColor: UIColors.primary,
+                curve: 'monotone',
+                endPointConfig: {
+                  color: UIColors.primary,
+                  radius: 8,
+                  animated: true,
+                },
+                lineWidth: 4,
+                activePointComponent: (point) => {
+                  return (
+                    <View
+                      style={[
+                        {
+                          backgroundColor: UIColors.primary
+                        },
+                        styles.activePoint,
+                      ]}
+                    >
+                      <Text style={[styles.activePointDate, styles.grTextWh, {opacity: 0.5}]}>
+                        {new Date(point.x).toLocaleDateString('fr-FR', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </Text>
+
+                      <View style={[styles.averagegrValCont]}>
+                        <Text style={[styles.averagegrValue, styles.averagegrValueSm, styles.grTextWh]}>
+                          {point.y.toFixed(2)}
+                        </Text>
+                        <Text style={[styles.averagegrOof, styles.grTextWh]}>
+                          /20
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                },
+              }
+            ]}
+            height={100}
+            width={Dimensions.get('window').width - 28 - 14}
+            extraConfig={{
+              alwaysShowActivePoint: true,
+            }}
+          />
+        </View>
+      )}
+
       {latestGrades.length > 0 ? (
         <NativeList
           header="Dernières notes"
@@ -376,7 +828,7 @@ function GradesScreen({ navigation }) {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={[
               styles.latestGradesList,
-              Platform.OS !== 'ios' && {paddingLeft: 0}
+              Platform.OS !== 'ios' && {paddingHorizontal: 0}
             ]}
           >
             {latestGrades.map((grade, index) => (
@@ -404,7 +856,7 @@ function GradesScreen({ navigation }) {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    {formatCoursName(grade.subject.name)}
+                    {formatCoursName(grade.subject.name.split(' > ')[0])}
                   </Text>
                 </View>
 
@@ -432,6 +884,12 @@ function GradesScreen({ navigation }) {
                   </Text>
                 </View>
 
+                { grade.isSimulated && (
+                    <Text style={[styles.smallGradeSimulated, {color: grade.color, borderColor: grade.color}]}>
+                      Simulée
+                    </Text>
+                  )}
+
                 <View style={[styles.smallGradeValueContainer]}>
                   {grade.grade.significant === 0 ? (
                     <Text style={[styles.smallGradeValue]}>
@@ -452,29 +910,35 @@ function GradesScreen({ navigation }) {
         </NativeList>
       ) : null}
 
+
       {subjectsList.length > 0 ? (
         <NativeList header="Moyennes" inset>
-          <NativeItem
-            leading={
-              <View style={{marginHorizontal: 4}}>
-                <User2 color={UIColors.text} />
-              </View>
-            }
-          >
-            <Text style={[styles.averageText]}>Moy. générale</Text>
-            <View style={[styles.averageValueContainer]}>
-              <Text style={[styles.averageValue]}>
-                {averagesData.studentAverage}
-              </Text>
-              <Text style={[styles.averageValueOutOf]}>/20</Text>
-            </View>
-          </NativeItem>
           <NativeItem
             leading={
               <View style={{marginHorizontal: 4}}>
                 <Users2 color={UIColors.text} />
               </View>
             }
+            trailing={
+              calculatedClassAvg && (
+              <TouchableOpacity
+                onPress={() => Alert.alert(
+                  'Moyenne de classe calculée',
+                  `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant la moyenne de chaque matière.
+
+Il s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`,
+                  [
+                    {
+                      text: 'Compris !',
+                      style: 'cancel',
+                    },
+                  ],
+                  { cancelable: true }
+                )}
+              >
+                <AlertTriangle color={UIColors.primary} />
+              </TouchableOpacity>
+            )}
           >
             <Text style={[styles.averageText]}>Moy. de classe</Text>
             <View style={[styles.averageValueContainer]}>
@@ -489,6 +953,25 @@ function GradesScreen({ navigation }) {
               <View style={{marginHorizontal: 4}}>
                 <TrendingDown color={UIColors.text} />
               </View>
+            }
+            trailing={
+              <TouchableOpacity
+                onPress={() => Alert.alert(
+                  'Moyenne la plus faible',
+                  `La moyenne la plus faible est calculée en prenant la moyenne la plus basse de chaque matière.
+
+Il s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`,
+                  [
+                    {
+                      text: 'Compris !',
+                      style: 'cancel',
+                    },
+                  ],
+                  { cancelable: true }
+                )}
+              >
+                <Info color={UIColors.text + '22'} />
+              </TouchableOpacity>
             }
           >
             <Text style={[styles.averageText]}>Moy. la plus faible</Text>
@@ -505,6 +988,25 @@ function GradesScreen({ navigation }) {
                 <TrendingUp color={UIColors.text} />
               </View>
             }
+            trailing={
+              <TouchableOpacity
+                onPress={() => Alert.alert(
+                  'Moyenne la plus élevée',
+                  `La moyenne la plus élevée est calculée en prenant la moyenne la plus élevée de chaque matière.
+
+Il s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`,
+                  [
+                    {
+                      text: 'Compris !',
+                      style: 'cancel',
+                    },
+                  ],
+                  { cancelable: true }
+                )}
+              >
+                <Info color={UIColors.text + '22'} />
+              </TouchableOpacity>
+            }
           >
             <Text style={[styles.averageText]}>Moy. la plus élevée</Text>
             <View style={[styles.averageValueContainer]}>
@@ -517,13 +1019,15 @@ function GradesScreen({ navigation }) {
         </NativeList>
       ) : null}
 
+      
+
       {subjectsList.length > 0 ? (
         <View>
           {subjectsList.map((subject, index) => (
             <NativeList
               key={index}
               inset
-              header={subject.name}
+              header={subject.parsedName.sub ? `${subject.parsedName.name} (${subject.parsedName.sub})` : `${subject.parsedName.name}`}
             >
               <Pressable
                 style={[
@@ -532,9 +1036,16 @@ function GradesScreen({ navigation }) {
                 ]}
                 onPress={() => openSubject(subject)}
               >
-                <Text style={[styles.subjectName]} numberOfLines={1}>
-                  {formatCoursName(subject.name)}
-                </Text>
+                <View style={[styles.subjectNameGroup]}>
+                  <Text style={[styles.subjectName]} numberOfLines={1}>
+                    {formatCoursName(subject.parsedName.name)}
+                  </Text>
+                  { subject.parsedName.sub && (
+                    <Text style={[styles.subjectSub]} numberOfLines={1}>
+                      {formatCoursName(subject.parsedName.sub)}
+                    </Text>
+                  )}
+                </View>
                 <View style={[styles.subjectAverageContainer]}>
                   <Text style={[styles.subjectAverage]}>
                     {
@@ -576,6 +1087,12 @@ function GradesScreen({ navigation }) {
                             /{grade.grade.out_of}
                           </Text>
                         </View>
+
+                        { grade.isSimulated && (
+                          <Text style={[styles.gradeSimulated, {color: grade.color, borderColor: grade.color}]}>
+                            Simulée
+                          </Text>
+                        )}
                       </View>
                     }
                   >
@@ -585,9 +1102,21 @@ function GradesScreen({ navigation }) {
                           {grade.description}
                         </Text>
                       ) : (
-                        <Text style={[styles.gradeName]}>
-                          Note en {formatCoursName(grade.subject.name)}
-                        </Text>
+                        subject.parsedName.sub ? (
+                          subject.parsedName.sub == 'Ecrit' || subject.parsedName.sub == 'Oral' ? (
+                            <Text style={[styles.gradeName]}>
+                              Note d'{formatCoursName(subject.parsedName.sub).toLowerCase()} en {formatCoursName(subject.parsedName.name)}
+                            </Text>
+                          ) : (
+                            <Text style={[styles.gradeName]}>
+                              Note de {formatCoursName(subject.parsedName.sub)} en {formatCoursName(subject.parsedName.name)}
+                            </Text>
+                          )
+                        ) : (
+                          <Text style={[styles.gradeName]}>
+                            Note en {formatCoursName(subject.parsedName.name)}
+                          </Text>
+                        )
                       )}
 
                       <Text style={[styles.gradeDate]}>
@@ -609,6 +1138,7 @@ function GradesScreen({ navigation }) {
         </View>
       ) : null}
     </ScrollView>
+    </>
   );
 }
 
@@ -628,7 +1158,6 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderCurve: 'continuous',
     overflow: 'hidden',
-    elevation: 1,
   },
   subjectNameContainer: {
     width: '100%',
@@ -639,11 +1168,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     flexDirection: 'row',
   },
+  subjectNameGroup: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    overflow: 'hidden',
+    marginRight: 10,
+  },
   subjectName: {
     fontSize: 17,
     fontFamily: 'Papillon-Semibold',
     color: '#FFFFFF',
     flex: 1,
+  },
+  subjectSub: {
+    fontSize: 17,
+    fontFamily: 'Papillon-Semibold',
+    color: '#FFFFFF',
+
+    borderColor: '#FFFFFF75',
+    borderWidth: 1,
+
+    overflow: 'hidden',
+    
+    borderRadius: 8,
+    borderCurve: 'continuous',
+
+    backgroundColor: '#FFFFFF31',
+
+    paddingHorizontal: 6,
+    paddingVertical: 3,
   },
   subjectAverageContainer: {
     flexDirection: 'row',
@@ -717,13 +1273,7 @@ const styles = StyleSheet.create({
 
 
   periodButtonContainer: {
-    position: 'absolute',
-    top: -16,
-    right: 0,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
+    
   },
   periodButtonText: {
     fontSize: 17,
@@ -761,7 +1311,6 @@ const styles = StyleSheet.create({
     width: 220,
     paddingBottom: 42,
     overflow: 'hidden',
-    elevation: 2,
   },
 
   smallGradeSubjectContainer: {
@@ -806,7 +1355,7 @@ const styles = StyleSheet.create({
     left: 16,
   },
   smallGradeValue: {
-    fontSize: 17,
+    fontSize: 20,
     fontFamily: 'Papillon-Semibold',
   },
   smallGradeOutOf: {
@@ -898,6 +1447,140 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
     borderCurve: 'continuous',
+  },
+
+  averageChart: {
+    borderRadius: 0,
+    marginHorizontal: 14,
+    marginBottom: 14,
+    paddingHorizontal: 0,
+    paddingVertical: 14,
+    paddingBottom: 6,
+    marginTop: 14,
+
+    shadowColor: '#000000',
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    shadowOffset: {
+      height: 1,
+      width: 0,
+    },
+    elevation: 1,
+
+    borderRadius: 12,
+    borderCurve: 'continuous',
+  },
+
+  averagesgrClassContainer: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
+
+  averagegrTitle: {
+    fontSize: 15,
+    opacity: 0.5,
+    marginBottom: 2,
+  },
+
+  averagegrTitleInfo: {
+    position: 'absolute',
+    right: 0,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+
+  averagegrTitleInfoText: {
+    fontSize: 15,
+    fontWeight: 500,
+  },
+
+  averagegrValCont: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 1,
+  },
+
+  averagegrValue: {
+    fontSize: 24,
+    fontFamily: 'Papillon-Semibold',
+  },
+  averagegrValueSm: {
+    fontSize: 20,
+  },
+
+  averagegrOof: {
+    fontSize: 15,
+    opacity: 0.5,
+  },
+
+  activePoint: {
+    borderRadius: 8,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+
+  grTextWh: {
+    color: '#FFFFFF',
+  },
+
+  rightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+  },
+
+  addButtonContainer: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  smallGradeSimulated: {
+    fontSize: 16,
+    fontFamily: 'Papillon-Semibold',
+    letterSpacing: 0.15,
+
+    borderRadius: 8,
+    borderCurve: 'continuous',
+
+    borderWidth: 1,
+    alignSelf: 'flex-start',
+
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+  },
+
+  gradeDataContainer : {
+    alignItems: 'flex-end',
+  },
+
+  gradeSimulated: {
+    fontSize: 16,
+    fontFamily: 'Papillon-Semibold',
+    letterSpacing: 0.15,
+
+    borderRadius: 8,
+    borderCurve: 'continuous',
+
+    borderWidth: 1,
+    alignSelf: 'flex-start',
+
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+
+    marginTop: 4,
   },
 });
 

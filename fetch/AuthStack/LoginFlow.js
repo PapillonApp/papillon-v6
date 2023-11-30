@@ -1,9 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SyncStorage from 'sync-storage';
+
+global.Buffer = require('buffer').Buffer;
+
+SyncStorage.init();
 
 import { Alert } from 'react-native';
 
 import { showMessage } from 'react-native-flash-message';
 import getConsts from '../consts';
+
+function toBase64(str) {
+  return Buffer.from(str).toString('base64');
+}
 
 function fixURL(_url) {
   let url = _url.toLowerCase();
@@ -57,6 +66,15 @@ function getToken(credentials) {
     loginTrue = true;
   }
 
+  let flags = "";
+
+  if (credentials.parent && credentials.parent === true) {
+    flags += "?type=parent";
+  }
+  else {
+    flags += "?type=eleve";
+  }
+
   // eslint-disable-next-line no-param-reassign
   credentials.url = `${fixURL(credentials.url)}eleve.html`;
 
@@ -65,19 +83,25 @@ function getToken(credentials) {
     credentials.url += '?login=true';
   }
 
+  if (credentials.parent && credentials.parent === true) {
+    credentials.url = credentials.url.replace('eleve.html', 'parent.html');
+  }
+
   return getConsts().then((consts) =>
-    fetch(`${consts.API}/generatetoken`, {
+    fetch(`${consts.API}/generatetoken${flags}&version=2`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: `username=${credentials.username}&password=${credentials.password}&url=${credentials.url}&ent=${credentials.ent}`,
+      body: `username=${toBase64(credentials.username)}&password=${toBase64(credentials.password)}&url=${toBase64(credentials.url)}&ent=${toBase64(credentials.ent)}`,
     })
       .then((response) => response.text())
       .then((result) => {
         if (result.startsWith('A server error occurred.')) {
           return { token: false };
         }
+
+        console.log(result);
 
         return JSON.parse(result);
       })
@@ -150,22 +174,22 @@ function refreshQRToken(qrResult) {
           return false;
         }
 
-        // change password
-        return AsyncStorage.getItem('qr_credentials').then((_qrResult) => {
-          if (_qrResult) {
-            const qrCredentials = JSON.parse(_qrResult);
+        const _qrResult = SyncStorage.get('qr_credentials');
 
-            qrCredentials.qr_credentials.password =
-              result.qr_credentials.password;
+        if (_qrResult) {
+          const qrCredentials = JSON.parse(_qrResult);
 
-            AsyncStorage.setItem(
-              'qr_credentials',
-              JSON.stringify(qrCredentials)
-            );
-          }
+          qrCredentials.qr_credentials.password =
+            result.qr_credentials.password;
 
-          return result;
-        });
+          SyncStorage.set(
+            'qr_credentials',
+            JSON.stringify(qrCredentials)
+          );
+        }
+          
+
+        return result;
       });
   });
 }
@@ -189,7 +213,7 @@ function refreshToken() {
   });
 }
 
-function expireToken(reason) {
+function expireToken(reason, hideMessage = false) {
   AsyncStorage.setItem('token', 'expired');
 
   let reasonMessage = '';
@@ -198,6 +222,10 @@ function expireToken(reason) {
     reasonMessage = ` (${reason})`;
   }
 
+  if (hideMessage) {
+    return;
+  }
+  
   showMessage({
     message: 'Token supprimé',
     description: `Le token a expiré${reasonMessage}`,

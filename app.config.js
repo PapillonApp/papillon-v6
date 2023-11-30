@@ -50,7 +50,7 @@ module.exports = {
   "expo": {
     "name": "Papillon Dev",
     "slug": "papillonvex",
-    "version": "6.2.3-test-widget",
+    "version": "6.3.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
