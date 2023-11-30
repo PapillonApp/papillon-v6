@@ -13,6 +13,35 @@ import notifee from '@notifee/react-native';
 
 import { Platform } from 'react-native';
 
+async function sleep(time) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, time)
+  })
+}
+
+async function delNotif() {
+  sleep(1000)
+  notifee.cancelDisplayedNotification("background-fetch")
+    .then((value) => {
+      notifee.getDisplayedNotifications().then(notifs => {
+        notifs.forEach((n) => {
+          if(n.id === "background-fetch") delNotif()
+        })
+      })
+    })
+    .catch(err => {
+      notifee.displayNotification({
+        title: "Cancel notif err, " + err,
+        android: {
+          channelId: "silent",
+        },
+      });
+      console.error(err)
+    })
+}
+
 // Actualités
 
 async function newsFetch() {
@@ -35,11 +64,20 @@ async function newsFetch() {
           },
         });
       }
-      
+      notifee.displayNotification({
+        title: "Début requête",
+        android: {
+          channelId: "silent",
+        },
+      });
       return dataInstance.getNews().then((news) => {
-        setTimeout(() => {
-          notifee.cancelDisplayedNotification("background-fetch")
-        }, 1000)
+        notifee.displayNotification({
+          title: "Fin requête ok",
+          android: {
+            channelId: "silent",
+          },
+        });
+        delNotif()
         if (news.length !== oldNews.length) {
           AsyncStorage.setItem('oldNews', JSON.stringify(news));
 
@@ -60,7 +98,19 @@ async function newsFetch() {
           // Be sure to return the successful result type!
           return BackgroundFetch.BackgroundFetchResult.NewData;
         }
-      });
+      })
+      .catch(err => {
+        notifee.displayNotification({
+          title: "Fin requête err " + err,
+          android: {
+            channelId: "silent",
+          },
+        });
+        setTimeout(() => {
+          notifee.cancelDisplayedNotification("background-fetch")
+        }, 1000)
+        console.error("[Background Fetch/News] Unable to fetch news,", err)
+      })
     }
     else {
 
