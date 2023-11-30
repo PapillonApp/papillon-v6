@@ -133,8 +133,6 @@ function GradesScreen({ navigation }) {
       }
     }
 
-    console.log(grades[0].subject.name, student);
-
     return {
       average: student,
       class_average: classAverage,
@@ -198,6 +196,19 @@ function GradesScreen({ navigation }) {
     classAverage = classAverage / count;
     min = min / count;
     max = max / count;
+
+    if (isNaN(student)) {
+      student = 0;
+    }
+    if (isNaN(classAverage)) {
+      classAverage = 0;
+    }
+    if (isNaN(min)) {
+      min = 0;
+    }
+    if (isNaN(max)) {
+      max = 0;
+    }
 
     return {
       average: student,
@@ -487,22 +498,6 @@ function GradesScreen({ navigation }) {
       maxAverage: parseFloat(avgCalc.max).toFixed(2),
     }
     setAveragesData(avgNg);
-
-    if (parseFloat(parsedData.overall_average).toFixed(2) !== parseFloat(avgCalc.average).toFixed(2)) {
-      setCalculatedAvg(true);
-
-      if(parseFloat(parsedData.overall_average) > 0) {
-        setAveragesData({
-          ...avgNg,
-          studentAverage: parseFloat(parsedData.overall_average).toFixed(2),
-        });
-
-        setCalculatedAvg(false);
-      }
-    }
-    else {
-      setCalculatedAvg(false);
-    }
   
     subjects.sort((a, b) => a.name.localeCompare(b.name));
   
@@ -531,17 +526,24 @@ function GradesScreen({ navigation }) {
       });
     }
 
-    // if simulated, set overall average to the last chart point
-    if (hasSimulated == true) {
-      let lastPoint = chartData[chartData.length - 1];
-      calculateAverages(averagesList, lastPoint.y);
-
-      // average is now calculated, set the flag to false
-      setCalculatedAvg(true);
-    }
-
     setAvgChartData(chartData);
     setHasSimulatedGrades(hasSimulated);
+
+    if (parseFloat(parsedData.overall_average).toFixed(2) !== parseFloat(avgCalc.average).toFixed(2)) {
+      setCalculatedAvg(true);
+
+      if(parseFloat(parsedData.overall_average) > 0 && !hasSimulatedGrades) {
+        setAveragesData({
+          ...avgNg,
+          studentAverage: parseFloat(parsedData.overall_average).toFixed(2),
+        });
+
+        setCalculatedAvg(false);
+      }
+    }
+    else {
+      setCalculatedAvg(false);
+    }
   }
   
 

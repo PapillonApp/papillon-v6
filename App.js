@@ -69,6 +69,7 @@ import SchoolLifeScreen from './views/SchoolLifeScreen';
 
 import ConversationsScreen from './views/ConversationsScreen';
 import MessagesScreen from './views/Conversations/MessagesScreen';
+import NewConversation from './views/Conversations/NewConversation';
 
 import EvaluationsScreen from './views/EvaluationsScreen';
 import { AppContextProvider, baseColor } from './utils/AppContext';
@@ -447,6 +448,16 @@ function WrappedHomeScreen() {
           headerTitle: 'Conversation',
         }}
       />
+      <Stack.Screen
+        name="InsetNewConversation"
+        component={NewConversation}
+        options={{
+          headerTitle: 'Nouvelle conversation',
+          header: (props) => <Header {...props} />,
+          presentation: 'modal',
+          modalStatus: Platform.OS === 'ios',
+        }}
+      />
 
       <Stack.Screen
         name="InsetSettings"
@@ -734,8 +745,8 @@ const styles = StyleSheet.create({
   },
 
   headerSideButton: {
-    width: 40,
-    height: 40,
+    width: 38,
+    height: 38,
     borderRadius: 56,
     justifyContent: 'center',
     alignItems: 'center',
@@ -793,7 +804,7 @@ function Header(props) {
         { props.options.headerLeft ? props.options.headerLeft() : showBack ?
           <TouchableOpacity
             onPress={() => props.navigation.goBack()}
-            style={[styles.headerSideButton, {backgroundColor: UIColors.text + '22'}]}
+            style={[styles.headerSideButton, {backgroundColor: UIColors.text + '18'}]}
           >
             <ChevronLeft size={28} color={UIColors.text + 'e5'} />
           </TouchableOpacity>

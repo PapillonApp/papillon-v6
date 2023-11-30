@@ -49,7 +49,7 @@ const GradesSimulatorMenu = ({ navigation }) => {
       headerRight: () => (
         <TouchableOpacity
           style={{
-            padding : 9,
+            padding : 7.5,
             backgroundColor: UIColors.primary + '15',
             borderRadius: 20,
             marginRight: -10,
