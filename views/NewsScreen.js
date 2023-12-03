@@ -16,6 +16,10 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+import moment from 'moment/moment';
+import 'moment/locale/fr';
+moment.locale('fr');
+
 import PdfRendererView from 'react-native-pdf-renderer';
 
 import { SFSymbol } from 'react-native-sfsymbols';
@@ -44,28 +48,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as FileSystem from 'expo-file-system';
 
 function relativeDate(date) {
-  const now = new Date();
-  const diff = now - date;
-
-  if (diff < 1000 * 60) {
-    return "À l'instant";
-  }
-  if (diff < 1000 * 60 * 60) {
-    return `${Math.floor(diff / (1000 * 60))} minute(s)`;
-  }
-  if (diff < 1000 * 60 * 60 * 24) {
-    return `${Math.floor(diff / (1000 * 60 * 60))} heure(s)`;
-  }
-  if (diff < 1000 * 60 * 60 * 24 * 7) {
-    return `${Math.floor(diff / (1000 * 60 * 60 * 24))} jour(s)`;
-  }
-  if (diff < 1000 * 60 * 60 * 24 * 30) {
-    return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 7))} semaine(s)`;
-  }
-  if (diff < 1000 * 60 * 60 * 24 * 365) {
-    return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 30))} moi(s)`;
-  }
-  return `${Math.floor(diff / (1000 * 60 * 60 * 24 * 365))} an(s)`;
+  return moment(date).fromNow();
 }
 
 function normalizeText(text) {
@@ -365,7 +348,7 @@ function NewsScreen({ navigation }) {
                     </NativeText>
 
                     <NativeText heading="subtitle2" numberOfLines={1} style={{ marginTop: 4 }}>
-                      il y a {relativeDate(new Date(item.date))}
+                      {relativeDate(new Date(item.date))}
                     </NativeText>
 
                     { item.attachments.length !== 0 ? (

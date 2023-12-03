@@ -6,7 +6,14 @@ import {
   StatusBar,
   Platform,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
+
+import moment from 'moment/moment';
+import 'moment/locale/fr';
+moment.locale('fr');
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Text, useTheme } from 'react-native-paper';
 import GetUIColors from '../utils/GetUIColors';
@@ -24,6 +31,8 @@ import PapillonLoading from '../components/PapillonLoading';
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
+
+import { Plus } from 'lucide-react-native';
 
 function ConversationsScreen({ navigation }) {
   const theme = useTheme();
@@ -46,6 +55,44 @@ function ConversationsScreen({ navigation }) {
       }
     });
   }, []);
+
+  // add plus button to header
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('InsetNewConversation');
+          }}
+          style={{
+            
+          }}
+        >
+          <Plus size={24} color="#B18619" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
+  // force refresh when screen is focused
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      AsyncStorage.getItem('hasNewMessagesSent').then((has) => {
+        if (has === 'true') {
+          AsyncStorage.removeItem('hasNewMessagesSent');
+          appctx.dataprovider.getConversations(true).then((v) => {
+            if (v) {
+              setConversations(v);
+              setOriginalConversations(v);
+              setLoading(false);
+            }
+          });
+        }
+      });
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   function getInitials(name) {
     if (name == null) return '';
@@ -135,20 +182,44 @@ function ConversationsScreen({ navigation }) {
               key={index}
               chevron
               leading={
-                <View style={{ width: 36, height: 36, borderRadius: 38, backgroundColor: UIColors.primary + '22', justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 18, color: UIColors.primary }}>{getInitials(conversation.creator)}</Text>
+                <View style={{ width: 36, height: 36, borderRadius: 38, backgroundColor: '#B18619' + '22', justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 18, color: '#B18619' }}>{getInitials(conversation.creator)}</Text>
                 </View>
               }
               onPress={() => {
                 navigation.navigate('InsetConversationsItem', { conversation: conversation });
               }}
             >
-              <NativeText heading="h4">{conversation.subject}</NativeText>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 7,
+                }}
+              >
+                {conversation.unread > 0 ? (
+                  <View
+                    style={{
+                      backgroundColor: '#B18619',
+                      borderRadius: 300,
+                      padding: 4,
+                      marginRight: 2,
+                      width: 9,
+                      height: 9,
+                    }}
+                  />
+                ) : null}
+                <NativeText heading="h4">
+                  {conversation.subject}
+                </NativeText>
+              </View>
+
               <NativeText heading="p2" numberOfLines={1}>
                 {conversation.messages[conversation.messages.length - 1].content.replace(/(\r\n|\n|\r)/gm," ")}
               </NativeText>
+
               <NativeText heading="subtitle2" style={{marginTop: 5}} numberOfLines={1}>
-                {new Date(conversation.messages[conversation.messages.length - 1].date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}
+              {conversation.messages[conversation.messages.length - 1].author || 'Vous'} | {moment(conversation.messages[conversation.messages.length - 1].date).fromNow()}
               </NativeText>
             </NativeItem>
           )) }
