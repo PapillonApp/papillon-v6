@@ -215,12 +215,51 @@ export class IndexDataInstance {
     return [];
   }
 
+  // [Service]Conversations.js
   async getConversations(force = false) {
     await this.waitInit();
     if (this.service === 'Pronote')
       return require(`./PronoteData/PronoteConversations.js`).getConversations(
         force
       );
+    return [];
+  }
+
+  // [Service]Conversations.js
+  async replyToConversation(id, message) {
+    await this.waitInit();
+    if (this.service === 'Pronote')
+      return require(`./PronoteData/PronoteConversations.js`).replyToConversation(
+        id,
+        message
+      );
+    return {};
+  }
+
+  async readStateConversation(id) {
+    await this.waitInit();
+    if (this.service === 'Pronote')
+      return require(`./PronoteData/PronoteConversations.js`).readStateConversation(
+        id
+      );
+    return {};
+  }
+
+  async createDiscussion(subject, content, participants) {
+    await this.waitInit();
+    if (this.service === 'Pronote')
+      return require(`./PronoteData/PronoteConversations.js`).createDiscussion(
+        subject,
+        content,
+        participants
+      );
+    return {};
+  }
+
+  async getRecipients() {
+    await this.waitInit();
+    if (this.service === 'Pronote')
+      return require(`./PronoteData/PronoteConversations.js`).getRecipients();
     return [];
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "papillonvex",
-  "version": "6.3.1",
+  "version": "6.3.2",
   "canal": "beta",
   "scripts": {
     "start": "expo start --dev-client",
@@ -71,6 +71,7 @@
     "lighten-darken-color": "^1.0.0",
     "lucide-react-native": "^0.258.0",
     "papillon-ed-core": "^1.0.1",
+    "moment": "^2.29.4",
     "react": "18.2.0",
     "react-dom": "^18.2.0",
     "react-native": "^0.72.0",
