@@ -144,6 +144,8 @@ export class IndexDataInstance {
     const storeShared = (e) => {
       return e;
     };
+    if (this.service === 'EcoleDirecte')
+      return require("./EcoleDirecteData/EcoleDirecteRecap.js").getRecap(day, force, this.ecoledirecteInstance).then(storeShared);
     if (this.service === 'Skolengo')
       return this.skolengoInstance.getRecap(day, force).then(storeShared);
     if (this.service === 'Pronote')
