@@ -79,6 +79,24 @@ const LoginView = ({ navigation }) => {
           />
           <Text style={[styles.loginBtnText, styles.loginBtnTextPronote]}>Continuer avec Pronote</Text>
         </PressableScale>
+        
+
+        <PressableScale
+          style={[styles.loginBtn, styles.loginBtnED]}
+          weight='light'
+          activeScale={0.95}
+          onPress={() => {
+            navigation.navigate('LoginEcoleDirecte')
+          }}
+        >
+          <Image
+            source={require('../../assets/logo_modern_ed.png')}
+            style={styles.loginBtnIcon}
+          />
+          <Text style={[styles.loginBtnText, styles.loginBtnTextPronote]}>Continuer avec EcoleDirecte</Text>
+        </PressableScale>
+
+
         <TouchableOpacity
           style={[styles.loginBtn, styles.loginBtnOther]}
           activeOpacity={0.5}
@@ -161,6 +179,10 @@ const styles = StyleSheet.create({
   },
   loginBtnTextPronote: {
     color: '#FFFFFF',
+  },
+
+  loginBtnED: {
+    backgroundColor: '#0062A6',
   },
 
   loginBtnOther: {
