@@ -353,7 +353,7 @@ function InsetSettings() {
         name="loginTurboself"
         component={LoginTurboself}
         options={{
-          headerTitle: "Connexion au restaurant scolaire",
+          headerTitle: "Turboself",
           presentation: 'modal',
         }}
       />

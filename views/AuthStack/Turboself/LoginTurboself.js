@@ -36,102 +36,11 @@ function LoginTurboself({ route, navigation }) {
   const theme = useTheme();
   const { showActionSheetWithOptions } = useActionSheet();
 
-  const { etab, useDemo } = route.params;
-  // eslint-disable-next-line no-unused-vars
-  const [etabName, setEtabName] = useState(etab.nomEtab);
-  const [etabInfo, setEtabInfo] = useState(etab);
-
-  // eslint-disable-next-line no-unused-vars
-  const [useEduconnect, setUseEduconnect] = React.useState(false);
-
-  const [isENTUsed, setIsENTUsed] = React.useState(false);
-  const onToggleSwitch = () => setIsENTUsed(!isENTUsed);
-
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: `Se connecter à ${etab.nomEtab}`,
-    });
-  }, [navigation]);
 
   let CAS = null;
   const [ENTs, setENTs] = useState([]);
 
-  function removeSubdomain(hostname) {
-    if (!hostname) return;
 
-    let domain = hostname.split('.');
-
-    if (domain.length > 2) {
-      // remove everything except the last two parts
-      domain = domain.slice(domain.length - 2, domain.length);
-
-      return domain.join('.');
-    }
-
-    return hostname;
-  }
-
-  React.useEffect(() => {
-    getENTs(etab.url).then((result) => {
-      CAS = result.CAS;
-      navigation.setOptions({});
-
-      setEtabInfo(result);
-      setEtabName(result.nomEtab);
-
-      const hostname = CAS.casURL.split('/')[2];
-
-      getInfo().then((r) => {
-        const ents = r?.ent_list;
-
-        // find all ent in ents where url = hostname
-        const entList = ents.filter(
-          (ent) => removeSubdomain(ent.url) === removeSubdomain(hostname)
-        );
-
-        let ent = entList[0];
-
-        if (entList.length > 1) {
-          showActionSheetWithOptions(
-            {
-              title: 'Choisissez votre ENT',
-              options: entList.map((_ent) => _ent.name),
-              cancelButtonIndex: entList.length,
-              tintColor: UIColors.primary,
-            },
-            (buttonIndex) => {
-              if (buttonIndex < entList.length) {
-                ent = entList[buttonIndex];
-                setENTs(ent);
-
-                if (ent?.educonnect) {
-                  setUseEduconnect(ent.educonnect);
-                } else {
-                  setUseEduconnect(false);
-                }
-
-                if (ent) {
-                  setIsENTUsed(true);
-                }
-              }
-            }
-          );
-        }
-
-        setENTs(ent);
-
-        if (ent?.educonnect) {
-          setUseEduconnect(ent.educonnect);
-        } else {
-          setUseEduconnect(false);
-        }
-
-        if (ent) {
-          setIsENTUsed(true);
-        }
-      });
-    });
-  }, []);
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -139,82 +48,6 @@ function LoginTurboself({ route, navigation }) {
 
   const appctx = useAppContext();
 
-  function login() {
-    const credentials = {
-      username,
-      password,
-      url: etab.url.toLowerCase(),
-      ent: isENTUsed ? ENTs.py : '',
-    };
-
-    if (!isENTUsed && ENTs !== undefined && ENTs.py !== undefined) {
-      credentials.url += '?login=true';
-    }
-
-    if (
-      credentials.username.trim() === '' ||
-      credentials.password.trim() === ''
-    ) {
-      showMessage({
-        message: 'Échec de la connexion',
-        description: 'Veuillez remplir tous les champs.',
-        type: 'danger',
-        icon: 'auto',
-        floating: true,
-        duration: 5000,
-      });
-      return;
-    }
-    setConnecting(true);
-    getToken(credentials).then((result) => {
-      setConnecting(false);
-      const token = result.token;
-
-      if (!token) {
-        let errorMessage = ""
-        if(result.error) {
-          if(result.error.includes("probably wrong login")) errorMessage = "Vos identifiants semblent incorrects. Veuillez les vérifier."
-          else errorMessage = "Une erreur s'est produite (" + result.error + ")"
-        }
-        else errorMessage = "Une erreur indéterminée s'est produite."
-        Alert.alert(
-          'Échec de la connexion',
-          errorMessage,
-          [
-            {
-              text: 'OK',
-              style: 'cancel',
-            },
-          ]
-        );
-      } else {
-        AsyncStorage.setItem('token', token);
-        AsyncStorage.setItem('credentials', JSON.stringify(credentials));
-        AsyncStorage.setItem('service', 'Pronote');
-
-        showMessage({
-          message: 'Connecté avec succès',
-          type: 'success',
-          icon: 'auto',
-          floating: true,
-        });
-
-        appctx.dataprovider.service = 'Pronote';
-        appctx.dataprovider.init('Pronote').then(() => {
-          navigation.goBack();
-          navigation.goBack();
-          appctx.setLoggedIn(true);
-        });
-      }
-    });
-  }
-
-  React.useEffect(() => {
-    if (useDemo) {
-      setUsername('demonstration');
-      setPassword('pronotevs');
-    }
-  }, []);
 
   const UIColors = GetUIColors();
 
@@ -234,7 +67,7 @@ function LoginTurboself({ route, navigation }) {
 
       <LinearGradient
         style={styles.loginHeader}
-        colors={['#159C5E55', UIColors.background]}
+        colors={['#e42934', UIColors.background]}
         locations={[0, 1]}
       >
         <Image
@@ -281,51 +114,16 @@ function LoginTurboself({ route, navigation }) {
             secureTextEntry
             onChangeText={(text) => setPassword(text)}
           />
-          {ENTs !== undefined && ENTs.length !== 0 ? (
-            <View
-              style={[
-                styles.switchGroup,
-                {
-                  borderTopWidth: 1,
-                  borderColor: theme.dark ? '#191919' : '#e5e5e5',
-                },
-              ]}
-            >
-              <View style={{ width: '80%' }}>
-                <Text style={{ opacity: 0.5 }}>Se connecter avec l'ENT</Text>
-                <Text
-                  style={{ fontSize: 16, fontWeight: 500, maxWidth: '100%' }}
-                >
-                  {ENTs.name}
-                </Text>
-              </View>
-              <Switch value={isENTUsed} onValueChange={onToggleSwitch} />
-            </View>
-          ) : null}
         </View>
 
         <View style={[styles.buttons]}>
           <PapillonButton
             title="Se connecter"
-            color="#159C5E"
+            color="#e42934"
             onPress={() => login()}
             style={[styles.button]}
             right={connecting && <ActivityIndicator color="#ffffff" />}
           />
-        </View>
-
-        <View style={[styles.bottomText]}>
-          <Text style={[styles.bottomTextText]}>
-            En vous connectant, vous acceptez les{' '}
-            <Text style={{ fontWeight: 'bold' }}>conditions d'utilisation</Text>{' '}
-            de Papillon.
-          </Text>
-
-          {etabInfo.version && etabInfo.version.length > 0 ? (
-            <Text style={[styles.bottomTextText]}>
-              Pronote Espace Élèves ver. {etabInfo.version.join('.')}
-            </Text>
-          ) : null}
         </View>
       </View>
     </ScrollView>
@@ -378,6 +176,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     resizeMode: 'contain',
+    borderRadius: 300,
   },
   loginHeaderText: {
     fontSize: 18,

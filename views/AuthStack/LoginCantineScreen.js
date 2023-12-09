@@ -24,17 +24,17 @@ function ServiceOption({ service, color, logo, identitifants, press }) {
 
   return (
     <ListItem
-              title={"Connexion avec " + service}
-              center
-              subtitle={identitifants}
-              left={
-                <Image source={logo} style={[styles.serviceOptionLogo, {}]} />
-              }
-              style={[
-                { borderColor: UIColors.primary },
-              ]}
-              onPress={press}
-            />
+      title={"Connexion avec " + service}
+      center
+      subtitle={identitifants}
+      left={
+        <Image source={logo} style={[styles.serviceOptionLogo, {}]} />
+      }
+      style={[
+        { borderColor: UIColors.primary },
+      ]}
+      onPress={press}
+    />
   );
 }
 
