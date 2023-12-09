@@ -26,7 +26,7 @@ function ServiceOption({ service, color, logo, identitifants, press }) {
     <ListItem
               title={"Connexion avec " + service}
               center
-              subtitle={"avec des identifiants " + identitifants}
+              subtitle={identitifants}
               left={
                 <Image source={logo} style={[styles.serviceOptionLogo, {}]} />
               }
@@ -56,9 +56,13 @@ function LoginCantineScreen({ navigation }) {
   const services = [
     {
       name: 'Turboself',
-      color: '#FFFFFF',
       logo: require('../../assets/logo_turboself.png'),
-      identitifants: 'Turboself',
+      identitifants: 'avec des identifiants Turboself',
+    },
+    {
+      name: 'EcoleDirecte',
+      logo: require('../../assets/logo_ed.png'),
+      identitifants: 'vous étes deja connecté',
     },
   ];
 
