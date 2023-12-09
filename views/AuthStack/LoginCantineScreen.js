@@ -63,7 +63,7 @@ function LoginCantineScreen({ navigation }) {
   ];
 
   function pressedService(service, color) {
-    if (service == 'Turboself') navigation.navigate('LoginTurboself')
+    if (service == 'Turboself') navigation.navigate('loginTurboself')
     else navigation.navigate('LoginUnavailable', { service: service, color: color || '#A84700' })
   }
 

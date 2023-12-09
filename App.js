@@ -59,6 +59,7 @@ import LoginScreen from './views/AuthStack/LoginScreen';
 import LoginUnavailable from './views/AuthStack/LoginUnavailable';
 
 import LoginCantineScreen from './views/AuthStack/LoginCantineScreen';
+import LoginTurboself from './views/AuthStack/Turboself/LoginTurboself';
 
 import LoginPronoteSelectEtab from './views/AuthStack/Pronote/LoginPronoteSelectEtab';
 import LoginPronote from './views/AuthStack/Pronote/LoginPronote';
@@ -342,6 +343,15 @@ function InsetSettings() {
       <Stack.Screen
         name="loginCantine"
         component={LoginCantineScreen}
+        options={{
+          headerTitle: "Connexion au restaurant scolaire",
+          presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
+        name="loginTurboself"
+        component={LoginTurboself}
         options={{
           headerTitle: "Connexion au restaurant scolaire",
           presentation: 'modal',
