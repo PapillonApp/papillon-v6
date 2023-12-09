@@ -58,6 +58,8 @@ import WelcomeScreen from './views/AuthStack/WelcomeScreen';
 import LoginScreen from './views/AuthStack/LoginScreen';
 import LoginUnavailable from './views/AuthStack/LoginUnavailable';
 
+import LoginCantineScreen from './views/AuthStack/LoginCantineScreen';
+
 import LoginPronoteSelectEtab from './views/AuthStack/Pronote/LoginPronoteSelectEtab';
 import LoginPronote from './views/AuthStack/Pronote/LoginPronote';
 import LoginPronoteQR from './views/AuthStack/Pronote/LoginPronoteQRToken';
@@ -336,6 +338,16 @@ function InsetSettings() {
           modalStatus: Platform.OS === 'ios',
         }}
       />
+
+      <Stack.Screen
+        name="loginCantine"
+        component={LoginCantineScreen}
+        options={{
+          headerTitle: "Connexion au restaurant scolaire",
+          presentation: 'modal',
+        }}
+      />
+
       <Stack.Screen
         name="changeServer"
         component={ChangeServer}

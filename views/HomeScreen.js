@@ -32,7 +32,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContextMenuView } from 'react-native-ios-context-menu';
 
 // Icons 
-import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2 } from 'lucide-react-native';
+import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2, CheckCircle, Utensils } from 'lucide-react-native';
 
 // Formatting
 import GetUIColors from '../utils/GetUIColors';
@@ -348,6 +348,30 @@ function TabsElement({ navigation, theme, UIColors }) {
             >
               <MessagesSquare size={24} color={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabs.tabText]}>Conversations</Text>
+            </PressableScale>
+          </ContextMenuView>
+        </View>
+        <View style={[styles.tabs.tabRow]}>
+          <ContextMenuView style={{flex: 1}} borderRadius={12}>
+            <PressableScale
+              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+              weight="light"
+              activeScale={0.9}
+              onPress={() => navigation.navigate('InsetSchoollife')}
+            >
+              <Utensils size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <Text style={[styles.tabs.tabText]}>Restaurant scolaire</Text>
+            </PressableScale>
+          </ContextMenuView>
+          <ContextMenuView style={{flex: 1}} borderRadius={12}>
+            <PressableScale
+              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+              weight="light"
+              activeScale={0.9}
+              onPress={() => navigation.navigate('InsetConversations')}
+            >
+              <CheckCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <Text style={[styles.tabs.tabText]}>Compétences</Text>
             </PressableScale>
           </ContextMenuView>
         </View>
