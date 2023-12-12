@@ -8,6 +8,9 @@ import NativeItem from '../../../components/NativeItem';
 import NativeText from '../../../components/NativeText';
 import PapillonButton from '../../../components/PapillonButton';
 import GetUIColors from '../../../utils/GetUIColors';
+let Turboself = require('papillon-turboself-core')
+
+let ts = new Turboself;
 
 function LoginTurboselfScreen() {
 	const theme = useTheme();
