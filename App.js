@@ -49,6 +49,9 @@ import SettingsScreen2 from './views/Settings/SettingsScreen';
 import IconsScreen from './views/Settings/IconsScreen';
 import ChangeServer from './views/Settings/ChangeServer';
 import CoursColor from './views/Settings/CoursColor';
+import LinkedAccountScreen from './views/Settings/linkedAccountScreen';
+import AddLinkedAccountScreen from './views/Settings/AddLinkedAccountScreen';
+import LoginTurboselfScreen from './views/Settings/LoginScreen/LoginTurboselfScreen';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -287,6 +290,30 @@ function InsetSettings() {
         options={{
           headerTitle: 'Mon profil',
           headerBackTitle: 'Préférences',
+        }}
+      />
+      <Stack.Screen
+        name="LinkedAccount"
+        component={LinkedAccountScreen}
+        options={{
+          headerTitle: 'Comptes liées',
+          headerBackTitle: 'Préférences',
+        }}
+      />
+      <Stack.Screen
+        name="AddLinkedAccount"
+        component={AddLinkedAccountScreen}
+        options={{
+          headerTitle: 'Liste des comptes disponibles',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="LoginTurboself"
+        component={LoginTurboselfScreen}
+        options={{
+          headerTitle: 'Connexion à Turboself',
+          presentation: 'modal',
         }}
       />
       <Stack.Screen

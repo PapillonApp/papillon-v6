@@ -89,7 +89,6 @@ function NewSettings({navigation}) {
             </View>
           </NativeItem>
         ) : null }
-
       </NativeList>
 
       <NativeList
@@ -97,6 +96,35 @@ function NewSettings({navigation}) {
         sideBar
         header="Options de l'application"
       >
+        <NativeItem
+          leading={
+            <View
+              style={[
+                styles.item.leadingContainer,
+                {
+                  backgroundColor: '#B1861A',
+                }
+              ]}
+            >
+              <SFSymbol
+                name="link"
+                weight="semibold"
+                size={16}
+                color="#ffffff"
+                style={styles.item.symbol}
+              />
+            </View>
+          }
+          chevron
+          onPress={() => navigation.navigate('LinkedAccount')}
+        >
+          <NativeText heading="h4">
+            Comptes liés
+          </NativeText>
+          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+            Gérer les comptes liés
+          </NativeText>
+        </NativeItem>
         <NativeItem
           leading={
             <View
