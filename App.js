@@ -15,7 +15,12 @@ import { Platform, StyleSheet, useColorScheme, View, PermissionsAndroid, Alert, 
 import { PressableScale } from 'react-native-pressable-scale';
 import { SFSymbol } from 'react-native-sfsymbols';
 
+import { useCallback } from 'react';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import * as SplashScreen from 'expo-splash-screen';
+SplashScreen.preventAutoHideAsync();
 
 import {
   Home,
@@ -1212,30 +1217,48 @@ function App() {
 
   const scheme = useColorScheme();
 
+  const [dataprovider, setDataprovider] = React.useState(null);	
+
+  const [appIsReady, setAppIsReady] = useState(false);
+
   useEffect(() => {
-    // Load fonts and check if the user is logged in
-    const loadApp = async () => {
-      const value = await AsyncStorage.getItem('token');
-      if (value !== null) {
-        setLoggedIn(true);
+    async function prepare() {
+      try {
+        // Pre-load fonts, make any API calls you need to do here
+        await useFonts();
+
+        const value = await AsyncStorage.getItem('token');
+        if (value !== null) {
+          setLoggedIn(true);
+        }
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        // Tell the application to render
+        setAppIsReady(true);
       }
-      await useFonts();
-      setIsReady(true);
-    };
+    }
 
-    loadApp();
-
-    setBackgroundFetch();
+    prepare();
   }, []);
 
-  const [dataprovider, setDataprovider] = React.useState(null);	
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      // This tells the splash screen to hide immediately! If we call this after
+      // `setAppIsReady`, then we may see a blank screen while the app is
+      // loading its initial state and rendering its first pixels. So instead,
+      // we hide the splash screen once we know the root view has already
+      // performed layout.
+      await SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
 
   React.useEffect(() => {	
     AsyncStorage.getItem('service').then((value) => {	
       const provider = new IndexDataInstance(value || null);	
       setDataprovider(provider);	
     });	
-  }, []);	
+  }, [appIsReady]);	
 
   const ctxValue = React.useMemo(	
     () => ({	
@@ -1246,15 +1269,17 @@ function App() {
     [loggedIn, dataprovider]	
   );
 
+  if (!appIsReady) {
+    return null;
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#f2f2f7' }}>
       <PaperProvider>
         <AppContextProvider state={ctxValue}>
-          {isReady ? (
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
             {loggedIn ? <AppStack /> : <AuthStack />}
           </View>
-          ) : null}
         </AppContextProvider>
       </PaperProvider>
       <FlashMessage position="top" />

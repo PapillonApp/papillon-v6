@@ -32,12 +32,6 @@ async function delNotif() {
       })
     })
     .catch(err => {
-      notifee.displayNotification({
-        title: "Cancel notif err, " + err,
-        android: {
-          channelId: "silent",
-        },
-      });
       console.error(err)
     })
 }
@@ -64,19 +58,7 @@ async function newsFetch() {
           },
         });
       }
-      notifee.displayNotification({
-        title: "Début requête",
-        android: {
-          channelId: "silent",
-        },
-      });
       return dataInstance.getNews().then((news) => {
-        notifee.displayNotification({
-          title: "Fin requête ok",
-          android: {
-            channelId: "silent",
-          },
-        });
         delNotif()
         if (news.length !== oldNews.length) {
           AsyncStorage.setItem('oldNews', JSON.stringify(news));
@@ -100,12 +82,6 @@ async function newsFetch() {
         }
       })
       .catch(err => {
-        notifee.displayNotification({
-          title: "Fin requête err " + err,
-          android: {
-            channelId: "silent",
-          },
-        });
         setTimeout(() => {
           notifee.cancelDisplayedNotification("background-fetch")
         }, 1000)
