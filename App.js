@@ -395,13 +395,6 @@ function WrappedHomeScreen() {
         options={{
           headerShown: true,
           headerLargeTitle: Platform.OS === 'ios',
-          headerBlurEffect: 'systemUltraThinMaterial',
-          headerStyle: {
-            backgroundColor: theme.dark ? '#00000050' : '#ffffff50',
-          },
-          headerLargeStyle: {
-            backgroundColor: theme.dark ? '#00000000' : '#ffffff90',
-          },
         }}
       />
 
@@ -994,8 +987,8 @@ function AppStack() {
         },
         tabBarShowLabel: Platform.OS !== 'android',
         tabBarStyle: {
-          paddingLeft: 12,
-          paddingRight: 12,
+          paddingLeft: 14,
+          paddingRight: 14,
           paddingTop: 0,
         },
         tabBarBadgeStyle: {
@@ -1012,9 +1005,9 @@ function AppStack() {
           tabBarIcon: ({ color, size, focused }) =>
             Platform.OS === 'ios' ? (
               focused ? (
-                <SFSymbol name="house.fill" color={color} size={size - 2} />
+                <SFSymbol name="house.fill" color={color} size={size-2} />
               ) : (
-                <SFSymbol name="house" color={color} size={size - 2} />
+                <SFSymbol name="house" color={color} size={size-2} />
               )
             ) : (
               <Home color={color} size={size} />

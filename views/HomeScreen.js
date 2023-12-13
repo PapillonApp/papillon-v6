@@ -30,6 +30,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContextMenuView } from 'react-native-ios-context-menu';
+import NextCoursElem from '../interface/HomeScreen/NextCours';
 
 // Icons 
 import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2 } from 'lucide-react-native';
@@ -1128,7 +1129,16 @@ function HomeHeader({ navigation, timetable, user, showsTomorrow }) {
       </View>
 
       { !loading && nextCourse && (
-        <NextCours cours={nextCourse} navigation={navigation} />
+        <View style={styles.nextCoursContainer}>
+          <NextCoursElem
+            cours={timetable}
+            navigation={navigation}
+            style={[{
+              marginHorizontal: 16,
+              marginVertical: 14,
+            }]}
+          />
+        </View>
       )}
 
       {!nextCourse && (
@@ -1413,7 +1423,15 @@ const styles = StyleSheet.create({
       fontSize: 14.5,
       fontFamily: 'Papillon-Semibold',
     },
-  }
+  },
+
+  nextCoursContainer: {
+    height: 117,
+    width: '100%',
+
+    marginTop: -12,
+    marginBottom: -52,
+  },
 });
 
 const headerStyles = StyleSheet.create({
