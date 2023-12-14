@@ -259,11 +259,9 @@ function InsetSettings() {
           ? {
               animation: 'fade_from_bottom',
               navigationBarColor: '#00000000',
-              header: (props) => <Header {...props} />,
             }
           : {
               ...headerTitleStyles,
-              header: (props) => <Header {...props} />,
               modalStatus: true,
             }
       }
@@ -451,7 +449,6 @@ function WrappedHomeScreen() {
         component={NewConversation}
         options={{
           headerTitle: 'Nouvelle conversation',
-          header: (props) => <Header {...props} />,
           presentation: 'modal',
           modalStatus: Platform.OS === 'ios',
         }}
@@ -480,7 +477,6 @@ function WrappedHomeScreen() {
         options={{
           headerShown: true,
           presentation: 'modal',
-          header: (props) => <Header {...props} />,
           modalStatus: Platform.OS === 'ios',
         }}
       />
@@ -569,7 +565,6 @@ function WrappedDevoirsScreen() {
         options={{
           headerShown: true,
           presentation: 'modal',
-          header: (props) => <Header {...props} />,
           modalStatus: Platform.OS === 'ios',
         }}
       />
@@ -584,12 +579,10 @@ function ModalGradesSimulator() {
         Platform.OS === 'android'
           ? {
               navigationBarColor: '#00000000',
-              header: (props) => <Header {...props} />,
               animation: 'fade_from_bottom',
             }
           : {
               ...headerTitleStyles,
-              header: (props) => <Header {...props} />,
               modalStatus: true,
             }
       }
@@ -894,26 +887,6 @@ function AppStack() {
 
   const theme = useTheme();
 
-  const [badges, setBadges] = useState({});
-
-  const loadBadges = async () => {
-    try {
-      const value = await AsyncStorage.getItem('badgesStorage');
-      if (value !== null) {
-        const parsedBadges = JSON.parse(value);
-        setBadges(parsedBadges);
-      }
-    } catch (error) {
-      console.error('Error loading badges:', error);
-    }
-  };
-
-  useEffect(() => {
-    const interval = setInterval(loadBadges, 2400);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const tabBar = useMemo(() => {
     if (Platform.OS !== 'ios') {
       return ({ navigation, state, descriptors, insets }) => (
@@ -1020,7 +993,6 @@ function AppStack() {
         component={WrappedCoursScreen}
         options={{
           tabBarLabel: 'Cours',
-          tabBarBadge: badges.courses > 0 ? badges.courses : null,
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
@@ -1038,7 +1010,6 @@ function AppStack() {
         component={WrappedDevoirsScreen}
         options={{
           tabBarLabel: 'Devoirs',
-          tabBarBadge: badges.homeworks > 0 ? badges.homeworks : null,
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
@@ -1056,7 +1027,6 @@ function AppStack() {
         component={WrappedGradesScreen}
         options={{
           tabBarLabel: 'Notes',
-          tabBarBadge: badges.grades > 0 ? badges.grades : null,
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
@@ -1074,7 +1044,6 @@ function AppStack() {
         component={WrappedNewsScreen}
         options={{
           tabBarLabel: 'Actualités',
-          tabBarBadge: badges.news > 0 ? badges.news : null,
           tabBarIcon: ({ color, size, focused }) => (
             Platform.OS === 'ios' ?
               focused ?
