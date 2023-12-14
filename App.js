@@ -101,6 +101,12 @@ import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
 import * as notifs from './components/Notifications'
 notifs.init()
 const Tab = createBottomTabNavigator();
+import * as Sentry from '@sentry/react-native';
+
+Sentry.init({
+  dsn: 'http://4f5fa3f4dc364796bbdac55029146458@sentry.getpapillon.xyz/3',
+  enableInExpoDevelopment: true,
+});
 
 // stack
 const Stack = createNativeStackNavigator();

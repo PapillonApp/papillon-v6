@@ -200,7 +200,8 @@
             "prerendered": true
           }
         }
-      ]
+      ],
+      "sentry-expo"
     ],
     "owner": "papillonapp"
   }
