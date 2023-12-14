@@ -770,6 +770,18 @@ function GradesScreen({ navigation }) {
                   animated: true,
                 },
                 lineWidth: 4,
+                activePointConfig: {
+                  color: UIColors.primary,
+                  borderColor: UIColors.element,
+                  radius: 7,
+                  borderWidth: 2,
+                  animated: true,
+                  showVerticalLine: true,
+                  verticalLineColor: UIColors.text,
+                  verticalLineDashArray: [5, 5],
+                  verticalLineOpacity: 0.5,
+                  verticalLineWidth: 2,
+                },
                 activePointComponent: (point) => {
                   return (
                     <View

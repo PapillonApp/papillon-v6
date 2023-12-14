@@ -26,7 +26,7 @@ function GetUIColors(schemeForce) {
 
   let modalBackground = background;
   if (Platform.OS === 'ios') {
-    modalBackground = isDark ? '#0c0c0c' : '#f2f2f7';
+    modalBackground = isDark ? '#090909' : '#f2f2f7';
   }
 
   // element
