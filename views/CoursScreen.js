@@ -476,6 +476,17 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
     lengthString = `${lz(Math.floor(length % 60))} min`;
   }
 
+  // if ~5 min around 1h
+  if (Math.floor(length % 60) < 9) {
+    lengthString = `${Math.floor(length / 60)} heure(s)`;
+  }
+
+  if (Math.floor(length % 60) > 49) {
+    lengthString = `${Math.floor((length / 60) + 1)} heure(s)`;
+  }
+
+  
+
   const handleCoursPressed = useCallback(() => {
     CoursPressed(cours);
   }, [CoursPressed, cours]);
@@ -495,9 +506,9 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
       </View>
       <ContextMenuView
         style={{ flex: 1 }}
-        borderRadius={14}
+        borderRadius={10}
         previewConfig={{
-          borderRadius: 14,
+          borderRadius: 10,
           previewType: 'CUSTOM',
           previewSize: 'INHERIT',
           backgroundColor: 'rgba(255,255,255,0)',
@@ -791,17 +802,18 @@ const styles = StyleSheet.create({
 
   coursContainer: {
     flex: 1,
-    padding: 12,
+    padding: 8,
   },
 
   fullCours: {
     width: '100%',
-    marginBottom: 10,
+    marginBottom: 8,
     flexDirection: 'row',
   },
   coursTimeContainer: {
     width: 56,
-    marginRight: 12,
+    marginRight: 10,
+    marginLeft: 4,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 3,
@@ -821,7 +833,7 @@ const styles = StyleSheet.create({
 
   coursItemContainer: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: 10,
     borderCurve: 'continuous',
     overflow: 'hidden',
     elevation: 1,
@@ -842,7 +854,9 @@ const styles = StyleSheet.create({
   },
   coursTime: {
     fontSize: 14,
-    opacity: 0.5,
+    opacity: 0.4,
+    marginBottom: 2,
+    fontFamily: 'Papillon-Medium',
   },
   coursLength: {
     position: 'absolute',
@@ -851,18 +865,20 @@ const styles = StyleSheet.create({
     opacity: 0.3,
   },
   coursMatiere: {
-    fontSize: 18,
+    fontSize: 17,
     fontFamily: 'Papillon-Semibold',
     marginBottom: 10,
   },
   coursSalle: {
-    fontSize: 15,
+    fontSize: 14.5,
     fontWeight: 500,
+    fontFamily: 'Papillon-Semibold',
   },
   coursProf: {
-    fontSize: 15,
+    fontSize: 14.5,
     fontWeight: 400,
     opacity: 0.5,
+    fontFamily: 'Papillon-Medium',
   },
 
   coursStatus: {
