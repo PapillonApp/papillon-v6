@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import './utils/IgnoreWarnings';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BottomNavigation, Appbar, useTheme, PaperProvider, Text } from 'react-native-paper';
+import { BottomNavigation, Appbar, useTheme, PaperProvider, Text, Card } from 'react-native-paper';
 
 import FlashMessage from 'react-native-flash-message';
 
@@ -51,7 +51,7 @@ import ChangeServer from './views/Settings/ChangeServer';
 import CoursColor from './views/Settings/CoursColor';
 import LinkedAccountScreen from './views/Settings/linkedAccountScreen';
 import AddLinkedAccountScreen from './views/Settings/AddLinkedAccountScreen';
-import LoginTurboselfScreen from './views/Settings/LoginScreen/LoginTurboselfScreen';
+import LoginTurboselfScreen from './views/AuthStack/Turboself/LoginTurboselfScreen';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -61,9 +61,6 @@ import WelcomeScreen from './views/AuthStack/WelcomeScreen';
 import LoginScreen from './views/AuthStack/LoginScreen';
 import LoginUnavailable from './views/AuthStack/LoginUnavailable';
 
-import LoginCantineScreen from './views/AuthStack/LoginCantineScreen';
-import LoginTurboself from './views/AuthStack/Turboself/LoginTurboself';
-
 import LoginPronoteSelectEtab from './views/AuthStack/Pronote/LoginPronoteSelectEtab';
 import LoginPronote from './views/AuthStack/Pronote/LoginPronote';
 import LoginPronoteQR from './views/AuthStack/Pronote/LoginPronoteQRToken';
@@ -72,6 +69,10 @@ import NewsScreen from './views/NewsScreen';
 import NewsItem from './views/News/NewsItem';
 
 import SchoolLifeScreen from './views/SchoolLifeScreen';
+
+import CantineScreen from './views/CantineScreen';
+import CardCantineScreen from './views/Cantine/CardCantineScreen';
+import ReservationCantineScreen from './views/Cantine/ReservationCantineScreen';
 
 import ConversationsScreen from './views/ConversationsScreen';
 import MessagesScreen from './views/Conversations/MessagesScreen';
@@ -250,6 +251,68 @@ function InsetEvaluationsScreen() {
   );
 }
 
+function InsetCardCantine() {
+  const UIColors = GetUIColors();
+
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <Header {...props} />,
+            }
+          : {
+              ...headerTitleStyles,
+              header: (props) => <Header {...props} />,
+              modalStatus: true,
+            }
+      }
+    >
+      <Stack.Screen
+        name="CardCantine"
+        component={CardCantineScreen}
+        options={{
+          headerTitle: 'Ma carte',
+          headerBackTitle: 'Ratestauration scolaire',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function InsetReservationCantine() {
+  const UIColors = GetUIColors();
+
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <Header {...props} />,
+            }
+          : {
+              ...headerTitleStyles,
+              header: (props) => <Header {...props} />,
+              modalStatus: true,
+            }
+      }
+    >
+      <Stack.Screen
+        name="ReservationCantine"
+        component={ReservationCantineScreen}
+        options={{
+          headerTitle: 'Mes réservations',
+          headerBackTitle: 'Restauration scolaire',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 function InsetSettings() {
   const UIColors = GetUIColors();
   
@@ -367,23 +430,6 @@ function InsetSettings() {
         }}
       />
 
-      <Stack.Screen
-        name="loginCantine"
-        component={LoginCantineScreen}
-        options={{
-          headerTitle: "Connexion au restaurant scolaire",
-          presentation: 'modal',
-        }}
-      />
-
-      <Stack.Screen
-        name="loginTurboself"
-        component={LoginTurboself}
-        options={{
-          headerTitle: "Turboself",
-          presentation: 'modal',
-        }}
-      />
 
       <Stack.Screen
         name="changeServer"
@@ -467,12 +513,38 @@ function WrappedHomeScreen() {
           headerTitle: 'Vie scolaire',
         }}
       />
+
+      <Stack.Screen
+        name="InsetCantine"
+        component={CantineScreen}
+        options={{
+          headerTitle: 'Restaurant scolaire',
+        }}
+      />
+
+      <Stack.Screen
+        name="InsetCardCantine"
+        component={InsetCardCantine}
+        options={{
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="InsetReservationCantine"
+        component={InsetReservationCantine}
+        options={{
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
+
       <Stack.Screen
         name="InsetEvaluations"
-        component={InsetEvaluationsScreen}
+        component={EvaluationsScreen}
         options={{
-          headerShown: false,
-          presentation: 'modal',
+          headerTitle: 'Compétences',
         }}
       />
 

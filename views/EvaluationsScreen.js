@@ -24,6 +24,11 @@ import PapillonLoading from '../components/PapillonLoading';
 import { useAppContext } from '../utils/AppContext';
 import { WillBeSoon } from './Global/Soon';
 
+import { SFSymbol } from 'react-native-sfsymbols';
+import PapillonInsetHeader from '../components/PapillonInsetHeader';
+
+
+
 function EvaluationsScreen({ navigation }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -49,7 +54,7 @@ function EvaluationsScreen({ navigation }) {
             style={styles.periodButtonContainer}
           >
             <Text
-              style={[styles.periodButtonText, { color: UIColors.primary }]}
+              style={[styles.periodButtonText, { color: "#0065A8" }]}
             >
               {selectedPeriod?.name || ''}
             </Text>
@@ -58,6 +63,22 @@ function EvaluationsScreen({ navigation }) {
       ),
     });
   }, [navigation, selectedPeriod, isLoading]);
+
+  React.useLayoutEffect(() => {
+		navigation.setOptions({
+		  headerTitle: Platform.OS === 'ios' ? () => (
+			<PapillonInsetHeader
+			  icon={<SFSymbol name="checkmark.circle.fill"/>}
+			  title="Compétences"
+			  color="#0065A8"
+			  inset
+			/>
+		  ) : 'Compétences',
+		  headerBackTitleVisible: false,
+		  headerTintColor: UIColors.text,
+		});
+  });
+	  
 
   function newPeriod() {
     const options = periodsList.map((period) => period.name);

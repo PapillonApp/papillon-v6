@@ -68,21 +68,21 @@ function CantineScreen({ navigation }) {
 	  }
   	})
 
-	  React.useLayoutEffect(() => {
-		navigation.setOptions({
-		  headerTitle: Platform.OS === 'ios' ? () => (
-			<PapillonInsetHeader
-			  icon={<SFSymbol name="fork.knife.circle.fill" />}
-			  title="Restauration scolaire"
-			  color="#B42828"
-			  inset
-			/>
-		  ) : 'Vie scolaire',
-		  headerBackTitleVisible: false,
-		  headerTintColor: UIColors.text,
-		});
-	  });
-	  
+	React.useLayoutEffect(() => {
+	navigation.setOptions({
+		headerTitle: Platform.OS === 'ios' ? () => (
+		<PapillonInsetHeader
+			icon={<SFSymbol name="fork.knife.circle.fill" />}
+			title="Restaurant scolaire"
+			color="#B42828"
+			inset
+		/>
+		) : 'Restaurant scolaire',
+		headerBackTitleVisible: false,
+		headerTintColor: UIColors.text,
+	});
+	});
+	
 	return (
 		<ScrollView>
 			<View style={{
@@ -99,13 +99,13 @@ function CantineScreen({ navigation }) {
 			<View style={[styles.tabs.tabsContainer]}>
 				<View style={[styles.tabs.tabRow]}>
 					<ContextMenuView style={{flex: 1}} borderRadius={12}>
-						<PressableScale style={[styles.tabs.tab, { backgroundColor: UIColors.element }]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetReservationCantineScreen')}>
+						<PressableScale style={[styles.tabs.tab, { backgroundColor: UIColors.element }]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetReservationCantine')}>
 							<CopyCheck size={24} color={theme.dark ? '#ffffff' : '#000000'} />
 							<Text style={[styles.tabs.tabText]}>Mes réservations</Text>
 						</PressableScale>
 					</ContextMenuView>
 					<ContextMenuView style={{flex: 1}} borderRadius={12}>
-						<PressableScale style={[styles.tabs.tab, { backgroundColor: UIColors.element }]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetCardCantineScreen')}>
+						<PressableScale style={[styles.tabs.tab, { backgroundColor: UIColors.element }]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetCardCantine')}>
 							<CreditCard size={24} color={theme.dark ? '#ffffff' : '#000000'} />
 							<Text style={[styles.tabs.tabText]}>Afficher ma carte</Text>
 						</PressableScale>

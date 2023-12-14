@@ -357,7 +357,7 @@ function TabsElement({ navigation, theme, UIColors }) {
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
               activeScale={0.9}
-              onPress={() => navigation.navigate('InsetSchoollife')}
+              onPress={() => navigation.navigate('InsetCantine')}
             >
               <Utensils size={24} color={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabs.tabText]}>Restaurant scolaire</Text>
@@ -368,7 +368,7 @@ function TabsElement({ navigation, theme, UIColors }) {
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
               activeScale={0.9}
-              onPress={() => navigation.navigate('InsetConversations')}
+              onPress={() => navigation.navigate('InsetEvaluations')}
             >
               <CheckCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabs.tabText]}>Compétences</Text>

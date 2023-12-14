@@ -192,25 +192,6 @@ function SettingsScreen({ navigation }) {
       style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
     >
 
-        <NativeList
-          header="Connexion à d'autres services"
-          inset
-        >
-          <NativeItem
-            leading={<Utensils size={24} color={UIColors.text} />}
-            chevron
-            onPress={() => navigation.navigate('loginCantine')}
-          >
-            <NativeText heading="h4">
-              Restaurant scolaire
-            </NativeText>
-            <NativeText heading="p2">
-              Connexion au service de restauration scolaire
-            </NativeText>
-          </NativeItem>
-
-        </NativeList>
-
       {appctx.dataprovider.service === 'Pronote' && ( 
         <NativeList
           header="Connexion à Pronote"
