@@ -180,19 +180,6 @@ function NewHomeScreen({ navigation }) {
         setLoadingUser(false);
       }
     });
-
-    AsyncStorage.getItem('appcache-homedata').then((value) => {
-      if (value) {
-        const data = JSON.parse(value);
-        applyLoadedData(data.homeworks, data.timetable);
-
-        if (new Date(data.timetable[0].start).getDate() === today.getDate() + 1) {
-          setShowsTomorrow(true);
-        }
-
-        setUsesCache(true);
-      }
-    });
   }, []);
 
   useEffect(() => {
@@ -239,13 +226,13 @@ function NewHomeScreen({ navigation }) {
       // check if all cours are done
       let doneCours = 0;
       coursData.forEach((cours) => {
-        if (new Date(cours.end) < new Date()) {
+        if (new Date(cours.end) < new Date(today)) {
           doneCours++;
         }
       });
 
       if (doneCours === coursData.length) {
-        const tomorrow = new Date();
+        const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
         appctx.dataprovider.getTimetable(tomorrow, true).then((data) => {
           applyLoadedData(hwData, data);
@@ -1128,7 +1115,7 @@ function HomeHeader({ navigation, timetable, user, showsTomorrow }) {
         
       </View>
 
-      { !loading && nextCourse && (
+      { !loading && (
         <View style={styles.nextCoursContainer}>
           <NextCoursElem
             cours={timetable}
@@ -1139,29 +1126,6 @@ function HomeHeader({ navigation, timetable, user, showsTomorrow }) {
             }]}
           />
         </View>
-      )}
-
-      {!nextCourse && (
-        <PressableScale
-          style={[
-            headerStyles.nextCoursContainer,
-            { backgroundColor: UIColors.elementHigh },
-            headerStyles.nextCoursLoading,
-          ]}
-        >
-          {loading ? (
-            <>
-              <ActivityIndicator size={12} />
-              <Text style={[headerStyles.nextCoursLoadingText]}>
-                Chargement du prochain cours
-              </Text>
-            </>
-          ) : (
-            <Text style={[headerStyles.nextCoursLoadingText]}>
-              Pas de prochain cours
-            </Text>
-          )}
-        </PressableScale>
       )}
     </View>
   );

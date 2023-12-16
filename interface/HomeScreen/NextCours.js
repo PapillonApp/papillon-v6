@@ -39,11 +39,11 @@ const NextCours = ({ cours, style, navigation }) => {
       now = new Date();
 
       // if the cours is in the next hour
-      if (hb < new Date() && st > new Date()) {
+      if (hb < new Date(now) && st > new Date(now)) {
         setCoursStarted(false);
         
         // calculate the time between now and the start
-        diff = new Date() - st;
+        diff = new Date(now) - st;
         diff = Math.floor(diff / 1000 / 60);
         setLenText('dans ' + Math.abs(diff) + ' min');
 
@@ -54,26 +54,31 @@ const NextCours = ({ cours, style, navigation }) => {
         setBarPercent(diff);
       }
       // if the cours is in progress
-      else if (st < new Date() && en > new Date()) {
+      else if (st < new Date(now) && en > new Date(now)) {
         setCoursStarted(true);
 
         // calculate the time between now and the end
-        diff = en - new Date();
+        diff = en - new Date(now);
         diff = Math.floor(diff / 1000 / 60);
+
+        if(diff == 0) {
+          diff = 'moins d\'une';
+        }
+
         setLenText(diff + ' min rest.');
 
         // calculate the progression between the start and the end
         var q = Math.abs(now-st);
-        var d = Math.abs(en-now);
+        var d = Math.abs(en-st);
         diff = q / d * 100;
         setBarPercent(diff);
       }
       // if the cours has not started yet
-      else if (st > new Date()) {
+      else if (st > new Date(now)) {
         setCoursStarted(false);
         
         // calculate the time between now and the start
-        diff = new Date() - st;
+        diff = new Date(now) - st;
         diff = Math.floor(diff / 1000 / 60);
 
         let hours = Math.floor(diff / 60);
@@ -89,6 +94,7 @@ const NextCours = ({ cours, style, navigation }) => {
   // check which cours is next
   function checkCours() {
     let now = new Date();
+
     if(!cours) return;
 
     const activeClasses = cours.filter((classInfo) => !classInfo.is_cancelled);
@@ -106,14 +112,7 @@ const NextCours = ({ cours, style, navigation }) => {
         break; // Found the current class, no need to continue
       }
       else if (startTime > now) {
-        const timeDiff = startTime - now;
-  
-        if (timeDiff < minTimeDiff) {
-          minTimeDiff = timeDiff;
-          currentOrNextClass = classInfo;
-
-          setNxid(cours.indexOf(classInfo));
-        }
+        setNxid(cours.indexOf(classInfo));
       }
     }
   }
@@ -123,14 +122,16 @@ const NextCours = ({ cours, style, navigation }) => {
       updateNext();
       checkCours();
     }, 1000);
+  
+    return () => clearInterval(interval);
+  }, [cours, nxid]);
 
+  useEffect(() => {
     updateNext();
     checkCours();
+  }, [cours, nxid]);
 
-    return () => clearInterval(interval);
-  });
-
-  if(!cours) return (
+  if(!cours || !cours[nxid]) return (
     <PressableScale style={[styles.container, styles.end.container, { backgroundColor: UIColors.element }, style]}
       onPress={() => {
         if(navigation) {
