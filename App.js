@@ -436,10 +436,9 @@ function WrappedHomeScreen() {
       />
       <Stack.Screen
         name="InsetEvaluations"
-        component={InsetEvaluationsScreen}
+        component={EvaluationsScreen}
         options={{
-          headerShown: false,
-          presentation: 'modal',
+          headerShown: true,
         }}
       />
 

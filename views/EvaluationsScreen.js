@@ -24,6 +24,8 @@ import PapillonLoading from '../components/PapillonLoading';
 import { useAppContext } from '../utils/AppContext';
 import { WillBeSoon } from './Global/Soon';
 
+import { getSavedCourseColor } from '../utils/ColorCoursName';
+
 function EvaluationsScreen({ navigation }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -42,6 +44,13 @@ function EvaluationsScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitle: 'Compétences',
+      headerBackTitle: 'Retour',
+      headerTintColor: UIColors.text,
+      headerShadowVisible: true,
+      headerStyle: {
+        backgroundColor: UIColors.background,
+      },
       headerRight: () => (
         <Fade visible={selectedPeriod} direction="up" duration={200}>
           <TouchableOpacity
@@ -137,7 +146,7 @@ function EvaluationsScreen({ navigation }) {
 
     appctx.dataprovider.getEvaluations(isForced).then((_evals) => {
       setIsLoading(false);
-      const evals = JSON.parse(_evals);
+      const evals = _evals;
 
       const finalEvals = [];
 
@@ -233,13 +242,12 @@ function EvaluationsScreen({ navigation }) {
               <Pressable
                 style={[
                   styles.subjectNameContainer,
-                  { backgroundColor: UIColors.primary },
+                  { backgroundColor: getSavedCourseColor(subject.subject.name, UIColors.primary) },
                 ]}
               >
                 <Text style={[styles.subjectName]}>
                   {formatCoursName(subject.subject.name)}
                 </Text>
-                <Text>{JSON.stringify}</Text>
               </Pressable>
               <View style={[styles.competencesList]}>
                 {subject.evals.map((evaluation, id) => (
