@@ -245,8 +245,10 @@ const styles = StyleSheet.create({
       width: 0,
       height: 0.5,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
+    shadowOpacity: 0.15,
+    shadowRadius: 1,
+  
+    elevation: 2,
 
     flex: 1,
     display: 'flex',

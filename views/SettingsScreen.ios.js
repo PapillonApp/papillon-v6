@@ -43,6 +43,9 @@ function NewSettings({navigation}) {
           color="#888888"
         />
       ) : 'Réglages',
+      headerStyle: {
+        backgroundColor: UIColors.background,
+      },
     });
   });
 

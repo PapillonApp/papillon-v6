@@ -96,6 +96,7 @@ function SchoolLifeScreen({ navigation }) {
             <NativeList header="Absences" inset>
               {viesco.absences?.map((absence, index) => (
                 <NativeItem
+                  key={index}
                   leading={
                     <UserX size={24} color="#A84700" />
                   }
@@ -158,6 +159,7 @@ function SchoolLifeScreen({ navigation }) {
             <NativeList header="Retards" inset>
               {viesco?.delays?.map((delay, index) => (
                 <NativeItem
+                  key={index}
                   leading={
                     <Clock3 size={24} color="#565EA3" />
                   }

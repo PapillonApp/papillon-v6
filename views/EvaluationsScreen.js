@@ -226,7 +226,7 @@ function EvaluationsScreen({ navigation }) {
         <PapillonLoading
           title="Aucune évaluation"
           subtitle="Vous n'avez aucune évaluation pour le moment"
-          icon={<Newspaper size={24} color={UIColors.primary} />}
+          icon={<Newspaper size={24} color={UIColors.text} />}
         />
       ) : null}
 

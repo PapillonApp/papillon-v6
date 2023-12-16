@@ -17,6 +17,7 @@ import {
   Platform,
   StatusBar,
   TouchableOpacity,
+  Button,
 } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
 
@@ -34,7 +35,7 @@ import { ContextMenuView } from 'react-native-ios-context-menu';
 import NextCoursElem from '../interface/HomeScreen/NextCours';
 
 // Icons 
-import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2, PlusCircle } from 'lucide-react-native';
+import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2, PlusCircle, Globe2, ServerOff } from 'lucide-react-native';
 import { Papillon as PapillonIcon } from '../interface/icons/PapillonIcons';
 
 // Formatting
@@ -51,6 +52,10 @@ import { useAppContext } from '../utils/AppContext';
 import sendToSharedGroup from '../fetch/SharedValues';
 import { expireToken } from '../fetch/AuthStack/LoginFlow';
 import { LinearGradient } from 'expo-linear-gradient';
+
+import AlertBottomSheet from '../interface/AlertBottomSheet';
+import NetInfo from '@react-native-community/netinfo';
+import AlertAnimated from '../interface/AlertAnimated';
 
 // Functions
 const openURL = (url) => {
@@ -109,7 +114,72 @@ function NewHomeScreen({ navigation }) {
   const [usesCache, setUsesCache] = useState(false);
   const [showsTomorrow, setShowsTomorrow] = useState(false);
 
+  const [noInternetAlert, setNoInternetAlert] = useState(false);
+  const [offlineServerAlert, setOfflineServerAlert] = useState(false);
+
+  const [isConnected, setIsConnected] = useState(true);
+  const [isServerOnline, setIsServerOnline] = useState(true);
+
   const today = new Date();
+
+  // check internet connection
+  useEffect(() => {
+    
+    // check if connected
+    NetInfo.fetch().then(state => {
+      if (state.isConnected) {
+        setNoInternetAlert(false);
+        setIsConnected(true);
+
+        // check if server is online
+        fetch('https://api.getpapillon.xyz/infos', {
+          method: 'GET'
+        })
+        .then((response) => response.json())
+        .then((json) => {
+          if (json.status === 'ok') {
+            setOfflineServerAlert(false);
+            setIsServerOnline(true);
+          }
+          else {
+            if(isServerOnline) {
+              setOfflineServerAlert(true);
+            }
+            setIsServerOnline(false);
+          }
+        })
+        .catch((error) => {
+          if(isServerOnline) {
+            setOfflineServerAlert(true);
+          }
+          setIsServerOnline(false);
+        });
+      }
+      else {
+        if(isConnected) {
+          setOfflineServerAlert(true);
+        }
+        setIsConnected(false);
+      }
+    });
+
+    // subscribe to connection changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+      if (state.isConnected) {
+        setIsConnected(true);
+      }
+      else {
+        if(isConnected) {
+          setNoInternetAlert(true);
+        }
+        setIsConnected(false);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    }
+  }, [noInternetAlert, offlineServerAlert]);
 
   const applyLoadedData = (hwData, coursData) => {
     const groupedHomeworks = hwData.reduce((grouped, homework) => {
@@ -388,6 +458,46 @@ function NewHomeScreen({ navigation }) {
       >
         <TabsElement navigation={navigation} theme={theme} UIColors={UIColors} />
       </Animated.View>
+
+      <AlertAnimated
+        visible={!isConnected}
+        title="Vous êtes hors-ligne"
+        subtitle="Les informations affichées peuvent être obsolètes."
+        left={<Globe2 color={UIColors.text} />}
+        height={80}
+        style={{marginHorizontal: 16}}
+      />
+
+      <AlertAnimated
+        visible={!isServerOnline}
+        title="Serveurs inaccessibles"
+        subtitle="Les informations affichées peuvent être obsolètes."
+        left={<ServerOff color={UIColors.text} />}
+        height={80}
+        style={{marginHorizontal: 16}}
+      />
+
+      <AlertBottomSheet
+        title="Aucune connexion Internet"
+        subtitle="Une connexion internet est nécessaire pour afficher les informations de votre compte."
+        icon={<Globe2 />}
+        color='#9A1D1D'
+        visible={noInternetAlert}
+        cancelAction={() => {
+          setNoInternetAlert(false);
+        }}
+      />
+
+      <AlertBottomSheet
+        title="Serveurs inaccessibles"
+        subtitle="Impossible de se connecter aux serveurs de Papillon. Veuillez réessayer plus tard."
+        icon={<ServerOff />}
+        color='#9A1D1D'
+        visible={offlineServerAlert}
+        cancelAction={() => {
+          setOfflineServerAlert(false);
+        }}
+      />
 
       <CoursElement
         cours={timetable}
