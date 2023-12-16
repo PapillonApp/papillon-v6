@@ -166,6 +166,9 @@ function NewHomeScreen({ navigation }) {
     // subscribe to connection changes
     const unsubscribe = NetInfo.addEventListener(state => {
       if (state.isConnected) {
+        if (!isConnected) {
+          setRefreshCount(refreshCount + 1);
+        }
         setIsConnected(true);
       }
       else {
