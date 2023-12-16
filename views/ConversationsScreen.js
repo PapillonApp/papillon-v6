@@ -111,16 +111,13 @@ function ConversationsScreen({ navigation }) {
   // add search functionality
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: Platform.OS === 'ios' ? () => (
-        <PapillonInsetHeader
-          icon={<SFSymbol name="bubble.left.circle.fill" />}
-          title="Conversations"
-          color="#B18619"
-          inset
-        />
-      ) : 'Conversations',
-      headerBackTitleVisible: false,
+      headerTitle: 'Conversations',
+      headerBackTitle: 'Retour',
       headerTintColor: UIColors.text,
+      headerShadowVisible: true,
+      headerStyle: {
+        backgroundColor: UIColors.background,
+      },
       headerSearchBarOptions: {
         placeholder: 'Rechercher une conversation',
         cancelButtonText: 'Annuler',

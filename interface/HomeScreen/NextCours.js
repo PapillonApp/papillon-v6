@@ -240,8 +240,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderCurve: 'continuous',
 
-    height: 117,
-
     shadowColor: '#000',
     shadowOffset: {
       width: 0,

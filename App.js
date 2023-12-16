@@ -11,7 +11,7 @@ import FlashMessage from 'react-native-flash-message';
 
 import { getHeaderTitle } from '@react-navigation/elements';
 import { useState, useMemo, useEffect } from 'react';
-import { Platform, StyleSheet, useColorScheme, View, PermissionsAndroid, Alert, Linking, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet, useColorScheme, View, PermissionsAndroid, Alert, Linking, TouchableOpacity, TouchableHighlight, Pressable } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import { SFSymbol } from 'react-native-sfsymbols';
 
@@ -103,6 +103,17 @@ notifs.init()
 const Tab = createBottomTabNavigator();
 import * as Sentry from '@sentry/react-native';
 
+import {
+  Home as PapillonIconsHome,
+  HomeFill as PapillonIconsHomeFill,
+  Calendar as PapillonIconsCalendar,
+  CalendarFill as PapillonIconsCalendarFill,
+  Book as PapillonIconsBook,
+  Stats as PapillonIconsStats,
+  News as PapillonIconsNews,
+  NewsFill as PapillonIconsNewsFill,
+} from './interface/icons/PapillonIcons';
+
 Sentry.init({
   dsn: 'http://4f5fa3f4dc364796bbdac55029146458@sentry.getpapillon.xyz/3',
   enableInExpoDevelopment: true,
@@ -157,6 +168,9 @@ const headerTitleStyles = {
   },
   headerTitleStyle: {
     fontFamily: 'Papillon-Semibold',
+  },
+  headerBackTitleStyle: {
+    fontFamily: 'Papillon-Medium',
   },
 };
 
@@ -890,8 +904,8 @@ function ModalPronoteLogin() {
 }
 
 function AppStack() {
-
   const theme = useTheme();
+  const UIColors = GetUIColors();
 
   const tabBar = useMemo(() => {
     if (Platform.OS !== 'ios') {
@@ -964,16 +978,28 @@ function AppStack() {
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
-        tabBarShowLabel: Platform.OS !== 'android',
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: theme.dark ? '#ffffff' : '#000000',
+        tabBarInactiveTintColor: theme.dark ? '#ffffff' : '#000000',
         tabBarStyle: {
-          paddingLeft: 14,
-          paddingRight: 14,
-          paddingTop: 0,
+          paddingHorizontal: 8,
+          backgroundColor: UIColors.background,
+          borderTopWidth: 0.5,
         },
-        tabBarBadgeStyle: {
-          backgroundColor: "#B42828",
-          color: '#fff',
-        },
+        tabBarButton: (props) => {
+          return (
+            <Pressable 
+              {...props}
+              style={({ pressed }) => [
+                {
+                  ...props.style,
+                  flex: 1,
+                  opacity: props.accessibilityState.selected ? 1 : 0.5,
+                },
+              ]}
+            />
+          );
+        }
       }}
     >
       <Tab.Screen
@@ -982,14 +1008,10 @@ function AppStack() {
         options={{
           tabBarLabel: 'Accueil',
           tabBarIcon: ({ color, size, focused }) =>
-            Platform.OS === 'ios' ? (
-              focused ? (
-                <SFSymbol name="house.fill" color={color} size={size-2} />
-              ) : (
-                <SFSymbol name="house" color={color} size={size-2} />
-              )
+            !focused ? (
+              <PapillonIconsHome stroke={color} width={size+2} height={size+2} />
             ) : (
-              <Home color={color} size={size} />
+              <PapillonIconsHomeFill fill={color} stroke={color} width={size+2} height={size+2} />
             ),
           headerShown: false,
         }}
@@ -1000,14 +1022,12 @@ function AppStack() {
         options={{
           tabBarLabel: 'Cours',
           tabBarIcon: ({ color, size, focused }) => (
-            Platform.OS === 'ios' ?
-              focused ?
-                <SFSymbol name="calendar" weight='semibold' color={color} size={size-2} />
-              :
-                <SFSymbol name="calendar" color={color} size={size-2} />
-            :
-              <CalendarRange color={color} size={size} />
-            ),
+            !focused ? (
+              <PapillonIconsCalendar stroke={color} width={size+2} height={size+2} />
+            ) : (
+              <PapillonIconsCalendarFill fill={color} stroke={color} width={size+2} height={size+2} />
+            )
+          ),
           headerShown: false,
         }}
       />
@@ -1017,14 +1037,12 @@ function AppStack() {
         options={{
           tabBarLabel: 'Devoirs',
           tabBarIcon: ({ color, size, focused }) => (
-            Platform.OS === 'ios' ?
-              focused ?
-                <SFSymbol name="book.fill" color={color} size={size-2} />
-              :
-                <SFSymbol name="book" color={color} size={size-2} />
-            :
-              <BookOpen color={color} size={size} />
-            ),
+            !focused ? (
+              <PapillonIconsBook stroke={color} width={size+2} height={size+2} />
+            ) : (
+              <PapillonIconsBook stroke={color} width={size+2} height={size+2} />
+            )
+          ),
           headerShown: false,
         }}
       />
@@ -1034,14 +1052,12 @@ function AppStack() {
         options={{
           tabBarLabel: 'Notes',
           tabBarIcon: ({ color, size, focused }) => (
-            Platform.OS === 'ios' ?
-              focused ?
-                <SFSymbol name="chart.pie.fill" color={color} size={size-2} />
-              :
-                <SFSymbol name="chart.pie" color={color} size={size-2} />
-            :
-              <BarChart3 color={color} size={size} />
-            ),
+            !focused ? (
+              <PapillonIconsStats stroke={color} width={size+2} height={size+2} />
+            ) : (
+              <PapillonIconsStats stroke={color} width={size+2} height={size+2} />
+            )
+          ),
           headerShown: false,
         }}
       />
@@ -1051,13 +1067,11 @@ function AppStack() {
         options={{
           tabBarLabel: 'Actualités',
           tabBarIcon: ({ color, size, focused }) => (
-            Platform.OS === 'ios' ?
-              focused ?
-                <SFSymbol name="newspaper.fill" color={color} size={size-2} />
-              :
-                <SFSymbol name="newspaper" color={color} size={size-2} />
-            :
-              <Newspaper color={color} size={size} />
+            !focused ? (
+              <PapillonIconsNews fill={color} stroke={color} width={size+2} height={size+2} />
+            ) : (
+              <PapillonIconsNewsFill fill={color} stroke={color} width={size+2} height={size+2} />
+            )
           ),
           headerShown: false,
         }}

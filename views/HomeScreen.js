@@ -23,6 +23,7 @@ import { useEffect, useState, useRef } from 'react';
 // Components & Styles
 import { useTheme, Text } from 'react-native-paper';
 import { PressableScale } from 'react-native-pressable-scale';
+import { BlurView } from 'expo-blur';
 
 // Modules
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -33,7 +34,8 @@ import { ContextMenuView } from 'react-native-ios-context-menu';
 import NextCoursElem from '../interface/HomeScreen/NextCours';
 
 // Icons 
-import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2 } from 'lucide-react-native';
+import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2, PlusCircle } from 'lucide-react-native';
+import { Papillon as PapillonIcon } from '../interface/icons/PapillonIcons';
 
 // Formatting
 import GetUIColors from '../utils/GetUIColors';
@@ -43,10 +45,12 @@ import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
 // Custom componant
 import PapillonList from '../components/PapillonList';
+import NewPapillonHeader from '../interface/NewPapillonHeader';
 
 import { useAppContext } from '../utils/AppContext';
 import sendToSharedGroup from '../fetch/SharedValues';
 import { expireToken } from '../fetch/AuthStack/LoginFlow';
+import { LinearGradient } from 'expo-linear-gradient';
 
 // Functions
 const openURL = (url) => {
@@ -86,6 +90,7 @@ function NewHomeScreen({ navigation }) {
   const appctx = useAppContext();
   const theme = useTheme();
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
 
   const [refreshCount, setRefreshCount] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
@@ -257,17 +262,81 @@ function NewHomeScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      header: (props) => (
-        <HomeHeader
-          props={props}
-          user={user}
-          timetable={timetable}
-          navigation={navigation}
-          showsTomorrow={showsTomorrow}
+      headerLeft: () => (
+        <PapillonIcon fill={UIColors.text + '26'} style={[styles.newHeaderIcon]} width={32} height={32} />
+      ),
+      headerTitle: 'Vue d\'ensemble',
+      headerLargeTitle: true,
+      headerShadowVisible: false,
+      headerTransparent: true,
+      headerTintColor: UIColors.text,
+      headerLargeStyle: {
+        backgroundColor: UIColors.background,
+      },
+      headerRight: () => (
+          <TouchableOpacity
+           style={[headerStyles.headerPfpContainer]}
+            onPress={() => navigation.navigate('InsetSettings', {isModal: true})}
+          >
+            {user && user.profile_picture ? (<Image
+              source={{ uri: user.profile_picture }}
+              style={[headerStyles.headerPfp]}
+            />) : (
+              <UserCircle2 size={36} style={[headerStyles.headerPfp]} color="#ccc" />
+            )
+            }
+          </TouchableOpacity>
+      ),
+      headerBackground: () => ( 
+        <View
+          style={{
+            backgroundColor: UIColors.background,
+            borderBottomColor: UIColors.text + '22',
+            borderBottomWidth: 0,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            height: 44 + insets.top,
+            width: '100%',
+          }}
         />
       ),
     });
-  }, [navigation, timetable, user, showsTomorrow]);
+  }, [navigation, timetable, formattedUserData, showsTomorrow, UIColors]);
+
+  // animations
+  const yOffset = new Animated.Value(0);
+
+  const scrollHandler = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: yOffset } } }],
+    { useNativeDriver: false }
+  );
+
+  const scrollY = Animated.add(yOffset, 0);
+
+  const headerOpacity = yOffset.interpolate({
+    inputRange: [-120, -60],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
+
+  const headerScale = yOffset.interpolate({
+    inputRange: [-120, -60],
+    outputRange: [1, 0.9],
+    extrapolate: 'clamp',
+  });
+
+  const tabsOpacity = yOffset.interpolate({
+    inputRange: [-40, 40],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
+
+  const tabsScale = yOffset.interpolate({
+    inputRange: [-40, 40],
+    outputRange: [1, 0.9],
+    extrapolate: 'clamp',
+  });
 
   return (
     <ScrollView
@@ -275,7 +344,6 @@ function NewHomeScreen({ navigation }) {
       contentInsetAdjustmentBehavior='automatic'
       refreshControl={
         <RefreshControl
-          progressViewOffset={28}
           refreshing={refreshing}
           colors={[Platform.OS === 'android' ? UIColors.primary : null]}
           onRefresh={() => {
@@ -289,9 +357,37 @@ function NewHomeScreen({ navigation }) {
           }}
         />
       }
+      onScroll={scrollHandler}
+      scrollEventThrottle={16}
     >
-      <View style={{ height: 32 }} />
-      <TabsElement navigation={navigation} theme={theme} UIColors={UIColors} />
+      <Animated.View
+        style={[
+          { 
+            opacity: headerOpacity,
+            transform: [{ scale: headerScale }],
+          },
+        ]}
+      >
+        <NextCoursElem
+          cours={timetable}
+          navigation={navigation}
+          style={[{
+            marginHorizontal: 16,
+            marginVertical: 0,
+          }]}
+        />
+      </Animated.View>
+
+      <Animated.View
+        style={[
+          {
+            opacity: tabsOpacity,
+            transform: [{ scale: tabsScale }],
+          },
+        ]}
+      >
+        <TabsElement navigation={navigation} theme={theme} UIColors={UIColors} />
+      </Animated.View>
 
       <CoursElement
         cours={timetable}
@@ -316,7 +412,6 @@ function TabsElement({ navigation, theme, UIColors }) {
   return (
     <View style={[styles.tabs.tabsContainer]}>
         <View style={[styles.tabs.tabRow]}>
-          <ContextMenuView style={{flex: 1}} borderRadius={12}>
             <PressableScale
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
@@ -326,8 +421,6 @@ function TabsElement({ navigation, theme, UIColors }) {
               <Gavel size={24} color={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabs.tabText]}>Vie scolaire</Text>
             </PressableScale>
-          </ContextMenuView>
-          <ContextMenuView style={{flex: 1}} borderRadius={12}>
             <PressableScale
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
@@ -335,9 +428,17 @@ function TabsElement({ navigation, theme, UIColors }) {
               onPress={() => navigation.navigate('InsetConversations')}
             >
               <MessagesSquare size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-              <Text style={[styles.tabs.tabText]}>Conversations</Text>
+              <Text style={[styles.tabs.tabText]}>Messages</Text>
             </PressableScale>
-          </ContextMenuView>
+            <PressableScale
+              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+              weight="light"
+              activeScale={0.9}
+              onPress={() => navigation.navigate('InsetEvaluations')}
+            >
+              <PlusCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <Text style={[styles.tabs.tabText]}>Compét.</Text>
+            </PressableScale>
         </View>
       </View>
   )
@@ -1348,7 +1449,7 @@ const styles = StyleSheet.create({
 
   tabs: {
     tabsContainer: {
-      marginTop: 24,
+      marginTop: 8,
       marginHorizontal: 16,
       gap: 6,
       marginBottom: 16,
@@ -1369,7 +1470,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       paddingVertical: 12,
-      paddingHorizontal: 10,
+      paddingHorizontal: 8,
       gap: 4,
   
       shadowColor: '#000',
@@ -1385,7 +1486,7 @@ const styles = StyleSheet.create({
   
     tabText: {
       fontSize: 14.5,
-      fontFamily: 'Papillon-Semibold',
+      fontFamily: 'Onest-Semibold',
     },
   },
 
@@ -1610,26 +1711,14 @@ const headerStyles = StyleSheet.create({
   },
 
   headerPfpContainer: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    width: 38,
-    height: 38,
+    width: 32,
+    height: 32,
     backgroundColor: '#ffffff10',
     borderRadius: 24,
-    marginRight: 4,
-
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 0.5,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 1,
   },
   headerPfp: {
-    width: 38,
-    height: 38,
+    width: 32,
+    height: 32,
     borderRadius: 24,
   },
 });

@@ -48,16 +48,13 @@ function SchoolLifeScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: Platform.OS === 'ios' ? () => (
-        <PapillonInsetHeader
-          icon={<SFSymbol name="person.badge.clock.fill" />}
-          title="Vie scolaire"
-          color="#8F3D9D"
-          inset
-        />
-      ) : 'Vie scolaire',
-      headerBackTitleVisible: false,
+      headerTitle: 'Vie scolaire',
+      headerBackTitle: 'Retour',
       headerTintColor: UIColors.text,
+      headerShadowVisible: true,
+      headerStyle: {
+        backgroundColor: UIColors.background,
+      },
     });
   });
 
