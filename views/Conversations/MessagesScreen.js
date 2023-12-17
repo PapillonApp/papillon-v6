@@ -154,9 +154,6 @@ function MessagesScreen ({ route, navigation }) {
       headerBackTitleVisible: false,
       headerTintColor: UIColors.text,
       headerShadowVisible: true,
-      headerStyle: {
-        backgroundColor: UIColors.background,
-      },
       headerTitle : Platform.OS === 'ios' ? () => (
         <TouchableOpacity style={{flexDirection: 'column', alignItems: 'flex-start', overflow: 'hidden', width: '100%', paddingRight: 56}} onPress={() => openModal()}>
           <Text style={{fontFamily: 'Papillon-Semibold', fontSize: 17, color: UIColors.text, flex: 1}} numberOfLines={1}>

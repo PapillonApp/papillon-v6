@@ -115,9 +115,6 @@ function ConversationsScreen({ navigation }) {
       headerBackTitle: 'Retour',
       headerTintColor: UIColors.text,
       headerShadowVisible: true,
-      headerStyle: {
-        backgroundColor: UIColors.background,
-      },
       headerSearchBarOptions: {
         placeholder: 'Rechercher une conversation',
         cancelButtonText: 'Annuler',

@@ -99,20 +99,42 @@ const NextCours = ({ cours, style, navigation }) => {
 
     const activeClasses = cours.filter((classInfo) => !classInfo.is_cancelled);
 
+    // sort the classes by start time
+    activeClasses.sort((a, b) => {
+      const aStart = new Date(a.start);
+      const bStart = new Date(b.start);
+
+      if (aStart < bStart) return -1;
+      if (aStart > bStart) return 1;
+      return 0;
+    });
+
     let currentOrNextClass = null;
     let minTimeDiff = Infinity;
 
-    for (const classInfo of activeClasses) {
-      const startTime = new Date(classInfo.start);
-      const endTime = new Date(classInfo.end);
-  
-      if (startTime <= now && now <= endTime) {
+    // find the class that is currently happening or next
+    for (let i = 0; i < activeClasses.length; i++) {
+      const classInfo = activeClasses[i];
+      const classStart = new Date(classInfo.start);
+      const classEnd = new Date(classInfo.end);
+
+      // if the class is currently happening
+      if (classStart < now && classEnd > now) {
         currentOrNextClass = classInfo;
         setNxid(cours.indexOf(classInfo));
-        break; // Found the current class, no need to continue
+        break;
       }
-      else if (startTime > now) {
-        setNxid(cours.indexOf(classInfo));
+
+      // if the class is in the future
+      if (classStart > now) {
+        const timeDiff = classStart - now;
+
+        // if the class is closer than the current closest class
+        if (timeDiff < minTimeDiff) {
+          currentOrNextClass = classInfo;
+          setNxid(cours.indexOf(classInfo));
+          minTimeDiff = timeDiff;
+        }
       }
     }
   }

@@ -363,9 +363,9 @@ function NewHomeScreen({ navigation }) {
       headerBackground: () => ( 
         <View
           style={{
-            backgroundColor: UIColors.background,
+            backgroundColor: UIColors.element,
             borderBottomColor: UIColors.text + '22',
-            borderBottomWidth: 0,
+            borderBottomWidth: 0.5,
             position: 'absolute',
             top: 0,
             left: 0,
@@ -508,6 +508,7 @@ function NewHomeScreen({ navigation }) {
         UIColors={UIColors}
         navigation={navigation}
         loading={loadingCours}
+        showsTomorrow={showsTomorrow}
       />
       
       <DevoirsElement
@@ -557,11 +558,11 @@ function TabsElement({ navigation, theme, UIColors }) {
   )
 }
 
-function CoursElement({ cours, theme, UIColors, navigation, loading }) {
+function CoursElement({ cours, theme, UIColors, navigation, loading, showsTomorrow }) {
   return (
     !loading ? (
       cours && cours.length > 0 ? (
-        <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
+        <PapillonList inset title={!showsTomorrow ? "Emploi du temps" : "Votre journée de demain"} style={styles.cours.container}>
           {cours.map((day, index) => (
             <View key={index}>
               <CoursItem key={index} index={index} cours={day} day={cours} theme={theme} UIColors={UIColors} navigation={navigation} />

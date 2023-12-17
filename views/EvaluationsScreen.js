@@ -48,9 +48,6 @@ function EvaluationsScreen({ navigation }) {
       headerBackTitle: 'Retour',
       headerTintColor: UIColors.text,
       headerShadowVisible: true,
-      headerStyle: {
-        backgroundColor: UIColors.background,
-      },
       headerRight: () => (
         <Fade visible={selectedPeriod} direction="up" duration={200}>
           <TouchableOpacity
@@ -58,7 +55,7 @@ function EvaluationsScreen({ navigation }) {
             style={styles.periodButtonContainer}
           >
             <Text
-              style={[styles.periodButtonText, { color: UIColors.primary }]}
+              style={[styles.periodButtonText, { color: UIColors.text, fontFamily: 'Papillon-Medium', opacity: 0.5 }]}
             >
               {selectedPeriod?.name || ''}
             </Text>
@@ -185,15 +182,11 @@ function EvaluationsScreen({ navigation }) {
         style={[styles.container, { backgroundColor: UIColors.background }]}
         contentInsetAdjustmentBehavior="automatic"
       >
-        {Platform.OS === 'ios' ? (
-          <StatusBar animated barStyle="light-content" />
-        ) : (
-          <StatusBar
-            animated
-            barStyle={theme.dark ? 'light-content' : 'dark-content'}
-            backgroundColor="transparent"
-          />
-        )}
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
 
         <WillBeSoon name="Les compétences" plural />
       </ScrollView>
@@ -205,15 +198,11 @@ function EvaluationsScreen({ navigation }) {
       style={[styles.container, { backgroundColor: UIColors.background }]}
       contentInsetAdjustmentBehavior="automatic"
     >
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated barStyle="light-content" />
-      ) : (
-        <StatusBar
-          animated
-          barStyle={theme.dark ? 'light-content' : 'dark-content'}
-          backgroundColor="transparent"
-        />
-      )}
+      <StatusBar
+        animated
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor="transparent"
+      />
 
       {isHeadLoading ? (
         <PapillonLoading

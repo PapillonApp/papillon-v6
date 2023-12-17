@@ -982,7 +982,7 @@ function AppStack() {
         tabBarInactiveTintColor: theme.dark ? '#ffffff' : '#000000',
         tabBarStyle: {
           paddingHorizontal: 8,
-          backgroundColor: UIColors.background,
+          backgroundColor: UIColors.element,
           borderTopWidth: 0.5,
         },
         tabBarButton: (props) => {
