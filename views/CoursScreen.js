@@ -81,6 +81,7 @@ function CoursScreen({ navigation }) {
   // animate calendar modal
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(0)).current;
 
   // animate modal when visible changes
   useEffect(() => {
@@ -95,6 +96,11 @@ function CoursScreen({ navigation }) {
           toValue: 1,
           duration: 200,
           useNativeDriver: true,
+        }),
+        Animated.spring(scale, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
         })
       ]).start();
     } else {
@@ -105,6 +111,11 @@ function CoursScreen({ navigation }) {
           useNativeDriver: true,
         }),
         Animated.spring(translateY, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scale, {
           toValue: 0,
           duration: 200,
           useNativeDriver: true,
@@ -423,6 +434,12 @@ Statut : ${cours.status || 'Aucun'}
                       translateY: translateY.interpolate({
                         inputRange: [0, 1],
                         outputRange: [100, 0],
+                      }),
+                    },
+                    {
+                      scale: scale.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.8, 1],
                       }),
                     },
                   ],
