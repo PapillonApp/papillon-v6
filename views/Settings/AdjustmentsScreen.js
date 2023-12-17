@@ -108,7 +108,7 @@ const AdjustmentsScreen = ({ navigation }) => {
         }
         title="Redémarrage requis"
         subtitle="Vous devez redémarrer l'application pour appliquer certains changements."
-        height={72}
+        height={74}
         marginVertical={16}
         style={{
           marginHorizontal: 16,
@@ -120,7 +120,7 @@ const AdjustmentsScreen = ({ navigation }) => {
         { Platform.OS === 'ios' ? (
         <NativeItem
           leading={
-            <View style={[previewStyles.tabPreview, {backgroundColor: UIColors.text + '22'}]}>
+            <View style={[previewStyles.tabPreview, {backgroundColor: UIColors.text + '16', borderColor : UIColors.text + '16', borderWidth: 1}]}>
               <TouchableOpacity
                 style={{
                   display: "flex",
