@@ -486,7 +486,6 @@ function WrappedHomeScreen() {
         name="Lesson"
         component={LessonScreen}
         options={{
-          headerShown: false,
           presentation: 'modal',
         }}
       />
@@ -547,7 +546,6 @@ function WrappedCoursScreen() {
         name="Lesson"
         component={LessonScreen}
         options={{
-          headerShown: false,
           presentation: 'modal',
         }}
       />
