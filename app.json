@@ -28,11 +28,11 @@
       "supportsTablet": true,
       "bundleIdentifier": "plus.pronote.app",
       "splash": {
-        "image": "./assets/launch/splashXR-light.png",
+        "image": "./assets/launch/splash-light.png",
         "resizeMode": "cover",
         "backgroundColor": "#F3F2F8",
         "dark": {
-          "image": "./assets/launch/splashXR-dark.png",
+          "image": "./assets/launch/splash-dark.png",
           "resizeMode": "cover",
           "backgroundColor": "#000000"
         }
