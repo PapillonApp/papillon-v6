@@ -36,7 +36,7 @@ import NextCoursElem from '../interface/HomeScreen/NextCours';
 
 // Icons 
 import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2, PlusCircle, Globe2, ServerOff } from 'lucide-react-native';
-import { Papillon as PapillonIcon } from '../interface/icons/PapillonIcons';
+import { Competences, Messages, Papillon as PapillonIcon, UserCheck } from '../interface/icons/PapillonIcons';
 
 // Formatting
 import GetUIColors from '../utils/GetUIColors';
@@ -532,7 +532,7 @@ function TabsElement({ navigation, theme, UIColors }) {
               activeScale={0.9}
               onPress={() => navigation.navigate('InsetSchoollife')}
             >
-              <Gavel size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <UserCheck width={26} height={26} stroke={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabs.tabText]}>Vie scolaire</Text>
             </PressableScale>
             <PressableScale
@@ -541,7 +541,7 @@ function TabsElement({ navigation, theme, UIColors }) {
               activeScale={0.9}
               onPress={() => navigation.navigate('InsetConversations')}
             >
-              <MessagesSquare size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <Messages stroke={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabs.tabText]}>Messages</Text>
             </PressableScale>
             <PressableScale
@@ -550,7 +550,7 @@ function TabsElement({ navigation, theme, UIColors }) {
               activeScale={0.9}
               onPress={() => navigation.navigate('InsetEvaluations')}
             >
-              <PlusCircle size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <Competences stroke={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabs.tabText]}>Compét.</Text>
             </PressableScale>
         </View>

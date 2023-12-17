@@ -1,5 +1,5 @@
 import * as React from "react";
-import Svg, { Path } from "react-native-svg";
+import Svg, { Path, G, Defs, ClipPath } from "react-native-svg";
 
 function Papillon(props) {
   return (
@@ -175,6 +175,154 @@ function NewsFill(props) {
   );
 }
 
+function UserCheck(props) {
+  return (
+    <Svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <Path
+        d="M10.461 11.895C6.893 11.895 4 14.722 4 18.21V19m6.461-7.105c-2.23 0-4.038-1.768-4.038-3.948C6.423 5.767 8.231 4 10.461 4c2.23 0 4.039 1.767 4.039 3.947s-1.808 3.948-4.039 3.948zm0 0A6.49 6.49 0 0116 14.955"
+        strokeWidth={2}
+        strokeLinecap="round"
+      />
+      <Path
+        d="M14 18l2 2 4-4"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function Messages(props) {
+  return (
+    <Svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <G clipPath="url(#prefix__clip0_11_89)" strokeWidth={2}>
+        <G
+          opacity={0.1}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <Path d="M14 9a2 2 0 01-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 012 2v5zM18 9h2a2 2 0 012 2v11l-4-4h-6a2 2 0 01-2-2v-1" />
+        </G>
+        <Path
+          d="M10 2H6c-1.886 0-2.828 0-3.414.6C2 3.2 2 4.165 2 6.095v5.687c0 1.763 0 2.644.324 2.949.224.21.53.305.83.257.434-.07.912-.803 1.867-2.27.376-.577.564-.866.817-1.069.182-.145.386-.257.605-.331.306-.103.644-.103 1.322-.103H10c1.886 0 2.828 0 3.414-.6.586-.6.586-1.565.586-3.496V6.095c0-1.93 0-2.895-.586-3.495C12.828 2 11.886 2 10 2z"
+        />
+        <Path
+          d="M11 14.725c0 1.783 0 2.674.537 3.227.537.554 1.401.554 3.13.554h2.048c.622 0 .932 0 1.212.095.2.068.388.172.555.306.232.188.404.454.749.987.875 1.354 1.313 2.03 1.711 2.095a.898.898 0 00.76-.238c.298-.28.298-1.094.298-2.722V13.78c0-1.782 0-2.673-.537-3.226C20.926 10 20.062 10 18.333 10H17.5"
+          strokeLinecap="round"
+        />
+      </G>
+      <Defs>
+        <ClipPath id="prefix__clip0_11_89">
+          <Path d="M0 0h24v24H0z" />
+        </ClipPath>
+      </Defs>
+    </Svg>
+  );
+}
+
+function MessagesFill(props) {
+  return (
+    <Svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <G clipPath="url(#prefix__clip0_11_109)" strokeWidth={2}>
+        <G
+          opacity={0.1}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <Path d="M14 9a2 2 0 01-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 012 2v5zM18 9h2a2 2 0 012 2v11l-4-4h-6a2 2 0 01-2-2v-1" />
+        </G>
+        <Path
+          d="M10 2H6c-1.886 0-2.828 0-3.414.6C2 3.2 2 4.165 2 6.095v5.687c0 1.763 0 2.644.324 2.949.224.21.53.305.83.257.434-.07.912-.803 1.867-2.27.376-.577.564-.866.817-1.069.182-.145.386-.257.605-.331.306-.103.644-.103 1.322-.103H10c1.886 0 2.828 0 3.414-.6.586-.6.586-1.565.586-3.496V6.095c0-1.93 0-2.895-.586-3.495C12.828 2 11.886 2 10 2z"
+          stroke="#fff"
+        />
+        <Path
+          d="M11 14.725c0 1.783 0 2.674.537 3.227.537.554 1.401.554 3.13.554h2.048c.622 0 .932 0 1.212.095.2.068.388.172.555.306.232.188.404.454.749.987.875 1.354 1.313 2.03 1.711 2.095a.898.898 0 00.76-.238c.298-.28.298-1.094.298-2.722V13.78c0-1.782 0-2.673-.537-3.226C20.926 10 20.062 10 18.333 10H17.5"
+          strokeLinecap="round"
+        />
+      </G>
+      <Defs>
+        <ClipPath id="prefix__clip0_11_109">
+          <Path d="M0 0h24v24H0z" />
+        </ClipPath>
+      </Defs>
+    </Svg>
+  );
+}
+
+function Competences(props) {
+  return (
+    <Svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      strokeWidth={2}
+      {...props}
+    >
+      <Path
+        d="M3 9c0-2.828 0-4.243.879-5.121C4.757 3 6.172 3 9 3c2.828 0 4.243 0 5.121.879C15 4.757 15 6.172 15 9c0 2.828 0 4.243-.879 5.121C13.243 15 11.828 15 9 15c-2.828 0-4.243 0-5.121-.879C3 13.243 3 11.828 3 9z"
+      />
+      <Path
+        d="M10.996 18.381a6 6 0 107.61-8.745"
+        strokeLinecap="round"
+      />
+      <Path
+        d="M9 6v3m0 0v3m0-3H6m3 0h3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function CompetencesFill(props) {
+  return (
+    <Svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <Path
+        d="M10.996 18.381a6 6 0 107.61-8.745"
+        strokeWidth={2}
+        strokeLinecap="round"
+        fill="none"
+      />
+      <Path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M9.07 2h-.14c-1.355 0-2.471 0-3.355.119-.928.124-1.747.396-2.403 1.053-.657.656-.929 1.475-1.053 2.403-.12.884-.119 2-.119 3.354v.142c0 1.354 0 2.47.119 3.354.124.928.396 1.747 1.053 2.403.656.657 1.475.929 2.403 1.053.884.12 2 .119 3.354.119h.142c1.354 0 2.47 0 3.354-.119.928-.124 1.747-.396 2.403-1.053.657-.656.929-1.475 1.053-2.403.12-.884.119-2 .119-3.354v-.142c0-1.354 0-2.47-.119-3.354-.124-.928-.396-1.747-1.053-2.403-.656-.657-1.475-.929-2.403-1.053-.884-.12-2-.119-3.354-.119zM10 6a1 1 0 10-2 0v2H6a1 1 0 000 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V6z"
+      />
+    </Svg>
+  );
+}
+
 export {
   Papillon,
   Home,
@@ -184,5 +332,10 @@ export {
   Book,
   Stats,
   News,
-  NewsFill
+  NewsFill,
+  UserCheck,
+  Messages,
+  MessagesFill,
+  Competences,
+  CompetencesFill,
 };

@@ -985,9 +985,11 @@ function AppStack() {
         },
         tabBarButton: (props) => {
           return (
-            <Pressable 
+            <PressableScale
               {...props}
-              style={({ pressed }) => [
+              activeScale={1.2}
+              weight='light'
+              style={[
                 {
                   ...props.style,
                   flex: 1,
