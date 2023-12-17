@@ -1,0 +1,11 @@
+{
+	"restaurant": [
+		{
+			"id": 0,
+			"name": "Turboself",
+			"description":  "Turboself",
+			"icon": "require('../../assets/logo_turboself.png')",
+			"view": "LoginTurboself"
+		}
+	]
+}
