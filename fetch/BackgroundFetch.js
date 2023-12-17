@@ -129,12 +129,22 @@ async function checkUndoneHomeworks() {
   fireDate.setSeconds(0);
   fireDate.setMilliseconds(0); 
 
+  const limitDate = new Date();
+  limitDate.setHours(21);
+  limitDate.setMinutes(0);
+  limitDate.setSeconds(0);
+  limitDate.setMilliseconds(0);
+
   const notifHasAlreadyBeenSent = await AsyncStorage.getItem('notifHasAlreadyBeenSent');
 
   if (notifHasAlreadyBeenSent == (fireDate.getTime()).toString()) {
     return;
   }
   else if (undone.length > 0 && new Date() > fireDate) {
+    if (new Date() > limitDate) {
+      return;
+    }
+
     let plural = '';
     if (undone.length > 1) {
       plural = 's';
