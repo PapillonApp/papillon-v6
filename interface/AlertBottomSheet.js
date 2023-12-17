@@ -36,11 +36,13 @@ const AlertBottomSheet = ({ visible = true, title, subtitle, icon, color = "#299
           toValue: 1,
           duration: 100,
           useNativeDriver: true,
+          speed: 22,
         }),
         Animated.spring(scale, {
           toValue: 1,
           duration: 100,
           useNativeDriver: true,
+          speed: 22,
         })
       ]).start();
     } else {
@@ -54,11 +56,13 @@ const AlertBottomSheet = ({ visible = true, title, subtitle, icon, color = "#299
           toValue: 0,
           duration: 100,
           useNativeDriver: true,
+          speed: 22,
         }),
         Animated.spring(scale, {
           toValue: 0,
           duration: 100,
           useNativeDriver: true,
+          speed: 22,
         })
       ]).start();
     }
@@ -85,7 +89,7 @@ const AlertBottomSheet = ({ visible = true, title, subtitle, icon, color = "#299
                 {
                   translateY: translateY.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [100, 0],
+                    outputRange: [70, 0],
                   })
                 },
                 {
