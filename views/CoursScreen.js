@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
+import { BlurView } from 'expo-blur';
+
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
 
@@ -57,6 +59,8 @@ import ListItem from '../components/ListItem';
 import { useAppContext } from '../utils/AppContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CalendarFill, Calendar as CalendarPapillonIcon } from '../interface/icons/PapillonIcons';
+import AlertAnimated from '../interface/AlertAnimated';
+import NativeText from '../components/NativeText';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -449,6 +453,53 @@ Statut : ${cours.status || 'Aucun'}
           >
             <Animated.View
               style={[
+                styles.modalTipOverContainer,
+                {
+                  top: insets.top,
+                  opacity,
+                  transform: [
+                    {
+                      translateY: translateY.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [-20, 48],
+                      }),
+                    },
+                    {
+                      scale: scale.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.8, 1],
+                      }),
+                    },
+                  ],
+                }
+              ]}
+            >
+              <BlurView
+                style={[
+                  styles.modalTipContainer
+                ]}
+              >
+                <View style={[
+                  styles.modalTip,
+                  {
+                    backgroundColor: UIColors.dark ? '#00000066' : '#ffffff12',
+                  }
+                ]}>
+                  <CalendarDays size={24} color={"#ffffff"} style={styles.modalTipIcon}/>
+                  <View style={styles.modalTipData}>
+                    <NativeText heading="subtitle3" style={{color: '#ffffff'}}>
+                      Astuce
+                    </NativeText>
+                    <NativeText heading="p" style={{color: '#ffffff'}}>
+                      Vous pouvez également balayer d'un bord à l'autre pour changer de jour.
+                    </NativeText>
+                  </View>
+                </View>
+              </BlurView>
+            </Animated.View>
+
+            <Animated.View
+              style={[
                 {opacity}
               ]}
             >
@@ -461,8 +512,7 @@ Statut : ${cours.status || 'Aucun'}
 
             <Animated.View 
               style={[
-                styles.calendarModalView,
-                {backgroundColor: UIColors.element},
+                styles.calendarModalViewContainer,
                 {
                   opacity,
                   transform: [
@@ -482,29 +532,38 @@ Statut : ${cours.status || 'Aucun'}
                 },
               ]}
             >
-              <DateTimePicker
-                value={calendarDate}
-                locale="fr_FR"
-                mode="date"
-                display="inline"
-                onChange={(event, date) => {
-                  if (event.type === 'dismissed') {
+              <BlurView
+                style={[
+                  styles.calendarModalView,
+                  {
+                    backgroundColor: !UIColors.dark ? UIColors.background + "ff" : UIColors.background + "aa",
+                  },
+                ]}
+              >
+                <DateTimePicker
+                  value={calendarDate}
+                  locale="fr_FR"
+                  mode="date"
+                  display="inline"
+                  onChange={(event, date) => {
+                    if (event.type === 'dismissed') {
+                      setCalendarModalOpen(false);
+                      return;
+                    }
+
                     setCalendarModalOpen(false);
-                    return;
-                  }
 
-                  setCalendarModalOpen(false);
-
-                  setCalendarAndToday(date);
-                  pagerRef.current.setPage(0);
-                  if (currentIndex === 0) {
-                    setCurrentIndex(1);
-                    setTimeout(() => {
-                      setCurrentIndex(0);
-                    }, 10);
-                  }
-                }}
-              />
+                    setCalendarAndToday(date);
+                    pagerRef.current.setPage(0);
+                    if (currentIndex === 0) {
+                      setCurrentIndex(1);
+                      setTimeout(() => {
+                        setCurrentIndex(0);
+                      }, 10);
+                    }
+                  }}
+                />
+              </BlurView>
             </Animated.View>
           </Animated.View>
         </Modal>
@@ -1047,22 +1106,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
 
-  calendarModalView: {
-    backgroundColor: '#ffffff',
+  calendarModalViewContainer: {
     borderRadius: 16,
     borderCurve: 'continuous',
-    paddingHorizontal: 14,
-    paddingBottom: 18,
+    overflow: 'hidden',
 
     width: '100%',
-    
-    shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
+  },
+
+  calendarModalView: {
+    paddingHorizontal: 14,
+    paddingBottom: 18,
+    backgroundColor: '#ffffff12',
   },
 
   modalCloseButton: {
@@ -1097,6 +1152,39 @@ const styles = StyleSheet.create({
     fontWeight: 500,
     fontFamily: 'Papillon-Medium',
   },
+
+  modalTipOverContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    marginHorizontal: 16,
+  },
+  modalTipContainer: {
+    flex: 1,
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+  },
+  modalTip: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    backgroundColor: '#ffffff12',
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    borderColor: '#ffffff12',
+    borderWidth: 1,
+  },
+
+  modalTipData: {
+    flex: 1,
+    paddingRight: 16,
+  }
 });
 
 export default CoursScreen;
