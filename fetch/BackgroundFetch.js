@@ -22,18 +22,21 @@ async function sleep(time) {
 }
 
 async function delNotif() {
-  sleep(1000)
+  notifee.displayNotification({
+    title: "Récupération des données en arrière-plan",
+    id: "background-fetch",
+    android: {
+      timeoutAfter: 200,
+      channelId: "silent",
+      progress: {
+        max: 10,
+        current: 5,
+        indeterminate: true
+      },
+      ongoing: true
+    }
+  });
   notifee.cancelDisplayedNotification("background-fetch")
-    .then((value) => {
-      notifee.getDisplayedNotifications().then(notifs => {
-        notifs.forEach((n) => {
-          if(n.id === "background-fetch") delNotif()
-        })
-      })
-    })
-    .catch(err => {
-      console.error(err)
-    })
 }
 
 // Actualités
@@ -83,7 +86,7 @@ async function newsFetch() {
       })
       .catch(err => {
         setTimeout(() => {
-          notifee.cancelDisplayedNotification("background-fetch")
+          delNotif()
         }, 1000)
         console.error("[Background Fetch/News] Unable to fetch news,", err)
       })
