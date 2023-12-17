@@ -118,6 +118,7 @@ const AdjustmentsScreen = ({ navigation }) => {
       ]}
     >
       <NativeList header="Navigation" inset>
+        { Platform.OS === 'ios' ? (
         <NativeItem
           leading={
             <View style={[previewStyles.tabPreview, {backgroundColor: UIColors.text + '22'}]}>
@@ -154,6 +155,7 @@ const AdjustmentsScreen = ({ navigation }) => {
             Masquer le nom des onglets dans la barre de navigation
           </NativeText>
         </NativeItem>
+        ) : <View /> }
       </NativeList>
     </ScrollView>
   )
