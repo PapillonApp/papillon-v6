@@ -1,0 +1,128 @@
+[
+    {
+        "background_color": "#A2C62B",
+        "content": [],
+        "end": "2023-12-01 11:00",
+        "group_names": [
+            "[1 STI2D 1]"
+        ],
+        "id": "31#HLsb8mIGv79Cp4eEfEtaNjeDdNzO_8UZfdPaFNeae-w",
+        "is_cancelled": false,
+        "is_detention": false,
+        "is_exempted": false,
+        "is_outing": false,
+        "is_test": false,
+        "memo": null,
+        "num": 611,
+        "rooms": [
+            "F 309 (IT_FABLAB)"
+        ],
+        "start": "2023-12-01 07:55",
+        "status": null,
+        "subject": {
+            "groups": false,
+            "id": "82#5DSBdQIfBvD0TVmYkI4jL0VoUlqTBu83wnsQ9oT_Zzw",
+            "name": "INNOVATION TECHNOL."
+        },
+        "teachers": [
+            "PIERRE N."
+        ],
+        "virtual": []
+    },
+    {
+        "background_color": "#00FFFF",
+        "content": [],
+        "end": "2023-12-01 12:55",
+        "group_names": [
+            "[1 STI2D 1]"
+        ],
+        "id": "31#30P6MtF-T2ApcNGewzOLRjDFSOL7gshh5lcWESEZ_cQ",
+        "is_cancelled": false,
+        "is_detention": false,
+        "is_exempted": false,
+        "is_outing": false,
+        "is_test": false,
+        "memo": null,
+        "num": 654,
+        "rooms": [
+            "E 313"
+        ],
+        "start": "2023-12-01 12:05",
+        "status": null,
+        "subject": {
+            "groups": false,
+            "id": "82#jovJJNt9GJGgM4pTAHQMu4n_hpN3vvC_GLcRI6UGd8o",
+            "name": "MATH-PHYSIQUE-CHIMIE"
+        },
+        "teachers": [
+            "JOLY S."
+        ],
+        "virtual": []
+    },
+    {
+        "background_color": "#59BEBD",
+        "content": [],
+        "end": "2023-12-01 17:55",
+        "group_names": [
+            "[1 STI2D 1]"
+        ],
+        "id": "31#_htb1avnLSpTgZbxUf3HPZ2vHFAit4U0K2NrHp23ohs",
+        "is_cancelled": false,
+        "is_detention": false,
+        "is_exempted": false,
+        "is_outing": false,
+        "is_test": false,
+        "memo": null,
+        "num": 617,
+        "rooms": [
+            "F 311 (I2D)"
+        ],
+        "start": "2023-12-01 14:55",
+        "status": null,
+        "subject": {
+            "groups": false,
+            "id": "82#T3lykWjY58cfuLlX_43qHsrOo99u-_KYOhh2R0H6Qcw",
+            "name": "I2D-INGENIER.&DEV.DURAB."
+        },
+        "teachers": [
+            "BRIAT M."
+        ],
+        "virtual": []
+    }
+]
+ LOG  next {
+    "isCurrentClass": false,
+    "isNextClass": true,
+    "next": {
+        "background_color": "#59BEBD",
+        "content": [],
+        "end": "2023-12-01 17:55",
+        "group_names": [
+            "[1 STI2D 1]"
+        ],
+        "id": "31#_htb1avnLSpTgZbxUf3HPZ2vHFAit4U0K2NrHp23ohs",
+        "isNextClass": true,
+        "is_cancelled": false,
+        "is_detention": false,
+        "is_exempted": false,
+        "is_outing": false,
+        "is_test": false,
+        "memo": null,
+        "num": 617,
+        "rooms": [
+            "F 311 (I2D)"
+        ],
+        "start": "2023-12-01 14:55",
+        "status": null,
+        "subject": {
+            "groups": false,
+            "id": "82#T3lykWjY58cfuLlX_43qHsrOo99u-_KYOhh2R0H6Qcw",
+            "name": "I2D-INGENIER.&DEV.DURAB."
+        },
+        "teachers": [
+            "BRIAT M."
+        ],
+        "virtual": []
+    },
+    "nextClasses": []
+}
