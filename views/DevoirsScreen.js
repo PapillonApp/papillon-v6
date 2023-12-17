@@ -42,6 +42,7 @@ import { useAppContext } from '../utils/AppContext';
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -52,6 +53,7 @@ const calcDate = (date, days) => {
 function DevoirsScreen({ navigation }) {
   const theme = useTheme();
   const pagerRef = useRef(null);
+  const insets = useSafeAreaInsets();
 
   const [today, setToday] = useState(new Date());
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -99,6 +101,8 @@ function DevoirsScreen({ navigation }) {
           color="#29947A"
         />
       ),
+      headerShadowVisible: false,
+      headerTransparent: true,
       headerRight: () =>
         Platform.OS === 'ios' ? (
           <DateTimePicker
@@ -139,7 +143,7 @@ function DevoirsScreen({ navigation }) {
           </TouchableOpacity>
         ),
     });
-  }, [navigation, calendarDate]);
+  }, [navigation, calendarDate, UIColors]);
 
   const appctx = useAppContext();
 
@@ -204,7 +208,7 @@ function DevoirsScreen({ navigation }) {
 
       <View
         contentInsetAdjustmentBehavior="automatic"
-        style={[styles.container, { backgroundColor: UIColors.background }]}
+        style={[styles.container, { backgroundColor: UIColors.backgroundHigh, paddingTop: Platform.OS === 'ios' ? insets.top + 44 : 0 }]}
       >
         {Platform.OS === 'android' && calendarModalOpen ? (
           <DateTimePicker

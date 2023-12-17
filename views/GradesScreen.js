@@ -582,7 +582,7 @@ function GradesScreen({ navigation }) {
     <>
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
       refreshControl={
         <RefreshControl
           refreshing={isHeadLoading}
@@ -770,6 +770,18 @@ function GradesScreen({ navigation }) {
                   animated: true,
                 },
                 lineWidth: 4,
+                activePointConfig: {
+                  color: UIColors.primary,
+                  borderColor: UIColors.element,
+                  radius: 7,
+                  borderWidth: 2,
+                  animated: true,
+                  showVerticalLine: true,
+                  verticalLineColor: UIColors.text,
+                  verticalLineDashArray: [5, 5],
+                  verticalLineOpacity: 0.5,
+                  verticalLineWidth: 2,
+                },
                 activePointComponent: (point) => {
                   return (
                     <View
@@ -838,7 +850,7 @@ function GradesScreen({ navigation }) {
                 key={index}
                 style={[
                   styles.smallGradeContainer,
-                  { backgroundColor: UIColors.elementHigh },
+                  { backgroundColor: UIColors.element },
                 ]}
                 onPress={() => showGrade(grade)}
               >
@@ -1460,9 +1472,9 @@ const styles = StyleSheet.create({
 
     shadowColor: '#000000',
     shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowRadius: 2,
     shadowOffset: {
-      height: 1,
+      height: 0,
       width: 0,
     },
     elevation: 1,

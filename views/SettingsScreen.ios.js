@@ -36,7 +36,13 @@ function NewSettings({navigation}) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      
+      headerTitle: Platform.OS === 'ios' ? () => (
+        <PapillonInsetHeader
+          icon={<SFSymbol name="gear" />}
+          title="Réglages"
+          color="#888888"
+        />
+      ) : 'Réglages',
     });
   });
 
