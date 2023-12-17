@@ -33,6 +33,7 @@ import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContextMenuView } from 'react-native-ios-context-menu';
 import NextCoursElem from '../interface/HomeScreen/NextCours';
+import getConsts from '../fetch/consts';
 
 // Icons 
 import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2, PlusCircle, Globe2, ServerOff } from 'lucide-react-native';
@@ -131,28 +132,30 @@ function NewHomeScreen({ navigation }) {
         setNoInternetAlert(false);
         setIsConnected(true);
 
-        // check if server is online
-        fetch('https://api.getpapillon.xyz/infos', {
-          method: 'GET'
-        })
-        .then((response) => response.json())
-        .then((json) => {
-          if (json.status === 'ok') {
-            setOfflineServerAlert(false);
-            setIsServerOnline(true);
-          }
-          else {
+        getConsts().then((consts) => {
+          // check if server is online
+          fetch(`${consts.API}/infos`, {
+            method: 'GET'
+          })
+          .then((response) => response.json())
+          .then((json) => {
+            if (json.status === 'ok') {
+              setOfflineServerAlert(false);
+              setIsServerOnline(true);
+            }
+            else {
+              if(isServerOnline) {
+                setOfflineServerAlert(true);
+              }
+              setIsServerOnline(false);
+            }
+          })
+          .catch((error) => {
             if(isServerOnline) {
               setOfflineServerAlert(true);
             }
             setIsServerOnline(false);
-          }
-        })
-        .catch((error) => {
-          if(isServerOnline) {
-            setOfflineServerAlert(true);
-          }
-          setIsServerOnline(false);
+          });
         });
       }
       else {
@@ -339,7 +342,7 @@ function NewHomeScreen({ navigation }) {
         <PapillonIcon fill={UIColors.text + '26'} style={[styles.newHeaderIcon]} width={32} height={32} />
       ) : null,
       headerTitle: 'Vue d\'ensemble',
-      headerLargeTitle: Platform.OS === 'ios' ? true : false,
+      headerLargeTitle: false,
       headerShadowVisible: false,
       headerTransparent: true,
       headerTintColor: UIColors.text,
@@ -361,9 +364,9 @@ function NewHomeScreen({ navigation }) {
           </TouchableOpacity>
       ),
       headerBackground: () => Platform.OS === 'ios' ? ( 
-        <View
+        <Animated.View
           style={{
-            backgroundColor: UIColors.element,
+            backgroundColor: UIColors.background,
             borderBottomColor: UIColors.dark ? UIColors.text + '25' : UIColors.text + '40',
             borderBottomWidth: 0.5,
             position: 'absolute',
@@ -371,6 +374,7 @@ function NewHomeScreen({ navigation }) {
             left: 0,
             height: 44 + insets.top,
             width: '100%',
+            opacity: topOpacity,
           }}
         />
       ) : (
@@ -399,26 +403,32 @@ function NewHomeScreen({ navigation }) {
   const scrollY = Animated.add(yOffset, 0);
 
   const headerOpacity = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-120, -60] : [0, 40],
+    inputRange: Platform.OS === 'ios' ? [-85, -50] : [0, 40],
     outputRange: [1, 0],
     extrapolate: 'clamp',
   });
 
   const headerScale = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-120, -60] : [0, 40],
+    inputRange: Platform.OS === 'ios' ? [-85, -50] : [0, 40],
     outputRange: [1, 0.9],
     extrapolate: 'clamp',
   });
 
   const tabsOpacity = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-120, -60] : [30, 70],
+    inputRange: Platform.OS === 'ios' ? [0, 30] : [30, 70],
     outputRange: [1, 0],
     extrapolate: 'clamp',
   });
 
   const tabsScale = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-120, -60] : [30, 70],
+    inputRange: Platform.OS === 'ios' ? [0, 30] : [30, 70],
     outputRange: [1, 0.9],
+    extrapolate: 'clamp',
+  });
+
+  const topOpacity = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [-20, 30] : [0, 40],
+    outputRange: [0, 1],
     extrapolate: 'clamp',
   });
 
@@ -451,7 +461,9 @@ function NewHomeScreen({ navigation }) {
 
       { Platform.OS === 'android' ? (
         <View style={{height: 100}} />
-      ) : null }
+      ) : (
+        <View style={{height: 10}} />
+      )}
       
       <Animated.View
         style={[
