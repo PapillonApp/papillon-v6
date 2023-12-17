@@ -39,10 +39,20 @@ function lz(num) {
   return num < 10 ? `0${num}` : num;
 }
 
+import * as WebBrowser from 'expo-web-browser';
+
 function LessonScreen({ route, navigation }) {
   const theme = useTheme();
   const lesson = route.params.event;
   const UIColors = GetUIColors();
+
+
+function openURL(url) {
+  WebBrowser.openBrowserAsync(url, {
+    presentationStyle: 'formSheet',
+    controlsColor: UIColors.primary,
+  });
+}
 
   // main color
   const mainColor = theme.dark ? '#ffffff' : '#444444';
@@ -255,6 +265,8 @@ function LessonScreen({ route, navigation }) {
             )) }
           </NativeList>
         ) : <View /> }
+
+        <View style={{height: 20}} />
 
     </ScrollView>
   );
