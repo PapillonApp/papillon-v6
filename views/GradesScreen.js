@@ -582,7 +582,7 @@ function GradesScreen({ navigation }) {
     <>
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
       refreshControl={
         <RefreshControl
           refreshing={isHeadLoading}
@@ -850,7 +850,7 @@ function GradesScreen({ navigation }) {
                 key={index}
                 style={[
                   styles.smallGradeContainer,
-                  { backgroundColor: UIColors.elementHigh },
+                  { backgroundColor: UIColors.element },
                 ]}
                 onPress={() => showGrade(grade)}
               >

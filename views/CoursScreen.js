@@ -51,6 +51,7 @@ import GetUIColors from '../utils/GetUIColors';
 import ListItem from '../components/ListItem';
 
 import { useAppContext } from '../utils/AppContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -61,6 +62,7 @@ const calcDate = (date, days) => {
 function CoursScreen({ navigation }) {
   const theme = useTheme();
   const pagerRef = useRef(null);
+  const insets = useSafeAreaInsets();
 
   const [today, setToday] = useState(new Date());
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -220,6 +222,8 @@ Statut : ${cours.status || 'Aucun'}
           color="#0065A8"
         />
       ),
+      headerShadowVisible: false,
+      headerTransparent: true,
       headerRight: () =>
         Platform.OS === 'ios' ? (
           <ContextMenuView
@@ -305,7 +309,7 @@ Statut : ${cours.status || 'Aucun'}
           </TouchableOpacity>
         ),
     });
-  }, [navigation, calendarDate]);
+  }, [navigation, calendarDate, UIColors]);
 
   const setCalendarAndToday = (date) => {
     setCalendarDate(date);
@@ -378,7 +382,7 @@ Statut : ${cours.status || 'Aucun'}
   return (
     <View
       contentInsetAdjustmentBehavior="automatic"
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.background, paddingTop: Platform.OS === 'ios' ? insets.top + 44 : 0 }]}
     >
       {Platform.OS === 'android' && calendarModalOpen ? (
         <DateTimePicker

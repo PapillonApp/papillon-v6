@@ -344,7 +344,7 @@ function NewHomeScreen({ navigation }) {
       headerTransparent: true,
       headerTintColor: UIColors.text,
       headerLargeStyle: {
-        backgroundColor: UIColors.background,
+        backgroundColor: UIColors.backgroundHigh,
       },
       headerRight: () => (
           <TouchableOpacity
@@ -364,7 +364,7 @@ function NewHomeScreen({ navigation }) {
         <View
           style={{
             backgroundColor: UIColors.element,
-            borderBottomColor: UIColors.text + '42',
+            borderBottomColor: UIColors.text + '25',
             borderBottomWidth: 0.5,
             position: 'absolute',
             top: 0,
@@ -413,7 +413,7 @@ function NewHomeScreen({ navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
       contentInsetAdjustmentBehavior='automatic'
       refreshControl={
         <RefreshControl

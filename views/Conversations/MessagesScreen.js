@@ -197,7 +197,7 @@ function MessagesScreen ({ route, navigation }) {
   }
 
   return (
-    <View style={{backgroundColor: UIColors.background, flex: 1}}>
+    <View style={{backgroundColor: UIColors.backgroundHigh, flex: 1}}>
       <StatusBar
         animated
         barStyle={
@@ -332,7 +332,7 @@ function MessagesScreen ({ route, navigation }) {
           setUrlOpened(false);
         }}
       >
-        <View style={{flex: 1, backgroundColor: UIColors.modalBackground}}>
+        <View style={{flex: 1, backgroundColor: UIColors.backgroundHigh}}>
           <View style={[styles.modalHeader, {backgroundColor: UIColors.element, borderColor: UIColors.text + '18'}]}>
             <NativeText heading="h4">
               Liste des participants

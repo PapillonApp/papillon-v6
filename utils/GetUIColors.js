@@ -19,9 +19,11 @@ function GetUIColors(schemeForce) {
   let background = '';
 
   if (Platform.OS === 'ios') {
-    background = isDark ? '#0B0B0C' : '#f2f2f7';
+    background = isDark ? '#0B0B0C' : '#ffffff';
+    backgroundHigh = isDark ? '#0B0B0C' : '#f2f2f7';
   } else {
     background = theme.colors.background;
+    backgroundHigh = theme.colors.background;
   }
 
   let modalBackground = background;
@@ -35,7 +37,7 @@ function GetUIColors(schemeForce) {
 
   if (Platform.OS === 'ios') {
     element = isDark ? '#161618' : '#ffffff';
-    elementHigh = isDark ? '#161618' : '#ffffff';
+    elementHigh = isDark ? '#161618' : '#f2f2f7';
   } else {
     element = theme.colors.elevation.level1;
     elementHigh = theme.colors.elevation.level2;
@@ -75,7 +77,9 @@ function GetUIColors(schemeForce) {
 
   return {
     theme: isDark ? 'dark' : 'light',
+    dark: isDark,
     background,
+    backgroundHigh,
     modalBackground,
     element,
     elementHigh,
