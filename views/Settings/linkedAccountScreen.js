@@ -7,6 +7,7 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
 import {Plus} from 'lucide-react-native';
+import Services from './services.json';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function LinkedAccountScreen({navigation}) {
@@ -16,10 +17,21 @@ function LinkedAccountScreen({navigation}) {
 	function getAccounts() {
 		setLoading(true)
 		AsyncStorage.getItem('linkedAccount').then((result) => {
-			let res = JSON.parse(result || []);
+			let res = JSON.parse(result || {restaurant: {}});
+			console.log(res)
 			setAccounts(res);
 			setLoading(false);
 		});
+	}
+
+	function getServicesName(id) {
+		var res = 'Services inconu';
+		Services.restaurant.forEach((service) => {
+			if (service.id === id) {
+				res = service.name;
+			}
+		});
+		return res;
 	}
 
 	useEffect(() => {
@@ -29,13 +41,21 @@ function LinkedAccountScreen({navigation}) {
 	return (
 		<ScrollView>
 
+			{accounts.restaurant?.id !== null ?
+				(
+					<NativeList inset header='Service de restauration'>
+						<NativeItem>
+							<NativeText heading="h4">{getServicesName(accounts.restaurant?.id)}</NativeText>
+							<NativeText heading="p2">{accounts.restaurant?.username}</NativeText>
+						</NativeItem>
+					</NativeList>
+				) :
+				null
+			}
+
 			<NativeList inset>
 				{loading ?
-					(accounts.map((account) => (
-						<NativeItem>
-							<NativeText heading="p">{account.username}</NativeText>
-						</NativeItem>
-					)))
+					null
 					:
 					(
 						<ActivityIndicator/>
