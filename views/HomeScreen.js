@@ -35,7 +35,7 @@ import { ContextMenuView } from 'react-native-ios-context-menu';
 import NextCoursElem from '../interface/HomeScreen/NextCours';
 
 // Icons 
-import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2, PlusCircle, Globe2, ServerOff } from 'lucide-react-native';
+import { DownloadCloud, Check, AlertCircle, UserCircle2, Globe2, ServerOff, Utensils } from 'lucide-react-native';
 import { Competences, Messages, Papillon as PapillonIcon, UserCheck } from '../interface/icons/PapillonIcons';
 
 // Formatting
@@ -535,15 +535,6 @@ function TabsElement({ navigation, theme, UIColors }) {
               <UserCheck width={26} height={26} stroke={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabs.tabText]}>Vie scolaire</Text>
             </PressableScale>
-          <PressableScale
-          style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
-          weight="light"
-          activeScale={0.9}
-          onPress={() => navigation.navigate('InsetCantine')}
-          >
-          <Utensils size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-          <Text style={[styles.tabs.tabText]}>Restaurant scolaire</Text>
-          </PressableScale>
             <PressableScale
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
@@ -553,6 +544,17 @@ function TabsElement({ navigation, theme, UIColors }) {
               <Messages stroke={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabs.tabText]}>Messages</Text>
             </PressableScale>
+        </View>
+        <View style={[styles.tabs.tabRow]}>
+          <PressableScale
+          style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+          weight="light"
+          activeScale={0.9}
+          onPress={() => navigation.navigate('InsetCantine')}
+          >
+          <Utensils size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+          <Text style={[styles.tabs.tabText]}>Restaurant scolaire</Text>
+          </PressableScale>
             <PressableScale
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"

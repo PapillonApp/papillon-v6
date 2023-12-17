@@ -68,20 +68,6 @@ function CantineScreen({ navigation }) {
 	  }
   	})
 
-	React.useLayoutEffect(() => {
-	navigation.setOptions({
-		headerTitle: Platform.OS === 'ios' ? () => (
-		<PapillonInsetHeader
-			icon={<SFSymbol name="fork.knife.circle.fill" />}
-			title="Restaurant scolaire"
-			color="#B42828"
-			inset
-		/>
-		) : 'Restaurant scolaire',
-		headerBackTitleVisible: false,
-		headerTintColor: UIColors.text,
-	});
-	});
 	
 	return (
 		<ScrollView>

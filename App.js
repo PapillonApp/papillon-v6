@@ -448,7 +448,9 @@ function WrappedHomeScreen() {
         name="InsetCantine"
         component={CantineScreen}
         options={{
+          headerBackTitle: 'Retour',
           headerTitle: 'Restaurant scolaire',
+
         }}
       />
 
