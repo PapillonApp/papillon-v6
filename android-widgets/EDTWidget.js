@@ -54,24 +54,24 @@ export function EDTWidgetRender(edt) {
   else {
     return (
       <OverlapWidget style={{ width: "match_parent", height: "match_parent" }}>
-        <OverlapWidget style={{ backgroundColor: edt.nextClasses[0].background_color, height: 87.3, width: "match_parent" }}>
+        <OverlapWidget style={{ backgroundColor: edt.next.background_color, height: 87.3, width: "match_parent" }}>
           <FlexWidget style={{ justifyContent: 'center', height: "match_parent", marginLeft: 15 }}>
             <TextWidget
-              text={getClosestGradeEmoji(edt.nextClasses[0].subject.name)}
+              text={getClosestGradeEmoji(edt.next.subject.name)}
               style={{ fontSize: 30 }}
             />
           </FlexWidget>
           <FlexWidget style={{ justifyContent: 'center', height: "match_parent", marginLeft: 65, width: 200, borderRightColor: "#ffffff30", borderRightWidth: 2 }}>
             <TextWidget
-              text={edt.nextClasses[0].subject.name}
+              text={edt.next.subject.name}
               style={styles.TitleCours}
             />
             <TextWidget
-              text={"Salle " + edt.nextClasses[0].rooms[0]}
+              text={"Salle " + edt.next.rooms[0]}
               style={styles.DescriptionCours}
             />
             <TextWidget
-              text={"Avec " + edt.nextClasses[0].teachers[0]}
+              text={"Avec " + edt.next.teachers[0]}
               style={styles.DescriptionCours}
             />
             <TextWidget
@@ -90,6 +90,7 @@ export function EDTWidgetRender(edt) {
             />
           </FlexWidget>
         </OverlapWidget>
+        {edt.nextClasses[0].background_color ? (
         <OverlapWidget style={{ marginTop: 87.3, backgroundColor: "#00000055", height: 87.3, width: "match_parent", borderColor: "#00000077", borderTopWidth: 2 }}>
           <FlexWidget style={{ justifyContent: 'center', height: "match_parent", marginLeft: 15 }}>
             <TextWidget
@@ -126,6 +127,11 @@ export function EDTWidgetRender(edt) {
             />
           </FlexWidget>
         </OverlapWidget>
+        ) : (
+          <OverlapWidget style={{ marginTop: 87.3, backgroundColor: "#00000055", height: 87.3, width: "match_parent", borderColor: "#00000077", borderTopWidth: 2 }}>
+
+          </OverlapWidget>
+        )}
         <OverlapWidget style={{ marginTop: 174.6, backgroundColor: "#00000055", height: 87.3, width: "match_parent", borderColor: "#00000077", borderTopWidth: 2 }}>
           <FlexWidget style={{ justifyContent: 'center', height: "match_parent", marginLeft: 15 }}>
             <TextWidget
