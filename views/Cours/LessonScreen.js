@@ -80,7 +80,7 @@ function LessonScreen({ route, navigation }) {
   // change header component
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => (
+      headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
           icon={
             <View style={[styles.headerEmojiContainer, {backgroundColor: color + 22}]}>
@@ -92,14 +92,14 @@ function LessonScreen({ route, navigation }) {
           title={formatCoursName(lesson.subject.name)}
           color="#888888"
         />
-      ),
+      ) : formatCoursName(lesson.subject.name),
     });
   }, [navigation, theme, lesson.subject.name, UIColors]);
 
   return (
     <ScrollView style={[styles.container, {backgroundColor: UIColors.modalBackground}]}>
 
-      <StatusBar animated barStyle="light-content" backgroundColor={color} />
+      <StatusBar animated barStyle="light-content" backgroundColor={UIColors.modalBackground} />
       
       <NativeList
           inset

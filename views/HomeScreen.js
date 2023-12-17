@@ -339,9 +339,9 @@ function NewHomeScreen({ navigation }) {
         <PapillonIcon fill={UIColors.text + '26'} style={[styles.newHeaderIcon]} width={32} height={32} />
       ),
       headerTitle: 'Vue d\'ensemble',
-      headerLargeTitle: true,
+      headerLargeTitle: Platform.OS === 'ios' ? true : false,
       headerShadowVisible: false,
-      headerTransparent: true,
+      headerTransparent: Platform.OS === 'ios',
       headerTintColor: UIColors.text,
       headerLargeStyle: {
         backgroundColor: UIColors.backgroundHigh,
@@ -360,7 +360,7 @@ function NewHomeScreen({ navigation }) {
             }
           </TouchableOpacity>
       ),
-      headerBackground: () => ( 
+      headerBackground: () => Platform.OS === 'ios' ? ( 
         <View
           style={{
             backgroundColor: UIColors.element,
@@ -373,7 +373,7 @@ function NewHomeScreen({ navigation }) {
             width: '100%',
           }}
         />
-      ),
+      ) : null,
     });
   }, [navigation, timetable, formattedUserData, showsTomorrow, UIColors]);
 
@@ -388,25 +388,25 @@ function NewHomeScreen({ navigation }) {
   const scrollY = Animated.add(yOffset, 0);
 
   const headerOpacity = yOffset.interpolate({
-    inputRange: [-120, -60],
+    inputRange: Platform.OS === 'ios' ? [-120, -60] : [0, 40],
     outputRange: [1, 0],
     extrapolate: 'clamp',
   });
 
   const headerScale = yOffset.interpolate({
-    inputRange: [-120, -60],
+    inputRange: Platform.OS === 'ios' ? [-120, -60] : [0, 40],
     outputRange: [1, 0.9],
     extrapolate: 'clamp',
   });
 
   const tabsOpacity = yOffset.interpolate({
-    inputRange: [-40, 40],
+    inputRange: Platform.OS === 'ios' ? [-120, -60] : [30, 70],
     outputRange: [1, 0],
     extrapolate: 'clamp',
   });
 
   const tabsScale = yOffset.interpolate({
-    inputRange: [-40, 40],
+    inputRange: Platform.OS === 'ios' ? [-120, -60] : [30, 70],
     outputRange: [1, 0.9],
     extrapolate: 'clamp',
   });
@@ -1303,7 +1303,7 @@ function HomeHeader({ navigation, timetable, user, showsTomorrow }) {
       ]}
     >
       {isFocused && (
-        <StatusBar barStyle="light-content" backgroundColor="transparent" />
+        <StatusBar barStyle="light-content" backgroundColor={UIColors.backgroundHigh} />
       )}
 
       <View style={headerStyles.headerContainer}>

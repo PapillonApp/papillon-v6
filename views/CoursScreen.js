@@ -223,7 +223,7 @@ Statut : ${cours.status || 'Aucun'}
         />
       ),
       headerShadowVisible: false,
-      headerTransparent: true,
+      headerTransparent: Platform.OS === 'ios',
       headerRight: () =>
         Platform.OS === 'ios' ? (
           <ContextMenuView

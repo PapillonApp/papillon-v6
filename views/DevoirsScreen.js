@@ -102,7 +102,7 @@ function DevoirsScreen({ navigation }) {
         />
       ),
       headerShadowVisible: false,
-      headerTransparent: true,
+      headerTransparent: Platform.OS === 'ios',
       headerRight: () =>
         Platform.OS === 'ios' ? (
           <DateTimePicker
