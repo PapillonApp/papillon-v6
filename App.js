@@ -921,7 +921,14 @@ function AppStack() {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
-  const settings = SyncStorage.get('adjustments');
+  let settings = SyncStorage.get('adjustments');
+
+  // if hideTabBarTitle doesn't exist, set it to false
+  if (settings === undefined) {
+    settings = {
+      hideTabBarTitle: true,
+    };
+  }
 
   const tabBar = useMemo(() => {
     if (Platform.OS !== 'ios') {

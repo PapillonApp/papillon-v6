@@ -20,7 +20,7 @@ const AdjustmentsScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
 
   const [currentSettings, setCurrentSettings] = useState({
-    hideTabBarTitle: Platform.OS === 'ios' ? true : false,
+    hideTabBarTitle: true,
   });
   const [willNeedRestart, setWillNeedRestart] = useState(false);
 
