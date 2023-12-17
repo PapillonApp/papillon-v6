@@ -9,6 +9,8 @@ import { BottomNavigation, Appbar, useTheme, PaperProvider, Text } from 'react-n
 
 import FlashMessage from 'react-native-flash-message';
 
+import SyncStorage from 'sync-storage';
+
 import { getHeaderTitle } from '@react-navigation/elements';
 import { useState, useMemo, useEffect } from 'react';
 import { Platform, StyleSheet, useColorScheme, View, PermissionsAndroid, Alert, Linking, TouchableOpacity, TouchableHighlight, Pressable } from 'react-native';
@@ -54,6 +56,7 @@ import SettingsScreen2 from './views/Settings/SettingsScreen';
 import IconsScreen from './views/Settings/IconsScreen';
 import ChangeServer from './views/Settings/ChangeServer';
 import CoursColor from './views/Settings/CoursColor';
+import AdjustmentsScreen from './views/Settings/AdjustmentsScreen';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -324,6 +327,14 @@ function InsetSettings() {
         component={CoursColor}
         options={{
           headerTitle: 'Couleur des matières',
+          headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
+        name="Adjustments"
+        component={AdjustmentsScreen}
+        options={{
+          headerTitle: 'Ajustements',
           headerBackTitle: 'Retour',
         }}
       />
@@ -910,6 +921,8 @@ function AppStack() {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
+  const settings = SyncStorage.get('adjustments');
+
   const tabBar = useMemo(() => {
     if (Platform.OS !== 'ios') {
       return ({ navigation, state, descriptors, insets }) => (
@@ -981,7 +994,7 @@ function AppStack() {
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
-        tabBarShowLabel: false,
+        tabBarShowLabel: settings?.hideTabBarTitle ? false : true || false,
         tabBarActiveTintColor: theme.dark ? '#ffffff' : '#000000',
         tabBarInactiveTintColor: theme.dark ? '#ffffff' : '#000000',
         tabBarStyle: {

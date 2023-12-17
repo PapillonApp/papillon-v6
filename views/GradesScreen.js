@@ -285,7 +285,7 @@ function GradesScreen({ navigation }) {
               style={styles.periodButtonContainer}
             >
               <Text
-                style={[styles.periodButtonText, { color: UIColors.primary }]}
+                style={[styles.periodButtonText, { color: "#A84700" }]}
               >
                 {selectedPeriod?.name || ''}
               </Text>
@@ -293,10 +293,10 @@ function GradesScreen({ navigation }) {
           </ContextMenuButton>
 
             <TouchableOpacity
-              style={[styles.addButtonContainer, {backgroundColor: UIColors.primary + '22'}]}
+              style={[styles.addButtonContainer, {backgroundColor: "#A84700" + '22'}]}
               onPress={() => navigation.navigate('ModalGradesSimulator')}
             >
-              <FlaskConical size='22' color={UIColors.primary} />
+              <FlaskConical size='22' color={"#A84700"} />
             </TouchableOpacity>
         </View>
       ),

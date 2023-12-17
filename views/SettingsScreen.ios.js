@@ -188,6 +188,35 @@ function NewSettings({navigation}) {
             Comptes et serveurs
           </NativeText>
         </NativeItem>
+        <NativeItem
+          leading={
+            <View
+              style={[
+                styles.item.leadingContainer,
+                {
+                  backgroundColor: '#9266CC',
+                }
+              ]}
+            >
+              <SFSymbol
+                name="paintbrush.fill"
+                weight="semibold"
+                size={18}
+                color="#ffffff"
+                style={styles.item.symbol}
+              />
+            </View>
+          }
+          chevron
+          onPress={() => navigation.navigate('Adjustments')}
+        >
+          <NativeText heading="h4">
+            Ajustements
+          </NativeText>
+          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+            Personnalisation de l'interface
+          </NativeText>
+        </NativeItem>
       </NativeList>
 
       <NativeList
