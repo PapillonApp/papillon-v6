@@ -59,29 +59,32 @@ function getNextCours(classes) {
 }
 
 module.exports = (Widget, name) => {
-    instance.getTimetable("2023-11-06")
+    instance.getTimetable(Date.now())
     .then((edt) => {
-        console.log("edt", edt)
-        if(edt.includes("ERR_NO_ACCOUNT")) {
-            requestWidgetUpdate({
-                widgetName: name,
-                renderWidget: () => <Widget noaccount={true} />
-            })
-            return;
-        }
         let next = getNextCours(edt)
-        if(next.next === null) next = null
+        console.log("next", next)
+        if(next !== null && next.next === null) next = null
         requestWidgetUpdate({
             widgetName: name,
             renderWidget: () => <Widget edt={next} />
         })
     })
     .catch(err => {
-        if(err.include("ERR_NO_ACCOUNT")) {
-            requestWidgetUpdate({
-                widgetName: name,
-                renderWidget: () => <Widget noaccount={true} />
-            })
+        console.error("Failed to fetch EDT for Widget")
+        console.error(err)
+        if(typeof err === "string") {
+            if(err === "ERR_NO_ACCOUNT") {
+                requestWidgetUpdate({
+                    widgetName: name,
+                    renderWidget: () => <Widget noaccount={true} />
+                })
+            }
+            else {
+                requestWidgetUpdate({
+                    widgetName: name,
+                    renderWidget: () => <Widget error={true} />
+                })
+            }
         }
         else {
             requestWidgetUpdate({
