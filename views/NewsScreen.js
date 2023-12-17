@@ -31,7 +31,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { Text, useTheme } from 'react-native-paper';
 
-import { Newspaper, ChefHat, Projector, Users2, AlertTriangle, X, DownloadCloud } from 'lucide-react-native';
+import { Newspaper, ChefHat, Projector, Users2, AlertTriangle, X, DownloadCloud, PieChart } from 'lucide-react-native';
 import { BarChart4, Link, File } from 'lucide-react-native';
 import ListItem from '../components/ListItem';
 
@@ -64,12 +64,14 @@ function normalizeContent(text) {
   return text.replace(/(\r\n|\n|\r)/gm, '').trim();
 }
 
-function FullNewsIcon({ title }) {
+function FullNewsIcon({ title, survey }) {
   const UIColors = GetUIColors();
 
   return (
     <View>
-      {normalizeText(title).includes('menu') ? (
+      { survey ? (
+        <PieChart color={'#B42828'} size={24} />
+      ) : normalizeText(title).includes('menu') ? (
         <ChefHat color={'#B42828'} size={24} />
       ) : normalizeText(title).includes('reunion') ? (
         <Projector color={'#B42828'} size={24} />
@@ -248,7 +250,7 @@ function NewsScreen({ navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
       contentInsetAdjustmentBehavior='automatic'
 
       refreshControl={
@@ -298,6 +300,10 @@ function NewsScreen({ navigation }) {
         </SafeAreaView>
       </Modal>
 
+      { Platform.OS !== 'ios' ? (
+        <View style={{height: 16}} />
+      ) : null }
+
       <NativeList inset>
       {!isLoading && news.length !== 0 && (
           (news.map((item, index) => {
@@ -306,7 +312,7 @@ function NewsScreen({ navigation }) {
                 <NativeItem
                   leading={
                     <View style={{ paddingHorizontal: 2 }}>
-                      <FullNewsIcon title={item.title} />
+                      <FullNewsIcon title={item.title} survey={item.survey} />
                     </View>
                   }
                   onPress={() => {

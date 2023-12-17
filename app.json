@@ -2,15 +2,10 @@
   "expo": {
     "name": "Papillon",
     "slug": "papillonvex",
-    "version": "6.3.2",
+    "version": "6.3.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#34AC90"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -31,7 +26,17 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "plus.pronote.app"
+      "bundleIdentifier": "plus.pronote.app",
+      "splash": {
+        "image": "./assets/launch/splashXR-light.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#F3F2F8",
+        "dark": {
+          "image": "./assets/launch/splashXR-dark.png",
+          "resizeMode": "cover",
+          "backgroundColor": "#000000"
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -39,9 +44,14 @@
         "backgroundColor": "#29947A"
       },
       "splash": {
-        "image": "./assets/splash.png",
-        "backgroundColor": "#34AC90",
-        "resizeMode": "cover"
+        "image": "./assets/launch/splash-light.png",
+        "backgroundColor": "#32AB8E",
+        "resizeMode": "cover",
+        "dark": {
+          "image": "./assets/launch/splash-dark.png",
+          "resizeMode": "cover",
+          "backgroundColor": "#000000"
+        }
       },
       "package": "plus.pronote.app",
       "permissions": [
@@ -190,7 +200,8 @@
             "prerendered": true
           }
         }
-      ]
+      ],
+      "sentry-expo"
     ],
     "owner": "papillonapp"
   }
