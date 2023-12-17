@@ -28,6 +28,7 @@
     <meta-data android:name="expo.modules.updates.EXPO_SDK_VERSION" android:value="49.0.0"/>
     <meta-data android:name="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH" android:value="ALWAYS"/>
     <meta-data android:name="expo.modules.updates.EXPO_UPDATES_LAUNCH_WAIT_MS" android:value="0"/>
+    <service android:name="com.reactnativeandroidwidget.RNWidgetCollectionService" android:permission="android.permission.BIND_REMOTEVIEWS"/>
     <activity android:name=".MainActivity" android:label="@string/app_name" android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode" android:launchMode="singleTask" android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.App.SplashScreen" android:exported="true" android:screenOrientation="portrait">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
@@ -41,6 +42,7 @@
         <data android:scheme="exp+papillonvex"/>
         <data android:scheme="skoapp-prod"/>
         <data android:scheme="plus.pronote.app"/>
+        <data android:scheme="plus.pronote.app.dev"/>
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>
@@ -308,5 +310,158 @@
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
     </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivityrelief" android:enabled="false" android:exported="true" android:icon="@mipmap/relief" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivitybeta" android:enabled="false" android:exported="true" android:icon="@mipmap/beta" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivityblack" android:enabled="false" android:exported="true" android:icon="@mipmap/black" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivitychip" android:enabled="false" android:exported="true" android:icon="@mipmap/chip" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivitycutted" android:enabled="false" android:exported="true" android:icon="@mipmap/cutted" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivityclassic" android:enabled="false" android:exported="true" android:icon="@mipmap/classic" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivitygold" android:enabled="false" android:exported="true" android:icon="@mipmap/gold" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivitygradient" android:enabled="false" android:exported="true" android:icon="@mipmap/gradient" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivitymetal" android:enabled="false" android:exported="true" android:icon="@mipmap/metal" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivityneon" android:enabled="false" android:exported="true" android:icon="@mipmap/neon" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivitypride" android:enabled="false" android:exported="true" android:icon="@mipmap/pride" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivitypurple" android:enabled="false" android:exported="true" android:icon="@mipmap/purple" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivityrayspurple" android:enabled="false" android:exported="true" android:icon="@mipmap/rayspurple" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivityrays" android:enabled="false" android:exported="true" android:icon="@mipmap/rays" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivityretro" android:enabled="false" android:exported="true" android:icon="@mipmap/retro" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivitysparkles" android:enabled="false" android:exported="true" android:icon="@mipmap/sparkles" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivitybacktoschool" android:enabled="false" android:exported="true" android:icon="@mipmap/backtoschool" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivitybarbie" android:enabled="false" android:exported="true" android:icon="@mipmap/barbie" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivitybetterneon" android:enabled="false" android:exported="true" android:icon="@mipmap/betterneon" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivitymacos" android:enabled="false" android:exported="true" android:icon="@mipmap/macos" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivityoldios" android:enabled="false" android:exported="true" android:icon="@mipmap/oldios" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="plus.pronote.app.dev.MainActivityverscinq" android:enabled="false" android:exported="true" android:icon="@mipmap/verscinq" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <receiver android:name=".widget.Hello" android:exported="false" android:label="My Hello Widget">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+        <action android:name="plus.pronote.app.dev.WIDGET_CLICK"/>
+      </intent-filter>
+      <meta-data android:name="android.appwidget.provider" android:resource="@xml/widgetprovider_hello"/>
+    </receiver>
+    <receiver android:name=".widget.ClickDemo" android:exported="false" android:label="My Hello Widget">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+        <action android:name="plus.pronote.app.dev.WIDGET_CLICK"/>
+      </intent-filter>
+      <meta-data android:name="android.appwidget.provider" android:resource="@xml/widgetprovider_clickdemo"/>
+    </receiver>
+    <receiver android:name=".widget.EDT" android:exported="false" android:label="Emploi du temps (3 cours)">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+        <action android:name="plus.pronote.app.dev.WIDGET_CLICK"/>
+      </intent-filter>
+      <meta-data android:name="android.appwidget.provider" android:resource="@xml/widgetprovider_edt"/>
+    </receiver>
   </application>
 </manifest>
