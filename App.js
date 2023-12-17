@@ -1001,7 +1001,7 @@ function AppStack() {
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
-        tabBarShowLabel: settings?.hideTabBarTitle ? false : true || false,
+        tabBarShowLabel: settings?.hideTabBarTitle ? false : true,
         tabBarActiveTintColor: theme.dark ? '#ffffff' : '#000000',
         tabBarInactiveTintColor: theme.dark ? '#ffffff' : '#000000',
         tabBarStyle: {
@@ -1013,7 +1013,7 @@ function AppStack() {
           return (
             <PressableScale
               {...props}
-              activeScale={1.2}
+              activeScale={settings?.hideTabBarTitle ? 1.2 : 0.9}
               weight='light'
               style={[
                 {
