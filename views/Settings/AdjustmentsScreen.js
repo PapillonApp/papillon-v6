@@ -9,11 +9,12 @@ import GetUIColors from '../../utils/GetUIColors';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
-import { Type } from 'lucide-react-native';
+import { AlertTriangle, Type } from 'lucide-react-native';
 
 import SyncStorage from 'sync-storage';
 import { Home } from '../../interface/icons/PapillonIcons';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
+import AlertAnimated from '../../interface/AlertAnimated';
 
 const AdjustmentsScreen = ({ navigation }) => {
   const UIColors = GetUIColors();
@@ -43,7 +44,9 @@ const AdjustmentsScreen = ({ navigation }) => {
     });
 
     if (needsRestart) {
-      setWillNeedRestart(true);
+      setTimeout(() => {
+        setWillNeedRestart(true);
+      }, 350);
     }
   }
 
@@ -88,25 +91,6 @@ const AdjustmentsScreen = ({ navigation }) => {
     }
   }, [currentSettings.hideTabBarTitle]);
 
-  // display an alert if the user needs to restart the app before leaving the screen
-  useEffect(() => {
-    navigation.addListener('beforeRemove', (e) => {
-      if (willNeedRestart) {
-        Alert.alert(
-          'Redémarrage requis',
-          'Vous devez redémarrer l\'application pour appliquer certains changements.',
-          [
-            {
-              text: 'Compris !',
-              style: 'cancel',
-              onPress: () => {},
-            },
-          ],
-        );
-      }
-    });
-  }, [navigation, willNeedRestart]);
-
   return (
     <ScrollView
       contentInsetAdjustmentBehavior='automatic'
@@ -117,6 +101,21 @@ const AdjustmentsScreen = ({ navigation }) => {
         },
       ]}
     >
+      <AlertAnimated
+        visible={willNeedRestart}
+        left={
+          <AlertTriangle color={UIColors.primary} />
+        }
+        title="Redémarrage requis"
+        subtitle="Vous devez redémarrer l'application pour appliquer certains changements."
+        height={72}
+        marginVertical={16}
+        style={{
+          marginHorizontal: 16,
+          backgroundColor: UIColors.primary + '22',
+        }}
+      />
+      
       <NativeList header="Navigation" inset>
         { Platform.OS === 'ios' ? (
         <NativeItem
