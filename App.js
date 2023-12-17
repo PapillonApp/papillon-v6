@@ -926,7 +926,7 @@ function AppStack() {
   // if hideTabBarTitle doesn't exist, set it to false
   if (settings === undefined) {
     settings = {
-      hideTabBarTitle: true,
+      hideTabBarTitle: false,
     };
   }
 
