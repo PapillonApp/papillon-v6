@@ -136,35 +136,6 @@ function NewSettings({navigation}) {
               style={[
                 styles.item.leadingContainer,
                 {
-                  backgroundColor: '#29947A',
-                }
-              ]}
-            >
-              <SFSymbol
-                name="bell.fill"
-                weight="semibold"
-                size={18}
-                color="#ffffff"
-                style={styles.item.symbol}
-              />
-            </View>
-          }
-          chevron
-          onPress={() => navigation.navigate('Notifications')}
-        >
-          <NativeText heading="h4">
-            Notifications
-          </NativeText>
-          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Gérer les notifications
-          </NativeText>
-        </NativeItem>
-        <NativeItem
-          leading={
-            <View
-              style={[
-                styles.item.leadingContainer,
-                {
                   backgroundColor: '#9266CC',
                 }
               ]}
