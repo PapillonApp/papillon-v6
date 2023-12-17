@@ -17,12 +17,14 @@ import {
   Platform,
   StatusBar,
   TouchableOpacity,
+  Button,
 } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
 
 // Components & Styles
 import { useTheme, Text } from 'react-native-paper';
 import { PressableScale } from 'react-native-pressable-scale';
+import { BlurView } from 'expo-blur';
 
 // Modules
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -30,9 +32,12 @@ import * as WebBrowser from 'expo-web-browser';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContextMenuView } from 'react-native-ios-context-menu';
+import NextCoursElem from '../interface/HomeScreen/NextCours';
+import getConsts from '../fetch/consts';
 
 // Icons 
-import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2 } from 'lucide-react-native';
+import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2, PlusCircle, Globe2, ServerOff } from 'lucide-react-native';
+import { Competences, Messages, Papillon as PapillonIcon, UserCheck } from '../interface/icons/PapillonIcons';
 
 // Formatting
 import GetUIColors from '../utils/GetUIColors';
@@ -42,10 +47,16 @@ import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
 // Custom componant
 import PapillonList from '../components/PapillonList';
+import NewPapillonHeader from '../interface/NewPapillonHeader';
 
 import { useAppContext } from '../utils/AppContext';
 import sendToSharedGroup from '../fetch/SharedValues';
 import { expireToken } from '../fetch/AuthStack/LoginFlow';
+import { LinearGradient } from 'expo-linear-gradient';
+
+import AlertBottomSheet from '../interface/AlertBottomSheet';
+import NetInfo from '@react-native-community/netinfo';
+import AlertAnimated from '../interface/AlertAnimated';
 
 // Functions
 const openURL = (url) => {
@@ -85,6 +96,7 @@ function NewHomeScreen({ navigation }) {
   const appctx = useAppContext();
   const theme = useTheme();
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
 
   const [refreshCount, setRefreshCount] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
@@ -103,7 +115,77 @@ function NewHomeScreen({ navigation }) {
   const [usesCache, setUsesCache] = useState(false);
   const [showsTomorrow, setShowsTomorrow] = useState(false);
 
+  const [noInternetAlert, setNoInternetAlert] = useState(false);
+  const [offlineServerAlert, setOfflineServerAlert] = useState(false);
+
+  const [isConnected, setIsConnected] = useState(true);
+  const [isServerOnline, setIsServerOnline] = useState(true);
+
   const today = new Date();
+
+  // check internet connection
+  useEffect(() => {
+    
+    // check if connected
+    NetInfo.fetch().then(state => {
+      if (state.isConnected) {
+        setNoInternetAlert(false);
+        setIsConnected(true);
+
+        getConsts().then((consts) => {
+          // check if server is online
+          fetch(`${consts.API}/infos`, {
+            method: 'GET'
+          })
+          .then((response) => response.json())
+          .then((json) => {
+            if (json.status === 'ok') {
+              setOfflineServerAlert(false);
+              setIsServerOnline(true);
+            }
+            else {
+              if(isServerOnline) {
+                setOfflineServerAlert(true);
+              }
+              setIsServerOnline(false);
+            }
+          })
+          .catch((error) => {
+            if(isServerOnline) {
+              setOfflineServerAlert(true);
+            }
+            setIsServerOnline(false);
+          });
+        });
+      }
+      else {
+        if(isConnected) {
+          setOfflineServerAlert(true);
+        }
+        setIsConnected(false);
+      }
+    });
+
+    // subscribe to connection changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+      if (state.isConnected) {
+        if (!isConnected) {
+          setRefreshCount(refreshCount + 1);
+        }
+        setIsConnected(true);
+      }
+      else {
+        if(isConnected) {
+          setNoInternetAlert(true);
+        }
+        setIsConnected(false);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    }
+  }, [noInternetAlert, offlineServerAlert]);
 
   const applyLoadedData = (hwData, coursData) => {
     const groupedHomeworks = hwData.reduce((grouped, homework) => {
@@ -179,19 +261,6 @@ function NewHomeScreen({ navigation }) {
         setLoadingUser(false);
       }
     });
-
-    AsyncStorage.getItem('appcache-homedata').then((value) => {
-      if (value) {
-        const data = JSON.parse(value);
-        applyLoadedData(data.homeworks, data.timetable);
-
-        if (new Date(data.timetable[0].start).getDate() === today.getDate() + 1) {
-          setShowsTomorrow(true);
-        }
-
-        setUsesCache(true);
-      }
-    });
   }, []);
 
   useEffect(() => {
@@ -238,13 +307,13 @@ function NewHomeScreen({ navigation }) {
       // check if all cours are done
       let doneCours = 0;
       coursData.forEach((cours) => {
-        if (new Date(cours.end) < new Date()) {
+        if (new Date(cours.end) < new Date(today)) {
           doneCours++;
         }
       });
 
       if (doneCours === coursData.length) {
-        const tomorrow = new Date();
+        const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
         appctx.dataprovider.getTimetable(tomorrow, true).then((data) => {
           applyLoadedData(hwData, data);
@@ -269,25 +338,106 @@ function NewHomeScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      header: (props) => (
-        <HomeHeader
-          props={props}
-          user={user}
-          timetable={timetable}
-          navigation={navigation}
-          showsTomorrow={showsTomorrow}
+      headerLeft: Platform.OS == 'ios' ? () => (
+        <PapillonIcon fill={UIColors.text + '26'} style={[styles.newHeaderIcon]} width={32} height={32} />
+      ) : null,
+      headerTitle: 'Vue d\'ensemble',
+      headerLargeTitle: false,
+      headerShadowVisible: false,
+      headerTransparent: true,
+      headerTintColor: UIColors.text,
+      headerLargeStyle: {
+        backgroundColor: UIColors.backgroundHigh,
+      },
+      headerRight: () => (
+          <TouchableOpacity
+           style={[headerStyles.headerPfpContainer]}
+            onPress={() => navigation.navigate('InsetSettings', {isModal: true})}
+          >
+            {user && user.profile_picture ? (<Image
+              source={{ uri: user.profile_picture }}
+              style={[headerStyles.headerPfp]}
+            />) : (
+              <UserCircle2 size={36} style={[headerStyles.headerPfp]} color="#ccc" />
+            )
+            }
+          </TouchableOpacity>
+      ),
+      headerBackground: () => Platform.OS === 'ios' ? ( 
+        <Animated.View
+          style={{
+            backgroundColor: UIColors.background,
+            borderBottomColor: UIColors.dark ? UIColors.text + '25' : UIColors.text + '40',
+            borderBottomWidth: 0.5,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            height: 44 + insets.top,
+            width: '100%',
+            opacity: topOpacity,
+          }}
+        />
+      ) : (
+        <View
+          style={{
+            backgroundColor: UIColors.background,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            height: 54 + insets.top,
+            width: '100%',
+          }}
         />
       ),
     });
-  }, [navigation, timetable, user, showsTomorrow]);
+  }, [navigation, timetable, formattedUserData, showsTomorrow, UIColors]);
+
+  // animations
+  const yOffset = new Animated.Value(0);
+
+  const scrollHandler = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: yOffset } } }],
+    { useNativeDriver: false }
+  );
+
+  const scrollY = Animated.add(yOffset, 0);
+
+  const headerOpacity = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [-85, -50] : [0, 40],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
+
+  const headerScale = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [-85, -50] : [0, 40],
+    outputRange: [1, 0.9],
+    extrapolate: 'clamp',
+  });
+
+  const tabsOpacity = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [0, 30] : [30, 70],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
+
+  const tabsScale = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [0, 30] : [30, 70],
+    outputRange: [1, 0.9],
+    extrapolate: 'clamp',
+  });
+
+  const topOpacity = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [-20, 30] : [0, 40],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
       contentInsetAdjustmentBehavior='automatic'
       refreshControl={
         <RefreshControl
-          progressViewOffset={28}
           refreshing={refreshing}
           colors={[Platform.OS === 'android' ? UIColors.primary : null]}
           onRefresh={() => {
@@ -301,9 +451,88 @@ function NewHomeScreen({ navigation }) {
           }}
         />
       }
+      onScroll={scrollHandler}
+      scrollEventThrottle={16}
     >
-      <View style={{ height: 32 }} />
-      <TabsElement navigation={navigation} theme={theme} UIColors={UIColors} />
+      <StatusBar
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor={UIColors.backgroundHigh}
+      />
+
+      { Platform.OS === 'android' ? (
+        <View style={{height: 100}} />
+      ) : (
+        <View style={{height: 10}} />
+      )}
+      
+      <Animated.View
+        style={[
+          { 
+            opacity: headerOpacity,
+            transform: [{ scale: headerScale }],
+          },
+        ]}
+      >
+        <NextCoursElem
+          cours={timetable}
+          navigation={navigation}
+          style={[{
+            marginHorizontal: 16,
+            marginVertical: 0,
+          }]}
+        />
+      </Animated.View>
+
+      <Animated.View
+        style={[
+          {
+            opacity: tabsOpacity,
+            transform: [{ scale: tabsScale }],
+          },
+        ]}
+      >
+        <TabsElement navigation={navigation} theme={theme} UIColors={UIColors} />
+      </Animated.View>
+
+      <AlertAnimated
+        visible={!isConnected}
+        title="Vous êtes hors-ligne"
+        subtitle="Les informations affichées peuvent être obsolètes."
+        left={<Globe2 color={UIColors.text} />}
+        height={80}
+        style={{marginHorizontal: 16}}
+      />
+
+      <AlertAnimated
+        visible={!isServerOnline}
+        title="Serveurs inaccessibles"
+        subtitle="Les informations affichées peuvent être obsolètes."
+        left={<ServerOff color={UIColors.text} />}
+        height={80}
+        style={{marginHorizontal: 16}}
+      />
+
+      <AlertBottomSheet
+        title="Aucune connexion Internet"
+        subtitle="Une connexion internet est nécessaire pour afficher les informations de votre compte."
+        icon={<Globe2 />}
+        color='#9A1D1D'
+        visible={noInternetAlert}
+        cancelAction={() => {
+          setNoInternetAlert(false);
+        }}
+      />
+
+      <AlertBottomSheet
+        title="Serveurs inaccessibles"
+        subtitle="Impossible de se connecter aux serveurs de Papillon. Veuillez réessayer plus tard."
+        icon={<ServerOff />}
+        color='#9A1D1D'
+        visible={offlineServerAlert}
+        cancelAction={() => {
+          setOfflineServerAlert(false);
+        }}
+      />
 
       <CoursElement
         cours={timetable}
@@ -311,6 +540,7 @@ function NewHomeScreen({ navigation }) {
         UIColors={UIColors}
         navigation={navigation}
         loading={loadingCours}
+        showsTomorrow={showsTomorrow}
       />
       
       <DevoirsElement
@@ -328,38 +558,43 @@ function TabsElement({ navigation, theme, UIColors }) {
   return (
     <View style={[styles.tabs.tabsContainer]}>
         <View style={[styles.tabs.tabRow]}>
-          <ContextMenuView style={{flex: 1}} borderRadius={12}>
             <PressableScale
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
               activeScale={0.9}
               onPress={() => navigation.navigate('InsetSchoollife')}
             >
-              <Gavel size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <UserCheck width={26} height={26} stroke={theme.dark ? '#ffffff' : '#000000'} />
               <Text style={[styles.tabs.tabText]}>Vie scolaire</Text>
             </PressableScale>
-          </ContextMenuView>
-          <ContextMenuView style={{flex: 1}} borderRadius={12}>
             <PressableScale
               style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
               weight="light"
               activeScale={0.9}
               onPress={() => navigation.navigate('InsetConversations')}
             >
-              <MessagesSquare size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-              <Text style={[styles.tabs.tabText]}>Conversations</Text>
+              <Messages stroke={theme.dark ? '#ffffff' : '#000000'} />
+              <Text style={[styles.tabs.tabText]}>Messages</Text>
             </PressableScale>
-          </ContextMenuView>
+            <PressableScale
+              style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+              weight="light"
+              activeScale={0.9}
+              onPress={() => navigation.navigate('InsetEvaluations')}
+            >
+              <Competences stroke={theme.dark ? '#ffffff' : '#000000'} />
+              <Text style={[styles.tabs.tabText]}>Compét.</Text>
+            </PressableScale>
         </View>
       </View>
   )
 }
 
-function CoursElement({ cours, theme, UIColors, navigation, loading }) {
+function CoursElement({ cours, theme, UIColors, navigation, loading, showsTomorrow }) {
   return (
     !loading ? (
       cours && cours.length > 0 ? (
-        <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
+        <PapillonList inset title={!showsTomorrow ? "Emploi du temps" : "Votre journée de demain"} style={styles.cours.container}>
           {cours.map((day, index) => (
             <View key={index}>
               <CoursItem key={index} index={index} cours={day} day={cours} theme={theme} UIColors={UIColors} navigation={navigation} />
@@ -1100,7 +1335,7 @@ function HomeHeader({ navigation, timetable, user, showsTomorrow }) {
       ]}
     >
       {isFocused && (
-        <StatusBar barStyle="light-content" backgroundColor="transparent" />
+        <StatusBar barStyle="light-content" backgroundColor={UIColors.backgroundHigh} />
       )}
 
       <View style={headerStyles.headerContainer}>
@@ -1127,31 +1362,17 @@ function HomeHeader({ navigation, timetable, user, showsTomorrow }) {
         
       </View>
 
-      { !loading && nextCourse && (
-        <NextCours cours={nextCourse} navigation={navigation} />
-      )}
-
-      {!nextCourse && (
-        <PressableScale
-          style={[
-            headerStyles.nextCoursContainer,
-            { backgroundColor: UIColors.elementHigh },
-            headerStyles.nextCoursLoading,
-          ]}
-        >
-          {loading ? (
-            <>
-              <ActivityIndicator size={12} />
-              <Text style={[headerStyles.nextCoursLoadingText]}>
-                Chargement du prochain cours
-              </Text>
-            </>
-          ) : (
-            <Text style={[headerStyles.nextCoursLoadingText]}>
-              Pas de prochain cours
-            </Text>
-          )}
-        </PressableScale>
+      { !loading && (
+        <View style={styles.nextCoursContainer}>
+          <NextCoursElem
+            cours={timetable}
+            navigation={navigation}
+            style={[{
+              marginHorizontal: 16,
+              marginVertical: 14,
+            }]}
+          />
+        </View>
       )}
     </View>
   );
@@ -1374,7 +1595,7 @@ const styles = StyleSheet.create({
 
   tabs: {
     tabsContainer: {
-      marginTop: 24,
+      marginTop: 8,
       marginHorizontal: 16,
       gap: 6,
       marginBottom: 16,
@@ -1395,7 +1616,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       paddingVertical: 12,
-      paddingHorizontal: 10,
+      paddingHorizontal: 8,
       gap: 4,
   
       shadowColor: '#000',
@@ -1411,9 +1632,17 @@ const styles = StyleSheet.create({
   
     tabText: {
       fontSize: 14.5,
-      fontFamily: 'Papillon-Semibold',
+      fontFamily: 'Onest-Semibold',
     },
-  }
+  },
+
+  nextCoursContainer: {
+    height: 117,
+    width: '100%',
+
+    marginTop: -12,
+    marginBottom: -52,
+  },
 });
 
 const headerStyles = StyleSheet.create({
@@ -1444,22 +1673,24 @@ const headerStyles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
 
+    paddingLeft: 2,
+
     width: '92%',
   },
 
   headerNameText: {
-    fontSize: 17,
+    fontSize: 16,
     fontFamily: 'Papillon-Medium',
     color: '#ffffff',
     opacity: 0.6,
     maxWidth: '85%',
   },
   headerCoursesText: {
-    fontSize: 20,
-    fontFamily: 'Papillon-Regular',
+    fontSize: 18,
+    fontFamily: 'Papillon-Semibold',
     color: '#ffffff',
-    marginTop: 6,
-    marginBottom: 2,
+    marginTop: 4,
+    marginBottom: 3,
     letterSpacing: -0.1,
     maxWidth: '85%',
   },
@@ -1626,19 +1857,14 @@ const headerStyles = StyleSheet.create({
   },
 
   headerPfpContainer: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
     backgroundColor: '#ffffff10',
-    borderColor: '#ffffff25',
-    borderWidth: 1,
     borderRadius: 24,
   },
   headerPfp: {
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
     borderRadius: 24,
   },
 });

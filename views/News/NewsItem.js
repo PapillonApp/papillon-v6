@@ -27,7 +27,7 @@ import NativeText from '../../components/NativeText';
 import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
 
-import { BarChart4, Link, File, X, DownloadCloud, MoreHorizontal, MoreVertical } from 'lucide-react-native';
+import { PieChart, Link, File, X, DownloadCloud, MoreHorizontal, MoreVertical } from 'lucide-react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import ListItem from '../../components/ListItem';
 import GetUIColors from '../../utils/GetUIColors';
@@ -53,6 +53,17 @@ function NewsItem({ route, navigation }) {
 
   const [isRead, setIsRead] = useState(news.read);
   const [readChanged, setReadChanged] = useState(false);
+
+  const alertSondage = () => {
+    Alert.alert(
+      'Sondage',
+      'Impossible de répondre au sondage depuis l\'application Papillon pour le moment.',
+      [
+        { text: "OK", onPress: () => {} },
+      ],
+      { cancelable: true }
+    );
+  }
 
   const loadNews = async (id) => {
     if (!id) return;
@@ -186,7 +197,7 @@ function NewsItem({ route, navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
       contentInsetAdjustmentBehavior="automatic"
     >
       <StatusBar
@@ -222,14 +233,24 @@ function NewsItem({ route, navigation }) {
       </Modal>
 
       {news.survey ? (
-        <ListItem
-          title="Cette actualité contient un sondage"
-          subtitle="Vous ne pouvez pas répondre au sondage depuis l'application Papillon."
-          icon={<BarChart4 color="#B42828" size={24} />}
-          color="#B42828"
-          onPress={() => {}}
-          style={{ marginTop: 14 }}
-        />
+        <NativeList inset>
+          <NativeItem
+            leading={
+              <PieChart size={20} color={theme.dark ? '#ffffff' : '#000000'} />
+            }
+          >
+            <NativeText heading="h4">
+              Cette actualité contient un sondage
+            </NativeText>
+            <NativeText heading="p2">
+              Impossible de répondre au sondage depuis l'application Papillon pour le moment.
+            </NativeText>
+
+            <NativeText heading="subtitle2" style={{marginTop: 8}}>
+              Vous pouvez cependant prévisualiser les questions et les réponses possibles ci-dessous.
+            </NativeText>
+          </NativeItem>
+        </NativeList>
       ) : null}
 
       <View style={styles.newsTextContainer}>
@@ -303,6 +324,26 @@ function NewsItem({ route, navigation }) {
             </NativeText>
           </NativeItem>
         </NativeList>
+      ) : null}
+
+      {news.survey ? (
+        news.html_content.map((survey, index) => (
+          <NativeList key={index} inset header={survey.L}>
+            <NativeItem>
+              <NativeText heading="p">
+                {survey.texte.V.replace( /(<([^>]+)>)/ig, '').replace(/\&nbsp;/g, '').trim()}
+              </NativeText>
+            </NativeItem>
+
+            {survey.listeChoix.V?.map((answer, index) => (
+              <NativeItem key={index} onPress={() => {alertSondage()}}>
+                <NativeText heading="p2">
+                  {answer.L}
+                </NativeText>
+              </NativeItem>
+            ))}
+          </NativeList>
+        ))
       ) : null}
 
       <View style={{ height: 20 }} />

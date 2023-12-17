@@ -1,5 +1,8 @@
 import * as React from 'react';
 import {
+  Animated,
+  Pressable,
+  Modal,
   View,
   StyleSheet,
   StatusBar,
@@ -12,6 +15,8 @@ import { useTheme, Text } from 'react-native-paper';
 
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
+
+import { CalendarFill, Calendar as CalendarPapillonIcon } from '../interface/icons/PapillonIcons';
 
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -36,12 +41,15 @@ import { Calendar, Check, File, AlertCircle, Link, BookOpen } from 'lucide-react
 import getClosestColor from '../utils/ColorCoursName';
 import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
 
+import { X } from 'lucide-react-native';
+
 import GetUIColors from '../utils/GetUIColors';
 import { useAppContext } from '../utils/AppContext';
 
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -52,6 +60,7 @@ const calcDate = (date, days) => {
 function DevoirsScreen({ navigation }) {
   const theme = useTheme();
   const pagerRef = useRef(null);
+  const insets = useSafeAreaInsets();
 
   const [today, setToday] = useState(new Date());
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -63,6 +72,52 @@ function DevoirsScreen({ navigation }) {
   const [browserOpen, setBrowserOpen] = useState(false);
 
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
+
+  // animate calendar modal
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(0)).current;
+
+  // animate modal when visible changes
+  useEffect(() => {
+    if (calendarModalOpen) {
+      Animated.parallel([
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(translateY, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scale, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        })
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(translateY, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scale, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        })
+      ]).start();
+    }
+  }, [calendarModalOpen]);
 
   const openURL = async (url) => {
     if (Platform.OS === 'ios') {
@@ -92,54 +147,37 @@ function DevoirsScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => Platform.OS === 'ios' && (
+      headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
           icon={<SFSymbol name="checkmark.rectangle.stack.fill" />}
           title="Devoirs"
           color="#29947A"
         />
-      ),
+      ) : 'Devoirs',
+      headerShadowVisible: Platform.OS !== 'ios',
+      headerTransparent: Platform.OS === 'ios',
       headerRight: () =>
-        Platform.OS === 'ios' ? (
-          <DateTimePicker
-            value={calendarDate}
-            locale="fr_FR"
-            mode="date"
-            display="compact"
-            onChange={(event, date) => {
-              setCalendarDate(date);
-              setToday(date);
-              pagerRef.current.setPage(0);
-              if (currentIndex === 0) {
-                setCurrentIndex(1);
-                setTimeout(() => {
-                  setCurrentIndex(0);
-                }, 10);
-              }
-            }}
-          />
-        ) : (
-          <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 6,
-              marginRight: 2,
-            }}
-            onPress={() => setCalendarModalOpen(true)}
-          >
-            <Calendar size={20} color={UIColors.text} />
-            <Text style={{ fontSize: 15, fontFamily: 'Papillon-Medium' }}>
-              {new Date(calendarDate).toLocaleDateString('fr', {
-                weekday: 'short',
-                day: '2-digit',
-                month: 'short',
-              })}
-            </Text>
-          </TouchableOpacity>
-        ),
+        <TouchableOpacity
+          style={[
+            styles.calendarDateContainer,
+            {
+              backgroundColor: "#29947A" + "20",
+            }
+          ]}
+          onPress={() => setCalendarModalOpen(true)}
+        >
+          <CalendarPapillonIcon stroke={"#29947A"} />
+          <Text style={[styles.calendarDateText, {color: "#29947A"}]}>
+            {new Date(calendarDate).toLocaleDateString('fr', {
+              weekday: 'short',
+              day: '2-digit',
+              month: 'short',
+            })}
+          </Text>
+        </TouchableOpacity>
+      ,
     });
-  }, [navigation, calendarDate]);
+  }, [navigation, calendarDate, UIColors]);
 
   const appctx = useAppContext();
 
@@ -204,7 +242,7 @@ function DevoirsScreen({ navigation }) {
 
       <View
         contentInsetAdjustmentBehavior="automatic"
-        style={[styles.container, { backgroundColor: UIColors.background }]}
+        style={[styles.container, { backgroundColor: UIColors.backgroundHigh, paddingTop: Platform.OS === 'ios' ? insets.top + 44 : 0 }]}
       >
         {Platform.OS === 'android' && calendarModalOpen ? (
           <DateTimePicker
@@ -232,6 +270,84 @@ function DevoirsScreen({ navigation }) {
             }}
           />
         ) : null}
+
+      {Platform.OS === 'ios' && calendarModalOpen ? (
+        <Modal
+          transparent={true}
+          animationType='fade'
+        >
+          <Animated.View
+            style={[
+              styles.calendarModalContainer,
+              {paddingBottom: insets.bottom + 6},
+              {
+                opacity
+              },
+            ]}
+          >
+            <Animated.View
+              style={[
+                {opacity}
+              ]}
+            >
+              <Pressable style={{flex: 1, width:'100%'}} onPress={() => setCalendarModalOpen(false)} />
+            </Animated.View>
+
+            <TouchableOpacity style={styles.modalCloseButton} onPress={() => setCalendarModalOpen(false)}>
+                <X size={24} color={"#ffffff"} style={styles.modalCloseIcon}/>
+            </TouchableOpacity>
+
+            <Animated.View 
+              style={[
+                styles.calendarModalView,
+                {backgroundColor: UIColors.element},
+                {
+                  opacity,
+                  transform: [
+                    {
+                      translateY: translateY.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [100, 0],
+                      }),
+                    },
+                    {
+                      scale: scale.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.8, 1],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
+              <DateTimePicker
+                value={calendarDate}
+                locale="fr-FR"
+                mode="date"
+                display="inline"
+                onChange={(event, date) => {
+                  if (event.type === 'dismissed') {
+                    setCalendarModalOpen(false);
+                    return;
+                  }
+
+                  setCalendarModalOpen(false);
+
+                  setCalendarDate(date);
+                  setToday(date);
+                  pagerRef.current.setPage(0);
+                  if (currentIndex === 0) {
+                    setCurrentIndex(1);
+                    setTimeout(() => {
+                      setCurrentIndex(0);
+                    }, 10);
+                  }
+                }}
+              />
+            </Animated.View>
+          </Animated.View>
+        </Modal>
+      ) : null}
 
         <InfinitePager
           style={[styles.viewPager]}
@@ -616,6 +732,65 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     textAlign: 'center',
     marginTop: 12,
+  },
+
+  calendarModalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    backgroundColor: '#00000099',
+    paddingHorizontal: 12,
+  },
+
+  calendarModalView: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    borderCurve: 'continuous',
+    paddingHorizontal: 14,
+    paddingBottom: 18,
+
+    width: '100%',
+    
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+  },
+
+  modalCloseButton: {
+    width: 40,
+    height: 40,
+
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    alignSelf: 'flex-end',
+
+    backgroundColor: '#ffffff39',
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    marginTop: -40,
+    marginBottom: 10,
+  },
+
+  calendarDateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    opacity: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 10,
+    borderCurve: 'continuous',
+  },
+  calendarDateText: {
+    fontSize: 16,
+    fontWeight: 500,
+    fontFamily: 'Papillon-Medium',
   },
 });
 

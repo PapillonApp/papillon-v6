@@ -18,6 +18,8 @@ import { useTheme, Text } from 'react-native-paper';
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
 
+import AlertBottomSheet from '../interface/AlertBottomSheet';
+
 import { BlurView } from 'expo-blur';
 import { ContextMenuButton, ContextMenuView } from 'react-native-ios-context-menu';
 
@@ -25,6 +27,7 @@ import LineChart from 'react-native-simple-line-chart';
 
 import Fade from 'react-native-fade';
 
+import { Stats } from '../interface/icons/PapillonIcons';
 import { User2, Users2, TrendingDown, TrendingUp, Info, AlertTriangle, FlaskConical, Plus, PlusCircle } from 'lucide-react-native';
 
 import { useState } from 'react';
@@ -59,6 +62,8 @@ function GradesScreen({ navigation }) {
   const [remainingPeriods, setRemainingPeriods] = useState([]);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [allGrades, setAllGrades] = useState([]);
+
+  const [moyReeleAlert, setMoyReeleAlert] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isHeadLoading, setHeadLoading] = useState(false);
@@ -222,13 +227,13 @@ function GradesScreen({ navigation }) {
   // add button to header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => Platform.OS === 'ios' && (
+      headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
           icon={<SFSymbol name="chart.pie.fill" />}
           title="Notes"
           color="#A84700"
         />
-      ),
+      ) : 'Notes',
       headerTransparent: Platform.OS === 'ios' ? true : false,
       headerBackground: Platform.OS === 'ios' ? () => (
         <Animated.View 
@@ -582,7 +587,7 @@ function GradesScreen({ navigation }) {
     <>
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
       refreshControl={
         <RefreshControl
           refreshing={isHeadLoading}
@@ -600,6 +605,23 @@ function GradesScreen({ navigation }) {
           theme.dark ? 'light-content' : 'dark-content'
         }
         backgroundColor="transparent"
+      />
+
+      <AlertBottomSheet
+        title={`${calculatedAvg ? 'Moyenne générale calculée' : 'Moyenne générale réelle'}`}
+        subtitle={calculatedAvg ? 
+          hasSimulatedGrades ?
+            `La moyenne affichée ici est une moyenne calculée à partir de vos notes réelles et de vos notes simulées.`
+          :
+            `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant votre moyenne de chaque matière.`
+          :
+            `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`}
+        icon={<Stats width={28} height={28} stroke="#29947a" />}
+        color='#29947a'
+        visible={moyReeleAlert}
+        cancelAction={() => {
+          setMoyReeleAlert(false);
+        }}
       />
 
       <Modal
@@ -717,24 +739,7 @@ function GradesScreen({ navigation }) {
 
             <TouchableOpacity 
               style={[styles.averagegrTitleInfo]}
-              onPress={() => Alert.alert(
-                `${calculatedAvg ? 'Moyenne générale calculée' : 'Moyenne générale réelle'}`,
-                calculatedAvg ? 
-                hasSimulatedGrades ?
-                  `La moyenne affichée ici est une moyenne calculée à partir de vos notes réelles et de vos notes simulées.`
-                :
-                  `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant votre moyenne de chaque matière.`
-                :
-                  `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`
-                ,
-                [
-                  {
-                    text: 'Compris !',
-                    style: 'cancel',
-                  },
-                ],
-                { cancelable: true }
-              )}
+              onPress={() => setMoyReeleAlert(true)}
             >
               <AlertTriangle size='20' color={UIColors.primary} />
               <Text style={[styles.averagegrTitleInfoText, {color: UIColors.primary}]}>
@@ -770,6 +775,18 @@ function GradesScreen({ navigation }) {
                   animated: true,
                 },
                 lineWidth: 4,
+                activePointConfig: {
+                  color: UIColors.primary,
+                  borderColor: UIColors.element,
+                  radius: 7,
+                  borderWidth: 2,
+                  animated: true,
+                  showVerticalLine: true,
+                  verticalLineColor: UIColors.text,
+                  verticalLineDashArray: [5, 5],
+                  verticalLineOpacity: 0.5,
+                  verticalLineWidth: 2,
+                },
                 activePointComponent: (point) => {
                   return (
                     <View
@@ -838,7 +855,7 @@ function GradesScreen({ navigation }) {
                 key={index}
                 style={[
                   styles.smallGradeContainer,
-                  { backgroundColor: UIColors.elementHigh },
+                  { backgroundColor: UIColors.element },
                 ]}
                 onPress={() => showGrade(grade)}
               >
@@ -1460,9 +1477,9 @@ const styles = StyleSheet.create({
 
     shadowColor: '#000000',
     shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowRadius: 2,
     shadowOffset: {
-      height: 1,
+      height: 0,
       width: 0,
     },
     elevation: 1,
