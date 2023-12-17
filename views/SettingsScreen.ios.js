@@ -36,13 +36,11 @@ function NewSettings({navigation}) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: Platform.OS === 'ios' ? () => (
-        <PapillonInsetHeader
-          icon={<SFSymbol name="gear" />}
-          title="Réglages"
-          color="#888888"
-        />
-      ) : 'Réglages',
+      headerTitle: 'Préférences',
+      headerStyle: {
+        backgroundColor: UIColors.modalBackground,
+      },
+      headerShadowVisible: false,
     });
   });
 
@@ -239,35 +237,6 @@ function NewSettings({navigation}) {
               style={[
                 styles.item.leadingContainer,
                 {
-                  backgroundColor: '#8449A7',
-                }
-              ]}
-            >
-              <SFSymbol
-                name="party.popper.fill"
-                weight="semibold"
-                size={16}
-                color="#ffffff"
-                style={styles.item.symbol}
-              />
-            </View>
-          }
-          chevron
-          onPress={() => navigation.navigate('Changelog')}
-        >
-          <NativeText heading="h4">
-            Nouveautés
-          </NativeText>
-          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Affiche le changelog
-          </NativeText>
-        </NativeItem>
-        <NativeItem
-          leading={
-            <View
-              style={[
-                styles.item.leadingContainer,
-                {
                   backgroundColor: '#888888',
                 }
               ]}
@@ -300,7 +269,7 @@ function NewSettings({navigation}) {
 const styles = StyleSheet.create({
   profile: {
     container: {
-      marginVertical: 2,
+      marginVertical: 0,
       paddingVertical: 5,
     },
     pic: {

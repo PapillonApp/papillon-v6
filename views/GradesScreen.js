@@ -18,6 +18,8 @@ import { useTheme, Text } from 'react-native-paper';
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
 
+import AlertBottomSheet from '../interface/AlertBottomSheet';
+
 import { BlurView } from 'expo-blur';
 import { ContextMenuButton, ContextMenuView } from 'react-native-ios-context-menu';
 
@@ -25,6 +27,7 @@ import LineChart from 'react-native-simple-line-chart';
 
 import Fade from 'react-native-fade';
 
+import { Stats } from '../interface/icons/PapillonIcons';
 import { User2, Users2, TrendingDown, TrendingUp, Info, AlertTriangle, FlaskConical, Plus, PlusCircle } from 'lucide-react-native';
 
 import { useState } from 'react';
@@ -59,6 +62,8 @@ function GradesScreen({ navigation }) {
   const [remainingPeriods, setRemainingPeriods] = useState([]);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [allGrades, setAllGrades] = useState([]);
+
+  const [moyReeleAlert, setMoyReeleAlert] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isHeadLoading, setHeadLoading] = useState(false);
@@ -602,6 +607,23 @@ function GradesScreen({ navigation }) {
         backgroundColor="transparent"
       />
 
+      <AlertBottomSheet
+        title={`${calculatedAvg ? 'Moyenne générale calculée' : 'Moyenne générale réelle'}`}
+        subtitle={calculatedAvg ? 
+          hasSimulatedGrades ?
+            `La moyenne affichée ici est une moyenne calculée à partir de vos notes réelles et de vos notes simulées.`
+          :
+            `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant votre moyenne de chaque matière.`
+          :
+            `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`}
+        icon={<Stats width={28} height={28} stroke="#29947a" />}
+        color='#29947a'
+        visible={moyReeleAlert}
+        cancelAction={() => {
+          setMoyReeleAlert(false);
+        }}
+      />
+
       <Modal
         animationType="slide"
         visible={courseModalVisible}
@@ -717,24 +739,7 @@ function GradesScreen({ navigation }) {
 
             <TouchableOpacity 
               style={[styles.averagegrTitleInfo]}
-              onPress={() => Alert.alert(
-                `${calculatedAvg ? 'Moyenne générale calculée' : 'Moyenne générale réelle'}`,
-                calculatedAvg ? 
-                hasSimulatedGrades ?
-                  `La moyenne affichée ici est une moyenne calculée à partir de vos notes réelles et de vos notes simulées.`
-                :
-                  `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant votre moyenne de chaque matière.`
-                :
-                  `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`
-                ,
-                [
-                  {
-                    text: 'Compris !',
-                    style: 'cancel',
-                  },
-                ],
-                { cancelable: true }
-              )}
+              onPress={() => setMoyReeleAlert(true)}
             >
               <AlertTriangle size='20' color={UIColors.primary} />
               <Text style={[styles.averagegrTitleInfoText, {color: UIColors.primary}]}>
