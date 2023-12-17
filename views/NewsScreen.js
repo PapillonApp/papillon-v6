@@ -300,6 +300,10 @@ function NewsScreen({ navigation }) {
         </SafeAreaView>
       </Modal>
 
+      { Platform.OS !== 'ios' ? (
+        <View style={{height: 16}} />
+      ) : null }
+
       <NativeList inset>
       {!isLoading && news.length !== 0 && (
           (news.map((item, index) => {

@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
+  Platform,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 import GetUIColors from '../../utils/GetUIColors';
@@ -99,7 +100,11 @@ function LessonScreen({ route, navigation }) {
   return (
     <ScrollView style={[styles.container, {backgroundColor: UIColors.modalBackground}]}>
 
-      <StatusBar animated barStyle="light-content" backgroundColor={UIColors.modalBackground} />
+      { Platform.OS === 'ios' ? (
+        <StatusBar animated barStyle="light-content" backgroundColor={UIColors.modalBackground} />
+      ) : (
+        <StatusBar animated barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={UIColors.modalBackground + '00'} translucent />
+      )}
       
       <NativeList
           inset

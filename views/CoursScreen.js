@@ -215,14 +215,14 @@ Statut : ${cours.status || 'Aucun'}
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => Platform.OS === 'ios' && (
+      headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
           icon={<SFSymbol name="calendar" />}
           title="Emploi du temps"
           color="#0065A8"
         />
-      ),
-      headerShadowVisible: false,
+      ) : 'Emploi du temps',
+      headerShadowVisible: Platform.OS !== 'ios',
       headerTransparent: Platform.OS === 'ios',
       headerRight: () =>
         Platform.OS === 'ios' ? (

@@ -94,14 +94,14 @@ function DevoirsScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => Platform.OS === 'ios' && (
+      headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
           icon={<SFSymbol name="checkmark.rectangle.stack.fill" />}
           title="Devoirs"
           color="#29947A"
         />
-      ),
-      headerShadowVisible: false,
+      ) : 'Devoirs',
+      headerShadowVisible: Platform.OS !== 'ios',
       headerTransparent: Platform.OS === 'ios',
       headerRight: () =>
         Platform.OS === 'ios' ? (

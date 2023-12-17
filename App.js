@@ -400,7 +400,6 @@ function WrappedHomeScreen() {
           ? {
               animation: 'fade_from_bottom',
               navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
               ...headerTitleStyles,
@@ -413,6 +412,7 @@ function WrappedHomeScreen() {
         options={{
           headerShown: true,
           headerLargeTitle: Platform.OS === 'ios',
+          header: undefined,
         }}
       />
 
@@ -528,7 +528,6 @@ function WrappedCoursScreen() {
           ? {
               animation: 'fade_from_bottom',
               navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
               ...headerTitleStyles,
@@ -561,7 +560,6 @@ function WrappedDevoirsScreen() {
           ? {
               animation: 'fade_from_bottom',
               navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
               ...headerTitleStyles,
@@ -634,7 +632,6 @@ function WrappedGradesScreen() {
           ? {
               animation: 'fade_from_bottom',
               navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
               ...headerTitleStyles,
@@ -687,7 +684,6 @@ function WrappedNewsScreen() {
           ? {
               animation: 'fade_from_bottom',
               navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
             }
           : {
               ...headerTitleStyles,

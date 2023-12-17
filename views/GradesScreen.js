@@ -222,13 +222,13 @@ function GradesScreen({ navigation }) {
   // add button to header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => Platform.OS === 'ios' && (
+      headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
           icon={<SFSymbol name="chart.pie.fill" />}
           title="Notes"
           color="#A84700"
         />
-      ),
+      ) : 'Notes',
       headerTransparent: Platform.OS === 'ios' ? true : false,
       headerBackground: Platform.OS === 'ios' ? () => (
         <Animated.View 

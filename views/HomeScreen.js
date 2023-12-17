@@ -335,13 +335,13 @@ function NewHomeScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (
+      headerLeft: Platform.OS == 'ios' ? () => (
         <PapillonIcon fill={UIColors.text + '26'} style={[styles.newHeaderIcon]} width={32} height={32} />
-      ),
+      ) : null,
       headerTitle: 'Vue d\'ensemble',
       headerLargeTitle: Platform.OS === 'ios' ? true : false,
       headerShadowVisible: false,
-      headerTransparent: Platform.OS === 'ios',
+      headerTransparent: true,
       headerTintColor: UIColors.text,
       headerLargeStyle: {
         backgroundColor: UIColors.backgroundHigh,
@@ -373,7 +373,18 @@ function NewHomeScreen({ navigation }) {
             width: '100%',
           }}
         />
-      ) : null,
+      ) : (
+        <View
+          style={{
+            backgroundColor: UIColors.background,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            height: 54 + insets.top,
+            width: '100%',
+          }}
+        />
+      ),
     });
   }, [navigation, timetable, formattedUserData, showsTomorrow, UIColors]);
 
@@ -433,6 +444,15 @@ function NewHomeScreen({ navigation }) {
       onScroll={scrollHandler}
       scrollEventThrottle={16}
     >
+      <StatusBar
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor={UIColors.backgroundHigh}
+      />
+
+      { Platform.OS === 'android' ? (
+        <View style={{height: 100}} />
+      ) : null }
+      
       <Animated.View
         style={[
           { 
