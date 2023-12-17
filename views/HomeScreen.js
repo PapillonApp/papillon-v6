@@ -364,7 +364,7 @@ function NewHomeScreen({ navigation }) {
         <View
           style={{
             backgroundColor: UIColors.element,
-            borderBottomColor: UIColors.text + '25',
+            borderBottomColor: UIColors.dark ? UIColors.text + '25' : UIColors.text + '40',
             borderBottomWidth: 0.5,
             position: 'absolute',
             top: 0,
