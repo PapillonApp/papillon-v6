@@ -1,12 +1,12 @@
 import * as React from 'react';
 import {useEffect} from 'react';
-import {ActivityIndicator, ScrollView} from 'react-native';
+import {ActivityIndicator, Alert, ScrollView, TouchableOpacity} from 'react-native';
 
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
-import {Plus} from 'lucide-react-native';
+import {Plus, Trash} from 'lucide-react-native';
 import Services from './services.json';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -34,23 +34,59 @@ function LinkedAccountScreen({navigation}) {
 		return res;
 	}
 
-	useEffect(() => {
+	function deleteRestaurant() {
+		Alert.alert(
+			'Supprimer le compte',
+			'Voulez-vous vraiment supprimer ce compte ?',
+			[
+				{
+					text: 'Annuler',
+					onPress: () => {
+
+					},
+					style: 'cancel'
+				},
+				{
+					text: 'Supprimer',
+					onPress: () => {
+						AsyncStorage.getItem('linkedAccount').then((result) => {
+							let res = JSON.parse(result || {restaurant: {}});
+							res.restaurant = {}
+							setAccounts(res);
+							AsyncStorage.setItem('linkedAccount', JSON.stringify(res));
+						});
+					},
+					style: 'destructive'
+				}
+			]
+		)
+	}
+
+	React.useLayoutEffect(() => {
 		getAccounts();
+		return
 	})
 
 	return (
 		<ScrollView>
-
-			{accounts.restaurant?.id !== null ?
-				(
+			{JSON.stringify(accounts.restaurant) === '{}' ?
+				null
+				: (
 					<NativeList inset header='Service de restauration'>
-						<NativeItem>
+						<NativeItem
+							trailing={
+								<TouchableOpacity onPress={() => deleteRestaurant()}>
+									<Trash
+										color="#2A937A"
+									/>
+								</TouchableOpacity>
+							}
+						>
 							<NativeText heading="h4">{getServicesName(accounts.restaurant?.id)}</NativeText>
 							<NativeText heading="p2">{accounts.restaurant?.username}</NativeText>
 						</NativeItem>
 					</NativeList>
-				) :
-				null
+				)
 			}
 
 			<NativeList inset>
