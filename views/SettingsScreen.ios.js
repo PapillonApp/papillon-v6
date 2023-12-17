@@ -165,35 +165,6 @@ function NewSettings({navigation}) {
               style={[
                 styles.item.leadingContainer,
                 {
-                  backgroundColor: '#565EA3',
-                }
-              ]}
-            >
-              <SFSymbol
-                name="gear"
-                weight="semibold"
-                size={18}
-                color="#ffffff"
-                style={styles.item.symbol}
-              />
-            </View>
-          }
-          chevron
-          onPress={() => navigation.navigate('Settings')}
-        >
-          <NativeText heading="h4">
-            Réglages
-          </NativeText>
-          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Comptes et serveurs
-          </NativeText>
-        </NativeItem>
-        <NativeItem
-          leading={
-            <View
-              style={[
-                styles.item.leadingContainer,
-                {
                   backgroundColor: '#9266CC',
                 }
               ]}
@@ -215,6 +186,35 @@ function NewSettings({navigation}) {
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
             Personnalisation de l'interface
+          </NativeText>
+        </NativeItem>
+        <NativeItem
+          leading={
+            <View
+              style={[
+                styles.item.leadingContainer,
+                {
+                  backgroundColor: '#565EA3',
+                }
+              ]}
+            >
+              <SFSymbol
+                name="gear"
+                weight="semibold"
+                size={18}
+                color="#ffffff"
+                style={styles.item.symbol}
+              />
+            </View>
+          }
+          chevron
+          onPress={() => navigation.navigate('Settings')}
+        >
+          <NativeText heading="h4">
+            Réglages
+          </NativeText>
+          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+            Comptes et serveurs
           </NativeText>
         </NativeItem>
       </NativeList>
