@@ -77,6 +77,18 @@ function ChangeServer() {
       pretty_url: 'api-04.getpapillon.xyz',
       custom: false,
     },
+    {
+      title: 'Papillon-NODE-API-05',
+      url: 'https://api-05.getpapillon.xyz',
+      pretty_url: 'api-05.getpapillon.xyz',
+      custom: false,
+    },
+    {
+      title: 'Papillon-NODE-API-06',
+      url: 'https://api-06.getpapillon.xyz',
+      pretty_url: 'api-06.getpapillon.xyz',
+      custom: false,
+    },
   ];
 
   function applyServer(server) {
