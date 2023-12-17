@@ -276,24 +276,60 @@ Statut : ${cours.status || 'Aucun'}
       headerShadowVisible: Platform.OS !== 'ios',
       headerTransparent: Platform.OS === 'ios',
       headerRight: () =>
-        <TouchableOpacity
-          style={[
-            styles.calendarDateContainer,
-            {
-              backgroundColor: "#0065A8" + "20",
-            }
-          ]}
-          onPress={() => setCalendarModalOpen(true)}
-        >
-          <CalendarPapillonIcon stroke={"#0065A8"} />
-          <Text style={[styles.calendarDateText, {color: "#0065A8"}]}>
-            {new Date(calendarDate).toLocaleDateString('fr', {
-              weekday: 'short',
-              day: '2-digit',
-              month: 'short',
-            })}
-          </Text>
-        </TouchableOpacity>
+      <ContextMenuView
+            previewConfig={{
+              borderRadius: 10,
+            }}
+            menuConfig={{
+              borderRadius: 10,
+              menuTitle: calendarDate.toLocaleDateString('fr', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              }),
+              menuItems: [
+                {
+                  actionKey: 'addtoCalendar',
+                  actionTitle: 'Ajouter au calendrier',
+                  actionSubtitle:
+                    'Ajoute tous les cours de la journée au calendrier',
+                  icon: {
+                    type: 'IMAGE_SYSTEM',
+                    imageValue: {
+                      systemName: 'calendar.badge.plus',
+                    },
+                  },
+                },
+              ],
+            }}
+            onPressMenuItem={({ nativeEvent }) => {
+              if (nativeEvent.actionKey === 'addtoCalendar') {
+                addToCalendar(cours[calendarDate.toLocaleDateString()]);
+              } else if (nativeEvent.actionKey === 'notifyAll') {
+                notifyAll(cours[calendarDate.toLocaleDateString()]);
+              }
+            }}
+          >
+            <TouchableOpacity
+              style={[
+                styles.calendarDateContainer,
+                {
+                  backgroundColor: "#0065A8" + "20",
+                }
+              ]}
+              onPress={() => setCalendarModalOpen(true)}
+            >
+              <CalendarPapillonIcon stroke={"#0065A8"} />
+              <Text style={[styles.calendarDateText, {color: "#0065A8"}]}>
+                {new Date(calendarDate).toLocaleDateString('fr', {
+                  weekday: 'short',
+                  day: '2-digit',
+                  month: 'short',
+                })}
+              </Text>
+            </TouchableOpacity>
+        </ContextMenuView>
       ,
     });
   }, [navigation, calendarDate, UIColors]);

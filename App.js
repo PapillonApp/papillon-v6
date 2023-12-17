@@ -85,6 +85,8 @@ import LoginView from './views/NewAuthStack/LoginView';
 import FindEtab from './views/NewAuthStack/Pronote/FindEtab';
 import LocateEtab from './views/NewAuthStack/Pronote/LocateEtab';
 
+import PdfViewer from './views/Modals/PdfViewer';
+
 import setBackgroundFetch from './fetch/BackgroundFetch';
 
 import { LoginSkolengoSelectSchool } from './views/AuthStack/Skolengo/LoginSkolengoSelectSchool';
@@ -705,6 +707,14 @@ function WrappedNewsScreen() {
         options={{
           headerShown: true,
           headerTitle: 'Actualité',
+        }}
+      />
+      <Stack.Screen
+        name="PdfViewer"
+        component={PdfViewer}
+        options={{
+          headerShown: true,
+          presentation: 'modal',
         }}
       />
     </Stack.Navigator>
