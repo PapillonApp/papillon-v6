@@ -25,6 +25,15 @@ import PapillonInsetHeader from '../components/PapillonInsetHeader';
 function CantineScreen({ navigation }) {
 	const UIColors = GetUIColors();
 	const theme = useTheme();
+
+	React.useLayoutEffect(() => {
+		navigation.setOptions({
+			headerBackTitle: 'Retour',
+			headerTintColor: UIColors.text,
+			headerShadowVisible: true,
+		})
+	})
+
 	const styles = StyleSheet.create({
 	  tabs: {
 		tabsContainer: {
