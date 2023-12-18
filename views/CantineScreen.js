@@ -68,6 +68,102 @@ function CantineScreen({ navigation }) {
 	  }
   	})
 
+	function formatDateToDDMMYYY(dateString) {
+		const dateObject = new Date(dateString);
+		const day = ('0' + dateObject.getDate()).slice(-2);
+		const month = ('0' + (dateObject.getMonth() + 1)).slice(-2);
+		const year = dateObject.getFullYear();
+		return `${day}/${month}/${year}`;
+	}
+
+	function extractHourFromDateJson(dateJson) {
+		const dateObject = new Date(dateJson);
+	  
+		// Obtenir les composants de l'heure
+		const hours = ('0' + dateObject.getHours()).slice(-2);
+		const minutes = ('0' + dateObject.getMinutes()).slice(-2);
+		const seconds = ('0' + dateObject.getSeconds()).slice(-2);
+
+		const formattedTime = `${hours}:${minutes}`;
+	  
+		return formattedTime;
+	  }
+
+	function textPriceHistory(debit, credit) {
+		if (credit != null) {
+			return (<NativeText heading='h4' style={{color: '#2A937A'}}>+{Number(credit / 100).toFixed(2)}€</NativeText>);
+		}
+		else if (debit != null) {
+			return (<NativeText heading='h4' style={{color: '#B42828'}}>-{Number(debit / 100).toFixed(2)}€</NativeText>);
+		} else {
+			return (<NativeText heading='h4'></NativeText>);
+		}
+	}
+
+	const history = {
+		"latestPaiement": {
+			"id": 6080671,
+			"hote": {
+				"id": 1006056
+			},
+			"date": "2023-03-04T17:25:29.020Z",
+			"type": "CB",
+			"montant": 1500,
+			"dateMaj": "2023-03-04T18:05:17.618Z",
+			"statut": "OK",
+			"idTransaction": "14064162829167",
+			"token": "1eUaYoBGmat172mTQ2711677947133371",
+			"msg": "Paiement accepté"
+		},
+		"historiques": [
+			{
+				"id": 109245036,
+				"date": "2023-09-19T13:19:29.000Z",
+				"detail": "Self",
+				"debit": null,
+				"credit": 1500
+			},
+			{
+				"id": 108078680,
+				"date": "2023-09-14T12:56:12.000Z",
+				"detail": "Self",
+				"debit": 3850,
+				"credit": null
+			},
+			{
+				"id": 107308348,
+				"date": "2023-09-11T12:15:44.000Z",
+				"detail": "Self",
+				"debit": 385,
+				"credit": null
+			},
+			{
+				"id": 106573419,
+				"date": "2023-09-07T13:12:10.000Z",
+				"detail": "Self",
+				"debit": 385,
+				"credit": null
+			}
+		],
+		"comptesHote": [
+			{
+				"id": "2400989169",
+				"compte": null,
+				"appli": {
+					"id": 1078,
+					"idOrig": 1,
+					"lib": "Self"
+				},
+				"hote": {
+					"id": 1006056
+				},
+				"montant": 265,
+				"montantEstime": 265,
+				"montantEstimeMsg": "Montant estimé au 18/12/2023"
+			}
+		]
+	};
+
 	
 	return (
 		<ScrollView>
@@ -99,38 +195,12 @@ function CantineScreen({ navigation }) {
 				</View>
 			</View>
 			<NativeList inset header="Historiques">
-				<NativeItem trailing={<NativeText heading="h4" style={{color: "#B42828"}}>-3,70€</NativeText>}>
-					<NativeText heading="h4">Self</NativeText>
-					<NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>Le 18/12/2023 à 12:07</NativeText>
-				</NativeItem>
-				<NativeItem trailing={<NativeText heading="h4" style={{color: "#B42828"}}>-3,70€</NativeText>}>
-					<NativeText heading="h4">Self</NativeText>
-					<NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>Le 07/12/2023 à 00:00</NativeText>
-				</NativeItem>
-				<NativeItem trailing={<NativeText heading="h4" style={{color: "#2A937A"}}>+33,30€</NativeText>}>
-					<NativeText heading="h4">Prélèvement Dk TG (Elèves)</NativeText>
-					<NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>Le 06/12/2023 à 12:52</NativeText>
-				</NativeItem>
-				<NativeItem trailing={<NativeText heading="h4" style={{color: "#B42828"}}>-3,70€</NativeText>}>
-					<NativeText heading="h4">Self</NativeText>
-					<NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>Le 05/12/2023 à 11:59</NativeText>
-				</NativeItem>
-				<NativeItem trailing={<NativeText heading="h4" style={{color: "#B42828"}}>-3,70€</NativeText>}>
-					<NativeText heading="h4">Self</NativeText>
-					<NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>Le 04/12/2023 à 12:07</NativeText>
-				</NativeItem>
-				<NativeItem trailing={<NativeText heading="h4" style={{color: "#B42828"}}>-3,70€</NativeText>}>
-					<NativeText heading="h4">Self</NativeText>
-					<NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>Le 01/12/2023 à 11:23</NativeText>
-				</NativeItem>
-				<NativeItem trailing={<NativeText heading="h4" style={{color: "#B42828"}}>-3,70€</NativeText>}>
-					<NativeText heading="h4">Self</NativeText>
-					<NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>Le 30/11/2023 à 12:56</NativeText>
-				</NativeItem>
-				<NativeItem trailing={<NativeText heading="h4" style={{color: "#B42828"}}>-3,70€</NativeText>}>
-					<NativeText heading="h4">Self</NativeText>
-					<NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>Le 28/11/2023 à 11:59</NativeText>
-				</NativeItem>
+				{history.historiques.map((history, index) => (
+					<NativeItem trailing={textPriceHistory(history.debit, history.credit)}>
+						<NativeText heading="h4">{history.detail}</NativeText>
+						<NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>Le {formatDateToDDMMYYY(history.date)} à {extractHourFromDateJson(history.date)}</NativeText>
+					</NativeItem>
+				))}
 			</NativeList>
 		</ScrollView>
 	)
