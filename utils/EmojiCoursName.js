@@ -1,16 +1,19 @@
 function getClosestGradeEmoji(subjectName) {
   const gradeEmojiList = {
     numerique: '💻',
+    travaux: '⚒',
+    travail:'💼',
     moral: '⚖️',
+    env:'🌿',
     sport: '🏀',
     econo: '📈',
     francais: '📚',
     anglais: '🇬🇧',
     allemand: '🇩🇪',
     espagnol: '🇪🇸',
-    latin: '🇮🇹',
+    latin: '🏛️',
     italien: '🇮🇹',
-    histoire: '📜',
+    hist: '📜',
     llc: '🌍',
     scientifique: '🔬',
     arts: '🎨',
@@ -25,6 +28,7 @@ function getClosestGradeEmoji(subjectName) {
     classe: '🏫',
     vie: '🧬',
     stage: '👔',
+    œuvre:'🖼️',
     default: '📝',
   };
 
