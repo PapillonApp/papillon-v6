@@ -1866,6 +1866,8 @@ const headerStyles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 24,
+    borderColor: '#ffffff25',
+    borderWidth: 1,
   },
 });
 

@@ -21,6 +21,7 @@ const AlertBottomSheet = ({ visible = true, title, subtitle, icon, color = "#299
 
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(0)).current;
 
   // animate modal when visible changes
   useEffect(() => {
@@ -28,26 +29,40 @@ const AlertBottomSheet = ({ visible = true, title, subtitle, icon, color = "#299
       Animated.parallel([
         Animated.timing(opacity, {
           toValue: 1,
-          duration: 200,
+          duration: 100,
           useNativeDriver: true,
         }),
         Animated.spring(translateY, {
           toValue: 1,
-          duration: 200,
+          duration: 100,
           useNativeDriver: true,
+          speed: 22,
+        }),
+        Animated.spring(scale, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+          speed: 22,
         })
       ]).start();
     } else {
       Animated.parallel([
         Animated.timing(opacity, {
           toValue: 0,
-          duration: 200,
+          duration: 100,
           useNativeDriver: true,
         }),
         Animated.spring(translateY, {
           toValue: 0,
-          duration: 200,
+          duration: 100,
           useNativeDriver: true,
+          speed: 22,
+        }),
+        Animated.spring(scale, {
+          toValue: 0,
+          duration: 100,
+          useNativeDriver: true,
+          speed: 22,
         })
       ]).start();
     }
@@ -74,7 +89,13 @@ const AlertBottomSheet = ({ visible = true, title, subtitle, icon, color = "#299
                 {
                   translateY: translateY.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [100, 0],
+                    outputRange: [70, 0],
+                  })
+                },
+                {
+                  scale: scale.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.9, 1],
                   })
                 }
               ]

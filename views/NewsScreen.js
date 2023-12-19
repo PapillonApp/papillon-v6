@@ -52,6 +52,10 @@ function relativeDate(date) {
 }
 
 function normalizeText(text) {
+  if (text === undefined) {
+    return '';
+  }
+
   // remove accents and render in lowercase
   return text
     ?.normalize('NFD')
@@ -110,6 +114,13 @@ function NewsScreen({ navigation }) {
 
   function editNews(n) {
     let newNews = n;
+
+    // for each news, if no title, set title to "Sans titre"
+    newNews.forEach((item) => {
+      if (item.title === null || item.title === undefined) {
+        item.title = 'Sans titre';
+      }
+    });
 
     // sort news by date
     newNews.sort((a, b) => {
@@ -200,6 +211,7 @@ function NewsScreen({ navigation }) {
 
   useEffect(() => {
     news.forEach((item) => {
+      console.log(item);
       if (normalizeText(item.title).includes(normalizeText('menu'))) {
         const newNewsTypes = newsTypes;
         newNewsTypes[1].enabled = true;

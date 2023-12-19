@@ -9,6 +9,7 @@ import {
   Modal,
   TouchableOpacity,
   Alert,
+  Share,
 } from 'react-native';
 
 import { ContextMenuButton } from 'react-native-ios-context-menu';
@@ -209,29 +210,6 @@ function NewsItem({ route, navigation }) {
         backgroundColor="transparent"
       />
 
-      <Modal
-        animationType="slide"
-        presentationStyle='pageSheet'
-        visible={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-      >
-        <SafeAreaView style={{ flex: 1, backgroundColor: theme.dark ? '#000000' : '#ffffff' }}>
-          <TouchableOpacity style={[styles.pdfClose, Platform.OS === 'android' ? { top: insets.top } : null]}
-            onPress={() => setIsModalOpen(false)}
-          >
-            <X
-              color='#ffffff'
-              style={styles.pdfCloseIcon}
-            />
-          </TouchableOpacity>
-
-          <PdfRendererView
-            style={{ flex: 1, backgroundColor: UIColors.background }}
-            source={modalURL}
-          />
-        </SafeAreaView>
-      </Modal>
-
       {news.survey ? (
         <NativeList inset>
           <NativeItem
@@ -267,7 +245,7 @@ function NewsItem({ route, navigation }) {
       {news.attachments.length > 0 ? (
         <NativeList inset header="Pièces jointes">
           {news.attachments.map((file, index) => (
-            <PapillonAttachment key={index} file={file} index={index} theme={theme} UIColors={UIColors} setModalURL={setModalURL} setIsModalOpen={setIsModalOpen} openURL={openURL} />
+            <PapillonAttachment key={index} file={file} index={index} theme={theme} UIColors={UIColors} navigation={navigation} openURL={openURL} />
           ))}
         </NativeList>
       ) : null}
@@ -351,7 +329,7 @@ function NewsItem({ route, navigation }) {
   );
 }
 
-function PapillonAttachment({file, index, theme, UIColors, setModalURL, setIsModalOpen, openURL}) {
+function PapillonAttachment({file, index, theme, UIColors, navigation, openURL}) {
   const attachment = file;
 
   const [downloaded, setDownloaded] = useState(false);
@@ -397,8 +375,9 @@ function PapillonAttachment({file, index, theme, UIColors, setModalURL, setIsMod
       key={index}
       onPress={downloaded ? () => {
         if (formattedFileExtension === "pdf") {
-          setModalURL(fileURL);
-          setIsModalOpen(true);
+          navigation.navigate('PdfViewer', {
+            url: fileURL,
+          });
         }
         else {
           openURL(fileURL);

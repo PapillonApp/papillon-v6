@@ -283,8 +283,14 @@ function MessagesScreen ({ route, navigation }) {
               <InputToolbar
                 {...props}
                 containerStyle={{
-                  backgroundColor: UIColors.element + 'FF',
-                  borderTopColor: UIColors.border,
+                  backgroundColor:
+                    UIColors.dark ? UIColors.background
+                    : UIColors.element + 'FF'
+                  ,
+                  borderTopColor:
+                    UIColors.dark ? UIColors.text + '22'
+                    : UIColors.border
+                  ,
                   borderTopWidth: 1,
                   padding: 0,
                   paddingTop: 6,
