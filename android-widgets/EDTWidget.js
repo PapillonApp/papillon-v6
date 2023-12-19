@@ -100,8 +100,8 @@ export function EDTWidgetRender(edt) {
           </FlexWidget>
           <FlexWidget style={{ justifyContent: 'center', height: "match_parent", marginLeft: 65, width: 200, borderRightColor: "#ffffff30", borderRightWidth: 2 }}>
             <TextWidget
-              text="ANGLAIS LV1"
-              style={{...styles.TitleCours, color: "#ff0000", }}
+              text={edt.nextClasses[0].subject.name}
+              style={{...styles.TitleCours, color: edt.nextClasses[0].background_color, }}
             />
             <TextWidget
               text="Salle B205"
