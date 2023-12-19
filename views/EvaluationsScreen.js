@@ -24,6 +24,8 @@ import PapillonLoading from '../components/PapillonLoading';
 import { useAppContext } from '../utils/AppContext';
 import { WillBeSoon } from './Global/Soon';
 
+import { getSavedCourseColor } from '../utils/ColorCoursName';
+
 function EvaluationsScreen({ navigation }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -42,6 +44,10 @@ function EvaluationsScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitle: 'Compétences',
+      headerBackTitle: 'Retour',
+      headerTintColor: UIColors.text,
+      headerShadowVisible: true,
       headerRight: () => (
         <Fade visible={selectedPeriod} direction="up" duration={200}>
           <TouchableOpacity
@@ -49,7 +55,7 @@ function EvaluationsScreen({ navigation }) {
             style={styles.periodButtonContainer}
           >
             <Text
-              style={[styles.periodButtonText, { color: UIColors.primary }]}
+              style={[styles.periodButtonText, { color: UIColors.text, fontFamily: 'Papillon-Medium', opacity: 0.5 }]}
             >
               {selectedPeriod?.name || ''}
             </Text>
@@ -137,7 +143,7 @@ function EvaluationsScreen({ navigation }) {
 
     appctx.dataprovider.getEvaluations(isForced).then((_evals) => {
       setIsLoading(false);
-      const evals = JSON.parse(_evals);
+      const evals = _evals;
 
       const finalEvals = [];
 
@@ -176,15 +182,11 @@ function EvaluationsScreen({ navigation }) {
         style={[styles.container, { backgroundColor: UIColors.background }]}
         contentInsetAdjustmentBehavior="automatic"
       >
-        {Platform.OS === 'ios' ? (
-          <StatusBar animated barStyle="light-content" />
-        ) : (
-          <StatusBar
-            animated
-            barStyle={theme.dark ? 'light-content' : 'dark-content'}
-            backgroundColor="transparent"
-          />
-        )}
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+        />
 
         <WillBeSoon name="Les compétences" plural />
       </ScrollView>
@@ -193,18 +195,14 @@ function EvaluationsScreen({ navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
       contentInsetAdjustmentBehavior="automatic"
     >
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated barStyle="light-content" />
-      ) : (
-        <StatusBar
-          animated
-          barStyle={theme.dark ? 'light-content' : 'dark-content'}
-          backgroundColor="transparent"
-        />
-      )}
+      <StatusBar
+        animated
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor="transparent"
+      />
 
       {isHeadLoading ? (
         <PapillonLoading
@@ -217,7 +215,7 @@ function EvaluationsScreen({ navigation }) {
         <PapillonLoading
           title="Aucune évaluation"
           subtitle="Vous n'avez aucune évaluation pour le moment"
-          icon={<Newspaper size={24} color={UIColors.primary} />}
+          icon={<Newspaper size={24} color={UIColors.text} />}
         />
       ) : null}
 
@@ -233,13 +231,12 @@ function EvaluationsScreen({ navigation }) {
               <Pressable
                 style={[
                   styles.subjectNameContainer,
-                  { backgroundColor: UIColors.primary },
+                  { backgroundColor: getSavedCourseColor(subject.subject.name, UIColors.primary) },
                 ]}
               >
                 <Text style={[styles.subjectName]}>
                   {formatCoursName(subject.subject.name)}
                 </Text>
-                <Text>{JSON.stringify}</Text>
               </Pressable>
               <View style={[styles.competencesList]}>
                 {subject.evals.map((evaluation, id) => (

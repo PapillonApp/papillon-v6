@@ -13,6 +13,32 @@ import notifee from '@notifee/react-native';
 
 import { Platform } from 'react-native';
 
+async function sleep(time) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, time)
+  })
+}
+
+async function delNotif() {
+  notifee.displayNotification({
+    title: "Récupération des données en arrière-plan",
+    id: "background-fetch",
+    android: {
+      timeoutAfter: 200,
+      channelId: "silent",
+      progress: {
+        max: 10,
+        current: 5,
+        indeterminate: true
+      },
+      ongoing: true
+    }
+  });
+  notifee.cancelDisplayedNotification("background-fetch")
+}
+
 // Actualités
 
 async function newsFetch() {
@@ -35,11 +61,8 @@ async function newsFetch() {
           },
         });
       }
-      
       return dataInstance.getNews().then((news) => {
-        setTimeout(() => {
-          notifee.cancelDisplayedNotification("background-fetch")
-        }, 1000)
+        delNotif()
         if (news.length !== oldNews.length) {
           AsyncStorage.setItem('oldNews', JSON.stringify(news));
 
@@ -60,7 +83,13 @@ async function newsFetch() {
           // Be sure to return the successful result type!
           return BackgroundFetch.BackgroundFetchResult.NewData;
         }
-      });
+      })
+      .catch(err => {
+        setTimeout(() => {
+          delNotif()
+        }, 1000)
+        console.error("[Background Fetch/News] Unable to fetch news,", err)
+      })
     }
     else {
 
@@ -103,12 +132,22 @@ async function checkUndoneHomeworks() {
   fireDate.setSeconds(0);
   fireDate.setMilliseconds(0); 
 
+  const limitDate = new Date();
+  limitDate.setHours(21);
+  limitDate.setMinutes(0);
+  limitDate.setSeconds(0);
+  limitDate.setMilliseconds(0);
+
   const notifHasAlreadyBeenSent = await AsyncStorage.getItem('notifHasAlreadyBeenSent');
 
   if (notifHasAlreadyBeenSent == (fireDate.getTime()).toString()) {
     return;
   }
   else if (undone.length > 0 && new Date() > fireDate) {
+    if (new Date() > limitDate) {
+      return;
+    }
+
     let plural = '';
     if (undone.length > 1) {
       plural = 's';

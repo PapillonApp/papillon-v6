@@ -17,6 +17,7 @@ function NativeItem(props) {
     chevron,
     cellProps,
     style,
+    backgroundColor,
   } = props;
 
   const UIColors = GetUIColors();
@@ -51,7 +52,7 @@ function NativeItem(props) {
         </View>
       }
 
-      backgroundColor={UIColors.element}
+      backgroundColor={!backgroundColor ? UIColors.element : backgroundColor}
 
       onPress={onPress}
     />
