@@ -2,7 +2,7 @@
   "expo": {
     "name": "Papillon",
     "slug": "papillonvex",
-    "version": "6.3.3",
+    "version": "6.4.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -28,11 +28,11 @@
       "supportsTablet": true,
       "bundleIdentifier": "plus.pronote.app",
       "splash": {
-        "image": "./assets/launch/splashXR-light.png",
+        "image": "./assets/launch/splash-light.png",
         "resizeMode": "cover",
         "backgroundColor": "#F3F2F8",
         "dark": {
-          "image": "./assets/launch/splashXR-dark.png",
+          "image": "./assets/launch/splash-dark.png",
           "resizeMode": "cover",
           "backgroundColor": "#000000"
         }

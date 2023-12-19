@@ -9,6 +9,8 @@ import { BottomNavigation, Appbar, useTheme, PaperProvider, Text } from 'react-n
 
 import FlashMessage from 'react-native-flash-message';
 
+import SyncStorage from 'sync-storage';
+
 import { getHeaderTitle } from '@react-navigation/elements';
 import { useState, useMemo, useEffect } from 'react';
 import { Platform, StyleSheet, useColorScheme, View, PermissionsAndroid, Alert, Linking, TouchableOpacity, TouchableHighlight, Pressable } from 'react-native';
@@ -55,6 +57,7 @@ import IconsScreen from './views/Settings/IconsScreen';
 import ChangeServer from './views/Settings/ChangeServer';
 import ApplicationLogs from './views/Settings/ApplicationLogs';
 import CoursColor from './views/Settings/CoursColor';
+import AdjustmentsScreen from './views/Settings/AdjustmentsScreen';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -85,6 +88,8 @@ import NotificationsScreen from './views/Settings/NotificationsScreen';
 import LoginView from './views/NewAuthStack/LoginView';
 import FindEtab from './views/NewAuthStack/Pronote/FindEtab';
 import LocateEtab from './views/NewAuthStack/Pronote/LocateEtab';
+
+import PdfViewer from './views/Modals/PdfViewer';
 
 import setBackgroundFetch from './fetch/BackgroundFetch';
 
@@ -323,6 +328,14 @@ function InsetSettings() {
         component={CoursColor}
         options={{
           headerTitle: 'Couleur des matières',
+          headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
+        name="Adjustments"
+        component={AdjustmentsScreen}
+        options={{
+          headerTitle: 'Ajustements',
           headerBackTitle: 'Retour',
         }}
       />
@@ -718,6 +731,14 @@ function WrappedNewsScreen() {
           headerTitle: 'Actualité',
         }}
       />
+      <Stack.Screen
+        name="PdfViewer"
+        component={PdfViewer}
+        options={{
+          headerShown: true,
+          presentation: 'modal',
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -911,6 +932,15 @@ function AppStack() {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
+  let settings = SyncStorage.get('adjustments');
+
+  // if hideTabBarTitle doesn't exist, set it to false
+  if (settings === undefined) {
+    settings = {
+      hideTabBarTitle: false,
+    };
+  }
+
   const tabBar = useMemo(() => {
     if (Platform.OS !== 'ios') {
       return ({ navigation, state, descriptors, insets }) => (
@@ -982,7 +1012,7 @@ function AppStack() {
         headerTitleStyle: {
           fontFamily: 'Papillon-Semibold',
         },
-        tabBarShowLabel: false,
+        tabBarShowLabel: settings?.hideTabBarTitle ? false : true,
         tabBarActiveTintColor: theme.dark ? '#ffffff' : '#000000',
         tabBarInactiveTintColor: theme.dark ? '#ffffff' : '#000000',
         tabBarStyle: {
@@ -994,7 +1024,7 @@ function AppStack() {
           return (
             <PressableScale
               {...props}
-              activeScale={1.2}
+              activeScale={settings?.hideTabBarTitle ? 1.2 : 0.9}
               weight='light'
               style={[
                 {

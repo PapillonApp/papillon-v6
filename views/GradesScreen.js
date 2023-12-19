@@ -285,7 +285,7 @@ function GradesScreen({ navigation }) {
               style={styles.periodButtonContainer}
             >
               <Text
-                style={[styles.periodButtonText, { color: UIColors.primary }]}
+                style={[styles.periodButtonText, { color: "#A84700" }]}
               >
                 {selectedPeriod?.name || ''}
               </Text>
@@ -293,10 +293,10 @@ function GradesScreen({ navigation }) {
           </ContextMenuButton>
 
             <TouchableOpacity
-              style={[styles.addButtonContainer, {backgroundColor: UIColors.primary + '22'}]}
+              style={[styles.addButtonContainer, {backgroundColor: "#A84700" + '22'}]}
               onPress={() => navigation.navigate('ModalGradesSimulator')}
             >
-              <FlaskConical size='22' color={UIColors.primary} />
+              <FlaskConical size='22' color={"#A84700"} />
             </TouchableOpacity>
         </View>
       ),
@@ -1080,7 +1080,7 @@ Il s'agit uniquement d'une estimation qui variera en fonction de vos options, la
                     onPress={() => showGrade(grade)}
 
                     leading={
-                      <View style={[styles.gradeEmojiContainer]}>
+                      <View style={[styles.gradeEmojiContainer, {backgroundColor: subject.averages.color + '28', borderColor: subject.averages.color + '42'}]}>
                         <Text style={[styles.gradeEmoji]}>
                           {getClosestGradeEmoji(grade.subject.name)}
                         </Text>
@@ -1251,8 +1251,18 @@ const styles = StyleSheet.create({
     gap: 16,
   },
 
+  gradeEmojiContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+  },
   gradeEmoji: {
-    fontSize: 20,
+    fontSize: 22,
   },
 
   gradeNameContainer: {
@@ -1280,7 +1290,7 @@ const styles = StyleSheet.create({
     gap: 1,
   },
   gradeValue: {
-    fontSize: 17,
+    fontSize: 19,
     fontFamily: 'Papillon-Semibold',
   },
   gradeOutOf: {
@@ -1295,6 +1305,7 @@ const styles = StyleSheet.create({
   periodButtonText: {
     fontSize: 17,
     color: '#21826A',
+    fontFamily: 'Papillon-Semibold',
   },
 
   ListTitle: {
@@ -1484,7 +1495,7 @@ const styles = StyleSheet.create({
     },
     elevation: 1,
 
-    borderRadius: 12,
+    borderRadius: 14,
     borderCurve: 'continuous',
   },
 
@@ -1497,6 +1508,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     opacity: 0.5,
     marginBottom: 2,
+    fontFamily: 'Papillon-Medium',
   },
 
   averagegrTitleInfo: {
@@ -1511,6 +1523,7 @@ const styles = StyleSheet.create({
   averagegrTitleInfoText: {
     fontSize: 15,
     fontWeight: 500,
+    fontFamily: 'Papillon-Semibold',
   },
 
   averagegrValCont: {
@@ -1520,16 +1533,18 @@ const styles = StyleSheet.create({
   },
 
   averagegrValue: {
-    fontSize: 24,
+    fontSize: 26,
     fontFamily: 'Papillon-Semibold',
   },
   averagegrValueSm: {
     fontSize: 20,
+    fontFamily: 'Papillon-Semibold',
   },
 
   averagegrOof: {
     fontSize: 15,
     opacity: 0.5,
+    fontFamily: 'Papillon-Medium',
   },
 
   activePoint: {
