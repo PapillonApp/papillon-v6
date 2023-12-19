@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import { ContextMenuView } from 'react-native-ios-context-menu';
-import { CopyCheck, CreditCard } from 'lucide-react-native';
+import { CopyCheck, CreditCard, Album } from 'lucide-react-native';
 
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
@@ -109,21 +109,8 @@ function CantineScreen({ navigation }) {
 		}
 	}
 
+
 	const history = {
-		"latestPaiement": {
-			"id": 6080671,
-			"hote": {
-				"id": 1006056
-			},
-			"date": "2023-03-04T17:25:29.020Z",
-			"type": "CB",
-			"montant": 1500,
-			"dateMaj": "2023-03-04T18:05:17.618Z",
-			"statut": "OK",
-			"idTransaction": "14064162829167",
-			"token": "1eUaYoBGmat172mTQ2711677947133371",
-			"msg": "Paiement accepté"
-		},
 		"historiques": [
 			{
 				"id": 109245036,
@@ -153,24 +140,23 @@ function CantineScreen({ navigation }) {
 				"debit": 385,
 				"credit": null
 			}
-		],
-		"comptesHote": [
-			{
-				"id": "2400989169",
-				"compte": null,
-				"appli": {
-					"id": 1078,
-					"idOrig": 1,
-					"lib": "Self"
-				},
-				"hote": {
-					"id": 1006056
-				},
-				"montant": 265,
-				"montantEstime": 265,
-				"montantEstimeMsg": "Montant estimé au 18/12/2023"
-			}
 		]
+	};
+
+	const solde = {
+		"id": "2400989169",
+		"compte": null,
+		"appli": {
+			"id": 1078,
+			"idOrig": 1,
+			"lib": "Self"
+		},
+		"hote": {
+			"id": 1006056
+		},
+		"montant": 265,
+		"montantEstime": 265,
+		"montantEstimeMsg": "Montant estimé au 18/12/2023"
 	};
 
 	
@@ -184,7 +170,7 @@ function CantineScreen({ navigation }) {
 					marginBottom: 50,
 				}}>
 				<NativeText heading="p" style={{opacity: 0.6}}>Solde actuel</NativeText>
-				<NativeText heading="h1" style={{fontSize: 40}}>-48.10€</NativeText>
+				<NativeText heading="h1" style={{fontSize: 40}}>{Number(solde.montant / 100).toFixed(2)}€</NativeText>
 				<NativeText heading="p" style={{opacity: 0.6}}>Soit 0 repas</NativeText>
 			</View>
 			<View style={[styles.tabs.tabsContainer]}>
@@ -192,16 +178,23 @@ function CantineScreen({ navigation }) {
 					<ContextMenuView style={{flex: 1}} borderRadius={12}>
 						<PressableScale style={[styles.tabs.tab, { backgroundColor: UIColors.element }]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetReservationCantine')}>
 							<CopyCheck size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-							<Text style={[styles.tabs.tabText]}>Mes réservations</Text>
+							<Text style={[styles.tabs.tabText]}>Mes résa.</Text>
 						</PressableScale>
 					</ContextMenuView>
 					<ContextMenuView style={{flex: 1}} borderRadius={12}>
 						<PressableScale style={[styles.tabs.tab, { backgroundColor: UIColors.element }]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetCardCantine')}>
 							<CreditCard size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-							<Text style={[styles.tabs.tabText]}>Afficher ma carte</Text>
+							<Text style={[styles.tabs.tabText]}>Ma carte</Text>
+						</PressableScale>
+					</ContextMenuView>
+					<ContextMenuView style={{flex: 1}} borderRadius={12}>
+						<PressableScale style={[styles.tabs.tab, { backgroundColor: UIColors.element }]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetMenuCantine')}>
+							<Album size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+							<Text style={[styles.tabs.tabText]}>Menu</Text>
 						</PressableScale>
 					</ContextMenuView>
 				</View>
+
 			</View>
 			<NativeList inset header="Historiques">
 				{history.historiques.map((history, index) => (

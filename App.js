@@ -77,6 +77,7 @@ import SchoolLifeScreen from './views/SchoolLifeScreen';
 
 import CantineScreen from './views/CantineScreen';
 import CardCantineScreen from './views/Cantine/CardCantineScreen';
+import MenuCantineScreen from './views/Cantine/MenuCantineScreen';
 import ReservationCantineScreen from './views/Cantine/ReservationCantineScreen';
 
 import ConversationsScreen from './views/ConversationsScreen';
@@ -223,6 +224,35 @@ function InsetCardCantine() {
   );
 }
 
+function InsetMenuCantine() {
+  const UIColors = GetUIColors();
+
+  return (
+    <Stack.Navigator
+      screenOptions={
+        Platform.OS === 'android'
+          ? {
+              animation: 'fade_from_bottom',
+              navigationBarColor: '#00000000',
+              header: (props) => <Header {...props} />,
+            }
+          : {
+              ...headerTitleStyles,
+            }
+      }
+    >
+      <Stack.Screen
+        name="ReservationCantine"
+        component={MenuCantineScreen}
+        options={{
+          headerTitle: 'Menus',
+          headerBackTitle: 'Restauration scolaire',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 function InsetReservationCantine() {
   const UIColors = GetUIColors();
 
@@ -237,8 +267,6 @@ function InsetReservationCantine() {
             }
           : {
               ...headerTitleStyles,
-              header: (props) => <Header {...props} />,
-              modalStatus: true,
             }
       }
     >
@@ -457,6 +485,15 @@ function WrappedHomeScreen() {
       <Stack.Screen
         name="InsetCardCantine"
         component={InsetCardCantine}
+        options={{
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="InsetMenuCantine"
+        component={InsetMenuCantine}
         options={{
           presentation: 'modal',
           headerShown: false,
