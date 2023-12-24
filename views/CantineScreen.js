@@ -1,281 +1,297 @@
 import React, { useEffect } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
   StyleSheet,
   View,
-  ScrollView,
 } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import { ContextMenuView } from 'react-native-ios-context-menu';
-import { CopyCheck, CreditCard, Album, BookX } from 'lucide-react-native';
+import { Album, BookX, CopyCheck, CreditCard } from 'lucide-react-native';
 
+import { useTheme } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Turboself from 'papillon-turboself-core';
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 import GetUIColors from '../utils/GetUIColors';
-import { useTheme } from 'react-native-paper';
 
 import { useAppContext } from '../utils/AppContext';
 import PapillonLoading from '../components/PapillonLoading';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import Turboself from 'papillon-turboself-core';
-import { State } from 'react-native-gesture-handler';
-
-
 
 function CantineScreen({ navigation }) {
-	const UIColors = GetUIColors();
-	const theme = useTheme();
-	const appctx = useAppContext();
-	const ts = new Turboself();
+  const UIColors = GetUIColors();
+  const theme = useTheme();
+  const appctx = useAppContext();
+  const ts = new Turboself();
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
+  const [homeData, setHomeData] = React.useState({});
+  const [userData, setUserData] = React.useState({
+    authorization: { pay: true, book: true, cafeteria: false },
+    cardData: '',
+  });
 
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerBackTitle: 'Retour',
+      headerTintColor: UIColors.text,
+      headerShadowVisible: true,
+    });
+  });
 
-	React.useLayoutEffect(() => {
-		navigation.setOptions({
-			headerBackTitle: 'Retour',
-			headerTintColor: UIColors.text,
-			headerShadowVisible: true,
-		})
-	})
+  function formatDateToDDMMYYY(dateString) {
+    const dateObject = new Date(dateString);
+    const day = `0${dateObject.getDate()}`.slice(-2);
+    const month = `0${dateObject.getMonth() + 1}`.slice(-2);
+    const year = dateObject.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
 
-	function formatDateToDDMMYYY(dateString) {
-		const dateObject = new Date(dateString);
-		const day = ('0' + dateObject.getDate()).slice(-2);
-		const month = ('0' + (dateObject.getMonth() + 1)).slice(-2);
-		const year = dateObject.getFullYear();
-		return `${day}/${month}/${year}`;
-	}
+  function extractHourFromDateJson(dateJson) {
+    const dateObject = new Date(dateJson);
 
-	function extractHourFromDateJson(dateJson) {
-		const dateObject = new Date(dateJson);
-	  
-		// Obtenir les composants de l'heure
-		const hours = ('0' + dateObject.getHours()).slice(-2);
-		const minutes = ('0' + dateObject.getMinutes()).slice(-2);
-		const seconds = ('0' + dateObject.getSeconds()).slice(-2);
+    // Obtenir les composants de l'heure
+    const hours = `0${dateObject.getHours()}`.slice(-2);
+    const minutes = `0${dateObject.getMinutes()}`.slice(-2);
+    const seconds = `0${dateObject.getSeconds()}`.slice(-2);
 
-		const formattedTime = `${hours}:${minutes}`;
-	  
-		return formattedTime;
-	}
+    const formattedTime = `${hours}:${minutes}`;
 
-	function textPriceHistory(debit, credit) {
-		if (credit != null) {
-			return (<NativeText heading='h4' style={{color: '#2A937A'}}>+{Number(credit / 100).toFixed(2)}€</NativeText>);
-		}
-		else if (debit != null) {
-			return (<NativeText heading='h4' style={{color: '#B42828'}}>-{Number(debit / 100).toFixed(2)}€</NativeText>);
-		} else {
-			return (<NativeText heading='h4'></NativeText>);
-		}
-	}
-	
+    return formattedTime;
+  }
 
-	AsyncStorage.getItem('linkedAccount').then((result) => {
-		let res = { restaurant: {} };
-		if (result != null) {
-		  res = JSON.parse(result);
-		  if (res.restaurant != null) {
-			ts.login(res.restaurant.username, res.restaurant.password).then((e) => {
-				if (e.error) {
-					console.log(e.errorMessage);
-				} else {
-					ts.getSolde().then((e) => {
-						if (e.error) {
-							console.log(e.errorMessage);
-						} else {
-							console.log(e.data);
-						}
-					});
-				}
-			}
-		)}
-	}});
+  function textPriceHistory(debit, credit) {
+    if (credit != null) {
+      return (
+        <NativeText heading="h4" style={{ color: '#2A937A' }}>
+          +{Number(credit / 100).toFixed(2)}€
+        </NativeText>
+      );
+    }
+    if (debit != null) {
+      return (
+        <NativeText heading="h4" style={{ color: '#B42828' }}>
+          {Number(debit.toFixed(2))}€
+        </NativeText>
+      );
+    }
+    return <NativeText heading="h4" />;
+  }
 
-	// Debug data
-	const history = {
-		"historiques": [
-			{
-				"id": 109245036,
-				"date": "2023-09-19T13:19:29.000Z",
-				"detail": "Self",
-				"debit": null,
-				"credit": 1500
-			},
-			{
-				"id": 108078680,
-				"date": "2023-09-14T12:56:12.000Z",
-				"detail": "Self",
-				"debit": 3850,
-				"credit": null
-			},
-			{
-				"id": 107308348,
-				"date": "2023-09-11T12:15:44.000Z",
-				"detail": "Self",
-				"debit": 385,
-				"credit": null
-			},
-			{
-				"id": 106573419,
-				"date": "2023-09-07T13:12:10.000Z",
-				"detail": "Self",
-				"debit": 385,
-				"credit": null
-			}
-		]
-	};
+  function login() {
+    AsyncStorage.getItem('linkedAccount').then((result) => {
+      let res = { restaurant: {} };
+      if (result != null) {
+        res = JSON.parse(result);
+      }
+      if (res.restaurant.username != null) {
+        ts.login(res.restaurant.username, res.restaurant.password).then(
+          (data) => {
+            if (data.error) {
+              Alert.alert(data.errorMessage);
+              return;
+            }
+            setIsLoggedIn(true);
+            getHome();
+          }
+        );
+      }
+    });
+  }
 
-	// Debug data
-	const etablissement = {
-		error: false,
-		errorMessage: '',
-		data: {
-		  id: 1234,
-		  TSid: 1,
-		  code2p5: 1234,
-		  name: 'Lycée/Collège XXX',
-		  version: 'XXX',
-		  disabled: false,
-		  symbol: '€',
-		  minCreditAdd: 15.5,
-		  prixDej: 2.87,
-		  address: {
-			line1: '1 Rue Doe Jonh',
-			line2: '',
-			postalCode: '10000',
-			city: 'Ville connu'
-		  },
-		  contact: {
-			url: 'http://mon.lycee-ou-college.com/',
-			email: 'mail@college-lycee.com',
-			tel: '0606060606'
-		  },
-		  sync: {
-			first: '20XX-XX-XXTXX:XX:XX.XXXZ',
-			last: '20XX-XX-XXTXX:XX:XX.XXXZ'
-		  }
-		}
-	};
+  function getHome() {
+    ts.getHome().then((data) => {
+      if (data.error) {
+        Alert.alert(data.errorMessage);
+        return;
+      }
+      setHomeData(data.data);
+      getUser();
+    });
+  }
 
-	// Debug data
-	const solde = ts.getSolde();
+  function getUser() {
+    ts.getUserInfo().then((data) => {
+      if (data.error) {
+        Alert.alert(data.errorMessage);
+        return;
+      }
+      setUserData(data.data);
+      setLoading(false);
+    });
+  }
 
-	// Debug data
-	const user = ts.getUser();
+  useEffect(() => {
+    login();
+  }, [isLoggedIn]);
 
+  const styles = StyleSheet.create({
+    tabs: {
+      tabsContainer: {
+        marginHorizontal: 16,
+        gap: 6,
+      },
+      tabRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 6,
+      },
 
-	return (
-		<ScrollView>
-			<View style={{
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "center",
-					marginTop: 50,
-					marginBottom: 50,
-				}}>
-				<NativeText heading="p" style={{opacity: 0.6}}>Solde actuel</NativeText>
-				<NativeText heading="h1" style={{fontSize: 40}}>{Number(solde.data.balance).toFixed(2)}€</NativeText>
-				<NativeText heading="p" style={{opacity: 0.6}}>Soit {Number(solde.data.balance/etablissement.data.prixDej).toFixed(0)} repas</NativeText>
-			</View>
-			<View style={[styles.tabs.tabsContainer]}>
-				<View style={[styles.tabs.tabRow]}>
-					{/* Show only if user is allowed to book */}
-					{user.data.authorization.book === true ? (
-						<ContextMenuView style={{flex: 1}} borderRadius={12}>
-						<PressableScale style={[styles.tabs.tab, { backgroundColor: UIColors.element }]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetReservationCantine')}>
-							<CopyCheck size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-							<NativeText style={[styles.tabs.tabText]}>Mes résa.</NativeText>
-						</PressableScale>
-					</ContextMenuView>
-					) : null }
-					
-					{/* Show only if user has a card */}
-					{user.data.cardData != null ? (
-						<ContextMenuView style={{flex: 1}} borderRadius={12}>
-							<PressableScale style={[styles.tabs.tab, { backgroundColor: UIColors.element }]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetCardCantine')}>
-								<CreditCard size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-								<NativeText style={[styles.tabs.tabText]}>Ma carte</NativeText>
-							</PressableScale>
-						</ContextMenuView>
-					) : null}
-					
-					{/* Show "menu" only if user use Pronote */}
-					{appctx.dataprovider.service === 'Pronote' ? (
-						<ContextMenuView style={{flex: 1}} borderRadius={12}>
-							<PressableScale style={[styles.tabs.tab, { backgroundColor: UIColors.element }]} weight="light" activeScale={0.9} onPress={() => navigation.navigate('InsetMenuCantine')}>
-								<Album size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-								<NativeText style={[styles.tabs.tabText]}>Menu</NativeText>
-							</PressableScale>
-						</ContextMenuView>
-					): null}
-					
-				</View>
+      tab: {
+        borderRadius: 12,
+        borderCurve: 'continuous',
 
-			</View>
-			{history.historiques.length > 0 
-				? (
-				<NativeList inset header="Historiques">
-					{history.historiques.map((history, index) => (
-						<NativeItem trailing={textPriceHistory(history.debit, history.credit)}>
-							<NativeText heading="h4">{history.detail}</NativeText>
-							<NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>Le {formatDateToDDMMYYY(history.date)} à {extractHourFromDateJson(history.date)}</NativeText>
-						</NativeItem>
-					))}
-				</NativeList>
-				) : (
-					<PapillonLoading
-						icon={<BookX size={26} color={UIColors.text} />}
-						title="Pas d'historique disponible"
-						subtitle="Vous n'avez pas encore effectué de paiement ou de rechargement. Si vous venez de recharger ou de payer, veuillez patienter quelques minutes."
-						style={{ marginTop: 36 }}
-					/>
-				)}
-		</ScrollView>
-	)
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        gap: 4,
+
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 0.5,
+        },
+        shadowOpacity: 0.15,
+        shadowRadius: 1,
+
+        elevation: 0,
+        backgroundColor: UIColors.element,
+      },
+
+      tabText: {
+        fontSize: 14.5,
+        fontFamily: 'Papillon-Semibold',
+      },
+    },
+  });
+
+  return (
+    <ScrollView>
+      <View
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginTop: 50,
+          marginBottom: 50,
+        }}
+      >
+        <NativeText heading="p" style={{ opacity: 0.6 }}>
+          Solde actuel
+        </NativeText>
+        {loading ? (
+          <ActivityIndicator />
+        ) : (
+          <View style={{ display: 'flex', alignItems: 'center'}}>
+            <NativeText heading="h1" style={{ fontSize: 40 }}>
+              {Number(homeData.userInfo.balance).toFixed(2)}€
+            </NativeText>
+            <NativeText heading="p" style={{ opacity: 0.6 }}>
+              Solde estimée{' : '}
+              {Number(homeData.userInfo.estimatedBalance).toFixed(2)}€
+            </NativeText>
+          </View>
+        )}
+      </View>
+      <View style={[styles.tabs.tabsContainer]}>
+        <View style={[styles.tabs.tabRow]}>
+          {/* Show only if user is allowed to book */}
+
+          {userData.authorization.book ? (
+            <ContextMenuView style={{ flex: 1 }} borderRadius={12}>
+              <PressableScale
+                style={
+                  loading
+                    ? [styles.tabs.tab, { opacity: 0.6 }]
+                    : [styles.tabs.tab]
+                }
+                weight="light"
+                activeScale={0.9}
+                disabled={loading}
+                onPress={() => navigation.navigate('InsetReservationCantine')}
+              >
+                <CopyCheck
+                  size={24}
+                  color={theme.dark ? '#ffffff' : '#000000'}
+                />
+                <NativeText style={[styles.tabs.tabText]}>Mes résa.</NativeText>
+              </PressableScale>
+            </ContextMenuView>
+          ) : null}
+
+          {/* Show only if user has a card */}
+          {userData.cardData != null ? (
+            <ContextMenuView style={{ flex: 1 }} borderRadius={12}>
+              <PressableScale
+                style={
+                  loading
+                    ? [styles.tabs.tab, { opacity: 0.6 }]
+                    : [styles.tabs.tab]
+                }
+                weight="light"
+                activeScale={0.9}
+                onPress={() => navigation.navigate('InsetCardCantine')}
+              >
+                <CreditCard
+                  size={24}
+                  color={theme.dark ? '#ffffff' : '#000000'}
+                />
+                <NativeText style={[styles.tabs.tabText]}>Ma carte</NativeText>
+              </PressableScale>
+            </ContextMenuView>
+          ) : null}
+
+          {/* Show "menu" only if user use Pronote */}
+          {appctx.dataprovider.service === 'Pronote' ? (
+            <ContextMenuView style={{ flex: 1 }} borderRadius={12}>
+              <PressableScale
+                style={
+                  loading
+                    ? [styles.tabs.tab, { opacity: 0.6 }]
+                    : [styles.tabs.tab]
+                }
+                weight="light"
+                activeScale={0.9}
+                onPress={() => navigation.navigate('InsetMenuCantine')}
+              >
+                <Album size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+                <NativeText style={[styles.tabs.tabText]}>Menu</NativeText>
+              </PressableScale>
+            </ContextMenuView>
+          ) : null}
+        </View>
+      </View>
+      {loading ? (
+        <ActivityIndicator style={{ marginTop: 16 }} />
+      ) : homeData.history.length > 0 ? (
+        <NativeList inset header="Historiques">
+          {homeData.history.map((history, index) => (
+            <NativeItem trailing={textPriceHistory(history.cost)}>
+              <NativeText heading="h4">{history.name}</NativeText>
+              <NativeText heading="p" style={{ opacity: 0.6, fontSize: 15 }}>
+                Le {formatDateToDDMMYYY(history.date)} à{' '}
+                {extractHourFromDateJson(history.date)}
+              </NativeText>
+            </NativeItem>
+          ))}
+        </NativeList>
+      ) : (
+        <PapillonLoading
+          icon={<BookX size={26} color={UIColors.text} />}
+          title="Pas d'historique disponible"
+          subtitle="Vous n'avez pas encore effectué de paiement ou de rechargement. Si vous venez de recharger ou de payer, veuillez patienter quelques minutes."
+          style={{ marginTop: 36 }}
+        />
+      )}
+    </ScrollView>
+  );
 }
-
-const styles = StyleSheet.create({
-	tabs: {
-	  tabsContainer: {
-		marginHorizontal: 16,
-		gap: 6,
-	  },
-	  tabRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		gap: 6,
-	  },
-	
-	  tab: {
-		borderRadius: 12,
-		borderCurve: 'continuous',
-	
-		flex: 1,
-		flexDirection: 'column',
-		justifyContent: 'center',
-		alignItems: 'center',
-		paddingVertical: 12,
-		paddingHorizontal: 10,
-		gap: 4,
-	
-		shadowColor: '#000',
-		shadowOffset: {
-		  width: 0,
-		  height: 0.5,
-		},
-		shadowOpacity: 0.15,
-		shadowRadius: 1,
-	
-		elevation: 0,
-	  },
-	
-	  tabText: {
-		fontSize: 14.5,
-		fontFamily: 'Papillon-Semibold',
-	  },
-	}
-});
 
 export default CantineScreen;
