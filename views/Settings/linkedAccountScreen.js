@@ -17,7 +17,11 @@ function LinkedAccountScreen({navigation}) {
 	function getAccounts() {
 		setLoading(true)
 		AsyncStorage.getItem('linkedAccount').then((result) => {
-			let res = JSON.parse(result || {restaurant: {}});
+			console.log(result)
+			var res = {restaurant:{}}
+			if (result != null) {
+				res = JSON.parse(result)
+			};
 			console.log(res)
 			setAccounts(res);
 			setLoading(false);
@@ -65,7 +69,9 @@ function LinkedAccountScreen({navigation}) {
 	React.useLayoutEffect(() => {
 		getAccounts();
 		return
-	})
+	}, [accounts])
+
+
 
 	return (
 		<ScrollView>

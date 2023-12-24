@@ -6,10 +6,8 @@ import {
   StyleSheet,
   StatusBar,
   Platform,
-  ActivityIndicator,
   RefreshControl,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -25,7 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import PapillonLoading from '../../components/PapillonLoading';
 
 import {
-  Calendar as IconCalendar,
+  Album,
 } from 'lucide-react-native';
 
 import GetUIColors from '../../utils/GetUIColors';
@@ -110,7 +108,7 @@ function MenuCantineScreen({ navigation }) {
             }}
             onPress={() => setCalendarModalOpen(true)}
           >
-            <IconCalendar size={20} color={UIColors.text} />
+            <Album size={20} color={UIColors.text} />
             <Text style={{ fontSize: 15, fontFamily: 'Papillon-Medium' }}>
               {new Date(calendarDate).toLocaleDateString('fr', {
                 weekday: 'short',
@@ -222,12 +220,6 @@ function MenuCantineScreen({ navigation }) {
         />
       ) : null}
 
-      <StatusBar
-        animated
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
-        backgroundColor="transparent"
-      />
-
       <InfinitePager
         style={[styles.viewPager]}
         pageWrapperStyle={[styles.pageWrapper]}
@@ -239,8 +231,6 @@ function MenuCantineScreen({ navigation }) {
           menu[calcDate(today, index).toLocaleDateString()] ? (
             <CoursPage
               menu={menu[calcDate(today, index).toLocaleDateString()] || []}
-              navigation={navigation}
-              theme={theme}
               forceRefresh={forceRefresh}
             />
           ) : (
@@ -257,7 +247,7 @@ function MenuCantineScreen({ navigation }) {
   );
 }
 
-function CoursPage({ menu, navigation, theme, forceRefresh }) {
+function CoursPage({ menu, forceRefresh }) {
 
 
   const [isHeadLoading, setIsHeadLoading] = useState(false);
@@ -270,15 +260,10 @@ function CoursPage({ menu, navigation, theme, forceRefresh }) {
     });
   }, []);
 
-  function lz(nb) {
-    return nb < 10 ? `0${nb}` : nb.toString();
-  }
-
   const UIColors = GetUIColors();
 
   return (
     <ScrollView
-      style={[styles.coursContainer]}
       nestedScrollEnabled
       refreshControl={
         <RefreshControl
@@ -290,7 +275,7 @@ function CoursPage({ menu, navigation, theme, forceRefresh }) {
     >
       {menu.length === 0 ? (
         <PapillonLoading
-          icon={<IconCalendar size={26} color={UIColors.text} />}
+          icon={<Album size={26} color={UIColors.text} />}
           title="Pas de menu aujourd'hui"
           subtitle="Le menu du jour n'est pas encore disponible. Veuillez vous rapprocher de l'administration pour plus d'informations."
           style={{ marginTop: 36 }}
