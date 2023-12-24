@@ -123,6 +123,29 @@ function AboutScreen({ navigation }) {
     }
   }
 
+  function formatDate(date) {
+    let s = date.split(" ");
+    let d = s[0].split("-");
+    let t = s[1].split(":");
+    const month = [
+      'janvier',
+      'février',
+      'mars',
+      'avril',
+      'mai',
+      'juin',
+      'juillet',
+      'août',
+      'septembre',
+      'octobre',
+      'novembre',
+      'décembre',
+    ];
+    return `${d[2].startsWith('0') ? d[2].replace('0', '') : d[2]} ${
+      month[parseInt(d[1]) - 1]
+    } ${d[0]} à ${t[0]}h${t[1]} (UTC-0)`;
+  }
+
   return (
     <View style={{ flex: 1 }}>
       {Platform.OS === 'ios' ? (
@@ -252,7 +275,7 @@ function AboutScreen({ navigation }) {
               </NativeText>
 
               <NativeText heading="subtitle2">
-                le {new Date(item.LastSupportedDateUTC).toLocaleTimeString('fr-FR', {dateStyle: 'medium', timeStyle: 'short'})}
+                le {formatDate(item.LastSupportedDateUTC)}
               </NativeText>
             </NativeItem>
           ))}
