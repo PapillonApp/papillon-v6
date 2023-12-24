@@ -207,18 +207,17 @@ export class IndexDataInstance {
   }
 
   // [Service]Menu.js
-    // [Service]Homeworks.js
-    async getMenu(day, force = false, day2 = null) {
-      if (!day2) day2 = day;
-      if (this.service === 'Pronote')
-        return require(`./PronoteData/PronoteMenu.js`).getMenu(
-          day,
-          force,
-          day2
-        );
-      // .then((e) => thenHandler('homeworks', e));
-      return [];
-    }
+  async getMenu(day, force = false, day2 = null) {
+    if (!day2) day2 = day;
+    if (this.service === 'Pronote')
+      return require(`./PronoteData/PronoteMenu.js`).getMenu(
+        day,
+        force,
+        day2
+      );
+    // .then((e) => thenHandler('homeworks', e));
+    return [];
+  }
 
   // [Service]Conversations.js
   async getConversations(force = false) {

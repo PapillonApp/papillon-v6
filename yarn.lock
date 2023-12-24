@@ -9833,10 +9833,10 @@ p-try@^2.0.0:
   resolved "https://registry.yarnpkg.com/p-try/-/p-try-2.2.0.tgz#cb2868540e313d61de58fafbe35ce9004d5540e6"
   integrity sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==
 
-papillon-turboself-core@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/papillon-turboself-core/-/papillon-turboself-core-1.0.3.tgz#21f69df44d94a96c4c8817f0ea95714bde17458e"
-  integrity sha512-iRjw/+yL3wJiV3elJwUFUa9Q/+0Q33x2qbStOdMfGMmXglYnSxlgI1YIQcBbhOEE7L1HvBbZI9Ecf0L0l5Tt4g==
+papillon-turboself-core@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/papillon-turboself-core/-/papillon-turboself-core-1.0.5.tgz#87585e0ebc1497e6c7b2ce8a13115e77cbeb1370"
+  integrity sha512-Bpbc0obSluUW0oM4DYye0ciMHAlQVhvZOCORUIVZrs51b/YBya2ii9Luv0RMC4GWqATQ1kff2gE9RMpY4n3sDQ==
 
 param-case@^3.0.4:
   version "3.0.4"

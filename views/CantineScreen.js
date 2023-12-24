@@ -16,6 +16,10 @@ import { useTheme } from 'react-native-paper';
 
 import { useAppContext } from '../utils/AppContext';
 import PapillonLoading from '../components/PapillonLoading';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import Turboself from 'papillon-turboself-core';
+import { State } from 'react-native-gesture-handler';
 
 
 
@@ -23,6 +27,7 @@ function CantineScreen({ navigation }) {
 	const UIColors = GetUIColors();
 	const theme = useTheme();
 	const appctx = useAppContext();
+	const ts = new Turboself();
 
 
 	React.useLayoutEffect(() => {
@@ -64,6 +69,28 @@ function CantineScreen({ navigation }) {
 			return (<NativeText heading='h4'></NativeText>);
 		}
 	}
+	
+
+	AsyncStorage.getItem('linkedAccount').then((result) => {
+		let res = { restaurant: {} };
+		if (result != null) {
+		  res = JSON.parse(result);
+		  if (res.restaurant != null) {
+			ts.login(res.restaurant.username, res.restaurant.password).then((e) => {
+				if (e.error) {
+					console.log(e.errorMessage);
+				} else {
+					ts.getSolde().then((e) => {
+						if (e.error) {
+							console.log(e.errorMessage);
+						} else {
+							console.log(e.data);
+						}
+					});
+				}
+			}
+		)}
+	}});
 
 	// Debug data
 	const history = {
@@ -132,41 +159,11 @@ function CantineScreen({ navigation }) {
 	};
 
 	// Debug data
-	const solde = {
-		error: false,
-		errorMessage: '',
-		data: {
-			id: 'XXXXXXXXXX',
-			balance: 102,
-			estimatedBalance: -45.13,
-			estimatedFor: '20XX-XX-XX'
-		}
-	};
+	const solde = ts.getSolde();
 
 	// Debug data
-	const user = {
-		error: false,
-		errorMessage: '',
-		data: {
-			id: 1234,
-			origId: 1234,
-			type: 0,
-			lastName: 'Doe',
-			firstName: 'Jonh',
-			class: 'CE1',
-			method: 'Argent',
-			quality: 'TICKET',
-			authorization: {
-				pay: true,
-				book: true,
-				cafeteria: false
-			},
-			lastSync: '20XX-XX-XXTXX:XX:XX.XXXZ',
-			disabled: false,
-			isPasswordSecure: true,
-			cardData: 1234567890,
-		}
-	};
+	const user = ts.getUser();
+
 
 	return (
 		<ScrollView>
