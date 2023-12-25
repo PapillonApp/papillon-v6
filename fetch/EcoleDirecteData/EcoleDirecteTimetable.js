@@ -29,8 +29,6 @@ function getTimetable(day, force = false, ecoledirecteInstance) {
   // TEMPORARY : remove 1 month
   day = new Date(day);
 
-  console.log('ttForce : ', force);
-
   AsyncStorage.getItem('timetableCache').then((timetableCache) => {
     if (timetableCache && !force) {
       // if day is in cache, return it
@@ -51,13 +49,13 @@ function getTimetable(day, force = false, ecoledirecteInstance) {
           cacheTime.setHours(0, 0, 0, 0);
 
           if (currentTime.getTime() === cacheTime.getTime()) {
-              console.log('timetable from cache');
-              let objecttest = [{"background_color": "#173ED9", "end": "2023-11-08 10:00", "group_names": [], "id": "31#Bjren-WufehJ6HU4QWBRStFCpWllpIrvQ_vqUCQaNI0", "is_cancelled": false, "is_detention": false, "is_exempted": false, "is_outing": false, "is_test": false, "memo": null, "num": 410, "rooms": ["205"], "start": "2023-11-08 09:00", "status": null, "subject": {"groups": false, "id": "82#KHFm8_2TckkHflLLnKEMWOpM5x9EHumkFv4dGzFVq2k", "name": "ARTS PLASTIQUES"}, "teachers": ["DIALO H."], "virtual": []}]
-              return objecttest; //timetableCache[i].timetable;
+              return timetableCache[i].timetable;
           }
         }
       }
     }
+
+    console.log("AFTER READ TIMETABLE CACHE")
 
     // date = '2021-09-13' (YYYY-MM-DD)
     const date = new Date(day);
@@ -77,7 +75,7 @@ function getTimetable(day, force = false, ecoledirecteInstance) {
 
 
     ecoledirecteInstance.timetable.fetchByDay(day).then(data => {
-      let courses = data.data;
+      let courses = Object.values(data)
       let result = [];
 
       // if two cours start at the same time, remove the cours with isCancelled = true
@@ -89,7 +87,7 @@ function getTimetable(day, force = false, ecoledirecteInstance) {
         let newData = {
           "background_color": course.color,
           "end": course.end_date,
-          "group_names": course.groupe.split(""),
+          "group_names": course.groupe, //.split(""),
           "is_cancelled": course.isAnnule,
           "is_detention": false,
           "is_exempted": false,
@@ -97,14 +95,14 @@ function getTimetable(day, force = false, ecoledirecteInstance) {
           "is_test": false,
           "memo": null,
           "num": 410,
-          "rooms": course.salle.split(""),
+          "rooms": course.salle, //.split("")
           "start": course.start_date,
           "status": null,
           "subject": {
             "groups": false,
             "name": "ARTS PLASTIQUES"
           },
-          "teachers": course.prof.split(""),
+          "teachers": course.prof, //.split(""),
           "virtual": []
         }
         result.push(newData)
@@ -112,16 +110,18 @@ function getTimetable(day, force = false, ecoledirecteInstance) {
 
       result.sort((a, b) => a.start.localeCompare(b.start));
 
+      console.log(result)
+
 
 
       // save in cache
+      console.log("Saving in timetable in cache")
       AsyncStorage.getItem('timetableCache').then((_timetableCache) => {
         let cachedTimetable = [];
 
         if (_timetableCache) {
           cachedTimetable = JSON.parse(_timetableCache);
         }
-
         cachedTimetable = cachedTimetable.filter(
           (entry) => entry.date !== day
         );
@@ -131,7 +131,6 @@ function getTimetable(day, force = false, ecoledirecteInstance) {
           dateSaved: new Date(),
           timetable: result,
         });
-
         AsyncStorage.setItem(
           'timetableCache',
           JSON.stringify(cachedTimetable)
@@ -140,8 +139,10 @@ function getTimetable(day, force = false, ecoledirecteInstance) {
 
       return result;
 
-    }).catch(() => {
-      require("./EcoleDirecteRefreshToken").default()
+    }).catch((e) => {
+      console.error(`Error during fetch of EcoleDirecte TimeTable`, e)
+      if(e.code === 1) return [{"background_color": "#e8170c", "end": `${day} 18:00`, "group_names": [], "id": "31#Bjren-WufehJ6HU4QWBRStFCpWllpIrvQ_vqUCQaNI0", "is_cancelled": false, "is_detention": false, "is_exempted": false, "is_outing": false, "is_test": true, "memo": null, "num": 403, "rooms": ["403"], "start": `${day} 09:00`, "status": null, "subject": {"groups": false, "id": "82#KHFm8_2TckkHflLLnKEMWOpM5x9EHumkFv4dGzFVq2k", "name": "ERROR"}, "teachers": ["ERR."], "virtual": []}]
+      require("./EcoleDirecteRefreshToken").default(ecoledirecteInstance)
     })
   })
 }
