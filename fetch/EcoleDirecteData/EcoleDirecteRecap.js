@@ -30,7 +30,7 @@ function getRecap(day, force, ecoledirecteInstance) {
     return Promise.all([
       getTimetable(day, force, ecoledirecteInstance),
       getGrades(force, ecoledirecteInstance),
-      getHomeworks(day, force, ecoledirecteInstance),
+      getHomeworks(day, force, null, ecoledirecteInstance),
       /*getHomeworks(addDays(day, 1), force, ecoledirecteInstance),
       getHomeworks(addDays(day, 2), force, ecoledirecteInstance),*/
     ]).then((result) => {
