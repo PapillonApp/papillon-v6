@@ -255,7 +255,7 @@ function AboutScreen({ navigation }) {
                 item.DiscordProfilePicture ? (
                   <Image
                     source={{ uri: item.DiscordProfilePicture }}
-                    style={{ width: 38, height: 38, borderRadius: 12 }}
+                    style={{ width: 38, height: 38, borderRadius: 12, borderWidth: 1, borderColor: UIColors.text + '22' }}
                   />
                 ) : (
                   <PapillonIcon

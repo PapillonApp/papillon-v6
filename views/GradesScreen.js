@@ -239,6 +239,10 @@ function GradesScreen({ navigation }) {
         />
       ) : 'Notes',
       headerTransparent: Platform.OS === 'ios' ? true : false,
+      headerStyle: Platform.OS === 'android' ? {
+        backgroundColor: UIColors.background,
+        elevation: 0,
+      } : undefined,
       headerBackground: Platform.OS === 'ios' ? () => (
         <Animated.View 
           style={[
