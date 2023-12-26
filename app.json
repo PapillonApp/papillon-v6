@@ -26,6 +26,7 @@
     ],
     "ios": {
       "supportsTablet": true,
+      "appStoreUrl": "https://apps.apple.com/fr/app/papillon-pour-pronote-ed/id1662669707",
       "bundleIdentifier": "plus.pronote.app",
       "splash": {
         "image": "./assets/launch/splash-light.png",
@@ -39,6 +40,7 @@
       }
     },
     "android": {
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=plus.pronote.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#29947A"

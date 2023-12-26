@@ -34,6 +34,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContextMenuView } from 'react-native-ios-context-menu';
 import NextCoursElem from '../interface/HomeScreen/NextCours';
 import getConsts from '../fetch/consts';
+import SyncStorage from 'sync-storage';
 
 // Icons 
 import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2, PlusCircle, Globe2, ServerOff } from 'lucide-react-native';
@@ -120,6 +121,57 @@ function NewHomeScreen({ navigation }) {
 
   const [isConnected, setIsConnected] = useState(true);
   const [isServerOnline, setIsServerOnline] = useState(true);
+
+  // theme
+  const themeImages = {
+    "papillon/default": require('../assets/themes/papillon/default.png'),
+    "papillon/grospapillon": require('../assets/themes/papillon/grospapillon.png'),
+    "papillon/papillonligne": require('../assets/themes/papillon/papillonligne.png'),
+    "papillon/papillonlumineux": require('../assets/themes/papillon/papillonlumineux.png'),
+    "papillon/papillonpapier": require('../assets/themes/papillon/papillonpapier.png'),
+    "papillon/papillonplusieurs": require('../assets/themes/papillon/papillonplusieurs.png'),
+    "papillon/formes": require('../assets/themes/papillon/formes.png'),
+    "papillon/formescolor": require('../assets/themes/papillon/formescolor.png'),
+    "hero/circuit": require('../assets/themes/hero/circuit.png'),
+    "hero/damier": require('../assets/themes/hero/damier.png'),
+    "hero/flakes": require('../assets/themes/hero/flakes.png'),
+    "hero/movement": require('../assets/themes/hero/movement.png'),
+    "hero/sparkcircle": require('../assets/themes/hero/sparkcircle.png'),
+    "hero/topography": require('../assets/themes/hero/topography.png'),
+    "hero/wave": require('../assets/themes/hero/wave.png'),
+    "gribouillage/clouds": require('../assets/themes/gribouillage/clouds.png'),
+    "gribouillage/cross": require('../assets/themes/gribouillage/cross.png'),
+    "gribouillage/gribs": require('../assets/themes/gribouillage/gribs.png'),
+    "gribouillage/hearts": require('../assets/themes/gribouillage/hearts.png'),
+    "gribouillage/heavy": require('../assets/themes/gribouillage/heavy.png'),
+    "gribouillage/lines": require('../assets/themes/gribouillage/lines.png'),
+    "gribouillage/stars": require('../assets/themes/gribouillage/stars.png'),
+  };
+
+  const [themeEnabled, setThemeEnabled] = useState(false);
+  const [themeColor, setThemeColor] = useState('#32AB8E');
+  const [themeImage, setThemeImage] = useState('papillon/default');
+
+  // get sync settings
+  useEffect(() => {
+    // refresh settings every time the screen is focused
+    const unsubscribe = navigation.addListener('focus', () => {
+      refreshSettings();
+    });
+
+    refreshSettings();
+
+    return unsubscribe;
+  }, []);
+
+  const refreshSettings = () => {
+    const settings = SyncStorage.get('adjustments');
+    if (settings) {
+      setThemeEnabled(settings.homeThemesEnabled ?? false);
+      setThemeColor(settings.homeThemeColor ?? '#32AB8E');
+      setThemeImage(settings.homeThemeImage ?? 'papillon/default');
+    }
+  };
 
   const today = new Date();
 
@@ -339,15 +391,18 @@ function NewHomeScreen({ navigation }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: Platform.OS == 'ios' ? () => (
-        <PapillonIcon fill={UIColors.text + '26'} style={[styles.newHeaderIcon]} width={32} height={32} />
+        themeEnabled ?
+          <PapillonIcon fill={'#ffffff'} style={[styles.newHeaderIcon]} width={32} height={32} />
+        :
+          <PapillonIcon fill={UIColors.text + '26'} style={[styles.newHeaderIcon]} width={32} height={32} />
       ) : null,
       headerTitle: 'Vue d\'ensemble',
       headerLargeTitle: false,
       headerShadowVisible: false,
       headerTransparent: true,
-      headerTintColor: UIColors.text,
+      headerTintColor: themeEnabled ? "#ffffff" : UIColors.text,
       headerLargeStyle: {
-        backgroundColor: UIColors.backgroundHigh,
+        backgroundColor: themeEnabled ? themeColor + '00' : UIColors.backgroundHigh + '00',
       },
       headerRight: () => (
           <TouchableOpacity
@@ -366,7 +421,7 @@ function NewHomeScreen({ navigation }) {
       headerBackground: () => Platform.OS === 'ios' ? ( 
         <Animated.View
           style={{
-            backgroundColor: UIColors.background,
+            backgroundColor: themeEnabled ? themeColor : UIColors.background,
             borderBottomColor: UIColors.dark ? UIColors.text + '25' : UIColors.text + '40',
             borderBottomWidth: 0.5,
             position: 'absolute',
@@ -380,7 +435,7 @@ function NewHomeScreen({ navigation }) {
       ) : (
         <View
           style={{
-            backgroundColor: UIColors.background,
+            backgroundColor: themeEnabled && !UIColors.dark ? themeColor : UIColors.background,
             position: 'absolute',
             top: 0,
             left: 0,
@@ -390,7 +445,7 @@ function NewHomeScreen({ navigation }) {
         />
       ),
     });
-  }, [navigation, timetable, formattedUserData, showsTomorrow, UIColors]);
+  }, [navigation, timetable, formattedUserData, showsTomorrow, UIColors, themeEnabled, themeColor]);
 
   // animations
   const yOffset = new Animated.Value(0);
@@ -427,7 +482,7 @@ function NewHomeScreen({ navigation }) {
   });
 
   const topOpacity = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-20, 30] : [0, 40],
+    inputRange: Platform.OS === 'ios' ? [-60, -40] : [0, 40],
     outputRange: [0, 1],
     extrapolate: 'clamp',
   });
@@ -454,15 +509,49 @@ function NewHomeScreen({ navigation }) {
       onScroll={scrollHandler}
       scrollEventThrottle={16}
     >
-      <StatusBar
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
-        backgroundColor={UIColors.backgroundHigh}
-      />
+      { themeEnabled ? (
+        <StatusBar
+          barStyle={'light-content'}
+          backgroundColor={themeColor}
+        />
+      ) : (
+        <StatusBar
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor={UIColors.backgroundHigh}
+        />
+      )}
 
       { Platform.OS === 'android' ? (
         <View style={{height: 100}} />
       ) : (
         <View style={{height: 10}} />
+      )}
+
+      { themeEnabled && (
+        <View
+          style={[
+            styles.headerTheme,
+            {
+              backgroundColor: themeColor,
+              top: -300 - insets.top,
+            }
+          ]}
+        >
+          <LinearGradient
+            colors={[themeColor, themeColor + '00']}
+            style={[{
+              top: 150,
+              left: 0,
+              width: '100%',
+              height: 150,
+              zIndex: 99999,
+            }]}
+          />
+          <Image 
+            source={themeImages[themeImage]}
+            style={[styles.headerThemeImage]}
+          />
+        </View>
       )}
       
       <Animated.View
@@ -476,6 +565,7 @@ function NewHomeScreen({ navigation }) {
         <NextCoursElem
           cours={timetable}
           navigation={navigation}
+          color={themeEnabled ? themeColor : null}
           style={[{
             marginHorizontal: 16,
             marginVertical: 0,
@@ -1642,6 +1732,18 @@ const styles = StyleSheet.create({
 
     marginTop: -12,
     marginBottom: -52,
+  },
+
+  headerTheme: {
+    width: '100%',
+    height: 400,
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  headerThemeImage: {
+    width: '100%',
+    height: 150,
   },
 });
 

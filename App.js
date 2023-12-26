@@ -57,6 +57,7 @@ import IconsScreen from './views/Settings/IconsScreen';
 import ChangeServer from './views/Settings/ChangeServer';
 import CoursColor from './views/Settings/CoursColor';
 import AdjustmentsScreen from './views/Settings/AdjustmentsScreen';
+import HeaderSelectScreen from './views/Settings/HeaderSelectScreen';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -336,6 +337,13 @@ function InsetSettings() {
         options={{
           headerTitle: 'Ajustements',
           headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
+        name="HeaderSelect"
+        component={HeaderSelectScreen}
+        options={{
+          headerTitle: 'Bandeau',
         }}
       />
       <Stack.Screen

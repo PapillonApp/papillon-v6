@@ -15,7 +15,7 @@ function lz(num) {
   return (num < 10 ? '0' : '') + num;
 }
 
-const NextCours = ({ cours, style, navigation }) => {
+const NextCours = ({ cours, style, navigation, color = null }) => {
   const UIColors = GetUIColors();
 
   const [nxid, setNxid] = useState(0);
@@ -187,7 +187,7 @@ const NextCours = ({ cours, style, navigation }) => {
     <PressableScale
       style={[
         styles.container,
-        { backgroundColor: getSavedCourseColor(cours[nxid].subject.name, cours[nxid].background_color) },
+        { backgroundColor: color !== null ? color : getSavedCourseColor(cours[nxid].subject.name, cours[nxid].background_color) },
         style
       ]}
       onPress={() => {
