@@ -20,6 +20,10 @@ import GetUIColors from '../utils/GetUIColors';
 import PapillonLoading from '../components/PapillonLoading';
 import { useAppContext } from '../utils/AppContext';
 
+import NativeList from '../components/NativeList';
+import NativeItem from '../components/NativeItem';
+import NativeText from '../components/NativeText';
+
 function SchoolLifeScreen({ navigation }) {
   const [viesco, setViesco] = useState(null);
   const theme = useTheme();
@@ -48,22 +52,16 @@ function SchoolLifeScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: Platform.OS === 'ios' ? () => (
-        <PapillonInsetHeader
-          icon={<SFSymbol name="person.badge.clock.fill" />}
-          title="Vie scolaire"
-          color="#8F3D9D"
-          inset
-        />
-      ) : 'Vie scolaire',
-      headerBackTitleVisible: false,
+      headerTitle: 'Vie scolaire',
+      headerBackTitle: 'Retour',
       headerTintColor: UIColors.text,
+      headerShadowVisible: true,
     });
   });
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
       contentInsetAdjustmentBehavior="automatic"
     >
       <StatusBar
@@ -92,149 +90,116 @@ function SchoolLifeScreen({ navigation }) {
           ) : null}
 
           {viesco.absences && viesco.absences.length > 0 ? (
-            <View style={styles.optionsList}>
-              <Text style={styles.ListTitle}>Absences</Text>
-
+            <NativeList header="Absences" inset>
               {viesco.absences?.map((absence, index) => (
-                <PressableScale
+                <NativeItem
                   key={index}
-                  style={[
-                    styles.absenceItem,
-                    {
-                      backgroundColor: UIColors.element,
-                    },
-                  ]}
+                  leading={
+                    <UserX size={24} color="#A84700" />
+                  }
+                  trailing={!absence.justified ? (
+                    <NativeText
+                      style={[
+                        styles.absenceItemStatusTitle,
+                        styles.absenceItemStatusTitleToJustify,
+                      ]}
+                    >
+                      A justifier
+                    </NativeText>
+                  ) : (
+                    <NativeText style={[styles.absenceItemStatusTitle]}>
+                      Justifiée
+                    </NativeText>
+                  )}
                 >
-                  <PapillonIcon
-                    icon={<UserX size={24} color="#A84700" />}
-                    color="#A84700"
-                    small
-                  />
-                  <View style={styles.absenceItemData}>
-                    <Text style={styles.absenceItemTitle}>
-                      {absence.hours}h manquées
-                    </Text>
-                    
-                    {
-                      // if from and to is same day :
-                      (!absence.to || (new Date(absence.from).getDate() === new Date(absence.to).getDate())) ? (
-<Text style={styles.absenceItemSubtitle}>
-                      le{' '}
-                      {new Date(absence.from).toLocaleDateString('fr', {
-                        weekday: 'long',
-                        day: '2-digit',
-                        month: 'short',
-                      })}
-                    </Text>) : (
-                      <Text style={styles.absenceItemSubtitle}>
-                      du{' '}
-                      {new Date(absence.from).toLocaleDateString('fr', {
-                        weekday: 'long',
-                        day: '2-digit',
-                        month: 'short',
-                      })} au {new Date(absence.to).toLocaleDateString('fr', {
-                        weekday: 'long',
-                        day: '2-digit',
-                        month: 'short',
-                      })}
-                    </Text>
-                    )
-                    }
-
-                    {absence.reasons.length > 0 ? (
-                      <Text
-                        style={[
-                          styles.absenceItemSubtitle,
-                          styles.absenceReason,
-                        ]}
-                      >
-                        {absence.reasons[0]}
-                      </Text>
-                    ) : null}
-                  </View>
-                  <View style={styles.absenceItemStatus}>
-                    {!absence.justified ? (
-                      <Text
-                        style={[
-                          styles.absenceItemStatusTitle,
-                          styles.absenceItemStatusTitleToJustify,
-                        ]}
-                      >
-                        A justifier
-                      </Text>
+                  <NativeText heading="h4">
+                    {absence.hours} manquées
+                  </NativeText>
+                  {
+                    // if from and to is same day :
+                    (!absence.to || (new Date(absence.from).getDate() === new Date(absence.to).getDate())) ? (
+                      <NativeText heading="p2">
+                        le{' '}
+                        {new Date(absence.from).toLocaleDateString('fr', {
+                          weekday: 'long',
+                          day: '2-digit',
+                          month: 'short',
+                        })}
+                      </NativeText>
                     ) : (
-                      <Text style={[styles.absenceItemStatusTitle]}>
-                        Justifiée
-                      </Text>
-                    )}
-                  </View>
-                </PressableScale>
+                      <NativeText heading="p2">
+                        du{' '}
+                        {new Date(absence.from).toLocaleDateString('fr', {
+                          weekday: 'long',
+                          day: '2-digit',
+                          month: 'short',
+                        })} au {new Date(absence.to).toLocaleDateString('fr', {
+                          weekday: 'long',
+                          day: '2-digit',
+                          month: 'short',
+                        })}
+                      </NativeText>
+                    )
+                  }
+
+                  {absence.reasons.length > 0 ? (
+                    <NativeText heading="subtitle2" style={{marginTop: 6}}>
+                      {absence.reasons[0]}
+                    </NativeText>
+                  ) : null}
+                </NativeItem>
               ))}
-            </View>
+            </NativeList>
           ) : null}
 
           {viesco.delays && viesco.delays.length > 0 ? (
-            <View style={styles.optionsList}>
-              <Text style={styles.ListTitle}>Retards</Text>
-
+            <NativeList header="Retards" inset>
               {viesco?.delays?.map((delay, index) => (
-                <PressableScale
+                <NativeItem
                   key={index}
-                  style={[
-                    styles.absenceItem,
-                    {
-                      backgroundColor: UIColors.element,
-                    },
-                  ]}
+                  leading={
+                    <Clock3 size={24} color="#565EA3" />
+                  }
+                  trailing={!delay.justified ? (
+                    <NativeText
+                      style={[
+                        styles.absenceItemStatusTitle,
+                        styles.absenceItemStatusTitleToJustify,
+                      ]}
+                    >
+                      A justifier
+                    </NativeText>
+                  ) : (
+                    <NativeText style={[styles.absenceItemStatusTitle]}>
+                      Justifiée
+                    </NativeText>
+                  )}
                 >
-                  <PapillonIcon
-                    icon={<Clock3 size={24} color="#565EA3" />}
-                    color="#565EA3"
-                    small
-                  />
-                  <View style={styles.absenceItemData}>
-                    <Text style={styles.absenceItemTitle}>
-                      Retard de {delay.duration} min.
-                    </Text>
-                    <Text style={styles.absenceItemSubtitle}>
-                      le{' '}
+                  <NativeText heading="h4">
+                    Retard de {delay.duration} min.
+                  </NativeText>
+                  <NativeText heading="p2">
+                    le{' '}
                       {new Date(delay.date).toLocaleDateString('fr', {
                         weekday: 'long',
                         day: '2-digit',
                         month: 'short',
                       })}
-                    </Text>
+                  </NativeText>
 
-                    {delay.reasons.length > 0 ? (
-                      <Text
-                        style={[
-                          styles.absenceItemSubtitle,
-                          styles.absenceReason,
-                        ]}
+                  {delay.reasons.length > 0 ? (
+                      <NativeText
+                        heading="subtitle2"
+                        style={{
+                          marginTop: 6
+                        }}
                       >
                         {delay.reasons[0]}
-                      </Text>
-                    ) : null}
-                  </View>
-                  <View style={styles.absenceItemStatus}>
-                    {!delay.justified ? (
-                      <Text
-                        style={[
-                          styles.absenceItemStatusTitle,
-                          styles.absenceItemStatusTitleToJustify,
-                        ]}
-                      >
-                        A justifier
-                      </Text>
-                    ) : (
-                      <Text style={[styles.absenceItemStatusTitle]}>
-                        Justifiée
-                      </Text>
-                    )}
-                  </View>
-                </PressableScale>
+                      </NativeText>
+                  ) : null}
+                </NativeItem>
               ))}
-            </View>
+            </NativeList>
           ) : null}
         </>
       ) : null}

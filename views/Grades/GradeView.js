@@ -316,7 +316,7 @@ function GradeView({ route, navigation }) {
       </View>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        style={{ flex: 1, backgroundColor: UIColors.background }}
+        style={{ flex: 1, backgroundColor: UIColors.modalBackground }}
       >
 
         <NativeList

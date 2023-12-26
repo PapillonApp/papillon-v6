@@ -152,6 +152,8 @@ function MessagesScreen ({ route, navigation }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerBackTitleVisible: false,
+      headerTintColor: UIColors.text,
+      headerShadowVisible: true,
       headerTitle : Platform.OS === 'ios' ? () => (
         <TouchableOpacity style={{flexDirection: 'column', alignItems: 'flex-start', overflow: 'hidden', width: '100%', paddingRight: 56}} onPress={() => openModal()}>
           <Text style={{fontFamily: 'Papillon-Semibold', fontSize: 17, color: UIColors.text, flex: 1}} numberOfLines={1}>
@@ -195,7 +197,7 @@ function MessagesScreen ({ route, navigation }) {
   }
 
   return (
-    <View style={{backgroundColor: UIColors.background, flex: 1}}>
+    <View style={{backgroundColor: UIColors.backgroundHigh, flex: 1}}>
       <StatusBar
         animated
         barStyle={
@@ -281,8 +283,14 @@ function MessagesScreen ({ route, navigation }) {
               <InputToolbar
                 {...props}
                 containerStyle={{
-                  backgroundColor: UIColors.element + 'FF',
-                  borderTopColor: UIColors.border,
+                  backgroundColor:
+                    UIColors.dark ? UIColors.background
+                    : UIColors.element + 'FF'
+                  ,
+                  borderTopColor:
+                    UIColors.dark ? UIColors.text + '22'
+                    : UIColors.border
+                  ,
                   borderTopWidth: 1,
                   padding: 0,
                   paddingTop: 6,
@@ -330,7 +338,7 @@ function MessagesScreen ({ route, navigation }) {
           setUrlOpened(false);
         }}
       >
-        <View style={{flex: 1, backgroundColor: UIColors.modalBackground}}>
+        <View style={{flex: 1, backgroundColor: UIColors.backgroundHigh}}>
           <View style={[styles.modalHeader, {backgroundColor: UIColors.element, borderColor: UIColors.text + '18'}]}>
             <NativeText heading="h4">
               Liste des participants

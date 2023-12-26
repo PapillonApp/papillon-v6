@@ -36,7 +36,11 @@ function NewSettings({navigation}) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      
+      headerTitle: 'Préférences',
+      headerStyle: {
+        backgroundColor: UIColors.modalBackground,
+      },
+      headerShadowVisible: false,
     });
   });
 
@@ -89,13 +93,11 @@ function NewSettings({navigation}) {
             </View>
           </NativeItem>
         ) : null }
-
       </NativeList>
 
       <NativeList
         inset
         sideBar
-        header="Options de l'application"
       >
         <NativeItem
           leading={
@@ -103,12 +105,12 @@ function NewSettings({navigation}) {
               style={[
                 styles.item.leadingContainer,
                 {
-                  backgroundColor: '#A84700',
+                  backgroundColor: '#9266CC',
                 }
               ]}
             >
               <SFSymbol
-                name="sparkles"
+                name="paintbrush.fill"
                 weight="semibold"
                 size={18}
                 color="#ffffff"
@@ -117,42 +119,13 @@ function NewSettings({navigation}) {
             </View>
           }
           chevron
-          onPress={() => navigation.navigate('Icons')}
+          onPress={() => navigation.navigate('Adjustments')}
         >
           <NativeText heading="h4">
-            Icône de l'application
+            Ajustements
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Modifier l'icône de l'application
-          </NativeText>
-        </NativeItem>
-        <NativeItem
-          leading={
-            <View
-              style={[
-                styles.item.leadingContainer,
-                {
-                  backgroundColor: '#29947A',
-                }
-              ]}
-            >
-              <SFSymbol
-                name="bell.fill"
-                weight="semibold"
-                size={18}
-                color="#ffffff"
-                style={styles.item.symbol}
-              />
-            </View>
-          }
-          chevron
-          onPress={() => navigation.navigate('Notifications')}
-        >
-          <NativeText heading="h4">
-            Notifications
-          </NativeText>
-          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Gérer les notifications
+            Personnalisation de l'interface
           </NativeText>
         </NativeItem>
         <NativeItem
@@ -189,7 +162,6 @@ function NewSettings({navigation}) {
       <NativeList
         inset
         sideBar
-        header="Options du contenu"
       >
         <NativeItem
           leading={
@@ -220,42 +192,41 @@ function NewSettings({navigation}) {
             Personnaliser les matières
           </NativeText>
         </NativeItem>
-      </NativeList>
-
-      <NativeList
-        inset
-        sideBar
-        header="A propos"
-      >
         <NativeItem
           leading={
             <View
               style={[
                 styles.item.leadingContainer,
                 {
-                  backgroundColor: '#8449A7',
+                  backgroundColor: '#A84700',
                 }
               ]}
             >
               <SFSymbol
-                name="party.popper.fill"
+                name="sparkles"
                 weight="semibold"
-                size={16}
+                size={18}
                 color="#ffffff"
                 style={styles.item.symbol}
               />
             </View>
           }
           chevron
-          onPress={() => navigation.navigate('Changelog')}
+          onPress={() => navigation.navigate('Icons')}
         >
           <NativeText heading="h4">
-            Nouveautés
+            Icône de l'application
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Affiche le changelog
+            Modifier l'icône de l'application
           </NativeText>
         </NativeItem>
+      </NativeList>
+
+      <NativeList
+        inset
+        sideBar
+      >
         <NativeItem
           leading={
             <View
@@ -294,7 +265,7 @@ function NewSettings({navigation}) {
 const styles = StyleSheet.create({
   profile: {
     container: {
-      marginVertical: 2,
+      marginVertical: 0,
       paddingVertical: 5,
     },
     pic: {

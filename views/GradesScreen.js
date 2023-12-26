@@ -18,6 +18,8 @@ import { useTheme, Text } from 'react-native-paper';
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
 
+import AlertBottomSheet from '../interface/AlertBottomSheet';
+
 import { BlurView } from 'expo-blur';
 import { ContextMenuButton, ContextMenuView } from 'react-native-ios-context-menu';
 
@@ -25,6 +27,7 @@ import LineChart from 'react-native-simple-line-chart';
 
 import Fade from 'react-native-fade';
 
+import { Stats } from '../interface/icons/PapillonIcons';
 import { User2, Users2, TrendingDown, TrendingUp, Info, AlertTriangle, FlaskConical, Plus, PlusCircle } from 'lucide-react-native';
 
 import { useState } from 'react';
@@ -59,6 +62,8 @@ function GradesScreen({ navigation }) {
   const [remainingPeriods, setRemainingPeriods] = useState([]);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [allGrades, setAllGrades] = useState([]);
+
+  const [moyReeleAlert, setMoyReeleAlert] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isHeadLoading, setHeadLoading] = useState(false);
@@ -222,13 +227,13 @@ function GradesScreen({ navigation }) {
   // add button to header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => Platform.OS === 'ios' && (
+      headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
           icon={<SFSymbol name="chart.pie.fill" />}
           title="Notes"
           color="#A84700"
         />
-      ),
+      ) : 'Notes',
       headerTransparent: Platform.OS === 'ios' ? true : false,
       headerBackground: Platform.OS === 'ios' ? () => (
         <Animated.View 
@@ -280,7 +285,7 @@ function GradesScreen({ navigation }) {
               style={styles.periodButtonContainer}
             >
               <Text
-                style={[styles.periodButtonText, { color: UIColors.primary }]}
+                style={[styles.periodButtonText, { color: "#A84700" }]}
               >
                 {selectedPeriod?.name || ''}
               </Text>
@@ -288,10 +293,10 @@ function GradesScreen({ navigation }) {
           </ContextMenuButton>
 
             <TouchableOpacity
-              style={[styles.addButtonContainer, {backgroundColor: UIColors.primary + '22'}]}
+              style={[styles.addButtonContainer, {backgroundColor: "#A84700" + '22'}]}
               onPress={() => navigation.navigate('ModalGradesSimulator')}
             >
-              <FlaskConical size='22' color={UIColors.primary} />
+              <FlaskConical size='22' color={"#A84700"} />
             </TouchableOpacity>
         </View>
       ),
@@ -582,7 +587,7 @@ function GradesScreen({ navigation }) {
     <>
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
       refreshControl={
         <RefreshControl
           refreshing={isHeadLoading}
@@ -600,6 +605,23 @@ function GradesScreen({ navigation }) {
           theme.dark ? 'light-content' : 'dark-content'
         }
         backgroundColor="transparent"
+      />
+
+      <AlertBottomSheet
+        title={`${calculatedAvg ? 'Moyenne générale calculée' : 'Moyenne générale réelle'}`}
+        subtitle={calculatedAvg ? 
+          hasSimulatedGrades ?
+            `La moyenne affichée ici est une moyenne calculée à partir de vos notes réelles et de vos notes simulées.`
+          :
+            `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant votre moyenne de chaque matière.`
+          :
+            `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`}
+        icon={<Stats width={28} height={28} stroke="#29947a" />}
+        color='#29947a'
+        visible={moyReeleAlert}
+        cancelAction={() => {
+          setMoyReeleAlert(false);
+        }}
       />
 
       <Modal
@@ -717,24 +739,7 @@ function GradesScreen({ navigation }) {
 
             <TouchableOpacity 
               style={[styles.averagegrTitleInfo]}
-              onPress={() => Alert.alert(
-                `${calculatedAvg ? 'Moyenne générale calculée' : 'Moyenne générale réelle'}`,
-                calculatedAvg ? 
-                hasSimulatedGrades ?
-                  `La moyenne affichée ici est une moyenne calculée à partir de vos notes réelles et de vos notes simulées.`
-                :
-                  `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant votre moyenne de chaque matière.`
-                :
-                  `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`
-                ,
-                [
-                  {
-                    text: 'Compris !',
-                    style: 'cancel',
-                  },
-                ],
-                { cancelable: true }
-              )}
+              onPress={() => setMoyReeleAlert(true)}
             >
               <AlertTriangle size='20' color={UIColors.primary} />
               <Text style={[styles.averagegrTitleInfoText, {color: UIColors.primary}]}>
@@ -770,6 +775,18 @@ function GradesScreen({ navigation }) {
                   animated: true,
                 },
                 lineWidth: 4,
+                activePointConfig: {
+                  color: UIColors.primary,
+                  borderColor: UIColors.element,
+                  radius: 7,
+                  borderWidth: 2,
+                  animated: true,
+                  showVerticalLine: true,
+                  verticalLineColor: UIColors.text,
+                  verticalLineDashArray: [5, 5],
+                  verticalLineOpacity: 0.5,
+                  verticalLineWidth: 2,
+                },
                 activePointComponent: (point) => {
                   return (
                     <View
@@ -838,7 +855,7 @@ function GradesScreen({ navigation }) {
                 key={index}
                 style={[
                   styles.smallGradeContainer,
-                  { backgroundColor: UIColors.elementHigh },
+                  { backgroundColor: UIColors.element },
                 ]}
                 onPress={() => showGrade(grade)}
               >
@@ -1063,7 +1080,7 @@ Il s'agit uniquement d'une estimation qui variera en fonction de vos options, la
                     onPress={() => showGrade(grade)}
 
                     leading={
-                      <View style={[styles.gradeEmojiContainer]}>
+                      <View style={[styles.gradeEmojiContainer, {backgroundColor: subject.averages.color + '28', borderColor: subject.averages.color + '42'}]}>
                         <Text style={[styles.gradeEmoji]}>
                           {getClosestGradeEmoji(grade.subject.name)}
                         </Text>
@@ -1234,8 +1251,18 @@ const styles = StyleSheet.create({
     gap: 16,
   },
 
+  gradeEmojiContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+  },
   gradeEmoji: {
-    fontSize: 20,
+    fontSize: 22,
   },
 
   gradeNameContainer: {
@@ -1263,7 +1290,7 @@ const styles = StyleSheet.create({
     gap: 1,
   },
   gradeValue: {
-    fontSize: 17,
+    fontSize: 19,
     fontFamily: 'Papillon-Semibold',
   },
   gradeOutOf: {
@@ -1278,6 +1305,7 @@ const styles = StyleSheet.create({
   periodButtonText: {
     fontSize: 17,
     color: '#21826A',
+    fontFamily: 'Papillon-Semibold',
   },
 
   ListTitle: {
@@ -1460,14 +1488,14 @@ const styles = StyleSheet.create({
 
     shadowColor: '#000000',
     shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowRadius: 2,
     shadowOffset: {
-      height: 1,
+      height: 0,
       width: 0,
     },
     elevation: 1,
 
-    borderRadius: 12,
+    borderRadius: 14,
     borderCurve: 'continuous',
   },
 
@@ -1480,6 +1508,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     opacity: 0.5,
     marginBottom: 2,
+    fontFamily: 'Papillon-Medium',
   },
 
   averagegrTitleInfo: {
@@ -1494,6 +1523,7 @@ const styles = StyleSheet.create({
   averagegrTitleInfoText: {
     fontSize: 15,
     fontWeight: 500,
+    fontFamily: 'Papillon-Semibold',
   },
 
   averagegrValCont: {
@@ -1503,16 +1533,18 @@ const styles = StyleSheet.create({
   },
 
   averagegrValue: {
-    fontSize: 24,
+    fontSize: 26,
     fontFamily: 'Papillon-Semibold',
   },
   averagegrValueSm: {
     fontSize: 20,
+    fontFamily: 'Papillon-Semibold',
   },
 
   averagegrOof: {
     fontSize: 15,
     opacity: 0.5,
+    fontFamily: 'Papillon-Medium',
   },
 
   activePoint: {

@@ -3,7 +3,10 @@ function getClosestGradeEmoji(subjectName) {
     numerique: '💻',
     SI: '💻',
     SNT: '💻',
+    travaux: '⚒',
+    travail:'💼',
     moral: '⚖️',
+    env:'🌿',
     sport: '🏀',
     EPS: '🏀',
     econo: '📈',
@@ -15,6 +18,7 @@ function getClosestGradeEmoji(subjectName) {
     italien: '🇮🇹',
     histoire: '📜',
     EMC: '🤝',
+    hist: '📜',
     llc: '🌍',
     scientifique: '🔬',
     arts: '🎨',
@@ -30,6 +34,7 @@ function getClosestGradeEmoji(subjectName) {
     vie: '🧬',
     SES: '💰',
     stage: '👔',
+    œuvre:'🖼️',
     default: '📝',
   };
 

@@ -31,7 +31,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { Text, useTheme } from 'react-native-paper';
 
-import { Newspaper, ChefHat, Projector, Users2, AlertTriangle, X, DownloadCloud } from 'lucide-react-native';
+import { Newspaper, ChefHat, Projector, Users2, AlertTriangle, X, DownloadCloud, PieChart } from 'lucide-react-native';
 import { BarChart4, Link, File } from 'lucide-react-native';
 import ListItem from '../components/ListItem';
 
@@ -52,6 +52,10 @@ function relativeDate(date) {
 }
 
 function normalizeText(text) {
+  if (text === undefined) {
+    return '';
+  }
+
   // remove accents and render in lowercase
   return text
     ?.normalize('NFD')
@@ -64,12 +68,14 @@ function normalizeContent(text) {
   return text.replace(/(\r\n|\n|\r)/gm, '').trim();
 }
 
-function FullNewsIcon({ title }) {
+function FullNewsIcon({ title, survey }) {
   const UIColors = GetUIColors();
 
   return (
     <View>
-      {normalizeText(title).includes('menu') ? (
+      { survey ? (
+        <PieChart color={'#B42828'} size={24} />
+      ) : normalizeText(title).includes('menu') ? (
         <ChefHat color={'#B42828'} size={24} />
       ) : normalizeText(title).includes('reunion') ? (
         <Projector color={'#B42828'} size={24} />
@@ -108,6 +114,13 @@ function NewsScreen({ navigation }) {
 
   function editNews(n) {
     let newNews = n;
+
+    // for each news, if no title, set title to "Sans titre"
+    newNews.forEach((item) => {
+      if (item.title === null || item.title === undefined) {
+        item.title = 'Sans titre';
+      }
+    });
 
     // sort news by date
     newNews.sort((a, b) => {
@@ -198,6 +211,7 @@ function NewsScreen({ navigation }) {
 
   useEffect(() => {
     news.forEach((item) => {
+      console.log(item);
       if (normalizeText(item.title).includes(normalizeText('menu'))) {
         const newNewsTypes = newsTypes;
         newNewsTypes[1].enabled = true;
@@ -248,7 +262,7 @@ function NewsScreen({ navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
       contentInsetAdjustmentBehavior='automatic'
 
       refreshControl={
@@ -298,6 +312,10 @@ function NewsScreen({ navigation }) {
         </SafeAreaView>
       </Modal>
 
+      { Platform.OS !== 'ios' ? (
+        <View style={{height: 16}} />
+      ) : null }
+
       <NativeList inset>
       {!isLoading && news.length !== 0 && (
           (news.map((item, index) => {
@@ -306,7 +324,7 @@ function NewsScreen({ navigation }) {
                 <NativeItem
                   leading={
                     <View style={{ paddingHorizontal: 2 }}>
-                      <FullNewsIcon title={item.title} />
+                      <FullNewsIcon title={item.title} survey={item.survey} />
                     </View>
                   }
                   onPress={() => {

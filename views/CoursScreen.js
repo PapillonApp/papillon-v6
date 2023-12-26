@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useCallback, useState, useEffect, useRef } from 'react';
 import {
+  Animated,
   View,
   StyleSheet,
   StatusBar,
@@ -10,8 +11,12 @@ import {
   RefreshControl,
   TouchableOpacity,
   Alert,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
+
+import { BlurView } from 'expo-blur';
 
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
@@ -39,6 +44,7 @@ import {
   Calendar as IconCalendar,
   Users,
   CalendarDays,
+  X,
 } from 'lucide-react-native';
 
 import formatCoursName from '../utils/FormatCoursName';
@@ -51,6 +57,10 @@ import GetUIColors from '../utils/GetUIColors';
 import ListItem from '../components/ListItem';
 
 import { useAppContext } from '../utils/AppContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CalendarFill, Calendar as CalendarPapillonIcon } from '../interface/icons/PapillonIcons';
+import AlertAnimated from '../interface/AlertAnimated';
+import NativeText from '../components/NativeText';
 
 const calcDate = (date, days) => {
   const result = new Date(date);
@@ -61,6 +71,7 @@ const calcDate = (date, days) => {
 function CoursScreen({ navigation }) {
   const theme = useTheme();
   const pagerRef = useRef(null);
+  const insets = useSafeAreaInsets();
 
   const [today, setToday] = useState(new Date());
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -70,6 +81,52 @@ function CoursScreen({ navigation }) {
   const coursRef = useRef(cours);
 
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
+
+  // animate calendar modal
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(0)).current;
+
+  // animate modal when visible changes
+  useEffect(() => {
+    if (calendarModalOpen) {
+      Animated.parallel([
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(translateY, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scale, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        })
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(translateY, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scale, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        })
+      ]).start();
+    }
+  }, [calendarModalOpen]);
 
   async function addToCalendar(cours) {
 
@@ -213,20 +270,22 @@ Statut : ${cours.status || 'Aucun'}
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => Platform.OS === 'ios' && (
+      headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
           icon={<SFSymbol name="calendar" />}
           title="Emploi du temps"
           color="#0065A8"
         />
-      ),
+      ) : 'Emploi du temps',
+      headerShadowVisible: Platform.OS !== 'ios',
+      headerTransparent: Platform.OS === 'ios',
       headerRight: () =>
-        Platform.OS === 'ios' ? (
-          <ContextMenuView
+      <ContextMenuView
             previewConfig={{
-              borderRadius: 8,
+              borderRadius: 10,
             }}
             menuConfig={{
+              borderRadius: 10,
               menuTitle: calendarDate.toLocaleDateString('fr', {
                 weekday: 'long',
                 day: '2-digit',
@@ -246,17 +305,6 @@ Statut : ${cours.status || 'Aucun'}
                     },
                   },
                 },
-                {
-                  actionKey: 'notifyAll',
-                  actionTitle: 'Programmer les notifications',
-                  actionSubtitle: 'Vous notifiera 5 min. avant chaque cours',
-                  icon: {
-                    type: 'IMAGE_SYSTEM',
-                    imageValue: {
-                      systemName: 'bell.badge.fill',
-                    },
-                  },
-                },
               ],
             }}
             onPressMenuItem={({ nativeEvent }) => {
@@ -267,45 +315,28 @@ Statut : ${cours.status || 'Aucun'}
               }
             }}
           >
-            <DateTimePicker
-              value={calendarDate}
-              locale="fr-FR"
-              mode="date"
-              display="compact"
-              onChange={(event, date) => {
-                setCalendarAndToday(date);
-                pagerRef.current.setPage(0);
-                if (currentIndex === 0) {
-                  setCurrentIndex(1);
-                  setTimeout(() => {
-                    setCurrentIndex(0);
-                  }, 10);
+            <TouchableOpacity
+              style={[
+                styles.calendarDateContainer,
+                {
+                  backgroundColor: "#0065A8" + "20",
                 }
-              }}
-            />
-          </ContextMenuView>
-        ) : (
-          <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 6,
-              marginRight: 2,
-            }}
-            onPress={() => setCalendarModalOpen(true)}
-          >
-            <IconCalendar size={20} color={UIColors.text} />
-            <Text style={{ fontSize: 15, fontFamily: 'Papillon-Medium' }}>
-              {new Date(calendarDate).toLocaleDateString('fr', {
-                weekday: 'short',
-                day: '2-digit',
-                month: 'short',
-              })}
-            </Text>
-          </TouchableOpacity>
-        ),
+              ]}
+              onPress={() => setCalendarModalOpen(true)}
+            >
+              <CalendarPapillonIcon stroke={"#0065A8"} />
+              <Text style={[styles.calendarDateText, {color: "#0065A8"}]}>
+                {new Date(calendarDate).toLocaleDateString('fr', {
+                  weekday: 'short',
+                  day: '2-digit',
+                  month: 'short',
+                })}
+              </Text>
+            </TouchableOpacity>
+        </ContextMenuView>
+      ,
     });
-  }, [navigation, calendarDate]);
+  }, [navigation, calendarDate, UIColors]);
 
   const setCalendarAndToday = (date) => {
     setCalendarDate(date);
@@ -378,7 +409,7 @@ Statut : ${cours.status || 'Aucun'}
   return (
     <View
       contentInsetAdjustmentBehavior="automatic"
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={[styles.container, { backgroundColor: UIColors.background, paddingTop: Platform.OS === 'ios' ? insets.top + 44 : 0 }]}
     >
       {Platform.OS === 'android' && calendarModalOpen ? (
         <DateTimePicker
@@ -404,6 +435,138 @@ Statut : ${cours.status || 'Aucun'}
             }
           }}
         />
+      ) : null}
+
+      {Platform.OS === 'ios' && calendarModalOpen ? (
+        <Modal
+          transparent={true}
+          animationType='fade'
+        >
+          <Animated.View
+            style={[
+              styles.calendarModalContainer,
+              {paddingBottom: insets.bottom + 6},
+              {
+                opacity
+              },
+            ]}
+          >
+            <Animated.View
+              style={[
+                styles.modalTipOverContainer,
+                {
+                  top: insets.top,
+                  opacity,
+                  transform: [
+                    {
+                      translateY: translateY.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [-20, 48],
+                      }),
+                    },
+                    {
+                      scale: scale.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.8, 1],
+                      }),
+                    },
+                  ],
+                }
+              ]}
+            >
+              <BlurView
+                style={[
+                  styles.modalTipContainer
+                ]}
+              >
+                <View style={[
+                  styles.modalTip,
+                  {
+                    backgroundColor: UIColors.dark ? '#00000066' : '#ffffff12',
+                  }
+                ]}>
+                  <CalendarDays size={24} color={"#ffffff"} style={styles.modalTipIcon}/>
+                  <View style={styles.modalTipData}>
+                    <NativeText heading="subtitle3" style={{color: '#ffffff'}}>
+                      Astuce
+                    </NativeText>
+                    <NativeText heading="p" style={{color: '#ffffff'}}>
+                      Vous pouvez également balayer d'un bord à l'autre pour changer de jour.
+                    </NativeText>
+                  </View>
+                </View>
+              </BlurView>
+            </Animated.View>
+
+            <Animated.View
+              style={[
+                {opacity}
+              ]}
+            >
+              <Pressable style={{flex: 1, width:'100%'}} onPress={() => setCalendarModalOpen(false)} />
+            </Animated.View>
+
+            <TouchableOpacity style={styles.modalCloseButton} onPress={() => setCalendarModalOpen(false)}>
+                <X size={24} color={"#ffffff"} style={styles.modalCloseIcon}/>
+            </TouchableOpacity>
+
+            <Animated.View 
+              style={[
+                styles.calendarModalViewContainer,
+                {
+                  opacity,
+                  transform: [
+                    {
+                      translateY: translateY.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [100, 0],
+                      }),
+                    },
+                    {
+                      scale: scale.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.8, 1],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
+              <BlurView
+                style={[
+                  styles.calendarModalView,
+                  {
+                    backgroundColor: !UIColors.dark ? UIColors.background + "ff" : UIColors.background + "aa",
+                  },
+                ]}
+              >
+                <DateTimePicker
+                  value={calendarDate}
+                  locale="fr_FR"
+                  mode="date"
+                  display="inline"
+                  onChange={(event, date) => {
+                    if (event.type === 'dismissed') {
+                      setCalendarModalOpen(false);
+                      return;
+                    }
+
+                    setCalendarModalOpen(false);
+
+                    setCalendarAndToday(date);
+                    pagerRef.current.setPage(0);
+                    if (currentIndex === 0) {
+                      setCurrentIndex(1);
+                      setTimeout(() => {
+                        setCurrentIndex(0);
+                      }, 10);
+                    }
+                  }}
+                />
+              </BlurView>
+            </Animated.View>
+          </Animated.View>
+        </Modal>
       ) : null}
 
       <StatusBar
@@ -476,6 +639,17 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
     lengthString = `${lz(Math.floor(length % 60))} min`;
   }
 
+  // if ~5 min around 1h
+  if (Math.floor(length % 60) < 9) {
+    lengthString = `${Math.floor(length / 60)} heure(s)`;
+  }
+
+  if (Math.floor(length % 60) > 49) {
+    lengthString = `${Math.floor((length / 60) + 1)} heure(s)`;
+  }
+
+  
+
   const handleCoursPressed = useCallback(() => {
     CoursPressed(cours);
   }, [CoursPressed, cours]);
@@ -495,9 +669,9 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
       </View>
       <ContextMenuView
         style={{ flex: 1 }}
-        borderRadius={14}
+        borderRadius={10}
         previewConfig={{
-          borderRadius: 14,
+          borderRadius: 10,
           previewType: 'CUSTOM',
           previewSize: 'INHERIT',
           backgroundColor: 'rgba(255,255,255,0)',
@@ -791,17 +965,18 @@ const styles = StyleSheet.create({
 
   coursContainer: {
     flex: 1,
-    padding: 12,
+    padding: 8,
   },
 
   fullCours: {
     width: '100%',
-    marginBottom: 10,
+    marginBottom: 8,
     flexDirection: 'row',
   },
   coursTimeContainer: {
     width: 56,
-    marginRight: 12,
+    marginRight: 10,
+    marginLeft: 4,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 3,
@@ -821,7 +996,7 @@ const styles = StyleSheet.create({
 
   coursItemContainer: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: 10,
     borderCurve: 'continuous',
     overflow: 'hidden',
     elevation: 1,
@@ -842,7 +1017,9 @@ const styles = StyleSheet.create({
   },
   coursTime: {
     fontSize: 14,
-    opacity: 0.5,
+    opacity: 0.4,
+    marginBottom: 2,
+    fontFamily: 'Papillon-Medium',
   },
   coursLength: {
     position: 'absolute',
@@ -851,18 +1028,20 @@ const styles = StyleSheet.create({
     opacity: 0.3,
   },
   coursMatiere: {
-    fontSize: 18,
+    fontSize: 17,
     fontFamily: 'Papillon-Semibold',
     marginBottom: 10,
   },
   coursSalle: {
-    fontSize: 15,
+    fontSize: 14.5,
     fontWeight: 500,
+    fontFamily: 'Papillon-Semibold',
   },
   coursProf: {
-    fontSize: 15,
+    fontSize: 14.5,
     fontWeight: 400,
     opacity: 0.5,
+    fontFamily: 'Papillon-Medium',
   },
 
   coursStatus: {
@@ -918,6 +1097,94 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     gap: 9,
   },
+
+  calendarModalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    backgroundColor: '#00000099',
+    paddingHorizontal: 12,
+  },
+
+  calendarModalViewContainer: {
+    borderRadius: 16,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+
+    width: '100%',
+  },
+
+  calendarModalView: {
+    paddingHorizontal: 14,
+    paddingBottom: 18,
+    backgroundColor: '#ffffff12',
+  },
+
+  modalCloseButton: {
+    width: 40,
+    height: 40,
+
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    alignSelf: 'flex-end',
+
+    backgroundColor: '#ffffff39',
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    marginTop: -40,
+    marginBottom: 10,
+  },
+
+  calendarDateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    opacity: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 10,
+    borderCurve: 'continuous',
+  },
+  calendarDateText: {
+    fontSize: 16,
+    fontWeight: 500,
+    fontFamily: 'Papillon-Medium',
+  },
+
+  modalTipOverContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    marginHorizontal: 16,
+  },
+  modalTipContainer: {
+    flex: 1,
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+  },
+  modalTip: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    backgroundColor: '#ffffff12',
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    borderColor: '#ffffff12',
+    borderWidth: 1,
+  },
+
+  modalTipData: {
+    flex: 1,
+    paddingRight: 16,
+  }
 });
 
 export default CoursScreen;

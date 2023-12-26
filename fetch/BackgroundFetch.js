@@ -22,24 +22,21 @@ async function sleep(time) {
 }
 
 async function delNotif() {
-  sleep(1000)
+  notifee.displayNotification({
+    title: "Récupération des données en arrière-plan",
+    id: "background-fetch",
+    android: {
+      timeoutAfter: 200,
+      channelId: "silent",
+      progress: {
+        max: 10,
+        current: 5,
+        indeterminate: true
+      },
+      ongoing: true
+    }
+  });
   notifee.cancelDisplayedNotification("background-fetch")
-    .then((value) => {
-      notifee.getDisplayedNotifications().then(notifs => {
-        notifs.forEach((n) => {
-          if(n.id === "background-fetch") delNotif()
-        })
-      })
-    })
-    .catch(err => {
-      notifee.displayNotification({
-        title: "Cancel notif err, " + err,
-        android: {
-          channelId: "silent",
-        },
-      });
-      console.error(err)
-    })
 }
 
 // Actualités
@@ -64,19 +61,7 @@ async function newsFetch() {
           },
         });
       }
-      notifee.displayNotification({
-        title: "Début requête",
-        android: {
-          channelId: "silent",
-        },
-      });
       return dataInstance.getNews().then((news) => {
-        notifee.displayNotification({
-          title: "Fin requête ok",
-          android: {
-            channelId: "silent",
-          },
-        });
         delNotif()
         if (news.length !== oldNews.length) {
           AsyncStorage.setItem('oldNews', JSON.stringify(news));
@@ -100,14 +85,8 @@ async function newsFetch() {
         }
       })
       .catch(err => {
-        notifee.displayNotification({
-          title: "Fin requête err " + err,
-          android: {
-            channelId: "silent",
-          },
-        });
         setTimeout(() => {
-          notifee.cancelDisplayedNotification("background-fetch")
+          delNotif()
         }, 1000)
         console.error("[Background Fetch/News] Unable to fetch news,", err)
       })
@@ -153,12 +132,22 @@ async function checkUndoneHomeworks() {
   fireDate.setSeconds(0);
   fireDate.setMilliseconds(0); 
 
+  const limitDate = new Date();
+  limitDate.setHours(21);
+  limitDate.setMinutes(0);
+  limitDate.setSeconds(0);
+  limitDate.setMilliseconds(0);
+
   const notifHasAlreadyBeenSent = await AsyncStorage.getItem('notifHasAlreadyBeenSent');
 
   if (notifHasAlreadyBeenSent == (fireDate.getTime()).toString()) {
     return;
   }
   else if (undone.length > 0 && new Date() > fireDate) {
+    if (new Date() > limitDate) {
+      return;
+    }
+
     let plural = '';
     if (undone.length > 1) {
       plural = 's';
