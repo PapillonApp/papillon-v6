@@ -49,6 +49,8 @@ import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import * as StoreReview from 'expo-store-review';
+
 function GradesScreen({ navigation }) {
   const theme = useTheme();
   const appctx = useAppContext();
@@ -81,6 +83,8 @@ function GradesScreen({ navigation }) {
   const [calculatedClassAvg, setCalculatedClassAvg] = useState(false);
 
   const [hasSimulatedGrades, setHasSimulatedGrades] = useState(false);
+
+  const [gradeOpened, setGradeOpened] = useState(false);
 
   const yOffset = new Animated.Value(0);
 
@@ -570,7 +574,40 @@ function GradesScreen({ navigation }) {
 
   function showGrade(grade) {
     navigation.navigate('Grade', { grade, allGrades });
+    setGradeOpened(true);
   }
+
+  // on grade modal close
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      if (gradeOpened) {
+        if (await StoreReview.hasAction()) {
+          AsyncStorage.getItem('review-requested').then(async (value) => {
+            if (value) {
+              // check if date is more than 3 days
+              const now = new Date();
+              const date = new Date(value);
+              const diffTime = Math.abs(now.getTime() - date.getTime());
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+              if (diffDays < 3) {
+                return;
+              }
+            }
+
+            console.log('Review requested');
+            await StoreReview.requestReview();
+
+            AsyncStorage.setItem('review-requested', new Date().toString());
+          });
+        }
+      }
+
+      setGradeOpened(false);
+    });
+
+    return unsubscribe;
+  }, [navigation, gradeOpened]);
 
   const onRefresh = React.useCallback(() => {
     setHeadLoading(true);
