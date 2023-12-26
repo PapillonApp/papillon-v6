@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  Share as ShareUI,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -29,10 +30,13 @@ import { PressableScale } from 'react-native-pressable-scale';
 
 import formatCoursName from '../../utils/FormatCoursName';
 import GetUIColors from '../../utils/GetUIColors';
+import { useAppContext } from '../../utils/AppContext';
 
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
+
+import { Buffer } from 'buffer'
 
 function calculateSubjectAverage(grades) {
   // for each grade, calculate average for all
@@ -155,16 +159,48 @@ function calculateExactGrades(grades, isClass) {
 }
 
 function GradeView({ route, navigation }) {
+  const appctx = useAppContext();
   const theme = useTheme();
   const { grade, allGrades } = route.params;
   const UIColors = GetUIColors();
+  
+  async function getName() {
+    var user = await appctx.dataprovider.getUser()
+    return user.name.split(' ').pop();
+  }
 
-  function shareGrade() {
-    Alert.alert(
-      'Partager la note',
-      "Le partage de la note n'est pas encore disponible.",
-      [{ text: 'OK' }]
-    );
+  async function shareGrade(grade, color) {
+    const baseURL = "https://getpapillon.xyz/note"
+    const comment = ["Une franche réussite","Quel succès","Absolument fantastique","Épatant","Un travail exceptionnel","Remarquable","Impressionnant","Merveilleux","À couper le souffle","Brillant","Magique","Extraordinaire","Stupéfiant","Inoubliable","Exceptionnellement bien fait","Éblouissant","Génial","Sublime","Incroyable","Époustouflant","Travail consciencieux","Bonne performance","En progrès constant","Très réussi","Mérite une mention","Bien joué !","Excellent travail !","Bravo, très bien !","Très satisfaisant","Félicitations !","Travail exceptionnel",]
+    let data = {
+      header:{
+        username: await getName(),
+        subject:formatCoursName(grade.subject.name),
+        color:mainColor
+      },
+      data:{
+        note: parseFloat(grade.grade.value).toFixed(2) + "/" + grade.grade.out_of,
+        commentary: comment[Math.floor(Math.random() * comment.length)],
+        coef: "x" + parseFloat(grade.grade.coefficient).toFixed(2),
+        note20: parseFloat((grade.grade.value / grade.grade.out_of) * 20).toFixed(2) + "/20",
+        class: parseFloat(grade.grade.average).toFixed(2) + "/" + grade.grade.out_of,
+        min: parseFloat(grade.grade.min).toFixed(2) + "/" + grade.grade.out_of,
+        max: parseFloat(grade.grade.max).toFixed(2) + "/" + grade.grade.out_of,
+      }
+    }
+    //
+    
+    const d = Buffer.from(JSON.stringify(data), 'utf-8').toString('base64')//md5('{"header":{"username":"Rémy","subject":"Histoire Géo","color":"#638274"},"data":{"note":"18/20","commentary":"Une franche réussite","coef": "x1.00","note20": "18/20","class": "11,48/20","min": "02/20","max": "19/20"}}')
+    try {
+      const result = await ShareUI.share({title: 'Ma note sur Papillon',message:'Hey ! J\'ai eu une note incroyable sur Papillon, regarde !',url: baseURL + '?d=' + d})
+    } catch(error) {
+      Alert.alert(
+        "Une erreur s'est produite",
+        error.message,
+        [{ text: 'OK' }]
+      );
+    }
+    
   }
 
   let mainColor = '#888888';
@@ -199,7 +235,7 @@ function GradeView({ route, navigation }) {
       },
       headerShadowVisible: false,
       headerRight: () => (
-        <TouchableOpacity onPress={() => shareGrade()}>
+        <TouchableOpacity onPress={() => shareGrade(grade, mainColor)}>
           <Share size={24} color="#fff" />
         </TouchableOpacity>
       ),
