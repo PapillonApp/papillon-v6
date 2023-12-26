@@ -487,15 +487,27 @@ function NewHomeScreen({ navigation }) {
     extrapolate: 'clamp',
   });
 
-  const bannerOpacity = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-44, 44] : [0, 40],
-    outputRange: [1, 0.5],
+  const bannerTranslate = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [-44, 20] : [0, 40],
+    outputRange: [0, 64],
     extrapolate: 'clamp',
   });
 
-  const bannerTranslate = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-44, 44] : [0, 40],
-    outputRange: [0, 88],
+  const loaderOpacity = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [-150, -100] : [0, 40],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
+
+  const loaderRotate = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [-240, -100] : [0, 40],
+    outputRange: ['180deg', '0deg'],
+    extrapolate: 'clamp',
+  });
+
+  const loaderScale = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [-240, -100] : [0, 40],
+    outputRange: [1.5, 1],
     extrapolate: 'clamp',
   });
 
@@ -550,6 +562,26 @@ function NewHomeScreen({ navigation }) {
             }
           ]}
         >
+          <Animated.View
+            style={[{
+              position: 'absolute',
+              top: 310,
+              left: 0,
+              width: '100%',
+              zIndex: 9999,
+              opacity: loaderOpacity,
+              transform: [{ rotate: loaderRotate }, { scale: loaderScale }],
+            }]}
+          >
+            <ActivityIndicator
+              hidesWhenStopped={false}
+              animating={refreshing}
+              color={'#ffffff'}
+              style={[{
+              }]}
+            />
+          </Animated.View>
+
           <LinearGradient
             colors={[themeColor, themeColor + '00']}
             style={[{
@@ -557,7 +589,7 @@ function NewHomeScreen({ navigation }) {
               left: 0,
               width: '100%',
               height: 150,
-              zIndex: 99999,
+              zIndex: 999,
             }]}
           />
           <Image 

@@ -307,8 +307,8 @@ const styles = StyleSheet.create({
   },
 
   previewItem: {
-    width: 200,
-    height: 100,
+    width: 160,
+    height: 95,
     borderRadius: 8,
     borderCurve: 'continuous',
     justifyContent: 'center',
