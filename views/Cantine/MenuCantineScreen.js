@@ -24,6 +24,11 @@ import PapillonLoading from '../../components/PapillonLoading';
 
 import {
   Album,
+  ChefHat,
+  CookingPot,
+  Leaf,
+  MapPin,
+  Sprout,
 } from 'lucide-react-native';
 
 import GetUIColors from '../../utils/GetUIColors';
@@ -59,8 +64,8 @@ function MenuCantineScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerShadowVisible: false,
-      headerTransparent: true,
+      headerShadowVisible: true,
+      headerTransparent: false,
       headerRight: () =>
         Platform.OS === 'ios' ? (
           <ContextMenuView
@@ -187,12 +192,14 @@ function MenuCantineScreen({ navigation }) {
     menuRef.current = menu;
   }, [today, menu]);
 
+
+
   const UIColors = GetUIColors();
 
   return (
     <View
       contentInsetAdjustmentBehavior="automatic"
-      style={[styles.container, { backgroundColor: UIColors.background, paddingTop: Platform.OS === 'ios' ? insets.top + 44 : 0 }]}
+      style={[styles.container]}
     >
       {Platform.OS === 'android' && calendarModalOpen ? (
         <DateTimePicker
@@ -234,7 +241,7 @@ function MenuCantineScreen({ navigation }) {
               forceRefresh={forceRefresh}
             />
           ) : (
-            <View style={[styles.coursContainer]}>
+            <View style={[styles.coursContainer, { backgroundColor: UIColors.modalBackground }]}>
               <PapillonLoading
                 title="Chargement du menu"
                 subtitle="Obtention du menu en cours"
@@ -260,11 +267,31 @@ function CoursPage({ menu, forceRefresh }) {
     });
   }, []);
 
+  function iconLabel(label) {
+    if (label === 'Produits locaux') {
+      return <MapPin color={UIColors.text} />;
+    }
+    if (label === 'Menu végétarien') {
+      return <Leaf color={UIColors.text} />;
+    }
+    if (label === 'Issu de l\'Agriculture Biologique') {
+      return <Sprout color={UIColors.text} />;
+    }
+    if (label === 'Assemblé sur place') {
+      return <CookingPot color={UIColors.text} />;
+    }
+    if (label === 'Fait maison - Recette du chef') {
+      return <ChefHat color={UIColors.text} />;
+    }
+  }
+
   const UIColors = GetUIColors();
 
   return (
     <ScrollView
       nestedScrollEnabled
+      style={[styles.coursContainer, { backgroundColor: UIColors.modalBackground }]}
+      contentInsetAdjustmentBehavior="automatic"
       refreshControl={
         <RefreshControl
           refreshing={isHeadLoading}
@@ -290,34 +317,36 @@ function CoursPage({ menu, forceRefresh }) {
             {(_menu.type.is_lunch !== false) ? (
                 <NativeList inset header="Menu du midi">
                     {_menu.first_meal != null ? (
-                        <NativeItem key="first_meal">
+                        <NativeItem key="first_meal" trailing={_menu.first_meal.labels.name}>
                             <NativeText heading="h4">{_menu.first_meal}</NativeText>
+                            <NativeText>{meal.labels.name}</NativeText>
                         </NativeItem>
                     ) : null}
                     {_menu.main_meal != null ? (
                         _menu.main_meal.map((meal, index2) => (
-                            <NativeItem key={index2}>
+                            <NativeItem key={index2} trailing={<NativeText>{meal.labels.map((label) => iconLabel(label.name))}</NativeText>}>
                                 <NativeText heading="h4">{meal.name}</NativeText>
                             </NativeItem>
                         ))
                     ) : null}
                     {_menu.side_meal != null ? (
                         _menu.side_meal.map((meal, index2) => (
-                            <NativeItem key={index2}>
+                            <NativeItem key={index2} trailing={<NativeText>{meal.labels.map((label) => iconLabel(label.name))}</NativeText>}>
                                 <NativeText heading="h4">{meal.name}</NativeText>
                             </NativeItem>
+                            
                         ))
                     ) : null}
                     {_menu.cheese != null ? (
                         _menu.cheese.map((meal, index2) => (
-                            <NativeItem key={index2}>
+                            <NativeItem key={index2} trailing={<NativeText>{meal.labels.map((label) => iconLabel(label.name))}</NativeText>}>
                                 <NativeText heading="h4">{meal.name}</NativeText>
                             </NativeItem>
                         ))
                     ) : null}
                     {_menu.dessert != null ? (
                         _menu.dessert.map((meal, index2) => (
-                            <NativeItem key={index2}>
+                            <NativeItem key={index2} trailing={<NativeText>{meal.labels.map((label) => iconLabel(label.name))}</NativeText>}>
                                 <NativeText heading="h4">{meal.name}</NativeText>
                             </NativeItem>
                         ))
@@ -370,6 +399,15 @@ function CoursPage({ menu, forceRefresh }) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  viewPager: {
+    flex: 1,
+  },
+  pageWrapper: {
+    flex: 1,
+  }
 });
 
 export default MenuCantineScreen;
