@@ -482,8 +482,20 @@ function NewHomeScreen({ navigation }) {
   });
 
   const topOpacity = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-60, -40] : [0, 40],
+    inputRange: Platform.OS === 'ios' ? [0, 20] : [0, 40],
     outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+
+  const bannerOpacity = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [-44, 44] : [0, 40],
+    outputRange: [1, 0.5],
+    extrapolate: 'clamp',
+  });
+
+  const bannerTranslate = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [-44, 44] : [0, 40],
+    outputRange: [0, 88],
     extrapolate: 'clamp',
   });
 
@@ -528,12 +540,13 @@ function NewHomeScreen({ navigation }) {
       )}
 
       { themeEnabled && (
-        <View
+        <Animated.View
           style={[
             styles.headerTheme,
             {
               backgroundColor: themeColor,
               top: -300 - insets.top,
+              transform: [{ translateY: bannerTranslate }],
             }
           ]}
         >
@@ -551,7 +564,7 @@ function NewHomeScreen({ navigation }) {
             source={themeImages[themeImage]}
             style={[styles.headerThemeImage]}
           />
-        </View>
+        </Animated.View>
       )}
       
       <Animated.View
