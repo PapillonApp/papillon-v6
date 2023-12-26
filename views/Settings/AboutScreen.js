@@ -252,12 +252,19 @@ function AboutScreen({ navigation }) {
             <NativeItem
               key={index}
               leading={
-                <PapillonIcon
-                  icon={<Euro size={24} color="#565EA3" />}
-                  color="#565EA3"
-                  size={24}
-                  small
-                />
+                item.DiscordProfilePicture ? (
+                  <Image
+                    source={{ uri: item.DiscordProfilePicture }}
+                    style={{ width: 38, height: 38, borderRadius: 12 }}
+                  />
+                ) : (
+                  <PapillonIcon
+                    icon={<Euro size={24} color="#565EA3" />}
+                    color="#565EA3"
+                    size={24}
+                    small
+                  />
+                )
               }
               trailing={
                 ( item.Monthly === "True" ?
