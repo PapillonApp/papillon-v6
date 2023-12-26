@@ -582,23 +582,33 @@ function GradesScreen({ navigation }) {
     const unsubscribe = navigation.addListener('focus', async () => {
       if (gradeOpened) {
         if (await StoreReview.hasAction()) {
-          AsyncStorage.getItem('review-requested').then(async (value) => {
-            if (value) {
-              // check if date is more than 3 days
-              const now = new Date();
-              const date = new Date(value);
-              const diffTime = Math.abs(now.getTime() - date.getTime());
-              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-              if (diffDays < 3) {
-                return;
-              }
+          AsyncStorage.getItem('review-tried').then(async (triedvalue) => {
+            if (!triedvalue) {
+              triedvalue = 0;
             }
 
-            console.log('Review requested');
-            await StoreReview.requestReview();
+            if (parseInt(triedvalue) >= 5) {
+              AsyncStorage.getItem('review-requested').then(async (value) => {
+                if (value) {
+                  // check if date is more than 3 days
+                  const now = new Date();
+                  const date = new Date(value);
+                  const diffTime = Math.abs(now.getTime() - date.getTime());
+                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            AsyncStorage.setItem('review-requested', new Date().toString());
+                  if (diffDays < 7) {
+                    return;
+                  }
+                }
+
+                console.log('Review requested');
+                await StoreReview.requestReview();
+
+                AsyncStorage.setItem('review-requested', new Date().toString());
+              });
+            }
+
+            AsyncStorage.setItem('review-tried', (parseInt(triedvalue) + 1).toString());
           });
         }
       }
