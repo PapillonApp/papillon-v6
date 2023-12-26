@@ -55,24 +55,31 @@ const AdjustmentsScreen = ({ navigation }) => {
       setCurrentSettings(settings);
       setColorModalColor(settings.homeThemeColor || '#32AB8E');
     }
+    else {
+      SyncStorage.set('adjustments', currentSettings);
+    }
   }, []);
 
   function updateSetting(element, value, needsRestart = false) {
-    setCurrentSettings({
-      ...currentSettings,
-      [element]: value,
-    });
+    const settings = SyncStorage.get('adjustments');
+    
+    if (settings) {
+      setCurrentSettings({
+        ...settings,
+        [element]: value,
+      });
 
-    SyncStorage.set('adjustments', {
-      ...currentSettings,
-      [element]: value,
-    });
+      SyncStorage.set('adjustments', {
+        ...settings,
+        [element]: value,
+      });
 
-    if (needsRestart) {
-      setTimeout(() => {
-        setWillNeedRestart(true);
-      }, 350);
-    }
+      if (needsRestart) {
+        setTimeout(() => {
+          setWillNeedRestart(true);
+        }, 350);
+      }
+    };
   }
 
   // animate tab name
