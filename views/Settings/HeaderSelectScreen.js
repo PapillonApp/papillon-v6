@@ -11,6 +11,10 @@ import NativeText from '../../components/NativeText';
 import SyncStorage from 'sync-storage';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 
+import { LinearGradient } from 'expo-linear-gradient';
+
+import { getRandomColor } from '../../utils/ColorCoursName';
+
 const HeaderSelectScreen = ({ navigation }) => {
   const UIColors = GetUIColors();
 
@@ -230,8 +234,11 @@ const HeaderSelectScreen = ({ navigation }) => {
                     style={[
                       styles.previewItemContainer,
                       currentSettings.homeThemeImage === `${background.slug}/${image.slug}` && styles.previewItemActive,
-                      currentSettings.homeThemeImage === `${background.slug}/${image.slug}` && {
+                      currentSettings.homeThemeImage === `${background.slug}/${image.slug}` ? {
                         borderColor: UIColors.text,
+                      }
+                      : {
+                        borderColor: UIColors.text + '20',
                       },
                     ]}
                   >
@@ -247,6 +254,32 @@ const HeaderSelectScreen = ({ navigation }) => {
                         source={image.image}
                         style={[
                           styles.previewItemImage,
+                        ]}
+                      />
+                      <View 
+                        style={[
+                          styles.previewItemOver,
+                          {
+                            backgroundColor: UIColors.element,
+                          },
+                        ]}
+                      />
+                      <View 
+                        style={[
+                          styles.previewItemUI,
+                          {
+                            backgroundColor: UIColors.modalBackground,
+                          },
+                        ]}
+                      />
+                      <View style={[styles.previewItemUIUser]}/>
+                      <View style={[styles.previewItemUIPapillon]}/>
+                      <View style={[styles.previewItemUITitle]}/>
+                      <LinearGradient
+                        colors={[selectedColor + 'FF', selectedColor + '00']}
+                        locations={[0.2, 1]}
+                        style={[
+                          styles.previewItemGradient,
                         ]}
                       />
                     </View>
@@ -272,12 +305,11 @@ const styles = StyleSheet.create({
     borderCurve: 'continuous',
     opacity: 0.4,
     overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: 'transparent',
+    borderWidth: 1,
   },
   previewItemActive: {
     opacity: 1,
-    borderWidth: 2,
+    borderWidth: 1,
   },
 
   previewCollection: {
@@ -307,8 +339,8 @@ const styles = StyleSheet.create({
   },
 
   previewItem: {
-    width: 160,
-    height: 95,
+    width: 168,
+    height: 100,
     borderRadius: 8,
     borderCurve: 'continuous',
     justifyContent: 'center',
@@ -317,7 +349,68 @@ const styles = StyleSheet.create({
   },
   previewItemImage: {
     width: 200,
-    height: 100,
+    height: '75%',
+    position: 'absolute',
+    top: '0%',
+  },
+  previewItemUI: {
+    position: 'absolute',
+    width: '100%',
+    height: '25%',
+    top: '75%',
+  },
+  previewItemUITitle: {
+    backgroundColor: '#ffffff55',
+    position: 'absolute',
+    width: '30%',
+    height: '5%',
+    top: '13%',
+    zIndex: 9,
+    borderRadius: 6,
+  },
+  previewItemUIPapillon: {
+    backgroundColor: '#ffffff55',
+    position: 'absolute',
+    width: 12,
+    height: 12,
+    top: '9%',
+    left: '8%',
+    zIndex: 9,
+    borderRadius: 4
+  },
+  previewItemUIUser: {
+    borderColor: '#ffffff55',
+    borderWidth: 1,
+    position: 'absolute',
+    width: 15,
+    height: 15,
+    top: '8%',
+    right: '8%',
+    zIndex: 9,
+    borderRadius: 300
+  },
+  previewItemOver: {
+    position: 'absolute',
+    width: '90%',
+    height: '25%',
+    top: '65%',
+    zIndex: 1,
+    borderRadius: 6,
+    borderCurve: 'continuous',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+  },
+  previewItemGradient: {
+    position: 'absolute',
+    width: '100%',
+    height: '50%',
+    top: '0%',
+    zIndex: 2,
   },
 });
 
