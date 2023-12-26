@@ -151,6 +151,39 @@ const HeaderSelectScreen = ({ navigation }) => {
           image: require('../../assets/themes/gribouillage/stars.png'),
         },
       ]
+    },
+    {
+      name: "Art-déco",
+      description: "Un style art-déco, avec des formes géométriques",
+      slug: "artdeco",
+      images : [
+        // arrows, clouds, cubes, sparks, stripes
+        {
+          name: "Flèches",
+          slug: "arrows",
+          image: require('../../assets/themes/artdeco/arrows.png'),
+        },
+        {
+          name: "Nuages",
+          slug: "clouds",
+          image: require('../../assets/themes/artdeco/clouds.png'),
+        },
+        {
+          name: "Cubes",
+          slug: "cubes",
+          image: require('../../assets/themes/artdeco/cubes.png'),
+        },
+        {
+          name: "Etincelles",
+          slug: "sparks",
+          image: require('../../assets/themes/artdeco/sparks.png'),
+        },
+        {
+          name: "Rayures",
+          slug: "stripes",
+          image: require('../../assets/themes/artdeco/stripes.png'),
+        },
+      ]
     }
   ]
 
@@ -290,6 +323,8 @@ const HeaderSelectScreen = ({ navigation }) => {
           </View>
         ))}
       </View>
+
+      <View style={{height: 20}}/>
     </ScrollView>
   );
 };

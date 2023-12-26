@@ -146,6 +146,11 @@ function NewHomeScreen({ navigation }) {
     "gribouillage/heavy": require('../assets/themes/gribouillage/heavy.png'),
     "gribouillage/lines": require('../assets/themes/gribouillage/lines.png'),
     "gribouillage/stars": require('../assets/themes/gribouillage/stars.png'),
+    'artdeco/arrows': require('../assets/themes/artdeco/arrows.png'),
+    'artdeco/clouds': require('../assets/themes/artdeco/clouds.png'),
+    'artdeco/cubes': require('../assets/themes/artdeco/cubes.png'),
+    'artdeco/sparks': require('../assets/themes/artdeco/sparks.png'),
+    'artdeco/stripes': require('../assets/themes/artdeco/stripes.png'),
   };
 
   const [themeEnabled, setThemeEnabled] = useState(false);
