@@ -170,6 +170,19 @@ function GradeView({ route, navigation }) {
   }
 
   async function shareGrade(grade, color) {
+    Alert.alert(
+      "Partager la note",
+      "Cette fonctionnalité est encore en développement, elle arrive prochainement.",
+      [
+        {
+          text: "OK",
+          style: "cancel"
+        },
+      ]
+    );
+
+    return;
+
     const baseURL = "https://getpapillon.xyz/note"
     const comment = ["Une franche réussite","Quel succès","Absolument fantastique","Épatant","Un travail exceptionnel","Remarquable","Impressionnant","Merveilleux","À couper le souffle","Brillant","Magique","Extraordinaire","Stupéfiant","Inoubliable","Exceptionnellement bien fait","Éblouissant","Génial","Sublime","Incroyable","Époustouflant","Travail consciencieux","Bonne performance","En progrès constant","Très réussi","Mérite une mention","Bien joué !","Excellent travail !","Bravo, très bien !","Très satisfaisant","Félicitations !","Travail exceptionnel",]
     let data = {
