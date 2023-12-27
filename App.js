@@ -58,6 +58,7 @@ import ChangeServer from './views/Settings/ChangeServer';
 import CoursColor from './views/Settings/CoursColor';
 import AdjustmentsScreen from './views/Settings/AdjustmentsScreen';
 import HeaderSelectScreen from './views/Settings/HeaderSelectScreen';
+import PaymentScreen from './views/Settings/PaymentScreen';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -344,6 +345,14 @@ function InsetSettings() {
         component={HeaderSelectScreen}
         options={{
           headerTitle: 'Bandeau',
+        }}
+      />
+      <Stack.Screen
+        name="PaymentScreen"
+        component={PaymentScreen}
+        options={{
+          headerTitle: 'Soutenir Papillon',
+          headerBackTitle: 'Retour',
         }}
       />
       <Stack.Screen
