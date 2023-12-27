@@ -447,6 +447,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
+          <string>papillon</string>
           <string>plus.pronote.app</string>
         </array>
       </dict>
