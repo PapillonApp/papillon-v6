@@ -23,7 +23,7 @@ const HeaderSelectScreen = ({ navigation }) => {
   const backgrounds = [
     {
       name: "Papillon",
-      description: "Avec le logo de l'app",
+      description: "Bandeaux disponibles par défaut",
       slug: "papillon",
       images : [
         {
@@ -65,6 +65,39 @@ const HeaderSelectScreen = ({ navigation }) => {
           name: "Formes (Couleur)",
           slug: "formescolor",
           image: require('../../assets/themes/papillon/formescolor.png'),
+        },
+      ]
+    },
+    {
+      name: "Art-déco",
+      description: "Un style art-déco, avec des formes géométriques",
+      slug: "artdeco",
+      images : [
+        // arrows, clouds, cubes, sparks, stripes
+        {
+          name: "Flèches",
+          slug: "arrows",
+          image: require('../../assets/themes/artdeco/arrows.png'),
+        },
+        {
+          name: "Nuages",
+          slug: "clouds",
+          image: require('../../assets/themes/artdeco/clouds.png'),
+        },
+        {
+          name: "Cubes",
+          slug: "cubes",
+          image: require('../../assets/themes/artdeco/cubes.png'),
+        },
+        {
+          name: "Etincelles",
+          slug: "sparks",
+          image: require('../../assets/themes/artdeco/sparks.png'),
+        },
+        {
+          name: "Rayures",
+          slug: "stripes",
+          image: require('../../assets/themes/artdeco/stripes.png'),
         },
       ]
     },
@@ -152,39 +185,6 @@ const HeaderSelectScreen = ({ navigation }) => {
         },
       ]
     },
-    {
-      name: "Art-déco",
-      description: "Un style art-déco, avec des formes géométriques",
-      slug: "artdeco",
-      images : [
-        // arrows, clouds, cubes, sparks, stripes
-        {
-          name: "Flèches",
-          slug: "arrows",
-          image: require('../../assets/themes/artdeco/arrows.png'),
-        },
-        {
-          name: "Nuages",
-          slug: "clouds",
-          image: require('../../assets/themes/artdeco/clouds.png'),
-        },
-        {
-          name: "Cubes",
-          slug: "cubes",
-          image: require('../../assets/themes/artdeco/cubes.png'),
-        },
-        {
-          name: "Etincelles",
-          slug: "sparks",
-          image: require('../../assets/themes/artdeco/sparks.png'),
-        },
-        {
-          name: "Rayures",
-          slug: "stripes",
-          image: require('../../assets/themes/artdeco/stripes.png'),
-        },
-      ]
-    }
   ]
 
   const [currentSettings, setCurrentSettings] = useState({
@@ -197,7 +197,7 @@ const HeaderSelectScreen = ({ navigation }) => {
     const settings = SyncStorage.get('adjustments');
     if (settings) {
       setCurrentSettings({
-        ...currentSettings,
+        ...settings,
         homeThemesEnabled: settings.homeThemesEnabled || false,
         homeThemeColor: settings.homeThemeColor || '#32AB8E',
         homeThemeImage: settings.homeThemeImage || 'papillon/default',

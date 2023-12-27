@@ -98,6 +98,7 @@ function NewHomeScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
+  const isFocused = useIsFocused();
 
   const [refreshCount, setRefreshCount] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
@@ -538,23 +539,21 @@ function NewHomeScreen({ navigation }) {
       onScroll={scrollHandler}
       scrollEventThrottle={16}
     >
-      { themeEnabled ? (
-        <StatusBar
-          barStyle={'light-content'}
-          backgroundColor={themeColor}
-        />
-      ) : (
-        <StatusBar
-          barStyle={theme.dark ? 'light-content' : 'dark-content'}
-          backgroundColor={UIColors.backgroundHigh}
-        />
-      )}
-
       { Platform.OS === 'android' ? (
         <View style={{height: 100}} />
       ) : (
         <View style={{height: 10}} />
       )}
+
+      { isFocused ? (
+        <StatusBar
+          barStyle={
+            themeEnabled ? 'light-content' :
+            theme.dark ? 'light-content' : 'dark-content'
+          }
+          backgroundColor={UIColors.backgroundHigh}
+        />
+      ) : null }
 
       { themeEnabled && (
         <Animated.View
@@ -1474,10 +1473,6 @@ function HomeHeader({ navigation, timetable, user, showsTomorrow }) {
         },
       ]}
     >
-      {isFocused && (
-        <StatusBar barStyle="light-content" backgroundColor={UIColors.backgroundHigh} />
-      )}
-
       <View style={headerStyles.headerContainer}>
         <Text style={[headerStyles.headerNameText]}>
           {`${getFormulePolitesse()}${user ? `, ${getPrenom(user.name)} !` : ' !'}`}
