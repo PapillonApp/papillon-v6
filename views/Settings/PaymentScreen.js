@@ -168,7 +168,7 @@ const PaymentScreen = ({ navigation }) => {
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "#00000080",
+          backgroundColor: "#000000a5",
           gap: 10,
         }}>
           <ActivityIndicator color="#ffffff" />
