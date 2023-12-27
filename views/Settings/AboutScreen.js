@@ -278,7 +278,7 @@ function AboutScreen({ navigation }) {
                 {item.Name}
               </NativeText>
               <NativeText heading="p2">
-                à donné {(parseFloat(item.Total.replace(',','.')) / 0.5).toFixed(0)} cafés
+                à donné {(parseFloat(item.Total.replace(',','.')) / 1).toFixed(0)} café{parseFloat(item.Total.replace(',','.')) > 1 ? 's' : ''}
               </NativeText>
 
               <NativeText heading="subtitle2">
