@@ -47,6 +47,7 @@ import {
   X,
   File,
   Check,
+  Plus,
 } from 'lucide-react-native';
 
 import formatCoursName from '../utils/FormatCoursName';
@@ -262,6 +263,44 @@ function DevoirsScreen({ navigation }) {
     }
   };
 
+  const loadCustomHomeworks = async () => {
+    AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+      let hw = [];
+      if (customHomeworks) {
+        hw = JSON.parse(customHomeworks);
+      }
+
+      console.log('custom homeworks', hw);
+
+      for (let i = 0; i < hw.length; i++) {
+        let oldHomeworks = homeworks;
+        let dt = new Date(hw[i].date).toLocaleDateString();
+
+        if (oldHomeworks[dt]) {
+          // check if the homework is already in the list
+          for (let j = 0; j < oldHomeworks[dt].length; j++) {
+            if (oldHomeworks[dt][j].local_id === hw[i].local_id) {
+              if (oldHomeworks[dt][j] == hw[i]) {
+                continue;
+              }
+              else {
+                // remove the homework
+                oldHomeworks[dt].splice(j, 1);
+              }
+            }
+          }
+
+          oldHomeworks[dt].push(hw[i]);
+        }
+        else {
+          oldHomeworks[dt] = [hw[i]];
+        }
+
+        setHomeworks(oldHomeworks);
+      }
+    });
+  };
+
   const appctx = useAppContext();
 
   const updateCoursForDate = async (dateOffset, setDate) => {
@@ -275,6 +314,10 @@ function DevoirsScreen({ navigation }) {
       }))
     }
   };
+
+  useEffect(() => {
+    loadCustomHomeworks();
+  }, []);
 
   const handlePageChange = (page) => {
     const newDate = calcDate(todayRef.current, page);
@@ -293,6 +336,8 @@ function DevoirsScreen({ navigation }) {
       ...prevHomeworks,
       [newDate.toLocaleDateString()]: result || [],
     }))
+
+    loadCustomHomeworks();
   };
 
   useEffect(() => {
@@ -474,6 +519,19 @@ function DevoirsScreen({ navigation }) {
         backgroundColor="transparent"
       />
 
+      <PressableScale
+        style={[styles.addCoursefab, {backgroundColor: UIColors.primary}]}
+        weight="light"
+        activeScale={0.87}
+        onPress={() => {
+          navigation.navigate('CreateHomework', {
+            date: calendarDate,
+          });
+        }}
+      >
+        <Plus color='#ffffff' />
+      </PressableScale>
+
       <InfinitePager
         style={[styles.viewPager]}
         pageWrapperStyle={[styles.pageWrapper]}
@@ -560,7 +618,7 @@ function Hwpage({
         ))}
       </View>
 
-      <View style={{ height: 24 }} />
+      <View style={{ height: 36 + 56 }} />
     </ScrollView>
   );
 }
@@ -1014,6 +1072,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 500,
     fontFamily: 'Papillon-Medium',
+  },
+
+  addCoursefab: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderCurve: 'continuous',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    zIndex: 100,
   },
 });
 

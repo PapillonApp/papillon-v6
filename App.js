@@ -46,6 +46,7 @@ import LessonScreen from './views/Cours/LessonScreen';
 
 import DevoirsScreen from './views/DevoirsScreen';
 import HomeworkScreen from './views/Devoirs/HwScreen';
+import CreateHomeworkScreen from './views/Devoirs/CreateHomeworkScreen';
 
 import ChangelogScreen from './views/ChangelogScreen';
 
@@ -609,6 +610,15 @@ function WrappedDevoirsScreen() {
       <Stack.Screen
         name="Devoir"
         component={HomeworkScreen}
+        options={{
+          headerShown: true,
+          presentation: 'modal',
+          modalStatus: Platform.OS === 'ios',
+        }}
+      />
+      <Stack.Screen
+        name="CreateHomework"
+        component={CreateHomeworkScreen}
         options={{
           headerShown: true,
           presentation: 'modal',

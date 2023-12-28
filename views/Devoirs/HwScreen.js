@@ -35,6 +35,8 @@ function HomeworkScreen({ route, navigation }) {
   const [thisHwChecked, setThisHwChecked] = React.useState(homework.done);
   const [thisHwLoading, setThisHwLoading] = React.useState(false);
 
+  console.log(homework);
+
   const openURL = async (url) => {
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
