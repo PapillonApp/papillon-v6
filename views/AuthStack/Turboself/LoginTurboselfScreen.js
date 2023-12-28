@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import { Eye, KeyRound, UserCircle, EyeOff } from 'lucide-react-native';
+import { Eye, KeyRound, UserCircle, EyeOff} from 'lucide-react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NativeList from '../../../components/NativeList';
@@ -34,6 +34,7 @@ function LoginTurboselfScreen({ navigation }) {
 
   function login() {
     setLoading(true);
+    
     if (username.trim() === '' || password.trim() === '') {
       Alert.alert('Erreur', 'Veuillez remplir tous les champs');
       setLoading(false);

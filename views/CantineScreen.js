@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import { ContextMenuView } from 'react-native-ios-context-menu';
-import { Album, BookX, CopyCheck, CreditCard } from 'lucide-react-native';
+import { Album, BookX, CopyCheck, CreditCard, UserX } from 'lucide-react-native';
 
 import { useTheme } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -126,163 +126,161 @@ function CantineScreen({ navigation }) {
 
   useEffect(() => {
     login();
-  }, [isLoggedIn]);
+  }, []);
 
-  const styles = StyleSheet.create({
-    tabs: {
-      tabsContainer: {
-        marginHorizontal: 16,
-        gap: 6,
-      },
-      tabRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: 6,
-      },
-
-      tab: {
-        borderRadius: 12,
-        borderCurve: 'continuous',
-
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 10,
-        gap: 4,
-
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 0.5,
-        },
-        shadowOpacity: 0.15,
-        shadowRadius: 1,
-
-        elevation: 0,
-        backgroundColor: UIColors.element,
-      },
-
-      tabText: {
-        fontSize: 14.5,
-        fontFamily: 'Papillon-Semibold',
-      },
-    },
-  });
+  console.log(isLoggedIn);
 
   return (
     <ScrollView>
-      <View
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginTop: 50,
-          marginBottom: 50,
-        }}
-      >
-        <NativeText heading="p" style={{ opacity: 0.6 }}>
-          Solde actuel
-        </NativeText>
-        {loading ? (
-          <ActivityIndicator />
-        ) : (
-          <View style={{ display: 'flex', alignItems: 'center'}}>
-            <NativeText heading="h1" style={{ fontSize: 40 }}>
-              {Number(homeData.userInfo.balance).toFixed(2)}€
-            </NativeText>
-            <NativeText heading="p" style={{ opacity: 0.6 }}>
-              Solde estimée{' : '}
-              {Number(homeData.userInfo.estimatedBalance).toFixed(2)}€
-            </NativeText>
-          </View>
-        )}
-      </View>
-      <View style={[styles.tabs.tabsContainer]}>
+      {isLoggedIn == false ? (
+        <View>
+            <PapillonLoading
+              icon={<UserX size={26} color={UIColors.text} />}
+              title="Pas de compte Turboself lié"
+              subtitle="Veuillez lier un compte Turboself pour accéder à la cantine."
+              style={{ marginTop: 36 }}
+            />
+        
+        
+
+        <View style={[styles.tabs.tabsContainer]}>
         <View style={[styles.tabs.tabRow]}>
-          {/* Show only if user is allowed to book */}
-
-          {userData.authorization.book ? (
-            <ContextMenuView style={{ flex: 1 }} borderRadius={12}>
-              <PressableScale
-                style={
-                  loading
-                    ? [styles.tabs.tab, { opacity: 0.6 }]
-                    : [styles.tabs.tab]
-                }
-                weight="light"
-                activeScale={0.9}
-                disabled={loading}
-                onPress={() => navigation.navigate('InsetReservationCantine')}
-              >
-                <CopyCheck
-                  size={24}
-                  color={theme.dark ? '#ffffff' : '#000000'}
-                />
-                <NativeText style={[styles.tabs.tabText]}>Mes résa.</NativeText>
-              </PressableScale>
-            </ContextMenuView>
-          ) : null}
-
-          {/* Show only if user has a card */}
-          {userData.cardData != null ? (
-            <ContextMenuView style={{ flex: 1 }} borderRadius={12}>
-              <PressableScale
-                style={
-                  loading
-                    ? [styles.tabs.tab, { opacity: 0.6 }]
-                    : [styles.tabs.tab]
-                }
-                weight="light"
-                activeScale={0.9}
-                onPress={() => navigation.navigate('InsetCardCantine')}
-              >
-                <CreditCard
-                  size={24}
-                  color={theme.dark ? '#ffffff' : '#000000'}
-                />
-                <NativeText style={[styles.tabs.tabText]}>Ma carte</NativeText>
-              </PressableScale>
-            </ContextMenuView>
-          ) : null}
-
-          {/* Show "menu" only if user use Pronote */}
-          {appctx.dataprovider.service === 'Pronote' ? (
-            <ContextMenuView style={{ flex: 1 }} borderRadius={12}>
-              <PressableScale
-                style={
-                  loading
-                    ? [styles.tabs.tab, { opacity: 0.6 }]
-                    : [styles.tabs.tab]
-                }
-                weight="light"
-                activeScale={0.9}
-                onPress={() => navigation.navigate('InsetMenuCantine')}
-              >
-                <Album size={24} color={theme.dark ? '#ffffff' : '#000000'} />
-                <NativeText style={[styles.tabs.tabText]}>Menu</NativeText>
-              </PressableScale>
-            </ContextMenuView>
-          ) : null}
+        {appctx.dataprovider.service === 'Pronote' ? (
+          <ContextMenuView style={{ flex: 1 }} borderRadius={12}>
+            <PressableScale
+              style={
+                [styles.tabs.tab, {backgroundColor: UIColors.element}]
+              }
+              weight="light"
+              activeScale={0.9}
+              onPress={() => navigation.navigate('InsetMenuCantine')}
+            >
+              <Album size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+              <NativeText style={[styles.tabs.tabText]}>Menu</NativeText>
+            </PressableScale>
+          </ContextMenuView>
+        ) : null}
         </View>
-      </View>
-      {loading ? (
-        <ActivityIndicator style={{ marginTop: 16 }} />
-      ) : homeData.history.length > 0 ? (
-        <NativeList inset header="Historiques">
-          {homeData.history.map((history, index) => (
-            <NativeItem trailing={textPriceHistory(history.cost)}>
-              <NativeText heading="h4">{history.name}</NativeText>
-              <NativeText heading="p" style={{ opacity: 0.6, fontSize: 15 }}>
-                Le {formatDateToDDMMYYY(history.date)} à{' '}
-                {extractHourFromDateJson(history.date)}
+        </View>
+        </View>
+      
+    ) : (
+      <View>
+        {loading ? (
+          <View>
+          <ActivityIndicator style={{ marginTop: 16 }} />
+          <PapillonLoading
+            icon={<UserX size={26} color={UIColors.text} />}
+            title="Pas de compte Turboself lié"
+            subtitle="Veuillez lier un compte Turboself pour accéder à la cantine."
+            style={{ marginTop: 36 }}
+          />
+          </View>
+        ) : (
+          <View>
+            <View
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginTop: 50,
+            marginBottom: 50,
+          }}
+        >
+          <NativeText heading="p" style={{ opacity: 0.6 }}>
+            Solde actuel
+          </NativeText>
+          {loading ? (
+            <ActivityIndicator />
+          ) : (
+            <View style={{ display: 'flex', alignItems: 'center' }}>
+              <NativeText heading="h1" style={{ fontSize: 40 }}>
+                {Number(homeData.userInfo.balance).toFixed(2)}€
               </NativeText>
-            </NativeItem>
-          ))}
-        </NativeList>
-      ) : (
+              <NativeText heading="p" style={{ opacity: 0.6 }}>
+                Solde estimée{' : '}
+                {Number(homeData.userInfo.estimatedBalance).toFixed(2)}€
+              </NativeText>
+            </View>
+          )}
+            </View>
+            <View style={[styles.tabs.tabsContainer]}>
+          <View style={[styles.tabs.tabRow]}>
+            {/* Show only if user is allowed to book */}
+
+            {userData.authorization.book ? (
+              <ContextMenuView style={{ flex: 1 }} borderRadius={12}>
+                <PressableScale
+                  style={
+                    [styles.tabs.tab, {backgroundColor: UIColors.element}]
+                  }
+                  weight="light"
+                  activeScale={0.9}
+                  disabled={loading}
+                  onPress={() => navigation.navigate('InsetReservationCantine')}
+                >
+                  <CopyCheck
+                    size={24}
+                    color={theme.dark ? '#ffffff' : '#000000'}
+                  />
+                  <NativeText style={[styles.tabs.tabText]}>Mes résa.</NativeText>
+                </PressableScale>
+              </ContextMenuView>
+            ) : null}
+
+            {/* Show only if user has a card */}
+            {userData.cardData != null ? (
+              <ContextMenuView style={{ flex: 1 }} borderRadius={12}>
+                <PressableScale
+                  style={
+                      [styles.tabs.tab, {backgroundColor: UIColors.element}]
+                  }
+                  weight="light"
+                  activeScale={0.9}
+                  onPress={() => navigation.navigate('InsetCardCantine')}
+                >
+                  <CreditCard
+                    size={24}
+                    color={theme.dark ? '#ffffff' : '#000000'}
+                  />
+                  <NativeText style={[styles.tabs.tabText]}>Ma carte</NativeText>
+                </PressableScale>
+              </ContextMenuView>
+            ) : null}
+
+            {/* Show "menu" only if user use Pronote */}
+            {appctx.dataprovider.service === 'Pronote' ? (
+              <ContextMenuView style={{ flex: 1 }} borderRadius={12}>
+                <PressableScale
+                  style={
+                      [styles.tabs.tab, {backgroundColor: UIColors.element}]
+                  }
+                  weight="light"
+                  activeScale={0.9}
+                  onPress={() => navigation.navigate('InsetMenuCantine')}
+                >
+                  <Album size={24} color={theme.dark ? '#ffffff' : '#000000'} />
+                  <NativeText style={[styles.tabs.tabText]}>Menu</NativeText>
+                </PressableScale>
+              </ContextMenuView>
+            ) : null}
+          </View>
+            </View>
+            {loading 
+	  	? (<ActivityIndicator style={{ marginTop: 16 }} />) 
+		  : homeData.history.length > 0 
+			? (<NativeList inset header="Historiques">
+				{homeData.history.map((history, index) => (
+					<NativeItem trailing={textPriceHistory(history.cost)}>
+					<NativeText heading="h4">{history.name}</NativeText>
+					<NativeText heading="p" style={{ opacity: 0.6, fontSize: 15 }}>
+						Le {formatDateToDDMMYYY(history.date)} à{' '}
+						{extractHourFromDateJson(history.date)}
+					</NativeText>
+					</NativeItem>
+				))}
+        	   </NativeList>) 
+			: (
         <PapillonLoading
           icon={<BookX size={26} color={UIColors.text} />}
           title="Pas d'historique disponible"
@@ -290,8 +288,59 @@ function CantineScreen({ navigation }) {
           style={{ marginTop: 36 }}
         />
       )}
+          </View>
+        )
+        }
+      </View>
+    )}
+      
+      
+      
+      
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  tabs: {
+    tabsContainer: {
+      marginHorizontal: 16,
+      gap: 6,
+    },
+    tabRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      gap: 6,
+    },
+
+    tab: {
+      borderRadius: 12,
+      borderCurve: 'continuous',
+
+      flex: 1,
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: 12,
+      paddingHorizontal: 10,
+      gap: 4,
+
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 0.5,
+      },
+      shadowOpacity: 0.15,
+      shadowRadius: 1,
+      elevation: 0,
+    },
+
+    tabText: {
+      fontSize: 14.5,
+      fontFamily: 'Papillon-Semibold',
+    },
+  },
+});
 
 export default CantineScreen;
