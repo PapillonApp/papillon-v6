@@ -830,7 +830,7 @@ function GradesScreen({ navigation }) {
                   color: UIColors.primary,
                   borderColor: UIColors.element,
                   radius: 7,
-                  borderWidth: 2,
+                  borderWidth: 0,
                   animated: true,
                   showVerticalLine: true,
                   verticalLineColor: UIColors.text,
