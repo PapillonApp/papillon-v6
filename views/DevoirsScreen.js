@@ -519,18 +519,20 @@ function DevoirsScreen({ navigation }) {
         backgroundColor="transparent"
       />
 
-      <PressableScale
-        style={[styles.addCoursefab, {backgroundColor: UIColors.primary}]}
-        weight="light"
-        activeScale={0.87}
-        onPress={() => {
-          navigation.navigate('CreateHomework', {
-            date: calendarDate,
-          });
-        }}
-      >
-        <Plus color='#ffffff' />
-      </PressableScale>
+      { Platform.OS === 'ios' &&  (
+        <PressableScale
+          style={[styles.addCoursefab, {backgroundColor: UIColors.primary}]}
+          weight="light"
+          activeScale={0.87}
+          onPress={() => {
+            navigation.navigate('CreateHomework', {
+              date: calendarDate,
+            });
+          }}
+        >
+          <Plus color='#ffffff' />
+        </PressableScale>
+      )}
 
       <InfinitePager
         style={[styles.viewPager]}
