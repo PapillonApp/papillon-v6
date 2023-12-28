@@ -20,6 +20,7 @@ import {
 } from 'react-native-paper';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
 
 import { ContextMenuButton } from 'react-native-ios-context-menu';
 import * as Clipboard from 'expo-clipboard';
@@ -139,24 +140,14 @@ function ProfileScreen({ route, navigation }) {
     });
 
     if (!result.canceled) {
-      AsyncStorage.getItem('old_profile_picture').then((res) => {
-        if (res === null || res === '') {
-          if (
-            userData.profile_picture !== null &&
-            userData.profile_picture !== ''
-          ) {
-            AsyncStorage.setItem(
-              'old_profile_picture',
-              userData.profile_picture
-            );
-          } else {
-            AsyncStorage.setItem('old_profile_picture', '');
-          }
-        }
-      });
+      let uri = result.assets[0].uri;
 
-      setProfilePicture(result.assets[0].uri);
-      AsyncStorage.setItem('custom_profile_picture', result.assets[0].uri);
+      FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      }).then((base64) => {
+        AsyncStorage.setItem('custom_profile_picture', "data:image/png;base64," + base64);
+        setProfilePicture("data:image/png;base64," + base64);
+      });
     }
   }
 
