@@ -35,6 +35,7 @@ import { ContextMenuView } from 'react-native-ios-context-menu';
 import NextCoursElem from '../interface/HomeScreen/NextCours';
 import getConsts from '../fetch/consts';
 import SyncStorage from 'sync-storage';
+import * as ExpoLinking from 'expo-linking';
 
 // Icons 
 import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2, PlusCircle, Globe2, ServerOff } from 'lucide-react-native';
@@ -99,6 +100,7 @@ function NewHomeScreen({ navigation }) {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
+  const url = ExpoLinking.useURL();
 
   const [refreshCount, setRefreshCount] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
@@ -122,6 +124,37 @@ function NewHomeScreen({ navigation }) {
 
   const [isConnected, setIsConnected] = useState(true);
   const [isServerOnline, setIsServerOnline] = useState(true);
+
+  // url handling
+  useEffect(() => {
+    setTimeout(() => {
+      handleURL(url);
+    }, 1000);
+
+    // subscribe to url changes
+    ExpoLinking.addEventListener('url', ({ url }) => {
+      handleURL(url);
+    });
+  }, [url]);
+
+  function handleURL(url) {
+    // if url is papillon://grade?=...
+    if (url && url.startsWith('papillon://grade?=')) {
+      const grade = url.split('papillon://grade?=')[1];
+
+      // decode base64
+      const decodedGrade = Buffer.from(grade, 'base64').toString();
+
+      // remove everything before the first { and after the last }
+      const decodedGradeRegex = decodedGrade.replace(/.*?({.*}).*/g, '$1');
+
+      // parse JSON
+      const decodedGradeJSON = JSON.parse(decodedGradeRegex);
+      
+      // open grade modal
+      navigation.navigate('Grade', { grade: decodedGradeJSON, allGrades: [decodedGradeJSON] });
+    }
+  }
 
   // theme
   const themeImages = {

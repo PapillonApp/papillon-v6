@@ -29,6 +29,7 @@
       "supportsTablet": true,
       "appStoreUrl": "https://apps.apple.com/fr/app/papillon-pour-pronote-ed/id1662669707",
       "bundleIdentifier": "plus.pronote.app",
+      "associatedDomains": ["applinks:getpapillon.xyz"],
       "splash": {
         "image": "./assets/launch/splash-light.png",
         "resizeMode": "cover",

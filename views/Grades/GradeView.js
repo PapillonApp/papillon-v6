@@ -8,8 +8,12 @@ import {
   Alert,
   Platform,
   Share as ShareUI,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
+
+import Config from "react-native-config";
 
 import {
   Diff,
@@ -163,6 +167,11 @@ function GradeView({ route, navigation }) {
   const theme = useTheme();
   const { grade, allGrades } = route.params;
   const UIColors = GetUIColors();
+
+  const [modalLoading, setModalLoading] = React.useState(false);
+  const [modalLoadingText, setModalLoadingText] = React.useState('');
+
+  const [isShared , setIsShared] = React.useState(false);
   
   async function getName() {
     var user = await appctx.dataprovider.getUser()
@@ -170,50 +179,50 @@ function GradeView({ route, navigation }) {
   }
 
   async function shareGrade(grade, color) {
-    Alert.alert(
-      "Partager la note",
-      "Cette fonctionnalité est encore en développement, elle arrive prochainement.",
-      [
-        {
-          text: "OK",
-          style: "cancel"
-        },
-      ]
-    );
+    setModalLoadingText('Génération du lien de partage...');
+    setModalLoading(true);
 
-    return;
+    let newGrade = grade;
+    // requires YOURLS_SECRET in .env
+    let yourls_secret = Config.YOURLS_SECRET;
 
-    const baseURL = "https://getpapillon.xyz/note"
-    const comment = ["Une franche réussite","Quel succès","Absolument fantastique","Épatant","Un travail exceptionnel","Remarquable","Impressionnant","Merveilleux","À couper le souffle","Brillant","Magique","Extraordinaire","Stupéfiant","Inoubliable","Exceptionnellement bien fait","Éblouissant","Génial","Sublime","Incroyable","Époustouflant","Travail consciencieux","Bonne performance","En progrès constant","Très réussi","Mérite une mention","Bien joué !","Excellent travail !","Bravo, très bien !","Très satisfaisant","Félicitations !","Travail exceptionnel",]
-    let data = {
-      header:{
-        username: await getName(),
-        subject:formatCoursName(grade.subject.name),
-        color:mainColor
-      },
-      data:{
-        note: parseFloat(grade.grade.value).toFixed(2) + "/" + grade.grade.out_of,
-        commentary: comment[Math.floor(Math.random() * comment.length)],
-        coef: "x" + parseFloat(grade.grade.coefficient).toFixed(2),
-        note20: parseFloat((grade.grade.value / grade.grade.out_of) * 20).toFixed(2) + "/20",
-        class: parseFloat(grade.grade.average).toFixed(2) + "/" + grade.grade.out_of,
-        min: parseFloat(grade.grade.min).toFixed(2) + "/" + grade.grade.out_of,
-        max: parseFloat(grade.grade.max).toFixed(2) + "/" + grade.grade.out_of,
-      }
-    }
-    //
+    // replace ids with 0 
+    newGrade.subject.id = 0;
+    newGrade.id = 0;
+
+    newGrade.share = {
+      status: true,
+      name: await getName(),
+    };
+
+    // parse grade to JSON
+    let gradeJSON = JSON.stringify(newGrade);
+
+    // encode grade to base64
+    let gradeBase64 = Buffer.from(gradeJSON).toString('base64');
+
+    // create link
+    let link = `https://getpapillon.xyz/grade/${encodeURIComponent(gradeBase64)}`;
+    let shorten_link = link;
+
+    // shorten link
+    let response = await fetch(`https://r.getpapillon.xyz/yourls-api.php?signature=${yourls_secret}&action=shorturl&format=json&url=${encodeURIComponent(link)}`);
     
-    const d = Buffer.from(JSON.stringify(data), 'utf-8').toString('base64')//md5('{"header":{"username":"Rémy","subject":"Histoire Géo","color":"#638274"},"data":{"note":"18/20","commentary":"Une franche réussite","coef": "x1.00","note20": "18/20","class": "11,48/20","min": "02/20","max": "19/20"}}')
-    try {
-      const result = await ShareUI.share({title: 'Ma note sur Papillon',message:'Hey ! J\'ai eu une note incroyable sur Papillon, regarde !',url: baseURL + '?d=' + d})
-    } catch(error) {
-      Alert.alert(
-        "Une erreur s'est produite",
-        error.message,
-        [{ text: 'OK' }]
-      );
+
+    let shortened = await response.json();
+    if (shortened.shorturl) {
+      shorten_link = shortened.shorturl;
     }
-    
+
+    console.log(shorten_link);
+
+    setModalLoading(false);
+
+    // share shorten_link
+    ShareUI.share({
+      message: `${shorten_link}`,
+      title: `Note partagée depuis l'app Papillon`,
+    });
   }
 
   let mainColor = '#888888';
@@ -288,6 +297,12 @@ function GradeView({ route, navigation }) {
   const classAvgWithoutGrade = calculateExactGrades(gradesListWithoutGrade, true);
   const classAvgInfluence = classAvg - classAvgWithoutGrade;
 
+  React.useEffect(() => {
+    if(grade.share && grade.share.status) {
+      setIsShared(true);
+    }
+  }, [grade, isShared]);
+
   return (
     <>
       <StatusBar
@@ -295,6 +310,24 @@ function GradeView({ route, navigation }) {
         backgroundColor={mainColor}
         barStyle="light-content"
       />
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalLoading}
+      >
+        <View style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#000000a5",
+          gap: 10,
+        }}>
+          <ActivityIndicator color="#ffffff" />
+          <NativeText heading="p" style={{color: '#ffffff'}}>
+            {modalLoadingText}
+          </NativeText>
+        </View>
+      </Modal>
       <View style={[styles.gradeHeader, { backgroundColor: mainColor }]}>
         <View style={[styles.gradeHeaderTitle]}>
           <Text style={[styles.gradeHeaderSubject]}>
@@ -331,6 +364,24 @@ function GradeView({ route, navigation }) {
         contentInsetAdjustmentBehavior="automatic"
         style={{ flex: 1, backgroundColor: UIColors.modalBackground }}
       >
+        {isShared && grade.share.name ? (
+          <NativeList inset>
+            <NativeItem
+              leading={
+                <Users2 color={UIColors.text} />
+              }
+              trailing={
+                <NativeText heading="h4">
+                  {grade.share.name}
+                </NativeText>
+              }
+            >
+              <NativeText heading="p2">
+                Partagée par
+              </NativeText>
+            </NativeItem>
+          </NativeList>
+        ) : null}
 
         <NativeList
           inset
@@ -435,6 +486,7 @@ function GradeView({ route, navigation }) {
           </NativeItem>
         </NativeList>
 
+        {allGrades.length > 1 ? (
         <NativeList
           inset
           header="Influence"
@@ -503,6 +555,7 @@ function GradeView({ route, navigation }) {
             </NativeText>
           </NativeItem>
         </NativeList>
+        ) : null}
 
         <NativeList
           inset
