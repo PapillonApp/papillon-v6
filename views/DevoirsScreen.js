@@ -328,14 +328,13 @@ function DevoirsScreen({ navigation }) {
   };
 
   const forceRefresh = async () => {
+    loadCustomHomeworks();
     const newDate = calcDate(calendarDate, 0);
     const result = await appctx.dataprovider.getHomeworks(newDate, true);
     setHomeworks((prevHomeworks) => ({
       ...prevHomeworks,
       [newDate.toLocaleDateString()]: result || [],
     }))
-
-    loadCustomHomeworks();
   };
 
   useEffect(() => {

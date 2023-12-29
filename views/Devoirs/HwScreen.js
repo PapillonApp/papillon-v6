@@ -93,9 +93,6 @@ function HomeworkScreen({ route, navigation }) {
           }}
         >
           <Trash size={20} color={"#eb4034"} />
-          <NativeText style={{color: '#eb4034'}}>
-            Supprimer
-          </NativeText>
         </TouchableOpacity>
       ),
     });
@@ -412,8 +409,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#eb403422',
     borderRadius: 12,
     borderCurve: 'continuous',
-    paddingVertical: 7,
-    paddingHorizontal: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
     marginRight: -2,
     gap: 4,
   },
