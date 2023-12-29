@@ -218,80 +218,29 @@ function AboutScreen({ navigation }) {
           </NativeItem>
         </NativeList>
 
-        <NativeList
-          inset
-          header="Équipe Papillon"
-        >
-          {team.team.map((item, index) => (
-            <NativeItem
-              key={index}
-              leading={
-                <Image
-                  source={{ uri: item.avatar }}
-                  style={{ width: 38, height: 38, borderRadius: 12 }}
-                />
-              }
-              chevron
-              onPress={() => openUserLink(item.link)}
-            >
-              <NativeText heading="h4">
-                {item.name}
-              </NativeText>
-              <NativeText heading="p2">
-                {item.role}
-              </NativeText>
-            </NativeItem>
-          ))}
-        </NativeList>
-
-        <NativeList
-          inset
-          header={"Donateurs"}
-        >
-          {KofiSupporters.map((item, index) => (
-            <NativeItem
-              key={index}
-              leading={
-                item.DiscordProfilePicture ? (
-                  <Image
-                    source={{ uri: item.DiscordProfilePicture }}
-                    style={{ width: 38, height: 38, borderRadius: 12, borderWidth: 1, borderColor: UIColors.text + '22' }}
-                  />
-                ) : (
-                  <PapillonIcon
-                    icon={<Euro size={24} color="#565EA3" />}
-                    color="#565EA3"
-                    size={24}
-                    small
-                  />
-                )
-              }
-              trailing={
-                ( item.Monthly === "True" ?
-                  <NativeText heading="p2">
-                    mensuel
-                  </NativeText>
-                : null )
-              }
-            >
-              <NativeText heading="h4">
-                {item.Name}
-              </NativeText>
-              <NativeText heading="p2">
-                à donné {(parseFloat(item.Total.replace(',','.')) / 1).toFixed(0)} café{parseFloat(item.Total.replace(',','.')) > 1 ? 's' : ''}
-              </NativeText>
-
-              <NativeText heading="subtitle2">
-                le {formatDate(item.LastSupportedDateUTC)}
-              </NativeText>
-            </NativeItem>
-          ))}
-        </NativeList>
-
         <NativeList 
           inset
           header="Communauté"
         >
+          <NativeItem
+            onPress={() => navigation.navigate('Donors')}
+            chevron
+            leading={
+              <PapillonIcon
+                icon={<Euro size={24} color="#bf941d" />}
+                color="#bf941d"
+                size={24}
+                small
+              />
+            }
+          >
+            <NativeText heading="h4">
+              Donateurs
+            </NativeText>
+            <NativeText heading="p2">
+              Voir la liste des donateurs
+            </NativeText>
+          </NativeItem>
           { Platform.OS !== 'ios' ? (
             <NativeItem
               leading={
@@ -332,9 +281,35 @@ function AboutScreen({ navigation }) {
               Serveur Discord
             </NativeText>
             <NativeText heading="p2">
-              Rejoindre le serveur Discord de Papillon
+              Rejoindre le serveur de Papillon
             </NativeText>
           </NativeItem>
+        </NativeList>
+
+        <NativeList
+          inset
+          header="Équipe Papillon"
+        >
+          {team.team.map((item, index) => (
+            <NativeItem
+              key={index}
+              leading={
+                <Image
+                  source={{ uri: item.avatar }}
+                  style={{ width: 38, height: 38, borderRadius: 12 }}
+                />
+              }
+              chevron
+              onPress={() => openUserLink(item.link)}
+            >
+              <NativeText heading="h4">
+                {item.name}
+              </NativeText>
+              <NativeText heading="p2">
+                {item.role}
+              </NativeText>
+            </NativeItem>
+          ))}
         </NativeList>
 
         <NativeList
