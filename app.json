@@ -2,6 +2,7 @@
   "expo": {
     "name": "Papillon",
     "slug": "papillonvex",
+    "scheme": "papillon",
     "version": "6.4.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -26,7 +27,9 @@
     ],
     "ios": {
       "supportsTablet": true,
+      "appStoreUrl": "https://apps.apple.com/fr/app/papillon-pour-pronote-ed/id1662669707",
       "bundleIdentifier": "plus.pronote.app",
+      "associatedDomains": ["applinks:getpapillon.xyz"],
       "splash": {
         "image": "./assets/launch/splash-light.png",
         "resizeMode": "cover",
@@ -39,6 +42,7 @@
       }
     },
     "android": {
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=plus.pronote.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#29947A"

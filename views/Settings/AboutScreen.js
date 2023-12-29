@@ -26,8 +26,9 @@ import ListItem from '../../components/ListItem';
 
 import getConsts from '../../fetch/consts';
 import packageJson from '../../package.json';
-import donors from './Donateurs.json';
 import team from './Team.json';
+
+import KofiSupporters from './KofiSupporters.json';
 
 import { getInfo } from '../../fetch/AuthStack/LoginFlow';
 import GetUIColors from '../../utils/GetUIColors';
@@ -120,6 +121,29 @@ function AboutScreen({ navigation }) {
         server: serverInfo.server,
       });
     }
+  }
+
+  function formatDate(date) {
+    let s = date.split(" ");
+    let d = s[0].split("-");
+    let t = s[1].split(":");
+    const month = [
+      'janvier',
+      'février',
+      'mars',
+      'avril',
+      'mai',
+      'juin',
+      'juillet',
+      'août',
+      'septembre',
+      'octobre',
+      'novembre',
+      'décembre',
+    ];
+    return `${d[2].startsWith('0') ? d[2].replace('0', '') : d[2]} ${
+      month[parseInt(d[1]) - 1]
+    } ${d[0]} à ${t[0]}h${t[1]} (UTC-0)`;
   }
 
   return (
@@ -222,25 +246,43 @@ function AboutScreen({ navigation }) {
 
         <NativeList
           inset
-          header={"Donateurs (au " + new Date(donors.lastupdated).toLocaleDateString('fr', { dateStyle: 'medium' }) + ")"}
+          header={"Donateurs"}
         >
-          {donors.donors.map((item, index) => (
+          {KofiSupporters.map((item, index) => (
             <NativeItem
               key={index}
               leading={
-                <PapillonIcon
-                  icon={<Euro size={24} color="#565EA3" />}
-                  color="#565EA3"
-                  size={24}
-                  small
-                />
+                item.DiscordProfilePicture ? (
+                  <Image
+                    source={{ uri: item.DiscordProfilePicture }}
+                    style={{ width: 38, height: 38, borderRadius: 12, borderWidth: 1, borderColor: UIColors.text + '22' }}
+                  />
+                ) : (
+                  <PapillonIcon
+                    icon={<Euro size={24} color="#565EA3" />}
+                    color="#565EA3"
+                    size={24}
+                    small
+                  />
+                )
+              }
+              trailing={
+                ( item.Monthly === "True" ?
+                  <NativeText heading="p2">
+                    mensuel
+                  </NativeText>
+                : null )
               }
             >
               <NativeText heading="h4">
-                {item.name}
+                {item.Name}
               </NativeText>
               <NativeText heading="p2">
-                à donné {item.times} fois
+                à donné {(parseFloat(item.Total.replace(',','.')) / 1).toFixed(0)} café{parseFloat(item.Total.replace(',','.')) > 1 ? 's' : ''}
+              </NativeText>
+
+              <NativeText heading="subtitle2">
+                le {formatDate(item.LastSupportedDateUTC)}
               </NativeText>
             </NativeItem>
           ))}
@@ -250,6 +292,30 @@ function AboutScreen({ navigation }) {
           inset
           header="Communauté"
         >
+          { Platform.OS !== 'ios' ? (
+            <NativeItem
+              leading={
+                <PapillonIcon
+                  icon={<Euro size={24} color="#c9a710" />}
+                  color="#c9a710"
+                  size={24}
+                  small
+                />
+              }
+              chevron
+              onPress={() => Linking.openURL('https://ko-fi.com/thepapillonapp')}
+            >
+              <NativeText heading="h4">
+                Donner 1€ (2 cafés) à l'équipe
+              </NativeText>
+              <NativeText heading="p2">
+                Votre don permet de financer les serveurs et le développement.
+              </NativeText>
+              <NativeText heading="subtitle2">
+                Papillon est 100% libre et indépendant & créé par des élèves.
+              </NativeText>
+            </NativeItem>
+          ) : <View /> }
           <NativeItem
             leading={
               <PapillonIcon

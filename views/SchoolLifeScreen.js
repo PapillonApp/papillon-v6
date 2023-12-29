@@ -113,7 +113,7 @@ function SchoolLifeScreen({ navigation }) {
                   )}
                 >
                   <NativeText heading="h4">
-                    {absence.hours}h manquées
+                    {absence.hours} manquées
                   </NativeText>
                   {
                     // if from and to is same day :

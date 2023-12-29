@@ -279,6 +279,10 @@ Statut : ${cours.status || 'Aucun'}
       ) : 'Emploi du temps',
       headerShadowVisible: Platform.OS !== 'ios',
       headerTransparent: Platform.OS === 'ios',
+      headerStyle: Platform.OS === 'android' ? {
+        backgroundColor: UIColors.background,
+        elevation: 0,
+      } : undefined,
       headerRight: () =>
       <ContextMenuView
             previewConfig={{

@@ -49,6 +49,8 @@ import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import * as StoreReview from 'expo-store-review';
+
 function GradesScreen({ navigation }) {
   const theme = useTheme();
   const appctx = useAppContext();
@@ -81,6 +83,8 @@ function GradesScreen({ navigation }) {
   const [calculatedClassAvg, setCalculatedClassAvg] = useState(false);
 
   const [hasSimulatedGrades, setHasSimulatedGrades] = useState(false);
+
+  const [gradeOpened, setGradeOpened] = useState(false);
 
   const yOffset = new Animated.Value(0);
 
@@ -235,6 +239,10 @@ function GradesScreen({ navigation }) {
         />
       ) : 'Notes',
       headerTransparent: Platform.OS === 'ios' ? true : false,
+      headerStyle: Platform.OS === 'android' ? {
+        backgroundColor: UIColors.background,
+        elevation: 0,
+      } : undefined,
       headerBackground: Platform.OS === 'ios' ? () => (
         <Animated.View 
           style={[
@@ -570,7 +578,50 @@ function GradesScreen({ navigation }) {
 
   function showGrade(grade) {
     navigation.navigate('Grade', { grade, allGrades });
+    setGradeOpened(true);
   }
+
+  // on grade modal close
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      if (gradeOpened) {
+        if (await StoreReview.hasAction()) {
+          AsyncStorage.getItem('review-tried').then(async (triedvalue) => {
+            if (!triedvalue) {
+              triedvalue = 0;
+            }
+
+            if (parseInt(triedvalue) >= 5) {
+              AsyncStorage.getItem('review-requested').then(async (value) => {
+                if (value) {
+                  // check if date is more than 3 days
+                  const now = new Date();
+                  const date = new Date(value);
+                  const diffTime = Math.abs(now.getTime() - date.getTime());
+                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                  if (diffDays < 7) {
+                    return;
+                  }
+                }
+
+                console.log('Review requested');
+                await StoreReview.requestReview();
+
+                AsyncStorage.setItem('review-requested', new Date().toString());
+              });
+            }
+
+            AsyncStorage.setItem('review-tried', (parseInt(triedvalue) + 1).toString());
+          });
+        }
+      }
+
+      setGradeOpened(false);
+    });
+
+    return unsubscribe;
+  }, [navigation, gradeOpened]);
 
   const onRefresh = React.useCallback(() => {
     setHeadLoading(true);
@@ -779,7 +830,7 @@ function GradesScreen({ navigation }) {
                   color: UIColors.primary,
                   borderColor: UIColors.element,
                   radius: 7,
-                  borderWidth: 2,
+                  borderWidth: 0,
                   animated: true,
                   showVerticalLine: true,
                   verticalLineColor: UIColors.text,
