@@ -6,13 +6,15 @@ import {
   StatusBar,
   Platform,
   ActivityIndicator,
+  TouchableOpacity,
+  Alert,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { PressableScale } from 'react-native-pressable-scale';
 
-import { Check, Link, File } from 'lucide-react-native';
+import { Check, Link, File, Trash } from 'lucide-react-native';
 
 import * as WebBrowser from 'expo-web-browser';
 import ParsedText from 'react-native-parsed-text';
@@ -46,6 +48,58 @@ function HomeworkScreen({ route, navigation }) {
   };
 
   const appctx = useAppContext();
+
+  const deleteCustomHomework = () => {
+    AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+      let hw = [];
+      if (customHomeworks) {
+        hw = JSON.parse(customHomeworks);
+      }
+
+      // find the homework
+      for (let i = 0; i < hw.length; i++) {
+        if (hw[i].local_id === homework.local_id) {
+          hw.splice(i, 1);
+        }
+      }
+
+      AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
+      navigation.goBack();
+    });
+  };
+
+  // add delete button in header
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          style={[styles.deleteHw]}
+          onPress={() => {
+            Alert.alert(
+              "Supprimer le devoir",
+              "Êtes-vous sûr de vouloir supprimer ce devoir ?",
+              [
+                {
+                  text: "Annuler",
+                  style: "cancel"
+                },
+                { 
+                  text: "Supprimer",
+                  onPress: () => deleteCustomHomework(),
+                  style: "destructive"
+                }
+              ]
+            );
+          }}
+        >
+          <Trash size={20} color={"#eb4034"} />
+          <NativeText style={{color: '#eb4034'}}>
+            Supprimer
+          </NativeText>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   const changeHwState = () => {
     // if custom : true
@@ -348,6 +402,20 @@ const styles = StyleSheet.create({
 
   url: {
     textDecorationLine: 'underline',
+  },
+
+  deleteHw: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    backgroundColor: '#eb403422',
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    marginRight: -2,
+    gap: 4,
   },
 });
 

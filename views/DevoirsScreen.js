@@ -277,24 +277,22 @@ function DevoirsScreen({ navigation }) {
         let dt = new Date(hw[i].date).toLocaleDateString();
 
         if (oldHomeworks[dt]) {
-          // check if the homework is already in the list
-          for (let j = 0; j < oldHomeworks[dt].length; j++) {
-            if (oldHomeworks[dt][j].local_id === hw[i].local_id) {
-              if (oldHomeworks[dt][j] == hw[i]) {
-                continue;
-              }
-              else {
-                // remove the homework
-                oldHomeworks[dt].splice(j, 1);
-              }
-            }
-          }
+          // remove custom homeworks from the list
+          let pronHw = oldHomeworks[dt].filter((h) => !h.custom);
 
-          oldHomeworks[dt].push(hw[i]);
+          oldHomeworks[dt] = pronHw;
+
+          if(pronHw.length === 0) {
+            oldHomeworks[dt] = [hw[i]];
+          } else {
+            oldHomeworks[dt].push(hw[i]);
+          }
         }
         else {
           oldHomeworks[dt] = [hw[i]];
         }
+
+        console.log('new homeworks', oldHomeworks);
 
         setHomeworks(oldHomeworks);
       }
