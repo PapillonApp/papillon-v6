@@ -675,6 +675,8 @@ function NewHomeScreen({ navigation }) {
               backgroundColor: themeColor,
               top: -300 - insets.top,
               transform: [{ translateY: bannerTranslate }],
+              borderBottomColor: UIColors.dark ? UIColors.text + '30' : UIColors.text + '35',
+              borderBottomWidth: 0.5,
             }
           ]}
         >
