@@ -20,7 +20,7 @@ import ColorPicker, {
 import formatCoursName from '../../utils/FormatCoursName';
 
 import { forceSavedCourseColor } from '../../utils/ColorCoursName';
-import { Dice5, Lock } from 'lucide-react-native';
+import { Dice5, Lock, MoreVertical } from 'lucide-react-native';
 
 const CoursColor = ({ navigation }) => {
   const theme = useTheme();
@@ -37,6 +37,30 @@ const CoursColor = ({ navigation }) => {
     '#6a42a3', '#498821', '#2e86b3', '#17a085', '#89125f', '#2f9e49', '#1e6fcf', '#d08e15', '#b85f18', '#a33e00', '#3f515f', '#c92a1e', '#a82b1f', '#7b389f', '#a65089', '#996032', '#8c0101',
     '#6b064d', '#146c80', '#7c9f18', '#9f5610', '#b23e00', '#34495e', '#a3180f', '#891e13', '#623c85', '#b5657e', '#a6794a', '#b60000',
   ];
+
+  const moreActions = (key) => {
+    Alert.alert(
+      'Plus d\'actions',
+      'Que voulez-vous faire avec ' + savedColors[key].originalCourseName + ' ?',
+      [
+        {
+          text: 'Supprimer',
+          onPress: () => {
+            let newCol = JSON.parse(SyncStorage.get('savedColors'));
+            delete newCol[key];
+            setSavedColors(newCol);
+            SyncStorage.set('savedColors', JSON.stringify(newCol));
+          },
+          style: 'destructive',
+        },
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   const onSelectColor = ({ hex }) => {
     setColorModalColor(hex);
@@ -106,9 +130,15 @@ const CoursColor = ({ navigation }) => {
 
     let col = JSON.parse(SyncStorage.get('savedColors'));
 
-    // remove all entries with no color
+    // remove all entries with no color and no name
     Object.keys(col).forEach((key) => {
-      if (!col[key].color) {
+      if (!col[key].originalCourseName) {
+        delete col[key];
+      }
+      else if (!col[key].color) {
+        delete col[key];
+      }
+      else if (!col[key].systemCourseName) {
         delete col[key];
       }
     });
@@ -146,44 +176,65 @@ const CoursColor = ({ navigation }) => {
         inset
       >
         {savedColors && Object.keys(savedColors).map((key, index) => {
-          return (
-            <NativeItem
-              key={index}
-              leading={
-                <View style={[styles.colorPreview, {backgroundColor: savedColors[key].color }]} />
-              }
+          if (savedColors[key].color && savedColors[key].originalCourseName) {
+            return (
+              <NativeItem
+                key={index}
+                leading={
+                  <TouchableOpacity
+                    style={[styles.colorPreview, {backgroundColor: savedColors[key].color }]}
+                    onPress={() => {
+                      setColorModalOpen(true);
+                      setColorModalColor(savedColors[key].color);
+      
+                      setCurrentEditedSubject(key);
+                    }}
+                  />
+                }
 
-              trailing={
-                <LockToggle
-                  color={savedColors[key].color}
-                  value={savedColors[key].locked}
-                  onValueChange={(value) => {
-                    setSavedColors({
-                      ...savedColors,
-                      [key]: {
-                        ...savedColors[key],
-                        locked: value,
-                      },
-                    });
-                  }}
-                />
-              }
-
-              onPress={() => {
-                setColorModalOpen(true);
-                setColorModalColor(savedColors[key].color);
-
-                setCurrentEditedSubject(key);
-              }}
-            >
-              <NativeText heading="b">
-                {formatCoursName(savedColors[key].originalCourseName)}
-              </NativeText>
-              <NativeText heading="subtitle2">
-                {savedColors[key].color.toUpperCase()}
-              </NativeText>
-            </NativeItem>
-          )
+                trailing={
+                  <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 8,
+                    marginRight: -5,
+                  }}>
+                    <LockToggle
+                      color={savedColors[key].color}
+                      value={savedColors[key].locked}
+                      onValueChange={(value) => {
+                        setSavedColors({
+                          ...savedColors,
+                          [key]: {
+                            ...savedColors[key],
+                            locked: value,
+                          },
+                        });
+                      }}
+                    />
+                    <TouchableOpacity
+                      onPress={() => {
+                        moreActions(key);
+                      }}
+                    >
+                      <MoreVertical size={20} color={UIColors.text + '75'} />
+                    </TouchableOpacity>
+                  </View>
+                }
+              >
+                <NativeText heading="b">
+                  {formatCoursName(savedColors[key].originalCourseName)}
+                </NativeText>
+                <NativeText heading="subtitle2">
+                  {savedColors[key].color.toUpperCase()}
+                </NativeText>
+              </NativeItem>
+            )
+          }
+          else {
+            return null;
+          }
         })}
       </NativeList>
 

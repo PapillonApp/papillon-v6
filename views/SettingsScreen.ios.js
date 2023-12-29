@@ -186,7 +186,7 @@ function NewSettings({navigation}) {
           onPress={() => navigation.navigate('CoursColor')}
         >
           <NativeText heading="h4">
-            Couleurs des matières
+            Gestion des matières
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
             Personnaliser les matières

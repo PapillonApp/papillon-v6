@@ -660,6 +660,31 @@ function Hwitem({ homework, theme, openURL, navigation }) {
   const appctx = useAppContext();
 
   const changeHwState = () => {
+    if (homework.custom) {
+      AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+        let hw = [];
+        if (customHomeworks) {
+          hw = JSON.parse(customHomeworks);
+        }
+
+        // find the homework
+        for (let i = 0; i < hw.length; i++) {
+          if (hw[i].local_id === homework.local_id) {
+            hw[i].done = !thisHwChecked;
+          }
+        }
+
+        setThisHwChecked(!thisHwChecked);
+        AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
+
+        setTimeout(() => {
+          setThisHwLoading(false);
+        }, 100);
+      });
+
+      return;
+    }
+    
     appctx.dataprovider
       .changeHomeworkState(!thisHwChecked, homework.date, homework.local_id)
       .then((result) => {
@@ -768,12 +793,12 @@ function Hwitem({ homework, theme, openURL, navigation }) {
               { backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color) },
             ]}
           />
-          <NativeText heading="subtitle1" style={{fontSize: 14}}>
+          <NativeText numberOfLines={1} heading="subtitle1" style={{fontSize: 14, paddingRight: 10}}>
             {homework.subject.name.toUpperCase()}
           </NativeText>
         </View>
         <NativeText>
-          {homework.description}
+          {homework.description.replace('\n', ' ')}
         </NativeText>
       </NativeItem>
 

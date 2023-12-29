@@ -332,7 +332,7 @@ function InsetSettings() {
         name="CoursColor"
         component={CoursColor}
         options={{
-          headerTitle: 'Couleur des matières',
+          headerTitle: 'Gestion des matières',
           headerBackTitle: 'Retour',
         }}
       />

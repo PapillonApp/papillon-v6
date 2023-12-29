@@ -48,6 +48,32 @@ function HomeworkScreen({ route, navigation }) {
   const appctx = useAppContext();
 
   const changeHwState = () => {
+    // if custom : true
+    if (homework.custom) {
+      AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+        let hw = [];
+        if (customHomeworks) {
+          hw = JSON.parse(customHomeworks);
+        }
+
+        // find the homework
+        for (let i = 0; i < hw.length; i++) {
+          if (hw[i].local_id === homework.local_id) {
+            hw[i].done = !thisHwChecked;
+          }
+        }
+
+        setThisHwChecked(!thisHwChecked);
+        AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
+
+        setTimeout(() => {
+          setThisHwLoading(false);
+        }, 100);
+      });
+
+      return;
+    }
+
     appctx.dataprovider
       .changeHomeworkState(!thisHwChecked, homework.date, homework.local_id)
       .then((result) => {
@@ -190,11 +216,11 @@ function HomeworkScreen({ route, navigation }) {
         <NativeItem
           trailing={
             <NativeText heading="p2">
-              {new Date(homework.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              {new Date(homework.date).toLocaleDateString('fr-FR', { weekday: 'long', month: 'long', day: 'numeric' })}
             </NativeText>
           }
         >
-          <NativeText>
+          <NativeText numberOfLines={1}>
             A rendre pour le
           </NativeText>
         </NativeItem>
