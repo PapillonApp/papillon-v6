@@ -35,6 +35,8 @@ function HomeworkScreen({ route, navigation }) {
   const [thisHwChecked, setThisHwChecked] = React.useState(homework.done);
   const [thisHwLoading, setThisHwLoading] = React.useState(false);
 
+  console.log(homework);
+
   const openURL = async (url) => {
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
@@ -82,36 +84,29 @@ function HomeworkScreen({ route, navigation }) {
             });
           }
         }
-        
-        // sync with home page
-        AsyncStorage.setItem('homeUpdated', 'true');
+
         // sync with devoirs page
-        AsyncStorage.setItem('homeworksUpdated', 'true');
+        AsyncStorage.getItem('homeworksUpdate').then((homeworksUpdate) => {
+          let updates = [];
+          if (homeworksUpdate) {
+            updates = JSON.parse(homeworksUpdate);
+          }
 
-        // if tomorrow, update badge
-        let tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
-
-        let checked = thisHwChecked;
-
-        // if this homework is for tomorrow
-        if (new Date(homework.date).getDate() === tomorrow.getDate()) {
-          AsyncStorage.getItem('badgesStorage').then((value) => {
-            let currentSyncBadges = JSON.parse(value);
-
-            if (currentSyncBadges === null) {
-              currentSyncBadges = {
-                homeworks: 0,
-              };
+          // if the homework is already in the list, remove it
+          for (let i = 0; i < updates.length; i++) {
+            if (updates[i].local_id === homework.local_id) {
+              updates.splice(i, 1);
             }
+          }
 
-            let newBadges = currentSyncBadges;
-            newBadges.homeworks = checked ? newBadges.homeworks + 1 : newBadges.homeworks - 1;
-
-            AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
+          updates.push({
+            date: homework.date,
+            local_id: homework.local_id,
+            done: !thisHwChecked,
           });
-        }
+
+          AsyncStorage.setItem('homeworksUpdate', JSON.stringify(updates));
+        });
       })
   };
 

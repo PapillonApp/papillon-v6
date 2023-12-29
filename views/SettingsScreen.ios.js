@@ -233,6 +233,32 @@ function NewSettings({navigation}) {
               style={[
                 styles.item.leadingContainer,
                 {
+                  backgroundColor: '#ebba34',
+                }
+              ]}
+            >
+              <SFSymbol
+                name="eurosign.circle.fill"
+                weight="semibold"
+                size={18}
+                color="#ffffff"
+                style={styles.item.symbol}
+              />
+            </View>
+          }
+          chevron
+          onPress={() => navigation.navigate('PaymentScreen')}
+        >
+          <NativeText heading="h4">
+            Soutenir Papillon
+          </NativeText>
+        </NativeItem>
+        <NativeItem
+          leading={
+            <View
+              style={[
+                styles.item.leadingContainer,
+                {
                   backgroundColor: '#888888',
                 }
               ]}

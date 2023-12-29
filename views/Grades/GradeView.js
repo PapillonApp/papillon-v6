@@ -7,8 +7,13 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  Share as ShareUI,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
+
+import Config from "react-native-config";
 
 import {
   Diff,
@@ -29,10 +34,13 @@ import { PressableScale } from 'react-native-pressable-scale';
 
 import formatCoursName from '../../utils/FormatCoursName';
 import GetUIColors from '../../utils/GetUIColors';
+import { useAppContext } from '../../utils/AppContext';
 
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
+
+import { Buffer } from 'buffer'
 
 function calculateSubjectAverage(grades) {
   // for each grade, calculate average for all
@@ -155,16 +163,66 @@ function calculateExactGrades(grades, isClass) {
 }
 
 function GradeView({ route, navigation }) {
+  const appctx = useAppContext();
   const theme = useTheme();
   const { grade, allGrades } = route.params;
   const UIColors = GetUIColors();
 
-  function shareGrade() {
-    Alert.alert(
-      'Partager la note',
-      "Le partage de la note n'est pas encore disponible.",
-      [{ text: 'OK' }]
-    );
+  const [modalLoading, setModalLoading] = React.useState(false);
+  const [modalLoadingText, setModalLoadingText] = React.useState('');
+
+  const [isShared , setIsShared] = React.useState(false);
+  
+  async function getName() {
+    var user = await appctx.dataprovider.getUser()
+    return user.name.split(' ').pop();
+  }
+
+  async function shareGrade(grade, color) {
+    setModalLoadingText('Génération du lien de partage...');
+    setModalLoading(true);
+
+    let newGrade = grade;
+    // requires YOURLS_SECRET in .env
+    let yourls_secret = Config.YOURLS_SECRET;
+
+    // replace ids with 0 
+    newGrade.subject.id = 0;
+    newGrade.id = 0;
+
+    newGrade.share = {
+      status: true,
+      name: await getName(),
+    };
+
+    // parse grade to JSON
+    let gradeJSON = JSON.stringify(newGrade);
+
+    // encode grade to base64
+    let gradeBase64 = Buffer.from(gradeJSON).toString('base64');
+
+    // create link
+    let link = `https://getpapillon.xyz/grade/${encodeURIComponent(gradeBase64)}`;
+    let shorten_link = link;
+
+    // shorten link
+    let response = await fetch(`https://r.getpapillon.xyz/yourls-api.php?signature=${yourls_secret}&action=shorturl&format=json&url=${encodeURIComponent(link)}`);
+    
+
+    let shortened = await response.json();
+    if (shortened.shorturl) {
+      shorten_link = shortened.shorturl;
+    }
+
+    console.log(shorten_link);
+
+    setModalLoading(false);
+
+    // share shorten_link
+    ShareUI.share({
+      message: `${shorten_link}`,
+      title: `Note partagée depuis l'app Papillon`,
+    });
   }
 
   let mainColor = '#888888';
@@ -199,7 +257,7 @@ function GradeView({ route, navigation }) {
       },
       headerShadowVisible: false,
       headerRight: () => (
-        <TouchableOpacity onPress={() => shareGrade()}>
+        <TouchableOpacity onPress={() => shareGrade(grade, mainColor)}>
           <Share size={24} color="#fff" />
         </TouchableOpacity>
       ),
@@ -239,6 +297,12 @@ function GradeView({ route, navigation }) {
   const classAvgWithoutGrade = calculateExactGrades(gradesListWithoutGrade, true);
   const classAvgInfluence = classAvg - classAvgWithoutGrade;
 
+  React.useEffect(() => {
+    if(grade.share && grade.share.status) {
+      setIsShared(true);
+    }
+  }, [grade, isShared]);
+
   return (
     <>
       <StatusBar
@@ -246,6 +310,24 @@ function GradeView({ route, navigation }) {
         backgroundColor={mainColor}
         barStyle="light-content"
       />
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalLoading}
+      >
+        <View style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#000000a5",
+          gap: 10,
+        }}>
+          <ActivityIndicator color="#ffffff" />
+          <NativeText heading="p" style={{color: '#ffffff'}}>
+            {modalLoadingText}
+          </NativeText>
+        </View>
+      </Modal>
       <View style={[styles.gradeHeader, { backgroundColor: mainColor }]}>
         <View style={[styles.gradeHeaderTitle]}>
           <Text style={[styles.gradeHeaderSubject]}>
@@ -282,6 +364,24 @@ function GradeView({ route, navigation }) {
         contentInsetAdjustmentBehavior="automatic"
         style={{ flex: 1, backgroundColor: UIColors.modalBackground }}
       >
+        {isShared && grade.share.name ? (
+          <NativeList inset>
+            <NativeItem
+              leading={
+                <Users2 color={UIColors.text} />
+              }
+              trailing={
+                <NativeText heading="h4">
+                  {grade.share.name}
+                </NativeText>
+              }
+            >
+              <NativeText heading="p2">
+                Partagée par
+              </NativeText>
+            </NativeItem>
+          </NativeList>
+        ) : null}
 
         <NativeList
           inset
@@ -386,6 +486,7 @@ function GradeView({ route, navigation }) {
           </NativeItem>
         </NativeList>
 
+        {allGrades.length > 1 ? (
         <NativeList
           inset
           header="Influence"
@@ -454,6 +555,7 @@ function GradeView({ route, navigation }) {
             </NativeText>
           </NativeItem>
         </NativeList>
+        ) : null}
 
         <NativeList
           inset

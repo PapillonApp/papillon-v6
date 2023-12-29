@@ -21,6 +21,8 @@ import { useCallback } from 'react';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import * as ExpoLinking from 'expo-linking';
+
 import * as SplashScreen from 'expo-splash-screen';
 SplashScreen.preventAutoHideAsync();
 
@@ -44,6 +46,7 @@ import LessonScreen from './views/Cours/LessonScreen';
 
 import DevoirsScreen from './views/DevoirsScreen';
 import HomeworkScreen from './views/Devoirs/HwScreen';
+import CreateHomeworkScreen from './views/Devoirs/CreateHomeworkScreen';
 
 import ChangelogScreen from './views/ChangelogScreen';
 
@@ -57,6 +60,8 @@ import IconsScreen from './views/Settings/IconsScreen';
 import ChangeServer from './views/Settings/ChangeServer';
 import CoursColor from './views/Settings/CoursColor';
 import AdjustmentsScreen from './views/Settings/AdjustmentsScreen';
+import HeaderSelectScreen from './views/Settings/HeaderSelectScreen';
+import PaymentScreen from './views/Settings/PaymentScreen';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -341,6 +346,21 @@ function InsetSettings() {
         }}
       />
       <Stack.Screen
+        name="HeaderSelect"
+        component={HeaderSelectScreen}
+        options={{
+          headerTitle: 'Bandeau',
+        }}
+      />
+      <Stack.Screen
+        name="PaymentScreen"
+        component={PaymentScreen}
+        options={{
+          headerTitle: 'Soutenir Papillon',
+          headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
         name="About"
         component={AboutScreen}
         options={{
@@ -592,6 +612,15 @@ function WrappedDevoirsScreen() {
       <Stack.Screen
         name="Devoir"
         component={HomeworkScreen}
+        options={{
+          headerShown: true,
+          presentation: 'modal',
+          modalStatus: Platform.OS === 'ios',
+        }}
+      />
+      <Stack.Screen
+        name="CreateHomework"
+        component={CreateHomeworkScreen}
         options={{
           headerShown: true,
           presentation: 'modal',

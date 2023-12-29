@@ -252,12 +252,19 @@ function AboutScreen({ navigation }) {
             <NativeItem
               key={index}
               leading={
-                <PapillonIcon
-                  icon={<Euro size={24} color="#565EA3" />}
-                  color="#565EA3"
-                  size={24}
-                  small
-                />
+                item.DiscordProfilePicture ? (
+                  <Image
+                    source={{ uri: item.DiscordProfilePicture }}
+                    style={{ width: 38, height: 38, borderRadius: 12, borderWidth: 1, borderColor: UIColors.text + '22' }}
+                  />
+                ) : (
+                  <PapillonIcon
+                    icon={<Euro size={24} color="#565EA3" />}
+                    color="#565EA3"
+                    size={24}
+                    small
+                  />
+                )
               }
               trailing={
                 ( item.Monthly === "True" ?
@@ -271,7 +278,7 @@ function AboutScreen({ navigation }) {
                 {item.Name}
               </NativeText>
               <NativeText heading="p2">
-                à donné {(parseFloat(item.Total.replace(',','.')) / 0.5).toFixed(0)} cafés
+                à donné {(parseFloat(item.Total.replace(',','.')) / 1).toFixed(0)} café{parseFloat(item.Total.replace(',','.')) > 1 ? 's' : ''}
               </NativeText>
 
               <NativeText heading="subtitle2">

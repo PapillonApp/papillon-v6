@@ -162,6 +162,10 @@ function NewsScreen({ navigation }) {
           color="#B42828"
         />
       ) : 'Actualités',
+      headerStyle: Platform.OS === 'android' ? {
+        backgroundColor: UIColors.background,
+        elevation: 0,
+      } : undefined,
       headerSearchBarOptions: {
         placeholder: 'Rechercher une actualité',
         cancelButtonText: 'Annuler',

@@ -20,12 +20,15 @@ import {
 } from 'react-native-paper';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
 
 import { ContextMenuButton } from 'react-native-ios-context-menu';
 import * as Clipboard from 'expo-clipboard';
 
 import * as ImagePicker from 'expo-image-picker';
 import * as LocalAuthentication from 'expo-local-authentication';
+
+import { BlurView } from 'expo-blur';
 
 import { useEffect } from 'react';
 
@@ -50,6 +53,7 @@ import { useAppContext } from '../../utils/AppContext';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
+import { LinearGradient } from 'expo-linear-gradient';
 
 function ProfileScreen({ route, navigation }) {
   const theme = useTheme();
@@ -139,24 +143,14 @@ function ProfileScreen({ route, navigation }) {
     });
 
     if (!result.canceled) {
-      AsyncStorage.getItem('old_profile_picture').then((res) => {
-        if (res === null || res === '') {
-          if (
-            userData.profile_picture !== null &&
-            userData.profile_picture !== ''
-          ) {
-            AsyncStorage.setItem(
-              'old_profile_picture',
-              userData.profile_picture
-            );
-          } else {
-            AsyncStorage.setItem('old_profile_picture', '');
-          }
-        }
-      });
+      let uri = result.assets[0].uri;
 
-      setProfilePicture(result.assets[0].uri);
-      AsyncStorage.setItem('custom_profile_picture', result.assets[0].uri);
+      FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      }).then((base64) => {
+        AsyncStorage.setItem('custom_profile_picture', "data:image/png;base64," + base64);
+        setProfilePicture("data:image/png;base64," + base64);
+      });
     }
   }
 
@@ -273,8 +267,25 @@ function ProfileScreen({ route, navigation }) {
   }, []);
 
   return (
+    <View style={[{ backgroundColor: UIColors.modalBackground }]}>
+    <View style={styles.profilePictureBgContainer}>
+      {profilePicture && profilePicture !== '' && (
+        <Image
+          style={styles.profilePictureBg}
+          source={{ uri: profilePicture }}
+        />
+      )}
+      <BlurView
+        intensity={100}
+        style={styles.profilePictureBgOverlay}
+      />
+      <LinearGradient
+        colors={['#00000000', UIColors.modalBackground]}
+        style={styles.profilePictureGradientOverlay}
+      />
+    </View>
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
+      style={[styles.container]}
     >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
@@ -439,6 +450,7 @@ function ProfileScreen({ route, navigation }) {
       </NativeList>
       
     </ScrollView>
+    </View>
   );
 }
 
@@ -499,6 +511,45 @@ const styles = StyleSheet.create({
     backgroundColor: '#B42828',
     borderRadius: 70,
     padding: 4,
+  },
+
+  profilePictureBgContainer : {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 250,
+    overflow: 'hidden',
+    zIndex: -1,
+    opacity: 0.4,
+  },
+
+  profilePictureBg: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 0,
+  },
+
+  profilePictureBgOverlay: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 5,
+  },
+
+  profilePictureGradientOverlay: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 10,
   },
 });
 
