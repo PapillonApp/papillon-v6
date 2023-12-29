@@ -108,6 +108,8 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
         hw = JSON.parse(customHomeworks);
       }
 
+      console.log(hw);
+
       let newHw = {
         id: Math.random().toString(36).substring(7),
         local_id: Math.random().toString(36).substring(7),

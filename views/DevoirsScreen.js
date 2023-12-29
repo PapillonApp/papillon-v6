@@ -269,33 +269,49 @@ function DevoirsScreen({ navigation }) {
       if (customHomeworks) {
         hw = JSON.parse(customHomeworks);
       }
-
-      console.log('custom homeworks', hw);
+      
+      let oldHomeworks = homeworks;
 
       for (let i = 0; i < hw.length; i++) {
-        let oldHomeworks = homeworks;
         let dt = new Date(hw[i].date).toLocaleDateString();
 
         if (oldHomeworks[dt]) {
-          // remove custom homeworks from the list
-          let pronHw = oldHomeworks[dt].filter((h) => !h.custom);
-
-          oldHomeworks[dt] = pronHw;
-
-          if(pronHw.length === 0) {
-            oldHomeworks[dt] = [hw[i]];
-          } else {
-            oldHomeworks[dt].push(hw[i]);
+          // check if the homework is already in the list
+          for (let j = 0; j < oldHomeworks[dt].length; j++) {
+            if (oldHomeworks[dt][j].local_id === hw[i].local_id) {
+              if (oldHomeworks[dt][j] == hw[i]) {
+                continue;
+              }
+              else {
+                // remove the homework
+                oldHomeworks[dt].splice(j, 1);
+              }
+            }
           }
+
+          oldHomeworks[dt].push(hw[i]);
         }
         else {
           oldHomeworks[dt] = [hw[i]];
         }
-
-        console.log('new homeworks', oldHomeworks);
-
-        setHomeworks(oldHomeworks);
       }
+
+      // compare hw and homeworks to check if there is a homework to remove
+      for (let i = 0; i < hw.length; i++) {
+        let dt = new Date(hw[i].date).toLocaleDateString();
+        if (oldHomeworks[dt]) {
+          for (let j = 0; j < oldHomeworks[dt].length; j++) {
+            // check if there's a homework that is custom and not in hw
+            if (oldHomeworks[dt][j].custom && !hw.includes(oldHomeworks[dt][j])) {
+              // remove the homework
+              oldHomeworks[dt].splice(j, 1);
+            }
+          }
+        }
+      }
+    
+
+      setHomeworks(oldHomeworks);
     });
   };
 
@@ -317,6 +333,15 @@ function DevoirsScreen({ navigation }) {
     loadCustomHomeworks();
   }, []);
 
+  // reload custom homeworks when page focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadCustomHomeworks();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   const handlePageChange = (page) => {
     const newDate = calcDate(todayRef.current, page);
     setCurrentIndex(page);
@@ -328,13 +353,14 @@ function DevoirsScreen({ navigation }) {
   };
 
   const forceRefresh = async () => {
-    loadCustomHomeworks();
     const newDate = calcDate(calendarDate, 0);
     const result = await appctx.dataprovider.getHomeworks(newDate, true);
     setHomeworks((prevHomeworks) => ({
       ...prevHomeworks,
       [newDate.toLocaleDateString()]: result || [],
     }))
+
+    loadCustomHomeworks();
   };
 
   useEffect(() => {
