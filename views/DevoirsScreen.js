@@ -92,8 +92,10 @@ function DevoirsScreen({ navigation }) {
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       // The screen is focused
+      loadCustomHomeworks();
+
       AsyncStorage.getItem('homeworksUpdate').then((homeworksUpdate) => {
-        if (homeworksUpdate) {
+        if (homeworksUpdate && homeworksUpdate !== null) {
           // for each update
           const updates = JSON.parse(homeworksUpdate);
           const newHomeworks = homeworks;
@@ -309,7 +311,6 @@ function DevoirsScreen({ navigation }) {
           }
         }
       }
-    
 
       setHomeworks(oldHomeworks);
     });
@@ -328,19 +329,6 @@ function DevoirsScreen({ navigation }) {
       }))
     }
   };
-
-  useEffect(() => {
-    loadCustomHomeworks();
-  }, []);
-
-  // reload custom homeworks when page focus
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      loadCustomHomeworks();
-    });
-
-    return unsubscribe;
-  }, [navigation]);
 
   const handlePageChange = (page) => {
     const newDate = calcDate(todayRef.current, page);

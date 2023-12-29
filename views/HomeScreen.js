@@ -278,6 +278,73 @@ function NewHomeScreen({ navigation }) {
     }
   }, [noInternetAlert, offlineServerAlert]);
 
+  const loadCustomHomeworks = async () => {
+    AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+      let hw = [];
+      if (customHomeworks) {
+        hw = JSON.parse(customHomeworks);
+      }
+      
+      let oldHomeworks = homeworks;
+
+      oldHomeworks.forEach((day) => {
+        day.homeworks.forEach((homework) => {
+          if (homework.custom) {
+            // delete homework
+            const index = oldHomeworks.indexOf(day);
+            oldHomeworks[index].homeworks.splice(oldHomeworks[index].homeworks.indexOf(homework), 1);
+          }
+        });
+      });
+
+      hw.forEach((homework) => {
+        let hwAdded = false;
+        let hwDay = new Date(homework.date);
+        hwDay.setHours(0, 0, 0, 0);
+
+        // if homework is after 5 days, don't show it
+        let today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (hwDay.getTime() > today.getTime() + 5 * 24 * 60 * 60 * 1000) {
+          return;
+        }
+
+        // check if day is in oldHomeworks
+        oldHomeworks.forEach((day) => {
+          oldHwDay = new Date(day.date);
+          oldHwDay.setHours(0, 0, 0, 0);
+
+          if (hwDay.getTime() === oldHwDay.getTime()) {
+            day.homeworks.push(homework);
+            hwAdded = true;
+          }
+        });
+
+        if (!hwAdded) {
+          const formattedDate =
+            hwDay.getDate() === today.getDate() + 1
+              ? 'demain'
+              : new Date(hwDay).toLocaleDateString('fr-FR', {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                });
+
+          oldHomeworks.push({
+            date: hwDay,
+            formattedDate: formattedDate,
+            homeworks: [homework],
+          });
+        }
+      });
+
+      console.log(oldHomeworks);
+
+      setHomeworks(oldHomeworks);
+    });
+  };
+
   const applyLoadedData = (hwData, coursData) => {
     const groupedHomeworks = hwData.reduce((grouped, homework) => {
       const homeworkDate = new Date(homework.date);
@@ -339,6 +406,7 @@ function NewHomeScreen({ navigation }) {
     setLoadingHw(false);
     setTimetable(coursData);
     setLoadingCours(false);
+    loadCustomHomeworks();
 
     sendToSharedGroup(coursData);
   }
@@ -414,6 +482,8 @@ function NewHomeScreen({ navigation }) {
         });
       }
     });
+
+    loadCustomHomeworks();
   }, [refreshCount]);
 
   useFocusEffect(
@@ -485,6 +555,15 @@ function NewHomeScreen({ navigation }) {
       ),
     });
   }, [navigation, timetable, formattedUserData, showsTomorrow, UIColors, themeEnabled, themeColor]);
+
+  // reload custom homeworks when page focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadCustomHomeworks();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   // animations
   const yOffset = new Animated.Value(0);
@@ -1013,7 +1092,7 @@ const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
         },
       ]}
     >
-
+      { homeworks.homeworks.length > 0 ? (<>
       <View
         style={[styles.homeworks.devoirsDay.header.container, UIColors.theme == 'dark' && Platform.OS !== 'ios' ? { backgroundColor: UIColors.text + '22' } : { backgroundColor: UIColors.primary + '22' }]}
       >
@@ -1032,6 +1111,7 @@ const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
           <DevoirsContent key={index} index={index} parentIndex={parentIndex} homework={homework} theme={theme} UIColors={UIColors} navigation={navigation} />
         ))}
       </View>
+      </>) : null }
     </Animated.View>
   );
 }
@@ -1044,6 +1124,31 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
   const checkThis = () => {
     // définir le loading
     setCheckLoading(true);
+
+    if (homework.custom) {
+      AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+        let hw = [];
+        if (customHomeworks) {
+          hw = JSON.parse(customHomeworks);
+        }
+
+        // find the homework
+        for (let i = 0; i < hw.length; i++) {
+          if (hw[i].local_id === homework.local_id) {
+            hw[i].done = !checked;
+          }
+        }
+
+        setChecked(!checked);
+        AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
+
+        setTimeout(() => {
+          setCheckLoading(false);
+        }, 100);
+      });
+
+      return;
+    }
 
     appctx.dataprovider.changeHomeworkState(!checked, homework.date, homework.local_id).then((result) => {
 
@@ -1187,7 +1292,7 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
             <View style={styles.homeworks.devoirsContent.header.container}>
               <View style={styles.homeworks.devoirsContent.header.subject.container}>
                 <View style={[styles.homeworks.devoirsContent.header.subject.color, {backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color)}]} />
-                <Text style={[styles.homeworks.devoirsContent.header.subject.title, { color: UIColors.text }]}>{formatCoursName(homework.subject.name)}</Text>
+                <Text style={[styles.homeworks.devoirsContent.header.subject.title, { color: UIColors.text }]} numberOfLines={1} ellipsizeMode='tail'>{formatCoursName(homework.subject.name)}</Text>
               </View>
             </View>
             { !checked ?
