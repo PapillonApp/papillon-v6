@@ -120,7 +120,7 @@ const AlertBottomSheet = ({ visible = true, title, subtitle, icon, color = "#299
           <View style={[styles.buttons]}>
             { primaryAction &&
               <TouchableOpacity
-                style={[styles.button, {backgroundColor: UIColors.primary}]}
+                style={[styles.button, {backgroundColor: color != "#29975a" ? color : UIColors.primary}]}
                 onPress={() => {
                   primaryAction();
                 }}
