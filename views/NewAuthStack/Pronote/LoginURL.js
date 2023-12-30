@@ -14,6 +14,7 @@ import NativeText from '../../../components/NativeText';
 
 import { Bird, Link2, School, Search } from 'lucide-react-native';
 import PapillonLoading from '../../../components/PapillonLoading';
+import AlertBottomSheet from '../../../interface/AlertBottomSheet';
 
 const LoginURL = ({ route, navigation }) => {
   const UIColors = GetUIColors();
@@ -21,20 +22,14 @@ const LoginURL = ({ route, navigation }) => {
 
   const [currentURL, setCurrentURL] = useState('');
 
+  const [urlAlert, setURLAlert] = useState(false);
+  const [demoAlert, setDemoAlert] = useState(false);
+
   function login() {
     const url = currentURL;
 
     if (url == '' || !url.startsWith('http')) {
-      Alert.alert(
-        'Erreur',
-        'Veuillez entrer une URL Pronote',
-        [
-          {
-            text: 'OK',
-            style: 'cancel'
-          }
-        ]
-      );
+      setURLAlert(true);
       return;
     }
 
@@ -52,34 +47,35 @@ const LoginURL = ({ route, navigation }) => {
   }
 
   function useDemo() {
-    Alert.alert(
-      'Utiliser le compte démo',
-      'Voulez-vous vraiment utiliser le compte démo ?',
-      [
-        {
-          text: 'Annuler',
-          style: 'cancel',
-        },
-        {
-          text: 'Se connecter',
-          isPreferred: true,
-          onPress: () => {
-            const url = 'https://demo.index-education.net/pronote/eleve.html';
-            getENTs(url).then((result) => {
-              const etab = {
-                nomEtab: result.nomEtab,
-                url,
-              };
+    setDemoAlert(true);
+    // Alert.alert(
+    //   'Utiliser le compte démo',
+    //   'Voulez-vous vraiment utiliser le compte démo ?',
+    //   [
+    //     {
+    //       text: 'Annuler',
+    //       style: 'cancel',
+    //     },
+    //     {
+    //       text: 'Se connecter',
+    //       isPreferred: true,
+    //       onPress: () => {
+    //         const url = 'https://demo.index-education.net/pronote/eleve.html';
+    //         getENTs(url).then((result) => {
+    //           const etab = {
+    //             nomEtab: result.nomEtab,
+    //             url,
+    //           };
 
-              navigation.navigate('NGPronoteLogin', {
-                etab,
-                useDemo: true,
-              });
-            });
-          },
-        },
-      ]
-    );
+    //           navigation.navigate('NGPronoteLogin', {
+    //             etab,
+    //             useDemo: true,
+    //           });
+    //         });
+    //       },
+    //     },
+    //   ]
+    // );
   }
 
   return (
@@ -87,6 +83,40 @@ const LoginURL = ({ route, navigation }) => {
       contentInsetAdjustmentBehavior='automatic'
       style={[styles.container, {backgroundColor: UIColors.modalBackground}]}
     >
+
+      <AlertBottomSheet
+        visible={urlAlert}
+        title="Erreur"
+        subtitle="Veuillez entrer une URL Pronote"
+        icon={<Link2 />}
+        cancelAction={() => setURLAlert(false)}
+      />
+
+      <AlertBottomSheet
+        visible={demoAlert}
+        title="Utiliser le compte démo"
+        subtitle="Voulez-vous vraiment utiliser le compte démo ?"
+        icon={<Bird />}
+        cancelButton='Annuler'
+        cancelAction={() => setDemoAlert(false)}
+        primaryButton='Se connecter'
+        primaryAction={() => {
+          const url = 'https://demo.index-education.net/pronote/eleve.html';
+          getENTs(url).then((result) => {
+            const etab = {
+              nomEtab: result.nomEtab,
+              url,
+            };
+
+            navigation.navigate('NGPronoteLogin', {
+              etab,
+              useDemo: true,
+            });
+            setDemoAlert(false);
+          });
+        }}
+      />
+
       <StatusBar
         animated
         barStyle={
