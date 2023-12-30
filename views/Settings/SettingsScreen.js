@@ -17,9 +17,6 @@ import { revokeAsync } from 'expo-auth-session';
 
 import { refreshToken, expireToken } from '../../fetch/AuthStack/LoginFlow';
 
-import ListItem from '../../components/ListItem';
-import PapillonIcon from '../../components/PapillonIcon';
-
 import GetUIColors from '../../utils/GetUIColors';
 import { useAppContext } from '../../utils/AppContext';
 import { SkolengoCache } from '../../fetch/SkolengoData/SkolengoCache';
@@ -32,54 +29,18 @@ import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
+import AlertBottomSheet from '../../interface/AlertBottomSheet';
+
 function SettingsScreen({ navigation }) {
   const UIColors = GetUIColors();
 
   const appctx = useAppContext();
 
+  const [PronoteTokenActionAlert, setPronoteTokenActionAlert] = useState(false);
+  const [DeleteAccountAlert, setDeleteAccountAlert] = useState(false);
+
   function LogOutAction() {
-    Alert.alert('Déconnexion', 'Êtes-vous sûr de vouloir vous déconnecter ?', [
-      {
-        text: 'Annuler',
-        style: 'cancel',
-      },
-      {
-        text: 'Déconnexion',
-        style: 'destructive',
-        onPress: async () => {
-          let server = null;
-          
-          try {
-            AsyncStorage.getItem('credentials').then((result) => {
-              const res = JSON.parse(result || 'null');
-              if (res)
-                AsyncStorage.setItem(
-                  'old_login',
-                  JSON.stringify({ url: res.url })
-                );
-            });
-            AsyncStorage.getItem('custom_server').then((server) => {
-              if (server) {
-                server = JSON.parse(server);
-              }
-            });
-            if (appctx.dataprovider.service === 'Skolengo')
-              appctx.dataprovider.skolengoInstance?.skolengoDisconnect();
-          } catch (e) {
-            /* empty */
-          }
-
-          AsyncStorage.clear().then(() => {
-            if (server) {
-              AsyncStorage.setItem('custom_server', JSON.stringify(server));
-            }
-          });
-
-          appctx.setLoggedIn(false);
-          navigation.popToTop();
-        },
-      },
-    ]);
+    setDeleteAccountAlert(true);
   }
 
   const [tokenLoading, setTokenLoading] = useState(false);
@@ -88,16 +49,7 @@ function SettingsScreen({ navigation }) {
     setTokenLoading(true);
     refreshToken().then(() => {
       setTokenLoading(false);
-      Alert.alert(
-        'Token regénéré',
-        'Le token de votre compte a été regénéré avec succès !',
-        [
-          {
-            text: 'OK',
-            style: 'cancel',
-          },
-        ]
-      );
+      setPronoteTokenActionAlert(true);
     });
   }
 
@@ -221,8 +173,15 @@ function SettingsScreen({ navigation }) {
             <NativeText heading="p2">
               Regénerer le token de votre compte
             </NativeText>
+            
           </NativeItem>
-
+          <AlertBottomSheet
+              visible={PronoteTokenActionAlert}
+              title="Regénerer le token"
+              subtitle="Le token de votre compte a été regénéré avec succès !"
+              icon={<RefreshCw/>}
+              cancelAction={() => setPronoteTokenActionAlert(false)}
+          />
           <NativeItem
             leading={<Trash2 size={24} color={UIColors.text} />}
             chevron
@@ -287,6 +246,48 @@ function SettingsScreen({ navigation }) {
             Se déconnecter de votre compte
           </NativeText>
         </NativeItem>
+        <AlertBottomSheet
+          visible={DeleteAccountAlert}
+          title="Déconnexion"
+          subtitle="Êtes-vous sûr de vouloir vous déconnecter ?"
+          icon={<LogOut size={24}/>}
+          color='#D81313'
+          cancelButton='Annuler'
+          cancelAction={() => setDeleteAccountAlert(false)}
+          primaryButton='Déconnexion'
+          primaryAction={async () => {
+            let server = null;
+            
+            try {
+              AsyncStorage.getItem('credentials').then((result) => {
+                const res = JSON.parse(result || 'null');
+                if (res)
+                  AsyncStorage.setItem(
+                    'old_login',
+                    JSON.stringify({ url: res.url })
+                  );
+              });
+              AsyncStorage.getItem('custom_server').then((server) => {
+                if (server) {
+                  server = JSON.parse(server);
+                }
+              });
+              if (appctx.dataprovider.service === 'Skolengo')
+                appctx.dataprovider.skolengoInstance?.skolengoDisconnect();
+            } catch (e) {
+              /* empty */
+            }
+  
+            AsyncStorage.clear().then(() => {
+              if (server) {
+                AsyncStorage.setItem('custom_server', JSON.stringify(server));
+              }
+            });
+  
+            appctx.setLoggedIn(false);
+            navigation.popToTop();
+          }}
+        />
       </NativeList>
     </ScrollView>
   );
