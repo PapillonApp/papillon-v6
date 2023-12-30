@@ -4,7 +4,6 @@ import {
   View,
   StatusBar,
   Platform,
-  Alert,
   StyleSheet,
 } from 'react-native';
 
@@ -25,6 +24,8 @@ import { SkolengoStatic } from '../../../fetch/SkolengoData/SkolengoLoginFlow';
 import { useAppContext } from '../../../utils/AppContext';
 import { loginSkolengoWorkflow } from '../../../fetch/SkolengoData/SkolengoDatas';
 
+import AlertBottomSheet from '../../../interface/AlertBottomSheet';
+
 function LoginSkolengoSelectSchool({ navigation }) {
   const theme = useTheme();
 
@@ -33,6 +34,7 @@ function LoginSkolengoSelectSchool({ navigation }) {
   /** @type {[import('scolengo-api/types/models/School').School[], import('react').Dispatch<import('react').SetStateAction<import('scolengo-api/types/models/School').School[]>>]} */
   const [EtabList, setEtabList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [localisationPermissionAlert, setLocalisationPermissionAlert] = useState(false);
 
   const appctx = useAppContext();
 
@@ -55,10 +57,7 @@ function LoginSkolengoSelectSchool({ navigation }) {
     const { status } = await Location.requestForegroundPermissionsAsync();
 
     if (status !== 'granted') {
-      Alert.alert(
-        'Erreur',
-        "Vous devez autoriser l'application à accéder à votre position pour utiliser cette fonctionnalité."
-      );
+      setLocalisationPermissionAlert(true);
       return;
     }
 
@@ -75,6 +74,7 @@ function LoginSkolengoSelectSchool({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerTintColor: "#222647",
       headerSearchBarOptions: {
         placeholder: "Entrez le nom d'un lycée",
         cancelButtonText: 'Annuler',
@@ -91,6 +91,16 @@ function LoginSkolengoSelectSchool({ navigation }) {
 
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic" style={{ flex: 1 }}>
+
+      <AlertBottomSheet
+        visible={localisationPermissionAlert}
+        title="Erreur"
+        subtitle="Vous devez autoriser l'application à accéder à votre position pour utiliser cette fonctionnalité."
+        cancelAction={() => setLocalisationPermissionAlert(false)}
+        color='#222647'
+        icon={<Locate />}
+      />
+
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
       ) : (
