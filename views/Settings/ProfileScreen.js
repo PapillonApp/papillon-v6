@@ -40,7 +40,6 @@ import {
   Trash2,
   Contact2,
   Lock,
-  LogOut,
   UserCircle2,
 } from 'lucide-react-native';
 
@@ -55,6 +54,8 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import AlertBottomSheet from '../../interface/AlertBottomSheet';
+
 function ProfileScreen({ route, navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -64,6 +65,8 @@ function ProfileScreen({ route, navigation }) {
   const [profilePicture, setProfilePicture] = React.useState('');
 
   const [shownINE, setShownINE] = React.useState('');
+
+  const [ResetProfilePicAlert, setResetProfilePicAlert] = React.useState(false);
 
   const appctx = useAppContext();
 
@@ -77,40 +80,6 @@ function ProfileScreen({ route, navigation }) {
       }
     });
   }, []);
-
-  function LogOutAction() {
-    Alert.alert('Déconnexion', 'Êtes-vous sûr de vouloir vous déconnecter ?', [
-      {
-        text: 'Annuler',
-        style: 'cancel',
-      },
-      {
-        text: 'Déconnexion',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            AsyncStorage.getItem('credentials').then((result) => {
-              const res = JSON.parse(result || 'null');
-              if (res)
-                AsyncStorage.setItem(
-                  'old_login',
-                  JSON.stringify({ url: res.url })
-                );
-            });
-            if (appctx.dataprovider.service === 'Skolengo')
-              appctx.dataprovider.skolengoInstance?.skolengoDisconnect();
-          } catch (e) {
-            /* empty */
-          }
-
-          AsyncStorage.clear();
-
-          appctx.setLoggedIn(false);
-          navigation.popToTop();
-        },
-      },
-    ]);
-  }
 
   async function getINE() {
     if (shownINE === '') {
@@ -155,19 +124,8 @@ function ProfileScreen({ route, navigation }) {
   }
 
   function ResetProfilePic() {
-    Alert.alert(
-      'Réinitialiser la photo de profil',
-      'Êtes-vous sûr de vouloir réinitialiser la photo de profil ?',
-      [
-        {
-          text: 'Réinitialiser',
-          isPreferred: true,
-          onPress: () => FullResetProfilePic(),
-          style: 'destructive',
-        },
-        { text: 'Annuler', style: 'cancel' },
-      ]
-    );
+    setResetProfilePicAlert(true);
+    return;
   }
 
   function FullResetProfilePic() {
@@ -437,7 +395,7 @@ function ProfileScreen({ route, navigation }) {
         </NativeItem>
 
         <NativeItem
-          leading={<Trash2 size={24} color="#c44b1b" />}
+          leading={<Trash2 size={24} color="#D81313" />}
           onPress={() => ResetProfilePic()}
         >
           <NativeText heading="h4">
@@ -447,6 +405,17 @@ function ProfileScreen({ route, navigation }) {
             Utilise la photo de profil par défaut
           </NativeText>
         </NativeItem>
+        <AlertBottomSheet
+            visible={ResetProfilePicAlert}
+            title="Réinitialiser la photo de profil"
+            subtitle="Êtes-vous sûr de vouloir réinitialiser la photo de profil ?"
+            icon={<Trash2/>}
+            color='#D81313'
+            primaryButton='Réinitialiser'
+            primaryAction={() => FullResetProfilePic()}
+            cancelButton='Annuler'
+            cancelAction={() => setResetProfilePicAlert(false)}
+          />
       </NativeList>
       
     </ScrollView>
