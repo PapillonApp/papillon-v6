@@ -1,17 +1,14 @@
 import * as React from 'react';
 import {
-  View,
   ScrollView,
   StyleSheet,
-  ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { Text } from 'react-native-paper';
 
 import { useState } from 'react';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LogOut, RefreshCw, Server, Trash2 } from 'lucide-react-native';
+import { LogOut, RefreshCw, RotateCw, Server, Trash2 } from 'lucide-react-native';
 import { showMessage } from 'react-native-flash-message';
 import { revokeAsync } from 'expo-auth-session';
 
@@ -37,6 +34,8 @@ function SettingsScreen({ navigation }) {
   const appctx = useAppContext();
 
   const [PronoteTokenActionAlert, setPronoteTokenActionAlert] = useState(false);
+  const [SkolengoCacheClearAlert, setSkolengoCacheClearAlert] = useState(false);
+  const [SkolengoReconnectAlert, setSkolengoReconnectAlert] = useState(false);
   const [DeleteAccountAlert, setDeleteAccountAlert] = useState(false);
 
   function LogOutAction() {
@@ -59,83 +58,13 @@ function SettingsScreen({ navigation }) {
 
   function SkolengoCacheClear() {
     if (appctx.dataprovider.service === 'Skolengo') {
-      Alert.alert(
-        'Vider le cache',
-        'Êtes-vous sûr de vouloir vider le cache ?',
-        [
-          {
-            text: 'Annuler',
-            style: 'cancel',
-          },
-          {
-            text: 'Vider le cache',
-            style: 'destructive',
-            onPress: async () => {
-              SkolengoCache.clearItems().then(() =>
-                showMessage({
-                  message: 'Cache vidé avec succès',
-                  type: 'success',
-                  icon: 'auto',
-                  floating: true,
-                })
-              );
-            },
-          },
-        ]
-      );
+      setSkolengoCacheClearAlert(true);
     }
   }
 
   function SkolengoReconnect() {
     if (appctx.dataprovider.service === 'Skolengo') {
-      Alert.alert(
-        'Reconnecter son compte Skolengo',
-        'Êtes-vous sûr de vouloir reconnecter votre compte Skolengo ?',
-        [
-          {
-            text: 'Annuler',
-            style: 'cancel',
-          },
-          {
-            text: 'Reconnecter',
-            style: 'destructive',
-            onPress: async () => {
-              if (!appctx?.dataprovider?.skolengoInstance) return;
-              if (!appctx?.dataprovider?.skolengoInstance.rtInstance)
-                await appctx?.dataprovider?.init();
-              const validRetry = await loginSkolengoWorkflow(
-                appctx,
-                null,
-                appctx.dataprovider.skolengoInstance.school,
-                appctx.dataprovider.skolengoInstance
-              );
-              if (validRetry === true) {
-                SkolengoCache.clearItems();
-                const discovery = AsyncStorage.getItem(
-                  SkolengoDatas.DISCOVERY_PATH
-                )?.then((_disco) => _disco && JSON.parse(_disco));
-                revokeAsync(
-                  {
-                    ...appctx.dataprovider.skolengoInstance?.rtInstance,
-                    token:
-                      appctx.dataprovider.skolengoInstance?.rtInstance
-                        .accessToken,
-                  },
-                  discovery
-                ).then(() => {
-                  showMessage({
-                    message: 'Compte déconnecté avec succès',
-                    type: 'success',
-                    icon: 'auto',
-                    floating: true,
-                  });
-                  navigation.navigate('login');
-                });
-              }
-            },
-          },
-        ]
-      );
+      setSkolengoReconnectAlert(true);
     }
   }
 
@@ -214,9 +143,29 @@ function SettingsScreen({ navigation }) {
               Supprimer le cache des données de Skolengo
             </NativeText>
           </NativeItem>
-
+          <AlertBottomSheet
+              visible={SkolengoCacheClearAlert}
+              title="Vider le cache"
+              subtitle="Êtes-vous sûr de vouloir vider le cache ?"
+              icon={<Trash2/>}
+              primaryButton='Vider le cache'
+              primaryAction={async () => {
+                SkolengoCache.clearItems().then(() =>
+                showMessage({
+                  message: 'Cache vidé avec succès',
+                  type: 'success',
+                  icon: 'auto',
+                  floating: true,
+                })
+                
+                );
+                console.log('Cache vidé avec succès');
+              }}
+              cancelButton='Annuler'
+              cancelAction={() => setSkolengoCacheClearAlert(false)}
+          />
           <NativeItem
-            leading={<Trash2 size={24} color={UIColors.text} />}
+            leading={<RotateCw size={24} color={UIColors.text} />}
             chevron
             onPress={() => SkolengoReconnect()}
           >
@@ -227,6 +176,51 @@ function SettingsScreen({ navigation }) {
               & regénérer le token
             </NativeText>
           </NativeItem>
+          <AlertBottomSheet
+              visible={SkolengoReconnectAlert}
+              title="Reconnecter son compte Skolengo"
+              subtitle="Êtes-vous sûr de vouloir reconnecter votre compte Skolengo ?"
+              icon={<RotateCw/>}
+              primaryButton='Reconnecter'
+              primaryAction={async () => {
+                if (!appctx?.dataprovider?.skolengoInstance) return;
+                if (!appctx?.dataprovider?.skolengoInstance.rtInstance)
+                  await appctx?.dataprovider?.init();
+                const validRetry = await loginSkolengoWorkflow(
+                  appctx,
+                  null,
+                  appctx.dataprovider.skolengoInstance.school,
+                  appctx.dataprovider.skolengoInstance
+                );
+                if (validRetry === true) {
+                  SkolengoCache.clearItems();
+                  const discovery = AsyncStorage.getItem(
+                    SkolengoDatas.DISCOVERY_PATH
+                  )?.then((_disco) => _disco && JSON.parse(_disco));
+                  revokeAsync(
+                    {
+                      ...appctx.dataprovider.skolengoInstance?.rtInstance,
+                      token:
+                        appctx.dataprovider.skolengoInstance?.rtInstance
+                          .accessToken,
+                    },
+                    discovery
+                  ).then(() => {
+                    showMessage({
+                      message: 'Compte déconnecté avec succès',
+                      type: 'success',
+                      icon: 'auto',
+                      floating: true,
+                    });
+                    navigation.navigate('login');
+                  });
+                }
+                setSkolengoReconnectAlert(false);
+              }}
+              cancelButton='Annuler'
+              cancelAction={() => setSkolengoReconnectAlert(false)}
+          />
+            
         </NativeList>
       )}
 
