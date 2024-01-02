@@ -7,12 +7,9 @@ import {
   StatusBar,
   RefreshControl,
   Platform,
-  ActivityIndicator,
   Dimensions,
   ScrollView,
-  Linking,
   Modal,
-  Button,
   TouchableOpacity,
 } from 'react-native';
 
@@ -27,15 +24,11 @@ import PdfRendererView from 'react-native-pdf-renderer';
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
 
-import { ContextMenuView } from 'react-native-ios-context-menu';
-
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Text, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 
-import { Newspaper, ChefHat, Projector, Users2, AlertTriangle, X, DownloadCloud, PieChart } from 'lucide-react-native';
-import { BarChart4, Link, File } from 'lucide-react-native';
-import ListItem from '../components/ListItem';
+import { Newspaper, ChefHat, Projector, Users2, AlertTriangle, X, PieChart, Link, File } from 'lucide-react-native';
 
 import PapillonLoading from '../components/PapillonLoading';
 
@@ -367,7 +360,7 @@ function NewsScreen({ navigation }) {
       ) : null }
 
       <NativeList inset>
-      {!isLoading && news.length !== 0 && (
+      {!isLoading && news.length !== 0 ? (
           (news.map((item, index) => {
             return (
               <View key={index}>
@@ -429,7 +422,17 @@ function NewsScreen({ navigation }) {
               </View>
             );
           }))
-      )}
+      ): !isLoading && news.length === 0 ? (
+      <PapillonLoading
+        icon={<Newspaper color={UIColors.text} />}
+        title="Aucune actualité"
+        subtitle="Aucune actualité n'a été trouvée"
+      />
+      ): <PapillonLoading
+          title="Chargement des actualités..."
+          subtitle="Obtention des dernières actualités en cours"
+        />
+      }
       </NativeList>
 
     </ScrollView>
