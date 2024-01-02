@@ -21,6 +21,9 @@ import PapillonLoading from '../../components/PapillonLoading';
 
 import formatCoursName from '../../utils/FormatCoursName';
 
+import AlertBottomSheet from '../../interface/AlertBottomSheet';
+import { AlertTriangle } from 'lucide-react-native';
+
 const CreateHomeworkScreen = ({ route, navigation }) => {
   const UIColors = GetUIColors();
   const { date } = route.params;
@@ -30,6 +33,8 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
 
   const [selectedSubject, setSelectedSubject] = useState(0);
   const [nativeSubjects, setNativeSubjects] = useState([]);
+
+  const [titleMissingAlert, setTitleMissingAlert] = useState(false);
 
   const [homeworkTitle, setHomeworkTitle] = useState('');
 
@@ -97,7 +102,7 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
 
   function addHomework() {
     if (homeworkTitle.trim() == "") {
-      Alert.alert("Erreur", "Veuillez entrer un titre pour le devoir.");
+      setTitleMissingAlert(true);
       return;
     }
 
@@ -304,6 +309,15 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
         icon={<SFSymbol color={UIColors.text} name="book" size={26} style={{marginBottom:15}} />}
       />
     </ScrollView>
+    <AlertBottomSheet
+      visible={titleMissingAlert}
+      title="Titre manquant"
+      subtitle="Veuillez entrer un titre pour votre devoir."
+      icon={<AlertTriangle />}
+      cancelAction={() => {
+        setTitleMissingAlert(false);
+      }}
+    />
     </KeyboardAvoidingView>
   );
 };
