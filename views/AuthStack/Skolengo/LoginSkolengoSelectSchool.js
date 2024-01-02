@@ -74,7 +74,6 @@ function LoginSkolengoSelectSchool({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTintColor: "#222647",
       headerSearchBarOptions: {
         placeholder: "Entrez le nom d'un lycée",
         cancelButtonText: 'Annuler',
