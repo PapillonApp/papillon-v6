@@ -325,13 +325,6 @@ function NewsScreen({ navigation }) {
         backgroundColor="transparent"
       />
 
-      {isLoading ? (
-        <PapillonLoading
-          title="Chargement des actualités..."
-          subtitle="Obtention des dernières actualités en cours"
-        />
-      ) : null}
-
       <Modal
         animationType="slide"
         presentationStyle='pageSheet'
