@@ -300,7 +300,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
       >
         <View style={{flex: 1, backgroundColor: '#00000080'}} >
           <Pressable style={{flex: 1}} onPress={() => setSelectSubjectModal(false)} />
-          <View style={{flex: 1, justifyContent: 'center'}}>
+          <View style={{justifyContent: 'center'}}>
             <View style={{backgroundColor: UIColors.background, borderRadius: 14, borderCurve: 'continuous', padding: 0, marginHorizontal: 14, height: 500}}>
               <NativeText heading="p2" style={{color: UIColors.text, paddingTop: 16, paddingHorizontal: 20}}>
                 Sélectionner une matière
