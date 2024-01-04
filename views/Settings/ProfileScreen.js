@@ -226,6 +226,7 @@ function ProfileScreen({ route, navigation }) {
 
   return (
     <View style={[{ backgroundColor: UIColors.modalBackground }]}>
+    { Platform.OS === 'ios' && (
     <View style={styles.profilePictureBgContainer}>
       {profilePicture && profilePicture !== '' && (
         <Image
@@ -242,6 +243,7 @@ function ProfileScreen({ route, navigation }) {
         style={styles.profilePictureGradientOverlay}
       />
     </View>
+    )}
     <ScrollView
       style={[styles.container]}
     >

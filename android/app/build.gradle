@@ -116,7 +116,7 @@ android {
 
     namespace 'plus.pronote.app'
     defaultConfig {
-        applicationId 'plus.pronote.app'
+        applicationId 'plus.pronote.app.dev'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

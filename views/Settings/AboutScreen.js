@@ -241,7 +241,29 @@ function AboutScreen({ navigation }) {
               Voir la liste des donateurs
             </NativeText>
           </NativeItem>
-          { Platform.OS !== 'ios' ? (
+          <NativeItem
+            leading={
+              <PapillonIcon
+                icon={<MessageCircle size={24} color="#565EA3" />}
+                color="#565EA3"
+                size={24}
+                small
+              />
+            }
+            chevron
+            onPress={() => Linking.openURL('https://discord.getpapillon.xyz/')}
+          >
+            <NativeText heading="h4">
+              Serveur Discord
+            </NativeText>
+            <NativeText heading="p2">
+              Rejoindre le serveur de Papillon
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+
+        { Platform.OS !== 'ios' ? (
+          <NativeList>
             <NativeItem
               leading={
                 <PapillonIcon
@@ -264,27 +286,8 @@ function AboutScreen({ navigation }) {
                 Papillon est 100% libre et indépendant & créé par des élèves.
               </NativeText>
             </NativeItem>
-          ) : <View /> }
-          <NativeItem
-            leading={
-              <PapillonIcon
-                icon={<MessageCircle size={24} color="#565EA3" />}
-                color="#565EA3"
-                size={24}
-                small
-              />
-            }
-            chevron
-            onPress={() => Linking.openURL('https://discord.getpapillon.xyz/')}
-          >
-            <NativeText heading="h4">
-              Serveur Discord
-            </NativeText>
-            <NativeText heading="p2">
-              Rejoindre le serveur de Papillon
-            </NativeText>
-          </NativeItem>
-        </NativeList>
+          </NativeList>
+        ) : <View /> }
 
         <NativeList
           inset
