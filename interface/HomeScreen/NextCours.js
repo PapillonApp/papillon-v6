@@ -78,7 +78,7 @@ const NextCours = ({ cours, style, navigation, color = null }) => {
         setCoursStarted(false);
         
         // calculate the time between now and the start
-        diff = new Date(now) - st;
+        diff = st - new Date(now);
         diff = Math.floor(diff / 1000 / 60);
 
         let hours = Math.floor(diff / 60);
