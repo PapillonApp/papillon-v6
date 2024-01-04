@@ -83,6 +83,7 @@ function DevoirsScreen({ navigation }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [calendarDate, setCalendarDate] = useState(today);
   const [homeworks, setHomeworks] = useState({});
+  const [customHomeworks, setCustomHomeworks] = useState({});
   const todayRef = useRef(today);
   const homeworksRef = useRef(homeworks);
 
@@ -272,48 +273,21 @@ function DevoirsScreen({ navigation }) {
       if (customHomeworks) {
         hw = JSON.parse(customHomeworks);
       }
-      
-      let oldHomeworks = homeworks;
+
+      let newCustomHomeworks = {};
 
       for (let i = 0; i < hw.length; i++) {
-        let dt = new Date(hw[i].date).toLocaleDateString();
+        const hwPageDate = calcDate(new Date(hw[i].date), 0);
+        const usedDate = hwPageDate.toLocaleDateString();
 
-        if (oldHomeworks[dt]) {
-          // check if the homework is already in the list
-          for (let j = 0; j < oldHomeworks[dt].length; j++) {
-            if (oldHomeworks[dt][j].local_id === hw[i].local_id) {
-              if (oldHomeworks[dt][j] == hw[i]) {
-                continue;
-              }
-              else {
-                // remove the homework
-                oldHomeworks[dt].splice(j, 1);
-              }
-            }
-          }
+        if (!newCustomHomeworks[usedDate]) {
+          newCustomHomeworks[usedDate] = [];
+        }
 
-          oldHomeworks[dt].push(hw[i]);
-        }
-        else {
-          oldHomeworks[dt] = [hw[i]];
-        }
+        newCustomHomeworks[usedDate].push(hw[i]);
       }
 
-      // compare hw and homeworks to check if there is a homework to remove
-      for (let i = 0; i < hw.length; i++) {
-        let dt = new Date(hw[i].date).toLocaleDateString();
-        if (oldHomeworks[dt]) {
-          for (let j = 0; j < oldHomeworks[dt].length; j++) {
-            // check if there's a homework that is custom and not in hw
-            if (oldHomeworks[dt][j].custom && !hw.includes(oldHomeworks[dt][j])) {
-              // remove the homework
-              oldHomeworks[dt].splice(j, 1);
-            }
-          }
-        }
-      }
-
-      setHomeworks(oldHomeworks);
+      setCustomHomeworks(newCustomHomeworks);
     });
   };
 
@@ -557,6 +531,9 @@ function DevoirsScreen({ navigation }) {
               homeworks={
                 homeworks[calcDate(today, index).toLocaleDateString()] || []
               }
+              customHomeworks={
+                customHomeworks[calcDate(today, index).toLocaleDateString()] || []
+              }
               navigation={navigation}
               theme={theme}
               forceRefresh={forceRefresh}
@@ -580,6 +557,7 @@ function DevoirsScreen({ navigation }) {
 
 function Hwpage({
   homeworks,
+  customHomeworks,
   navigation,
   theme,
   forceRefresh,
@@ -609,7 +587,7 @@ function Hwpage({
         />
       }
     >
-      {homeworks.length === 0 || homeworks == undefined ? (
+      {(homeworks.length === 0 || homeworks == undefined) && customHomeworks.length === 0 ? (
         <PapillonLoading
           icon={<BookOpen size={26} color={UIColors.text} />}
           title="Aucun devoir"
@@ -620,6 +598,15 @@ function Hwpage({
 
       <View>
         {homeworks.map((homework, index) => (
+          <Hwitem
+            homework={homework}
+            navigation={navigation}
+            theme={theme}
+            key={index}
+            openURL={openURL}
+          />
+        ))}
+        {customHomeworks.map((homework, index) => (
           <Hwitem
             homework={homework}
             navigation={navigation}
