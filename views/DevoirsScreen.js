@@ -535,6 +535,7 @@ function DevoirsScreen({ navigation }) {
                 customHomeworks[calcDate(today, index).toLocaleDateString()] || []
               }
               navigation={navigation}
+              today={today}
               theme={theme}
               forceRefresh={forceRefresh}
               openURL={openURL}
@@ -563,6 +564,7 @@ function Hwpage({
   forceRefresh,
   openURL,
   UIColors,
+  today,
 }) {
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
@@ -604,6 +606,8 @@ function Hwpage({
             theme={theme}
             key={index}
             openURL={openURL}
+            today={today}
+            index={index}
           />
         ))}
         {customHomeworks.map((homework, index) => (
@@ -613,6 +617,8 @@ function Hwpage({
             theme={theme}
             key={index}
             openURL={openURL}
+            today={today}
+            index={index}
           />
         ))}
       </View>
@@ -646,7 +652,7 @@ function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
   );
 }
 
-function Hwitem({ homework, theme, openURL, navigation }) {
+function Hwitem({ homework, theme, openURL, navigation, today, index }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
   const [thisHwLoading, setThisHwLoading] = useState(false);
 
@@ -754,71 +760,117 @@ function Hwitem({ homework, theme, openURL, navigation }) {
 
   const UIColors = GetUIColors();
 
+  // animation
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(0)).current;
+
+  // animate modal when visible changes
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.spring(translateY, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scale, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      })
+    ]).start();
+  }, []);
+
   if (!homework) return;
   return (
-    <NativeList
-      inset
-      style={
-        Platform.OS === 'ios' && {
-        marginBottom: -20,
-      }}
+    <Animated.View
+      style={[{
+        opacity,
+        transform: [
+          {
+            translateY: translateY.interpolate({
+              inputRange: [0, 1],
+              outputRange: [20, 0],
+            }),
+          },
+          {
+            scale: scale.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0.8, 1],
+            }),
+          },
+        ],
+      }]}
     >
-      <NativeItem
-        leading={
-          <HwCheckbox
-              checked={thisHwChecked}
-              theme={theme}
-              UIColors={UIColors}
-              loading={thisHwLoading}
-              pressed={() => {
-                setThisHwLoading(true);
-                changeHwState();
-              }}
-          />
-        }
-        onPress={() => {
-          navigation.navigate('Devoir', { homework: {
-            ...homework,
-            done: thisHwChecked,
-          } });
+      <NativeList
+        inset
+        style={
+          Platform.OS === 'ios' && {
+          marginBottom: -20,
         }}
       >
-        <View style={[styles.hwItemHeader]}>
-          <View
-            style={[
-              styles.hwItemColor,
-              { backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color) },
-            ]}
-          />
-          <NativeText numberOfLines={1} heading="subtitle1" style={{fontSize: 14, paddingRight: 10}}>
-            {homework.subject.name.toUpperCase()}
-          </NativeText>
-        </View>
-        <NativeText>
-          {homework.description.replace('\n', ' ')}
-        </NativeText>
-      </NativeItem>
-
-      {homework.files.map((file, index) => (
         <NativeItem
-          key={index}
           leading={
-            <File size={20} color={UIColors.text} style={{marginHorizontal: 3}} />
+            <HwCheckbox
+                checked={thisHwChecked}
+                theme={theme}
+                UIColors={UIColors}
+                loading={thisHwLoading}
+                pressed={() => {
+                  setThisHwLoading(true);
+                  changeHwState();
+                }}
+            />
           }
           onPress={() => {
-            openURL(file.url);
+            navigation.navigate('Devoir', { homework: {
+              ...homework,
+              done: thisHwChecked,
+            } });
           }}
-          chevron
         >
-          <NativeText heading="h4">
-            {file.name}
-          </NativeText>
-          <NativeText heading="p2" numberOfLines={1}>
-            {file.url}
+          <View style={[styles.hwItemHeader]}>
+            <View
+              style={[
+                styles.hwItemColor,
+                { backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color) },
+              ]}
+            />
+            <NativeText numberOfLines={1} heading="subtitle1" style={{fontSize: 14, paddingRight: 10}}>
+              {homework.subject.name.toUpperCase()}
+            </NativeText>
+          </View>
+          <NativeText>
+            {homework.description.replace('\n', ' ')}
           </NativeText>
         </NativeItem>
-      ))}
-    </NativeList>
+
+        {homework.files.map((file, index) => (
+          <NativeItem
+            key={index}
+            leading={
+              <File size={20} color={UIColors.text} style={{marginHorizontal: 3}} />
+            }
+            onPress={() => {
+              openURL(file.url);
+            }}
+            chevron
+          >
+            <NativeText heading="h4">
+              {file.name}
+            </NativeText>
+            <NativeText heading="p2" numberOfLines={1}>
+              {file.url}
+            </NativeText>
+          </NativeItem>
+        ))}
+      </NativeList>
+    </Animated.View>
   )
 }
 
