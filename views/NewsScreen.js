@@ -201,6 +201,7 @@ function NewsScreen({ navigation }) {
       headerSearchBarOptions: {
         placeholder: 'Rechercher une actualité',
         cancelButtonText: 'Annuler',
+        tintColor: "#B42828",
         onChangeText: (event) => {
           const text = event.nativeEvent.text.trim();
     
