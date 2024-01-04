@@ -29,6 +29,8 @@ import NativeText from '../../components/NativeText';
 import formatCoursName from '../../utils/FormatCoursName';
 import { useAppContext } from '../../utils/AppContext';
 
+import AlertBottomSheet from '../../interface/AlertBottomSheet';
+
 function HomeworkScreen({ route, navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -36,6 +38,8 @@ function HomeworkScreen({ route, navigation }) {
   const { homework } = route.params;
   const [thisHwChecked, setThisHwChecked] = React.useState(homework.done);
   const [thisHwLoading, setThisHwLoading] = React.useState(false);
+
+  const [deleteCustomHomeworkAlert, setDeleteCustomHomeworkAlert] = React.useState(false);
 
   console.log(homework);
 
@@ -75,21 +79,7 @@ function HomeworkScreen({ route, navigation }) {
         <TouchableOpacity
           style={[styles.deleteHw]}
           onPress={() => {
-            Alert.alert(
-              "Supprimer le devoir",
-              "Êtes-vous sûr de vouloir supprimer ce devoir ?",
-              [
-                {
-                  text: "Annuler",
-                  style: "cancel"
-                },
-                { 
-                  text: "Supprimer",
-                  onPress: () => deleteCustomHomework(),
-                  style: "destructive"
-                }
-              ]
-            );
+            setDeleteCustomHomeworkAlert(true);
           }}
         >
           <Trash size={20} color={"#eb4034"} />
@@ -309,6 +299,18 @@ function HomeworkScreen({ route, navigation }) {
           })}
         </NativeList>
       ) : null }
+
+      <AlertBottomSheet
+        visible={deleteCustomHomeworkAlert}
+        title="Supprimer le devoir"
+        subtitle="Êtes-vous sûr de vouloir supprimer ce devoir ?"
+        primaryButton='Supprimer'
+        primaryAction={() => {deleteCustomHomework(); setDeleteCustomHomeworkAlert(false)}}
+        cancelButton='Annuler'
+        cancelAction={() => setDeleteCustomHomeworkAlert(false)}
+        color='#D81313'
+        icon={<Trash size={24} />}
+      />
 
     </ScrollView>
   );

@@ -30,6 +30,8 @@ import PapillonButton from '../../../components/PapillonButton';
 import GetUIColors from '../../../utils/GetUIColors';
 import { useAppContext } from '../../../utils/AppContext';
 
+import AlertAnimated from '../../../interface/AlertAnimated';
+
 const entities = require('entities');
 
 function LoginPronote({ route, navigation }) {
@@ -45,6 +47,9 @@ function LoginPronote({ route, navigation }) {
   const [useEduconnect, setUseEduconnect] = React.useState(false);
 
   const [isENTUsed, setIsENTUsed] = React.useState(false);
+
+  const [errorAlert, setErrorAlert] = React.useState(false);
+
   const onToggleSwitch = () => setIsENTUsed(!isENTUsed);
 
   React.useLayoutEffect(() => {
@@ -177,6 +182,7 @@ function LoginPronote({ route, navigation }) {
           else errorMessage = "Une erreur s'est produite (" + result.error + ")"
         }
         else errorMessage = "Une erreur indéterminée s'est produite."
+
         Alert.alert(
           'Échec de la connexion',
           errorMessage,

@@ -12,12 +12,14 @@ import {
 } from 'react-native';
 
 import { Text, useTheme } from 'react-native-paper';
-import { Server } from 'lucide-react-native';
+import { Server, ServerOff } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GetUIColors from '../../utils/GetUIColors';
 
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
+
+import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
 function ChangeServer() {
   const theme = useTheme();
@@ -25,6 +27,8 @@ function ChangeServer() {
 
   const [textInputValue, setTextInputValue] = React.useState('');
   const [currentServer, setCurrentServer] = React.useState();
+
+  const [urlBadSeverAlert, setBadUrlSeverAlert] = React.useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem('custom_server').then((server) => {
@@ -111,17 +115,7 @@ function ChangeServer() {
 
   function confirmURLCustom() {
     if (!isValidURL(textInputValue.trim())) {
-      Alert.alert(
-        'URL invalide',
-        'Entrez une URL valide accessible depuis votre appareil',
-        [
-          {
-            text: 'OK',
-            style: 'cancel',
-          },
-        ]
-      );
-
+      setBadUrlSeverAlert(true);
       return;
     }
 
@@ -159,6 +153,7 @@ function ChangeServer() {
         style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
         contentInsetAdjustmentBehavior="automatic"
       >
+
         {Platform.OS === 'ios' ? (
           <StatusBar animated barStyle="light-content" />
         ) : (
@@ -242,6 +237,15 @@ function ChangeServer() {
               color={UIColors.primary}
               onPress={() => confirmURLCustom()}
             />
+
+            <AlertBottomSheet
+              visible={urlBadSeverAlert}
+              title="URL invalide"
+              subtitle="Entrez une URL valide accessible depuis votre appareil"
+              cancelAction={() => setBadUrlSeverAlert(false)}
+              icon={<ServerOff />}
+            />
+
           </View>
         </View>
 

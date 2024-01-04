@@ -234,7 +234,9 @@ const PaymentScreen = ({ navigation }) => {
       </NativeText>
 
       { !loading ? (
-      <NativeList header="Pourboire unique">
+      <NativeList 
+        inset
+        header="Pourboire unique">
         {products.map((product) => (
           <NativeItem
             key={product.productId}
@@ -265,7 +267,10 @@ const PaymentScreen = ({ navigation }) => {
         ))}
       </NativeList>
       ) : (
-        <NativeList>
+        <NativeList 
+        inset
+        header="Pourboire unique"
+        >
           <NativeItem
             leading={
               <ActivityIndicator />
