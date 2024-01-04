@@ -77,6 +77,7 @@ function DevoirsScreen({ navigation }) {
   const theme = useTheme();
   const pagerRef = useRef(null);
   const insets = useSafeAreaInsets();
+  const UIColors = GetUIColors();
 
   const [today, setToday] = useState(new Date());
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -355,8 +356,6 @@ function DevoirsScreen({ navigation }) {
     todayRef.current = today;
     homeworksRef.current = homeworks;
   }, [today, homeworks]);
-
-  const UIColors = GetUIColors();
 
   return (
     <View
