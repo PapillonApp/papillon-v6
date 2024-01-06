@@ -112,6 +112,8 @@ function NewHomeScreen({ navigation }) {
     avatarURL: '',
   });
   const [homeworks, setHomeworks] = useState([]);
+  const [customHomeworks, setCustomHomeworks] = useState([]);
+  const [homeworksDays, setHomeworksDays] = useState([]);
   const [loadingHw, setLoadingHw] = useState(true);
   const [timetable, setTimetable] = useState([]);
   const [loadingCours, setLoadingCours] = useState(true);
@@ -278,24 +280,76 @@ function NewHomeScreen({ navigation }) {
     }
   }, [noInternetAlert, offlineServerAlert]);
 
+  const loadCustomHomeworks = async () => {
+    AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+      let hw = [];
+      if (customHomeworks) {
+        hw = JSON.parse(customHomeworks);
+      }
+
+      // for each homework
+      hw.forEach((homework) => {
+        let hwDate = new Date(homework.date);
+        hwDate.setHours(0, 0, 0, 0);
+
+        setHomeworksDays((prevDays) => {
+          let newDays = prevDays;
+
+          // check if day already exists
+          if (newDays.find((day) => day.date === hwDate.getTime())) {
+          }
+          else {
+            newDays.push({
+              date: hwDate.getTime(),
+              custom: true,
+            });
+          }
+
+          return newDays;
+        });
+      });
+      
+      setCustomHomeworks(hw);
+    });
+  };
+
   const applyLoadedData = (hwData, coursData) => {
     const groupedHomeworks = hwData.reduce((grouped, homework) => {
       const homeworkDate = new Date(homework.date);
       homeworkDate.setHours(0, 0, 0, 0);
 
+      setHomeworksDays((prevDays) => {
+        let newDays = prevDays;
+
+        // check if day already exists
+        if (newDays.find((day) => day.date === homeworkDate.getTime())) {
+        }
+        else {
+          newDays.push({
+            date: homeworkDate.getTime(),
+            custom: false,
+          });
+        }
+
+        return newDays;
+      });
+
       const formattedDate =
-        homeworkDate.getDate() === today.getDate() + 1
-          ? 'demain'
-          : new Date(homeworkDate).toLocaleDateString('fr-FR', {
-              weekday: 'long',
-              day: 'numeric',
-              month: 'long',
-            });
+      homeworkDate.getDate() === today.getDate() + 1
+        ? 'demain'
+        : new Date(homeworkDate).toLocaleDateString('fr-FR', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+          });
+
+      const formattedTime = homeworkDate.getTime();
 
       if (!grouped[formattedDate]) {
         grouped[formattedDate] = {
           date: homeworkDate,
           formattedDate: formattedDate,
+          time: formattedTime,
           homeworks: [],
         };
       }
@@ -312,24 +366,6 @@ function NewHomeScreen({ navigation }) {
         return hwDate.getDate() === tomorrow.getDate();
       });
 
-      // count undone homeworks
-      let undoneTomorrowHomeworks = tomorrowHomeworks.filter((hw) => !hw.done);
-
-      AsyncStorage.getItem('badgesStorage').then((value) => {
-        let currentSyncBadges = JSON.parse(value);
-
-        if (currentSyncBadges === null) {
-          currentSyncBadges = {
-            homeworks: 0,
-          };
-        }
-
-        let newBadges = currentSyncBadges;
-        newBadges.homeworks = undoneTomorrowHomeworks.length;
-
-        AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
-      });
-
       grouped[formattedDate].homeworks.push(homework);
       return grouped;
     }, {});
@@ -339,6 +375,7 @@ function NewHomeScreen({ navigation }) {
     setLoadingHw(false);
     setTimetable(coursData);
     setLoadingCours(false);
+    loadCustomHomeworks();
 
     sendToSharedGroup(coursData);
   }
@@ -414,6 +451,8 @@ function NewHomeScreen({ navigation }) {
         });
       }
     });
+
+    loadCustomHomeworks();
   }, [refreshCount]);
 
   useFocusEffect(
@@ -485,6 +524,15 @@ function NewHomeScreen({ navigation }) {
       ),
     });
   }, [navigation, timetable, formattedUserData, showsTomorrow, UIColors, themeEnabled, themeColor]);
+
+  // reload custom homeworks when page focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadCustomHomeworks();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   // animations
   const yOffset = new Animated.Value(0);
@@ -596,6 +644,8 @@ function NewHomeScreen({ navigation }) {
               backgroundColor: themeColor,
               top: -300 - insets.top,
               transform: [{ translateY: bannerTranslate }],
+              borderBottomColor: UIColors.dark ? UIColors.text + '30' : UIColors.text + '35',
+              borderBottomWidth: 0.5,
             }
           ]}
         >
@@ -717,6 +767,8 @@ function NewHomeScreen({ navigation }) {
       
       <DevoirsElement
         homeworks={homeworks}
+        customHomeworks={customHomeworks}
+        homeworksDays={homeworksDays}
         theme={theme}
         UIColors={UIColors}
         navigation={navigation}
@@ -944,13 +996,38 @@ function CoursItem ({ cours, day, theme, UIColors, navigation, index }) {
   );
 }
 
-function DevoirsElement ({ homeworks, theme, UIColors, navigation, loading }) {
+function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, theme, UIColors, navigation, loading }) {
   return (
     !loading ? (
       homeworks.length > 0 ? (
         <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
-          {homeworks.map((day, index) => (
-            <DevoirsDay key={index} index={index} homeworks={day} theme={theme} UIColors={UIColors} navigation={navigation} />
+          {homeworksDays.map((day, index) => (
+            <DevoirsDay
+              key={index}
+              index={index}
+              homeworks={
+                !day.custom ?
+                  homeworks.find((hw) => hw.time === day.date)
+                : {
+                  formattedDate: new Date(day.date).toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                  }),
+                  date : day.date,
+                  homeworks: [],
+                }
+              }
+              theme={theme}
+              UIColors={UIColors}
+              navigation={navigation}
+              customHomeworks={customHomeworks.filter((hw) => {
+                let hwDate = new Date(hw.date);
+                hwDate.setHours(0, 0, 0, 0);
+
+                return hwDate.getTime() === day.date;
+              })}
+            />
           ))}
         </PapillonList>
       ) : (
@@ -971,7 +1048,7 @@ function DevoirsElement ({ homeworks, theme, UIColors, navigation, loading }) {
   );
 }
 
-const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
+const DevoirsDay = ({ homeworks, customHomeworks, theme, UIColors, navigation, index }) => {
   // sort homeworks by index
   homeworks.homeworks.sort((a, b) => a.index - b.index);
 
@@ -1013,7 +1090,7 @@ const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
         },
       ]}
     >
-
+      { homeworks.homeworks.length > 0 || customHomeworks.length > 0 ? (<>
       <View
         style={[styles.homeworks.devoirsDay.header.container, UIColors.theme == 'dark' && Platform.OS !== 'ios' ? { backgroundColor: UIColors.text + '22' } : { backgroundColor: UIColors.primary + '22' }]}
       >
@@ -1031,7 +1108,12 @@ const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
         { homeworks.homeworks.map((homework, index) => (
           <DevoirsContent key={index} index={index} parentIndex={parentIndex} homework={homework} theme={theme} UIColors={UIColors} navigation={navigation} />
         ))}
+
+        { customHomeworks.map((homework, index) => (
+          <DevoirsContent key={index} index={index} parentIndex={parentIndex} homework={homework} theme={theme} UIColors={UIColors} navigation={navigation} />
+        ))}
       </View>
+      </>) : null }
     </Animated.View>
   );
 }
@@ -1044,6 +1126,31 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
   const checkThis = () => {
     // définir le loading
     setCheckLoading(true);
+
+    if (homework.custom) {
+      AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+        let hw = [];
+        if (customHomeworks) {
+          hw = JSON.parse(customHomeworks);
+        }
+
+        // find the homework
+        for (let i = 0; i < hw.length; i++) {
+          if (hw[i].local_id === homework.local_id) {
+            hw[i].done = !checked;
+          }
+        }
+
+        setChecked(!checked);
+        AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
+
+        setTimeout(() => {
+          setCheckLoading(false);
+        }, 100);
+      });
+
+      return;
+    }
 
     appctx.dataprovider.changeHomeworkState(!checked, homework.date, homework.local_id).then((result) => {
 
@@ -1187,7 +1294,7 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
             <View style={styles.homeworks.devoirsContent.header.container}>
               <View style={styles.homeworks.devoirsContent.header.subject.container}>
                 <View style={[styles.homeworks.devoirsContent.header.subject.color, {backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color)}]} />
-                <Text style={[styles.homeworks.devoirsContent.header.subject.title, { color: UIColors.text }]}>{formatCoursName(homework.subject.name)}</Text>
+                <Text style={[styles.homeworks.devoirsContent.header.subject.title, { color: UIColors.text }]} numberOfLines={1} ellipsizeMode='tail'>{formatCoursName(homework.subject.name)}</Text>
               </View>
             </View>
             { !checked ?

@@ -28,7 +28,7 @@ import NativeText from '../../components/NativeText';
 import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
 
-import { PieChart, Link, File, X, DownloadCloud, MoreHorizontal, MoreVertical } from 'lucide-react-native';
+import { PieChart, Link, File, X, DownloadCloud, MoreHorizontal, MoreVertical, ChevronLeft } from 'lucide-react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import ListItem from '../../components/ListItem';
 import GetUIColors from '../../utils/GetUIColors';
@@ -79,13 +79,29 @@ function NewsItem({ route, navigation }) {
     navigation.setOptions({
       headerTintColor: Platform.OS === 'ios' && '#B42828',
       headerBackTitleVisible: false,
-      headerTitle: Platform.OS === 'ios' ? () => (
-        <PapillonInsetHeader
-          title={news.title}
-          color="#B42828"
-          inset
-        />
-      ) : news.title,
+      headerTitle: news.title,
+      headerTitleStyle: {
+        color: UIColors.text,
+        fontFamily: 'Papillon-Semibold',
+      },
+      headerLeft : () => (
+        <TouchableOpacity
+          style={{
+            backgroundColor: '#B4282800',
+            borderRadius: 100,
+            width: 32,
+            height: 32,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginLeft: -12,
+          }}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <ChevronLeft size={32} color={'#B42828'} />
+        </TouchableOpacity>
+      ),
       headerRight: () => (
           <ContextMenuButton
             isMenuPrimaryAction={true}

@@ -66,6 +66,8 @@ function GradesScreen({ navigation }) {
   const [allGrades, setAllGrades] = useState([]);
 
   const [moyReeleAlert, setMoyReeleAlert] = useState(false);
+  const [moyClasseBasseAlert, setClasseBasseAlert] = useState(false);
+  const [moyClasseHauteAlert, setClasseHauteAlert] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isHeadLoading, setHeadLoading] = useState(false);
@@ -1024,24 +1026,23 @@ Il s'agit uniquement d'une estimation qui variera en fonction de vos options, la
             }
             trailing={
               <TouchableOpacity
-                onPress={() => Alert.alert(
-                  'Moyenne la plus faible',
-                  `La moyenne la plus faible est calculée en prenant la moyenne la plus basse de chaque matière.
-
-Il s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`,
-                  [
-                    {
-                      text: 'Compris !',
-                      style: 'cancel',
-                    },
-                  ],
-                  { cancelable: true }
-                )}
+                onPress={() => setClasseBasseAlert(true)}
               >
                 <Info color={UIColors.text + '22'} />
               </TouchableOpacity>
             }
           >
+            <AlertBottomSheet
+              title={'Moyenne la plus faible'}
+              subtitle={`La moyenne la plus faible est calculée en prenant la moyenne la plus basse de chaque matière.\n\nIl s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`}
+              icon={<TrendingDown width={28} height={28} stroke="#29947a" />}
+              color='#29947a'
+              visible={moyClasseBasseAlert}
+              cancelButton='Compris !'
+              cancelAction={() => {
+                setClasseBasseAlert(false);
+              }}
+            />
             <Text style={[styles.averageText]}>Moy. la plus faible</Text>
             <View style={[styles.averageValueContainer]}>
               <Text style={[styles.averageValue]}>
@@ -1058,24 +1059,23 @@ Il s'agit uniquement d'une estimation qui variera en fonction de vos options, la
             }
             trailing={
               <TouchableOpacity
-                onPress={() => Alert.alert(
-                  'Moyenne la plus élevée',
-                  `La moyenne la plus élevée est calculée en prenant la moyenne la plus élevée de chaque matière.
-
-Il s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`,
-                  [
-                    {
-                      text: 'Compris !',
-                      style: 'cancel',
-                    },
-                  ],
-                  { cancelable: true }
-                )}
+                onPress={() => setClasseHauteAlert(true)}
               >
                 <Info color={UIColors.text + '22'} />
               </TouchableOpacity>
             }
           >
+            <AlertBottomSheet
+              title={'Moyenne la plus élevée'}
+              subtitle={`La moyenne la plus élevée est calculée en prenant la moyenne la plus élevée de chaque matière.\n\nIl s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`}
+              icon={<TrendingUp width={28} height={28} stroke="#29947a" />}
+              color='#29947a'
+              visible={moyClasseHauteAlert}
+              cancelButton='Compris !'
+              cancelAction={() => {
+                setClasseHauteAlert(false);
+              }}
+            />
             <Text style={[styles.averageText]}>Moy. la plus élevée</Text>
             <View style={[styles.averageValueContainer]}>
               <Text style={[styles.averageValue]}>

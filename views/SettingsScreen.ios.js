@@ -37,10 +37,7 @@ function NewSettings({navigation}) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: 'Préférences',
-      headerStyle: {
-        backgroundColor: UIColors.modalBackground,
-      },
-      headerShadowVisible: false,
+      headerTransparent: false,
     });
   });
 
@@ -67,9 +64,9 @@ function NewSettings({navigation}) {
       >
         { userData && userData.name ? (
           <NativeItem
-            style={
-              styles.profile.container
-            }
+            style={[
+              styles.profile.container,
+            ]}
             leading={
               profilePicture  ?
               <Image
@@ -98,6 +95,9 @@ function NewSettings({navigation}) {
       <NativeList
         inset
         sideBar
+        style={{
+          marginTop: -14,
+        }}
       >
         <NativeItem
           leading={
@@ -122,10 +122,10 @@ function NewSettings({navigation}) {
           onPress={() => navigation.navigate('Adjustments')}
         >
           <NativeText heading="h4">
-            Ajustements
+            Ajustements & thèmes
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Personnalisation de l'interface
+            Personnalisation de l'interface, bandeaux et navigation
           </NativeText>
         </NativeItem>
         <NativeItem
@@ -154,7 +154,7 @@ function NewSettings({navigation}) {
             Réglages
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Comptes et serveurs
+            Connexion a votre compte et au serveur
           </NativeText>
         </NativeItem>
       </NativeList>
@@ -162,6 +162,9 @@ function NewSettings({navigation}) {
       <NativeList
         inset
         sideBar
+        style={{
+          marginTop: -14,
+        }}
       >
         <NativeItem
           leading={
@@ -186,7 +189,7 @@ function NewSettings({navigation}) {
           onPress={() => navigation.navigate('CoursColor')}
         >
           <NativeText heading="h4">
-            Couleurs des matières
+            Gestion des matières
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
             Personnaliser les matières
@@ -226,6 +229,9 @@ function NewSettings({navigation}) {
       <NativeList
         inset
         sideBar
+        style={{
+          marginTop: -14,
+        }}
       >
         <NativeItem
           leading={
@@ -295,9 +301,10 @@ const styles = StyleSheet.create({
       paddingVertical: 5,
     },
     pic: {
-      width: 48,
-      height: 48,
+      width: 42,
+      height: 42,
       borderRadius: 50,
+      marginVertical: 9,
     },
     textContainer: {
       gap: 2,

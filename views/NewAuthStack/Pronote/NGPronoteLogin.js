@@ -29,15 +29,17 @@ import { UserCircle, KeyRound, AlertTriangle } from 'lucide-react-native';
 import { expireToken, getENTs, getInfo, getToken, refreshToken } from '../../../fetch/AuthStack/LoginFlow';
 
 import PapillonButton from '../../../components/PapillonButton';
-import GetUIColors from '../../../utils/GetUIColors';
-import { useAppContext } from '../../../utils/AppContext';
-
 import NativeList from '../../../components/NativeList';
 import NativeItem from '../../../components/NativeItem';
 import NativeText from '../../../components/NativeText';
 
+import AlertBottomSheet from '../../../interface/AlertBottomSheet';
+
+import GetUIColors from '../../../utils/GetUIColors';
+import { useAppContext } from '../../../utils/AppContext';
+
 import SegmentedControl from "react-native-segmented-control-2";
-import { width } from 'deprecated-react-native-prop-types/DeprecatedImagePropType';
+
 
 const entities = require('entities');
 
@@ -52,6 +54,8 @@ function NGPronoteLogin({ route, navigation }) {
 
   // eslint-disable-next-line no-unused-vars
   const [useEduconnect, setUseEduconnect] = React.useState(false);
+
+  const [errorAlert, setErrorAlert] = useState(false);
 
   const [isENTUsed, setIsENTUsed] = React.useState(false);
   const onToggleSwitch = () => setIsENTUsed(!isENTUsed);
@@ -181,16 +185,7 @@ function NGPronoteLogin({ route, navigation }) {
       const token = result.token;
 
       if (!token) {
-        Alert.alert(
-          'Échec de la connexion',
-          'Vérifiez vos identifiants et réessayez.',
-          [
-            {
-              text: 'OK',
-              style: 'cancel',
-            },
-          ]
-        );
+        setErrorAlert(true);
       } else {
         AsyncStorage.setItem('token', token);
         AsyncStorage.setItem('credentials', JSON.stringify(credentials));
@@ -222,6 +217,7 @@ function NGPronoteLogin({ route, navigation }) {
   const UIColors = GetUIColors();
 
   return (
+    
     <>
     <LinearGradient
       colors={[UIColors.modalBackground, UIColors.modalBackground + '00']}
@@ -238,6 +234,15 @@ function NGPronoteLogin({ route, navigation }) {
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
     >
+
+        <AlertBottomSheet
+          title="Échec de la connexion"
+          subtitle="Vérifiez vos identifiants et réessayez."
+          visible={errorAlert}
+          icon={<AlertTriangle/>}
+          cancelAction={() => setErrorAlert(false)}
+        />
+
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
       ) : (

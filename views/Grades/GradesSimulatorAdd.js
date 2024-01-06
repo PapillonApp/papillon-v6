@@ -11,11 +11,13 @@ import { useAppContext } from '../../utils/AppContext';
 
 import GetUIColors from '../../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Plus, PlusCircle } from 'lucide-react-native';
+import { AlertTriangle } from 'lucide-react-native';
 
 import { getSavedCourseColor } from '../../utils/ColorCoursName';
 import PapillonButton from '../../components/PapillonButton';
 import { randomUUID } from 'expo-crypto';
+
+import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -38,6 +40,8 @@ const GradesSimulatorAdd = ({ navigation }) => {
   const [coefficient, setCoefficient] = useState('1,00');
 
   const [selectSubjectModal, setSelectSubjectModal] = useState(false);
+
+  const [fieldsAlert, setFieldsAlert] = useState(false);
 
   useEffect(() => {
     appctx.dataprovider.getGrades('', false).then((grades) => {
@@ -90,13 +94,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
 
     // check if all fields are filled
     if (student === '' || out_of === '' || coefficient === '') {
-      Alert.alert(
-        "Erreur",
-        "Veuillez remplir tous les champs",
-        [
-          { text: "OK" }
-        ]
-      );
+      setFieldsAlert(true);
       return;
     }
 
@@ -138,6 +136,16 @@ const GradesSimulatorAdd = ({ navigation }) => {
       contentInsetAdjustmentBehavior='automatic'
       style={{ backgroundColor: UIColors.modalBackground }}
     >
+
+      <AlertBottomSheet
+        visible={fieldsAlert}
+        title="Valeur.s manquante.s"
+        subtitle="Veuillez remplir tous les champs."
+        color="#D81313"
+        icon={<AlertTriangle />}
+        cancelAction={() => setFieldsAlert(false)}
+      />
+
       { Platform.OS === 'ios' ? <StatusBar barStyle='light-content' /> : <StatusBar barStyle={theme.dark ? 'light-content' : 'dark-content'} /> }
 
       <NativeList
@@ -292,7 +300,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
       >
         <View style={{flex: 1, backgroundColor: '#00000080'}} >
           <Pressable style={{flex: 1}} onPress={() => setSelectSubjectModal(false)} />
-          <View style={{flex: 1, justifyContent: 'center'}}>
+          <View style={{justifyContent: 'center'}}>
             <View style={{backgroundColor: UIColors.background, borderRadius: 14, borderCurve: 'continuous', padding: 0, marginHorizontal: 14, height: 500}}>
               <NativeText heading="p2" style={{color: UIColors.text, paddingTop: 16, paddingHorizontal: 20}}>
                 Sélectionner une matière

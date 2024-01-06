@@ -52,6 +52,7 @@ import ChangelogScreen from './views/ChangelogScreen';
 
 import SettingsScreen from './views/SettingsScreen';
 import AboutScreen from './views/Settings/AboutScreen';
+import DonorsScreen from './views/Settings/DonorsScreen';
 import ProfileScreen from './views/Settings/ProfileScreen';
 import OfficialServer from './views/Settings/OfficialServer';
 import AppearanceScreen from './views/Settings/AppearanceScreen';
@@ -333,7 +334,7 @@ function InsetSettings() {
         name="CoursColor"
         component={CoursColor}
         options={{
-          headerTitle: 'Couleur des matières',
+          headerTitle: 'Gestion des matières',
           headerBackTitle: 'Retour',
         }}
       />
@@ -366,6 +367,14 @@ function InsetSettings() {
         options={{
           headerTitle: 'A propos de Papillon',
           headerBackTitle: 'Préférences',
+        }}
+      />
+      <Stack.Screen
+        name="Donors"
+        component={DonorsScreen}
+        options={{
+          headerTitle: 'Donateurs',
+          headerBackTitle: 'A propos',
         }}
       />
       <Stack.Screen

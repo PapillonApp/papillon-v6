@@ -147,7 +147,48 @@ const AdjustmentsScreen = ({ navigation }) => {
           backgroundColor: UIColors.primary + '22',
         }}
       />
-      
+
+      <NativeList header="Thèmes" inset>
+        <NativeItem
+          leading={
+            <Palette color={UIColors.text} />
+          }
+          trailing={
+            <Switch
+              style={{marginLeft:8}}
+              value={currentSettings.homeThemesEnabled}
+              onValueChange={(value) => updateSetting('homeThemesEnabled', value, false)}
+            />
+          }
+        >
+          <NativeText heading="h4">
+            Thèmes de l'écran d'acceuil
+          </NativeText>
+          <NativeText heading="p2">
+            Applique un arrière-plan et un bandeau personnalisé
+          </NativeText>
+        </NativeItem>
+        <NativeItem chevron
+          trailing={
+            <View style={[styles.colorPreview, {backgroundColor: currentSettings.homeThemeColor}]} />
+          }
+          onPress={() => {
+            setColorModalOpen(true);
+          }}
+        >
+          <NativeText heading="p2">
+            Sélectionner une couleur
+          </NativeText>
+        </NativeItem>
+        <NativeItem onPress={() => {
+          navigation.navigate('HeaderSelect');
+        }} chevron>
+          <NativeText heading="p2">
+            Sélectionner un bandeau
+          </NativeText>
+        </NativeItem>
+      </NativeList>
+
       <NativeList header="Navigation" inset>
         { Platform.OS === 'ios' ? (
         <NativeItem
@@ -187,47 +228,6 @@ const AdjustmentsScreen = ({ navigation }) => {
           </NativeText>
         </NativeItem>
         ) : <View /> }
-      </NativeList>
-
-      <NativeList header="Thèmes" inset>
-        <NativeItem
-          leading={
-            <Palette color={UIColors.text} />
-          }
-          trailing={
-            <Switch
-              style={{marginLeft:8}}
-              value={currentSettings.homeThemesEnabled}
-              onValueChange={(value) => updateSetting('homeThemesEnabled', value, false)}
-            />
-          }
-        >
-          <NativeText heading="h4">
-            Thèmes de l'écran d'acceuil
-          </NativeText>
-          <NativeText heading="p2">
-            Afficher le bandeau de l'écran d'accueil
-          </NativeText>
-        </NativeItem>
-        <NativeItem chevron
-          trailing={
-            <View style={[styles.colorPreview, {backgroundColor: currentSettings.homeThemeColor}]} />
-          }
-          onPress={() => {
-            setColorModalOpen(true);
-          }}
-        >
-          <NativeText heading="p2">
-            Sélectionner une couleur
-          </NativeText>
-        </NativeItem>
-        <NativeItem onPress={() => {
-          navigation.navigate('HeaderSelect');
-        }} chevron>
-          <NativeText heading="p2">
-            Sélectionner un bandeau
-          </NativeText>
-        </NativeItem>
       </NativeList>
 
       <Modal visible={colorModalOpen} animationType='fade' transparent={true}>

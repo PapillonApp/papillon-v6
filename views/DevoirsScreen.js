@@ -77,11 +77,13 @@ function DevoirsScreen({ navigation }) {
   const theme = useTheme();
   const pagerRef = useRef(null);
   const insets = useSafeAreaInsets();
+  const UIColors = GetUIColors();
 
   const [today, setToday] = useState(new Date());
   const [currentIndex, setCurrentIndex] = useState(0);
   const [calendarDate, setCalendarDate] = useState(today);
   const [homeworks, setHomeworks] = useState({});
+  const [customHomeworks, setCustomHomeworks] = useState({});
   const todayRef = useRef(today);
   const homeworksRef = useRef(homeworks);
 
@@ -92,8 +94,10 @@ function DevoirsScreen({ navigation }) {
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       // The screen is focused
+      loadCustomHomeworks();
+
       AsyncStorage.getItem('homeworksUpdate').then((homeworksUpdate) => {
-        if (homeworksUpdate) {
+        if (homeworksUpdate && homeworksUpdate !== null) {
           // for each update
           const updates = JSON.parse(homeworksUpdate);
           const newHomeworks = homeworks;
@@ -270,34 +274,20 @@ function DevoirsScreen({ navigation }) {
         hw = JSON.parse(customHomeworks);
       }
 
-      console.log('custom homeworks', hw);
+      let newCustomHomeworks = {};
 
       for (let i = 0; i < hw.length; i++) {
-        let oldHomeworks = homeworks;
-        let dt = new Date(hw[i].date).toLocaleDateString();
+        const hwPageDate = calcDate(new Date(hw[i].date), 0);
+        const usedDate = hwPageDate.toLocaleDateString();
 
-        if (oldHomeworks[dt]) {
-          // check if the homework is already in the list
-          for (let j = 0; j < oldHomeworks[dt].length; j++) {
-            if (oldHomeworks[dt][j].local_id === hw[i].local_id) {
-              if (oldHomeworks[dt][j] == hw[i]) {
-                continue;
-              }
-              else {
-                // remove the homework
-                oldHomeworks[dt].splice(j, 1);
-              }
-            }
-          }
-
-          oldHomeworks[dt].push(hw[i]);
-        }
-        else {
-          oldHomeworks[dt] = [hw[i]];
+        if (!newCustomHomeworks[usedDate]) {
+          newCustomHomeworks[usedDate] = [];
         }
 
-        setHomeworks(oldHomeworks);
+        newCustomHomeworks[usedDate].push(hw[i]);
       }
+
+      setCustomHomeworks(newCustomHomeworks);
     });
   };
 
@@ -314,10 +304,6 @@ function DevoirsScreen({ navigation }) {
       }))
     }
   };
-
-  useEffect(() => {
-    loadCustomHomeworks();
-  }, []);
 
   const handlePageChange = (page) => {
     const newDate = calcDate(todayRef.current, page);
@@ -344,8 +330,6 @@ function DevoirsScreen({ navigation }) {
     todayRef.current = today;
     homeworksRef.current = homeworks;
   }, [today, homeworks]);
-
-  const UIColors = GetUIColors();
 
   return (
     <View
@@ -547,7 +531,11 @@ function DevoirsScreen({ navigation }) {
               homeworks={
                 homeworks[calcDate(today, index).toLocaleDateString()] || []
               }
+              customHomeworks={
+                customHomeworks[calcDate(today, index).toLocaleDateString()] || []
+              }
               navigation={navigation}
+              today={today}
               theme={theme}
               forceRefresh={forceRefresh}
               openURL={openURL}
@@ -570,11 +558,13 @@ function DevoirsScreen({ navigation }) {
 
 function Hwpage({
   homeworks,
+  customHomeworks,
   navigation,
   theme,
   forceRefresh,
   openURL,
   UIColors,
+  today,
 }) {
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
@@ -599,7 +589,7 @@ function Hwpage({
         />
       }
     >
-      {homeworks.length === 0 || homeworks == undefined ? (
+      {(homeworks.length === 0 || homeworks == undefined) && customHomeworks.length === 0 ? (
         <PapillonLoading
           icon={<BookOpen size={26} color={UIColors.text} />}
           title="Aucun devoir"
@@ -616,6 +606,19 @@ function Hwpage({
             theme={theme}
             key={index}
             openURL={openURL}
+            today={today}
+            index={index}
+          />
+        ))}
+        {customHomeworks.map((homework, index) => (
+          <Hwitem
+            homework={homework}
+            navigation={navigation}
+            theme={theme}
+            key={index}
+            openURL={openURL}
+            today={today}
+            index={index}
           />
         ))}
       </View>
@@ -649,7 +652,7 @@ function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
   );
 }
 
-function Hwitem({ homework, theme, openURL, navigation }) {
+function Hwitem({ homework, theme, openURL, navigation, today, index }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
   const [thisHwLoading, setThisHwLoading] = useState(false);
 
@@ -660,6 +663,31 @@ function Hwitem({ homework, theme, openURL, navigation }) {
   const appctx = useAppContext();
 
   const changeHwState = () => {
+    if (homework.custom) {
+      AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+        let hw = [];
+        if (customHomeworks) {
+          hw = JSON.parse(customHomeworks);
+        }
+
+        // find the homework
+        for (let i = 0; i < hw.length; i++) {
+          if (hw[i].local_id === homework.local_id) {
+            hw[i].done = !thisHwChecked;
+          }
+        }
+
+        setThisHwChecked(!thisHwChecked);
+        AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
+
+        setTimeout(() => {
+          setThisHwLoading(false);
+        }, 100);
+      });
+
+      return;
+    }
+    
     appctx.dataprovider
       .changeHomeworkState(!thisHwChecked, homework.date, homework.local_id)
       .then((result) => {
@@ -732,71 +760,117 @@ function Hwitem({ homework, theme, openURL, navigation }) {
 
   const UIColors = GetUIColors();
 
+  // animation
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(0)).current;
+
+  // animate modal when visible changes
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.spring(translateY, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scale, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      })
+    ]).start();
+  }, []);
+
   if (!homework) return;
   return (
-    <NativeList
-      inset
-      style={
-        Platform.OS === 'ios' && {
-        marginBottom: -20,
-      }}
+    <Animated.View
+      style={[{
+        opacity,
+        transform: [
+          {
+            translateY: translateY.interpolate({
+              inputRange: [0, 1],
+              outputRange: [20, 0],
+            }),
+          },
+          {
+            scale: scale.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0.8, 1],
+            }),
+          },
+        ],
+      }]}
     >
-      <NativeItem
-        leading={
-          <HwCheckbox
-              checked={thisHwChecked}
-              theme={theme}
-              UIColors={UIColors}
-              loading={thisHwLoading}
-              pressed={() => {
-                setThisHwLoading(true);
-                changeHwState();
-              }}
-          />
-        }
-        onPress={() => {
-          navigation.navigate('Devoir', { homework: {
-            ...homework,
-            done: thisHwChecked,
-          } });
+      <NativeList
+        inset
+        style={
+          Platform.OS === 'ios' && {
+          marginBottom: -20,
         }}
       >
-        <View style={[styles.hwItemHeader]}>
-          <View
-            style={[
-              styles.hwItemColor,
-              { backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color) },
-            ]}
-          />
-          <NativeText heading="subtitle1" style={{fontSize: 14}}>
-            {homework.subject.name.toUpperCase()}
-          </NativeText>
-        </View>
-        <NativeText>
-          {homework.description}
-        </NativeText>
-      </NativeItem>
-
-      {homework.files.map((file, index) => (
         <NativeItem
-          key={index}
           leading={
-            <File size={20} color={UIColors.text} style={{marginHorizontal: 3}} />
+            <HwCheckbox
+                checked={thisHwChecked}
+                theme={theme}
+                UIColors={UIColors}
+                loading={thisHwLoading}
+                pressed={() => {
+                  setThisHwLoading(true);
+                  changeHwState();
+                }}
+            />
           }
           onPress={() => {
-            openURL(file.url);
+            navigation.navigate('Devoir', { homework: {
+              ...homework,
+              done: thisHwChecked,
+            } });
           }}
-          chevron
         >
-          <NativeText heading="h4">
-            {file.name}
-          </NativeText>
-          <NativeText heading="p2" numberOfLines={1}>
-            {file.url}
+          <View style={[styles.hwItemHeader]}>
+            <View
+              style={[
+                styles.hwItemColor,
+                { backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color) },
+              ]}
+            />
+            <NativeText numberOfLines={1} heading="subtitle1" style={{fontSize: 14, paddingRight: 10}}>
+              {homework.subject.name.toUpperCase()}
+            </NativeText>
+          </View>
+          <NativeText>
+            {homework.description.replace('\n', ' ')}
           </NativeText>
         </NativeItem>
-      ))}
-    </NativeList>
+
+        {homework.files.map((file, index) => (
+          <NativeItem
+            key={index}
+            leading={
+              <File size={20} color={UIColors.text} style={{marginHorizontal: 3}} />
+            }
+            onPress={() => {
+              openURL(file.url);
+            }}
+            chevron
+          >
+            <NativeText heading="h4">
+              {file.name}
+            </NativeText>
+            <NativeText heading="p2" numberOfLines={1}>
+              {file.url}
+            </NativeText>
+          </NativeItem>
+        ))}
+      </NativeList>
+    </Animated.View>
   )
 }
 

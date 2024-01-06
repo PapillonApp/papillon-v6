@@ -94,8 +94,11 @@ function SchoolLifeScreen({ navigation }) {
               {viesco.absences?.map((absence, index) => (
                 <NativeItem
                   key={index}
-                  leading={
+                  leading={!absence.justified ? (
                     <UserX size={24} color="#A84700" />
+                  ) : (
+                    <UserX size={24} color="#565EA3" />
+                  )
                   }
                   trailing={!absence.justified ? (
                     <NativeText
@@ -157,8 +160,11 @@ function SchoolLifeScreen({ navigation }) {
               {viesco?.delays?.map((delay, index) => (
                 <NativeItem
                   key={index}
-                  leading={
+                  leading={!delay.justified ? (
+                    <Clock3 size={24} color="#A84700" />
+                    ) : (
                     <Clock3 size={24} color="#565EA3" />
+                    )
                   }
                   trailing={!delay.justified ? (
                     <NativeText
