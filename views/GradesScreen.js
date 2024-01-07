@@ -66,6 +66,7 @@ function GradesScreen({ navigation }) {
   const [allGrades, setAllGrades] = useState([]);
 
   const [moyReeleAlert, setMoyReeleAlert] = useState(false);
+  const [moyClasseReeleAlert, setClasseReeleAlert] = useState(false);
   const [moyClasseBasseAlert, setClasseBasseAlert] = useState(false);
   const [moyClasseHauteAlert, setClasseHauteAlert] = useState(false);
 
@@ -544,6 +545,22 @@ function GradesScreen({ navigation }) {
     setAvgChartData(chartData);
     setHasSimulatedGrades(hasSimulated);
 
+    if (parseFloat(parsedData.class_overall_average).toFixed(2) !== parseFloat(avgCalc.class_average).toFixed(2)) {
+      setCalculatedClassAvg(true);
+
+      if(parseFloat(parsedData.class_overall_average) > 0 && !hasSimulatedGrades) {
+        setAveragesData({
+          ...avgNg,
+          studentAverage: parseFloat(parsedData.overall_average).toFixed(2),
+          classAverage: parseFloat(parsedData.class_overall_average).toFixed(2),
+        });
+
+        setCalculatedClassAvg(false);
+      }
+    } else {
+      setCalculatedClassAvg(false);
+    }
+
     if (parseFloat(parsedData.overall_average).toFixed(2) !== parseFloat(avgCalc.average).toFixed(2)) {
       setCalculatedAvg(true);
 
@@ -551,6 +568,7 @@ function GradesScreen({ navigation }) {
         setAveragesData({
           ...avgNg,
           studentAverage: parseFloat(parsedData.overall_average).toFixed(2),
+          classAverage: parseFloat(parsedData.class_overall_average).toFixed(2),
         });
 
         setCalculatedAvg(false);
@@ -576,6 +594,7 @@ function GradesScreen({ navigation }) {
     if (subjectsList.length === 0) {
       loadGrades();
     }
+
   }, []);
 
   function showGrade(grade) {
@@ -990,25 +1009,13 @@ function GradesScreen({ navigation }) {
               </View>
             }
             trailing={
-              calculatedClassAvg && (
+              calculatedClassAvg ? (
               <TouchableOpacity
-                onPress={() => Alert.alert(
-                  'Moyenne de classe calculée',
-                  `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant la moyenne de chaque matière.
-
-Il s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`,
-                  [
-                    {
-                      text: 'Compris !',
-                      style: 'cancel',
-                    },
-                  ],
-                  { cancelable: true }
-                )}
+                onPress={() => setClasseReeleAlert(true)}
               >
                 <AlertTriangle color={UIColors.primary} />
               </TouchableOpacity>
-            )}
+            ): null}
           >
             <Text style={[styles.averageText]}>Moy. de classe</Text>
             <View style={[styles.averageValueContainer]}>
@@ -1018,6 +1025,16 @@ Il s'agit uniquement d'une estimation qui variera en fonction de vos options, la
               <Text style={[styles.averageValueOutOf]}>/20</Text>
             </View>
           </NativeItem>
+          <AlertBottomSheet
+              title={calculatedClassAvg ? hasSimulatedGrades ? 'Moyenne de classe simulée' : 'Moyenne de classe calculée' : 'Moyenne de classe réelle'}
+              subtitle={calculatedClassAvg ? hasSimulatedGrades ? `La moyenne affichée ici est une moyenne calculée à partir des notes réelles et des notes simulées de la classe.` : `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant la moyenne de chaque matière.` : `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`}
+              icon={<Users2/>}
+              visible={moyClasseReeleAlert}
+              cancelButton='Compris !'
+              cancelAction={() => {
+                setClasseReeleAlert(false);
+              }}
+            />
           <NativeItem
             leading={
               <View style={{marginHorizontal: 4}}>
