@@ -303,12 +303,12 @@ function GradesScreen({ navigation }) {
             </TouchableOpacity>
           </ContextMenuButton>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[styles.addButtonContainer, {backgroundColor: "#A84700" + '22'}]}
               onPress={() => navigation.navigate('ModalGradesSimulator')}
             >
               <FlaskConical size='22' color={"#A84700"} />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
         </View>
       ),
     });
@@ -594,7 +594,6 @@ function GradesScreen({ navigation }) {
     if (subjectsList.length === 0) {
       loadGrades();
     }
-
   }, []);
 
   function showGrade(grade) {
