@@ -65,8 +65,8 @@ function GradesScreen({ navigation }) {
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [allGrades, setAllGrades] = useState([]);
 
-  const [moyReeleAlert, setMoyReeleAlert] = useState(false);
-  const [moyClasseReeleAlert, setClasseReeleAlert] = useState(false);
+  const [moyReelleAlert, setMoyReelleAlert] = useState(false);
+  const [moyClasseReelleAlert, setClasseReelleAlert] = useState(false);
   const [moyClasseBasseAlert, setClasseBasseAlert] = useState(false);
   const [moyClasseHauteAlert, setClasseHauteAlert] = useState(false);
 
@@ -689,9 +689,9 @@ function GradesScreen({ navigation }) {
             `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`}
         icon={<Stats width={28} height={28} stroke="#29947a" />}
         color='#29947a'
-        visible={moyReeleAlert}
+        visible={moyReelleAlert}
         cancelAction={() => {
-          setMoyReeleAlert(false);
+          setMoyReelleAlert(false);
         }}
       />
 
@@ -810,7 +810,7 @@ function GradesScreen({ navigation }) {
 
             <TouchableOpacity 
               style={[styles.averagegrTitleInfo]}
-              onPress={() => setMoyReeleAlert(true)}
+              onPress={() => setMoyReelleAlert(true)}
             >
               <AlertTriangle size='20' color={UIColors.primary} />
               <Text style={[styles.averagegrTitleInfoText, {color: UIColors.primary}]}>
@@ -1010,7 +1010,7 @@ function GradesScreen({ navigation }) {
             trailing={
               calculatedClassAvg ? (
               <TouchableOpacity
-                onPress={() => setClasseReeleAlert(true)}
+                onPress={() => setClasseReelleAlert(true)}
               >
                 <AlertTriangle color={UIColors.primary} />
               </TouchableOpacity>
@@ -1028,10 +1028,10 @@ function GradesScreen({ navigation }) {
               title={calculatedClassAvg ? hasSimulatedGrades ? 'Moyenne de classe simulée' : 'Moyenne de classe calculée' : 'Moyenne de classe réelle'}
               subtitle={calculatedClassAvg ? hasSimulatedGrades ? `La moyenne affichée ici est une moyenne calculée à partir des notes réelles et des notes simulées de la classe.` : `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant la moyenne de chaque matière.` : `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`}
               icon={<Users2/>}
-              visible={moyClasseReeleAlert}
+              visible={moyClasseReelleAlert}
               cancelButton='Compris !'
               cancelAction={() => {
-                setClasseReeleAlert(false);
+                setClasseReelleAlert(false);
               }}
             />
           <NativeItem
