@@ -112,6 +112,8 @@ function NewHomeScreen({ navigation }) {
     avatarURL: '',
   });
   const [homeworks, setHomeworks] = useState([]);
+  const [customHomeworks, setCustomHomeworks] = useState([]);
+  const [homeworksDays, setHomeworksDays] = useState([]);
   const [loadingHw, setLoadingHw] = useState(true);
   const [timetable, setTimetable] = useState([]);
   const [loadingCours, setLoadingCours] = useState(true);
@@ -284,64 +286,30 @@ function NewHomeScreen({ navigation }) {
       if (customHomeworks) {
         hw = JSON.parse(customHomeworks);
       }
-      
-      let oldHomeworks = homeworks;
 
-      oldHomeworks.forEach((day) => {
-        day.homeworks.forEach((homework) => {
-          if (homework.custom) {
-            // delete homework
-            const index = oldHomeworks.indexOf(day);
-            oldHomeworks[index].homeworks.splice(oldHomeworks[index].homeworks.indexOf(homework), 1);
-          }
-        });
-      });
-
+      // for each homework
       hw.forEach((homework) => {
-        let hwAdded = false;
-        let hwDay = new Date(homework.date);
-        hwDay.setHours(0, 0, 0, 0);
+        let hwDate = new Date(homework.date);
+        hwDate.setHours(0, 0, 0, 0);
 
-        // if homework is after 5 days, don't show it
-        let today = new Date();
-        today.setHours(0, 0, 0, 0);
+        setHomeworksDays((prevDays) => {
+          let newDays = prevDays;
 
-        if (hwDay.getTime() > today.getTime() + 5 * 24 * 60 * 60 * 1000) {
-          return;
-        }
-
-        // check if day is in oldHomeworks
-        oldHomeworks.forEach((day) => {
-          oldHwDay = new Date(day.date);
-          oldHwDay.setHours(0, 0, 0, 0);
-
-          if (hwDay.getTime() === oldHwDay.getTime()) {
-            day.homeworks.push(homework);
-            hwAdded = true;
+          // check if day already exists
+          if (newDays.find((day) => day.date === hwDate.getTime())) {
           }
+          else {
+            newDays.push({
+              date: hwDate.getTime(),
+              custom: true,
+            });
+          }
+
+          return newDays;
         });
-
-        if (!hwAdded) {
-          const formattedDate =
-            hwDay.getDate() === today.getDate() + 1
-              ? 'demain'
-              : new Date(hwDay).toLocaleDateString('fr-FR', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long',
-                });
-
-          oldHomeworks.push({
-            date: hwDay,
-            formattedDate: formattedDate,
-            homeworks: [homework],
-          });
-        }
       });
-
-      console.log(oldHomeworks);
-
-      setHomeworks(oldHomeworks);
+      
+      setCustomHomeworks(hw);
     });
   };
 
@@ -350,19 +318,38 @@ function NewHomeScreen({ navigation }) {
       const homeworkDate = new Date(homework.date);
       homeworkDate.setHours(0, 0, 0, 0);
 
+      setHomeworksDays((prevDays) => {
+        let newDays = prevDays;
+
+        // check if day already exists
+        if (newDays.find((day) => day.date === homeworkDate.getTime())) {
+        }
+        else {
+          newDays.push({
+            date: homeworkDate.getTime(),
+            custom: false,
+          });
+        }
+
+        return newDays;
+      });
+
       const formattedDate =
-        homeworkDate.getDate() === today.getDate() + 1
-          ? 'demain'
-          : new Date(homeworkDate).toLocaleDateString('fr-FR', {
-              weekday: 'long',
-              day: 'numeric',
-              month: 'long',
-            });
+      homeworkDate.getDate() === today.getDate() + 1
+        ? 'demain'
+        : new Date(homeworkDate).toLocaleDateString('fr-FR', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+          });
+
+      const formattedTime = homeworkDate.getTime();
 
       if (!grouped[formattedDate]) {
         grouped[formattedDate] = {
           date: homeworkDate,
           formattedDate: formattedDate,
+          time: formattedTime,
           homeworks: [],
         };
       }
@@ -377,24 +364,6 @@ function NewHomeScreen({ navigation }) {
         hwDate.setHours(0, 0, 0, 0);
 
         return hwDate.getDate() === tomorrow.getDate();
-      });
-
-      // count undone homeworks
-      let undoneTomorrowHomeworks = tomorrowHomeworks.filter((hw) => !hw.done);
-
-      AsyncStorage.getItem('badgesStorage').then((value) => {
-        let currentSyncBadges = JSON.parse(value);
-
-        if (currentSyncBadges === null) {
-          currentSyncBadges = {
-            homeworks: 0,
-          };
-        }
-
-        let newBadges = currentSyncBadges;
-        newBadges.homeworks = undoneTomorrowHomeworks.length;
-
-        AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
       });
 
       grouped[formattedDate].homeworks.push(homework);
@@ -700,6 +669,18 @@ function NewHomeScreen({ navigation }) {
             />
           </Animated.View>
 
+          <View
+            style={[{
+              backgroundColor: "#00000038",
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              zIndex: 9999,
+            }]}
+          />  
+
           <LinearGradient
             colors={[themeColor, themeColor + '00']}
             style={[{
@@ -798,6 +779,8 @@ function NewHomeScreen({ navigation }) {
       
       <DevoirsElement
         homeworks={homeworks}
+        customHomeworks={customHomeworks}
+        homeworksDays={homeworksDays}
         theme={theme}
         UIColors={UIColors}
         navigation={navigation}
@@ -1025,13 +1008,38 @@ function CoursItem ({ cours, day, theme, UIColors, navigation, index }) {
   );
 }
 
-function DevoirsElement ({ homeworks, theme, UIColors, navigation, loading }) {
+function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, theme, UIColors, navigation, loading }) {
   return (
     !loading ? (
       homeworks.length > 0 ? (
         <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
-          {homeworks.map((day, index) => (
-            <DevoirsDay key={index} index={index} homeworks={day} theme={theme} UIColors={UIColors} navigation={navigation} />
+          {homeworksDays.map((day, index) => (
+            <DevoirsDay
+              key={index}
+              index={index}
+              homeworks={
+                !day.custom ?
+                  homeworks.find((hw) => hw.time === day.date)
+                : {
+                  formattedDate: new Date(day.date).toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                  }),
+                  date : day.date,
+                  homeworks: [],
+                }
+              }
+              theme={theme}
+              UIColors={UIColors}
+              navigation={navigation}
+              customHomeworks={customHomeworks.filter((hw) => {
+                let hwDate = new Date(hw.date);
+                hwDate.setHours(0, 0, 0, 0);
+
+                return hwDate.getTime() === day.date;
+              })}
+            />
           ))}
         </PapillonList>
       ) : (
@@ -1052,7 +1060,7 @@ function DevoirsElement ({ homeworks, theme, UIColors, navigation, loading }) {
   );
 }
 
-const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
+const DevoirsDay = ({ homeworks, customHomeworks, theme, UIColors, navigation, index }) => {
   // sort homeworks by index
   homeworks.homeworks.sort((a, b) => a.index - b.index);
 
@@ -1094,7 +1102,7 @@ const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
         },
       ]}
     >
-      { homeworks.homeworks.length > 0 ? (<>
+      { homeworks.homeworks.length > 0 || customHomeworks.length > 0 ? (<>
       <View
         style={[styles.homeworks.devoirsDay.header.container, UIColors.theme == 'dark' && Platform.OS !== 'ios' ? { backgroundColor: UIColors.text + '22' } : { backgroundColor: UIColors.primary + '22' }]}
       >
@@ -1110,6 +1118,10 @@ const DevoirsDay = ({ homeworks, theme, UIColors, navigation, index }) => {
 
       <View style={styles.homeworks.devoirsDay.content}>
         { homeworks.homeworks.map((homework, index) => (
+          <DevoirsContent key={index} index={index} parentIndex={parentIndex} homework={homework} theme={theme} UIColors={UIColors} navigation={navigation} />
+        ))}
+
+        { customHomeworks.map((homework, index) => (
           <DevoirsContent key={index} index={index} parentIndex={parentIndex} homework={homework} theme={theme} UIColors={UIColors} navigation={navigation} />
         ))}
       </View>

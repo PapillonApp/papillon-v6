@@ -901,7 +901,7 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
         <PapillonLoading
           icon={<IconCalendar size={26} color={UIColors.text} />}
           title="Aucun cours"
-          subtitle="Vous n'avez aucun cours aujourd'hui"
+          subtitle="Vous n'avez aucun cours ce jour"
           style={{ marginTop: 36 }}
         />
       ) : null}

@@ -10,7 +10,7 @@
     </array>
     <key>com.apple.security.application-groups</key>
     <array>
-      <string>group.plus.pronote</string>
+      <string>group.xyz.getpapillon</string>
     </array>
   </dict>
 </plist>
