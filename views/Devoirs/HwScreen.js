@@ -76,6 +76,7 @@ function HomeworkScreen({ route, navigation }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
+        homework.custom &&
         <TouchableOpacity
           style={[styles.deleteHw]}
           onPress={() => {
