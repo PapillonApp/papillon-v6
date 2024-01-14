@@ -1049,7 +1049,6 @@ function AppStack() {
           paddingHorizontal: 8,
           backgroundColor: UIColors.background,
           borderTopWidth: UIColors.dark ? 0 : 0.5,
-          paddingBottom: !settings?.hideTabBarTitle ? 2 : undefined,
         },
         tabBarButton: settings?.hideTabBarTitle ? (props) => {
           return (
