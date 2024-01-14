@@ -1041,13 +1041,17 @@ function AppStack() {
         },
         tabBarShowLabel: settings?.hideTabBarTitle ? false : true,
         tabBarActiveTintColor: theme.dark ? '#ffffff' : '#000000',
-        tabBarInactiveTintColor: theme.dark ? '#ffffff' : '#000000',
+        tabBarInactiveTintColor: 
+          settings?.hideTabBarTitle ?
+          theme.dark ? '#ffffff' : '#000000' :
+          theme.dark ? '#ffffffa5' : '#000000a5',
         tabBarStyle: {
           paddingHorizontal: 8,
           backgroundColor: UIColors.background,
           borderTopWidth: UIColors.dark ? 0 : 0.5,
+          paddingBottom: !settings?.hideTabBarTitle ? 2 : undefined,
         },
-        tabBarButton: (props) => {
+        tabBarButton: settings?.hideTabBarTitle ? (props) => {
           return (
             <PressableScale
               {...props}
@@ -1062,7 +1066,7 @@ function AppStack() {
               ]}
             />
           );
-        }
+        } : undefined,
       }}
     >
       <Tab.Screen
