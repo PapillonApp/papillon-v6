@@ -543,15 +543,21 @@ function NewHomeScreen({ navigation }) {
   );
 
   const scrollY = Animated.add(yOffset, 0);
+  const it = insets.top;
+
+  let mainHeaderSize = [-60, -30];
+  if (it > 30) {
+    mainHeaderSize = [-80, -40];
+  }
 
   const headerOpacity = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-60, -30] : [0, 40],
+    inputRange: Platform.OS === 'ios' ? mainHeaderSize : [0, 40],
     outputRange: [1, 0],
     extrapolate: 'clamp',
   });
 
   const headerScale = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-60, -30] : [0, 40],
+    inputRange: Platform.OS === 'ios' ? mainHeaderSize : [0, 40],
     outputRange: [1, 0.9],
     extrapolate: 'clamp',
   });
