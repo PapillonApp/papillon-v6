@@ -547,7 +547,7 @@ function NewHomeScreen({ navigation }) {
 
   let mainHeaderSize = [-60, -30];
   if (it > 30) {
-    mainHeaderSize = [-80, -40];
+    mainHeaderSize = [-85, -50];
   }
 
   const headerOpacity = yOffset.interpolate({
