@@ -71,19 +71,21 @@ function CantineScreen({ navigation }) {
   }
 
   function textPriceHistory(debit, credit) {
-    if (credit != null) {
-      return (
-        <NativeText heading="h4" style={{ color: '#2A937A' }}>
-          +{Number(credit / 100).toFixed(2)}€
-        </NativeText>
-      );
-    }
-    if (debit != null) {
-      return (
-        <NativeText heading="h4" style={{ color: '#B42828' }}>
-          {Number(debit.toFixed(2))}€
-        </NativeText>
-      );
+    if (credit || debit != -0 || 0 || null) {
+      if (credit != null) {
+        return (
+          <NativeText heading="h4" style={{ color: '#2A937A' }}>
+            +{Number(credit / 100).toFixed(2)}€
+          </NativeText>
+        );
+      }
+      if (debit != null) {
+        return (
+          <NativeText heading="h4" style={{ color: '#B42828' }}>
+            {Number(debit.toFixed(2))}€
+          </NativeText>
+        );
+      }
     }
     return <NativeText heading="h4" />;
   }
@@ -137,6 +139,7 @@ function CantineScreen({ navigation }) {
   }, []);
 
   console.log(isLoggedIn);
+  console.log(homeData);
 
   return (
     <ScrollView>
