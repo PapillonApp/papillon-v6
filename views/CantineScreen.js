@@ -13,6 +13,7 @@ import {
   BookX,
   CopyCheck,
   CreditCard,
+  PiggyBank,
   UserX,
 } from 'lucide-react-native';
 
@@ -116,6 +117,7 @@ function CantineScreen({ navigation }) {
       }
       setHomeData(data.data);
       getUser();
+      console.log('homeData :', homeData);
     });
   }
 
@@ -175,16 +177,24 @@ function CantineScreen({ navigation }) {
         <View>
           {loading ? (
             <View>
-              <ActivityIndicator style={{ marginTop: 16 }} />
               <PapillonLoading
-                icon={<UserX size={26} color={UIColors.text} />}
-                title="Pas de compte Turboself lié"
-                subtitle="Veuillez lier un compte Turboself pour accéder à la cantine."
+                title="Chargement en cours"
+                subtitle="Merci de patienter quelques instants"
                 style={{ marginTop: 36 }}
               />
             </View>
           ) : (
             <View>
+              {isNaN(homeData.userInfo.balance) || null || NaN ? (
+
+                <PapillonLoading
+                icon={<PiggyBank size={26} color={UIColors.text} />}
+                title="Solde indisponible"
+                subtitle="Votre établissement ne communique pas cette information. Merci de vous rapprocher de ce dernier pour plus amples informations."
+                style={{ marginTop: 36 }}
+                />
+              ) : (
+            
               <View
                 style={{
                   display: 'flex',
@@ -205,12 +215,13 @@ function CantineScreen({ navigation }) {
                       {Number(homeData.userInfo.balance).toFixed(2)}€
                     </NativeText>
                     <NativeText heading="p" style={{ opacity: 0.6 }}>
-                      Solde estimée{' : '}
+                      Solde prévisionnel{' : '}
                       {Number(homeData.userInfo.estimatedBalance).toFixed(2)}€
                     </NativeText>
                   </View>
                 )}
               </View>
+              )}
               <View style={[styles.tabs.tabsContainer]}>
                 <View style={[styles.tabs.tabRow]}>
                   {/* Show only if user is allowed to book */}

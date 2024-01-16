@@ -6,25 +6,47 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Switch,
   View,
 } from 'react-native';
 import Turboself from 'papillon-turboself-core';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { PressableScale } from 'react-native-pressable-scale';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Calendar } from 'lucide-react-native';
+import { AlertTriangle, Calendar, CopyCheck } from 'lucide-react-native';
 import { Text } from 'react-native-paper';
+import NativeList from '../../components/NativeList';
+import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import GetUIColors from '../../utils/GetUIColors';
+import PapillonLoading from '../../components/PapillonLoading';
+
+import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
 function ReservationCantineScreen({ navigation }) {
   const UIColors = GetUIColors();
   const ts = new Turboself();
   const [loading, setLoading] = useState(true);
+  const [homeInfoLoading, setHomeInfoLoading] = useState(true);
   const [resa, setResa] = useState();
+  const [homeData, setHomeData] = React.useState({});
+
 
   const [calendarDate, setCalendarDate] = useState(new Date());
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
+
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [errorAlert, setErrorAlert] = useState(false);
+
+  let date = new Date();
+  let nextWeekDate = (new Date(new Date().getTime() + 20*(7 * 24 * 60 * 60 * 1000)));
+
+  function formatDateToDDMMYYY(dateString) {
+    const dateObject = new Date(dateString);
+    const day = `0${dateObject.getDate()}`.slice(-2);
+    const month = `0${dateObject.getMonth() + 1}`.slice(-2);
+    const year = dateObject.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
 
   function login(callback) {
     AsyncStorage.getItem('linkedAccount').then((result) => {
@@ -36,7 +58,8 @@ function ReservationCantineScreen({ navigation }) {
         ts.login(res.restaurant.username, res.restaurant.password).then(
           (data) => {
             if (data.error) {
-              Alert.alert(data.errorMessage);
+              setErrorMessage(data.errorMessage);
+              setErrorAlert(true);
             } else {
               console.log('LOGED IN');
               callback();
@@ -47,16 +70,31 @@ function ReservationCantineScreen({ navigation }) {
     });
   }
 
+  async function getHomeInfo() {
+    setHomeInfoLoading(true);
+    ts.getHome().then((data) => {
+      if (data.error) {
+        setErrorMessage(data.errorMessage);
+        setErrorAlert(true);
+        return;
+      }
+      setHomeData(data.data);
+      console.log('homeData :', homeData);
+      setHomeInfoLoading(false);
+    });
+  }
+
+
   function getResaInfo(date) {
     setLoading(true);
     setResa({ days: [] });
     ts.getBooking(date).then((data) => {
       if (data.error) {
-        Alert.alert(data.errorMessage);
+        setErrorMessage(data.errorMessage);
+        setErrorAlert(true);
         return;
       }
       setResa(data.data);
-      setLoading(false);
     });
   }
 
@@ -98,7 +136,11 @@ function ReservationCantineScreen({ navigation }) {
         ),
     });
     login(() => {
+      console.log(calendarDate)
       getResaInfo(calendarDate);
+      getHomeInfo();
+      console.log(resa);
+      setLoading(false);
     });
   }, [calendarDate, calendarModalOpen]);
 
@@ -113,7 +155,8 @@ function ReservationCantineScreen({ navigation }) {
       ).then((data) => {
         console.log(data);
         if (data.error) {
-          Alert.alert(data.errorMessage);
+          setErrorMessage(data.errorMessage);
+          setErrorAlert(true);
           return;
         }
         console.log(tempResa.days[i].booked, data.data.booked);
@@ -123,6 +166,15 @@ function ReservationCantineScreen({ navigation }) {
         }
         tempResa.days[i].booked = data.data.booked;
         setResa(tempResa);
+        ts.getHome().then((data) => {
+          if (data.error) {
+            setErrorMessage(data.errorMessage);
+            setErrorAlert(true);
+            return;
+          }
+          setHomeData(data.data);
+          console.log('homeData :', homeData);
+        });
       });
     });
   }
@@ -148,13 +200,65 @@ function ReservationCantineScreen({ navigation }) {
           }}
         />
       ) : null}
-      {loading ? (
+      <AlertBottomSheet
+        visible={errorAlert}
+        title={'Erreur'}
+        subtitle={errorMessage}
+        color='#D81313'
+        icon={<AlertTriangle/>}
+        cancelAction={() => setErrorAlert(false)}
+      />
+      {homeInfoLoading ? (
         <ActivityIndicator />
       ) : (
         <View>
-          <NativeText heading="p2" style={[styles.hMargin]}>
-            Repas méridien
+        {isNaN(homeData.userInfo.balance) || null || NaN ? (
+
+          <PapillonLoading
+          icon={<PiggyBank size={26} color={UIColors.text} />}
+          title="Solde indisponible"
+          subtitle="Votre établissement ne communique pas cette information. Merci de vous rapprocher de ce dernier pour plus amples informations."
+          style={{ marginTop: 36 }}
+          />
+        ) : (
+      
+        <View
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginTop: 50,
+            marginBottom: 50,
+          }}
+        >
+          <NativeText heading="p" style={{ opacity: 0.6 }}>
+            Solde prévisionnel
           </NativeText>
+          {loading ? (
+            <ActivityIndicator />
+          ) : (
+            <View style={{ display: 'flex', alignItems: 'center' }}>
+              <NativeText heading="h1" style={{ fontSize: 40 }}>
+                {Number(homeData.userInfo.estimatedBalance).toFixed(2)}€
+              </NativeText>
+              <NativeText heading="p" style={{ opacity: 0.6 }}>
+                pour le {(formatDateToDDMMYYY(homeData.userInfo.estimatedFor))}
+              </NativeText>
+            </View>
+          )}
+        </View>
+        )}
+        {resa.days.length != 0 ? (
+        <View>
+          <NativeList inset header="Repas méridien">
+            {
+              resa.days.map((day, i) => (
+                <NativeItem trailing={<Switch style={{opacity: 0.6, fontSize: 15}} value={day.booked} disabled={!day.canEdit} onChange={() => changeResa(i)}/>}>
+                  <NativeText heading="h4">{day.label}</NativeText>
+                </NativeItem>
+              ))
+            }
+          </NativeList>
           <View
             style={[
               styles.hMargin,
@@ -167,47 +271,18 @@ function ReservationCantineScreen({ navigation }) {
               },
             ]}
           >
-            {resa.days.map((day, i) => (
-              // modifier l'opacité du bouton si on ne peut pas réserver
-              <PressableScale
-                style={[
-                  styles.button,
-                  !day.canEdit ? { opacity: 0.5 } : {},
-                  !day.booked ? { backgroundColor: '#FFF' } : {},
-                ]}
-                disabled={!day.canEdit}
-                onPress={() => {
-                  changeResa(i);
-                }}
-              >
-                <NativeText
-                  style={[
-                    styles.button.day,
-                    !day.booked ? { color: '#000' } : {},
-                  ]}
-                >
-                  {day.label.split(' ')[0]}
-                </NativeText>
-                <NativeText
-                  style={[
-                    styles.button.number,
-                    !day.booked ? { color: '#000' } : {},
-                  ]}
-                >
-                  {day.label.split(' ')[1]}
-                </NativeText>
-                <NativeText
-                  style={[
-                    styles.button.month,
-                    !day.booked ? { color: '#000' } : {},
-                  ]}
-                >
-                  {day.label.split(' ')[2]}
-                </NativeText>
-              </PressableScale>
-            ))}
           </View>
-        </View>
+        </View>)
+        : (
+          <View>
+            <PapillonLoading
+              icon={<CopyCheck  color={UIColors.primary} />}
+              title={'Aucune réservation'}
+              subtitle={'Aucune réservation n\'est disponible pour la semaine sélectionnée'}
+            />
+          </View>
+        )}
+      </View>
       )}
 
       {/* Prevoir reservation du soir quand on aura les données */}
