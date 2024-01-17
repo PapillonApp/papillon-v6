@@ -30,6 +30,7 @@ import formatCoursName from '../../utils/FormatCoursName';
 import { useAppContext } from '../../utils/AppContext';
 
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
+import CheckAnimated from '../../interface/CheckAnimated';
 
 function HomeworkScreen({ route, navigation }) {
   const theme = useTheme();
@@ -235,15 +236,13 @@ function HomeworkScreen({ route, navigation }) {
       <NativeList inset header="Statut du devoir">
         <NativeItem
           leading={
-            <HwCheckbox
+            <CheckAnimated
               checked={thisHwChecked}
-              theme={theme}
+              loading={thisHwLoading}
               pressed={() => {
                 setThisHwLoading(true);
                 changeHwState();
               }}
-              UIColors={UIColors}
-              loading={thisHwLoading}
             />
           }
           onPress={() => {

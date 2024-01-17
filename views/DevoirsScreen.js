@@ -18,6 +18,8 @@ import { useTheme, Text } from 'react-native-paper';
 
 import { BlurView } from 'expo-blur';
 
+import CheckAnimated from '../interface/CheckAnimated';
+
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
 
@@ -816,15 +818,13 @@ function Hwitem({ homework, theme, openURL, navigation, today, index }) {
       >
         <NativeItem
           leading={
-            <HwCheckbox
-                checked={thisHwChecked}
-                theme={theme}
-                UIColors={UIColors}
-                loading={thisHwLoading}
-                pressed={() => {
-                  setThisHwLoading(true);
-                  changeHwState();
-                }}
+            <CheckAnimated
+              checked={thisHwChecked}
+              loading={thisHwLoading}
+              pressed={() => {
+                setThisHwLoading(true);
+                changeHwState();
+              }}
             />
           }
           onPress={() => {

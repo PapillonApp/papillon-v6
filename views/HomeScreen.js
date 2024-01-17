@@ -50,6 +50,7 @@ import getClosestGradeEmoji from '../utils/EmojiCoursName';
 // Custom componant
 import PapillonList from '../components/PapillonList';
 import NewPapillonHeader from '../interface/NewPapillonHeader';
+import CheckAnimated from '../interface/CheckAnimated';
 
 import { useAppContext } from '../utils/AppContext';
 import sendToSharedGroup from '../fetch/SharedValues';
@@ -1320,7 +1321,12 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
         onPress={() => navigation.navigate('Devoir', { homework: {... homework, done: checked} })}
       >
         <View style={styles.homeworks.devoirsContent.inner}>
-          <HwCheckbox checked={checked} theme={theme} pressed={() => {checkThis()}} UIColors={UIColors} loading={checkLoading} />
+          <CheckAnimated
+            checked={checked}
+            pressed={() => {checkThis()}}
+            loading={checkLoading}
+          />
+
           <View style={styles.homeworks.devoirsContent.parent}>
             <View style={styles.homeworks.devoirsContent.header.container}>
               <View style={styles.homeworks.devoirsContent.header.subject.container}>
