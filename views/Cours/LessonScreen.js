@@ -14,6 +14,8 @@ import getClosestGradeEmoji from '../../utils/EmojiCoursName';
 import formatCoursName from '../../utils/FormatCoursName';
 import { getSavedCourseColor } from '../../utils/ColorCoursName';
 
+import getEtabRoom from '../../utils/CustomEtabRoomFormat';
+
 import {
   X,
   DoorOpen,
@@ -47,8 +49,10 @@ function LessonScreen({ route, navigation }) {
   const theme = useTheme();
   const lesson = route.params.event;
   const UIColors = GetUIColors();
+  const etabRoom = getEtabRoom(lesson.rooms[0]);
 
   console.log(lesson);
+  console.log(getEtabRoom(lesson.rooms[0]));
 
   function openURL(url) {
     WebBrowser.openBrowserAsync(url, {
@@ -128,7 +132,22 @@ function LessonScreen({ route, navigation }) {
         header="A propos"
       >
         <NativeItem
-          leading={<DoorOpen size={24} color={mainColor} />}
+          leading={
+            etabRoom && etabRoom.building !== undefined ? (
+              <View
+                style={[
+                  styles.courseBuilding,
+                  { backgroundColor: color },
+                ]}
+              >
+                <Text style={styles.courseBuildingText}>
+                  {etabRoom.building}
+                </Text>
+              </View>
+            ) : (
+              <DoorOpen size={24} color={mainColor} />
+            )
+          }
         >
           <NativeText heading="p2">
                 Salle{lesson.rooms.length > 1 ? 's' : ''} de cours
@@ -324,6 +343,21 @@ const styles = StyleSheet.create({
   },
   headerEmoji: {
     fontSize: 22,
+  },
+
+  courseBuilding: {
+    width: 28,
+    height: 28,
+    margin: -2,
+    borderRadius: 8,
+    borderCurve: 'continuous',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  courseBuildingText: {
+    fontSize: 19,
+    color: '#ffffff',
+    fontFamily: 'Papillon-Semibold',
   },
 });
 
