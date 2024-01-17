@@ -510,16 +510,18 @@ function NewHomeScreen({ navigation }) {
             opacity: topOpacity,
           }}
         >
-          <View
-            style={{
-              backgroundColor: "#00000038",
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-            }}
-          />
+          { themeEnabled ? (
+            <View
+              style={{
+                backgroundColor: "#00000038",
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+              }}
+            />
+          ) : null }
         </Animated.View>
       ) : (
         <View
