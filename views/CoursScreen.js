@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import * as React from 'react';
 import { useCallback, useState, useEffect, useRef } from 'react';
 import {

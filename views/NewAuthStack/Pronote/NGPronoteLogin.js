@@ -48,11 +48,9 @@ function NGPronoteLogin({ route, navigation }) {
   const { showActionSheetWithOptions } = useActionSheet();
 
   const { etab, useDemo } = route.params;
-  // eslint-disable-next-line no-unused-vars
   const [etabName, setEtabName] = useState(etab.nomEtab);
   const [etabInfo, setEtabInfo] = useState(etab);
 
-  // eslint-disable-next-line no-unused-vars
   const [useEduconnect, setUseEduconnect] = React.useState(false);
 
   const [errorAlert, setErrorAlert] = useState(false);
@@ -262,7 +260,6 @@ function NGPronoteLogin({ route, navigation }) {
       >
         <Image
           style={styles.loginHeaderLogo}
-          // eslint-disable-next-line global-require
           source={require('../../../assets/logo_pronote.png')}
         />
         <Text style={styles.loginHeaderText}>

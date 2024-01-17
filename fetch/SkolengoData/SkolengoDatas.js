@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import {
   TokenResponse,
   AuthRequest,
@@ -356,7 +355,6 @@ export class SkolengoDatas extends SkolengoBase {
   /**
    * @param {import('scolengo-api/types/models/SchoolLife').AbsenceFile[]} absences
    */
-  // eslint-disable-next-line class-methods-use-this
   viescoTransform = (absences) => ({
     absences: absences
       .filter(
@@ -457,7 +455,6 @@ export class SkolengoDatas extends SkolengoBase {
   /**
    * @param {import('scolengo-api/types/models/School').SchoolInfo} info
    */
-  // eslint-disable-next-line class-methods-use-this
   newsTransform = (info) => ({
     id: info.id,
     title: ucFirst(info.title),
@@ -969,7 +966,6 @@ export class SkolengoDatas extends SkolengoBase {
   /**
    * @param {import('scolengo-api/types/models/Calendar').Agenda[]} agendas
    */
-  // eslint-disable-next-line class-methods-use-this
   timetableTransform = (
     agenda = {
       id: 'none',
@@ -1006,7 +1002,6 @@ export class SkolengoDatas extends SkolengoBase {
   /**
    * @param {import('scolengo-api/types/models/Results').Evaluation[]} evals
    */
-  // eslint-disable-next-line class-methods-use-this
   gradesTransform = (evals = []) => {
     const grades = evals
       .map((evalSubj) =>
@@ -1094,7 +1089,6 @@ export class SkolengoDatas extends SkolengoBase {
   /**
    * @param {import('scolengo-api/types/models/Calendar').HomeworkAssignment} homework
    */
-  // eslint-disable-next-line class-methods-use-this
   homeworkTransform = (homework) => {
     const dat = new Date(homework.dueDateTime || homework.dueDate);
     if (Number.isNaN(dat.getTime()))
@@ -1129,7 +1123,6 @@ export class SkolengoDatas extends SkolengoBase {
   /**
    * @param {import('scolengo-api/types/models/Results/EvaluationSettings').Period} period
    */
-  // eslint-disable-next-line class-methods-use-this
   periodTransform = (period) => ({
     id: period.id,
     name: period.label,

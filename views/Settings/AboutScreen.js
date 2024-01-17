@@ -79,7 +79,6 @@ function AboutScreen({ navigation }) {
     'vincelinise.com',
   ];
 
-  // eslint-disable-next-line no-unused-vars
   let knownServer = '';
   const [isKnownServer, setIsKnownServer] = useState(false);
   const [serverTag, setServerTag] = useState('Serveur non vérifié');

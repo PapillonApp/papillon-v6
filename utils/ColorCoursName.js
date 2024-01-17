@@ -69,7 +69,6 @@ function getClosestCourseColor(courseName) {
     let hash = 5;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i) + 1;
-      // eslint-disable-next-line no-bitwise
       hash = (hash << 5) - hash + char;
     }
     return hash;

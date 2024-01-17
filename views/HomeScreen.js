@@ -1,5 +1,3 @@
-/* eslint-disable prettier/prettier */
-
 // React Native code
 import * as React from 'react';
 import {
