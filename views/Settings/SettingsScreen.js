@@ -240,7 +240,9 @@ function SettingsScreen({ navigation }) {
             Se déconnecter de votre compte
           </NativeText>
         </NativeItem>
-        <AlertBottomSheet
+      </NativeList>
+
+      <AlertBottomSheet
           visible={DeleteAccountAlert}
           title="Êtes-vous sûr ?"
           subtitle="Tous vos paramètres et comptes seront supprimés définitivement de Papillon."
@@ -282,7 +284,6 @@ function SettingsScreen({ navigation }) {
             navigation.popToTop();
           }}
         />
-      </NativeList>
     </ScrollView>
   );
 }

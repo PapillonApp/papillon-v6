@@ -407,7 +407,9 @@ function ProfileScreen({ route, navigation }) {
             Utilise la photo de profil par défaut
           </NativeText>
         </NativeItem>
-        <AlertBottomSheet
+      </NativeList>
+
+      <AlertBottomSheet
             visible={ResetProfilePicAlert}
             title="Réinitialiser la photo de profil"
             subtitle="Êtes-vous sûr de vouloir réinitialiser la photo de profil ?"
@@ -418,7 +420,6 @@ function ProfileScreen({ route, navigation }) {
             cancelButton='Annuler'
             cancelAction={() => setResetProfilePicAlert(false)}
           />
-      </NativeList>
       
     </ScrollView>
     </View>
