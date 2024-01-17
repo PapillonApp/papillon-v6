@@ -28,7 +28,7 @@ import NativeText from '../../components/NativeText';
 import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
 
-import { PieChart, Link, File, X, DownloadCloud, MoreHorizontal, MoreVertical, ChevronLeft } from 'lucide-react-native';
+import { PieChart, Link, File, X, DownloadCloud, MoreHorizontal, MoreVertical, ChevronLeft, Check } from 'lucide-react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import ListItem from '../../components/ListItem';
 import GetUIColors from '../../utils/GetUIColors';
@@ -46,6 +46,8 @@ function NewsItem({ route, navigation }) {
   const UIColors = GetUIColors();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+
+  console.log(news);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ modalURL , setModalURL ] = useState('');
@@ -330,7 +332,20 @@ function NewsItem({ route, navigation }) {
             </NativeItem>
 
             {survey.listeChoix.V?.map((answer, index) => (
-              <NativeItem key={index} onPress={() => {alertSondage()}}>
+              <NativeItem
+                key={index} onPress={() => {alertSondage()}}
+                trailing={<>
+                  {survey?.reponse?.V?.valeurReponse?.V?.includes(index + 1) ? (
+                    <Check size={20} color={'#B42828'} />
+                  ) : null}
+
+                  {typeof survey?.reponse?.V?.valeurReponse == "string" ? (
+                    <NativeText heading="p2">
+                      {survey?.reponse?.V?.valeurReponse}
+                    </NativeText>
+                  ) : null}
+                </>}
+              >
                 <NativeText heading="p2">
                   {answer.L}
                 </NativeText>
