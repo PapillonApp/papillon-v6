@@ -686,7 +686,9 @@ function GradesScreen({ navigation }) {
           :
             `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant votre moyenne de chaque matière.`
           :
-            `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`}
+            `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.
+            
+Les notes affichées dans le graphique sont des estimations sachant que votre établissement ne donne pas accès à votre moyenne passée.`}
         icon={<BarChart3 />}
         color='#29947a'
         visible={moyReelleAlert}

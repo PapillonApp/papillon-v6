@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
-import { Animated, Easing, View, StyleSheet, Modal, Pressable, TouchableOpacity } from 'react-native';
+import { Animated, Easing, View, StyleSheet, Modal, Pressable, TouchableOpacity, StatusBar } from 'react-native';
 
 import { Text } from 'react-native-paper';
 import { BlurView } from 'expo-blur';
@@ -17,6 +17,8 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
 
+  const [isVisible, setVisible] = useState(visible);
+
   let newIcon = null;
 
   // if icon component is set, set icon color property
@@ -25,11 +27,31 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
     newIcon = React.cloneElement(icon, { color, size: 256 });
   }
 
+  function fullCancelAction() {
+    setVisible(false)
+
+    setTimeout(() => {
+      cancelAction();
+    }, 150);
+  }
+
   // if no primary action is set, set cancel action as primary action
   if (!primaryAction) {
-    primaryAction = cancelAction;
+    primaryAction = fullCancelAction;
     primaryButton = cancelButton;
   }
+
+  // animate modal when visible changes
+  useEffect(() => {
+    if (visible) {
+      setVisible(true);
+    }
+    else {
+      setTimeout(() => {
+        setVisible(false);
+      }, 100);
+    }
+  }, [visible]);
 
   const opacity = useRef(new Animated.Value(0)).current;
   const iconScale = useRef(new Animated.Value(0)).current;
@@ -38,7 +60,7 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
 
   // animate modal when visible changes
   useEffect(() => {
-    if (visible) {
+    if (isVisible) {
       Animated.parallel([
         Animated.timing(opacity, {
           toValue: 1,
@@ -74,12 +96,12 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
         }),
         Animated.timing(iconScale, {
           toValue: 0,
-          duration: 100,
+          duration: 200,
           useNativeDriver: true
         }),
         Animated.timing(iconBg, {
           toValue: 0,
-          duration: 100,
+          duration: 200,
           useNativeDriver: true
         }),
         Animated.timing(modalScaleY, {
@@ -89,7 +111,7 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
         })
       ]).start();
     }
-  }, [visible]);
+  }, [isVisible]);
 
   const flareTranslateX = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(0)).current;
@@ -132,7 +154,7 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
         )
       ]).start();
     }
-  }, [emphasize]);
+  }, []);
 
   return (
     <Modal
@@ -140,15 +162,17 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
       animationType="fade"
       transparent={true}
     >
+      <StatusBar animated barStyle={"light-content"} />
       <View style={[styles.container]}>
         <BlurView intensity={50} tint="dark" style={[StyleSheet.absoluteFill, styles.blurContainer]}>
           <Pressable
             style={[StyleSheet.absoluteFill]}
             onPress={() => {
-              cancelAction();
+              fullCancelAction();
             }}
           />
 
+          
           <Animated.View
             style={[
               styles.modal,
@@ -156,17 +180,24 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
                 backgroundColor: UIColors.background, marginBottom: insets.bottom,
                 borderColor: UIColors.borderLight,
                 borderWidth: UIColors.dark ? 0.5 : 0,
+                opacity: opacity,
                 transform: [
                   {
                     scaleY: modalScaleY.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [0.9, 1]
+                      outputRange: [0.8, 1]
                     })
                   },
                   {
                     translateY: modalScaleY.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [-50, 0]
+                      outputRange: [-70, 0]
+                    })
+                  },
+                  {
+                    scaleX: modalScaleY.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.92, 1]
                     })
                   }
                 ]
@@ -204,7 +235,7 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
               >
                 {newIcon}
               </Animated.View>
-
+              
               <Animated.View
                 style={[
                   {
@@ -230,7 +261,7 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
                   }
                 ]}
                 onPress={() => {
-                  cancelAction();
+                  fullCancelAction();
                 }}
               >
                 <X size={20} strokeWidth={2.5} color={UIColors.text} />
