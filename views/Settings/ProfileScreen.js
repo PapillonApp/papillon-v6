@@ -225,7 +225,7 @@ function ProfileScreen({ route, navigation }) {
   }, []);
 
   return (
-    <View style={[{ backgroundColor: UIColors.modalBackground }]}>
+    <View style={[{ backgroundColor: UIColors.modalBackground, flex: 1 }]}>
     { Platform.OS === 'ios' && (
     <View style={styles.profilePictureBgContainer}>
       {profilePicture && profilePicture !== '' && (
