@@ -44,6 +44,10 @@ import {
   Users,
   CalendarDays,
   X,
+  TextSelect,
+  BookOpenCheck,
+  Album,
+  Paperclip,
 } from 'lucide-react-native';
 
 import formatCoursName from '../utils/FormatCoursName';
@@ -817,6 +821,30 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
                 <Text style={[styles.coursProf]}>Aucun professeur</Text>
               )}
 
+              <View style={[styles.coursIcons]}>
+                {cours.memo && (
+                  <TextSelect
+                  size={21}
+                    color={UIColors.text}
+                    strokeWidth={2.2}
+                  />
+                )}
+                {cours.is_test && (
+                  <BookOpenCheck
+                    size={21}
+                    color={UIColors.text}
+                    strokeWidth={2.2}
+                  />
+                )}
+                {cours.content.files && cours.content.files.length > 0 && (
+                  <Paperclip
+                    size={21}
+                    color={UIColors.text}
+                    strokeWidth={2.2}
+                  />
+                )}
+              </View>
+
               {cours.status && (
                 <View
                   style={[
@@ -1187,6 +1215,15 @@ const styles = StyleSheet.create({
   modalTipData: {
     flex: 1,
     paddingRight: 16,
+  },
+
+  coursIcons: {
+    position: 'absolute',
+    right: 16,
+    bottom: 15,
+    flexDirection: 'row',
+    gap: 12,
+    opacity: 0.5,
   }
 });
 
