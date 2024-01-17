@@ -29,6 +29,8 @@ import {
   ClipboardList,
   BookOpen,
   File as FileLucide,
+  Library,
+  MessageSquare,
 } from 'lucide-react-native';
 
 import NativeList from '../../components/NativeList';
@@ -46,13 +48,14 @@ function LessonScreen({ route, navigation }) {
   const lesson = route.params.event;
   const UIColors = GetUIColors();
 
+  console.log(lesson);
 
-function openURL(url) {
-  WebBrowser.openBrowserAsync(url, {
-    presentationStyle: 'formSheet',
-    controlsColor: UIColors.primary,
-  });
-}
+  function openURL(url) {
+    WebBrowser.openBrowserAsync(url, {
+      presentationStyle: 'formSheet',
+      controlsColor: UIColors.primary,
+    });
+  }
 
   // main color
   const mainColor = theme.dark ? '#ffffff' : '#444444';
@@ -140,17 +143,46 @@ function openURL(url) {
                 {lesson.teachers.join(', ') || 'Non spécifié'}
               </NativeText>
             </NativeItem>
-            <NativeItem
-              leading={<Users size={24} color={mainColor} />}
-            >
-              <NativeText heading="p2">
-                Groupe{lesson.group_names.length > 1 ? 's' : ''}
-              </NativeText>
-              <NativeText heading="h4">
-                {lesson.group_names.join(', ') || 'Non spécifié'}
-              </NativeText>
-            </NativeItem>
+            { lesson.group_names && lesson.group_names.length > 0 ? (
+              <NativeItem
+                leading={<Users size={24} color={mainColor} />}
+              >
+                <NativeText heading="p2">
+                  Groupe{lesson.group_names.length > 1 ? 's' : ''}
+                </NativeText>
+                <NativeText heading="h4">
+                  {lesson.group_names.join(', ') || 'Non spécifié'}
+                </NativeText>
+              </NativeItem>
+            ) : <View style={{marginTop: -0.5}} /> }
         </NativeList>
+
+        { lesson.status ? (
+          <NativeList inset header="Statut">
+              <NativeItem
+                leading={<Info size={24} color={mainColor} />}
+              >
+                <NativeText heading="p2">
+                  Statut du cours
+                </NativeText>
+                <NativeText heading="h4">
+                  {lesson.status}
+                </NativeText>
+              </NativeItem>
+            { lesson.memo ? (
+              <NativeItem
+                leading={<MessageSquare size={24} color={mainColor} />}
+              >
+                <NativeText heading="p2">
+                  Commentaire
+                </NativeText>
+                <NativeText heading="h4">
+                  {lesson.memo}
+                </NativeText>
+              </NativeItem>
+            ) : <View style={{marginTop: -0.5}} /> }
+          </NativeList>
+        ) : null }
 
         <NativeList
           inset
