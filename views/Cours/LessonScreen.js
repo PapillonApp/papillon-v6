@@ -93,19 +93,23 @@ function LessonScreen({ route, navigation }) {
   // change header component
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: Platform.OS === 'ios' ? () => (
-        <PapillonInsetHeader
-          icon={
-            <View style={[styles.headerEmojiContainer, {backgroundColor: color + 22}]}>
-              <Text style={styles.headerEmoji}>
-                {getClosestGradeEmoji(lesson.subject.name)}
-              </Text>
-            </View>
-          }
-          title={formatCoursName(lesson.subject.name)}
-          color="#888888"
-        />
-      ) : formatCoursName(lesson.subject.name),
+      headerTitle: () => (
+        <View
+          style={{
+            flexDirection: 'column',
+            alignItems: Platform.OS === 'ios' ? 'center' : 'flex-start',
+            maxWidth: '92%',
+          }}
+        >
+          <Text numberOfLines={1} style={{fontFamily: "Papillon-Semibold", fontSize: 17}}>
+            {formatCoursName(lesson.subject.name)}
+          </Text>
+          <Text numberOfLines={1} style={{fontFamily: "Papillon-Medium", fontSize: 15, opacity:0.5}}>
+            {"salle " + lesson.rooms.join(', ') + " - "}
+            {lesson.status?.toLowerCase() || lengthString + " de cours"}
+          </Text>
+        </View>
+      ),
     });
   }, [navigation, theme, lesson.subject.name, UIColors]);
 
