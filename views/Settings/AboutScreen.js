@@ -123,9 +123,9 @@ function AboutScreen({ navigation }) {
   }
 
   function formatDate(date) {
-    let s = date.split(" ");
-    let d = s[0].split("-");
-    let t = s[1].split(":");
+    let s = date.split(' ');
+    let d = s[0].split('-');
+    let t = s[1].split(':');
     const month = [
       'janvier',
       'février',

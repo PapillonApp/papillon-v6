@@ -66,13 +66,13 @@ function getToken(credentials) {
     loginTrue = true;
   }
 
-  let flags = "";
+  let flags = '';
 
   if (credentials.parent && credentials.parent === true) {
-    flags += "?type=parent";
+    flags += '?type=parent';
   }
   else {
-    flags += "?type=eleve";
+    flags += '?type=eleve';
   }
 
   credentials.url = `${fixURL(credentials.url)}eleve.html`;

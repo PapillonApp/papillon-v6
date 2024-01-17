@@ -64,10 +64,10 @@ function SchoolLifeScreen({ navigation }) {
       contentInsetAdjustmentBehavior="automatic"
     >
       <StatusBar
-          animated
-          barStyle={theme.dark ? 'light-content' : 'dark-content'}
-          backgroundColor="transparent"
-        />
+        animated
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor="transparent"
+      />
 
       {isHeadLoading ? (
         <PapillonLoading
@@ -81,12 +81,12 @@ function SchoolLifeScreen({ navigation }) {
           {viesco.absences.length === 0 &&
           viesco.delays.length === 0 &&
           !isHeadLoading ? (
-            <PapillonLoading
-              title="Aucun évenement"
-              subtitle="Vous n'avez aucun évenement à afficher"
-              icon={<UserX size={26} color={UIColors.primary} />}
-            />
-          ) : null}
+              <PapillonLoading
+                title="Aucun évenement"
+                subtitle="Vous n'avez aucun évenement à afficher"
+                icon={<UserX size={26} color={UIColors.primary} />}
+              />
+            ) : null}
 
           {viesco.absences && viesco.absences.length > 0 ? (
             <NativeList header="Absences" inset>
@@ -161,9 +161,9 @@ function SchoolLifeScreen({ navigation }) {
                   key={index}
                   leading={!delay.justified ? (
                     <Clock3 size={24} color="#A84700" />
-                    ) : (
+                  ) : (
                     <Clock3 size={24} color="#565EA3" />
-                    )
+                  )
                   }
                   trailing={!delay.justified ? (
                     <NativeText
@@ -185,22 +185,22 @@ function SchoolLifeScreen({ navigation }) {
                   </NativeText>
                   <NativeText heading="p2">
                     le{' '}
-                      {new Date(delay.date).toLocaleDateString('fr', {
-                        weekday: 'long',
-                        day: '2-digit',
-                        month: 'short',
-                      })}
+                    {new Date(delay.date).toLocaleDateString('fr', {
+                      weekday: 'long',
+                      day: '2-digit',
+                      month: 'short',
+                    })}
                   </NativeText>
 
                   {delay.reasons.length > 0 ? (
-                      <NativeText
-                        heading="subtitle2"
-                        style={{
-                          marginTop: 6
-                        }}
-                      >
-                        {delay.reasons[0]}
-                      </NativeText>
+                    <NativeText
+                      heading="subtitle2"
+                      style={{
+                        marginTop: 6
+                      }}
+                    >
+                      {delay.reasons[0]}
+                    </NativeText>
                   ) : null}
                 </NativeItem>
               ))}

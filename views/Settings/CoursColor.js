@@ -2,7 +2,7 @@ import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Pressable } from 'react-native';
 
 import { useTheme, Text } from 'react-native-paper';
-import GetUIColors from '../../utils/GetUIColors'
+import GetUIColors from '../../utils/GetUIColors';
 
 import SyncStorage, { set } from 'sync-storage';
 
@@ -78,7 +78,7 @@ const CoursColor = ({ navigation }) => {
     });
 
     forceSavedCourseColor(currentEditedSubject, hex);
-    setColorModalOpen(false)
+    setColorModalOpen(false);
   };
 
   const ApplyRandomColors = () => {
@@ -230,7 +230,7 @@ const CoursColor = ({ navigation }) => {
                   {savedColors[key].color.toUpperCase()}
                 </NativeText>
               </NativeItem>
-            )
+            );
           }
           else {
             return null;
@@ -275,7 +275,7 @@ const CoursColor = ({ navigation }) => {
         </View>
       </Modal>
     </ScrollView>
-  )
+  );
 };
 
 const LockToggle = ({ value, onValueChange, color }) => {
@@ -299,7 +299,7 @@ const LockToggle = ({ value, onValueChange, color }) => {
           backgroundColor: 
             UIColors.theme === 'dark' ?
               UIColors.text
-            :
+              :
               UIColors.primary,
         } : {},
       ]}

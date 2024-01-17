@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, ScrollView, Image, Alert, StatusBar, TextInput, Modal, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ScrollView, Image, Alert, StatusBar, TextInput, Platform, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
 
 import { Text } from 'react-native-paper';
 import GetUIColors from '../../utils/GetUIColors';
@@ -40,19 +40,19 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
 
   function addSubject() {
     Alert.prompt(
-      "Ajouter une matière",
-      "Veuillez entrer le nom de la matière que vous souhaitez ajouter.",
+      'Ajouter une matière',
+      'Veuillez entrer le nom de la matière que vous souhaitez ajouter.',
       [
         {
-          text: "Annuler",
+          text: 'Annuler',
           onPress: () => {},
-          style: "destructive"
+          style: 'destructive'
         },
         {
-          text: "Ajouter",
+          text: 'Ajouter',
           onPress: (text) => {
-            if (text.trim() == "") {
-              Alert.alert("Erreur", "Veuillez entrer un nom de matière valide.");
+            if (text.trim() == '') {
+              Alert.alert('Erreur', 'Veuillez entrer un nom de matière valide.');
               return;
             }
 
@@ -63,10 +63,10 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
               }
 
               let newColor = {
-                systemCourseName: text.toLowerCase().replace(' ','').normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
+                systemCourseName: text.toLowerCase().replace(' ','').normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
                 originalCourseName: text.toUpperCase(),
                 color: UIColors.primary,
-              }
+              };
 
               colors[newColor.systemCourseName] = newColor;
 
@@ -92,16 +92,16 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
               });
             });
           },
-          style: "primary"
+          style: 'primary'
         }
       ],
-      "plain-text",
-      ""
+      'plain-text',
+      ''
     );
   }
 
   function addHomework() {
-    if (homeworkTitle.trim() == "") {
+    if (homeworkTitle.trim() == '') {
       setTitleMissingAlert(true);
       return;
     }
@@ -119,9 +119,9 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
         id: Math.random().toString(36).substring(7),
         local_id: Math.random().toString(36).substring(7),
         subject: {
-            id: Math.random().toString(36).substring(7),
-            name: nativeSubjects[selectedSubject]?.actionTitle,
-            groups: false
+          id: Math.random().toString(36).substring(7),
+          name: nativeSubjects[selectedSubject]?.actionTitle,
+          groups: false
         },
         description: homeworkTitle,
         background_color: getSavedCourseColor(nativeSubjects[selectedSubject]?.actionTitle, UIColors.primary),
@@ -129,7 +129,7 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
         date: new Date(date).toISOString(),
         files: [],
         custom: true,
-      }
+      };
 
       hw.push(newHw);
 
@@ -151,9 +151,9 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
 
         for (let i = 0; i < savedColorsKeys.length; i++) {
           let item = savedColors[savedColorsKeys[i]];
-          if(savedColorsKeys[i].trim() == "") continue;
-          if(savedColorsKeys[i].trim() == "0") continue;
-          if(savedColorsKeys[i].trim() == "ajouterunematiere") continue;
+          if(savedColorsKeys[i].trim() == '') continue;
+          if(savedColorsKeys[i].trim() == '0') continue;
+          if(savedColorsKeys[i].trim() == 'ajouterunematiere') continue;
 
           setNativeSubjects ((prev) => [
             ...prev,
@@ -214,11 +214,11 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
 
   return (
     <KeyboardAvoidingView style={{flex: 1}}>
-    { loading && (
+      { loading && (
         <View style={{
           flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: 'center',
+          alignItems: 'center',
           backgroundColor: UIColors.element,
           gap: 10,
           position: 'absolute',
@@ -236,88 +236,88 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
             Chargement des matières...
           </NativeText>
         </View>
-    )}
+      )}
 
-    <View style={{ backgroundColor: UIColors.element, borderBottomColor: UIColors.border, borderBottomWidth: 0.5, gap: 9, paddingBottom: 16 }}>
-      <View style={[styles.newHwInput, {backgroundColor: UIColors.text + '12'}]}>
-        <SFSymbol style={[styles.newHwIcon]} size={20} color={UIColors.text + '80'} name="square.and.pencil" />
-        <TextInput
-          placeholder="Titre du devoir"
-          placeholderTextColor={UIColors.text + '80'}
-          multiline
-          style={[
-            styles.newHwTextInput,
-            {
-              color: UIColors.text
-            }
-          ]}
-          value={homeworkTitle}
-          onChangeText={(text) => {
-            setHomeworkTitle(text);
-          }}
-        />
-      </View>
+      <View style={{ backgroundColor: UIColors.element, borderBottomColor: UIColors.border, borderBottomWidth: 0.5, gap: 9, paddingBottom: 16 }}>
+        <View style={[styles.newHwInput, {backgroundColor: UIColors.text + '12'}]}>
+          <SFSymbol style={[styles.newHwIcon]} size={20} color={UIColors.text + '80'} name="square.and.pencil" />
+          <TextInput
+            placeholder="Titre du devoir"
+            placeholderTextColor={UIColors.text + '80'}
+            multiline
+            style={[
+              styles.newHwTextInput,
+              {
+                color: UIColors.text
+              }
+            ]}
+            value={homeworkTitle}
+            onChangeText={(text) => {
+              setHomeworkTitle(text);
+            }}
+          />
+        </View>
 
-      <View style={[styles.newHwSubjectInput, {backgroundColor: UIColors.text + '12'}]}>
-        <View
-          style={{
-            width: 15,
-            height: 15,
-            borderRadius: 12,
-            backgroundColor: getSavedCourseColor(nativeSubjects[selectedSubject]?.actionTitle, UIColors.primary),
-          }}
-        />
+        <View style={[styles.newHwSubjectInput, {backgroundColor: UIColors.text + '12'}]}>
+          <View
+            style={{
+              width: 15,
+              height: 15,
+              borderRadius: 12,
+              backgroundColor: getSavedCourseColor(nativeSubjects[selectedSubject]?.actionTitle, UIColors.primary),
+            }}
+          />
 
-        <ContextMenuButton
-          menuConfig={{
-            menuTitle: 'Matières disponibles',
-            menuItems: nativeSubjects,
-          }}
-          isMenuPrimaryAction={true}
-          onPressMenuItem={({nativeEvent}) => {
-            if (nativeEvent.actionKey === 'new') {
-              addSubject();
-              return;
-            }
+          <ContextMenuButton
+            menuConfig={{
+              menuTitle: 'Matières disponibles',
+              menuItems: nativeSubjects,
+            }}
+            isMenuPrimaryAction={true}
+            onPressMenuItem={({nativeEvent}) => {
+              if (nativeEvent.actionKey === 'new') {
+                addSubject();
+                return;
+              }
 
-            // find id from nativeEvent.actionKey
-            let id = nativeEvent.actionKey;
-            let index = nativeSubjects.findIndex((item) => item.actionKey === id);
-            setSelectedSubject(index);
-          }}
-        >
-          <Text
-            style={styles.newHwSubject}
-            numberOfLines={1}
-            ellipsizeMode="tail"
+              // find id from nativeEvent.actionKey
+              let id = nativeEvent.actionKey;
+              let index = nativeSubjects.findIndex((item) => item.actionKey === id);
+              setSelectedSubject(index);
+            }}
           >
-            {nativeSubjects[selectedSubject]?.actionTitle || 'Aucune matière'}
-          </Text>
-        </ContextMenuButton>
-      </View>
+            <Text
+              style={styles.newHwSubject}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {nativeSubjects[selectedSubject]?.actionTitle || 'Aucune matière'}
+            </Text>
+          </ContextMenuButton>
+        </View>
       
-    </View>
-    <ScrollView
-      style={{ flex: 1, backgroundColor: UIColors.modalBackground }}
-      contentContainerStyle={{ flexGrow: 1, paddingTop: '16%', }}
-    >
-      <StatusBar animated backgroundColor="#fff" barStyle="light-content" />
+      </View>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: UIColors.modalBackground }}
+        contentContainerStyle={{ flexGrow: 1, paddingTop: '16%' }}
+      >
+        <StatusBar animated backgroundColor="#fff" barStyle="light-content" />
 
-      <PapillonLoading
-        title="Ajouter un devoir"
-        subtitle={"Indiquez un titre et une matière pour votre devoir personnalisé le " + new Date(date).toLocaleDateString('fr-FR', { weekday: 'short', month: 'long', day: 'numeric' }) + "."}
-        icon={<SFSymbol color={UIColors.text} name="book" size={26} style={{marginBottom:15}} />}
+        <PapillonLoading
+          title="Ajouter un devoir"
+          subtitle={'Indiquez un titre et une matière pour votre devoir personnalisé le ' + new Date(date).toLocaleDateString('fr-FR', { weekday: 'short', month: 'long', day: 'numeric' }) + '.'}
+          icon={<SFSymbol color={UIColors.text} name="book" size={26} style={{marginBottom:15}} />}
+        />
+      </ScrollView>
+      <AlertBottomSheet
+        visible={titleMissingAlert}
+        title="Titre manquant"
+        subtitle="Veuillez entrer un titre pour votre devoir."
+        icon={<AlertTriangle />}
+        cancelAction={() => {
+          setTitleMissingAlert(false);
+        }}
       />
-    </ScrollView>
-    <AlertBottomSheet
-      visible={titleMissingAlert}
-      title="Titre manquant"
-      subtitle="Veuillez entrer un titre pour votre devoir."
-      icon={<AlertTriangle />}
-      cancelAction={() => {
-        setTitleMissingAlert(false);
-      }}
-    />
     </KeyboardAvoidingView>
   );
 };
@@ -348,8 +348,7 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingRight: 10,
 
-    marginTop: "auto",
-    marginBottom: "auto",
+    marginBottom: 'auto',
     
     marginTop: -5,
     paddingBottom: 4,

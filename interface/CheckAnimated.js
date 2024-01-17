@@ -18,7 +18,7 @@ const CheckAnimated = ({ checked, pressed = () => {}, loading }) => {
       if (initialState) {
         Haptics.notificationAsync(
           Haptics.NotificationFeedbackType.Success
-        )
+        );
       }
     } else {
       setCheck(false);
@@ -118,28 +118,28 @@ const CheckAnimated = ({ checked, pressed = () => {}, loading }) => {
       onPress={handlePress}
     >
       <Animated.View
-          style={[
-            styles.checkboxRipple,
-            {
-              backgroundColor: UIColors.primary,
-              opacity: rippleOpacity,
-              transform: [
-                {
-                  scale: rippleScale.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.5, 1.3],
-                  })
-                }
-              ]
-            }
-          ]}
-        />
+        style={[
+          styles.checkboxRipple,
+          {
+            backgroundColor: UIColors.primary,
+            opacity: rippleOpacity,
+            transform: [
+              {
+                scale: rippleScale.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.5, 1.3],
+                })
+              }
+            ]
+          }
+        ]}
+      />
 
       <View
         style={[
           styles.checkbox,
           {
-            borderColor: !isLoading ? (check ? UIColors.primary : UIColors.border) : "transparent",
+            borderColor: !isLoading ? (check ? UIColors.primary : UIColors.border) : 'transparent',
             backgroundColor: UIColors.element,
           }
         ]}
@@ -154,30 +154,30 @@ const CheckAnimated = ({ checked, pressed = () => {}, loading }) => {
         ) : null}
 
         <Animated.View
-            style={[
-              styles.checkboxChecked,
-              {
-                backgroundColor: UIColors.primary,
-                transform: [
-                  {
-                    scale: checkScale.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0, 1],
-                    })
-                  }
-                ]
-              }
-            ]}
-          >
-            <Check
-              size={20}
-              color={"#ffffff"}
-            />
+          style={[
+            styles.checkboxChecked,
+            {
+              backgroundColor: UIColors.primary,
+              transform: [
+                {
+                  scale: checkScale.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 1],
+                  })
+                }
+              ]
+            }
+          ]}
+        >
+          <Check
+            size={20}
+            color={'#ffffff'}
+          />
         </Animated.View>
       </View>
     </TouchableOpacity>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
 
   checkboxRipple: {
     width: '100%',
-    height: "100%",
+    height: '100%',
     borderRadius: 300,
     position: 'absolute',
     opacity: 0.2,

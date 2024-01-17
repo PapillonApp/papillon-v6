@@ -21,7 +21,7 @@ const GradesSimulatorMenu = ({ navigation }) => {
   const [grades, setGrades] = useState([]);
 
   const [gradeAlert, setGradeAlert] = useState(false);
-  const [selectedGrade, setSelectedGrade] = useState({"date": null, "description": "Note simulée", "grade": {"average": null, "coefficient": null, "max": null, "min": null, "out_of": null, "significant": 0, "value": null}, "id": "", "is_bonus": false, "is_optional": false, "is_out_of_20": false, "subject": {"groups": false, "id": "", "name": ""}});
+  const [selectedGrade, setSelectedGrade] = useState({'date': null, 'description': 'Note simulée', 'grade': {'average': null, 'coefficient': null, 'max': null, 'min': null, 'out_of': null, 'significant': 0, 'value': null}, 'id': '', 'is_bonus': false, 'is_optional': false, 'is_out_of_20': false, 'subject': {'groups': false, 'id': '', 'name': ''}});
 
   // when transition ends refresh
   useEffect(() => {
@@ -39,7 +39,7 @@ const GradesSimulatorMenu = ({ navigation }) => {
         setGrades(val);
       }
     });
-  }
+  };
 
   useEffect(() => {
     getGrades();
@@ -130,14 +130,14 @@ const GradesSimulatorMenu = ({ navigation }) => {
         title={selectedGrade.subject.name}
         subtitle="Voulez-vous supprimer cette note ?"
         primaryButton='Supprimer'
-        primaryAction={() => {delGrade(selectedGrade); setGradeAlert(false)}}
+        primaryAction={() => {delGrade(selectedGrade); setGradeAlert(false);}}
         cancelAction={() => setGradeAlert(false)}
         color='#D81313'
         icon={<Trash2 />}
       />
 
     </ScrollView>
-  )
+  );
 };
 
 const styles = StyleSheet.create({

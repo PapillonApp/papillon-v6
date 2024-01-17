@@ -6,7 +6,7 @@ import { Cell, Section, TableView } from 'react-native-tableview-simple';
 
 import GetUIColors from '../utils/GetUIColors';
 
-import { SFSymbol } from "react-native-sfsymbols";
+import { SFSymbol } from 'react-native-sfsymbols';
 
 function NativeItem(props) {
   const { 
@@ -71,6 +71,6 @@ const styles = StyleSheet.create({
   cellAccessoryView: {
     marginLeft: 14,
   },
-})
+});
 
 export default NativeItem;

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import Config from "react-native-config";
+import Config from 'react-native-config';
 
 import {
   Diff,
@@ -40,7 +40,7 @@ import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
-import { Buffer } from 'buffer'
+import { Buffer } from 'buffer';
 
 function calculateSubjectAverage(grades) {
   // for each grade, calculate average for all
@@ -80,7 +80,7 @@ function calculateSubjectAverage(grades) {
       min: -1,
       max: -1,
       out_of: 20,
-    }
+    };
   }
 
   return {
@@ -89,7 +89,7 @@ function calculateSubjectAverage(grades) {
     min: min,
     max: max,
     out_of: 20,
-  }
+  };
 }
 function calculateExactGrades(grades, isClass) {
   // step 1 : subject list
@@ -174,7 +174,7 @@ function GradeView({ route, navigation }) {
   const [isShared , setIsShared] = React.useState(false);
   
   async function getName() {
-    var user = await appctx.dataprovider.getUser()
+    var user = await appctx.dataprovider.getUser();
     return user.name.split(' ').pop();
   }
 
@@ -221,7 +221,7 @@ function GradeView({ route, navigation }) {
     // share shorten_link
     ShareUI.share({
       message: `${shorten_link}`,
-      title: `Note partagée depuis l'app Papillon`,
+      title: 'Note partagée depuis l\'app Papillon',
     });
   }
 
@@ -317,9 +317,9 @@ function GradeView({ route, navigation }) {
       >
         <View style={{
           flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#000000a5",
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#000000a5',
           gap: 10,
         }}>
           <ActivityIndicator color="#ffffff" />
@@ -487,74 +487,74 @@ function GradeView({ route, navigation }) {
         </NativeList>
 
         {allGrades.length > 1 ? (
-        <NativeList
-          inset
-          header="Influence"
-        >
-          <NativeItem
-            leading={
-              <UserPlus color={UIColors.text} />
-            }
-            trailing={
-              avgInfluence > 0 ? (
-                <NativeText heading="h4" style={{ color: "#1AA989" }}>
+          <NativeList
+            inset
+            header="Influence"
+          >
+            <NativeItem
+              leading={
+                <UserPlus color={UIColors.text} />
+              }
+              trailing={
+                avgInfluence > 0 ? (
+                  <NativeText heading="h4" style={{ color: '#1AA989' }}>
                   + {parseFloat(avgInfluence).toFixed(2)} pts
-                </NativeText>
-              ) : (
-                <NativeText heading="h4" style={{ color: "#D81313" }}>
+                  </NativeText>
+                ) : (
+                  <NativeText heading="h4" style={{ color: '#D81313' }}>
                   - {parseFloat(avgInfluence).toFixed(2) * -1} pts
-                </NativeText>
-              )
-            }
-          >
-            <NativeText heading="p2">
+                  </NativeText>
+                )
+              }
+            >
+              <NativeText heading="p2">
               Moyenne générale
-            </NativeText>
-          </NativeItem>
-          <NativeItem
-            leading={
-              <Users2 color={UIColors.text} />
-            }
-            trailing={
-              classAvgInfluence > 0 ? (
-                <NativeText heading="h4">
+              </NativeText>
+            </NativeItem>
+            <NativeItem
+              leading={
+                <Users2 color={UIColors.text} />
+              }
+              trailing={
+                classAvgInfluence > 0 ? (
+                  <NativeText heading="h4">
                   + {parseFloat(classAvgInfluence).toFixed(2)} pts
-                </NativeText>
-              ) : (
-                <NativeText heading="h4">
+                  </NativeText>
+                ) : (
+                  <NativeText heading="h4">
                   - {parseFloat(classAvgInfluence).toFixed(2) * -1} pts
-                </NativeText>
-              )
-            }
-          >
-            <NativeText heading="p2">
+                  </NativeText>
+                )
+              }
+            >
+              <NativeText heading="p2">
               Moyenne de classe
-            </NativeText>
-          </NativeItem>
-          <NativeItem
-            leading={
-              <Percent color={UIColors.text} />
-            }
-            trailing={
-              avgPercentInfluence > 0 ? (
-                <NativeText heading="h4" style={{ color: "#1AA989" }}>
+              </NativeText>
+            </NativeItem>
+            <NativeItem
+              leading={
+                <Percent color={UIColors.text} />
+              }
+              trailing={
+                avgPercentInfluence > 0 ? (
+                  <NativeText heading="h4" style={{ color: '#1AA989' }}>
                   + {parseFloat(avgPercentInfluence).toFixed(2)} %
-                </NativeText>
-              ) : (
-                <NativeText heading="h4" style={{ color: "#D81313" }}>
+                  </NativeText>
+                ) : (
+                  <NativeText heading="h4" style={{ color: '#D81313' }}>
                   - {parseFloat(avgPercentInfluence).toFixed(2) * -1} %
-                </NativeText>
-              )
-            }
-          >
-            <NativeText heading="p2">
+                  </NativeText>
+                )
+              }
+            >
+              <NativeText heading="p2">
               Pourcentage d'influence
-            </NativeText>
-            <NativeText heading="subtitle2">
+              </NativeText>
+              <NativeText heading="subtitle2">
               sur la moyenne générale
-            </NativeText>
-          </NativeItem>
-        </NativeList>
+              </NativeText>
+            </NativeItem>
+          </NativeList>
         ) : null}
 
         <NativeList
@@ -567,11 +567,11 @@ function GradeView({ route, navigation }) {
             }
             trailing={
               (grade.grade.value - grade.grade.average).toFixed(2) > 0 ? (
-                <NativeText heading="h4" style={{ color: "#1AA989" }}>
+                <NativeText heading="h4" style={{ color: '#1AA989' }}>
                   + {(grade.grade.value - grade.grade.average).toFixed(2)} pts
                 </NativeText>
               ) : (
-                <NativeText heading="h4" style={{ color: "#D81313" }}>
+                <NativeText heading="h4" style={{ color: '#D81313' }}>
                   - {(grade.grade.value - grade.grade.average).toFixed(2) * -1} pts
                 </NativeText>
               )

@@ -27,6 +27,7 @@
     "react/no-unescaped-entities": "off",
     "react/no-array-index-key": "off",
     "react/prop-types": "off",
+    "react/display-name": "off",
     
     "indent": ["error", 2],
     "no-unused-vars": "warn",

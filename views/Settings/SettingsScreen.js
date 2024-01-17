@@ -105,11 +105,11 @@ function SettingsScreen({ navigation }) {
             
           </NativeItem>
           <AlertBottomSheet
-              visible={PronoteTokenActionAlert}
-              title="Regénerer le token"
-              subtitle="Le token de votre compte a été regénéré avec succès !"
-              icon={<RefreshCw/>}
-              cancelAction={() => setPronoteTokenActionAlert(false)}
+            visible={PronoteTokenActionAlert}
+            title="Regénerer le token"
+            subtitle="Le token de votre compte a été regénéré avec succès !"
+            icon={<RefreshCw/>}
+            cancelAction={() => setPronoteTokenActionAlert(false)}
           />
           <NativeItem
             leading={<Trash2 size={24} color={UIColors.text} />}
@@ -144,13 +144,13 @@ function SettingsScreen({ navigation }) {
             </NativeText>
           </NativeItem>
           <AlertBottomSheet
-              visible={SkolengoCacheClearAlert}
-              title="Vider le cache"
-              subtitle="Êtes-vous sûr de vouloir vider le cache ?"
-              icon={<Trash2/>}
-              primaryButton='Vider le cache'
-              primaryAction={async () => {
-                SkolengoCache.clearItems().then(() =>
+            visible={SkolengoCacheClearAlert}
+            title="Vider le cache"
+            subtitle="Êtes-vous sûr de vouloir vider le cache ?"
+            icon={<Trash2/>}
+            primaryButton='Vider le cache'
+            primaryAction={async () => {
+              SkolengoCache.clearItems().then(() =>
                 showMessage({
                   message: 'Cache vidé avec succès',
                   type: 'success',
@@ -158,11 +158,11 @@ function SettingsScreen({ navigation }) {
                   floating: true,
                 })
                 
-                );
-                console.log('Cache vidé avec succès');
-              }}
-              cancelButton='Annuler'
-              cancelAction={() => setSkolengoCacheClearAlert(false)}
+              );
+              console.log('Cache vidé avec succès');
+            }}
+            cancelButton='Annuler'
+            cancelAction={() => setSkolengoCacheClearAlert(false)}
           />
           <NativeItem
             leading={<RotateCw size={24} color={UIColors.text} />}
@@ -177,48 +177,48 @@ function SettingsScreen({ navigation }) {
             </NativeText>
           </NativeItem>
           <AlertBottomSheet
-              visible={SkolengoReconnectAlert}
-              title="Reconnecter son compte Skolengo"
-              subtitle="Êtes-vous sûr de vouloir reconnecter votre compte Skolengo ?"
-              icon={<RotateCw/>}
-              primaryButton='Reconnecter'
-              primaryAction={async () => {
-                if (!appctx?.dataprovider?.skolengoInstance) return;
-                if (!appctx?.dataprovider?.skolengoInstance.rtInstance)
-                  await appctx?.dataprovider?.init();
-                const validRetry = await loginSkolengoWorkflow(
-                  appctx,
-                  null,
-                  appctx.dataprovider.skolengoInstance.school,
-                  appctx.dataprovider.skolengoInstance
-                );
-                if (validRetry === true) {
-                  SkolengoCache.clearItems();
-                  const discovery = AsyncStorage.getItem(
-                    SkolengoDatas.DISCOVERY_PATH
-                  )?.then((_disco) => _disco && JSON.parse(_disco));
-                  revokeAsync(
-                    {
-                      ...appctx.dataprovider.skolengoInstance?.rtInstance,
-                      token:
+            visible={SkolengoReconnectAlert}
+            title="Reconnecter son compte Skolengo"
+            subtitle="Êtes-vous sûr de vouloir reconnecter votre compte Skolengo ?"
+            icon={<RotateCw/>}
+            primaryButton='Reconnecter'
+            primaryAction={async () => {
+              if (!appctx?.dataprovider?.skolengoInstance) return;
+              if (!appctx?.dataprovider?.skolengoInstance.rtInstance)
+                await appctx?.dataprovider?.init();
+              const validRetry = await loginSkolengoWorkflow(
+                appctx,
+                null,
+                appctx.dataprovider.skolengoInstance.school,
+                appctx.dataprovider.skolengoInstance
+              );
+              if (validRetry === true) {
+                SkolengoCache.clearItems();
+                const discovery = AsyncStorage.getItem(
+                  SkolengoDatas.DISCOVERY_PATH
+                )?.then((_disco) => _disco && JSON.parse(_disco));
+                revokeAsync(
+                  {
+                    ...appctx.dataprovider.skolengoInstance?.rtInstance,
+                    token:
                         appctx.dataprovider.skolengoInstance?.rtInstance
                           .accessToken,
-                    },
-                    discovery
-                  ).then(() => {
-                    showMessage({
-                      message: 'Compte déconnecté avec succès',
-                      type: 'success',
-                      icon: 'auto',
-                      floating: true,
-                    });
-                    navigation.navigate('login');
+                  },
+                  discovery
+                ).then(() => {
+                  showMessage({
+                    message: 'Compte déconnecté avec succès',
+                    type: 'success',
+                    icon: 'auto',
+                    floating: true,
                   });
-                }
-                setSkolengoReconnectAlert(false);
-              }}
-              cancelButton='Annuler'
-              cancelAction={() => setSkolengoReconnectAlert(false)}
+                  navigation.navigate('login');
+                });
+              }
+              setSkolengoReconnectAlert(false);
+            }}
+            cancelButton='Annuler'
+            cancelAction={() => setSkolengoReconnectAlert(false)}
           />
             
         </NativeList>
@@ -243,47 +243,47 @@ function SettingsScreen({ navigation }) {
       </NativeList>
 
       <AlertBottomSheet
-          visible={DeleteAccountAlert}
-          title="Êtes-vous sûr ?"
-          subtitle="Tous vos paramètres et comptes seront supprimés définitivement de Papillon."
-          icon={<LogOut size={24}/>}
-          color='#D81313'
-          cancelButton='Annuler'
-          cancelAction={() => setDeleteAccountAlert(false)}
-          primaryButton='Déconnexion'
-          primaryAction={async () => {
-            let server = null;
+        visible={DeleteAccountAlert}
+        title="Êtes-vous sûr ?"
+        subtitle="Tous vos paramètres et comptes seront supprimés définitivement de Papillon."
+        icon={<LogOut size={24}/>}
+        color='#D81313'
+        cancelButton='Annuler'
+        cancelAction={() => setDeleteAccountAlert(false)}
+        primaryButton='Déconnexion'
+        primaryAction={async () => {
+          let server = null;
             
-            try {
-              AsyncStorage.getItem('credentials').then((result) => {
-                const res = JSON.parse(result || 'null');
-                if (res)
-                  AsyncStorage.setItem(
-                    'old_login',
-                    JSON.stringify({ url: res.url })
-                  );
-              });
-              AsyncStorage.getItem('custom_server').then((server) => {
-                if (server) {
-                  server = JSON.parse(server);
-                }
-              });
-              if (appctx.dataprovider.service === 'Skolengo')
-                appctx.dataprovider.skolengoInstance?.skolengoDisconnect();
-            } catch (e) {
-              /* empty */
-            }
-  
-            AsyncStorage.clear().then(() => {
+          try {
+            AsyncStorage.getItem('credentials').then((result) => {
+              const res = JSON.parse(result || 'null');
+              if (res)
+                AsyncStorage.setItem(
+                  'old_login',
+                  JSON.stringify({ url: res.url })
+                );
+            });
+            AsyncStorage.getItem('custom_server').then((server) => {
               if (server) {
-                AsyncStorage.setItem('custom_server', JSON.stringify(server));
+                server = JSON.parse(server);
               }
             });
+            if (appctx.dataprovider.service === 'Skolengo')
+              appctx.dataprovider.skolengoInstance?.skolengoDisconnect();
+          } catch (e) {
+            /* empty */
+          }
   
-            appctx.setLoggedIn(false);
-            navigation.popToTop();
-          }}
-        />
+          AsyncStorage.clear().then(() => {
+            if (server) {
+              AsyncStorage.setItem('custom_server', JSON.stringify(server));
+            }
+          });
+  
+          appctx.setLoggedIn(false);
+          navigation.popToTop();
+        }}
+      />
     </ScrollView>
   );
 }

@@ -326,8 +326,8 @@ export class SkolengoDatas extends SkolengoBase {
       e.length < limit
         ? e
         : this.getAbsenceFiles(force, limit, offset + limit).then((f) =>
-            e.concat(f)
-          )
+          e.concat(f)
+        )
     );
     SkolengoCache.setItem(
       SkolengoCache.cacheKeys.absences,
@@ -485,33 +485,33 @@ export class SkolengoDatas extends SkolengoBase {
   ) =>
     SkolengoBase.dateVerifier(startDate, endDate || startDate)
       ? this.request('get', '/agendas', {
-          include,
-          filter: {
-            'student.id': this.currentUser.sub,
-            date: {
-              GE: SkolengoBase.dateParser(startDate),
-              LE: SkolengoBase.dateParser(endDate || startDate),
-            },
+        include,
+        filter: {
+          'student.id': this.currentUser.sub,
+          date: {
+            GE: SkolengoBase.dateParser(startDate),
+            LE: SkolengoBase.dateParser(endDate || startDate),
           },
-          page: {
-            limit,
-            offset,
-          },
-        }).then(async (e) =>
-          e.length < limit
-            ? e
-            : this.getAgendas(startDate, endDate, limit, offset + limit).then(
-                (f) => e.concat(f)
-              )
-        )
+        },
+        page: {
+          limit,
+          offset,
+        },
+      }).then(async (e) =>
+        e.length < limit
+          ? e
+          : this.getAgendas(startDate, endDate, limit, offset + limit).then(
+            (f) => e.concat(f)
+          )
+      )
       : Promise.resolve([
-          {
-            id: 'none',
-            date: SkolengoBase.dateParser(Date.now()),
-            lessons: [],
-            homeworkAssignments: [],
-          },
-        ]);
+        {
+          id: 'none',
+          date: SkolengoBase.dateParser(Date.now()),
+          lessons: [],
+          homeworkAssignments: [],
+        },
+      ]);
 
   /**
    * @returns {Promise<import('scolengo-api/types/models/Results').EvaluationSettings[]>}
@@ -694,9 +694,9 @@ export class SkolengoDatas extends SkolengoBase {
         e.length < limit
           ? e
           : this.getNotes(periodId, limit, offset + limit).then((f) => [
-              ...e,
-              ...f,
-            ])
+            ...e,
+            ...f,
+          ])
       )
       .catch((e) => {
         ('perioderr', periodId, e);
@@ -713,28 +713,28 @@ export class SkolengoDatas extends SkolengoBase {
   ) =>
     SkolengoBase.dateVerifier(startDate, endDate)
       ? this.request('get', '/homework-assignments', {
-          include: 'subject,teacher,teacher.person',
-          filter: {
-            'student.id': this.currentUser.sub,
-            dueDate: {
-              GE: SkolengoBase.dateParser(startDate),
-              LE: SkolengoBase.dateParser(endDate),
-            },
+        include: 'subject,teacher,teacher.person',
+        filter: {
+          'student.id': this.currentUser.sub,
+          dueDate: {
+            GE: SkolengoBase.dateParser(startDate),
+            LE: SkolengoBase.dateParser(endDate),
           },
-          page: {
+        },
+        page: {
+          limit,
+          offset,
+        },
+      }).then(async (e) =>
+        e.length < limit
+          ? e
+          : this.getHomeworkAssignments(
+            startDate,
+            endDate,
             limit,
-            offset,
-          },
-        }).then(async (e) =>
-          e.length < limit
-            ? e
-            : this.getHomeworkAssignments(
-                startDate,
-                endDate,
-                limit,
-                offset + limit
-              ).then((f) => e.concat(f))
-        )
+            offset + limit
+          ).then((f) => e.concat(f))
+      )
       : [];
 
   /**
@@ -949,13 +949,13 @@ export class SkolengoDatas extends SkolengoBase {
     address:
       user.school && user.school.id === this.school.id
         ? [
-            this.school.addressLine1,
-            this.school.addressLine2,
-            this.school.addressLine3,
-            this.school.zipCode,
-            this.school.city,
-            this.school.country,
-          ].filter((e) => e)
+          this.school.addressLine1,
+          this.school.addressLine2,
+          this.school.addressLine3,
+          this.school.zipCode,
+          this.school.city,
+          this.school.country,
+        ].filter((e) => e)
         : [],
     ine: null,
     profile_picture: null,
