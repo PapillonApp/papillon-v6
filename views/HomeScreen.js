@@ -399,6 +399,8 @@ function NewHomeScreen({ navigation }) {
   useEffect(() => {
     setLoadingUser(true);
     appctx.dataprovider.getUser().then((data) => {
+      console.log(data);
+
       const prenom = data.name.split(' ').pop();
       const establishment = data.establishment;
       const avatarURL = data.profile_picture;
