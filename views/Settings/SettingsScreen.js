@@ -242,8 +242,8 @@ function SettingsScreen({ navigation }) {
         </NativeItem>
         <AlertBottomSheet
           visible={DeleteAccountAlert}
-          title="Déconnexion"
-          subtitle="Êtes-vous sûr de vouloir vous déconnecter ?"
+          title="Êtes-vous sûr ?"
+          subtitle="Tous vos paramètres et comptes seront supprimés définitivement de Papillon."
           icon={<LogOut size={24}/>}
           color='#D81313'
           cancelButton='Annuler'

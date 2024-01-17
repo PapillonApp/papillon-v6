@@ -28,7 +28,7 @@ import LineChart from 'react-native-simple-line-chart';
 import Fade from 'react-native-fade';
 
 import { Stats } from '../interface/icons/PapillonIcons';
-import { User2, Users2, TrendingDown, TrendingUp, Info, AlertTriangle, FlaskConical, Plus, PlusCircle } from 'lucide-react-native';
+import { User2, BarChart3, Users2, TrendingDown, TrendingUp, Info, AlertTriangle, FlaskConical, Plus, PlusCircle } from 'lucide-react-native';
 
 import { useState } from 'react';
 import { PressableScale } from 'react-native-pressable-scale';
@@ -687,7 +687,7 @@ function GradesScreen({ navigation }) {
             `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant votre moyenne de chaque matière.`
           :
             `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`}
-        icon={<Stats width={28} height={28} stroke="#29947a" />}
+        icon={<BarChart3 />}
         color='#29947a'
         visible={moyReelleAlert}
         cancelAction={() => {
@@ -1051,7 +1051,7 @@ function GradesScreen({ navigation }) {
             <AlertBottomSheet
               title={'Moyenne la plus faible'}
               subtitle={`La moyenne la plus faible est calculée en prenant la moyenne la plus basse de chaque matière.\n\nIl s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`}
-              icon={<TrendingDown width={28} height={28} stroke="#29947a" />}
+              icon={<TrendingDown />}
               color='#29947a'
               visible={moyClasseBasseAlert}
               cancelButton='Compris !'
@@ -1084,7 +1084,7 @@ function GradesScreen({ navigation }) {
             <AlertBottomSheet
               title={'Moyenne la plus élevée'}
               subtitle={`La moyenne la plus élevée est calculée en prenant la moyenne la plus élevée de chaque matière.\n\nIl s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`}
-              icon={<TrendingUp width={28} height={28} stroke="#29947a" />}
+              icon={<TrendingUp />}
               color='#29947a'
               visible={moyClasseHauteAlert}
               cancelButton='Compris !'
