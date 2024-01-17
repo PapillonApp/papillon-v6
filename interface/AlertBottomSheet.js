@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
-import { Animated, Easing, View, StyleSheet, Modal, Pressable, TouchableOpacity, StatusBar } from 'react-native';
+import { Animated, Easing, View, StyleSheet, Modal, Pressable, TouchableOpacity, StatusBar, Platform } from 'react-native';
 
 import { Text } from 'react-native-paper';
 import { BlurView } from 'expo-blur';
@@ -162,9 +162,10 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
       animationType="fade"
       transparent={true}
     >
-      <StatusBar animated barStyle={"light-content"} />
+      <StatusBar animated barStyle={"light-content"} translucent />
+
       <View style={[styles.container]}>
-        <BlurView intensity={50} tint="dark" style={[StyleSheet.absoluteFill, styles.blurContainer]}>
+        <BlurView intensity={Platform.OS === 'ios' ? 50 : 30} tint="dark" style={[StyleSheet.absoluteFill, styles.blurContainer]}>
           <Pressable
             style={[StyleSheet.absoluteFill]}
             onPress={() => {
@@ -176,6 +177,7 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
           <Animated.View
             style={[
               styles.modal,
+              Platform.OS === "android" && styles.androidModal,
               {
                 backgroundColor: UIColors.background, marginBottom: insets.bottom,
                 borderColor: UIColors.borderLight,
@@ -185,7 +187,7 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
                   {
                     scaleY: modalScaleY.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [0.8, 1]
+                      outputRange: [0.78, 1]
                     })
                   },
                   {
@@ -375,6 +377,10 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     borderCurve: "continuous",
     overflow: "hidden",
+  },
+  androidModal: {
+    borderRadius: 12,
+    elevation: 3,
   },
   
   header: {
