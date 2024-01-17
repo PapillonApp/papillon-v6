@@ -32,6 +32,6 @@
     "semi": ["error", "always"],
     "quotes": ["error", "single"],
     "eol-last": ["error", "always"],
-    "comma-dangle": ["error", "always"]
+    "comma-dangle": ["error", "only-multiline"]
   }
 }
