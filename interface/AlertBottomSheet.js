@@ -41,6 +41,14 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
     primaryButton = cancelButton;
   }
 
+  function fullPrimaryAction() {
+    fullCancelAction();
+
+    setTimeout(() => {
+      primaryAction();
+    }, 150);
+  }
+
   // animate modal when visible changes
   useEffect(() => {
     if (visible) {
@@ -313,7 +321,7 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
                   },
                 ]}
                 onPress={() => {
-                  primaryAction();
+                  fullPrimaryAction();
                 }}
               >
                 <Animated.View 

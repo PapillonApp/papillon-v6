@@ -306,6 +306,9 @@ function NewHomeScreen({ navigation }) {
             });
           }
 
+          // sort days
+          newDays.sort((a, b) => a.date - b.date);
+
           return newDays;
         });
       });
@@ -331,6 +334,9 @@ function NewHomeScreen({ navigation }) {
             custom: false,
           });
         }
+
+        // sort days
+        newDays.sort((a, b) => a.date - b.date);
 
         return newDays;
       });
@@ -1231,6 +1237,58 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
       delay: (index * 50) + (parentIndex * 150) + 100,
     }).start();
   });
+
+  const textMaxHeight = useRef(new Animated.Value(42)).current;
+  const textOpacity = useRef(new Animated.Value(1)).current;
+  const textMargin = useRef(new Animated.Value(0)).current;
+
+  // when check, animate text to 0
+  useEffect(() => {
+    if (checked) {
+      Animated.parallel([
+        Animated.timing(textMaxHeight, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: false,
+        }),
+        Animated.timing(textMargin, {
+          toValue: -5,
+          duration: 200,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: false,
+        }),
+        Animated.timing(textOpacity, {
+          toValue: 0,
+          duration: 200,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: false,
+        }),
+      ]).start();
+    }
+    else {
+      Animated.parallel([
+        Animated.timing(textMaxHeight, {
+          toValue: 42,
+          duration: 300,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: false,
+        }),
+        Animated.timing(textMargin, {
+          toValue: 0,
+          duration: 200,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: false,
+        }),
+        Animated.timing(textOpacity, {
+          toValue: 1,
+          duration: 200,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: false,
+        }),
+      ]).start();
+    }
+  }, [checked]);
   
   if(!homework || !homework.subject) return;
   return (
@@ -1334,11 +1392,26 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
                 <Text style={[styles.homeworks.devoirsContent.header.subject.title, { color: UIColors.text }]} numberOfLines={1} ellipsizeMode='tail'>{formatCoursName(homework.subject.name)}</Text>
               </View>
             </View>
-            { !checked ?
-              <View style={styles.homeworks.devoirsContent.content.container}>
-                <Text style={[styles.homeworks.devoirsContent.content.description, { color: UIColors.text }]}>{homework.description}</Text>
-              </View>
-            : null }
+
+              <Animated.View
+                style={[
+                  styles.homeworks.devoirsContent.content.container,
+                  { maxHeight: textMaxHeight, overflow:'visible', opacity: textOpacity, marginTop: textMargin },
+                ]}
+              >
+                <Text numberOfLines={2}
+                  style={[
+                    styles.homeworks.devoirsContent.content.description, 
+                    {
+                      color: UIColors.text,
+                      height: homework.description.length > 40 ? 38 : 20,
+                    }
+                  ]}
+                >
+                  {homework.description}
+                </Text>
+              </Animated.View>
+
             { homework.files.length > 0 && (
               <View style={styles.homeworks.devoirsContent.footer.container}>
                 <View style={styles.homeworks.devoirsContent.footer.files.container}>
