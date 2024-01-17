@@ -2,13 +2,13 @@
   "name": "papillonvex",
   "version": "6.5.0",
   "canal": "beta",
+  "private": true,
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "eslint . --fix --max-warnings=0",
-    "format": "prettier . --write"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@expo/config-plugins": "~7.2.2",
@@ -104,21 +104,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",
-    "eslint": "^8.48.0",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-config-universe": "^12.0.0",
-    "lint-staged": "^14.0.1",
-    "prettier": "3.0.3",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.33.2",
     "scolengo-api": "^2.2.0"
-  },
-  "private": true,
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{js,css,md,html,json}": "npm run format"
   }
 }

@@ -3,10 +3,8 @@
     "es2021": true
   },
   "extends": [
-    "plugin:react/recommended",
-    "universe/native",
-    "airbnb",
-    "prettier"
+    "eslint:recommended",
+    "plugin:react/recommended"
   ],
   "parserOptions": {
     "ecmaFeatures": {
@@ -16,31 +14,24 @@
     "sourceType": "module"
   },
   "plugins": ["react"],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "rules": {
-    "react/jsx-filename-extension": "off",
-    "no-unused-vars": "warn",
-    "react/prop-types": "off",
     "react/no-unstable-nested-components": "off",
+    "react/jsx-filename-extension": "off",
     "react/jsx-props-no-spreading": "off",
-    "no-nested-ternary": "off",
-    "no-use-before-define": "off",
     "react/no-unescaped-entities": "off",
     "react/no-array-index-key": "off",
-    "jsx-a11y/anchor-is-valid": "off",
-    "no-restricted-syntax": "off",
-    "no-console": "off",
-    "no-param-reassign": "off",
-    "prefer-promise-reject-errors": "off",
-    "no-plusplus": "off",
-    "prefer-destructuring": "off",
-    "consistent-return": "off",
-    "no-return-assign": "off",
-    "import/prefer-default-export": "off",
-    "prettier/prettier": [
-      "error",
-      {
-        "endOfLine": "auto"
-      }
-    ]
+    "react/prop-types": "off",
+    
+    "indent": ["error", 2],
+    "no-unused-vars": "warn",
+    "semi": ["error", "always"],
+    "quotes": ["error", "single"],
+    "eol-last": ["error", "always"],
+    "comma-dangle": ["error", "always"]
   }
 }
