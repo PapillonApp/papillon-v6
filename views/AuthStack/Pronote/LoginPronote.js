@@ -174,12 +174,12 @@ function LoginPronote({ route, navigation }) {
       const token = result.token;
 
       if (!token) {
-        let errorMessage = ""
+        let errorMessage = '';
         if(result.error) {
-          if(result.error.includes("probably wrong login")) errorMessage = "Vos identifiants semblent incorrects. Veuillez les vérifier."
-          else errorMessage = "Une erreur s'est produite (" + result.error + ")"
+          if(result.error.includes('probably wrong login')) errorMessage = 'Vos identifiants semblent incorrects. Veuillez les vérifier.';
+          else errorMessage = 'Une erreur s\'est produite (' + result.error + ')';
         }
-        else errorMessage = "Une erreur indéterminée s'est produite."
+        else errorMessage = 'Une erreur indéterminée s\'est produite.';
 
         Alert.alert(
           'Échec de la connexion',

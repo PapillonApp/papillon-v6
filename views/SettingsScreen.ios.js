@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { View, Image, StyleSheet, StatusBar, ScrollView } from 'react-native';
-import { Text } from 'react-native-paper';
+import { View, Image, StyleSheet, StatusBar, ScrollView, Platform } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
 
 import { useEffect, useState } from 'react';
 
@@ -8,7 +8,7 @@ import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
-import { SFSymbol } from "react-native-sfsymbols";
+import { SFSymbol } from 'react-native-sfsymbols';
 
 import GetUIColors from '../utils/GetUIColors';
 
@@ -22,6 +22,7 @@ function NewSettings({navigation}) {
   const UIColors = GetUIColors();
 
   // User data
+  const theme = useTheme();
   const [userData, setUserData] = useState({});
   const [profilePicture, setProfilePicture] = useState('');
 
@@ -69,13 +70,13 @@ function NewSettings({navigation}) {
             ]}
             leading={
               profilePicture  ?
-              <Image
-                style={styles.profile.pic}
-                source={{
-                  uri: profilePicture,
-                }}
-              />
-              : null
+                <Image
+                  style={styles.profile.pic}
+                  source={{
+                    uri: profilePicture,
+                  }}
+                />
+                : null
             }
             chevron
             onPress={() => navigation.navigate('Profile', { isModal: false })}
@@ -124,7 +125,7 @@ function NewSettings({navigation}) {
           <NativeText heading="h4">
             Ajustements & thèmes
           </NativeText>
-          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
             Personnalisation de l'interface, bandeaux et navigation
           </NativeText>
         </NativeItem>
@@ -153,7 +154,7 @@ function NewSettings({navigation}) {
           <NativeText heading="h4">
             Réglages
           </NativeText>
-          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
             Connexion a votre compte et au serveur
           </NativeText>
         </NativeItem>
@@ -191,7 +192,7 @@ function NewSettings({navigation}) {
           <NativeText heading="h4">
             Gestion des matières
           </NativeText>
-          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
             Personnaliser les matières
           </NativeText>
         </NativeItem>
@@ -220,7 +221,7 @@ function NewSettings({navigation}) {
           <NativeText heading="h4">
             Icône de l'application
           </NativeText>
-          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
             Modifier l'icône de l'application
           </NativeText>
         </NativeItem>
@@ -284,7 +285,7 @@ function NewSettings({navigation}) {
           <NativeText heading="h4">
           A propos
           </NativeText>
-          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
             Papillon version {packageJson.version} {packageJson.canal}
           </NativeText>
         </NativeItem>

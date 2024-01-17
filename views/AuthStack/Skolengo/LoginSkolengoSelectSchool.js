@@ -50,7 +50,7 @@ function LoginSkolengoSelectSchool({ navigation }) {
     SkolengoStatic.getSchools({
       text,
     })
-      .then(setResults)
+      .then(setResults);
   }
 
   async function searchSchoolByCoords() {
@@ -75,7 +75,7 @@ function LoginSkolengoSelectSchool({ navigation }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerSearchBarOptions: {
-        placeholder: "Entrez le nom d'un lycée",
+        placeholder: 'Entrez le nom d\'un lycée',
         cancelButtonText: 'Annuler',
         hideWhenScrolling: false,
         hideNavigationBar: false,

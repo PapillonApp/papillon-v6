@@ -16,7 +16,8 @@ function GetUIColors(schemeForce) {
   }
 
   // background
-  let background = '';
+  let background;
+  let backgroundHigh;
 
   if (Platform.OS === 'ios') {
     background = isDark ? '#0B0B0C' : '#ffffff';

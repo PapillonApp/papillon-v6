@@ -30,9 +30,9 @@ function DonorsScreen({ navigation }) {
   const theme = useTheme();
 
   function formatDate(date) {
-    let s = date.split(" ");
-    let d = s[0].split("-");
-    let t = s[1].split(":");
+    let s = date.split(' ');
+    let d = s[0].split('-');
+    let t = s[1].split(':');
     const month = [
       'janvier',
       'février',
@@ -75,7 +75,7 @@ function DonorsScreen({ navigation }) {
 
         <NativeList
           inset
-          header={"Donateurs"}
+          header={'Donateurs'}
         >
           {KofiSupporters.map((item, index) => (
             <NativeItem
@@ -93,11 +93,11 @@ function DonorsScreen({ navigation }) {
                 )
               }
               trailing={
-                ( item.Monthly === "True" ?
+                ( item.Monthly === 'True' ?
                   <NativeText heading="p2">
                     mensuel
                   </NativeText>
-                : null )
+                  : null )
               }
             >
               <NativeText heading="h4">
@@ -150,7 +150,7 @@ const DonorsPfp = ({ image }) => {
       ) : null }
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   optionsList: {

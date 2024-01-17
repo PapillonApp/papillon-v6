@@ -10,7 +10,7 @@ import { PressableScale } from 'react-native-pressable-scale';
 
 import { X } from 'lucide-react-native';
 
-const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, icon, color = "#29975a", cancelAction = () => {}, primaryAction, cancelButton = "Compris !", primaryButton = "Valider"}) => {
+const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, icon, color = '#29975a', cancelAction = () => {}, primaryAction, cancelButton = 'Compris !', primaryButton = 'Valider'}) => {
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ['25%', '50%'], []);
 
@@ -28,7 +28,7 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
   }
 
   function fullCancelAction() {
-    setVisible(false)
+    setVisible(false);
 
     setTimeout(() => {
       cancelAction();
@@ -170,7 +170,7 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
       animationType="fade"
       transparent={true}
     >
-      <StatusBar animated barStyle={"light-content"} translucent />
+      <StatusBar animated barStyle={'light-content'} translucent />
 
       <View style={[styles.container]}>
         <BlurView intensity={Platform.OS === 'ios' ? 50 : 30} tint="dark" style={[StyleSheet.absoluteFill, styles.blurContainer]}>
@@ -185,7 +185,7 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
           <Animated.View
             style={[
               styles.modal,
-              Platform.OS === "android" && styles.androidModal,
+              Platform.OS === 'android' && styles.androidModal,
               {
                 backgroundColor: UIColors.background, marginBottom: insets.bottom,
                 borderColor: UIColors.borderLight,
@@ -311,80 +311,80 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
                   }
                 ]}
               >
-              <PressableScale
-                activeScale={0.95}
-                weight='light'
-                style={[
-                  styles.button,
-                  {
-                    backgroundColor: color,
-                  },
-                ]}
-                onPress={() => {
-                  fullPrimaryAction();
-                }}
-              >
-                <Animated.View 
+                <PressableScale
+                  activeScale={0.95}
+                  weight='light'
                   style={[
-                    styles.flare,
+                    styles.button,
                     {
-                      transform: [
-                        {
-                          rotate: "10deg",
-                        },
-                        {
-                          translateX: flareTranslateX.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [-200, 500]
-                          })
-                        },
-                        {
-                          translateY: flareTranslateX.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0, -200]
-                          })
-                        }
-                      ]
-                    }
+                      backgroundColor: color,
+                    },
                   ]}
-                />
-                <Text
-                  style={[
-                    styles.buttonText,
-                  ]}
+                  onPress={() => {
+                    fullPrimaryAction();
+                  }}
                 >
-                  {primaryButton}
-                </Text>
-              </PressableScale>
+                  <Animated.View 
+                    style={[
+                      styles.flare,
+                      {
+                        transform: [
+                          {
+                            rotate: '10deg',
+                          },
+                          {
+                            translateX: flareTranslateX.interpolate({
+                              inputRange: [0, 1],
+                              outputRange: [-200, 500]
+                            })
+                          },
+                          {
+                            translateY: flareTranslateX.interpolate({
+                              inputRange: [0, 1],
+                              outputRange: [0, -200]
+                            })
+                          }
+                        ]
+                      }
+                    ]}
+                  />
+                  <Text
+                    style={[
+                      styles.buttonText,
+                    ]}
+                  >
+                    {primaryButton}
+                  </Text>
+                </PressableScale>
               </Animated.View>
             </View>
           </Animated.View>
         </BlurView>
       </View>
     </Modal>
-  )
+  );
 };
 
 const styles = StyleSheet.create({
   container: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
-    width: "100%",
-    height: "100%",
-    backgroundColor: "rgba(0,0,0,0.5)",
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   blurContainer: {
-    alignItems: "center",
-    justifyContent: "flex-end",
+    alignItems: 'center',
+    justifyContent: 'flex-end',
     paddingHorizontal: 12,
   },
 
   modal : {
-    width: "100%",
+    width: '100%',
     borderRadius: 26,
-    borderCurve: "continuous",
-    overflow: "hidden",
+    borderCurve: 'continuous',
+    overflow: 'hidden',
   },
   androidModal: {
     borderRadius: 12,
@@ -392,21 +392,21 @@ const styles = StyleSheet.create({
   },
   
   header: {
-    width: "100%",
+    width: '100%',
     height: 132,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
 
   bgIcon: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     bottom: 0,
     left: -20,
     right: 0,
-    alignItems: "flex-start",
-    justifyContent: "center",
+    alignItems: 'flex-start',
+    justifyContent: 'center',
     opacity: 0.05,
   },
 
@@ -417,12 +417,12 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 21,
-    fontFamily: "Papillon-Semibold",
+    fontFamily: 'Papillon-Semibold',
     marginBottom: 8,
   },
 
   subtitle: {
-    fontFamily: "Papillon-Medium",
+    fontFamily: 'Papillon-Medium',
     fontSize: 16,
     lineHeight: 20,
     opacity: 0.7,
@@ -431,32 +431,32 @@ const styles = StyleSheet.create({
   button: {
     paddingVertical: 12,
     borderRadius: 100,
-    borderCurve: "continuous",
-    alignItems: "center",
-    justifyContent: "center",
+    borderCurve: 'continuous',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginTop: 24,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
 
   flare: {
-    position: "absolute",
+    position: 'absolute',
     top: -10,
     left: 0,
     bottom: 0,
-    width: "40%",
-    height: "1000%",
-    backgroundColor: "#fff",
+    width: '40%',
+    height: '1000%',
+    backgroundColor: '#fff',
     opacity: 0.2,
   },
 
   buttonText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 16,
-    fontFamily: "Papillon-Semibold",
+    fontFamily: 'Papillon-Semibold',
   },
 
   close: {
-    position: "absolute",
+    position: 'absolute',
     top: 16,
     right: 16,
     padding: 6,

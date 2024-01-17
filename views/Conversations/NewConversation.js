@@ -95,7 +95,7 @@ const NewConversation = ({ navigation }) => {
         );
       }
     });
-  }
+  };
 
   useEffect(() => {
     if(recipients.length == 0) {
@@ -138,7 +138,7 @@ const NewConversation = ({ navigation }) => {
         >
           <NativeText heading="h4">
               Message
-            </NativeText>
+          </NativeText>
           <TextInput
             placeholder="Saisissez votre message"
             placeholderTextColor={UIColors.text + '77'}
@@ -186,14 +186,14 @@ const NewConversation = ({ navigation }) => {
               {item.functions.join(', ')}
             </NativeText>
             <NativeText heading="subtitle1">
-              {item.type == 'teacher' ? "Professeur" : "Personnel"}
+              {item.type == 'teacher' ? 'Professeur' : 'Personnel'}
             </NativeText>
           </NativeItem>
         ))}
       </NativeList>
     </ScrollView>
-  )
-}
+  );
+};
 
 function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
   return !loading ? (
@@ -253,6 +253,6 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     height: 100,
   },
-})
+});
 
 export default NewConversation;
