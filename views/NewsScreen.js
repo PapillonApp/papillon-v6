@@ -117,7 +117,6 @@ function NewsScreen({ navigation }) {
 
   const [news, setNews] = useState([]);
   const [finalNews, setFinalNews] = useState([]);
-  // eslint-disable-next-line no-unused-vars
   const [showNews, setShowNews] = useState(true);
   const [currentNewsType, setCurrentNewsType] = useState("Toutes");
 

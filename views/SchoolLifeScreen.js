@@ -41,7 +41,6 @@ function SchoolLifeScreen({ navigation }) {
     });
   }, []);
 
-  // eslint-disable-next-line no-unused-vars
   const onRefresh = React.useCallback(() => {
     setIsHeadLoading(true);
     appctx.dataprovider.getViesco(true).then((v) => {

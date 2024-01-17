@@ -62,7 +62,6 @@ function saveUser(user) {
     .then((response) => response.blob())
     .then((blob) => {
       // save as base64 url
-      // eslint-disable-next-line no-undef
       const reader = new FileReader();
       reader.readAsDataURL(blob);
       reader.onloadend = () => {

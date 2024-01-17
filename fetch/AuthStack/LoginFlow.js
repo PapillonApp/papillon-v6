@@ -75,11 +75,9 @@ function getToken(credentials) {
     flags += "?type=eleve";
   }
 
-  // eslint-disable-next-line no-param-reassign
   credentials.url = `${fixURL(credentials.url)}eleve.html`;
 
   if (loginTrue) {
-    // eslint-disable-next-line no-param-reassign
     credentials.url += '?login=true';
   }
 

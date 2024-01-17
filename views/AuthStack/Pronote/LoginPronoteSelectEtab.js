@@ -231,7 +231,6 @@ function LoginPronoteSelectEtab({ navigation }) {
   }, [oldLoginEtab]);
 
   const [qrModalVisible, setQrModalVisible] = useState(false);
-  // eslint-disable-next-line no-unused-vars
   const [qrEtabDetected, setQrEtabDetected] = useState(false);
 
   async function scanQR() {
@@ -270,7 +269,6 @@ function LoginPronoteSelectEtab({ navigation }) {
     setQrEtabDetected(false);
   }
 
-  // eslint-disable-next-line no-unused-vars
   function openEtab() {
     closeModal();
     navigation.navigate('LoginPronote', {
@@ -433,7 +431,6 @@ function LoginPronoteSelectEtab({ navigation }) {
             icon={<Link color="#159C5E" />}
             color="#159C5E"
             onPress={() => searchURL()}
-            // eslint-disable-next-line react-hooks/rules-of-hooks
             onLongPress={() => useDemo()}
             style={{ marginTop: 8 }}
           />

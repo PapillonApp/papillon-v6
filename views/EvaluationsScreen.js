@@ -171,7 +171,6 @@ function EvaluationsScreen({ navigation }) {
 
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
-  // eslint-disable-next-line no-unused-vars
   const onRefresh = React.useCallback(() => {
     setRefreshCount(refreshCount + 1);
   }, []);

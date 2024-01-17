@@ -1,5 +1,3 @@
-/* eslint-disable no-return-await */
-/* eslint-disable global-require */
 import * as Font from 'expo-font';
 
 const useFonts = async () =>

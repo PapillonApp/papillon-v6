@@ -1,5 +1,3 @@
-/* eslint-disable global-require */
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export class IndexDataInstance {
