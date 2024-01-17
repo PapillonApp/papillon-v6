@@ -30,7 +30,7 @@ import {
   BookOpen,
   File as FileLucide,
   Library,
-  MessageSquare,
+  TextSelect,
 } from 'lucide-react-native';
 
 import NativeList from '../../components/NativeList';
@@ -175,7 +175,7 @@ function LessonScreen({ route, navigation }) {
               </NativeItem>
             { lesson.memo ? (
               <NativeItem
-                leading={<MessageSquare size={24} color={mainColor} />}
+                leading={<TextSelect size={24} color={mainColor} />}
               >
                 <NativeText heading="p2">
                   Commentaire
