@@ -58,8 +58,7 @@ Papillon est une application mobile qui vise à simplifier la vie scolaire des �
 
 ### Prérequis
 
-- Node.js
-- Yarn
+- Node.js (avec NPM)
 - Expo CLI
 
 ### Installation
@@ -73,7 +72,7 @@ git clone https://github.com/PapillonApp/Papillon.git
 2. Installez les packages NPM
 
 ```sh
-npm i
+npm install
 ```
 
 ## 💻 Développement
@@ -98,11 +97,9 @@ Ligne 46, variable `package`: remplacer par `plus.pronote.app.dev`. Ne pas chang
 
 ![image](https://github.com/LeMaitre4523/Papillon-v6/assets/54872374/92c93b54-d71a-4cfb-88c6-daa873b9a301)
 
-
 5. Si le gradle sync ne s'est pas automatiquement exécuté, le faire via Files > Sync project with graddle Files
 
 ![image](https://github.com/LeMaitre4523/Papillon-v6/assets/54872374/313f8320-061c-4624-8f42-20a731378968)
-
 
 6. Connectez votre téléphone à votre PC et vérifiez qu'il soit accessible (il doit apparaître en haut à droite, à côté du marteau vert) (le mode débogage est requis)
 
@@ -128,6 +125,7 @@ Vous pouvez consulter le statut du build en vous rendant dans l'onglet "Build" e
 Si malgré tout le serveur ne s'affiche pas, un QR Code est généré dans le terminal. Utilisez votre appareil photo pour le scanner.
 
 ### Développer à distance
+
 Il est tout à fait possible d'avoir son pc chez soi et son téléphone au lycée (à titre d'exemple). Dans la ligne de commande, il faudra simplement rajouter `--tunnel`.
 Le scan du QR Code sera requis pour connecter le téléphone au PC.
 
@@ -143,7 +141,7 @@ Nous accueillons les contributions de tous. Veuillez lire notre [guide de contri
 
 1. Forkez le projet
 2. Créez votre branche (`git checkout -b feature/AmazingFeature`)
-3. Committez vos changements (`git commit -m 'Add some AmazingFeature'`)
+3. Commitez vos changements (`git commit -m 'Add some AmazingFeature'`)
 4. Poussez vers la branche (`git push origin feature/AmazingFeature`)
 5. Ouvrez une Pull Request
 
