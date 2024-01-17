@@ -171,7 +171,7 @@ const CheckAnimated = ({ checked, pressed = () => {}, loading }) => {
           >
             <Check
               size={20}
-              color={UIColors.element}
+              color={"#ffffff"}
             />
         </Animated.View>
       </View>
