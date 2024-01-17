@@ -154,6 +154,8 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
               styles.modal,
               {
                 backgroundColor: UIColors.background, marginBottom: insets.bottom,
+                borderColor: UIColors.borderLight,
+                borderWidth: UIColors.dark ? 0.5 : 0,
                 transform: [
                   {
                     scaleY: modalScaleY.interpolate({
