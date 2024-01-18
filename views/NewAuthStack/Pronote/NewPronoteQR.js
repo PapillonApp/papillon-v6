@@ -75,13 +75,6 @@ const NewPronoteQR = ({ route, navigation }) => {
         }}
       />
 
-      <View style={[styles.warn, {paddingBottom: insets.bottom}]}>
-        <AlertTriangle color="#ffffff" />
-        <Text style={styles.warnText}>
-          Ce mode de connexion est instable et peut causer de nombreux bugs.
-        </Text>
-      </View>
-
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
         style={StyleSheet.absoluteFillObject}
