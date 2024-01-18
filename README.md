@@ -117,7 +117,7 @@ Il est aussi possible de connecter le téléphone via wifi, avec la commande `ad
 > [!NOTE]
 Vous pouvez consulter le statut du build en vous rendant dans l'onglet "Build" en bas du logiciel, ou dans View > Tool Window > Build.
 
-9. Sur le PC, exécuter `npx expo start --dev-client`
+9. Sur le PC, exécutez `npm start`
 10. Lancer l'appli de dev sur le téléphone. Le serveur doit automatiquement s'afficher en haut, cliquez dessus pour commencer le chargement. Si ce n'est pas le cas, vérifiez que :
 
 - Le wifi du PC est en mode privé (visible via les paramètres réseaux)
