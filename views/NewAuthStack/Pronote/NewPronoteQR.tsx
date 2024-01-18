@@ -1,39 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import * as Haptics from 'expo-haptics';
+
 import { View, StatusBar, StyleSheet, Platform } from 'react-native';
+
+import { BarCodeScanner } from 'expo-barcode-scanner';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import GetUIColors from '../../../utils/GetUIColors';
 
-import { BarCodeScanner } from 'expo-barcode-scanner';
-
-import * as Haptics from 'expo-haptics';
-
-import { LinearGradient } from 'expo-linear-gradient';
-
-const NewPronoteQR = ({ route, navigation }) => {
+const NewPronoteQR = ({ navigation }) => {
   const UIColors = GetUIColors();
 
-  const [hasPermission, setHasPermission] = useState(null);
-  const [scanned, setScanned] = useState(false);
+  // TODO: When should we use this ?
+  // eslint-disable-next-line no-unused-vars
+  const [hasPermission, setHasPermission] = React.useState(false);
+  const [scanned, setScanned] = React.useState(false);
 
-  useEffect(() => {
-    const getBarCodeScannerPermissions = async () => {
+  React.useEffect(() => {
+    (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
       setHasPermission(status === 'granted');
-    };
-
-    getBarCodeScannerPermissions();
+    })();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }) => {
-    Haptics.notificationAsync('success');
+  const handleBarCodeScan = ({ data }) => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setScanned(true);
     
-    data = JSON.parse(data);
-    navigation.navigate('LoginPronoteQR', { qrData: data });
+    const qrData = JSON.parse(data);
+    navigation.navigate('LoginPronoteQR', { qrData });
   };
 
   return (
     <View
+      // @ts-expect-error : Not sure if this is typed ?
       contentInsetAdjustmentBehavior='automatic'
       style={[styles.container, {backgroundColor: UIColors.modalBackground}]}
     >
@@ -64,10 +64,9 @@ const NewPronoteQR = ({ route, navigation }) => {
       />
 
       <BarCodeScanner
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        onBarCodeScanned={scanned ? undefined : handleBarCodeScan}
         style={StyleSheet.absoluteFillObject}
       />
-
     </View>
   );
 };
