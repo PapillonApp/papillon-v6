@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, StatusBar, StyleSheet, TouchableOpacity, Image, TextInput, Alert, ScrollView, Dimensions } from 'react-native';
+import React from 'react';
+import { View, StatusBar, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
 
 import { PressableScale } from 'react-native-pressable-scale';
 
@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import packageJson from '../../package.json';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import * as WebBrowser from 'expo-web-browser';
+import { openBrowserAsync, WebBrowserPresentationStyle } from 'expo-web-browser';
 
 const LoginView = ({ navigation }) => {
   const UIColors = GetUIColors();
@@ -22,10 +22,10 @@ const LoginView = ({ navigation }) => {
     height: Dimensions.get('window').height
   };
 
-  const openURL = async (url) => {
-    await WebBrowser.openBrowserAsync(url, {
+  const openURL = async (url: string) => {
+    await openBrowserAsync(url, {
       dismissButtonStyle: 'close',
-      presentationStyle: 'currentContext',
+      presentationStyle: WebBrowserPresentationStyle.OVER_CURRENT_CONTEXT,
       controlsColor: UIColors.primary,
     });
   };
