@@ -39,14 +39,15 @@ import { useAppContext } from '../../../utils/AppContext';
 
 import SegmentedControl from 'react-native-segmented-control-2';
 
-
-const entities = require('entities');
-
 function NGPronoteLogin({ route, navigation }) {
   const theme = useTheme();
   const { showActionSheetWithOptions } = useActionSheet();
 
-  const { etab, useDemo } = route.params;
+  const { etab, useDemo } = route.params as {
+    etab: { nomEtab: string, url: string }
+    useDemo?: boolean
+  };
+
   const [etabName, setEtabName] = useState(etab.nomEtab);
   const [etabInfo, setEtabInfo] = useState(etab);
 

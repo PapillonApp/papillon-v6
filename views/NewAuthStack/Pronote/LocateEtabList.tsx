@@ -125,9 +125,7 @@ const LocateEtabList = ({ route, navigation }) => {
 
       {!isInstancesLoading && instances?.length > 0 && filteredInstances.length === 0 && (
         <PapillonLoading 
-          icon={
-            <School color={UIColors.text} size={26} style={{margin:8}} />
-          }
+          icon={<School color={UIColors.text} size={26} style={{ margin: 8 }} />}
           title="Aucun résultat"
           subtitle={`Aucun établissement n'a été trouvé pour la recherche "${currentSearch}".`}
         />
