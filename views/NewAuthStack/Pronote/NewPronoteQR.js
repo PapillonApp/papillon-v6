@@ -1,18 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StatusBar, StyleSheet, Platform } from 'react-native';
 
-import { Text } from 'react-native-paper';
-
-import { getENTs } from '../../../fetch/AuthStack/LoginFlow';
-
 import GetUIColors from '../../../utils/GetUIColors';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import NativeList from '../../../components/NativeList';
-import NativeItem from '../../../components/NativeItem';
-import NativeText from '../../../components/NativeText';
-
-import { AlertTriangle, Bird } from 'lucide-react-native';
 
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
@@ -22,7 +11,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const NewPronoteQR = ({ route, navigation }) => {
   const UIColors = GetUIColors();
-  const insets = useSafeAreaInsets();
 
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);

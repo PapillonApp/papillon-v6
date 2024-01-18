@@ -96,7 +96,7 @@ import { showMessage } from 'react-native-flash-message';
 
 import LocateEtabList from './views/NewAuthStack/Pronote/LocateEtabList';
 import LoginURL from './views/NewAuthStack/Pronote/LoginURL';
-import NewPronoteQR from './views/NewAuthStack/Pronote/NewPronoteQR';
+import ScanPronoteQR from './views/NewAuthStack/Pronote/NewPronoteQR';
 import NGPronoteLogin from './views/NewAuthStack/Pronote/NGPronoteLogin';
 import GradesSimulatorMenu from './views/Grades/GradesSimulatorMenu';
 import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
@@ -115,6 +115,7 @@ import {
   News as PapillonIconsNews,
   NewsFill as PapillonIconsNewsFill,
 } from './interface/icons/PapillonIcons';
+import InputPronoteQRPin from './views/NewAuthStack/Pronote/LoginPronoteQRToken';
 
 Sentry.init({
   dsn: 'http://4f5fa3f4dc364796bbdac55029146458@sentry.getpapillon.xyz/3',
@@ -925,12 +926,19 @@ function ModalPronoteLogin() {
       />
       <Stack.Screen
         name="NewPronoteQR"
-        component={NewPronoteQR}
+        component={ScanPronoteQR}
         options={{
           headerTitle: 'Scanner un QR-Code',
           headerBackTitle: 'Retour',
           headerTransparent: true,
           headerForceDarkContent: true,
+        }}
+      />
+      <Stack.Screen
+        name="LoginPronoteQR"
+        component={InputPronoteQRPin}
+        options={{
+          headerShown: false,
         }}
       />
       <Stack.Screen

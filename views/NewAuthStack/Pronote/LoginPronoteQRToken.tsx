@@ -1,6 +1,6 @@
-import * as React from 'react';
+import React from 'react';
+
 import {
-  Alert,
   Platform,
   StatusBar,
   StyleSheet,
@@ -11,26 +11,22 @@ import {
 import { useTheme, Text } from 'react-native-paper';
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { authenticatePronoteQRCode } from 'pawnote';
 import { useAppContext } from '../../../utils/AppContext';
 
 import GetUIColors from '../../../utils/GetUIColors';
 
-import { loginQR } from '../../../fetch/AuthStack/LoginFlow';
-
 function LoginPronoteQR({ route, navigation }) {
   const theme = useTheme();
-
-  const { qrData } = route.params;
-
   const UIColors = GetUIColors();
 
   const [code, setCode] = React.useState('');
   const [error, setError] = React.useState('');
   const [errPin, setErrPin] = React.useState(false);
 
-  const appctx = useAppContext();
+  const appContext = useAppContext();
 
-  function makeUUID() {
+  const makeUUID = (): string => {
     let dt = new Date().getTime();
     const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
       /[xy]/g,
@@ -41,54 +37,34 @@ function LoginPronoteQR({ route, navigation }) {
       }
     );
     return uuid;
-  }
+  };
 
-  function handleLogin() {
-    if (code.length < 4) {
-      return;
+  const handleQRPinLogin = async (code: string) => {
+    const uuid = makeUUID();
+    await AsyncStorage.setItem('pronote:deviceUUID', uuid);
+
+    try {
+      const pronote = await authenticatePronoteQRCode({
+        deviceUUID: uuid,
+        dataFromQRCode: route.params.qrData,
+        pinCode: code
+      });
+
+      await AsyncStorage.setItem('pronote:username', pronote.username);
+      await AsyncStorage.setItem('pronote:accountTypeID', pronote.accountTypeID.toString());
+      await AsyncStorage.setItem('pronote:nextTimeToken', pronote.nextTimeToken);
+    
+      navigation.goBack();
+      navigation.goBack();
+      navigation.goBack();
+
+      appContext.setLoggedIn(true);
     }
-
-    loginQR({
-      checkCode: code,
-      url: qrData.url,
-      qrToken: qrData.jeton,
-      login: qrData.login,
-      uuid: makeUUID(),
-    }).then((res) => {
-
-      if (res.error) {
-        if (res.error === 'invalid confirmation code') {
-          setErrPin(true);
-          setError('Code invalide');
-        }
-        if (
-          res.error ===
-          '(\'Decryption failed while trying to un pad. (probably bad decryption key/iv)\', \'exception happened during login -> probably the qr code has expired (qr code is valid during 10 minutes)\')'
-        ) {
-          setErrPin(true);
-          setError('QR-code expiré');
-        }
-      }
-
-      if (res.error === false && res.token !== false) {
-        AsyncStorage.setItem('token', res.token);
-        AsyncStorage.setItem('qr_credentials', JSON.stringify(res));
-        AsyncStorage.setItem('service', 'Pronote');
-
-        navigation.goBack();
-        navigation.goBack();
-        navigation.goBack();
-
-        appctx.setLoggedIn(true);
-
-        Alert.alert(
-          'Connexion par QR-code instable',
-          'La connexion par QR-code est instable et peut causer des plantages et autres erreurs récurrentes. Si c\'est le cas, connectez vous d\'une autre manière.',
-          [{ text: 'J\'ai compris' }]
-        );
-      }
-    });
-  }
+    catch {
+      setErrPin(true);
+      setError('Code invalide ou expiré');
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -117,9 +93,8 @@ function LoginPronoteQR({ route, navigation }) {
           </Text>
 
           <SmoothPinCodeInput
-            ref={this.pinInput}
             value={code}
-            onTextChange={(_code) => setCode(_code)}
+            codeLength={4}
             cellStyle={[
               styles.cellStyle,
               {
@@ -132,11 +107,10 @@ function LoginPronoteQR({ route, navigation }) {
               { borderColor: `${UIColors.text}44` },
             ]}
             textStyle={[styles.textStyle, { color: UIColors.text }]}
-            textStyleFocused={styles.textStyleFocused}
-            style={styles.pinInput}
             cellSpacing={6}
             autoFocus
-            onFulfill={handleLogin()}
+            onFulfill={handleQRPinLogin}
+            onTextChange={(code: string) => setCode(code)}
           />
 
           {errPin ? <Text style={styles.error}>{error}</Text> : null}
