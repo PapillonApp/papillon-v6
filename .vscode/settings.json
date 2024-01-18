@@ -1,7 +1,7 @@
 {
   "cSpell.language": "en,fr",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "always"
   },
   "editor.detectIndentation": false,
   "editor.insertSpaces": true,
