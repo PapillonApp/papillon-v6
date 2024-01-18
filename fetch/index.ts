@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type { SkolengoDatas } from './SkolengoData/SkolengoDatas';
 import type { Pronote } from 'pawnote';
+import { PapillonUser } from './types/user';
 
 export type ServiceName = 'pronote' | 'skolengo'
 
@@ -21,16 +22,18 @@ export class IndexDataInstance {
   async waitInit(): Promise<boolean> {
     if (this.initialized) return true;
 
-    if (this.service === 'skolengo' && !this.skolengoInstance) {
-      await this.init('skolengo');
-    }
-    else if (this.service === 'pronote' && !this.pronoteInstance) {
-      await this.init('pronote');
+    if (!this.initializing) {
+      if (this.service === 'skolengo' && !this.skolengoInstance) {
+        await this.init('skolengo');
+      }
+      else if (this.service === 'pronote' && !this.pronoteInstance) {
+        await this.init('pronote');
+      }
     }
 
     return new Promise((resolve) => {
       const interval = setInterval(() => {
-        if (this.initialized) {
+        if (!this.initializing) {
           clearInterval(interval);
           resolve(true);
         }
@@ -43,110 +46,118 @@ export class IndexDataInstance {
     
     this.initializing = true;
     this.service = service ?? (await AsyncStorage.getItem('service') as ServiceName);
+
+    console.log('init', this.service, this.initializing, this.initialized);
     
     if (this.service === 'skolengo') {
       const skolengo = await import('./SkolengoData/SkolengoDatas.js');
       this.skolengoInstance = await skolengo.SkolengoDatas.initSkolengoDatas();
+      this.initialized = true;
     }
     else if (this.service === 'pronote') {
       const pronote = await import('./PronoteData/connector');
-      this.pronoteInstance = instance ? instance : await pronote.loadPronoteConnector();
+      try {
+        this.pronoteInstance = instance ? instance : await pronote.loadPronoteConnector();
+        this.initialized = true;
+      }
+      catch {
+        this.initialized = false;
+      }
     }
+    else this.initialized = false;
 
-    this.initialized = true;
     this.initializing = false;
   }
 
   // [Service]Grades.js
-  async getGrades(selectedPeriod, force = false) {
+  async getGrades (selectedPeriodName: string, force = false) {
     await this.waitInit();
+
     if (this.service === 'skolengo') {
-      return this.skolengoInstance.getGrades(selectedPeriod, force);
+      return this.skolengoInstance.getGrades(selectedPeriodName, force);
     }
-    if (this.service === 'pronote')
-      return require('./PronoteData/PronoteGrades.js')
-        .getGrades(force)
-        .then((e) => (typeof e === 'string' ? JSON.parse(e) : e));
-    // .then((e) => thenHandler('grades', e));
-    return require('./SkolengoData/SkolengoDatas.js').SkolengoDatas
-      .gradesDefault;
+    else if (this.service === 'pronote') {
+      const { gradesHandler } = await import('./PronoteData/grades');
+      const period = this.pronoteInstance.periods.find(
+        period => period.name === selectedPeriodName
+      );
+
+      if (!period) throw new Error('Aucune période associé à ce nom a été trouvé.');
+      return gradesHandler(period, force); 
+    }
   }
 
-  async getEvaluations(force = false) {
+  async getEvaluations (force = false) {
     await this.waitInit();
-    // TODO: skolengo Evaluation
+    
+    // TODO: Skolengo Evaluation
     if (this.service === 'skolengo') return [];
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteGrades.js')
-        .getEvaluations(force)
-        .then((e) => (typeof e === 'string' ? JSON.parse(e) : e));
-    // .then((e) => thenHandler('evals', e));
-    return [];
-  }
+    if (this.service === 'pronote') {
+      // return require('./PronoteData/PronoteGrades.js')
+      //   .getEvaluations(force)
+      //   .then((e) => (typeof e === 'string' ? JSON.parse(e) : e));
+    }
 
-  async changePeriod(period) {
-    await this.waitInit();
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteGrades.js').changePeriod(period);
-    // .then((e) => thenHandler('changep', e));
-    return {};
+    return [];
   }
 
   // [Service]Homeworks.js
   async getHomeworks(day, force = false, day2 = null) {
     if (!day2) day2 = day;
     await this.waitInit();
-    if (this.service === 'Skolengo')
+    
+    if (this.service === 'skolengo') {
       return this.skolengoInstance.getHomeworks(day, force, day2) || [];
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteHomeworks.js').getHomeworks(
-        day,
-        force,
-        day2
-      );
-    // .then((e) => thenHandler('homeworks', e));
+    }
+    
+    else if (this.service === 'pronote') {
+      // return require('./PronoteData/PronoteHomeworks.js').getHomeworks(
+      //   day,
+      //   force,
+      //   day2
+      // );
+    }
+
     return [];
   }
 
   async changeHomeworkState(isDone, day, id) {
     await this.waitInit();
-    if (this.service === 'Skolengo')
+    if (this.service === 'skolengo')
       return this.skolengoInstance.patchHomeworkAssignment(id, isDone);
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteHomeworks.js').changeHomeworkState(
-        day,
-        id
-      );
+    if (this.service === 'pronote')
+      // return require('./PronoteData/PronoteHomeworks.js').changeHomeworkState(
+      //   day,
+      //   id
+      // );
     // .then((e) => thenHandler('changeh', e));
-    return {};
+      return {};
   }
 
   // [Service]News.js
   async getNews(force = false) {
     await this.waitInit();
-    if (this.service === 'Skolengo')
+    if (this.service === 'skolengo')
       return this.skolengoInstance.getNews(force);
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteNews.js')
-        .getNews(force)
-        .then((e) => (typeof e === 'string' ? JSON.parse(e) : e));
-    // .then((e) => thenHandler('news', e));
-    return [];
+    if (this.service === 'pronote')
+      // return require('./PronoteData/PronoteNews.js')
+      //   .getNews(force)
+      //   .then((e) => (typeof e === 'string' ? JSON.parse(e) : e));
+      return [];
   }
 
   async changeNewsState(id) {
     await this.waitInit();
-    if (this.service === 'Skolengo')
+    if (this.service === 'skolengo')
       return {status:'', error:'Not implemented'};
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteNews.js').changeNewsState(id);
-    // .then((e) => thenHandler('changen', e));
-    return {};
+    if (this.service === 'pronote')
+      // return require('./PronoteData/PronoteNews.js').changeNewsState(id);
+      return {};
   }
 
   async getUniqueNews(id, force = false) {
     await this.waitInit();
-    if (this.service === 'Skolengo')
+    if (this.service === 'skolengo')
       return this.skolengoInstance.getUniqueNews(id, force);
     throw new Error('Method only works for Skolengo');
   }
@@ -157,66 +168,75 @@ export class IndexDataInstance {
     const storeShared = (e) => {
       return e;
     };
-    if (this.service === 'Skolengo')
+    if (this.service === 'skolengo')
       return this.skolengoInstance.getRecap(day, force).then(storeShared);
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteRecap.js')
-        .getRecap(day, force)
-        .then(storeShared);
-    // .then((e) => thenHandler('recap', e));
+    // if (this.service === 'pronote')
+    //   return require('./PronoteData/PronoteRecap.js')
+    //     .getRecap(day, force)
+    //     .then(storeShared);
     return [[], [], {}];
   }
 
   // [Service]Timetable.js
-  async getTimetable(day, force = false) {
+  async getTimetable(day: Date, force = false) {
     await this.waitInit();
-    if (this.service === 'Skolengo')
+    if (this.service === 'skolengo')
       return this.skolengoInstance.getTimetable(day, force);
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteTimetable.js').getTimetable(
-        day,
-        force
-      );
+    // if (this.service === 'pronote')
+    //   return require('./PronoteData/PronoteTimetable.js').getTimetable(
+    //     day,
+    //     force
+    //   );
     return [];
   }
 
-  // [Service]User.js
-  async getUser(force = false) {
+  async getUser (force = false): Promise<PapillonUser> {
     await this.waitInit();
-    if (this.service === 'Skolengo')
-      return this.skolengoInstance
-        .getUser(force)
-        .then((e) => editUser(e))
-        .then((e) => {
-          return e;
-        });
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteUser.js')
-        .getUser(force)
-        .then((e) => ({ ...e, periods: undefined }))
-        .then((e) => editUser(e));
-    // .then((e) => thenHandler('usr', e));
-    return {};
+    let user: PapillonUser;
+
+    if (this.service === 'skolengo') {
+      user = await this.skolengoInstance.getUser(force);
+    }
+    else if (this.service === 'pronote') {
+      const { userHandler } = await import('./PronoteData/user');
+      user = await userHandler(this.pronoteInstance, force);
+    }
+
+    if (!user) {
+      throw new Error('Unknown service.');
+    }
+
+    return runUserMiddleware(user);
   }
 
-  async getPeriods(force = false) {
+  async getPeriods(force = false): Promise<Array<{
+    id: string
+    name: string
+    actual: boolean
+  }>> {
     await this.waitInit();
-    if (this.service === 'Skolengo')
+    
+    if (this.service === 'skolengo') {
       return this.skolengoInstance.getPeriods(force);
-    if (this.service === 'Pronote')
-      return (await require('./PronoteData/PronoteUser.js').getUser(force))
-        .periods;
-    // .then((e) => thenHandler('usr', e));
+    }
+    else if (this.service === 'pronote') {
+      return this.pronoteInstance.periods.map(period => ({
+        id: period.id,
+        name: period.name,
+        actual: false // TODO: Check with dates.
+      }));
+    }
+  
     return [];
   }
 
   // [Service]Viesco.js
   async getViesco(force = false) {
     await this.waitInit();
-    if (this.service === 'Skolengo')
+    if (this.service === 'skolengo')
       return this.skolengoInstance.getViesco(force);
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteViesco.js').getViesco(force);
+    // if (this.service === 'pronote')
+    //   return require('./PronoteData/PronoteViesco.js').getViesco(force);
     // .then((e) => thenHandler('viesco', e));
     return [];
   }
@@ -224,68 +244,66 @@ export class IndexDataInstance {
   // [Service]Conversations.js
   async getConversations(force = false) {
     await this.waitInit();
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteConversations.js').getConversations(
-        force
-      );
+    // if (this.service === 'pronote')
+    //   return require('./PronoteData/PronoteConversations.js').getConversations(
+    //     force
+    //   );
     return [];
   }
 
   // [Service]Conversations.js
   async replyToConversation(id, message) {
     await this.waitInit();
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteConversations.js').replyToConversation(
-        id,
-        message
-      );
+    // if (this.service === 'pronote')
+    //   return require('./PronoteData/PronoteConversations.js').replyToConversation(
+    //     id,
+    //     message
+    //   );
     return {};
   }
 
   async readStateConversation(id) {
     await this.waitInit();
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteConversations.js').readStateConversation(
-        id
-      );
+    // if (this.service === 'pronote')
+    //   return require('./PronoteData/PronoteConversations.js').readStateConversation(
+    //     id
+    //   );
     return {};
   }
 
   async createDiscussion(subject, content, participants) {
     await this.waitInit();
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteConversations.js').createDiscussion(
-        subject,
-        content,
-        participants
-      );
+    // if (this.service === 'pronote')
+    //   return require('./PronoteData/PronoteConversations.js').createDiscussion(
+    //     subject,
+    //     content,
+    //     participants
+    //   );
     return {};
   }
 
   async getRecipients() {
-    await this.waitInit();
-    if (this.service === 'Pronote')
-      return require('./PronoteData/PronoteConversations.js').getRecipients();
+    // await this.waitInit();
+    // if (this.service === 'pronote')
+    //   return require('./PronoteData/PronoteConversations.js').getRecipients();
     return [];
   }
 }
 
-async function editUser(profile) {
-  const user = profile;
+/**
+ * Middleware mainly here to add the custom
+ * profile picture and custom name from settings.
+ */
+const runUserMiddleware = async (user: PapillonUser): Promise<PapillonUser> => {
+  const customProfilePictureB64 = await AsyncStorage.getItem('custom_profile_picture');
+  if (customProfilePictureB64) {
+    user.profile_picture = customProfilePictureB64;
+  }
 
-  await AsyncStorage.getItem('custom_profile_picture').then(
-    (customProfilePicture) => {
-      if (customProfilePicture) {
-        user.profile_picture = customProfilePicture;
-      }
-    }
-  );
-
-  await AsyncStorage.getItem('custom_name').then((customName) => {
-    if (customName) {
-      user.name = customName;
-    }
-  });
+  const customName = await AsyncStorage.getItem('custom_name');
+  if (customName) {
+    user.name = customName;
+  }
 
   return user;
-}
+};

@@ -6,7 +6,10 @@ export const AsyncStoragePronoteKeys = {
   ACCOUNT_TYPE_ID: 'pronote:account_type_id',
   INSTANCE_URL: 'pronote:instance_url',
   USERNAME: 'pronote:username',
-  DEVICE_UUID: 'pronote:device_uuid'
+  DEVICE_UUID: 'pronote:device_uuid',
+
+  CACHE_GRADES: 'pronote:cache_grades',
+  CACHE_USER: 'pronote:cache_user'
 };
 
 export const loadPronoteConnector = async (): Promise<Pronote> => {
