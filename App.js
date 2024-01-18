@@ -67,15 +67,6 @@ import PaymentScreen from './views/Settings/PaymentScreen';
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
 
-import WelcomeScreen from './views/AuthStack/WelcomeScreen';
-
-import LoginScreen from './views/AuthStack/LoginScreen';
-import LoginUnavailable from './views/AuthStack/LoginUnavailable';
-
-import LoginPronoteSelectEtab from './views/AuthStack/Pronote/LoginPronoteSelectEtab';
-import LoginPronote from './views/AuthStack/Pronote/LoginPronote';
-import LoginPronoteQR from './views/AuthStack/Pronote/LoginPronoteQRToken';
-
 import NewsScreen from './views/NewsScreen';
 import NewsItem from './views/News/NewsItem';
 
@@ -98,7 +89,7 @@ import PdfViewer from './views/Modals/PdfViewer';
 
 import setBackgroundFetch from './fetch/BackgroundFetch';
 
-import { LoginSkolengoSelectSchool } from './views/AuthStack/Skolengo/LoginSkolengoSelectSchool';
+import { LoginSkolengoSelectSchool } from './views/NewAuthStack/Skolengo/LoginSkolengoSelectSchool';
 import { IndexDataInstance } from './fetch/IndexDataInstance';
 import GetUIColors from './utils/GetUIColors';
 import { showMessage } from 'react-native-flash-message';
@@ -1146,16 +1137,6 @@ function AppStack() {
 }
 
 function AuthStack() {
-  const screenOptions = Platform.select({
-    android: {
-      navigationBarColor: '#00000000',
-      header: (props) => <CustomNavigationBar {...props} />,
-    },
-    ios: {
-      ...headerTitleStyles,
-    },
-  });
-
   return (
     <Stack.Navigator
       screenOptions={
@@ -1188,32 +1169,6 @@ function AuthStack() {
       />
 
       <Stack.Screen
-        name="Welcome"
-        component={WelcomeScreen}
-        options={{
-          title: 'Bienvenue !',
-        }}
-      />
-
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{
-          title: 'Connexion',
-          headerLargeTitle: Platform.OS === 'ios',
-        }}
-      />
-
-      <Stack.Screen
-        name="LoginUnavailable"
-        component={LoginUnavailable}
-        options={{
-          title: 'Service indisponible',
-          presentation: 'modal',
-        }}
-      />
-
-      <Stack.Screen
         name="changeServer"
         component={ChangeServer}
         options={{
@@ -1229,30 +1184,6 @@ function AuthStack() {
           title: 'Se connecter via Skolengo',
           presentation: 'modal',
         }}
-      />
-
-      <Stack.Screen
-        name="LoginPronoteSelectEtab"
-        component={LoginPronoteSelectEtab}
-        options={{
-          title: 'Se connecter à Pronote',
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="LoginPronote"
-        component={LoginPronote}
-        options={{
-          title: 'Se connecter',
-          presentation: 'modal',
-          headerShown: false,
-        }}
-      />
-
-      <Stack.Screen
-        name="LoginPronoteQR"
-        component={LoginPronoteQR}
-        options={{ title: 'Validation du code QR', presentation: 'modal' }}
       />
     </Stack.Navigator>
   );
