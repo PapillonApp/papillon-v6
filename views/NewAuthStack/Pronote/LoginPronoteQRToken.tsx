@@ -59,6 +59,7 @@ function LoginPronoteQR({ route, navigation }) {
       ]);
 
       await appContext.dataProvider.init('pronote', pronote);
+      await AsyncStorage.setItem('service', 'pronote');
 
       navigation.goBack();
       navigation.goBack();
