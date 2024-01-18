@@ -7,7 +7,7 @@ import { useAppContext } from '../utils/AppContext';
 import { useEffect } from 'react';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { IndexDataInstance } from './IndexDataInstance';
+import { IndexDataInstance } from '.';
 import { ucFirst } from './SkolengoData/SkolengoDatas';
 import notifee from '@notifee/react-native';
 

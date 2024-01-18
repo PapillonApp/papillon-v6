@@ -90,7 +90,7 @@ import PdfViewer from './views/Modals/PdfViewer';
 import setBackgroundFetch from './fetch/BackgroundFetch';
 
 import { LoginSkolengoSelectSchool } from './views/NewAuthStack/Skolengo/LoginSkolengoSelectSchool';
-import { IndexDataInstance } from './fetch/IndexDataInstance';
+import { IndexDataInstance } from './fetch';
 import GetUIColors from './utils/GetUIColors';
 import { showMessage } from 'react-native-flash-message';
 
