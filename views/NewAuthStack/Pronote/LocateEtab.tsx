@@ -10,14 +10,12 @@ import NativeList from '../../../components/NativeList';
 import NativeItem from '../../../components/NativeItem';
 import NativeText from '../../../components/NativeText';
 import PapillonLoading from '../../../components/PapillonLoading';
-
-
-const GEO_API_URL = 'https://geo.api.gouv.fr/communes?fields=departement&boost=population&limit=6';
+import { getGeographicMunicipalities, type GeographicMunicipality } from '../../../fetch/geolocation/geo-gouv';
 
 const LocateEtab = ({ navigation }) => {
   const UIColors = GetUIColors();
 
-  const [results, setResults] = React.useState([]);
+  const [results, setResults] = React.useState<GeographicMunicipality[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [currentSearch, setCurrentSearch] = React.useState('');
   const debouncedCurrentSearch = useDebounce(currentSearch, 175);
@@ -44,12 +42,8 @@ const LocateEtab = ({ navigation }) => {
         return;
       }
   
-      const uri = new URL(GEO_API_URL);
-      uri.searchParams.set('nom', debouncedCurrentSearch);
-      
       try { // to make the request to geo-api.
-        const response = await fetch(uri.toString());
-        const data = await response.json();
+        const data = await getGeographicMunicipalities(debouncedCurrentSearch);
   
         setResults(data);
       }
@@ -65,7 +59,7 @@ const LocateEtab = ({ navigation }) => {
   return (
     <ScrollView
       contentInsetAdjustmentBehavior='automatic'
-      style={[styles.container, {backgroundColor: UIColors.modalBackground}]}
+      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
     >
       <StatusBar
         animated
@@ -138,7 +132,7 @@ const LocateEtab = ({ navigation }) => {
             Platform.OS === 'ios' && { marginTop: -14 }
           }
         >
-          {results.map((result, index) => {
+          {results.map((municipality, index) => {
             return (
               <NativeItem
                 key={index}
@@ -147,15 +141,15 @@ const LocateEtab = ({ navigation }) => {
                 }
                 onPress={() => {
                   navigation.navigate('LocateEtabList', {
-                    location: result,
+                    location: municipality
                   });
                 }}
               >
                 <NativeText heading="h4">
-                  {result.nom}
+                  {municipality.properties.name}
                 </NativeText>
                 <NativeText heading="p2">
-                  {result.departement.nom} ({result.departement.code})
+                  {municipality.properties.context}
                 </NativeText>
               </NativeItem>
             );
