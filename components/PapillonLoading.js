@@ -4,7 +4,7 @@ import { Text } from 'react-native-paper';
 
 import GetUIColors from '../utils/GetUIColors';
 
-function PapillonLoading({ title, subtitle, icon, style }) {
+function PapillonLoading({ title, subtitle, icon, style = {} }) {
   const UIColors = GetUIColors();
 
   return (
