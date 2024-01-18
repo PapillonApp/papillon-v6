@@ -1,12 +1,10 @@
 {
+  "root": true,
   "env": {
     "node": true,
     "es2021": true
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended"
-  ],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
@@ -14,21 +12,13 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": ["react"],
+  "plugins": ["@typescript-eslint", "react"],
   "settings": {
     "react": {
       "version": "detect"
     }
   },
   "rules": {
-    "react/no-unstable-nested-components": "off",
-    "react/jsx-filename-extension": "off",
-    "react/jsx-props-no-spreading": "off",
-    "react/no-unescaped-entities": "off",
-    "react/no-array-index-key": "off",
-    "react/prop-types": "off",
-    "react/display-name": "off",
-    
     "indent": ["error", 2],
     "no-unused-vars": "warn",
     "semi": ["error", "always"],
