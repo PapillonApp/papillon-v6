@@ -1198,14 +1198,11 @@ function AuthStack() {
 }
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [isReady, setIsReady] = useState(false);
-
   const scheme = useColorScheme();
-
-  const [dataprovider, setDataprovider] = React.useState(null);	
-
-  const [appIsReady, setAppIsReady] = useState(false);
+  
+  const [dataProvider, setDataProvider] = React.useState(null);	
+  const [appIsReady, setAppIsReady] = React.useState(false);
+  const [loggedIn, setLoggedIn] = React.useState(false);
 
   useEffect(() => {
     async function prepare() {
@@ -1213,10 +1210,14 @@ function App() {
         // Pre-load fonts, make any API calls you need to do here
         await useFonts();
 
-        const value = await AsyncStorage.getItem('token');
-        if (value !== null) {
-          setLoggedIn(true);
+        const serviceName = await AsyncStorage.getItem('service');
+        const provider = new IndexDataInstance(serviceName);	
+        setDataProvider(provider);
+        if (serviceName) {
+          await provider.waitInit();
+          setLoggedIn(!provider.initializing && provider.initialized);
         }
+
       } catch (e) {
         console.warn(e);
       } finally {
@@ -1239,27 +1240,14 @@ function App() {
     }
   }, [appIsReady]);
 
-  React.useEffect(() => {	
-    AsyncStorage.getItem('service').then((value) => {	
-      const provider = new IndexDataInstance(value || null);	
-      setDataprovider(provider);	
-    });	
-  }, [appIsReady]);	
+  const ctxValue = React.useMemo(() => ({	
+    loggedIn,	
+    setLoggedIn,	
+    dataProvider,
+    setDataProvider
+  }),	[loggedIn, dataProvider]);
 
-  const ctxValue = React.useMemo(	
-    () => ({	
-      loggedIn,	
-      setLoggedIn,	
-      dataprovider,	
-    }),	
-    [loggedIn, dataprovider]	
-  );
-
-  if (!appIsReady) {
-    return null;
-  }
-
-  return (
+  return appIsReady ? (
     <View style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#f2f2f7' }}>
       <PaperProvider>
         <AppContextProvider state={ctxValue}>
@@ -1270,7 +1258,7 @@ function App() {
       </PaperProvider>
       <FlashMessage position="top" />
     </View>
-  );
+  ) : null;
 }
 
 export default App;
