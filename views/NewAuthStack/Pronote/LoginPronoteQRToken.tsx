@@ -15,6 +15,7 @@ import { authenticatePronoteQRCode } from 'pawnote';
 import { useAppContext } from '../../../utils/AppContext';
 
 import GetUIColors from '../../../utils/GetUIColors';
+import { AsyncStoragePronoteKeys } from '../../../fetch/PronoteData/connector';
 
 function LoginPronoteQR({ route, navigation }) {
   const theme = useTheme();
@@ -40,24 +41,28 @@ function LoginPronoteQR({ route, navigation }) {
   };
 
   const handleQRPinLogin = async (code: string) => {
-    const uuid = makeUUID();
-    await AsyncStorage.setItem('pronote:deviceUUID', uuid);
+    const deviceUUID = makeUUID();
 
     try {
       const pronote = await authenticatePronoteQRCode({
-        deviceUUID: uuid,
         dataFromQRCode: route.params.qrData,
-        pinCode: code
+        pinCode: code,
+        deviceUUID,
       });
 
-      await AsyncStorage.setItem('pronote:username', pronote.username);
-      await AsyncStorage.setItem('pronote:accountTypeID', pronote.accountTypeID.toString());
-      await AsyncStorage.setItem('pronote:nextTimeToken', pronote.nextTimeToken);
-    
-      navigation.goBack();
-      navigation.goBack();
-      navigation.goBack();
+      await AsyncStorage.multiSet([
+        [AsyncStoragePronoteKeys.NEXT_TIME_TOKEN, pronote.nextTimeToken],
+        [AsyncStoragePronoteKeys.ACCOUNT_TYPE_ID, pronote.accountTypeID.toString()],
+        [AsyncStoragePronoteKeys.INSTANCE_URL, pronote.pronoteRootURL],
+        [AsyncStoragePronoteKeys.USERNAME, pronote.username],
+        [AsyncStoragePronoteKeys.DEVICE_UUID, deviceUUID],
+      ]);
 
+      await appContext.dataProvider.init('pronote', pronote);
+
+      navigation.goBack();
+      navigation.goBack();
+      navigation.goBack();
       appContext.setLoggedIn(true);
     }
     catch {
