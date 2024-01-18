@@ -1,7 +1,6 @@
-import * as React from 'react';
+import React from 'react';
 import {
   Animated,
-  Alert,
   View,
   ScrollView,
   StyleSheet,
@@ -21,14 +20,11 @@ import PapillonInsetHeader from '../components/PapillonInsetHeader';
 import AlertBottomSheet from '../interface/AlertBottomSheet';
 
 import { BlurView } from 'expo-blur';
-import { ContextMenuButton, ContextMenuView } from 'react-native-ios-context-menu';
+import { ContextMenuButton} from 'react-native-ios-context-menu';
 
 import LineChart from 'react-native-simple-line-chart';
 
-import Fade from 'react-native-fade';
-
-import { Stats } from '../interface/icons/PapillonIcons';
-import { User2, BarChart3, Users2, TrendingDown, TrendingUp, Info, AlertTriangle, FlaskConical, Plus, PlusCircle } from 'lucide-react-native';
+import { BarChart3, Users2, TrendingDown, TrendingUp, Info, AlertTriangle } from 'lucide-react-native';
 
 import { useState } from 'react';
 import { PressableScale } from 'react-native-pressable-scale';
@@ -37,7 +33,6 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import PapillonIcon from '../components/PapillonIcon';
 import { getSavedCourseColor } from '../utils/ColorCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import formatCoursName from '../utils/FormatCoursName';
@@ -47,22 +42,19 @@ import { useAppContext } from '../utils/AppContext';
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
-import { LinearGradient } from 'expo-linear-gradient';
 
 import * as StoreReview from 'expo-store-review';
 
 function GradesScreen({ navigation }) {
   const theme = useTheme();
-  const appctx = useAppContext();
   const UIColors = GetUIColors();
-  const { showActionSheetWithOptions } = useActionSheet();
+  const appContext = useAppContext();
   const insets = useSafeAreaInsets();
+  const { showActionSheetWithOptions } = useActionSheet();
+  
   const [subjectsList, setSubjectsList] = useState([]);
-  const [averagesData, setAveragesData] = useState([]);
+  const [averagesData, setAveragesData] = useState({});
   const [latestGrades, setLatestGrades] = useState([]);
-  const [periodsList, setPeriodsList] = useState([]);
-  const [remainingPeriods, setRemainingPeriods] = useState([]);
-  const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [allGrades, setAllGrades] = useState([]);
 
   const [moyReelleAlert, setMoyReelleAlert] = useState(false);
@@ -88,6 +80,10 @@ function GradesScreen({ navigation }) {
   const [hasSimulatedGrades, setHasSimulatedGrades] = useState(false);
 
   const [gradeOpened, setGradeOpened] = useState(false);
+  
+  const [selectedPeriod, setSelectedPeriod] = useState(null);
+  const [remainingPeriodsList, setRemainingPeriodsList] = useState([]);
+  const [periodsList, setPeriodsList] = useState([]);
 
   const yOffset = new Animated.Value(0);
 
@@ -236,6 +232,8 @@ function GradesScreen({ navigation }) {
     navigation.setOptions({
       headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
+          style={{}}
+          textStyle={{}}
           icon={<SFSymbol name="chart.pie.fill" />}
           title="Notes"
           color="#A84700"
@@ -248,8 +246,7 @@ function GradesScreen({ navigation }) {
       } : undefined,
       headerBackground: Platform.OS === 'ios' ? () => (
         <Animated.View 
-          style={[
-            styles.header,
+          style={
             {
               flex: 1,
               backgroundColor: UIColors.element + '00',
@@ -257,7 +254,7 @@ function GradesScreen({ navigation }) {
               borderBottomColor: theme.dark ? UIColors.text + '22' : UIColors.text + '55',
               borderBottomWidth: 0.5,
             }
-          ]}
+          }
         >
           <BlurView
             tint={theme.dark ? 'dark' : 'light'}
@@ -284,7 +281,7 @@ function GradesScreen({ navigation }) {
             }}
             onPressMenuItem={({nativeEvent}) => {
               setSelectedPeriod(periodsList.find((period) => period.name === nativeEvent.actionKey));
-              changePeriodPronote(periodsList.find((period) => period.name === nativeEvent.actionKey));
+              loadGrades(true);
             }}
           >
             <TouchableOpacity
@@ -344,64 +341,44 @@ function GradesScreen({ navigation }) {
         if (selectedIndex === options.length - 1) return;
         const selectedPer = periodsList[selectedIndex];
         setSelectedPeriod(selectedPer);
-        changePeriodPronote(selectedPer);
+        loadGrades(true);
       }
     );
   }
 
-  async function changePeriodPronote(period) {
-    setIsLoading(true);
-    let newPeriod = await appctx.dataprovider.changePeriod(period.name);
-    await appctx.dataprovider.getUser(true);
-    loadGrades(true);
-    setIsLoading(false);
-  }
 
-  const [finalPeriodList, setFinalPeriodList] = useState([]);
-
+  /**
+   * Read periods from Pronote.
+   * Adjust them in the 
+   */
   async function getPeriods() {
-    const allPeriods = await appctx.dataprovider.getPeriods(false);
+    const allPeriods = await appContext.dataProvider.getPeriods();
+    const firstPeriod = allPeriods[0]; // TODO: Define `actual` on the connector.
 
-    const actualPeriod = allPeriods.find((period) => period.actual === true);
     let periods = [];
     let remaining = [];
 
-    if (actualPeriod.name.toLowerCase().includes('trimestre')) {
+    if (firstPeriod.name.toLowerCase().includes('trimestre')) {
       periods = allPeriods.filter((period) =>
         period.name.toLowerCase().includes('trimestre')
       );
-    } else if (actualPeriod.name.toLowerCase().includes('semestre')) {
+    } else if (firstPeriod.name.toLowerCase().includes('semestre')) {
       periods = allPeriods.filter((period) =>
         period.name.toLowerCase().includes('semestre')
       );
     }
     else {
-      // just add the actual period
-      periods.push(actualPeriod);
+      // Just add the current period.
+      periods.push(firstPeriod);
     }
 
     // add remaining periods to the list
     remaining = allPeriods.filter((period) => !periods.includes(period));
 
     setPeriodsList(periods);
-    setSelectedPeriod(actualPeriod);
-    setRemainingPeriods(remaining);
-
-    let finalList = [];
-    periods.forEach((period) => {
-      finalList.push({
-        ...period,
-        category : 'main'
-      });
-    });
-    remaining.forEach((period) => {
-      finalList.push({
-        ...period,
-        category : 'secondary'
-      });
-    });
-
-    setFinalPeriodList(finalList);
+    setRemainingPeriodsList(remaining);
+    
+    setSelectedPeriod(firstPeriod);
   }
 
   function calculateAverage(grades, isClass) {
@@ -520,11 +497,11 @@ function GradesScreen({ navigation }) {
   
     setSubjectsList(subjects);
 
-    const latestGradesList = gradesList.sort((a, b) => new Date(b.date) - new Date(a.date));
+    const latestGradesList = gradesList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     setLatestGrades(latestGradesList.slice(0, 10));
 
     // for each last grade, calculate average
-    let gradesFinalList = gradesList.sort((a, b) => new Date(a.date) - new Date(b.date));
+    let gradesFinalList = gradesList.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     let chartData = [];
 
@@ -582,9 +559,12 @@ function GradesScreen({ navigation }) {
   
 
   async function loadGrades(force = false) {
-    // fetch grades
-    const grades = await appctx.dataprovider.getGrades('', force);
+    setIsLoading(true);
+
+    const grades = await appContext.dataProvider.getGrades(selectedPeriod.name, force);
     parseGrades(grades);
+
+    setIsLoading(false);
   }
 
   React.useEffect(() => {
@@ -850,7 +830,7 @@ Les notes affichées dans le graphique sont des estimations sachant que votre é
                     borderColor: UIColors.element,
                     radius: 7,
                     borderWidth: 0,
-                    animated: true,
+                    // animated: true,
                     showVerticalLine: true,
                     verticalLineColor: UIColors.text,
                     verticalLineDashArray: [5, 5],
@@ -867,7 +847,7 @@ Les notes affichées dans le graphique sont des estimations sachant que votre é
                           styles.activePoint,
                         ]}
                       >
-                        <Text style={[styles.activePointDate, styles.grTextWh, {opacity: 0.5}]}>
+                        <Text style={[styles.grTextWh, {opacity: 0.5}]}>
                           {new Date(point.x).toLocaleDateString('fr-FR', {
                             year: 'numeric',
                             month: 'short',
@@ -1346,7 +1326,7 @@ const styles = StyleSheet.create({
   },
   gradeCoefficient: {
     fontSize: 14,
-    fontWeight: 500,
+    fontWeight: '500',
     opacity: 0.5,
   },
 
@@ -1508,7 +1488,7 @@ const styles = StyleSheet.create({
 
   noGrades: {
     fontSize: 17,
-    fontWeight: 400,
+    fontWeight: '400',
     fontFamily: 'Papillon-Medium',
     opacity: 0.5,
     textAlign: 'center',
@@ -1587,7 +1567,7 @@ const styles = StyleSheet.create({
 
   averagegrTitleInfoText: {
     fontSize: 15,
-    fontWeight: 500,
+    fontWeight: '500',
     fontFamily: 'Papillon-Semibold',
   },
 

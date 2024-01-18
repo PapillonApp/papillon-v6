@@ -1,5 +1,5 @@
-// React Native code
-import * as React from 'react';
+import React from 'react';
+
 import {
   View,
   Alert,
@@ -15,14 +15,12 @@ import {
   Platform,
   StatusBar,
   TouchableOpacity,
-  Button,
 } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
 
 // Components & Styles
 import { useTheme, Text } from 'react-native-paper';
 import { PressableScale } from 'react-native-pressable-scale';
-import { BlurView } from 'expo-blur';
 
 // Modules
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -36,7 +34,7 @@ import SyncStorage from 'sync-storage';
 import * as ExpoLinking from 'expo-linking';
 
 // Icons 
-import { DownloadCloud, Check, Gavel, MessagesSquare, AlertCircle, UserCircle2, PlusCircle, Globe2, ServerOff } from 'lucide-react-native';
+import { DownloadCloud, Check, AlertCircle, UserCircle2, Globe2, ServerOff } from 'lucide-react-native';
 import { Competences, Messages, Papillon as PapillonIcon, UserCheck } from '../interface/icons/PapillonIcons';
 
 // Formatting
@@ -45,9 +43,8 @@ import { getSavedCourseColor } from '../utils/ColorCoursName';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
-// Custom componant
+// Custom components
 import PapillonList from '../components/PapillonList';
-import NewPapillonHeader from '../interface/NewPapillonHeader';
 import CheckAnimated from '../interface/CheckAnimated';
 
 import { useAppContext } from '../utils/AppContext';
@@ -58,6 +55,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AlertBottomSheet from '../interface/AlertBottomSheet';
 import NetInfo from '@react-native-community/netinfo';
 import AlertAnimated from '../interface/AlertAnimated';
+import { PapillonUser } from '../fetch/types/user';
 
 // Functions
 const openURL = (url) => {
@@ -85,16 +83,15 @@ const openURL = (url) => {
 
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
-    presentationStyle: 'pageSheet',
+    presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
     controlsColor: Platform.OS === 'ios' ? '#29947A' : null,
     readerMode: true,
     createTask: false,
   });
 };
 
-// App
-function NewHomeScreen({ navigation }) {
-  const appctx = useAppContext();
+function HomeScreen({ navigation }) {
+  const appContext = useAppContext();
   const theme = useTheme();
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
@@ -104,12 +101,14 @@ function NewHomeScreen({ navigation }) {
   const [refreshCount, setRefreshCount] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingUser, setLoadingUser] = useState(true);
-  const [user, setUser] = useState(null);
+  const [userData, setUserData] = React.useState<PapillonUser | null>(null);
+
   const [formattedUserData, setFormattedUserData] = useState({
     prenom: '',
     establishment: '',
     avatarURL: '',
   });
+
   const [homeworks, setHomeworks] = useState([]);
   const [customHomeworks, setCustomHomeworks] = useState([]);
   const [homeworksDays, setHomeworksDays] = useState([]);
@@ -138,7 +137,7 @@ function NewHomeScreen({ navigation }) {
     });
   }, [url]);
 
-  function handleURL(url) {
+  function handleURL (url?: string): void {
     // if url is papillon://grade?=...
     if (url && url.startsWith('papillon://grade?=')) {
       const grade = url.split('papillon://grade?=')[1];
@@ -192,7 +191,6 @@ function NewHomeScreen({ navigation }) {
   const [themeColor, setThemeColor] = useState('#32AB8E');
   const [themeImage, setThemeImage] = useState('papillon/default');
 
-  // get sync settings
   useEffect(() => {
     // refresh settings every time the screen is focused
     const unsubscribe = navigation.addListener('focus', () => {
@@ -215,108 +213,44 @@ function NewHomeScreen({ navigation }) {
 
   const today = new Date();
 
-  // check internet connection
-  useEffect(() => {
-    
-    // check if connected
-    NetInfo.fetch().then(state => {
-      if (state.isConnected) {
-        setNoInternetAlert(false);
-        setIsConnected(true);
-
-        getConsts().then((consts) => {
-          // check if server is online
-          fetch(`${consts.API}/infos`, {
-            method: 'GET'
-          })
-            .then((response) => response.json())
-            .then((json) => {
-              if (json.status === 'ok') {
-                setOfflineServerAlert(false);
-                setIsServerOnline(true);
-              }
-              else {
-                if(isServerOnline) {
-                  setOfflineServerAlert(true);
-                }
-                setIsServerOnline(false);
-              }
-            })
-            .catch((error) => {
-              if(isServerOnline) {
-                setOfflineServerAlert(true);
-              }
-              setIsServerOnline(false);
-            });
-        });
-      }
-      else {
-        if(isConnected) {
-          setOfflineServerAlert(true);
-        }
-        setIsConnected(false);
-      }
-    });
-
-    // subscribe to connection changes
-    const unsubscribe = NetInfo.addEventListener(state => {
-      if (state.isConnected) {
-        if (!isConnected) {
-          setRefreshCount(refreshCount + 1);
-        }
-        setIsConnected(true);
-      }
-      else {
-        if(isConnected) {
-          setNoInternetAlert(true);
-        }
-        setIsConnected(false);
-      }
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [noInternetAlert, offlineServerAlert]);
+  
 
   const loadCustomHomeworks = async () => {
-    AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
-      let hw = [];
-      if (customHomeworks) {
-        hw = JSON.parse(customHomeworks);
-      }
+    const customHomeworks = await AsyncStorage.getItem('customHomeworks');
+    
+    let hw = [];
+    if (customHomeworks) hw = JSON.parse(customHomeworks);
 
-      // for each homework
-      hw.forEach((homework) => {
-        let hwDate = new Date(homework.date);
-        hwDate.setHours(0, 0, 0, 0);
+    hw.forEach((homework) => {
+      let hwDate = new Date(homework.date);
+      hwDate.setHours(0, 0, 0, 0);
 
-        setHomeworksDays((prevDays) => {
-          let newDays = prevDays;
+      setHomeworksDays((prevDays) => {
+        let newDays = prevDays;
 
-          // check if day already exists
-          if (newDays.find((day) => day.date === hwDate.getTime())) {
-            // NOTE: What's happening here ?
-          }
-          else {
-            newDays.push({
-              date: hwDate.getTime(),
-              custom: true,
-            });
-          }
+        // check if day already exists
+        if (!newDays.find((day) => day.date === hwDate.getTime())) {
+          newDays.push({
+            date: hwDate.getTime(),
+            custom: true,
+          });
+        }
 
-          // sort days
-          newDays.sort((a, b) => a.date - b.date);
+        // sort days
+        newDays.sort((a, b) => a.date - b.date);
 
-          return newDays;
-        });
+        return newDays;
       });
-      
-      setCustomHomeworks(hw);
     });
+      
+    setCustomHomeworks(hw);
   };
 
-  const applyLoadedData = (hwData, coursData) => {
+  /**
+   * Once the data has been fetched from either cache or APIs,
+   * we need to process them before displaying.
+   */
+  const applyHomeworksAndLessonsData = async (hwData, coursData): Promise<void> => {
     const groupedHomeworks = hwData.reduce((grouped, homework) => {
       const homeworkDate = new Date(homework.date);
       homeworkDate.setHours(0, 0, 0, 0);
@@ -325,10 +259,7 @@ function NewHomeScreen({ navigation }) {
         let newDays = prevDays;
 
         // check if day already exists
-        if (newDays.find((day) => day.date === homeworkDate.getTime())) {
-          // NOTE: What's happening here ?
-        }
-        else {
+        if (!newDays.find((day) => day.date === homeworkDate.getTime())) {
           newDays.push({
             date: homeworkDate.getTime(),
             custom: false,
@@ -341,8 +272,7 @@ function NewHomeScreen({ navigation }) {
         return newDays;
       });
 
-      const formattedDate =
-      homeworkDate.getDate() === today.getDate() + 1
+      const formattedDate = homeworkDate.getDate() === today.getDate() + 1
         ? 'demain'
         : new Date(homeworkDate).toLocaleDateString('fr-FR', {
           weekday: 'long',
@@ -382,86 +312,123 @@ function NewHomeScreen({ navigation }) {
     setLoadingHw(false);
     setTimetable(coursData);
     setLoadingCours(false);
-    loadCustomHomeworks();
-
-    sendToSharedGroup(coursData);
+    
+    await loadCustomHomeworks();
+    await sendToSharedGroup(coursData);
   };
 
-  useEffect(() => {
-    // cache loads
-    AsyncStorage.getItem('appcache-user').then((value) => {
-      if (value) {
-        const data = JSON.parse(value);
-        setUser(data);
+  // Check for internet connection.
+  React.useEffect(() => {
+    NetInfo.fetch().then(state => {
+      if (state.isConnected) {
+        setNoInternetAlert(false);
+        setIsConnected(true);
+      }
+      else {
+        if (isConnected) {
+          setOfflineServerAlert(true);
+        }
+
+        setIsConnected(false);
+      }
+    });
+
+    // subscribe to connection changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+      if (state.isConnected) {
+        if (!isConnected) {
+          setRefreshCount(refreshCount + 1);
+        }
+
+        setIsConnected(true);
+      }
+      else {
+        if (isConnected) {
+          setNoInternetAlert(true);
+        }
+
+        setIsConnected(false);
+      }
+    });
+
+    return unsubscribe;
+  }, [noInternetAlert, offlineServerAlert]);
+
+  // Load data from cache, if exists, on mount.
+  React.useEffect(() => {
+    (async () => {
+      const cachedUserData = await AsyncStorage.getItem('appcache-user');
+      if (cachedUserData) {
+        const data = JSON.parse(cachedUserData) as PapillonUser;
+        setUserData(data);
+
+        // Remove any loader if there was.
         setLoadingUser(false);
       }
-    });
+    })();
   }, []);
 
-  useEffect(() => {
-    setLoadingUser(true);
-    appctx.dataprovider.getUser().then((data) => {
-      console.log(data);
+  // Request each data needed on mount.
+  React.useEffect(() => {
+    (async () => {
+      setLoadingUser(true);
+      
+      // Fetch user from APIs.
+      const userData = await appContext.dataProvider.getUser();
 
-      const prenom = data.name.split(' ').pop();
-      const establishment = data.establishment;
-      const avatarURL = data.profile_picture;
+      // Process user information.
+      const prenom = userData.name.split(' ').pop();
+      const establishment = userData.establishment;
+      const avatarURL = userData.profile_picture;
 
       setFormattedUserData({ prenom, establishment, avatarURL });
-      setUser(data);
+      
+      // Save and cache fetched data.
+      setUserData(userData);
+      await AsyncStorage.setItem('appcache-user', JSON.stringify(userData));
+
+      // User data loading is now done, let's proceed with everything else.
       setLoadingUser(false);
 
-      AsyncStorage.setItem('appcache-user', JSON.stringify(data));
+      let force = refreshCount > 0;
+      setLoadingHw(true);
+      setLoadingCours(true);
 
-      if (data.client.type === 'ParentClient') {
-        AsyncStorage.getItem('parent-unlocked').then((value) => {
-          if (value === 'true') {
-            return;
-          }
-
-          expireToken('parentClient', true);
-
-          AsyncStorage.setItem('parent-unlocked', 'true');
-        });
-      }
-    });
-
-    let force = refreshCount > 0;
-
-    setLoadingHw(true);
-    setLoadingCours(true);
-
-    Promise.all([
-      appctx.dataprovider.getHomeworks(today, force, new Date(today).setDate(today.getDate() + 7)).then(e=>e?.flat()),
-      appctx.dataprovider.getTimetable(today, force)
-    ]).then(([hwData, coursData]) => {
+      const [hwData, coursData] = await Promise.all([
+        appContext.dataProvider.getHomeworks(today, force, new Date(today).setDate(today.getDate() + 7)).then(e=>e?.flat()),
+        appContext.dataProvider.getTimetable(today, force)
+      ]);
+      
       if (showsTomorrow == false) {
-        applyLoadedData(hwData, coursData);
-        AsyncStorage.setItem('appcache-homedata', JSON.stringify({ homeworks: hwData, timetable: coursData }));
+        applyHomeworksAndLessonsData(hwData, coursData);
+        await AsyncStorage.setItem('appcache-homedata', JSON.stringify({ homeworks: hwData, timetable: coursData }));
+        
         setUsesCache(false);
       }
-
-      // check if all cours are done
+  
+      // Check if all lessons are done.
       let doneCours = 0;
       coursData.forEach((cours) => {
         if (new Date(cours.end) < new Date(today)) {
           doneCours++;
         }
       });
-
+  
       if (doneCours === coursData.length) {
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
-        appctx.dataprovider.getTimetable(tomorrow, true).then((data) => {
-          applyLoadedData(hwData, data);
-          AsyncStorage.setItem('appcache-homedata', JSON.stringify({ homeworks: hwData, timetable: data }));
-          setUsesCache(false);
-          setShowsTomorrow(true);
-        });
-      }
-    });
 
-    loadCustomHomeworks();
+        const nextWeekCoursData = await appContext.dataProvider.getTimetable(tomorrow, true);
+        
+        applyHomeworksAndLessonsData(hwData, nextWeekCoursData);
+        await AsyncStorage.setItem('appcache-homedata', JSON.stringify({ homeworks: hwData, timetable: nextWeekCoursData }));
+        
+        setUsesCache(false);
+        setShowsTomorrow(true);
+      }
+  
+      await loadCustomHomeworks();
+    })();
   }, [refreshCount]);
 
   useFocusEffect(
@@ -477,11 +444,10 @@ function NewHomeScreen({ navigation }) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: Platform.OS == 'ios' ? () => (
-        themeEnabled ?
-          <PapillonIcon fill={'#ffffff'} style={[styles.newHeaderIcon]} width={32} height={32} />
-          :
-          <PapillonIcon fill={UIColors.text + '26'} style={[styles.newHeaderIcon]} width={32} height={32} />
+      headerLeft: Platform.OS === 'ios' ? () => (
+        themeEnabled
+          ? <PapillonIcon fill={'#ffffff'} width={32} height={32} />
+          : <PapillonIcon fill={UIColors.text + '26'} width={32} height={32} />
       ) : null,
       headerTitle: 'Vue d\'ensemble',
       headerLargeTitle: false,
@@ -493,16 +459,17 @@ function NewHomeScreen({ navigation }) {
       },
       headerRight: () => (
         <TouchableOpacity
-          style={[headerStyles.headerPfpContainer]}
-          onPress={() => navigation.navigate('InsetSettings', {isModal: true})}
+          style={headerStyles.headerPfpContainer}
+          onPress={() => navigation.navigate('InsetSettings', { isModal: true })}
         >
-          {user && user.profile_picture ? (<Image
-            source={{ uri: user.profile_picture }}
-            style={[headerStyles.headerPfp]}
-          />) : (
-            <UserCircle2 size={36} style={[headerStyles.headerPfp]} color="#ccc" />
-          )
-          }
+          {userData && userData.profile_picture ? (
+            <Image
+              source={{ uri: userData.profile_picture }}
+              style={headerStyles.headerPfp}
+            />
+          ) : (
+            <UserCircle2 size={36} style={headerStyles.headerPfp} color="#ccc" />
+          )}
         </TouchableOpacity>
       ),
       headerBackground: () => Platform.OS === 'ios' ? ( 
@@ -519,7 +486,7 @@ function NewHomeScreen({ navigation }) {
             opacity: topOpacity,
           }}
         >
-          { themeEnabled ? (
+          {themeEnabled ? (
             <View
               style={{
                 backgroundColor: '#00000038',
@@ -530,7 +497,7 @@ function NewHomeScreen({ navigation }) {
                 height: '100%',
               }}
             />
-          ) : null }
+          ) : null}
         </Animated.View>
       ) : (
         <View
@@ -547,7 +514,7 @@ function NewHomeScreen({ navigation }) {
     });
   }, [navigation, timetable, formattedUserData, showsTomorrow, UIColors, themeEnabled, themeColor]);
 
-  // reload custom homeworks when page focus
+  // Reload custom homeworks when page focus.
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       loadCustomHomeworks();
@@ -628,7 +595,7 @@ function NewHomeScreen({ navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
+      style={{ backgroundColor: UIColors.backgroundHigh }}
       contentInsetAdjustmentBehavior='automatic'
       refreshControl={
         <RefreshControl
@@ -721,6 +688,7 @@ function NewHomeScreen({ navigation }) {
           />
           <Image 
             source={themeImages[themeImage]}
+            // @ts-expect-error : Not typed well ?
             style={[styles.headerThemeImage]}
           />
         </Animated.View>
@@ -2400,4 +2368,4 @@ const nextCoursStyles = StyleSheet.create({
   },
 });
 
-export default NewHomeScreen;
+export default HomeScreen;
