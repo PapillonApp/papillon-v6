@@ -7,22 +7,20 @@ import { PapillonUser } from './types/user';
 export type ServiceName = 'pronote' | 'skolengo'
 
 export class IndexDataInstance {
-  initialized = false;
-  initializing = false;
+  public initialized = false;
+  public initializing = false;
+  public isNetworkFailing = false;
 
-  service: ServiceName | undefined;
-  skolengoInstance: SkolengoDatas | undefined;
-  pronoteInstance: Pronote | undefined;
-
-  constructor (service?: ServiceName) {
-    if (service) this.service = service;
-    this.init(this.service);
-  }
+  public service?: ServiceName;
+  public skolengoInstance?: SkolengoDatas;
+  public pronoteInstance?: Pronote;
 
   async waitInit(): Promise<boolean> {
     if (this.initialized) return true;
 
     if (!this.initializing) {
+      console.log('waitInit:', this.service, 'not initializing, let\'s ask to init');
+
       if (this.service === 'skolengo' && !this.skolengoInstance) {
         await this.init('skolengo');
       }
@@ -36,37 +34,47 @@ export class IndexDataInstance {
         if (!this.initializing) {
           clearInterval(interval);
           resolve(true);
-        }
+        } else console.log('waitInit:', this.service, 'still initializing...');
       }, 250);
     });
   }
 
-  async init (service?: 'pronote' | 'skolengo', instance?: Pronote): Promise<void> {
+  async init (service: 'pronote' | 'skolengo', instance?: Pronote): Promise<void> {
     if (this.initializing || this.initialized) return;
     
-    this.initializing = true;
-    this.service = service ?? (await AsyncStorage.getItem('service') as ServiceName);
+    this.service = service;
+    if (!this.service) return;
 
-    console.log('init', this.service, this.initializing, this.initialized);
+    console.log('provider: initializing', this.service, { loading: this.initializing, done: this.initialized });
+    this.initializing = true;
     
     if (this.service === 'skolengo') {
       const skolengo = await import('./SkolengoData/SkolengoDatas.js');
       this.skolengoInstance = await skolengo.SkolengoDatas.initSkolengoDatas();
-      this.initialized = true;
+      // TODO: Let's say for now that it never fails...
+      this.isNetworkFailing = false;
+
+      this.initialized = this.skolengoInstance ? true : false;
     }
     else if (this.service === 'pronote') {
-      const pronote = await import('./PronoteData/connector');
-      try {
-        this.pronoteInstance = instance ? instance : await pronote.loadPronoteConnector();
-        this.initialized = true;
+      if (instance) this.pronoteInstance = instance;
+      else {
+        const pronote = await import('./PronoteData/connector');
+        
+        try {
+          const connector = await pronote.loadPronoteConnector();
+          if (connector) this.pronoteInstance = connector;
+          this.isNetworkFailing = false;
+        } catch { // any error not handled in the connector; so the network fail.
+          this.isNetworkFailing = true;
+        }
       }
-      catch {
-        this.initialized = false;
-      }
+
+      this.initialized = this.pronoteInstance ? true : false;
     }
-    else this.initialized = false;
 
     this.initializing = false;
+    console.log('provider: init/results of', this.service, { loading: this.initializing, done: this.initialized });
   }
 
   // [Service]Grades.js
@@ -78,6 +86,11 @@ export class IndexDataInstance {
     }
     else if (this.service === 'pronote') {
       const { gradesHandler } = await import('./PronoteData/grades');
+
+      if (!this.pronoteInstance) {
+        throw new Error('getGrades: cache not available');
+      } 
+
       const period = this.pronoteInstance.periods.find(
         period => period.name === selectedPeriodName
       );
@@ -200,6 +213,12 @@ export class IndexDataInstance {
     else if (this.service === 'pronote') {
       const { userHandler } = await import('./PronoteData/user');
       user = await userHandler(this.pronoteInstance, force);
+
+      if (!user) {
+        // TODO: Show a message to user that cache is not renewed and data can't be fetched.
+        console.warn('getUser: offline with no cache.');
+        throw new Error('Not enough cache.');
+      }
     }
 
     if (!user) {

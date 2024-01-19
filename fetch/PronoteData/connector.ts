@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { authenticateToken, type Pronote, PronoteApiAccountId } from 'pawnote';
+import { authenticateToken, type Pronote, PronoteApiAccountId, PawnoteNetworkFail } from 'pawnote';
 
 export const AsyncStoragePronoteKeys = {
   NEXT_TIME_TOKEN: 'pronote:next_time_token',
@@ -12,7 +12,12 @@ export const AsyncStoragePronoteKeys = {
   CACHE_USER: 'pronote:cache_user'
 };
 
-export const loadPronoteConnector = async (): Promise<Pronote> => {
+export const removePronoteConnector = async () => {
+  await AsyncStorage.multiRemove(Object.values(AsyncStoragePronoteKeys));
+  await AsyncStorage.removeItem('service');
+};
+
+export const loadPronoteConnector = async (): Promise<Pronote | null> => {
   const values = await AsyncStorage.multiGet([
     AsyncStoragePronoteKeys.NEXT_TIME_TOKEN,
     AsyncStoragePronoteKeys.ACCOUNT_TYPE_ID,
@@ -27,15 +32,50 @@ export const loadPronoteConnector = async (): Promise<Pronote> => {
   const username = values[3][1];
   const uuid = values[4][1];
 
-  const pronote = await authenticateToken(instanceURL, {
-    accountTypeID,
-    token,
-    username,
-    deviceUUID: uuid
-  });
+  if (!token || isNaN(accountTypeID) || !instanceURL || !username || !uuid) {
+    console.warn('loadPronoteConnector: information are outdated, logging out...');
+    await removePronoteConnector();
+    return null;
+  }
 
-  // We save the next token, for next auth.
-  await AsyncStorage.setItem(AsyncStoragePronoteKeys.NEXT_TIME_TOKEN, pronote.nextTimeToken);
+  console.log('loadPronoteConnector:', username, 'authenticating...');
 
-  return pronote;
+  try {
+    const pronote = await authenticateToken(instanceURL, {
+      accountTypeID,
+      token,
+      username,
+      deviceUUID: uuid
+    });
+  
+    console.log('loadPronoteConnector:', username, 'authenticated ! see token:', pronote.nextTimeToken);
+  
+    // We save the next token, for next auth.
+    await AsyncStorage.setItem(AsyncStoragePronoteKeys.NEXT_TIME_TOKEN, pronote.nextTimeToken);
+
+    return pronote;
+  }
+  /**
+   * We return null for an "forbidden" / "unauthenticated" reason.
+   * We throw the error for a "network error" reason.
+   */
+  catch (error) {
+    if (error instanceof Error) {
+      if (error.message.includes('Failed to extract session from HTML')) {
+        await removePronoteConnector();
+      }
+
+      if (error instanceof PawnoteNetworkFail) { // (subclass of Error)
+        throw error;
+      }
+
+      // TODO: Handle all errors from Pawnote.
+      console.error('loadPronoteConnector: to handle', error); 
+      return null;
+    }
+
+    console.error('loadPronoteConnector: Unknown error.', error);
+    // Let's say it's just network error.
+    throw error;
+  }
 };

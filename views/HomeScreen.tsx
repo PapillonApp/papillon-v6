@@ -742,28 +742,6 @@ function HomeScreen({ navigation }) {
         style={{marginHorizontal: 16}}
       />
 
-      <AlertBottomSheet
-        title="Aucune connexion Internet"
-        subtitle="Une connexion internet est nécessaire pour afficher les informations de votre compte."
-        icon={<Globe2 />}
-        color='#9A1D1D'
-        visible={noInternetAlert}
-        cancelAction={() => {
-          setNoInternetAlert(false);
-        }}
-      />
-
-      <AlertBottomSheet
-        title="Serveurs inaccessibles"
-        subtitle="Impossible de se connecter aux serveurs de Papillon. Veuillez réessayer plus tard."
-        icon={<ServerOff />}
-        color='#9A1D1D'
-        visible={offlineServerAlert}
-        cancelAction={() => {
-          setOfflineServerAlert(false);
-        }}
-      />
-
       <CoursElement
         cours={timetable}
         theme={theme}

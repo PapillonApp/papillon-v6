@@ -1,8 +1,6 @@
-import * as React from 'react';
+import React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
-import './utils/IgnoreWarnings';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BottomNavigation, Appbar, useTheme, PaperProvider, Text } from 'react-native-paper';
@@ -12,32 +10,21 @@ import FlashMessage from 'react-native-flash-message';
 import SyncStorage from 'sync-storage';
 
 import { getHeaderTitle } from '@react-navigation/elements';
-import { useState, useMemo, useEffect } from 'react';
-import { Platform, StyleSheet, useColorScheme, View, PermissionsAndroid, Alert, Linking, TouchableOpacity, TouchableHighlight, Pressable } from 'react-native';
+import { useMemo, useEffect } from 'react';
+import { Platform, StyleSheet, useColorScheme, View, TouchableOpacity } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
-import { SFSymbol } from 'react-native-sfsymbols';
 
 import { useCallback } from 'react';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import * as ExpoLinking from 'expo-linking';
-
 import * as SplashScreen from 'expo-splash-screen';
 SplashScreen.preventAutoHideAsync();
 
 import {
-  Home,
-  CalendarRange,
-  BookOpen,
-  BarChart3,
-  UserCircle,
-  Newspaper,
   ChevronLeft,
 } from 'lucide-react-native';
-import useFonts from './hooks/useFonts';
-
-import { BlurView } from 'expo-blur';
+import loadFonts from './utils/Fonts';
 
 import HomeScreen from './views/HomeScreen';
 
@@ -77,7 +64,7 @@ import MessagesScreen from './views/Conversations/MessagesScreen';
 import NewConversation from './views/Conversations/NewConversation';
 
 import EvaluationsScreen from './views/EvaluationsScreen';
-import { AppContextProvider, baseColor } from './utils/AppContext';
+import { AppContextProvider } from './utils/AppContext';
 
 import NotificationsScreen from './views/Settings/NotificationsScreen';
 
@@ -87,12 +74,9 @@ import LocateEtab from './views/NewAuthStack/Pronote/LocateEtab';
 
 import PdfViewer from './views/Modals/PdfViewer';
 
-import setBackgroundFetch from './fetch/BackgroundFetch';
-
 import { LoginSkolengoSelectSchool } from './views/NewAuthStack/Skolengo/LoginSkolengoSelectSchool';
 import { IndexDataInstance } from './fetch';
 import GetUIColors from './utils/GetUIColors';
-import { showMessage } from 'react-native-flash-message';
 
 import LocateEtabList from './views/NewAuthStack/Pronote/LocateEtabList';
 import LoginURL from './views/NewAuthStack/Pronote/LoginURL';
@@ -100,8 +84,8 @@ import ScanPronoteQR from './views/NewAuthStack/Pronote/NewPronoteQR';
 import NGPronoteLogin from './views/NewAuthStack/Pronote/NGPronoteLogin';
 import GradesSimulatorMenu from './views/Grades/GradesSimulatorMenu';
 import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
-import * as notifs from './components/Notifications';
-notifs.init();
+// import * as notifs from './components/Notifications';
+// notifs.init();
 const Tab = createBottomTabNavigator();
 import * as Sentry from '@sentry/react-native';
 
@@ -1197,7 +1181,7 @@ function AuthStack() {
   );
 }
 
-function App() {
+export default function App() {
   const scheme = useColorScheme();
   
   const [dataProvider, setDataProvider] = React.useState(null);	
@@ -1207,19 +1191,27 @@ function App() {
   useEffect(() => {
     async function prepare() {
       try {
-        // Pre-load fonts, make any API calls you need to do here
-        await useFonts();
+        // Pre-load fonts.
+        await loadFonts();
 
         const serviceName = await AsyncStorage.getItem('service');
-        const provider = new IndexDataInstance(serviceName);	
+        const provider = new IndexDataInstance();	
         setDataProvider(provider);
-        if (serviceName) {
-          await provider.waitInit();
-          setLoggedIn(!provider.initializing && provider.initialized);
+
+        if (serviceName === 'pronote' || serviceName === 'skolengo') {
+          await provider.init(serviceName);
+          console.log('app.prepare:', provider.initialized, provider.initializing);
+          // We consider we have some data in cache, so let's try to run...
+          if (provider.isNetworkFailing) {
+            console.warn('app.prepare: network failing, sign in with cache only.');
+            setLoggedIn(true);
+          }
+          // When it's not failing, just read from provider.
+          else setLoggedIn(Boolean(provider.pronoteInstance || provider.skolengoInstance));
         }
 
-      } catch (e) {
-        console.warn(e);
+      } catch (error) {
+        console.error('app.prepare:', error);
       } finally {
         // Tell the application to render
         setAppIsReady(true);
@@ -1260,5 +1252,3 @@ function App() {
     </View>
   ) : null;
 }
-
-export default App;

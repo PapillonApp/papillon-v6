@@ -1,7 +1,7 @@
-import * as Font from 'expo-font';
+import { loadAsync } from 'expo-font';
 
-const useFonts = async () =>
-  await Font.loadAsync({
+const loadFonts = async () =>
+  await loadAsync({
     'Papillon-Light': require('../assets/fonts/FixelText-Light.ttf'),
     'Papillon-Regular': require('../assets/fonts/FixelText-Regular.ttf'),
     'Papillon-Medium': require('../assets/fonts/FixelText-Medium.ttf'),
@@ -14,4 +14,4 @@ const useFonts = async () =>
     'Onest-Bold': require('../assets/fonts/Onest-Bold.ttf'),
   });
 
-export default useFonts;
+export default loadFonts;
