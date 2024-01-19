@@ -1,6 +1,6 @@
-import * as React from 'react';
+import React from 'react';
 import { View, Image, StyleSheet, StatusBar, ScrollView, Platform } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 
 import { useEffect, useState } from 'react';
 
@@ -12,27 +12,26 @@ import { SFSymbol } from 'react-native-sfsymbols';
 
 import GetUIColors from '../utils/GetUIColors';
 
-import { Cell, Section, TableView } from 'react-native-tableview-simple';
-import PapillonInsetHeader from '../components/PapillonInsetHeader';
-
 import packageJson from '../package.json';
 import { useAppContext } from '../utils/AppContext';
+import type { PapillonUser } from '../fetch/types/user';
 
 function NewSettings({navigation}) {
   const UIColors = GetUIColors();
 
   // User data
   const theme = useTheme();
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState<PapillonUser | null>(null);
   const [profilePicture, setProfilePicture] = useState('');
 
-  const appctx = useAppContext();
+  const appContext = useAppContext();
 
   useEffect(() => {
-    appctx.dataprovider.getUser(false).then((result) => {
-      setUserData(result);
-      setProfilePicture(result.profile_picture);
-    });
+    (async () => {
+      const user = await appContext.dataProvider.getUser();
+      setUserData(user);
+      setProfilePicture(user.profile_picture);
+    })();
   }, []);
 
   React.useLayoutEffect(() => {
@@ -290,7 +289,6 @@ function NewSettings({navigation}) {
           </NativeText>
         </NativeItem>
       </NativeList>
-
     </ScrollView>
   );
 }

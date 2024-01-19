@@ -1,17 +1,14 @@
-import * as React from 'react';
+import React from 'react';
 import {
   View,
   ScrollView,
   StyleSheet,
   StatusBar,
-  Appearance,
   Platform,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import { Bell, Maximize, Palette, SunMoon } from 'lucide-react-native';
-import { useActionSheet } from '@expo/react-native-action-sheet';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Bell, Maximize, Palette } from 'lucide-react-native';
 import ListItem from '../../components/ListItem';
 import PapillonIcon from '../../components/PapillonIcon';
 
@@ -20,15 +17,9 @@ import GetUIColors from '../../utils/GetUIColors';
 function AppearanceScreen({ navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
-  const { showActionSheetWithOptions } = useActionSheet();
-  const insets = useSafeAreaInsets();
-
-
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
-    >
+    <ScrollView style={{ backgroundColor: UIColors.modalBackground }}>
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
       ) : (
@@ -49,7 +40,6 @@ function AppearanceScreen({ navigation }) {
             <PapillonIcon
               icon={<Maximize size={24} color="#29947A" />}
               color="#29947A"
-              size={24}
               small
             />
           }
@@ -64,7 +54,6 @@ function AppearanceScreen({ navigation }) {
             <PapillonIcon
               icon={<Palette size={24} color="#29947A" />}
               color="#29947A"
-              size={24}
               small
             />
           }
@@ -83,7 +72,6 @@ function AppearanceScreen({ navigation }) {
             <PapillonIcon
               icon={<Bell size={24} color="#5d75de" />}
               color="#5d75de"
-              size={24}
               small
             />
           }

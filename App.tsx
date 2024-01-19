@@ -41,11 +41,9 @@ import SettingsScreen from './views/SettingsScreen';
 import AboutScreen from './views/Settings/AboutScreen';
 import DonorsScreen from './views/Settings/DonorsScreen';
 import ProfileScreen from './views/Settings/ProfileScreen';
-import OfficialServer from './views/Settings/OfficialServer';
 import AppearanceScreen from './views/Settings/AppearanceScreen';
 import SettingsScreen2 from './views/Settings/SettingsScreen';
 import IconsScreen from './views/Settings/IconsScreen';
-import ChangeServer from './views/Settings/ChangeServer';
 import CoursColor from './views/Settings/CoursColor';
 import AdjustmentsScreen from './views/Settings/AdjustmentsScreen';
 import HeaderSelectScreen from './views/Settings/HeaderSelectScreen';
@@ -297,14 +295,6 @@ function InsetSettings() {
         }}
       />
       <Stack.Screen
-        name="OfficialServer"
-        component={OfficialServer}
-        options={{
-          headerTitle: 'Serveur officiel',
-          headerBackTitle: 'Retour',
-        }}
-      />
-      <Stack.Screen
         name="CoursColor"
         component={CoursColor}
         options={{
@@ -374,14 +364,6 @@ function InsetSettings() {
           headerTitle: 'Icône de l\'application',
           presentation: 'modal',
           modalStatus: Platform.OS === 'ios',
-        }}
-      />
-      <Stack.Screen
-        name="changeServer"
-        component={ChangeServer}
-        options={{
-          headerTitle: 'Changer de serveur',
-          presentation: 'modal',
         }}
       />
       <Stack.Screen
@@ -1157,15 +1139,6 @@ function AuthStack() {
         options={{
           presentation: 'modal',
           headerShown: false,
-        }}
-      />
-
-      <Stack.Screen
-        name="changeServer"
-        component={ChangeServer}
-        options={{
-          headerTitle: 'Changer de serveur',
-          presentation: 'modal',
         }}
       />
 

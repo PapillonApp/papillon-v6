@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { View, StyleSheet, Modal, Animated, TouchableWithoutFeedback, ScrollView, Switch, Alert, Platform } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, StyleSheet, Modal, Animated, ScrollView, Switch, Platform } from 'react-native';
 
 import { Text } from 'react-native-paper';
 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GetUIColors from '../../utils/GetUIColors';
 
 import ColorPicker, {
@@ -16,7 +15,7 @@ import ColorPicker, {
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
-import { AlertTriangle, Palette, Type } from 'lucide-react-native';
+import { AlertTriangle, Palette } from 'lucide-react-native';
 
 import SyncStorage from 'sync-storage';
 import { Home } from '../../interface/icons/PapillonIcons';
@@ -25,7 +24,6 @@ import AlertAnimated from '../../interface/AlertAnimated';
 
 const AdjustmentsScreen = ({ navigation }) => {
   const UIColors = GetUIColors();
-  const insets = useSafeAreaInsets();
 
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [colorModalColor, setColorModalColor] = useState('#000000');
@@ -162,7 +160,7 @@ const AdjustmentsScreen = ({ navigation }) => {
           }
         >
           <NativeText heading="h4">
-            Thèmes de l'écran d'acceuil
+            Thèmes de l'écran d'accueil
           </NativeText>
           <NativeText heading="p2">
             Applique un arrière-plan et un bandeau personnalisé
@@ -245,9 +243,9 @@ const AdjustmentsScreen = ({ navigation }) => {
             </ColorPicker>
 
             <View style={[styles.modalActions, {borderColor: UIColors.border}]}>
-              <TouchableOpacity style={[styles.modalAction]} onPress={() => setColorModalOpen(false)}>
+              <TouchableOpacity style={styles.modalAction} onPress={() => setColorModalOpen(false)}>
                 <Text
-                  style={[styles.modalActionText]}
+                  style={styles.modalActionText}
                 >
                   Annuler
                 </Text>

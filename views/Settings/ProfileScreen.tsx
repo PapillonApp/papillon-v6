@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {
   View,
   ScrollView,
@@ -9,6 +9,7 @@ import {
   Platform,
   Alert,
   Keyboard,
+  KeyboardEventListener,
 } from 'react-native';
 import {
   useTheme,
@@ -22,15 +23,10 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
 
-import { ContextMenuButton } from 'react-native-ios-context-menu';
-import * as Clipboard from 'expo-clipboard';
-
 import * as ImagePicker from 'expo-image-picker';
 import * as LocalAuthentication from 'expo-local-authentication';
 
 import { BlurView } from 'expo-blur';
-
-import { useEffect } from 'react';
 
 import {
   Mail,
@@ -43,9 +39,6 @@ import {
   UserCircle2,
 } from 'lucide-react-native';
 
-import ListItem from '../../components/ListItem';
-import PapillonIcon from '../../components/PapillonIcon';
-
 import GetUIColors from '../../utils/GetUIColors';
 import { useAppContext } from '../../utils/AppContext';
 
@@ -55,34 +48,29 @@ import NativeText from '../../components/NativeText';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
+import { PapillonUser } from '../../fetch/types/user';
 
-function ProfileScreen({ route, navigation }) {
+function ProfileScreen() {
   const theme = useTheme();
   const UIColors = GetUIColors();
-  const isModal = route.params.isModal;
+  const appContext = useAppContext();
 
-  const [userData, setUserData] = React.useState({});
+  const [userData, setUserData] = React.useState<PapillonUser | null>(null);
   const [profilePicture, setProfilePicture] = React.useState('');
+  const [resetProfilePictureAlert, setResetProfilePictureAlert] = React.useState(false);
 
-  const [shownINE, setShownINE] = React.useState('');
+  React.useEffect(() => {
+    (async () => {
+      const user = await appContext.dataProvider.getUser();
 
-  const [ResetProfilePicAlert, setResetProfilePicAlert] = React.useState(false);
-
-  const appctx = useAppContext();
-
-  useEffect(() => {
-    appctx.dataprovider.getUser(false).then((result) => {
-      setUserData(result);
-      setProfilePicture(result.profile_picture);
-
-      if (Platform.OS === 'android') {
-        // setShownINE(userData.ine);
-      }
-    });
+      setUserData(user);
+      setProfilePicture(user.profile_picture);
+    })();
   }, []);
 
-  async function getINE() {
-    if (shownINE === '') {
+  const [shownINE, setShownINE] = React.useState('');
+  async function toggleINEReveal () {
+    if (!shownINE) {
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Veuillez vous authentifier pour afficher votre INE',
         cancelLabel: 'Annuler',
@@ -97,13 +85,7 @@ function ProfileScreen({ route, navigation }) {
     }
   }
 
-  function showIneIfAndroid() {
-    if (Platform.OS === 'android') {
-      getINE();
-    }
-  }
-
-  async function EditProfilePicture() {
+  async function updateCustomProfilePicture() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -123,19 +105,13 @@ function ProfileScreen({ route, navigation }) {
     }
   }
 
-  function ResetProfilePic() {
-    setResetProfilePicAlert(true);
-    return;
+  async function clearCustomProfilePicture() {
+    await AsyncStorage.removeItem('custom_profile_picture');
+    const profilePicture = await AsyncStorage.getItem('old_profile_picture');
+    setProfilePicture(profilePicture);
   }
 
-  function FullResetProfilePic() {
-    AsyncStorage.removeItem('custom_profile_picture');
-    AsyncStorage.getItem('old_profile_picture').then((result) => {
-      setProfilePicture(result);
-    });
-  }
-
-  function ResetName() {
+  function promptClearCustomUserName() {
     Alert.alert(
       'Réinitialiser le nom utilisé',
       'Êtes-vous sûr de vouloir réinitialiser le nom utilisé ?',
@@ -143,7 +119,7 @@ function ProfileScreen({ route, navigation }) {
         {
           text: 'Réinitialiser',
           isPreferred: true,
-          onPress: () => FullResetName(),
+          onPress: clearCustomUserName,
           style: 'destructive',
         },
         { text: 'Annuler', style: 'cancel' },
@@ -151,19 +127,18 @@ function ProfileScreen({ route, navigation }) {
     );
   }
 
-  function FullResetName() {
-    AsyncStorage.getItem('old_name').then((result) => {
-      if (result === null || '') return;
-      setUserData({ ...userData, name: result });
-      AsyncStorage.removeItem('custom_name');
-    });
+  async function clearCustomUserName() {
+    const realName = await AsyncStorage.getItem('old_name');
+    if (!realName) return;
+
+    setUserData({ ...userData, name: realName });
+    await AsyncStorage.removeItem('custom_name');
   }
 
-  const [androidNamePromptVisible, setAndroidNamePromptVisible] =
-    React.useState(false);
-  const [androidNamePrompt, setAndroidNamePrompt] = React.useState(false);
+  const [androidNamePromptVisible, setAndroidNamePromptVisible] = React.useState(false);
+  const [androidNamePrompt, setAndroidNamePrompt] = React.useState('');
 
-  function EditName() {
+  function promptUpdateCustomUserName() {
     setAndroidNamePrompt(userData ? userData.name : '');
 
     if (Platform.OS === 'ios') {
@@ -174,12 +149,12 @@ function ProfileScreen({ route, navigation }) {
           {
             text: 'Modifier',
             isPreferred: true,
-            onPress: (name) => ModifyName(name),
+            onPress: (name) => updateCustomUserName(name),
           },
           {
             text: 'Réinitialiser',
             style: 'destructive',
-            onPress: () => ResetName(),
+            onPress: promptClearCustomUserName,
           },
           { text: 'Annuler', style: 'cancel' },
         ],
@@ -191,23 +166,26 @@ function ProfileScreen({ route, navigation }) {
     }
   }
 
-  function ModifyName(name) {
-    AsyncStorage.getItem('custom_name').then((result) => {
-      if (result === null || '') {
-        AsyncStorage.setItem('old_name', userData.name);
-      }
-    });
+  async function updateCustomUserName (name: string): Promise<void> {
+    // If there was no existant custom name before,
+    // it means it's the first time we do it.
+    const existantCustomName = await AsyncStorage.getItem('custom_name');
+    // We should then store current user name to it, so we
+    // can revert the action and go back to real user name.
+    if (!existantCustomName) {
+      await AsyncStorage.setItem('old_name', userData.name);
+    }
 
-    AsyncStorage.setItem('custom_name', name);
+    await AsyncStorage.setItem('custom_name', name);
     setUserData({ ...userData, name });
   }
 
   const [bottom, setBottom] = React.useState(0);
 
   React.useEffect(() => {
-    function onKeyboardChange(e) {
-      setBottom(e.endCoordinates.height / 2);
-    }
+    const onKeyboardChange: KeyboardEventListener = (evt) => {
+      setBottom(evt.endCoordinates.height / 2);
+    };
 
     if (Platform.OS === 'ios') {
       const subscription = Keyboard.addListener(
@@ -221,6 +199,7 @@ function ProfileScreen({ route, navigation }) {
       Keyboard.addListener('keyboardDidHide', onKeyboardChange),
       Keyboard.addListener('keyboardDidShow', onKeyboardChange),
     ];
+
     return () => subscriptions.forEach((subscription) => subscription.remove());
   }, []);
 
@@ -244,9 +223,7 @@ function ProfileScreen({ route, navigation }) {
           />
         </View>
       )}
-      <ScrollView
-        style={[styles.container]}
-      >
+      <ScrollView>
         {Platform.OS === 'ios' ? (
           <StatusBar animated barStyle="light-content" />
         ) : (
@@ -273,23 +250,23 @@ function ProfileScreen({ route, navigation }) {
             </Dialog.Content>
             <Dialog.Actions>
               <PaperButton onPress={() => setAndroidNamePromptVisible(false)}>
-              Annuler
+                Annuler
               </PaperButton>
               <PaperButton
                 onPress={() => {
-                  ResetName();
+                  promptClearCustomUserName();
                   setAndroidNamePromptVisible(false);
                 }}
               >
-              Réinitialiser
+                Réinitialiser
               </PaperButton>
               <PaperButton
                 onPress={() => {
-                  ModifyName(androidNamePrompt);
+                  updateCustomUserName(androidNamePrompt);
                   setAndroidNamePromptVisible(false);
                 }}
               >
-              Modifier
+                Modifier
               </PaperButton>
             </Dialog.Actions>
           </Dialog>
@@ -297,11 +274,8 @@ function ProfileScreen({ route, navigation }) {
 
         <View style={styles.profileContainer}>
           <Pressable
-            style={({ pressed }) => [
-              styles.profilePictureContainer,
-              { opacity: pressed ? 0.6 : 1 },
-            ]}
-            onPress={() => EditProfilePicture()}
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+            onPress={() => updateCustomProfilePicture()}
           >
             {profilePicture && profilePicture !== '' ? (
               <Image
@@ -321,13 +295,13 @@ function ProfileScreen({ route, navigation }) {
             </View>
           </Pressable>
 
-          <Text style={styles.name}>{userData?.name}</Text>
-          {[userData.class, userData.establishment].filter((e) => e).length >
-          0 && (
+          <Text style={styles.name}>
+            {userData?.name}
+          </Text>
+
+          {[userData?.class, userData?.establishment].filter(Boolean).length > 0 && (
             <Text style={styles.userData}>
-              {[userData.class, userData.establishment]
-                .filter((e) => e)
-                .join(' - ')}
+              {[userData?.class, userData?.establishment].filter(Boolean).join(' - ')}
             </Text>
           )}
         </View>
@@ -336,20 +310,20 @@ function ProfileScreen({ route, navigation }) {
           inset
           header="Données de contact"
         >
-          {userData.email !== '' ? (
+          {userData?.email && (
             <NativeItem
               leading={<Mail size={24} color="#565EA3" />}
             >
               <NativeText heading="h4">
-              Adresse e-mail
+                Adresse e-mail
               </NativeText>
               <NativeText heading="p2">
                 {userData.email}
               </NativeText>
             </NativeItem>
-          ) : null}
+          )}
 
-          {userData.phone !== '' && userData.phone !== '+' ? (
+          {userData?.phone && userData.phone !== '+' && (
             <NativeItem
               leading={<Phone size={24} color="#B9670F" />}
             >
@@ -360,14 +334,14 @@ function ProfileScreen({ route, navigation }) {
                 {userData.phone}
               </NativeText>
             </NativeItem>
-          ) : null}
+          )}
 
-          {typeof userData?.ine === 'string' && userData?.ine?.length > 0 ? (
+          {userData?.ine && userData.ine.length > 0 && (
             <NativeItem
               leading={<Contact2 size={24} color="#0065A8" />}
-              onPress={() => getINE()}
+              onPress={() => toggleINEReveal()}
               trailing={ shownINE === '' &&
-              <Lock size={16} color={UIColors.text} style={{ opacity: 0.6 }} />
+                <Lock size={16} color={UIColors.text} style={{ opacity: 0.6 }} />
               }
             >
               <NativeText heading="h4">
@@ -377,7 +351,7 @@ function ProfileScreen({ route, navigation }) {
                 {shownINE ? shownINE : 'Appuyez pour révéler'}
               </NativeText>
             </NativeItem>
-          ) : null}
+          )}
         </NativeList>
 
         <NativeList
@@ -386,41 +360,40 @@ function ProfileScreen({ route, navigation }) {
         >
           <NativeItem
             leading={<Edit size={24} color="#29947A" />}
-            onPress={() => EditName()}
+            onPress={() => promptUpdateCustomUserName()}
           >
             <NativeText heading="h4">
-            Modifier le nom utilisé
+              Modifier le nom utilisé
             </NativeText>
             <NativeText heading="p2">
-            Utilisez un prénom ou un pseudonyme différent dans l'app Papillon
+              Utilisez un prénom ou un pseudonyme différent dans l'app Papillon
             </NativeText>
           </NativeItem>
 
           <NativeItem
             leading={<Trash2 size={24} color="#D81313" />}
-            onPress={() => ResetProfilePic()}
+            onPress={() => setResetProfilePictureAlert(true)}
           >
             <NativeText heading="h4">
-            Réinitialiser la photo de profil
+              Réinitialiser la photo de profil
             </NativeText>
             <NativeText heading="p2">
-            Utilise la photo de profil par défaut
+              Utilise la photo de profil par défaut
             </NativeText>
           </NativeItem>
         </NativeList>
 
         <AlertBottomSheet
-          visible={ResetProfilePicAlert}
+          visible={resetProfilePictureAlert}
           title="Réinitialiser la photo de profil"
           subtitle="Êtes-vous sûr de vouloir réinitialiser la photo de profil ?"
           icon={<Trash2/>}
           color='#D81313'
           primaryButton='Réinitialiser'
-          primaryAction={() => FullResetProfilePic()}
+          primaryAction={() => clearCustomProfilePicture()}
           cancelButton='Annuler'
-          cancelAction={() => setResetProfilePicAlert(false)}
+          cancelAction={() => setResetProfilePictureAlert(false)}
         />
-      
       </ScrollView>
     </View>
   );

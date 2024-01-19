@@ -17,7 +17,7 @@ function SettingsScreen({ navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.background }]}
+      style={{ backgroundColor: UIColors.background }}
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}
     >
@@ -56,13 +56,12 @@ function SettingsScreen({ navigation }) {
 
         <ListItem
           title="Réglages"
-          subtitle="Paramètres de l’application et des comptes"
+          subtitle="Paramètres de l'application et des comptes"
           color="#565EA3"
           left={
             <PapillonIcon
               icon={<Settings size={24} color="#fff" />}
               color="#565EA3"
-              size={24}
               fill
               small
             />
@@ -72,13 +71,12 @@ function SettingsScreen({ navigation }) {
 
         <ListItem
           title="Apparence & fonctionnalités"
-          subtitle="Personnaliser et modifier l’apparence de l’application"
+          subtitle="Personnaliser et modifier l'apparence de l'application"
           color="#A84700"
           left={
             <PapillonIcon
               icon={<Sparkles size={24} color="#fff" />}
               color="#A84700"
-              size={24}
               fill
               small
             />
@@ -98,7 +96,6 @@ function SettingsScreen({ navigation }) {
             <PapillonIcon
               icon={<Info size={24} color="#fff" />}
               color="#888888"
-              size={24}
               fill
               small
             />
@@ -123,7 +120,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Papillon-Medium',
     opacity: 0.5,
   },
-  
 });
 
 export default SettingsScreen;

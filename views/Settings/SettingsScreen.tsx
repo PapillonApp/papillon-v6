@@ -1,22 +1,15 @@
-import * as React from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-} from 'react-native';
-import { Text } from 'react-native-paper';
-
-import { useState } from 'react';
-
+import React from 'react';
+import { ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { LogOut, RefreshCw, RotateCw, Server, Trash2 } from 'lucide-react-native';
 import { showMessage } from 'react-native-flash-message';
 import { revokeAsync } from 'expo-auth-session';
 
-import { refreshToken, expireToken } from '../../fetch/AuthStack/LoginFlow';
-
 import GetUIColors from '../../utils/GetUIColors';
 import { useAppContext } from '../../utils/AppContext';
 import { SkolengoCache } from '../../fetch/SkolengoData/SkolengoCache';
+
 import {
   SkolengoDatas,
   loginSkolengoWorkflow,
@@ -27,106 +20,66 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
+import { IndexDataInstance } from '../../fetch';
 
 function SettingsScreen({ navigation }) {
   const UIColors = GetUIColors();
+  const appContext = useAppContext();
 
-  const appctx = useAppContext();
+  const [pronoteTokenActionAlert, setPronoteTokenActionAlert] = React.useState(false);
+  const [skolengoCacheClearAlert, setSkolengoCacheClearAlert] = React.useState(false);
+  const [skolengoReconnectAlert, setSkolengoReconnectAlert] = React.useState(false);
+  const [deleteAccountAlert, setDeleteAccountAlert] = React.useState(false);
 
-  const [PronoteTokenActionAlert, setPronoteTokenActionAlert] = useState(false);
-  const [SkolengoCacheClearAlert, setSkolengoCacheClearAlert] = useState(false);
-  const [SkolengoReconnectAlert, setSkolengoReconnectAlert] = useState(false);
-  const [DeleteAccountAlert, setDeleteAccountAlert] = useState(false);
-
-  function LogOutAction() {
-    setDeleteAccountAlert(true);
+  async function pronoteRegenerateToken() {
+    // Force another initialisation.
+    await appContext.dataProvider.init('pronote');
+    setPronoteTokenActionAlert(true);
   }
 
-  const [tokenLoading, setTokenLoading] = useState(false);
 
-  function TokenAction() {
-    setTokenLoading(true);
-    refreshToken().then(() => {
-      setTokenLoading(false);
-      setPronoteTokenActionAlert(true);
-    });
-  }
-
-  function ExpireAction() {
-    expireToken('expireAction');
-  }
-
-  function SkolengoCacheClear() {
-    if (appctx.dataprovider.service === 'Skolengo') {
+  function skolengoCacheClear() {
+    if (appContext.dataProvider.service === 'skolengo') {
       setSkolengoCacheClearAlert(true);
     }
   }
 
-  function SkolengoReconnect() {
-    if (appctx.dataprovider.service === 'Skolengo') {
+  function skolengoReconnect() {
+    if (appContext.dataProvider.service === 'skolengo') {
       setSkolengoReconnectAlert(true);
     }
   }
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
-    >
-
-      {appctx.dataprovider.service === 'Pronote' && ( 
+    <ScrollView style={{ backgroundColor: UIColors.modalBackground }}>
+      {appContext.dataProvider.service === 'pronote' && ( 
         <NativeList
           header="Connexion à Pronote"
           inset
         >
           <NativeItem
-            leading={<Server size={24} color={UIColors.text} />}
-            chevron
-            onPress={() => navigation.navigate('changeServer')}
-          >
-            <NativeText heading="h4">
-              Changer de serveur
-            </NativeText>
-            <NativeText heading="p2">
-              Modifier le serveur utilisé dans l'app
-            </NativeText>
-          </NativeItem>
-
-          <NativeItem
             leading={<RefreshCw size={24} color={UIColors.text} />}
             chevron
-            onPress={() => TokenAction()}
+            onPress={() => pronoteRegenerateToken()}
           >
             <NativeText heading="h4">
-              Regénerer le token
+              Régénérer le token
             </NativeText>
             <NativeText heading="p2">
-              Regénerer le token de votre compte
+              Régénérer le token de votre compte
             </NativeText>
-            
           </NativeItem>
           <AlertBottomSheet
-            visible={PronoteTokenActionAlert}
-            title="Regénerer le token"
-            subtitle="Le token de votre compte a été regénéré avec succès !"
+            visible={pronoteTokenActionAlert}
+            title="Régénérer le token"
+            subtitle="Le token de votre compte a été régénéré avec succès !"
             icon={<RefreshCw/>}
             cancelAction={() => setPronoteTokenActionAlert(false)}
           />
-          <NativeItem
-            leading={<Trash2 size={24} color={UIColors.text} />}
-            chevron
-            onPress={() => ExpireAction()}
-          >
-            <NativeText heading="h4">
-              Forcer l'expiration du token
-            </NativeText>
-            <NativeText heading="p2">
-              Regénerer le token de votre compte
-            </NativeText>
-          </NativeItem>
         </NativeList>
       )}
 
-      {appctx.dataprovider.service === 'Skolengo' && (
+      {appContext.dataProvider.service === 'skolengo' && (
         <NativeList
           header="Connexion à Skolengo"
           inset
@@ -134,7 +87,7 @@ function SettingsScreen({ navigation }) {
           <NativeItem
             leading={<Trash2 size={24} color={UIColors.text} />}
             chevron
-            onPress={() => SkolengoCacheClear()}
+            onPress={() => skolengoCacheClear()}
           >
             <NativeText heading="h4">
               Vider le cache
@@ -144,7 +97,7 @@ function SettingsScreen({ navigation }) {
             </NativeText>
           </NativeItem>
           <AlertBottomSheet
-            visible={SkolengoCacheClearAlert}
+            visible={skolengoCacheClearAlert}
             title="Vider le cache"
             subtitle="Êtes-vous sûr de vouloir vider le cache ?"
             icon={<Trash2/>}
@@ -167,30 +120,30 @@ function SettingsScreen({ navigation }) {
           <NativeItem
             leading={<RotateCw size={24} color={UIColors.text} />}
             chevron
-            onPress={() => SkolengoReconnect()}
+            onPress={() => skolengoReconnect()}
           >
             <NativeText heading="h4">
               Reconnecter son compte Skolengo
             </NativeText>
             <NativeText heading="p2">
-              & regénérer le token
+              & régénérer le token
             </NativeText>
           </NativeItem>
           <AlertBottomSheet
-            visible={SkolengoReconnectAlert}
+            visible={skolengoReconnectAlert}
             title="Reconnecter son compte Skolengo"
             subtitle="Êtes-vous sûr de vouloir reconnecter votre compte Skolengo ?"
             icon={<RotateCw/>}
             primaryButton='Reconnecter'
             primaryAction={async () => {
-              if (!appctx?.dataprovider?.skolengoInstance) return;
-              if (!appctx?.dataprovider?.skolengoInstance.rtInstance)
-                await appctx?.dataprovider?.init();
+              if (!appContext?.dataProvider?.skolengoInstance) return;
+              if (!appContext?.dataProvider?.skolengoInstance.rtInstance)
+                await appContext?.dataProvider?.init('skolengo');
               const validRetry = await loginSkolengoWorkflow(
-                appctx,
+                appContext,
                 null,
-                appctx.dataprovider.skolengoInstance.school,
-                appctx.dataprovider.skolengoInstance
+                appContext.dataProvider.skolengoInstance.school,
+                appContext.dataProvider.skolengoInstance
               );
               if (validRetry === true) {
                 SkolengoCache.clearItems();
@@ -199,9 +152,9 @@ function SettingsScreen({ navigation }) {
                 )?.then((_disco) => _disco && JSON.parse(_disco));
                 revokeAsync(
                   {
-                    ...appctx.dataprovider.skolengoInstance?.rtInstance,
+                    ...appContext.dataProvider.skolengoInstance?.rtInstance,
                     token:
-                        appctx.dataprovider.skolengoInstance?.rtInstance
+                        appContext.dataProvider.skolengoInstance?.rtInstance
                           .accessToken,
                   },
                   discovery
@@ -231,7 +184,7 @@ function SettingsScreen({ navigation }) {
         <NativeItem
           leading={<LogOut size={24} color="#D81313" />}
           chevron
-          onPress={() => LogOutAction()}
+          onPress={() => setDeleteAccountAlert(true)}
         >
           <NativeText heading="h4" style={{ color: '#D81313' }}>
             Déconnexion
@@ -243,7 +196,7 @@ function SettingsScreen({ navigation }) {
       </NativeList>
 
       <AlertBottomSheet
-        visible={DeleteAccountAlert}
+        visible={deleteAccountAlert}
         title="Êtes-vous sûr ?"
         subtitle="Tous vos paramètres et comptes seront supprimés définitivement de Papillon."
         icon={<LogOut size={24}/>}
@@ -252,49 +205,24 @@ function SettingsScreen({ navigation }) {
         cancelAction={() => setDeleteAccountAlert(false)}
         primaryButton='Déconnexion'
         primaryAction={async () => {
-          let server = null;
-            
           try {
-            AsyncStorage.getItem('credentials').then((result) => {
-              const res = JSON.parse(result || 'null');
-              if (res)
-                AsyncStorage.setItem(
-                  'old_login',
-                  JSON.stringify({ url: res.url })
-                );
-            });
-            AsyncStorage.getItem('custom_server').then((server) => {
-              if (server) {
-                server = JSON.parse(server);
-              }
-            });
-            if (appctx.dataprovider.service === 'Skolengo')
-              appctx.dataprovider.skolengoInstance?.skolengoDisconnect();
-          } catch (e) {
-            /* empty */
-          }
+            if (appContext.dataProvider.service === 'skolengo')
+              await appContext.dataProvider.skolengoInstance?.skolengoDisconnect();
+          } catch { /* no-op */ }
   
-          AsyncStorage.clear().then(() => {
-            if (server) {
-              AsyncStorage.setItem('custom_server', JSON.stringify(server));
-            }
-          });
+          // Remove every data from storage.
+          await AsyncStorage.clear();
   
-          appctx.setLoggedIn(false);
+          // Create a new provider since we're resetting everything.
+          appContext.setDataProvider(new IndexDataInstance());
+          appContext.setLoggedIn(false);
+
+          // Go back to login menu !
           navigation.popToTop();
         }}
       />
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  ListTitle: {
-    paddingLeft: 29,
-    fontSize: 15,
-    fontFamily: 'Papillon-Medium',
-    opacity: 0.5,
-  },
-});
 
 export default SettingsScreen;

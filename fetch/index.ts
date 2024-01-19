@@ -40,12 +40,13 @@ export class IndexDataInstance {
   }
 
   async init (service: 'pronote' | 'skolengo', instance?: Pronote): Promise<void> {
-    if (this.initializing || this.initialized) return;
+    if (this.initializing) return;
     
     this.service = service;
     if (!this.service) return;
 
-    console.log('provider: initializing', this.service, { loading: this.initializing, done: this.initialized });
+    console.log('provider: initializing', this.service, { wasAlreadyInitialized: this.initialized });
+    if (this.initialized) this.initialized = false;
     this.initializing = true;
     
     if (this.service === 'skolengo') {
