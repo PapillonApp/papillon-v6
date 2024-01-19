@@ -19,7 +19,7 @@ const readProfilePictureAsB64 = async (url: string): Promise<string> => {
   });
 };
 
-export const userHandler = async (instance: Pronote, force = false): Promise<PapillonUser | null> => {
+export const userHandler = async (instance?: Pronote, force = false): Promise<PapillonUser | null> => {
   console.info('pronote/userHandler: init');
   
   const cache = await AsyncStorage.getItem(AsyncStoragePronoteKeys.CACHE_USER);
@@ -30,6 +30,8 @@ export const userHandler = async (instance: Pronote, force = false): Promise<Pap
   }
   
   try {
+    if (!instance) throw new Error('No instance available.');
+
     console.info('pronote/userHandler: read from API');
     const information = await instance.getPersonalInformation();
     const user: PapillonUser = {

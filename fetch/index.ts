@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { SkolengoDatas } from './SkolengoData/SkolengoDatas';
 import type { Pronote } from 'pawnote';
 import { PapillonUser } from './types/user';
+import { PapillonGrades } from './types/grades';
 
 export type ServiceName = 'pronote' | 'skolengo'
 
@@ -46,7 +47,12 @@ export class IndexDataInstance {
     if (!this.service) return;
 
     console.log('provider: initializing', this.service, { wasAlreadyInitialized: this.initialized });
-    if (this.initialized) this.initialized = false;
+    if (this.initialized) { // ...was already initialized.
+      // Prevent to do any more presence request.
+      if (this.pronoteInstance) this.pronoteInstance.stopPresenceRequests();
+      this.initialized = false;
+    }
+
     this.initializing = true;
     
     if (this.service === 'skolengo') {
@@ -78,27 +84,30 @@ export class IndexDataInstance {
     console.log('provider: init/results of', this.service, { loading: this.initializing, done: this.initialized });
   }
 
-  // [Service]Grades.js
-  async getGrades (selectedPeriodName: string, force = false) {
+  public async getGrades (selectedPeriodName: string, force = false): Promise<PapillonGrades | null> {
+    let grades: PapillonGrades | null | undefined;
     await this.waitInit();
 
     if (this.service === 'skolengo') {
-      return this.skolengoInstance.getGrades(selectedPeriodName, force);
+      // TODO: Typings and stuff for Skolengo.
+      grades = await this.skolengoInstance.getGrades(selectedPeriodName, force) as unknown as PapillonGrades;
     }
     else if (this.service === 'pronote') {
       const { gradesHandler } = await import('./PronoteData/grades');
-
-      if (!this.pronoteInstance) {
-        throw new Error('getGrades: cache not available');
-      } 
-
-      const period = this.pronoteInstance.periods.find(
-        period => period.name === selectedPeriodName
-      );
-
-      if (!period) throw new Error('Aucune période associé à ce nom a été trouvé.');
-      return gradesHandler(period, force); 
+      grades = await gradesHandler(selectedPeriodName, this.pronoteInstance, force);
+      
+      if (!grades) {
+        // TODO: Show a message to user that cache is not renewed and data can't be fetched.
+        console.warn('getGrades: offline with no cache.');
+        throw new Error('Not enough cache.');
+      }
     }
+
+    if (!grades) {
+      throw new Error('Unknown service.');
+    }
+
+    return grades;
   }
 
   async getEvaluations (force = false) {
@@ -204,7 +213,7 @@ export class IndexDataInstance {
     return [];
   }
 
-  async getUser (force = false): Promise<PapillonUser> {
+  public async getUser (force = false): Promise<PapillonUser> {
     await this.waitInit();
     let user: PapillonUser;
 

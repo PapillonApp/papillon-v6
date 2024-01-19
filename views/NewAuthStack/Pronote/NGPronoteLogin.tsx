@@ -93,7 +93,7 @@ function NGPronoteLogin({ route, navigation }) {
     try {
       setConnecting(true);
   
-      const pronoteURL = instanceDetails.pronoteRootURL;
+      const pronoteURL = instanceDetails!.pronoteRootURL;
       const deviceUUID = makeUUID();
   
       const pronote = await authenticatePronoteCredentials(pronoteURL, {
@@ -118,7 +118,7 @@ function NGPronoteLogin({ route, navigation }) {
         icon: 'auto',
       });
   
-      await appContext.dataProvider.init('pronote', pronote);
+      await appContext.dataProvider!.init('pronote', pronote);
       await AsyncStorage.setItem('service', 'pronote');
       
       navigation.goBack();
@@ -185,7 +185,7 @@ function NGPronoteLogin({ route, navigation }) {
             source={require('../../../assets/logo_pronote.png')}
           />
           <Text style={styles.loginHeaderText}>
-            {instanceDetails.schoolName}
+            {instanceDetails?.schoolName}
           </Text>
 
           <Text style={styles.loginHeaderDescription}>
@@ -258,7 +258,7 @@ function NGPronoteLogin({ route, navigation }) {
             </Text>
 
             <Text style={[styles.bottomTextText]}>
-              Pronote Espace Élèves version {instanceDetails.version}
+              Pronote Espace Élèves version {instanceDetails?.version}
             </Text>
           </View>
         </View>

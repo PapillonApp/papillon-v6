@@ -1,6 +1,16 @@
+import type { PronoteApiGradeType } from 'pawnote';
+
 export interface CachedPapillonGrades {
   date: Date
   grades: PapillonGrades
+}
+
+export type PapillonGradeValue = {
+  significant: true
+  type: PronoteApiGradeType
+} | {
+  significant: false
+  value: number
 }
 
 export interface PapillonGrades {
@@ -19,14 +29,15 @@ export interface PapillonGrades {
     is_optional: boolean
     is_out_of_20: boolean
 
+    color?: string
+
     grade: {
-      value: number
-      out_of: number
+      value: PapillonGradeValue
+      out_of: PapillonGradeValue
       coefficient: number
-      average: number
-      max: number
-      min: number
-      significant: number
+      average: PapillonGradeValue
+      max: PapillonGradeValue
+      min: PapillonGradeValue
     }
   }>
 
@@ -37,15 +48,21 @@ export interface PapillonGrades {
       groups: boolean
     }
 
-    average: number
-    class_average: number
-    max: number
-    min: number
-    out_of: number
-    significant: number
+    average: PapillonGradeValue
+    class_average: PapillonGradeValue
+    max: PapillonGradeValue
+    min: PapillonGradeValue
+    out_of: PapillonGradeValue
     color: string
   }>
 
-  overall_average: number
-  class_overall_average: number
+  overall_average: PapillonGradeValue
+  class_overall_average: PapillonGradeValue
+}
+
+export interface PapillonGradesViewAverages {
+  studentAverage: string
+  classAverage: string
+  minAverage: string
+  maxAverage: string
 }

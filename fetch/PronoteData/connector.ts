@@ -27,7 +27,7 @@ export const loadPronoteConnector = async (): Promise<Pronote | null> => {
   ]);
 
   const token = values[0][1];
-  const accountTypeID = parseInt(values[1][1]) as PronoteApiAccountId;
+  const accountTypeID = parseInt(values[1][1] ?? 'NaN') as PronoteApiAccountId;
   const instanceURL = values[2][1];
   const username = values[3][1];
   const uuid = values[4][1];
@@ -63,6 +63,7 @@ export const loadPronoteConnector = async (): Promise<Pronote | null> => {
     if (error instanceof Error) {
       if (error.message.includes('Failed to extract session from HTML')) {
         await removePronoteConnector();
+        return null;
       }
 
       if (error instanceof PawnoteNetworkFail) { // (subclass of Error)
