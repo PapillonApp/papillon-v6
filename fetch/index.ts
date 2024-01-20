@@ -2,8 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type { SkolengoDatas } from './SkolengoData/SkolengoDatas';
 import type { Pronote } from 'pawnote';
-import { PapillonUser } from './types/user';
-import { PapillonGrades } from './types/grades';
+import type { PapillonUser } from './types/user';
+import type { PapillonGrades } from './types/grades';
+
+import { loadPronoteConnector } from './PronoteData/connector';
+import { userHandler as pronoteUserHandler } from './PronoteData/user';
+import { gradesHandler as pronoteGradesHandler } from './PronoteData/grades';
 
 export type ServiceName = 'pronote' | 'skolengo'
 
@@ -66,10 +70,8 @@ export class IndexDataInstance {
     else if (this.service === 'pronote') {
       if (instance) this.pronoteInstance = instance;
       else {
-        const pronote = await import('./PronoteData/connector');
-        
         try {
-          const connector = await pronote.loadPronoteConnector();
+          const connector = await loadPronoteConnector();
           if (connector) this.pronoteInstance = connector;
           this.isNetworkFailing = false;
         } catch { // any error not handled in the connector; so the network fail.
@@ -93,14 +95,15 @@ export class IndexDataInstance {
       grades = await this.skolengoInstance.getGrades(selectedPeriodName, force) as unknown as PapillonGrades;
     }
     else if (this.service === 'pronote') {
-      const { gradesHandler } = await import('./PronoteData/grades');
-      grades = await gradesHandler(selectedPeriodName, this.pronoteInstance, force);
+      const gradesReceived = await pronoteGradesHandler(selectedPeriodName, this.pronoteInstance, force);
       
-      if (!grades) {
+      if (!gradesReceived) {
         // TODO: Show a message to user that cache is not renewed and data can't be fetched.
         console.warn('getGrades: offline with no cache.');
         throw new Error('Not enough cache.');
       }
+
+      grades = gradesReceived;
     }
 
     if (!grades) {
@@ -215,20 +218,21 @@ export class IndexDataInstance {
 
   public async getUser (force = false): Promise<PapillonUser> {
     await this.waitInit();
-    let user: PapillonUser;
+    let user: PapillonUser | undefined;
 
     if (this.service === 'skolengo') {
       user = await this.skolengoInstance.getUser(force);
     }
     else if (this.service === 'pronote') {
-      const { userHandler } = await import('./PronoteData/user');
-      user = await userHandler(this.pronoteInstance, force);
+      const userReceived = await pronoteUserHandler(this.pronoteInstance, force);
 
-      if (!user) {
+      if (!userReceived) {
         // TODO: Show a message to user that cache is not renewed and data can't be fetched.
         console.warn('getUser: offline with no cache.');
         throw new Error('Not enough cache.');
       }
+
+      user = userReceived;
     }
 
     if (!user) {
