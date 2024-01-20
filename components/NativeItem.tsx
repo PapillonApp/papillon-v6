@@ -1,34 +1,31 @@
-import * as React from 'react';
-import { View, StyleSheet, Platform, TouchableNativeFeedback } from 'react-native';
-import { List, Text } from 'react-native-paper';
+import React from 'react';
+import { View, StyleSheet, TouchableNativeFeedback, type ViewStyle } from 'react-native';
 
-import GetUIColors from '../utils/GetUIColors';
+interface Props {
+  children: React.ReactNode
+  leading?: React.ReactNode
+  trailing?: React.ReactNode
+  onPress?: () => unknown
+  style?: ViewStyle
+  innerStyle?: ViewStyle
+}
 
-function NativeItem(props) {
-  const { 
-    children,
-    leading,
-    trailing,
-    onPress,
-    chevron,
-    cellProps,
-    style,
-    innerStyle,
-  } = props;
-
-  const UIColors = GetUIColors();
-
+const NativeItem: React.FC<Props> = ({ 
+  children,
+  leading,
+  trailing,
+  onPress,
+  style,
+  innerStyle,
+}) => {
   return (
     <TouchableNativeFeedback
-      style={[
-        styles.elem,
-        style,
-      ]}
-      onPress={onPress}
+      style={style}
+      onPress={() => onPress?.()}
     >
       <View style={[styles.content, innerStyle]}>
         {leading && (
-          <View style={styles.leading}>
+          <View>
             {leading}
           </View>
         )}
@@ -38,19 +35,16 @@ function NativeItem(props) {
         </View>
 
         {trailing && (
-          <View style={styles.trailing}>
+          <View>
             {trailing}
           </View>
         )}
       </View>
     </TouchableNativeFeedback>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  elem: {
-    
-  },
   content: {
     paddingHorizontal: 16,
     paddingVertical: 12,

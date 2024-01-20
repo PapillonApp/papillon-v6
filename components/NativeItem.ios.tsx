@@ -1,42 +1,48 @@
-import * as React from 'react';
+import React from 'react';
 
 import { View, StyleSheet, Platform } from 'react-native';
 
-import { Cell, Section, TableView } from 'react-native-tableview-simple';
+import { Cell } from 'react-native-tableview-simple';
+import { SFSymbol } from 'react-native-sfsymbols';
 
 import GetUIColors from '../utils/GetUIColors';
 
-import { SFSymbol } from 'react-native-sfsymbols';
+interface Props {
+  children: React.ReactNode
+  leading?: React.ReactNode
+  trailing?: React.ReactNode
+  onPress?: () => void
+  chevron?: boolean
+  cellProps?: Partial<React.ComponentProps<typeof Cell>>
+  backgroundColor?: string
+}
 
-function NativeItem(props) {
-  const { 
-    children,
-    leading,
-    trailing,
-    onPress,
-    chevron,
-    cellProps,
-    style,
-    backgroundColor,
-  } = props;
-
+const NativeItem: React.FC<Props> = ({ 
+  children,
+  leading,
+  trailing,
+  onPress,
+  chevron,
+  cellProps,
+  backgroundColor,
+}) => {
   const UIColors = GetUIColors();
 
   return (
     <Cell
       {...cellProps}
 
-      cellImageView={ leading &&
+      cellImageView={leading &&
         <View style={styles.cellImageView}>
           {leading}
         </View>
       }
-      cellContentView={ children &&
+      cellContentView={children &&
         <View style={styles.cellContentView}>
           {children}
         </View>
       }
-      cellAccessoryView={ trailing || chevron &&
+      cellAccessoryView={(trailing || chevron) &&
         <View style={styles.cellAccessoryView}>
           {trailing}
 
@@ -53,11 +59,10 @@ function NativeItem(props) {
       }
 
       backgroundColor={!backgroundColor ? UIColors.element : backgroundColor}
-
-      onPress={onPress}
+      onPress={() => onPress?.()}
     />
   );
-}
+};
 
 const styles = StyleSheet.create({
   cellImageView: {
