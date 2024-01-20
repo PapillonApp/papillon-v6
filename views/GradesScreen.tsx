@@ -414,20 +414,7 @@ function GradesScreen({ navigation }) {
     const firstPeriod = allPeriods[0]; // TODO: Define `actual` on the connector.
 
     let periods: PapillonPeriod[] = [];
-
-    if (firstPeriod.name.toLowerCase().includes('trimestre')) {
-      periods = allPeriods.filter((period) =>
-        period.name.toLowerCase().includes('trimestre')
-      );
-    } else if (firstPeriod.name.toLowerCase().includes('semestre')) {
-      periods = allPeriods.filter((period) =>
-        period.name.toLowerCase().includes('semestre')
-      );
-    }
-    else {
-      // Just add the current period.
-      periods.push(firstPeriod);
-    }
+    periods = allPeriods;
 
     setPeriods(periods);
     
@@ -1143,7 +1130,7 @@ Les notes affichées dans le graphique sont des estimations sachant que votre é
                 <Pressable
                   style={[
                     styles.subjectNameContainer,
-                    { backgroundColor: subject.averages.color },
+                    { backgroundColor: subject.grades[0]?.color },
                   ]}
                   onPress={() => openSubject(subject)}
                 >
