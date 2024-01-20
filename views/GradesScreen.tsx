@@ -486,11 +486,12 @@ function GradesScreen({ navigation }) {
     allGradesNonReactive = overview.grades;
   
     allGradesNonReactive.forEach((grade) => {
-      const subjectIndex = subjects.findIndex((subject) => subject.name === grade.subject.name);
+      const subjectIndex = subjects.findIndex((subject) => subject.id === grade.subject.id);
       if (subjectIndex !== -1) {
         subjects[subjectIndex].grades.push(grade);
       } else {
         subjects.push({
+          id : grade.subject.id,
           name: grade.subject.name,
           parsedName: {
             name: grade.subject.name.split(' > ')[0],
@@ -513,7 +514,7 @@ function GradesScreen({ navigation }) {
     });
   
     overview.averages.forEach((average) => {
-      const subject = subjects.find((subject) => subject.name === average.subject.name);
+      const subject = subjects.find((subject) => subject.id === average.subject.id);
       if (!subject) return;
 
       average.color = getSavedCourseColor(average.subject.name.split(' > ')[0], average.color);
