@@ -49,7 +49,7 @@ import AdjustmentsScreen from './views/Settings/AdjustmentsScreen';
 import HeaderSelectScreen from './views/Settings/HeaderSelectScreen';
 import PaymentScreen from './views/Settings/PaymentScreen';
 
-import GradesScreen from './views/GradesScreen';
+import GradesScreen from './views/GradesScreenNew';
 import GradeView from './views/Grades/GradeView';
 
 import NewsScreen from './views/NewsScreen';
