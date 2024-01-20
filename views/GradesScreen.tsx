@@ -47,6 +47,7 @@ import { PapillonPeriod } from '../fetch/types/period';
 import { PapillonGrades, PapillonGradesViewAverages } from '../fetch/types/grades';
 import { PapillonSubject } from '../fetch/types/subject';
 import { PronoteApiGradeType } from 'pawnote';
+import { formatPapillonGradeValue } from '../utils/grades/format';
 
 function GradesScreen({ navigation }) {
   const theme = useTheme();
@@ -440,13 +441,12 @@ function GradesScreen({ navigation }) {
     let sumOfCoefficients = 0;
 
     for (const { grade } of grades) {
-      if (grade.value > 0) {
-        
+      if (!grade.value.significant && !grade.average.significant && !grade.out_of.significant) {
         if (isClass) {
-          const correctedClassValue = grade.average / grade.out_of * 20;
+          const correctedClassValue = grade.average.value / grade.out_of.value * 20;
           sumOfGrades += correctedClassValue * grade.coefficient;
         } else {
-          const correctedValue = grade.value / grade.out_of * 20;
+          const correctedValue = grade.value.value / grade.out_of.value * 20;
           sumOfGrades += correctedValue * grade.coefficient;
         }
   
@@ -473,7 +473,7 @@ function GradesScreen({ navigation }) {
       hasCustomGrades = customGrades.length > 0;
       
       for (const grade of customGrades) {
-        const newGrade = {
+        const newGrade: PapillonGrades['grades'][number] = {
           ...grade,
           isSimulated: true,
         };
@@ -491,8 +491,8 @@ function GradesScreen({ navigation }) {
         if (!subject) continue;
         
         const filteredGrades = overview.grades.filter((grade) => grade.subject.name === subject.subject.name);
-        subject.average = calculateAverage(filteredGrades, false);
-        subject.class_average = calculateAverage(filteredGrades, true);
+        subject.average = { significant: false, value: calculateAverage(filteredGrades, false) };
+        subject.class_average = { significant: false, value: calculateAverage(filteredGrades, true) };
       }
     }
 
@@ -954,11 +954,11 @@ Les notes affichées dans le graphique sont des estimations sachant que votre é
                 Platform.OS !== 'ios' && {paddingHorizontal: 0}
               ]}
             >
-              {state.latestGrades.map((grade, index) => (
+              {state.latestGrades.map((grade) => (
                 <PressableScale
+                  key={grade.id}
                   weight="light"
                   activeScale={0.89}
-                  key={index}
                   style={[
                     styles.smallGradeContainer,
                     { backgroundColor: UIColors.element },
@@ -994,7 +994,7 @@ Les notes affichées dans le graphique sont des estimations sachant que votre é
                       </Text>
                     ) : (
                       <Text style={[styles.smallGradeName]}>
-                      Note en {formatCoursName(grade.subject.name)}
+                        Note en {formatCoursName(grade.subject.name)}
                       </Text>
                     )}
 
@@ -1014,22 +1014,12 @@ Les notes affichées dans le graphique sont des estimations sachant que votre é
                   )}
 
                   <View style={[styles.smallGradeValueContainer]}>
-                    {!grade.grade.value.significant ? (
-                      <Text style={styles.smallGradeValue}>
-                        {grade.grade.value.value.toFixed(2)}
-                      </Text>
-                    ) : grade.grade.value.type === PronoteApiGradeType.Absent ? (
-                      <Text style={styles.smallGradeValue}>Abs.</Text>
-                    ) : grade.grade.value.type === PronoteApiGradeType.NotGraded ? (
-                      <Text style={styles.smallGradeValue}>N.not</Text>
-                    ) : (
-                      <Text style={styles.smallGradeValue}>??</Text>
-                    )}
+                    <Text style={styles.smallGradeValue}>
+                      {formatPapillonGradeValue(grade.grade.value)}
+                    </Text>
 
                     <Text style={styles.smallGradeOutOf}>
-                      /{!grade.grade.out_of.significant ? (
-                        grade.grade.out_of.value
-                      ) : '??'}
+                      /{formatPapillonGradeValue(grade.grade.out_of)}
                     </Text>
                   </View>
                 </PressableScale>

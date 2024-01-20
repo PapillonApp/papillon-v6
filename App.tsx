@@ -774,7 +774,6 @@ const styles = StyleSheet.create({
 });
 
 function Header(props) {
-  const scheme = useColorScheme();
   const UIColors = GetUIColors(props.options.headerForceDarkContent && 'dark');
 
   const insets = useSafeAreaInsets();
@@ -1116,7 +1115,7 @@ function AuthStack() {
       screenOptions={
         Platform.OS === 'android'
           ? {
-            navigationBarColor: '#00000000',
+            navigationBarColor: '#00000000', // transparent
             header: (props) => <CustomNavigationBar {...props} />,
             animation: 'fade_from_bottom',
           }
@@ -1157,7 +1156,7 @@ function AuthStack() {
 export default function App() {
   const scheme = useColorScheme();
   
-  const [dataProvider, setDataProvider] = React.useState(null);	
+  const [dataProvider, setDataProvider] = React.useState<IndexDataInstance | null>(null);	
   const [appIsReady, setAppIsReady] = React.useState(false);
   const [loggedIn, setLoggedIn] = React.useState(false);
 

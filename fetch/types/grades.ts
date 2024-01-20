@@ -28,6 +28,7 @@ export interface PapillonGrades {
     is_bonus: boolean
     is_optional: boolean
     is_out_of_20: boolean
+    isSimulated?: boolean
 
     color?: string
 
