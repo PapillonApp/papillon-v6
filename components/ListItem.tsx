@@ -1,21 +1,43 @@
 import React from 'react';
+
 import {
   View,
   StyleSheet,
   TouchableNativeFeedback,
   Platform,
+  type ViewStyle,
 } from 'react-native';
+
+import { PressableScale } from 'react-native-pressable-scale';
 import { useTheme, Text } from 'react-native-paper';
+import Haptics from 'expo-haptics';
 
 import { ChevronRight } from 'lucide-react-native';
 
-import { PressableScale } from 'react-native-pressable-scale';
-import * as Haptics from 'expo-haptics';
+interface Props {
+  title?: string
+  subtitle?: string
+  underTitle?: string
+  left?: React.ReactElement
+  right?: React.ReactElement
+  icon?: React.ReactElement
+  style?: ViewStyle
+  color: string
+  isLarge?: boolean
+  onPress?: () => unknown
+  onLongPress?: () => unknown
+  fill?: boolean
+  width?: boolean
+  center?: boolean
+  chevron?: boolean
+  trimSubtitle?: boolean
+  bottom?: React.ReactElement
+}
 
-function ListItem({
+const ListItem: React.FC<Props> = ({
   title,
   subtitle,
-  undertitle,
+  underTitle,
   left,
   right,
   icon,
@@ -30,7 +52,7 @@ function ListItem({
   chevron,
   trimSubtitle,
   bottom,
-}) {
+}) => {
   const theme = useTheme();
 
   let bgColor = theme.dark ? '#111' : '#fff';
@@ -43,28 +65,20 @@ function ListItem({
   const bgMaterial = theme.colors.elevation.level1;
 
   function onPressActive() {
-    if (onPress) {
-      onPress();
-    }
-
+    onPress?.();
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
   let pressScale = 0.92;
-  // let clickable = true;
-
-  if (!onPress) {
-    pressScale = 0.92;
-    // clickable = false;
-  }
+  if (!onPress) pressScale = 0.92;
 
   return Platform.OS === 'ios' ? (
     <PressableScale
-      onPress={() => onPressActive()}
+      style={{ flex: 1 }}
       weight="light"
       activeScale={pressScale}
-      style={{ flex: 1 }}
-      onLongPress={onLongPress}
+      onPress={onPressActive}
+      onLongPress={() => onLongPress?.()}
     >
       <View
         style={[
@@ -73,15 +87,15 @@ function ListItem({
             backgroundColor: bgColor,
             borderColor: theme.dark ? '#191919' : '#e5e5e5',
             marginHorizontal: width ? 0 : 14,
-            flex: width ? 1 : undefined,
-            alignItems: center ? 'center' : undefined,
+            flex: width ? 1 : void 0,
+            alignItems: center ? 'center' : void 0,
           },
           style,
         ]}
       >
-        {left ? <View style={[styles.left]}>{left}</View> : null}
+        {left && <View style={styles.left}>{left}</View>}
 
-        {icon ? (
+        {icon && (
           <View
             style={[
               styles.icon,
@@ -90,44 +104,44 @@ function ListItem({
           >
             {icon}
           </View>
-        ) : null}
+        )}
 
         <View style={[styles.listItemText, { gap: isLarge ? 8 : 2 }]}>
-          {title ? (
+          {title && (
             <Text style={[styles.listItemTextTitle, { color: textColor }]}>
               {title}
             </Text>
-          ) : null}
+          )}
 
-          {subtitle ? (
+          {subtitle && (
             <Text
               style={[styles.listItemTextSubtitle, { color: textColor }]}
-              numberOfLines={trimSubtitle ? 1 : null}
+              numberOfLines={trimSubtitle ? 1 : void 0}
               ellipsizeMode="tail"
             >
               {subtitle}
             </Text>
-          ) : null}
+          )}
 
-          {undertitle ? (
-            <Text style={[styles.listItemTextUndertitle, { color: textColor }]}>
-              {undertitle}
+          {underTitle && (
+            <Text style={[styles.listItemTextUnderTitle, { color: textColor }]}>
+              {underTitle}
             </Text>
-          ) : null}
+          )}
         </View>
 
-        {right ? <View style={[styles.right]}>{right}</View> : null}
+        {right && <View style={styles.right}>{right}</View>}
 
-        {chevron ? (
-          <View style={[styles.right]}>
+        {chevron && (
+          <View style={styles.right}>
             <ChevronRight
               size={24}
-              color={theme.dark ? '#ffffff40' : '#00000040'}
               strokeWidth={2.5}
               style={{ marginTop: -6, marginBottom: -6 }}
+              color={theme.dark ? '#ffffff40' : '#00000040'}
             />
           </View>
-        ) : null}
+        )}
       </View>
     </PressableScale>
   ) : (
@@ -139,25 +153,25 @@ function ListItem({
           backgroundColor: bgMaterial,
           borderColor: theme.dark ? '#191919' : '#e5e5e5',
           marginHorizontal: width ? 0 : 14,
-          flex: width ? 1 : undefined,
-          alignItems: center ? 'center' : undefined,
+          flex: width ? 1 : void 0,
+          alignItems: center ? 'center' : void 0,
         },
         style,
       ]}
     >
       <TouchableNativeFeedback
         style={{ flex: 1, borderRadius: 12, overflow: 'hidden' }}
-        onPress={() => onPressActive()}
-        onLongPress={onLongPress}
+        onPress={onPressActive}
+        onLongPress={() => onLongPress?.()}
         background={TouchableNativeFeedback.Ripple(
           theme.colors.surfaceDisabled,
           true
         )}
       >
-        <View style={[styles.listItemChild]}>
-          {left ? <View style={[styles.left]}>{left}</View> : null}
+        <View style={styles.listItemChild}>
+          {left && <View style={styles.left}>{left}</View>}
 
-          {icon ? (
+          {icon && (
             <View
               style={[
                 styles.icon,
@@ -166,34 +180,34 @@ function ListItem({
             >
               {icon}
             </View>
-          ) : null}
+          )}
 
           <View style={[styles.listItemText, { gap: isLarge ? 8 : 2 }]}>
-            {title ? (
+            {title && (
               <Text style={[styles.listItemTextTitle, { color: textColor }]}>
                 {title}
               </Text>
-            ) : null}
+            )}
 
-            {subtitle ? (
+            {subtitle && (
               <Text
                 style={[styles.listItemTextSubtitle, { color: textColor }]}
-                numberOfLines={trimSubtitle ? 1 : null}
+                numberOfLines={trimSubtitle ? 1 : void 0}
                 ellipsizeMode="tail"
               >
                 {subtitle}
               </Text>
-            ) : null}
+            )}
 
-            {bottom ? <View style={[]}>{bottom}</View> : null}
+            {bottom && <View>{bottom}</View>}
           </View>
 
-          {right ? <View style={[styles.right]}>{right}</View> : null}
+          {right && <View style={styles.right}>{right}</View>}
         </View>
       </TouchableNativeFeedback>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   listItem: {
@@ -229,7 +243,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     opacity: 0.6,
   },
-  listItemTextUndertitle: {
+  listItemTextUnderTitle: {
     fontSize: 13,
     opacity: 0.6,
     marginTop: 4,
