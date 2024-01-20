@@ -1,22 +1,31 @@
 import React from 'react';
-import { ActivityIndicator, View, Text, StyleSheet, Button, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { Animated, ActivityIndicator, StatusBar, View, Dimensions, StyleSheet, Button, ScrollView, TouchableOpacity, RefreshControl, Easing, Platform } from 'react-native';
 
 // Custom imports
 import GetUIColors from '../utils/GetUIColors';
 import { useAppContext } from '../utils/AppContext';
+import PapillonInsetHeader from '../components/PapillonInsetHeader';
+import { SFSymbol } from 'react-native-sfsymbols';
 
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
+// Icons
+import { BarChart3, Users2, TrendingDown, TrendingUp, Info, AlertTriangle } from 'lucide-react-native';
+
 // Plugins
 import { ContextMenuButton } from 'react-native-ios-context-menu';
+import LineChart from 'react-native-simple-line-chart';
+import { BlurView } from 'expo-blur';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Interfaces
 interface UIaverage {
   name: string,
   description: string,
   value: number,
+  icon: any,
 }
 
 interface gradeSettings {
@@ -35,11 +44,11 @@ import { PapillonGrades, PapillonGradesViewAverages } from '../fetch/types/grade
 import { PapillonSubject } from '../fetch/types/subject';
 import { PronoteApiGradeType } from 'pawnote';
 import { formatPapillonGradeValue } from '../utils/grades/format';
-import { StatusBar } from 'expo-status-bar';
 
 const GradesScreen = ({ navigation }) => {
   const UIColors = GetUIColors();
   const appContext = useAppContext();
+  const insets = useSafeAreaInsets();
 
   // Data
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -48,6 +57,9 @@ const GradesScreen = ({ navigation }) => {
   const [grades, setGrades] = React.useState([]);
   const [averages, setAverages] = React.useState<PapillonGradesViewAverages[]>({});
   const [averagesOverTime, setAveragesOverTime] = React.useState<PapillonAveragesOverTime[]>([]);
+  const [classAveragesOverTime, setClassAveragesOverTime] = React.useState<PapillonAveragesOverTime[]>([]);
+  const [chartLines, setChartLines] = React.useState(null);
+  const [chartPoint, setChartPoint] = React.useState(null);
 
   // Constants
   const [gradeSettings, setGradeSettings] = React.useState<gradeSettings[]>({
@@ -62,27 +74,100 @@ const GradesScreen = ({ navigation }) => {
   React.useEffect(() => {
     setUIaverage([
       {
-        name: 'Moyenne générale',
-        description: 'Moyenne élève calculée à partir des notes',
-        value: averages.student || 0
-      },
-      {
         name: 'Moyenne groupe',
         description: 'Moyenne de classe de chaque matière',
-        value: averages.group || 0
+        value: averages.group || 0,
+        icon: <Users2 color={UIColors.text} />,
       },
       {
         name: 'Moyenne max',
         description: 'Moyenne la plus faible des matières',
-        value: averages.max || 0
+        value: averages.max || 0,
+        icon: <TrendingDown color={UIColors.text} />,
       },
       {
         name: 'Moyenne min',
         description: 'Moyenne la plus élevée des matières',
-        value: averages.min || 0
+        value: averages.min || 0,
+        icon: <TrendingUp color={UIColors.text} />,
       },
     ]);
   }, [averages]);
+
+  // Update chartLines when averagesOverTime change
+  React.useEffect(() => {
+    let studentLinesData = [];
+    averagesOverTime.forEach((average) => {
+      studentLinesData.push({
+        x: new Date(average.date).getTime(),
+        y: average.value,
+      });
+    });
+
+    let classLinesData = [];
+    classAveragesOverTime.forEach((average) => {
+      classLinesData.push({
+        x: new Date(average.date).getTime(),
+        y: average.value,
+      });
+    });
+
+    let linesSettings = {
+      lineColor: UIColors.primary,
+      curve: 'monotone',
+      endPointConfig: {
+        color: UIColors.primary,
+        radius: 8,
+        animated: true,
+      },
+      lineWidth: 3,
+      activePointConfig: {
+        color: UIColors.primary,
+        borderColor: UIColors.element,
+        radius: 7,
+        borderWidth: 0,
+        showVerticalLine: true,
+        verticalLineColor: UIColors.text,
+        verticalLineOpacity: 0.2,
+        verticalLineWidth: 1.5,
+      }
+    };
+
+    let lines = [
+      {
+        ...linesSettings,
+        key: 'student2',
+        data: studentLinesData,
+      },
+      {
+        ...linesSettings,
+        key: 'class',
+        lineColor: UIColors.border,
+        lineWidth: 2,
+        trailingOpacity: 0,
+        endPointConfig: {
+          radius: 0,
+          animated: false,
+          color: 'transparent',
+        },
+        activePointConfig: {
+          radius: 0,
+          borderWidth: 0,
+          showVerticalLine: false,
+          color: 'transparent',
+          borderColor: 'transparent',
+        },
+        data: classLinesData,
+      },
+      {
+        ...linesSettings,
+        key: 'student',
+        data: studentLinesData,
+      }
+    ];
+    
+    setChartLines(lines);
+  }, [averagesOverTime, classAveragesOverTime]);
 
   async function getPeriodsFromAPI (mode:string=gradeSettings.mode): Promise<PapillonPeriod> {
     const allPeriods = await appContext.dataProvider!.getPeriods();
@@ -158,7 +243,7 @@ const GradesScreen = ({ navigation }) => {
   }
 
   // Calculate averages over time
-  async function calculateAveragesOverTime (grades: PapillonGrades): Promise<Array> {
+  async function calculateAveragesOverTime (grades: PapillonGrades, type= 'value'): Promise<Array> {
     let data = [];
 
     // for each grade.grades
@@ -167,7 +252,7 @@ const GradesScreen = ({ navigation }) => {
       const gradesUntil = grades.slice(0, i + 1);
 
       // calculate average
-      const average = await calculateSubjectAverage(gradesUntil, 'value', gradeSettings.scale);
+      const average = await calculateSubjectAverage(gradesUntil, type, gradeSettings.scale);
 
       // add to data
       data.push({
@@ -201,9 +286,10 @@ const GradesScreen = ({ navigation }) => {
 
   // Estimate averages over time
   async function estimateAveragesOverTime (grades: PapillonGrades): Promise<void> {
-    let averagesOverTime = await calculateAveragesOverTime(grades);
-    console.log(averagesOverTime);
+    let averagesOverTime = await calculateAveragesOverTime(grades, 'value');
+    let classAveragesOverTime = await calculateAveragesOverTime(grades, 'average');
     setAveragesOverTime(averagesOverTime);
+    setClassAveragesOverTime(classAveragesOverTime);
   }
 
   // Parse grades
@@ -227,9 +313,30 @@ const GradesScreen = ({ navigation }) => {
     });
   }, []);
 
+  // Header animation
+  const yOffset = new Animated.Value(0);
+
+  const scrollHandler = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: yOffset } } }],
+    { useNativeDriver: false }
+  );
+
+  const headerOpacity = yOffset.interpolate({
+    inputRange: [-75, -60],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+
   // Change header title
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitle: Platform.OS === 'ios' ? () => (
+        <PapillonInsetHeader
+          icon={<SFSymbol name="chart.pie.fill" />}
+          title="Notes"
+          color="#A84700"
+        />
+      ) : 'Notes',
       headerRight: () => (
         <ContextMenuButton
           isMenuPrimaryAction={true}
@@ -259,61 +366,157 @@ const GradesScreen = ({ navigation }) => {
           </TouchableOpacity>
         </ContextMenuButton>
       ),
+      headerShadowVisible: false,
+      headerTransparent: Platform.OS === 'ios' ? true : false,
+      headerStyle: Platform.OS === 'android' ? {
+        backgroundColor: UIColors.background,
+        elevation: 0,
+      } : undefined,
     });
-  }, [navigation, periods, selectedPeriod, UIColors]);
+  }, [navigation, periods, selectedPeriod, UIColors, headerOpacity]);
 
   return (
-    <ScrollView
-      contentInsetAdjustmentBehavior='automatic'
-      style={{ backgroundColor: UIColors.backgroundHigh }}
-      refreshControl={
-        <RefreshControl
-          refreshing={isLoading}
-          onRefresh={() => getGradesFromAPI(true)}
+    <>
+      <Animated.View 
+        style={
+          {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 44 + insets.top,
+            width: '100%',
+            zIndex: 999,
+            backgroundColor: UIColors.element + '00',
+            opacity: headerOpacity,
+            borderBottomColor: UIColors.dark ? UIColors.text + '22' : UIColors.text + '55',
+            borderBottomWidth: 0.5,
+          }
+        }
+      >
+        <BlurView
+          tint={UIColors.dark ? 'dark' : 'light'}
+          intensity={80}
+          style={{
+            flex: 1,
+            zIndex: 999,
+          }}
         />
-      }
-    >
-      <StatusBar barStyle={UIColors.dark ? 'light-content' : 'dark-content'} />
+      </Animated.View>
+      <ScrollView
+        contentInsetAdjustmentBehavior='automatic'
+        style={{ backgroundColor: UIColors.backgroundHigh, flex: 1 }}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={() => getGradesFromAPI(true)}
+          />
+        }
+      >
+        <StatusBar barStyle={UIColors.dark ? 'light-content' : 'dark-content'} />
 
-      <GradesAveragesList
-        isLoading={isLoading}
-        UIaverage={UIaverage}
-        gradeSettings={gradeSettings}
-      />
+        { averages.student && averages.student > 0 && (
+          <GradesAverageHistory
+            isLoading={isLoading}
+            averages={averages}
+            chartLines={chartLines}
+            chartPoint={chartPoint}
+            setChartPoint={setChartPoint}
+            gradeSettings={gradeSettings}
+          />
+        )}
 
-      <GradesAverageHistory
-        isLoading={isLoading}
-        averagesOverTime={averagesOverTime}
-      />
+        <GradesAveragesList
+          isLoading={isLoading}
+          UIaverage={UIaverage}
+          gradeSettings={gradeSettings}
+        />
       
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 };
 
-const GradesAverageHistory = ({ isLoading, averagesOverTime }) => {
+const GradesAverageHistory = ({ isLoading, averages, chartLines, chartPoint, setChartPoint, gradeSettings }) => {
+  const UIColors = GetUIColors();
+  if (chartLines === null || chartLines === undefined) return null;
+
+  const [currentDate, setCurrentDate] = React.useState<Date>(null);
+  const [finalAvg, setFinalAvg] = React.useState<number>(averages.student);
+
+  React.useEffect(() => {
+    if (chartPoint) {
+      setFinalAvg(chartPoint.y);
+      setCurrentDate(chartPoint.x);
+    } else {
+      setFinalAvg(averages.student);
+      setCurrentDate(null);
+    }
+  }, [chartPoint]);
+
   return (
-    <NativeList header="Historique des moyennes">
-      { averagesOverTime.reverse().map((item, index) => (
-        <NativeItem
-          trailing= {
-            <NativeText heading="p2">
-              {item.value?.toFixed(2)} / 20
+    <View style={[
+      styles.chart.container,
+      {
+        backgroundColor: UIColors.element,
+      }
+    ]}>
+      <View style={[styles.chart.header.container]}>
+        <View style={[styles.chart.header.title.container]}>
+          {currentDate ? (
+            <NativeText heading="p" style={[styles.chart.header.title.text]}>
+              au {new Date(currentDate).toLocaleDateString('fr-FR', { month: 'long', day: 'numeric' })}
             </NativeText>
-          }
-        >
-          <NativeText heading="p">
-            {item.date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' })}
+          ) : (
+            <NativeText heading="p" style={[styles.chart.header.title.text]}>
+                Moyenne générale
+            </NativeText>
+          )}
+
+          <TouchableOpacity style={[{flexDirection: 'row', alignItems: 'center', gap:6}]}>
+            <AlertTriangle size={20} strokeWidth={2.2} color={UIColors.primary} />
+            <NativeText heading="p" style={[styles.chart.header.title.text, {color: UIColors.primary}]}>
+              Estimation
+            </NativeText>
+          </TouchableOpacity>
+        </View>
+        <View style={[styles.chart.avg.container]}>
+          <NativeText heading="h2" style={[styles.chart.avg.value]}>
+            {finalAvg.toFixed(2)}
           </NativeText>
-        </NativeItem>
-      ))}
-    </NativeList>
+
+          <NativeText heading="p2" style={[styles.chart.avg.out_of]}>
+            /{gradeSettings.scale.toFixed(0)}
+          </NativeText>
+        </View>
+      </View>
+      <View>
+        <LineChart
+          lines={chartLines}
+          width={Dimensions.get('window').width - (16 * 2)}
+          height={110}
+          extraConfig={{
+            alwaysShowActivePoint: true,
+          }}
+
+          onPointFocus={(point) => {
+            setChartPoint(point);
+          }}
+          onPointLoseFocus={() => {
+            setChartPoint(null);
+          }}
+        />
+      </View>
+    </View>
   );
 };
 
 const GradesAveragesList = ({ isLoading, UIaverage, gradeSettings }) => {
   // When loading
   if (isLoading) return (
-    <NativeList>
+    <NativeList inset>
       <NativeItem
         trailing={
           <ActivityIndicator />
@@ -328,7 +531,7 @@ const GradesAveragesList = ({ isLoading, UIaverage, gradeSettings }) => {
 
   // if UIaverage is empty
   if (UIaverage.length === 0) return (
-    <NativeList>
+    <NativeList inset>
       <NativeItem>
         <NativeText heading="p2">
           Aucune moyenne à afficher.
@@ -339,21 +542,41 @@ const GradesAveragesList = ({ isLoading, UIaverage, gradeSettings }) => {
 
   // When loaded
   return (
-    <NativeList>
+    <NativeList inset>
       { UIaverage.map((item, index) => (
         <NativeItem
           key={index}
+          leading={
+            <View>
+              {item.icon}
+            </View>
+          }
           trailing={
-            <NativeText heading="p2">
-              {item.value?.toFixed(2)} / {gradeSettings.scale.toFixed(2)}
-            </NativeText>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'flex-end',
+                gap: 2,
+              }}
+            >
+              {item.value > 0 ? (
+                <NativeText heading="h2">
+                  {item.value?.toFixed(2)}
+                </NativeText>
+              ) : (
+                <NativeText heading="h2">
+                  N/A
+                </NativeText>
+              )}
+
+              <NativeText heading="p2">
+                /{gradeSettings.scale.toFixed(0)}
+              </NativeText>
+            </View>
           }
         >
-          <NativeText heading="h4">
+          <NativeText heading="p2">
             {item.name}
-          </NativeText>
-          <NativeText heading="subtitle2">
-            {item.description}
           </NativeText>
         </NativeItem>
       ))}
@@ -419,6 +642,58 @@ const calculateSubjectAverage = async (grades: PapillonGrades, type: string = 'v
 };
 
 const styles = StyleSheet.create({
+  chart: {
+    container: {
+      margin: 16,
+      marginTop: 6,
+      marginBottom: 0,
+      borderRadius: 12,
+      borderCurve: 'continuous',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+    },
+
+    header: {
+      container: {
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        paddingBottom: 6,
+      },
+      title: {
+        container: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 1,
+        },
+        text: {
+          fontFamily: 'Papillon-Medium',
+        }
+      }
+    },
+
+    avg: {
+      container: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        gap: 2,
+      },
+      value: {
+        fontFamily: 'Papillon-Semibold',
+        fontSize: 26,
+        fontVariant: ['tabular-nums'],
+      },
+      out_of: {
+        fontFamily: 'Papillon-Medium',
+        fontSize: 16,
+      }
+    }
+  }
 });
 
 export default GradesScreen;
