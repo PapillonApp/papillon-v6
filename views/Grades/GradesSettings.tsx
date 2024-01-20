@@ -58,6 +58,15 @@ const GradesSettings = ({ navigation }) => {
     );
   }
 
+  // header background color
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerStyle: {
+        backgroundColor: Platform.OS == 'android' && UIColors.background,
+      },
+    });
+  }, [navigation, UIColors]);
+
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.modalBackground }]}

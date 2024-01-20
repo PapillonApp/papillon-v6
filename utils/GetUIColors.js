@@ -75,7 +75,8 @@ function GetUIColors(schemeForce) {
     borderColor = isDark ? '#444444' : '#d5d5d5';
     borderColorLight = isDark ? '#333333' : '#d5d5d5';
   } else {
-    borderColor = theme.colors.border;
+    borderColor = isDark ? '#444444' : '#d5d5d5';
+    borderColorLight = isDark ? '#333333' : '#d5d5d5';
   }
 
   return {

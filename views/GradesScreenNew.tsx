@@ -11,6 +11,8 @@ import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
+import { useActionSheet } from '@expo/react-native-action-sheet';
+
 // Icons
 import { BarChart3, Users2, TrendingDown, TrendingUp, Info, AlertTriangle, MoreVertical } from 'lucide-react-native';
 
@@ -50,6 +52,7 @@ const GradesScreen = ({ navigation }) => {
   const UIColors = GetUIColors();
   const appContext = useAppContext();
   const insets = useSafeAreaInsets();
+  const { showActionSheetWithOptions } = useActionSheet();
 
   // Data
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -190,7 +193,7 @@ const GradesScreen = ({ navigation }) => {
     ];
     
     setChartLines(lines);
-  }, [averagesOverTime, classAveragesOverTime, UIColors.text]);
+  }, [averagesOverTime, classAveragesOverTime, UIColors.text, UIColors.border, UIColors.primary, UIColors.element]);
 
   async function getPeriodsFromAPI (mode:string=gradeSettings.mode): Promise<PapillonPeriod> {
     return AsyncStorage.getItem('gradeSettings').then(async (value) => {
@@ -331,6 +334,25 @@ const GradesScreen = ({ navigation }) => {
     estimateAveragesOverTime(grades?.grades);
   }
 
+  function androidPeriodChangePicker () {
+    const options = periods.map((item) => item.name);
+    options.push('Annuler');
+    const cancelButtonIndex = options.length - 1;
+
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex : cancelButtonIndex,
+        tintColor: UIColors.primary,
+      },
+      (buttonIndex) => {
+        if (buttonIndex !== cancelButtonIndex) {
+          changePeriod(periods[buttonIndex].name);
+        }
+      }
+    );
+  }
+
   // Change period
   function changePeriod (name: string) {
     const period = periods.find((period) => period.name === name);
@@ -405,6 +427,11 @@ const GradesScreen = ({ navigation }) => {
                 borderCurve : 'continuous',
                 backgroundColor: UIColors.primary + '22',
               }}
+              onPress={() => {
+                if (Platform.OS !== 'ios') {
+                  androidPeriodChangePicker();
+                }
+              }}
             >
               <NativeText
                 heading="p"
@@ -434,36 +461,38 @@ const GradesScreen = ({ navigation }) => {
         elevation: 0,
       } : undefined,
     });
-  }, [navigation, periods, selectedPeriod, UIColors, headerOpacity, setOpenedSettings]);
+  }, [navigation, periods, selectedPeriod, UIColors, headerOpacity, setOpenedSettings, showActionSheetWithOptions]);
 
   return (
     <>
-      <Animated.View 
-        style={
-          {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 44 + insets.top,
-            width: '100%',
-            zIndex: 999,
-            backgroundColor: UIColors.element + '00',
-            opacity: headerOpacity,
-            borderBottomColor: UIColors.dark ? UIColors.text + '22' : UIColors.text + '55',
-            borderBottomWidth: 0.5,
+      { Platform.OS === 'ios' && (
+        <Animated.View 
+          style={
+            {
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 44 + insets.top,
+              width: '100%',
+              zIndex: 999,
+              backgroundColor: UIColors.element + '00',
+              opacity: headerOpacity,
+              borderBottomColor: UIColors.dark ? UIColors.text + '22' : UIColors.text + '55',
+              borderBottomWidth: 0.5,
+            }
           }
-        }
-      >
-        <BlurView
-          tint={UIColors.dark ? 'dark' : 'light'}
-          intensity={80}
-          style={{
-            flex: 1,
-            zIndex: 999,
-          }}
-        />
-      </Animated.View>
+        >
+          <BlurView
+            tint={UIColors.dark ? 'dark' : 'light'}
+            intensity={80}
+            style={{
+              flex: 1,
+              zIndex: 999,
+            }}
+          />
+        </Animated.View>
+      )}
       <ScrollView
         contentInsetAdjustmentBehavior='automatic'
         style={{ backgroundColor: UIColors.backgroundHigh, flex: 1 }}
@@ -480,7 +509,7 @@ const GradesScreen = ({ navigation }) => {
           />
         }
       >
-        <StatusBar animated barStyle={UIColors.dark ? 'light-content' : 'dark-content'} />
+        <StatusBar animated barStyle={UIColors.dark ? 'light-content' : 'dark-content'} translucent={true} backgroundColor={UIColors.backgroundHigh} />
 
         { averages.student && averages.student > 0 && (
           <GradesAverageHistory
@@ -491,6 +520,10 @@ const GradesScreen = ({ navigation }) => {
             setChartPoint={setChartPoint}
             gradeSettings={gradeSettings}
           />
+        )}
+
+        { Platform.OS === 'android' && (
+          <View style={{ height: 16 }} />
         )}
 
         <GradesAveragesList
