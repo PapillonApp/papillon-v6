@@ -12,13 +12,14 @@ import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
 // Icons
-import { BarChart3, Users2, TrendingDown, TrendingUp, Info, AlertTriangle } from 'lucide-react-native';
+import { BarChart3, Users2, TrendingDown, TrendingUp, Info, AlertTriangle, MoreVertical } from 'lucide-react-native';
 
 // Plugins
 import { ContextMenuButton } from 'react-native-ios-context-menu';
 import LineChart from 'react-native-simple-line-chart';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Interfaces
 interface UIaverage {
@@ -28,7 +29,7 @@ interface UIaverage {
   icon: any,
 }
 
-interface gradeSettings {
+export interface gradeSettings {
   scale: number,
   mode: string,
 }
@@ -60,12 +61,34 @@ const GradesScreen = ({ navigation }) => {
   const [classAveragesOverTime, setClassAveragesOverTime] = React.useState<PapillonAveragesOverTime[]>([]);
   const [chartLines, setChartLines] = React.useState(null);
   const [chartPoint, setChartPoint] = React.useState(null);
+  const [openedSettings, setOpenedSettings] = React.useState<boolean>(true);
 
   // Constants
   const [gradeSettings, setGradeSettings] = React.useState<gradeSettings[]>({
     scale: 20,
-    mode: 'semestre'
+    mode: 'trimestre'
   });
+
+  const updatePeriods = async () => {
+    getPeriodsFromAPI().then((period) => {
+      getGradesFromAPI(false, period);
+    });
+  };
+
+  // Update gradeSettings when focused
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      AsyncStorage.getItem('gradeSettings').then((value) => {
+        if (value) {
+          setGradeSettings(JSON.parse(value));
+        }
+      });
+
+      if(openedSettings) setOpenedSettings(false);
+    });
+
+    return unsubscribe;
+  }, [navigation, gradeSettings, openedSettings]);
 
   // UI arrays
   const [UIaverage, setUIaverage] = React.useState<UIaverage[]>([]);
@@ -92,7 +115,7 @@ const GradesScreen = ({ navigation }) => {
         icon: <TrendingUp color={UIColors.text} />,
       },
     ]);
-  }, [averages]);
+  }, [averages, UIColors.text]);
 
   // Update chartLines when averagesOverTime change
   React.useEffect(() => {
@@ -167,23 +190,32 @@ const GradesScreen = ({ navigation }) => {
     ];
     
     setChartLines(lines);
-  }, [averagesOverTime, classAveragesOverTime]);
+  }, [averagesOverTime, classAveragesOverTime, UIColors.text]);
 
   async function getPeriodsFromAPI (mode:string=gradeSettings.mode): Promise<PapillonPeriod> {
-    const allPeriods = await appContext.dataProvider!.getPeriods();
+    return AsyncStorage.getItem('gradeSettings').then(async (value) => {
+      if (value) {
+        value = JSON.parse(value);
+        if (value.mode !== mode) {
+          mode = value.mode;
+        }
 
-    let periods: PapillonPeriod[] = [];
-    periods = allPeriods;
+        const allPeriods = await appContext.dataProvider!.getPeriods();
 
-    // only keep periods that contains mode in their name
-    periods = periods.filter((period) => period.name.toLowerCase().normalize('NFD').includes(mode));
+        let periods: PapillonPeriod[] = [];
+        periods = allPeriods;
 
-    setPeriods(periods);
-    const firstPeriod = periods[0];
-    
-    // TODO: Select current by default.
-    setSelectedPeriod(firstPeriod);
-    return firstPeriod;
+        // only keep periods that contains mode in their name
+        periods = periods.filter((period) => period.name.toLowerCase().normalize('NFD').includes(mode));
+
+        setPeriods(periods);
+        const firstPeriod = periods[0];
+        
+        // TODO: Select current by default.
+        setSelectedPeriod(firstPeriod);
+        return firstPeriod;
+      }
+    });
   }
 
   async function getGradesFromAPI (force = false, period = selectedPeriod): Promise<void> {
@@ -338,33 +370,62 @@ const GradesScreen = ({ navigation }) => {
         />
       ) : 'Notes',
       headerRight: () => (
-        <ContextMenuButton
-          isMenuPrimaryAction={true}
-          menuConfig={{
-            menuTitle: 'Périodes',
-            menuItems: periods.map((period) => ({
-              actionKey: period.name,
-              actionTitle: period.name,
-              menuState: selectedPeriod?.name === period.name ? 'on' : 'off',
-            })),
-          }}
-          onPressMenuItem={({ nativeEvent }) => {
-            if (nativeEvent.actionKey === selectedPeriod?.name) return;
-            changePeriod(nativeEvent.actionKey);
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 12,
+            marginRight: 6,
           }}
         >
-          <TouchableOpacity>
-            <NativeText
-              heading="p"
+          <ContextMenuButton
+            isMenuPrimaryAction={true}
+            menuConfig={{
+              menuTitle: 'Périodes',
+              menuItems: periods.map((period) => ({
+                actionKey: period.name,
+                actionTitle: period.name,
+                menuState: selectedPeriod?.name === period.name ? 'on' : 'off',
+              })),
+            }}
+            onPressMenuItem={({ nativeEvent }) => {
+              if (nativeEvent.actionKey === selectedPeriod?.name) return;
+              changePeriod(nativeEvent.actionKey);
+            }}
+          >
+            <TouchableOpacity
               style={{
-                color: UIColors.primary,
-                fontSize: 17,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingHorizontal: 10,
+                paddingVertical: 5,
+                borderRadius: 10,
+                borderCurve : 'continuous',
+                backgroundColor: UIColors.primary + '22',
               }}
             >
-              {selectedPeriod?.name}
-            </NativeText>
+              <NativeText
+                heading="p"
+                style={{
+                  color: UIColors.primary,
+                  fontSize: 17,
+                }}
+              >
+                {selectedPeriod?.name}
+              </NativeText>
+            </TouchableOpacity>
+          </ContextMenuButton>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('GradesSettings');
+              setOpenedSettings(true);
+            }}
+          >
+            <MoreVertical size={20} strokeWidth={2.2} color={UIColors.text + '88'} />
           </TouchableOpacity>
-        </ContextMenuButton>
+        </View>
       ),
       headerShadowVisible: false,
       headerTransparent: Platform.OS === 'ios' ? true : false,
@@ -373,7 +434,7 @@ const GradesScreen = ({ navigation }) => {
         elevation: 0,
       } : undefined,
     });
-  }, [navigation, periods, selectedPeriod, UIColors, headerOpacity]);
+  }, [navigation, periods, selectedPeriod, UIColors, headerOpacity, setOpenedSettings]);
 
   return (
     <>
@@ -411,11 +472,15 @@ const GradesScreen = ({ navigation }) => {
         refreshControl={
           <RefreshControl
             refreshing={isLoading}
-            onRefresh={() => getGradesFromAPI(true)}
+            onRefresh={() => {
+              getPeriodsFromAPI().then((period) => {
+                getGradesFromAPI(true, period);
+              });
+            }}
           />
         }
       >
-        <StatusBar barStyle={UIColors.dark ? 'light-content' : 'dark-content'} />
+        <StatusBar animated barStyle={UIColors.dark ? 'light-content' : 'dark-content'} />
 
         { averages.student && averages.student > 0 && (
           <GradesAverageHistory
@@ -447,6 +512,10 @@ const GradesAverageHistory = ({ isLoading, averages, chartLines, chartPoint, set
   const [finalAvg, setFinalAvg] = React.useState<number>(averages.student);
 
   React.useEffect(() => {
+    setFinalAvg(averages.student);
+  }, [averages]);
+
+  React.useEffect(() => {
     if (chartPoint) {
       setFinalAvg(chartPoint.y);
       setCurrentDate(chartPoint.x);
@@ -466,7 +535,7 @@ const GradesAverageHistory = ({ isLoading, averages, chartLines, chartPoint, set
       <View style={[styles.chart.header.container]}>
         <View style={[styles.chart.header.title.container]}>
           {currentDate ? (
-            <NativeText heading="p" style={[styles.chart.header.title.text]}>
+            <NativeText heading="p" style={[styles.chart.header.title.text, {opacity: 0.5}]}>
               au {new Date(currentDate).toLocaleDateString('fr-FR', { month: 'long', day: 'numeric' })}
             </NativeText>
           ) : (

@@ -51,6 +51,7 @@ import PaymentScreen from './views/Settings/PaymentScreen';
 
 import GradesScreen from './views/GradesScreenNew';
 import GradeView from './views/Grades/GradeView';
+import GradesSettings from './views/Grades/GradesSettings';
 
 import NewsScreen from './views/NewsScreen';
 import NewsItem from './views/News/NewsItem';
@@ -668,6 +669,17 @@ function WrappedGradesScreen() {
           headerBackTitle: 'Notes',
           mdTitleColor: '#ffffff',
           headerTintColor: '#ffffff',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="GradesSettings"
+        component={GradesSettings}
+        options={{
+          headerShown: true,
+          headerLargeTitle: false,
+          headerBackTitle: 'Notes',
+          headerTitle: 'Paramètres des notes',
           presentation: 'modal',
         }}
       />
