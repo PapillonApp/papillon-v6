@@ -62,8 +62,8 @@ export interface PapillonGrades {
 }
 
 export interface PapillonGradesViewAverages {
-  studentAverage: string
-  classAverage: string
-  minAverage: string
-  maxAverage: string
+  student: number
+  group: number
+  max: number
+  min: number
 }
