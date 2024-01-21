@@ -564,6 +564,8 @@ const GradesAverageHistory = ({ isLoading, averages, chartLines, chartPoint, set
       styles.chart.container,
       {
         backgroundColor: UIColors.element,
+        borderColor: UIColors.dark ? UIColors.border + '55' : UIColors.border + 'c5',
+        borderWidth: 0.5,
       }
     ]}>
       <View style={[styles.chart.header.container]}>
@@ -747,7 +749,7 @@ const calculateSubjectAverage = async (grades: PapillonGrades, type: string = 'v
 const styles = StyleSheet.create({
   chart: {
     container: {
-      margin: 16,
+      margin: 15,
       marginTop: 6,
       marginBottom: 0,
       borderRadius: 12,
@@ -757,7 +759,7 @@ const styles = StyleSheet.create({
         width: 0,
         height: 1,
       },
-      shadowOpacity: 0.1,
+      shadowOpacity: 0.05,
       shadowRadius: 2,
     },
 
