@@ -653,7 +653,7 @@ const LatestGradesList = ({ isLoading, grades, allGrades, gradeSettings, navigat
             {
               flexDirection: 'row',
               paddingHorizontal: Platform.OS === 'ios' ? 16 : 0,
-              gap: 16,
+              gap: 12,
             }
           ]}
         >
