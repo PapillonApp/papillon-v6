@@ -186,7 +186,6 @@ function AboutScreen({ navigation }) {
                 </NativeText>
               }
               key={index}
-              onPress={() => navigation.navigate('Changelog')}
             >
               <NativeText heading="h4">
                 {item.title}
