@@ -47,13 +47,21 @@ function AboutScreen({ navigation }) {
       icon: <History size={24} color="#888888" />,
     },
     {
+      title: 'Version de Pawnote',
+      subtitle: `${
+        packageJson.dependencies['pawnote'].split('^')[1]
+      }`,
+      color: '#888888',
+      icon: <History size={24} color="#888888" />,
+    },
+    {
       title: 'Dépendances',
       subtitle: `RN: ${
         packageJson.dependencies['react-native'].split('^')[1]
       }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
-    },
+    }
   ];
 
   return (
