@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Animated, ActivityIndicator, StatusBar, View, Dimensions, StyleSheet, Button, ScrollView, TouchableOpacity, RefreshControl, Easing, Platform, Pressable } from 'react-native';
 
 // Custom imports
@@ -132,23 +132,12 @@ const GradesScreen = ({ navigation }) => {
 
   // Update chartLines when averagesOverTime change
   React.useEffect(() => {
-    let studentLinesData = [];
-    averagesOverTime.forEach((average) => {
-      studentLinesData.push({
-        x: new Date(average.date).getTime(),
-        y: average.value,
-      });
-    });
+    const createLineData = (averages) => averages.map(average => ({
+      x: new Date(average.date).getTime(),
+      y: average.value,
+    }));
 
-    let classLinesData = [];
-    classAveragesOverTime.forEach((average) => {
-      classLinesData.push({
-        x: new Date(average.date).getTime(),
-        y: average.value,
-      });
-    });
-
-    let linesSettings = {
+    const linesSettings = {
       lineColor: UIColors.primary,
       curve: 'monotone',
       endPointConfig: {
@@ -169,7 +158,10 @@ const GradesScreen = ({ navigation }) => {
       }
     };
 
-    let lines = [
+    const studentLinesData = createLineData(averagesOverTime);
+    const classLinesData = createLineData(classAveragesOverTime);
+
+    const lines = [
       {
         ...linesSettings,
         key: 'student2',
@@ -206,152 +198,107 @@ const GradesScreen = ({ navigation }) => {
   }, [averagesOverTime, classAveragesOverTime, UIColors.text, UIColors.border, UIColors.primary, UIColors.element]);
 
   async function getPeriodsFromAPI (mode:string=gradeSettings.mode): Promise<PapillonPeriod> {
-    return AsyncStorage.getItem('gradeSettings').then(async (value) => {
-      if (value) {
-        value = JSON.parse(value);
-        if (value.mode !== mode) {
-          mode = value.mode;
-        }
+    const value = await AsyncStorage.getItem('gradeSettings');
+    if (!value) return;
 
-        const allPeriods = await appContext.dataProvider!.getPeriods();
+    const settings = JSON.parse(value);
+    mode = settings.mode !== mode ? settings.mode : mode;
 
-        let periods: PapillonPeriod[] = [];
-        periods = allPeriods;
+    const allPeriods = await appContext.dataProvider!.getPeriods();
+    const periods: PapillonPeriod[] = allPeriods.filter((period) => period.name.toLowerCase().normalize('NFD').includes(mode));
 
-        // only keep periods that contains mode in their name
-        periods = periods.filter((period) => period.name.toLowerCase().normalize('NFD').includes(mode));
+    setPeriods(periods);
+    const firstPeriod = periods[0];
 
-        setPeriods(periods);
-        const firstPeriod = periods[0];
-        
-        if (changedPeriod) {
-          // check if selectedPeriod is in periods
-          const period = periods.find((period) => period.name === selectedPeriod?.name);
-          if (period) {
-            setSelectedPeriod(period);
-            return period;
-          }
-        }
-
-        // TODO: Select current by default.
-        setSelectedPeriod(firstPeriod);
-        return firstPeriod;
+    if (changedPeriod) {
+      const period = periods.find((period) => period.name === selectedPeriod?.name);
+      if (period) {
+        setSelectedPeriod(period);
+        return period;
       }
-    });
+    }
+
+    setSelectedPeriod(firstPeriod);
+    return firstPeriod;
   }
 
   async function getGradesFromAPI (force = false, period = selectedPeriod): Promise<void> {
-    if(!force) setIsLoading(true);
+    setIsLoading(true);
 
-    if (appContext.dataProvider && period) {
-      const grades = await appContext.dataProvider.getGrades(period.name, force);
-      const start = performance.now();
-      if (grades) await parseGrades(grades);
-      else {
-        // TODO: Warn user that cache is missing.
-        console.warn('CACHE NEEDED !');
+    try {
+      if (appContext.dataProvider && period) {
+        const grades = await appContext.dataProvider.getGrades(period.name, force);
+        if (grades) await parseGrades(grades);
+        // else {
+        //   console.warn('CACHE NEEDED !');
+        // }
       }
-      console.log('took', performance.now() - start, 'ms');
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
     }
-
-    setIsLoading(false);
-    setIsRefreshing(false);
   }
 
   async function addGradesToSubject(grades: PapillonGrades): Promise<void> {
-    const data = [];
+    const data = grades.averages.map(average => ({...average, grades: []}));
 
-    // for each grade.averages
-    grades.averages.forEach((average) => {
-      let newAverage = {
-        ...average,
-        grades: [],
-      };
-
-      data.push(newAverage);
-    });
-
-    // for each grade.grade
     grades.grades.forEach((grade) => {
-      // find corresponding fullGrade
       const subject = data.find((subject) => subject.subject.id === grade.subject.id);
-
-      // if found, add grade to fullGrade
       if (subject) {
         subject.grades.push(grade);
+        grade.background_color = subject.color;
       }
-
-      // add background_color to each grade
-      grade.background_color = subject?.color;
     });
 
-    // sort grades by date
     data.forEach((subject) => {
-      subject.grades.sort((a, b) => {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      });
+      subject.grades.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     });
 
-    // sort averages by name
-    data.sort((a, b) => {
-      return a.subject.name.localeCompare(b.subject.name);
-    });
+    data.sort((a, b) => a.subject.name.localeCompare(b.subject.name));
 
-    if(grades.class_overall_average && grades.class_overall_average.value > 0) {
+    if(grades.class_overall_average?.value > 0) {
       setPronoteClassAverage(grades.class_overall_average.value);
     }
 
-    if(grades.overall_average && grades.overall_average.value > 0) {
+    if(grades.overall_average?.value > 0) {
       setPronoteStudentAverage(grades.overall_average.value);
     }
 
     setGrades(data);
     setAllGrades(grades.grades);
 
-    // get 10 latest grades
-    let newGrades = [
-      ...grades.grades,
-    ];
-    newGrades.sort((a, b) => {
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
-    const latest = newGrades.slice(0, 10);
+    const latest = [...grades.grades].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10);
     setLatestGrades(latest);
   }
 
   // Calculate averages over time
   async function calculateAveragesOverTime (grades: PapillonGrades, type= 'value'): Promise<Array> {
-    let data = [];
-
-    // for each grade.grades
-    for (let i = 0; i < grades.length; i++) {
-      // get a list of all grades until i
+    // map grades to data with date and average value
+    const data = await Promise.all(grades.map(async (grade, i) => {
       const gradesUntil = grades.slice(0, i + 1);
-
-      // calculate average
       const average = await calculateSubjectAverage(gradesUntil, type, gradeSettings.scale);
-
-      // add to data
-      data.push({
-        date: new Date(grades[i].date),
+      return {
+        date: new Date(grade.date),
         value: average,
-      });
-    }
+      };
+    }));
 
     // sort by date
-    data.sort((a, b) => {
-      return new Date(a.date).getTime() - new Date(b.date).getTime();
-    });
+    data.sort((a, b) => a.date.getTime() - b.date.getTime());
 
     return data;
   }
 
   // Estimate averages
   async function estimatedStudentAverages (grades: PapillonGrades): Promise<void> {
-    let student = await calculateSubjectAverage(grades, 'value', gradeSettings.scale);
-    let group = await calculateSubjectAverage(grades, 'average', gradeSettings.scale);
-    let max = await calculateSubjectAverage(grades, 'max', gradeSettings.scale);
-    let min = await calculateSubjectAverage(grades, 'min', gradeSettings.scale);
+    const [student, group, max, min] = await Promise.all([
+      calculateSubjectAverage(grades, 'value', gradeSettings.scale),
+      calculateSubjectAverage(grades, 'average', gradeSettings.scale),
+      calculateSubjectAverage(grades, 'max', gradeSettings.scale),
+      calculateSubjectAverage(grades, 'min', gradeSettings.scale)
+    ]);
 
     setAverages({
       student,
@@ -363,8 +310,10 @@ const GradesScreen = ({ navigation }) => {
 
   // Estimate averages over time
   async function estimateAveragesOverTime (grades: PapillonGrades): Promise<void> {
-    let averagesOverTime = await calculateAveragesOverTime(grades, 'value');
-    let classAveragesOverTime = await calculateAveragesOverTime(grades, 'average');
+    const [averagesOverTime, classAveragesOverTime] = await Promise.all([
+      calculateAveragesOverTime(grades, 'value'),
+      calculateAveragesOverTime(grades, 'average')
+    ]);
     setAveragesOverTime(averagesOverTime);
     setClassAveragesOverTime(classAveragesOverTime);
   }
@@ -425,82 +374,91 @@ const GradesScreen = ({ navigation }) => {
   });
 
   // Change header title
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: Platform.OS === 'ios' ? () => (
-        <PapillonInsetHeader
-          icon={<SFSymbol name="chart.pie.fill" />}
-          title="Notes"
-          color="#A84700"
-        />
-      ) : 'Notes',
-      headerRight: () => (
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 12,
-            marginRight: 6,
+  const HeaderTitle = ({ navigation, UIColors }) => {
+    return Platform.OS === 'ios' ? (
+      <PapillonInsetHeader
+        icon={<SFSymbol name="chart.pie.fill" />}
+        title="Notes"
+        color="#A84700"
+      />
+    ) : 'Notes';
+  };
+  
+  const HeaderRight = ({ navigation, periods, selectedPeriod, UIColors, isLoading, changePeriod, androidPeriodChangePicker, setOpenedSettings }) => {
+    const menuConfig = useMemo(() => ({
+      menuTitle: 'Périodes',
+      menuItems: periods.map((period) => ({
+        actionKey: period.name,
+        actionTitle: period.name,
+        menuState: selectedPeriod?.name === period.name ? 'on' : 'off',
+      })),
+    }), [periods, selectedPeriod]);
+  
+    return (
+      <View style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 12,
+        marginRight: 6,
+      }}>
+        { isLoading && (
+          <ActivityIndicator />
+        )}
+        <ContextMenuButton
+          isMenuPrimaryAction={true}
+          menuConfig={menuConfig}
+          onPressMenuItem={({ nativeEvent }) => {
+            if (nativeEvent.actionKey === selectedPeriod?.name) return;
+            changePeriod(nativeEvent.actionKey);
           }}
         >
-          { isLoading && (
-            <ActivityIndicator />
-          )}
-          <ContextMenuButton
-            isMenuPrimaryAction={true}
-            menuConfig={{
-              menuTitle: 'Périodes',
-              menuItems: periods.map((period) => ({
-                actionKey: period.name,
-                actionTitle: period.name,
-                menuState: selectedPeriod?.name === period.name ? 'on' : 'off',
-              })),
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingHorizontal: 10,
+              paddingVertical: 5,
+              borderRadius: 10,
+              borderCurve : 'continuous',
+              backgroundColor: UIColors.primary + '22',
             }}
-            onPressMenuItem={({ nativeEvent }) => {
-              if (nativeEvent.actionKey === selectedPeriod?.name) return;
-              changePeriod(nativeEvent.actionKey);
+            onPress={() => {
+              if (Platform.OS !== 'ios') {
+                androidPeriodChangePicker();
+              }
             }}
           >
-            <TouchableOpacity
+            <NativeText
+              heading="p"
               style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingHorizontal: 10,
-                paddingVertical: 5,
-                borderRadius: 10,
-                borderCurve : 'continuous',
-                backgroundColor: UIColors.primary + '22',
-              }}
-              onPress={() => {
-                if (Platform.OS !== 'ios') {
-                  androidPeriodChangePicker();
-                }
+                color: UIColors.primary,
+                fontSize: 17,
+                fontFamily: 'Papillon-Medium',
               }}
             >
-              <NativeText
-                heading="p"
-                style={{
-                  color: UIColors.primary,
-                  fontSize: 17,
-                  fontFamily: 'Papillon-Medium',
-                }}
-              >
-                {selectedPeriod?.name}
-              </NativeText>
-            </TouchableOpacity>
-          </ContextMenuButton>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('GradesSettings');
-              setOpenedSettings(true);
-            }}
-          >
-            <MoreVertical size={20} strokeWidth={2.2} color={UIColors.text + '88'} />
+              {selectedPeriod?.name}
+            </NativeText>
           </TouchableOpacity>
-        </View>
-      ),
+        </ContextMenuButton>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('GradesSettings');
+            setOpenedSettings(true);
+          }}
+        >
+          <MoreVertical size={20} strokeWidth={2.2} color={UIColors.text + '88'} />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+  
+  // Change header title
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => <HeaderTitle navigation={navigation} UIColors={UIColors} />,
+      headerRight: () => <HeaderRight navigation={navigation} periods={periods} selectedPeriod={selectedPeriod} UIColors={UIColors} isLoading={isLoading} changePeriod={changePeriod} androidPeriodChangePicker={androidPeriodChangePicker} setOpenedSettings={setOpenedSettings} />,
       headerShadowVisible: false,
       headerTransparent: Platform.OS === 'ios' ? true : false,
       headerStyle: Platform.OS === 'android' ? {
@@ -615,16 +573,15 @@ const GradesScreen = ({ navigation }) => {
   );
 };
 
-const LatestGradesList = ({ isLoading, grades, allGrades, gradeSettings, navigation }) => {
+const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettings, navigation }) => {
   const UIColors = GetUIColors();
-  console;
 
-  const showGrade = (grade) => {
+  const showGrade = useCallback((grade) => {
     navigation.navigate('Grade', {
       grade,
       allGrades: allGrades,
     });
-  };
+  }, [allGrades, navigation]);
 
   return (
     <NativeList
@@ -705,115 +662,123 @@ const LatestGradesList = ({ isLoading, grades, allGrades, gradeSettings, navigat
       </ScrollView>
     </NativeList>
   );
-};
+});
 
-const GradesList = ({ grades, allGrades, gradeSettings, navigation }) => {
+const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation }) => {
   const UIColors = GetUIColors();
 
-  const showGrade = (grade) => {
+  const showGrade = useCallback((grade) => {
     navigation.navigate('Grade', {
       grade,
       allGrades: allGrades,
     });
-  };
+  }, [navigation, allGrades]);
 
   return (
     <View style={subjectStyles.container}>
-      {grades.map((subject, index) => (
-        <NativeList
-          key={index}
-          inset
-          style={subjectStyles.listContainer}
-          header={formatCoursName(subject.subject.name)}
-        >
-          <Pressable style={[subjectStyles.listItem, {
-            backgroundColor: getSavedCourseColor(subject.subject.name, subject.color),
-          }]}>
-            <View style={subjectStyles.subjectInfoContainer}>
-              <NativeText style={subjectStyles.subjectName} numberOfLines={1} ellipsizeMode="tail">
-                {formatCoursName(subject.subject.name)}
-              </NativeText>
-            </View>
+      {grades.map((subject, index) => {
+        const formattedCourseName = formatCoursName(subject.subject.name);
+        const backgroundColor = getSavedCourseColor(subject.subject.name, subject.color);
+        const gradeValue = ((subject.average.value / subject.out_of.value) * gradeSettings.scale).toFixed(2);
+        const gradeScale = gradeSettings.scale.toFixed(0);
 
-            <View style={subjectStyles.gradeContainer}>
-              <NativeText style={subjectStyles.subjectGradeValue}>
-                {((subject.average.value / subject.out_of.value) * gradeSettings.scale).toFixed(2)}
-              </NativeText>
-              <NativeText style={subjectStyles.subjectGradeScale}>
-                /{gradeSettings.scale.toFixed(0)}
-              </NativeText>
-            </View>
-          </Pressable>
-
-          {subject.grades.map((grade, index) => (
-            <NativeItem
-              key={index}
-              style={subjectStyles.gradeItem}
-
-              onPress={() => showGrade(grade)}
-
-              leading={
-                <NativeText heading="h2" style={subjectStyles.gradeEmoji}>
-                  {getClosestGradeEmoji(subject.subject.name)}
+        return (
+          <NativeList
+            key={index}
+            inset
+            style={subjectStyles.listContainer}
+            header={formattedCourseName}
+          >
+            <Pressable style={[subjectStyles.listItem, { backgroundColor }]}>
+              <View style={subjectStyles.subjectInfoContainer}>
+                <NativeText style={subjectStyles.subjectName} numberOfLines={1} ellipsizeMode="tail">
+                  {formattedCourseName}
                 </NativeText>
-              }
+              </View>
 
-              cellProps={{
-                contentContainerStyle: {
-                  paddingVertical: 2,
-                },
-              }}
+              <View style={subjectStyles.gradeContainer}>
+                <NativeText style={subjectStyles.subjectGradeValue}>
+                  {gradeValue}
+                </NativeText>
+                <NativeText style={subjectStyles.subjectGradeScale}>
+                  /{gradeScale}
+                </NativeText>
+              </View>
+            </Pressable>
 
-              trailing={
-                <View style={subjectStyles.inGradeContainer}>
-                  <View style={subjectStyles.gradeTextContainer}>
-                    <NativeText heading="p" style={subjectStyles.gradeValue}>
-                      {grade.grade.value?.value?.toFixed(2) || 'N/A'}
-                    </NativeText>
-                    <NativeText heading="p" style={subjectStyles.gradeScale}>
-                        /{grade.grade.out_of.value.toFixed(0)}
-                    </NativeText>
-                  </View>
-                 
+            {subject.grades.map((grade, index) => {
+              const gradeEmoji = getClosestGradeEmoji(subject.subject.name);
+              const gradeValue = grade.grade.value?.value?.toFixed(2) || 'N/A';
+              const gradeScale = grade.grade.out_of.value.toFixed(0);
+              const gradeDescription = grade.description || 'Aucune description';
+              const gradeDate = new Date(grade.date).toLocaleDateString('fr-FR', { month: 'long', day: 'numeric', year: 'numeric' });
 
-                  { parseFloat(grade.grade.coefficient) !== 1 && (
-                    <NativeText heading="p" style={[subjectStyles.gradeCoef]}>
-                      Coeff. {grade.grade.coefficient}
+              return (
+                <NativeItem
+                  key={index}
+                  style={subjectStyles.gradeItem}
+                  onPress={() => showGrade(grade)}
+                  leading={
+                    <NativeText heading="h2" style={subjectStyles.gradeEmoji}>
+                      {gradeEmoji}
                     </NativeText>
-                  )}
-                </View>
-              }
-            >
-              <NativeText
-                heading="h4"
-                style={subjectStyles.gradeDescription}
-              >
-                {grade.description || 'Aucune description'}
-              </NativeText>
-              <NativeText
-                heading="p2"
-                style={subjectStyles.gradeDescription}
-              >
-                {new Date(grade.date).toLocaleDateString('fr-FR', { month: 'long', day: 'numeric', year: 'numeric' })}
-              </NativeText>
-            </NativeItem>
-          ))}
-        </NativeList>
-      ))}
+                  }
+                  cellProps={{
+                    contentContainerStyle: {
+                      paddingVertical: 2,
+                    },
+                  }}
+                  trailing={
+                    <View style={subjectStyles.inGradeContainer}>
+                      <View style={subjectStyles.gradeTextContainer}>
+                        <NativeText heading="p" style={subjectStyles.gradeValue}>
+                          {gradeValue}
+                        </NativeText>
+                        <NativeText heading="p" style={subjectStyles.gradeScale}>
+                            /{gradeScale}
+                        </NativeText>
+                      </View>
+
+                      { parseFloat(grade.grade.coefficient) !== 1 && (
+                        <NativeText heading="p" style={[subjectStyles.gradeCoef]}>
+                          Coeff. {grade.grade.coefficient}
+                        </NativeText>
+                      )}
+                    </View>
+                  }
+                >
+                  <NativeText
+                    heading="h4"
+                    style={subjectStyles.gradeDescription}
+                  >
+                    {gradeDescription}
+                  </NativeText>
+                  <NativeText
+                    heading="p2"
+                    style={subjectStyles.gradeDescription}
+                  >
+                    {gradeDate}
+                  </NativeText>
+                </NativeItem>
+              );
+            })}
+          </NativeList>
+        );
+      })}
     </View>
   );
-};
+});
 
-const GradesAverageHistory = ({ isLoading, averages, chartLines, chartPoint, setChartPoint, gradeSettings, pronoteStudentAverage }) => {
+const GradesAverageHistory = React.memo(({ isLoading, averages, chartLines, chartPoint, setChartPoint, gradeSettings, pronoteStudentAverage }) => {
   const UIColors = GetUIColors();
   if (chartLines === null || chartLines === undefined) return null;
 
-  const [isReal, setIsReal] = React.useState<boolean>(false);
-  const [reevaluated, setReevaluated] = React.useState<boolean>(false);
-  const [currentDate, setCurrentDate] = React.useState<Date | null>(null);
-  const [finalAvg, setFinalAvg] = React.useState<number>(averages.student);
+  const [isReal, setIsReal] = useState<boolean>(false);
+  const [reevaluated, setReevaluated] = useState<boolean>(false);
+  const [currentDate, setCurrentDate] = useState<Date | null>(null);
+  const [finalAvg, setFinalAvg] = useState<number>(averages.student);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (pronoteStudentAverage) {
       setFinalAvg(pronoteStudentAverage);
       setIsReal(true);
@@ -823,7 +788,7 @@ const GradesAverageHistory = ({ isLoading, averages, chartLines, chartPoint, set
     }
   }, [averages, pronoteStudentAverage]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setReevaluated(false);
 
     if (chartPoint) {
@@ -850,6 +815,14 @@ const GradesAverageHistory = ({ isLoading, averages, chartLines, chartPoint, set
       setCurrentDate(null);
     }
   }, [chartPoint]);
+
+  const handlePointFocus = useCallback((point) => {
+    setChartPoint(point);
+  }, [setChartPoint]);
+
+  const handlePointLoseFocus = useCallback(() => {
+    setChartPoint(null);
+  }, [setChartPoint]);
 
   return (
     <View style={[
@@ -899,81 +872,60 @@ const GradesAverageHistory = ({ isLoading, averages, chartLines, chartPoint, set
             alwaysShowActivePoint: true,
           }}
 
-          onPointFocus={(point) => {
-            setChartPoint(point);
-          }}
-          onPointLoseFocus={() => {
-            setChartPoint(null);
-          }}
+          onPointFocus={handlePointFocus}
+          onPointLoseFocus={handlePointLoseFocus}
         />
       </View>
     </View>
   );
-};
+});
 
 const GradesAveragesList = ({ isLoading, UIaverage, gradeSettings }) => {
-  // if UIaverage is empty
-  if (UIaverage.length === 0 && !isLoading) return (
-    <NativeList inset header="Moyennes">
-      <NativeItem>
+  const renderNativeItem = (item, index) => (
+    <NativeItem
+      key={index}
+      leading={<View>{item.icon}</View>}
+      trailing={
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 2 }}>
+          <NativeText heading="h2">
+            {item.value > 0 ? item.value.toFixed(2) : 'N/A'}
+          </NativeText>
+          <NativeText heading="p2">
+            /{gradeSettings.scale.toFixed(0)}
+          </NativeText>
+        </View>
+      }
+    >
+      <NativeText heading={item.description && item.description.trim() !== '' ? 'h4' : 'p2'}>
+        {item.name}
+      </NativeText>
+      {item.description && item.description.trim() !== '' && (
         <NativeText heading="p2">
-          Aucune moyenne à afficher.
+          {item.description}
         </NativeText>
-      </NativeItem>
-    </NativeList>
+      )}
+    </NativeItem>
   );
 
-  // When loaded
-  return (
+  const renderNativeList = useMemo(() => (
     <NativeList inset header="Moyennes">
-      { UIaverage.map((item, index) => (
-        <NativeItem
-          key={index}
-          leading={
-            <View>
-              {item.icon}
-            </View>
-          }
-          trailing={
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'flex-end',
-                gap: 2,
-              }}
-            >
-              {item.value > 0 ? (
-                <NativeText heading="h2">
-                  {item.value?.toFixed(2)}
-                </NativeText>
-              ) : (
-                <NativeText heading="h2">
-                  N/A
-                </NativeText>
-              )}
-
-              <NativeText heading="p2">
-                /{gradeSettings.scale.toFixed(0)}
-              </NativeText>
-            </View>
-          }
-        >
-          { item.description && item.description.trim() !== '' ? (<>
-            <NativeText heading="h4">
-              {item.name}
-            </NativeText>
-            <NativeText heading="p2">
-              {item.description}
-            </NativeText>
-          </>) : (
-            <NativeText heading="p2">
-              {item.name}
-            </NativeText>
-          )}
-        </NativeItem>
-      ))}
+      {UIaverage.map(renderNativeItem)}
     </NativeList>
-  );
+  ), [UIaverage]);
+
+  if (UIaverage.length === 0 && !isLoading) {
+    return (
+      <NativeList inset header="Moyennes">
+        <NativeItem>
+          <NativeText heading="p2">
+            Aucune moyenne à afficher.
+          </NativeText>
+        </NativeItem>
+      </NativeList>
+    );
+  }
+
+  return renderNativeList;
 };
 
 const styles = StyleSheet.create({
@@ -1028,7 +980,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
       }
     }
-  }
+  },
 });
 
 const subjectStyles = StyleSheet.create({
@@ -1150,6 +1102,7 @@ const subjectStyles = StyleSheet.create({
     fontSize: 15,
     opacity: 0.5,
   },
+  
 });
 
 export default GradesScreen;
