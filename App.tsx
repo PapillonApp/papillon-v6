@@ -1015,11 +1015,13 @@ function AppStack() {
           fontFamily: 'Papillon-Semibold',
         },
         tabBarShowLabel: settings?.hideTabBarTitle ? false : true,
-        tabBarActiveTintColor: theme.dark ? '#ffffff' : '#000000',
+        tabBarActiveTintColor:
+          !settings?.hideTabBarTitle ? UIColors.primary :
+            theme.dark ? '#ffffff' : '#000000',
         tabBarInactiveTintColor: 
           settings?.hideTabBarTitle ?
             theme.dark ? '#ffffff' : '#000000' :
-            theme.dark ? '#ffffffa5' : '#000000a5',
+            theme.dark ? '#ffffff77' : '#00000077',
         tabBarStyle: {
           paddingHorizontal: 8,
           backgroundColor: UIColors.background,

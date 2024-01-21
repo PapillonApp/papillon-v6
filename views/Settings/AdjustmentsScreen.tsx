@@ -166,7 +166,7 @@ const AdjustmentsScreen = ({ navigation }) => {
             Applique un arrière-plan et un bandeau personnalisé
           </NativeText>
         </NativeItem>
-        <NativeItem chevron
+        <NativeItem
           trailing={
             <View style={[styles.colorPreview, {backgroundColor: currentSettings.homeThemeColor}]} />
           }
