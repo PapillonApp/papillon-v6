@@ -650,7 +650,7 @@ const LatestGradesList = ({ isLoading, grades, allGrades, gradeSettings, navigat
                 backgroundColor: getSavedCourseColor(grade.subject.name, grade.background_color),
               }]}>
                 <View style={[subjectStyles.subjectInfoContainer, {
-                  paddingVertical: 5.5,
+                  paddingVertical: 5,
                 }]}>
                   <NativeText style={subjectStyles.subjectEmoji}>
                     {getClosestGradeEmoji(grade.subject.name)}
@@ -670,7 +670,7 @@ const LatestGradesList = ({ isLoading, grades, allGrades, gradeSettings, navigat
 
                 <View style={subjectStyles.smallGradeContainer}>
                   <NativeText style={subjectStyles.smallGradeValue}>
-                    {((grade.grade.value.value / grade.grade.out_of.value) * gradeSettings.scale).toFixed(2)}
+                    {((grade.grade.value?.value / grade.grade.out_of.value) * gradeSettings.scale).toFixed(2)}
                   </NativeText>
                   <NativeText style={subjectStyles.smallGradeScale}>
                     /{gradeSettings.scale.toFixed(0)}
@@ -746,7 +746,7 @@ const GradesList = ({ grades, allGrades, gradeSettings, navigation }) => {
                 <View style={subjectStyles.inGradeContainer}>
                   <View style={subjectStyles.gradeTextContainer}>
                     <NativeText heading="p" style={subjectStyles.gradeValue}>
-                      {grade.grade.value.value.toFixed(2)}
+                      {grade.grade.value?.value?.toFixed(2) || 'N/A'}
                     </NativeText>
                     <NativeText heading="p" style={subjectStyles.gradeScale}>
                         /{grade.grade.out_of.value.toFixed(0)}

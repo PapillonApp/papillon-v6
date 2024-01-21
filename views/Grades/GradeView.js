@@ -51,7 +51,7 @@ function GradeView({ route, navigation }) {
   const { grade, allGrades } = route.params;
   const UIColors = GetUIColors();
 
-  console.log('allGrades', allGrades);
+  console.log('grade', grade);
 
   const [modalLoading, setModalLoading] = React.useState(false);
   const [modalLoadingText, setModalLoadingText] = React.useState('');
@@ -229,7 +229,7 @@ function GradeView({ route, navigation }) {
       </Modal>
       <View style={[styles.gradeHeader, { backgroundColor: mainColor }]}>
         <View style={[styles.gradeHeaderTitle]}>
-          <Text style={[styles.gradeHeaderSubject]}>
+          <Text style={[styles.gradeHeaderSubject]} numberOfLines={1} ellipsizeMode='tail'>
             {formatCoursName(grade.subject.name)}
           </Text>
           <Text style={[styles.gradeHeaderDate]}>
@@ -241,18 +241,26 @@ function GradeView({ route, navigation }) {
           </Text>
         </View>
         <View style={[styles.gradeHeaderGrade]}>
-          {grade.grade.value.significant === false ? (
+          {grade.grade.value.significant === false && (
             <>
               <Text style={[styles.gradeHeaderGradeValueTop]}>{valueTop}</Text>
               <Text style={[styles.gradeHeaderGradeValueBottom]}>
                 .{valueBottom}
               </Text>
             </>
-          ) : grade.grade.value.significant === true ? (
-            <Text style={[styles.gradeHeaderGradeValueTop]}>N.not</Text>
-          ) : (
-            <Text style={[styles.gradeHeaderGradeValueTop]}>N.not</Text>
           )}
+
+          {grade.grade.value.significant === true && (<>
+            {grade.grade.value.type[0] == '1' ? (
+              <Text style={[styles.gradeHeaderGradeValueTop]}>
+                Abs.
+              </Text>
+            ) : (
+              <Text style={[styles.gradeHeaderGradeValueTop]}>
+                N.not
+              </Text>
+            )}
+          </>)}
 
           <Text style={[styles.gradeHeaderGradeScale]}>
             /{grade.grade.out_of.value}
@@ -513,12 +521,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'center',
     gap: 2,
-    maxWidth: '72%',
+    flex: 1,
+    marginRight: 10,
   },
   gradeHeaderSubject: {
     fontSize: 17,
     fontFamily: 'Papillon-Semibold',
     color: '#fff',
+    flex: 1,
   },
   gradeHeaderDate: {
     fontSize: 15,
