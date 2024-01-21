@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, type ViewStyle } from 'react-native';
 
 interface Props {
+  /** Most likely an icon component from `lucide-react-native`. */
   icon: React.ReactElement
   /** Should be in HEX format. */
   color: string

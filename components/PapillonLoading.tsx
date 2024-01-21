@@ -8,6 +8,7 @@ interface Props {
   title: string
   subtitle: string
   style?: ViewStyle
+  /** Most likely an icon component from `lucide-react-native`. */
   icon?: React.ReactElement
 }
 
