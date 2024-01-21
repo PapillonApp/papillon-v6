@@ -79,6 +79,10 @@ const SelectService = ({ navigation }) => {
         Sélectionnez l’application de vie scolaire que vous utilisez dans votre établissement.
       </NativeText>
 
+      {Platform.OS !== 'ios' && (
+        <View style={{ height: 16 }} />
+      )}
+
       <NativeList
         sectionProps={{
           hideSeparator: true,
