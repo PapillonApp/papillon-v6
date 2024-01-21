@@ -66,10 +66,13 @@ const GradesScreen = ({ navigation }) => {
   const [isRefreshing, setIsRefreshing] = React.useState<boolean>(false);
   const [periods, setPeriods] = React.useState<PapillonPeriod[]>([]);
   const [selectedPeriod, setSelectedPeriod] = React.useState<PapillonPeriod | null>(null);
+  const [changedPeriod, setChangedPeriod] = React.useState<boolean>(false);
   const [grades, setGrades] = React.useState([]);
   const [allGrades, setAllGrades] = React.useState<PapillonGrades | null>(null);
   const [latestGrades, setLatestGrades] = React.useState<PapillonGrades | null>(null);
   const [averages, setAverages] = React.useState<PapillonGradesViewAverages[]>({});
+  const [pronoteStudentAverage, setPronoteStudentAverage] = React.useState<number|null>(null);
+  const [pronoteClassAverage, setPronoteClassAverage] = React.useState<number|null>(null);
   const [averagesOverTime, setAveragesOverTime] = React.useState<PapillonAveragesOverTime[]>([]);
   const [classAveragesOverTime, setClassAveragesOverTime] = React.useState<PapillonAveragesOverTime[]>([]);
   const [chartLines, setChartLines] = React.useState(null);
@@ -111,7 +114,7 @@ const GradesScreen = ({ navigation }) => {
     setUIaverage([
       {
         name: 'Moyenne groupe',
-        value: averages.group || 0,
+        value: pronoteClassAverage ? pronoteClassAverage : (averages.group || 0),
         icon: <Users2 color={UIColors.text} />,
       },
       {
@@ -125,7 +128,7 @@ const GradesScreen = ({ navigation }) => {
         icon: <TrendingUp color={UIColors.text} />,
       },
     ]);
-  }, [averages, UIColors.text]);
+  }, [averages, UIColors.text, pronoteClassAverage]);
 
   // Update chartLines when averagesOverTime change
   React.useEffect(() => {
@@ -221,6 +224,15 @@ const GradesScreen = ({ navigation }) => {
         setPeriods(periods);
         const firstPeriod = periods[0];
         
+        if (changedPeriod) {
+          // check if selectedPeriod is in periods
+          const period = periods.find((period) => period.name === selectedPeriod?.name);
+          if (period) {
+            setSelectedPeriod(period);
+            return period;
+          }
+        }
+
         // TODO: Select current by default.
         setSelectedPeriod(firstPeriod);
         return firstPeriod;
@@ -284,6 +296,16 @@ const GradesScreen = ({ navigation }) => {
     data.sort((a, b) => {
       return a.subject.name.localeCompare(b.subject.name);
     });
+
+    console.log(grades);
+
+    if(grades.class_overall_average && grades.class_overall_average.value > 0) {
+      setPronoteClassAverage(grades.class_overall_average.value);
+    }
+
+    if(grades.overall_average && grades.overall_average.value > 0) {
+      setPronoteStudentAverage(grades.overall_average.value);
+    }
 
     setGrades(data);
     setAllGrades(grades.grades);
@@ -380,6 +402,7 @@ const GradesScreen = ({ navigation }) => {
     const period = periods.find((period) => period.name === name);
     if (period) setSelectedPeriod(period);
     if (period) getGradesFromAPI(false, period);
+    if (period) setChangedPeriod(true);
   }
 
   // On mount
@@ -556,6 +579,7 @@ const GradesScreen = ({ navigation }) => {
             chartPoint={chartPoint}
             setChartPoint={setChartPoint}
             gradeSettings={gradeSettings}
+            pronoteStudentAverage={pronoteStudentAverage}
           />
         )}
 
@@ -621,14 +645,14 @@ const LatestGradesList = ({ isLoading, grades, allGrades, gradeSettings, navigat
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={[
-          subjectStyles.latestGradesList,
+          subjectStyles.latestGradesList
         ]}
       >
         <View
           style={[
             {
               flexDirection: 'row',
-              paddingHorizontal: 16,
+              paddingHorizontal: Platform.OS === 'ios' ? 16 : 0,
               gap: 16,
             }
           ]}
@@ -782,23 +806,49 @@ const GradesList = ({ grades, allGrades, gradeSettings, navigation }) => {
   );
 };
 
-const GradesAverageHistory = ({ isLoading, averages, chartLines, chartPoint, setChartPoint, gradeSettings }) => {
+const GradesAverageHistory = ({ isLoading, averages, chartLines, chartPoint, setChartPoint, gradeSettings, pronoteStudentAverage }) => {
   const UIColors = GetUIColors();
   if (chartLines === null || chartLines === undefined) return null;
 
-  const [currentDate, setCurrentDate] = React.useState<Date>(null);
+  const [isReal, setIsReal] = React.useState<boolean>(false);
+  const [reevaluated, setReevaluated] = React.useState<boolean>(false);
+  const [currentDate, setCurrentDate] = React.useState<Date | null>(null);
   const [finalAvg, setFinalAvg] = React.useState<number>(averages.student);
 
   React.useEffect(() => {
-    setFinalAvg(averages.student);
-  }, [averages]);
-
-  React.useEffect(() => {
-    if (chartPoint) {
-      setFinalAvg(chartPoint.y);
-      setCurrentDate(chartPoint.x);
+    if (pronoteStudentAverage) {
+      setFinalAvg(pronoteStudentAverage);
+      setIsReal(true);
     } else {
       setFinalAvg(averages.student);
+      setIsReal(false);
+    }
+  }, [averages, pronoteStudentAverage]);
+
+  React.useEffect(() => {
+    setReevaluated(false);
+
+    if (chartPoint) {
+      setIsReal(false);
+      setCurrentDate(chartPoint.x);
+
+      if (pronoteStudentAverage) {
+        const diff = Math.abs(pronoteStudentAverage - averages.student);
+        const correctedAvg = chartPoint.y - diff;
+        setFinalAvg(correctedAvg);
+        setReevaluated(true);
+      } else {
+        setFinalAvg(chartPoint.y);
+      }
+    } else {
+      if (pronoteStudentAverage) {
+        setFinalAvg(pronoteStudentAverage);
+        setIsReal(true);
+      } else {
+        setFinalAvg(averages.student);
+        setIsReal(false);
+      }
+
       setCurrentDate(null);
     }
   }, [chartPoint]);
@@ -827,7 +877,8 @@ const GradesAverageHistory = ({ isLoading, averages, chartLines, chartPoint, set
           <TouchableOpacity style={[{flexDirection: 'row', alignItems: 'center', gap:6}]}>
             <AlertTriangle size={20} strokeWidth={2.2} color={UIColors.primary} />
             <NativeText heading="p" style={[styles.chart.header.title.text, {color: UIColors.primary}]}>
-              Estimation
+              {isReal ? 'Moyenne réelle' :
+                reevaluated ? 'Estim. réévaluée' : 'Estimation'}
             </NativeText>
           </TouchableOpacity>
         </View>
