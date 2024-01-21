@@ -297,8 +297,6 @@ const GradesScreen = ({ navigation }) => {
       return a.subject.name.localeCompare(b.subject.name);
     });
 
-    console.log(grades);
-
     if(grades.class_overall_average && grades.class_overall_average.value > 0) {
       setPronoteClassAverage(grades.class_overall_average.value);
     }

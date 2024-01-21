@@ -51,8 +51,6 @@ function GradeView({ route, navigation }) {
   const { grade, allGrades } = route.params;
   const UIColors = GetUIColors();
 
-  console.log('grade', grade);
-
   const [modalLoading, setModalLoading] = React.useState(false);
   const [modalLoadingText, setModalLoadingText] = React.useState('');
 
@@ -98,8 +96,6 @@ function GradeView({ route, navigation }) {
     if (shortened.shorturl) {
       shorten_link = shortened.shorturl;
     }
-
-    console.log(shorten_link);
 
     setModalLoading(false);
 
