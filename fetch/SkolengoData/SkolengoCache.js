@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class SkolengoPrivateCache {
@@ -57,7 +56,6 @@ export class SkolengoCache {
     );
   }
 
-  // eslint-disable-next-line default-param-last
   static async setCollectionItem(key, id = '', value, timeout) {
     const actualCache = await this.getItem(key, {});
     if (id?.toString().trim().length === 0) return;

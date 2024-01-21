@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { View, StatusBar, StyleSheet, TouchableOpacity, Image, TextInput, Alert, ScrollView, ActivityIndicator } from 'react-native';
-
-import { Text } from 'react-native-paper';
+import React, { useState } from 'react';
+import { StatusBar, StyleSheet, TextInput, Platform, ScrollView } from 'react-native';
 
 import { getENTs } from '../../../fetch/AuthStack/LoginFlow';
 
@@ -13,10 +11,9 @@ import NativeItem from '../../../components/NativeItem';
 import NativeText from '../../../components/NativeText';
 
 import { Bird, Link2, School, Search } from 'lucide-react-native';
-import PapillonLoading from '../../../components/PapillonLoading';
 import AlertBottomSheet from '../../../interface/AlertBottomSheet';
 
-const LoginURL = ({ route, navigation }) => {
+const LoginURL = ({ navigation }) => {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
 
@@ -122,10 +119,10 @@ const LoginURL = ({ route, navigation }) => {
         barStyle={
           Platform.OS === 'ios' ?
             'light-content'
-          :
+            :
             UIColors.theme == 'light' ?
               'dark-content'
-            :
+              :
               'light-content'
         }
       />
@@ -173,7 +170,7 @@ const LoginURL = ({ route, navigation }) => {
       </NativeList>
 
     </ScrollView>
-  )
+  );
 };
 
 const styles = StyleSheet.create({

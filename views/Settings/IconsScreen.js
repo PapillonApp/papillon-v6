@@ -1,4 +1,3 @@
-/* eslint-disable global-require */
 import * as React from 'react';
 import {
   View,
@@ -21,7 +20,7 @@ import GetUIColors from '../../utils/GetUIColors';
 function IconItem({ icon, applyIcon, current }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
-  let subt = "par l'équipe Papillon";
+  let subt = 'par l\'équipe Papillon';
   if (icon.author) {
     subt = `Concours 2023 - par ${icon.author}`;
   }

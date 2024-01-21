@@ -60,9 +60,9 @@ function changeNewsState(id) {
         .then((result) => {
           return result;
         }
-      );
+        );
     });
-  })
+  });
 }
 
 export { getNews, changeNewsState };

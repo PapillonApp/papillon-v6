@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import {
   TokenResponse,
   AuthRequest,
@@ -327,8 +326,8 @@ export class SkolengoDatas extends SkolengoBase {
       e.length < limit
         ? e
         : this.getAbsenceFiles(force, limit, offset + limit).then((f) =>
-            e.concat(f)
-          )
+          e.concat(f)
+        )
     );
     SkolengoCache.setItem(
       SkolengoCache.cacheKeys.absences,
@@ -356,7 +355,6 @@ export class SkolengoDatas extends SkolengoBase {
   /**
    * @param {import('scolengo-api/types/models/SchoolLife').AbsenceFile[]} absences
    */
-  // eslint-disable-next-line class-methods-use-this
   viescoTransform = (absences) => ({
     absences: absences
       .filter(
@@ -457,7 +455,6 @@ export class SkolengoDatas extends SkolengoBase {
   /**
    * @param {import('scolengo-api/types/models/School').SchoolInfo} info
    */
-  // eslint-disable-next-line class-methods-use-this
   newsTransform = (info) => ({
     id: info.id,
     title: ucFirst(info.title),
@@ -488,33 +485,33 @@ export class SkolengoDatas extends SkolengoBase {
   ) =>
     SkolengoBase.dateVerifier(startDate, endDate || startDate)
       ? this.request('get', '/agendas', {
-          include,
-          filter: {
-            'student.id': this.currentUser.sub,
-            date: {
-              GE: SkolengoBase.dateParser(startDate),
-              LE: SkolengoBase.dateParser(endDate || startDate),
-            },
+        include,
+        filter: {
+          'student.id': this.currentUser.sub,
+          date: {
+            GE: SkolengoBase.dateParser(startDate),
+            LE: SkolengoBase.dateParser(endDate || startDate),
           },
-          page: {
-            limit,
-            offset,
-          },
-        }).then(async (e) =>
-          e.length < limit
-            ? e
-            : this.getAgendas(startDate, endDate, limit, offset + limit).then(
-                (f) => e.concat(f)
-              )
-        )
+        },
+        page: {
+          limit,
+          offset,
+        },
+      }).then(async (e) =>
+        e.length < limit
+          ? e
+          : this.getAgendas(startDate, endDate, limit, offset + limit).then(
+            (f) => e.concat(f)
+          )
+      )
       : Promise.resolve([
-          {
-            id: 'none',
-            date: SkolengoBase.dateParser(Date.now()),
-            lessons: [],
-            homeworkAssignments: [],
-          },
-        ]);
+        {
+          id: 'none',
+          date: SkolengoBase.dateParser(Date.now()),
+          lessons: [],
+          homeworkAssignments: [],
+        },
+      ]);
 
   /**
    * @returns {Promise<import('scolengo-api/types/models/Results').EvaluationSettings[]>}
@@ -697,9 +694,9 @@ export class SkolengoDatas extends SkolengoBase {
         e.length < limit
           ? e
           : this.getNotes(periodId, limit, offset + limit).then((f) => [
-              ...e,
-              ...f,
-            ])
+            ...e,
+            ...f,
+          ])
       )
       .catch((e) => {
         ('perioderr', periodId, e);
@@ -716,28 +713,28 @@ export class SkolengoDatas extends SkolengoBase {
   ) =>
     SkolengoBase.dateVerifier(startDate, endDate)
       ? this.request('get', '/homework-assignments', {
-          include: 'subject,teacher,teacher.person',
-          filter: {
-            'student.id': this.currentUser.sub,
-            dueDate: {
-              GE: SkolengoBase.dateParser(startDate),
-              LE: SkolengoBase.dateParser(endDate),
-            },
+        include: 'subject,teacher,teacher.person',
+        filter: {
+          'student.id': this.currentUser.sub,
+          dueDate: {
+            GE: SkolengoBase.dateParser(startDate),
+            LE: SkolengoBase.dateParser(endDate),
           },
-          page: {
+        },
+        page: {
+          limit,
+          offset,
+        },
+      }).then(async (e) =>
+        e.length < limit
+          ? e
+          : this.getHomeworkAssignments(
+            startDate,
+            endDate,
             limit,
-            offset,
-          },
-        }).then(async (e) =>
-          e.length < limit
-            ? e
-            : this.getHomeworkAssignments(
-                startDate,
-                endDate,
-                limit,
-                offset + limit
-              ).then((f) => e.concat(f))
-        )
+            offset + limit
+          ).then((f) => e.concat(f))
+      )
       : [];
 
   /**
@@ -952,13 +949,13 @@ export class SkolengoDatas extends SkolengoBase {
     address:
       user.school && user.school.id === this.school.id
         ? [
-            this.school.addressLine1,
-            this.school.addressLine2,
-            this.school.addressLine3,
-            this.school.zipCode,
-            this.school.city,
-            this.school.country,
-          ].filter((e) => e)
+          this.school.addressLine1,
+          this.school.addressLine2,
+          this.school.addressLine3,
+          this.school.zipCode,
+          this.school.city,
+          this.school.country,
+        ].filter((e) => e)
         : [],
     ine: null,
     profile_picture: null,
@@ -969,7 +966,6 @@ export class SkolengoDatas extends SkolengoBase {
   /**
    * @param {import('scolengo-api/types/models/Calendar').Agenda[]} agendas
    */
-  // eslint-disable-next-line class-methods-use-this
   timetableTransform = (
     agenda = {
       id: 'none',
@@ -1006,7 +1002,6 @@ export class SkolengoDatas extends SkolengoBase {
   /**
    * @param {import('scolengo-api/types/models/Results').Evaluation[]} evals
    */
-  // eslint-disable-next-line class-methods-use-this
   gradesTransform = (evals = []) => {
     const grades = evals
       .map((evalSubj) =>
@@ -1094,7 +1089,6 @@ export class SkolengoDatas extends SkolengoBase {
   /**
    * @param {import('scolengo-api/types/models/Calendar').HomeworkAssignment} homework
    */
-  // eslint-disable-next-line class-methods-use-this
   homeworkTransform = (homework) => {
     const dat = new Date(homework.dueDateTime || homework.dueDate);
     if (Number.isNaN(dat.getTime()))
@@ -1129,7 +1123,6 @@ export class SkolengoDatas extends SkolengoBase {
   /**
    * @param {import('scolengo-api/types/models/Results/EvaluationSettings').Period} period
    */
-  // eslint-disable-next-line class-methods-use-this
   periodTransform = (period) => ({
     id: period.id,
     name: period.label,

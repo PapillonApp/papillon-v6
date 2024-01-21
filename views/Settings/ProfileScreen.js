@@ -117,8 +117,8 @@ function ProfileScreen({ route, navigation }) {
       FileSystem.readAsStringAsync(uri, {
         encoding: FileSystem.EncodingType.Base64,
       }).then((base64) => {
-        AsyncStorage.setItem('custom_profile_picture', "data:image/png;base64," + base64);
-        setProfilePicture("data:image/png;base64," + base64);
+        AsyncStorage.setItem('custom_profile_picture', 'data:image/png;base64,' + base64);
+        setProfilePicture('data:image/png;base64,' + base64);
       });
     }
   }
@@ -169,7 +169,7 @@ function ProfileScreen({ route, navigation }) {
     if (Platform.OS === 'ios') {
       Alert.prompt(
         'Modifier le nom utilisé',
-        "Utilisez un prénom ou un pseudonyme différent dans l'app Papillon",
+        'Utilisez un prénom ou un pseudonyme différent dans l\'app Papillon',
         [
           {
             text: 'Modifier',
@@ -225,202 +225,203 @@ function ProfileScreen({ route, navigation }) {
   }, []);
 
   return (
-    <View style={[{ backgroundColor: UIColors.modalBackground }]}>
-    { Platform.OS === 'ios' && (
-    <View style={styles.profilePictureBgContainer}>
-      {profilePicture && profilePicture !== '' && (
-        <Image
-          style={styles.profilePictureBg}
-          source={{ uri: profilePicture }}
-        />
-      )}
-      <BlurView
-        intensity={100}
-        style={styles.profilePictureBgOverlay}
-      />
-      <LinearGradient
-        colors={['#00000000', UIColors.modalBackground]}
-        style={styles.profilePictureGradientOverlay}
-      />
-    </View>
-    )}
-    <ScrollView
-      style={[styles.container]}
-    >
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated barStyle="light-content" />
-      ) : (
-        <StatusBar
-          animated
-          barStyle={theme.dark ? 'light-content' : 'dark-content'}
-          backgroundColor="transparent"
-        />
-      )}
-
-      <Portal>
-        <Dialog
-          style={{ bottom }}
-          visible={androidNamePromptVisible}
-          onDismiss={() => setAndroidNamePromptVisible(false)}
-        >
-          <Dialog.Title>Modifier le nom utilisé</Dialog.Title>
-          <Dialog.Content>
-            <TextInput
-              label="Entrez un prénom ou un pseudonyme"
-              value={androidNamePrompt}
-              onChangeText={(text) => setAndroidNamePrompt(text)}
-            />
-          </Dialog.Content>
-          <Dialog.Actions>
-            <PaperButton onPress={() => setAndroidNamePromptVisible(false)}>
-              Annuler
-            </PaperButton>
-            <PaperButton
-              onPress={() => {
-                ResetName();
-                setAndroidNamePromptVisible(false);
-              }}
-            >
-              Réinitialiser
-            </PaperButton>
-            <PaperButton
-              onPress={() => {
-                ModifyName(androidNamePrompt);
-                setAndroidNamePromptVisible(false);
-              }}
-            >
-              Modifier
-            </PaperButton>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-
-      <View style={styles.profileContainer}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.profilePictureContainer,
-            { opacity: pressed ? 0.6 : 1 },
-          ]}
-          onPress={() => EditProfilePicture()}
-        >
-          {profilePicture && profilePicture !== '' ? (
+    <View style={[{ backgroundColor: UIColors.modalBackground, flex: 1 }]}>
+      { Platform.OS === 'ios' && (
+        <View style={styles.profilePictureBgContainer}>
+          {profilePicture && profilePicture !== '' && (
             <Image
-              style={styles.profilePicture}
+              style={styles.profilePictureBg}
               source={{ uri: profilePicture }}
             />
-          ) : (
-            <UserCircle2
-              size={86}
-              color={theme.dark ? '#fff' : '#000'}
-              style={styles.profilePicture}
-            />
           )}
-
-          <View style={[styles.profilePictureEdit]}>
-            <Pencil size={18} color="#fff" />
-          </View>
-        </Pressable>
-
-        <Text style={styles.name}>{userData?.name}</Text>
-        {[userData.class, userData.establishment].filter((e) => e).length >
-          0 && (
-          <Text style={styles.userData}>
-            {[userData.class, userData.establishment]
-              .filter((e) => e)
-              .join(' - ')}
-          </Text>
-        )}
-      </View>
-
-      <NativeList
-        inset
-        header="Données de contact"
-      >
-        {userData.email !== '' ? (
-          <NativeItem
-            leading={<Mail size={24} color="#565EA3" />}
-          >
-            <NativeText heading="h4">
-              Adresse e-mail
-            </NativeText>
-            <NativeText heading="p2">
-              {userData.email}
-            </NativeText>
-          </NativeItem>
-        ) : null}
-
-        {userData.phone !== '' && userData.phone !== '+' ? (
-          <NativeItem
-            leading={<Phone size={24} color="#B9670F" />}
-          >
-            <NativeText heading="h4">
-              Téléphone
-            </NativeText>
-            <NativeText heading="p2">
-              {userData.phone}
-            </NativeText>
-          </NativeItem>
-        ) : null}
-
-        {typeof userData?.ine === 'string' && userData?.ine?.length > 0 ? (
-          <NativeItem
-            leading={<Contact2 size={24} color="#0065A8" />}
-            onPress={() => getINE()}
-            trailing={ shownINE === '' &&
-              <Lock size={16} color={UIColors.text} style={{ opacity: 0.6 }} />
-            }
-          >
-            <NativeText heading="h4">
-              Numéro INE
-            </NativeText>
-            <NativeText heading="p2">
-              {shownINE ? shownINE : 'Appuyez pour révéler'}
-            </NativeText>
-          </NativeItem>
-        ) : null}
-      </NativeList>
-
-      <NativeList
-        inset
-        header="Options"
-      >
-        <NativeItem
-          leading={<Edit size={24} color="#29947A" />}
-          onPress={() => EditName()}
-        >
-          <NativeText heading="h4">
-            Modifier le nom utilisé
-          </NativeText>
-          <NativeText heading="p2">
-            Utilisez un prénom ou un pseudonyme différent dans l'app Papillon
-          </NativeText>
-        </NativeItem>
-
-        <NativeItem
-          leading={<Trash2 size={24} color="#D81313" />}
-          onPress={() => ResetProfilePic()}
-        >
-          <NativeText heading="h4">
-            Réinitialiser la photo de profil
-          </NativeText>
-          <NativeText heading="p2">
-            Utilise la photo de profil par défaut
-          </NativeText>
-        </NativeItem>
-        <AlertBottomSheet
-            visible={ResetProfilePicAlert}
-            title="Réinitialiser la photo de profil"
-            subtitle="Êtes-vous sûr de vouloir réinitialiser la photo de profil ?"
-            icon={<Trash2/>}
-            color='#D81313'
-            primaryButton='Réinitialiser'
-            primaryAction={() => FullResetProfilePic()}
-            cancelButton='Annuler'
-            cancelAction={() => setResetProfilePicAlert(false)}
+          <BlurView
+            intensity={100}
+            style={styles.profilePictureBgOverlay}
           />
-      </NativeList>
+          <LinearGradient
+            colors={['#00000000', UIColors.modalBackground]}
+            style={styles.profilePictureGradientOverlay}
+          />
+        </View>
+      )}
+      <ScrollView
+        style={[styles.container]}
+      >
+        {Platform.OS === 'ios' ? (
+          <StatusBar animated barStyle="light-content" />
+        ) : (
+          <StatusBar
+            animated
+            barStyle={theme.dark ? 'light-content' : 'dark-content'}
+            backgroundColor="transparent"
+          />
+        )}
+
+        <Portal>
+          <Dialog
+            style={{ bottom }}
+            visible={androidNamePromptVisible}
+            onDismiss={() => setAndroidNamePromptVisible(false)}
+          >
+            <Dialog.Title>Modifier le nom utilisé</Dialog.Title>
+            <Dialog.Content>
+              <TextInput
+                label="Entrez un prénom ou un pseudonyme"
+                value={androidNamePrompt}
+                onChangeText={(text) => setAndroidNamePrompt(text)}
+              />
+            </Dialog.Content>
+            <Dialog.Actions>
+              <PaperButton onPress={() => setAndroidNamePromptVisible(false)}>
+              Annuler
+              </PaperButton>
+              <PaperButton
+                onPress={() => {
+                  ResetName();
+                  setAndroidNamePromptVisible(false);
+                }}
+              >
+              Réinitialiser
+              </PaperButton>
+              <PaperButton
+                onPress={() => {
+                  ModifyName(androidNamePrompt);
+                  setAndroidNamePromptVisible(false);
+                }}
+              >
+              Modifier
+              </PaperButton>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+
+        <View style={styles.profileContainer}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.profilePictureContainer,
+              { opacity: pressed ? 0.6 : 1 },
+            ]}
+            onPress={() => EditProfilePicture()}
+          >
+            {profilePicture && profilePicture !== '' ? (
+              <Image
+                style={styles.profilePicture}
+                source={{ uri: profilePicture }}
+              />
+            ) : (
+              <UserCircle2
+                size={86}
+                color={theme.dark ? '#fff' : '#000'}
+                style={styles.profilePicture}
+              />
+            )}
+
+            <View style={[styles.profilePictureEdit]}>
+              <Pencil size={18} color="#fff" />
+            </View>
+          </Pressable>
+
+          <Text style={styles.name}>{userData?.name}</Text>
+          {[userData.class, userData.establishment].filter((e) => e).length >
+          0 && (
+            <Text style={styles.userData}>
+              {[userData.class, userData.establishment]
+                .filter((e) => e)
+                .join(' - ')}
+            </Text>
+          )}
+        </View>
+
+        <NativeList
+          inset
+          header="Données de contact"
+        >
+          {userData.email !== '' ? (
+            <NativeItem
+              leading={<Mail size={24} color="#565EA3" />}
+            >
+              <NativeText heading="h4">
+              Adresse e-mail
+              </NativeText>
+              <NativeText heading="p2">
+                {userData.email}
+              </NativeText>
+            </NativeItem>
+          ) : null}
+
+          {userData.phone !== '' && userData.phone !== '+' ? (
+            <NativeItem
+              leading={<Phone size={24} color="#B9670F" />}
+            >
+              <NativeText heading="h4">
+              Téléphone
+              </NativeText>
+              <NativeText heading="p2">
+                {userData.phone}
+              </NativeText>
+            </NativeItem>
+          ) : null}
+
+          {typeof userData?.ine === 'string' && userData?.ine?.length > 0 ? (
+            <NativeItem
+              leading={<Contact2 size={24} color="#0065A8" />}
+              onPress={() => getINE()}
+              trailing={ shownINE === '' &&
+              <Lock size={16} color={UIColors.text} style={{ opacity: 0.6 }} />
+              }
+            >
+              <NativeText heading="h4">
+              Numéro INE
+              </NativeText>
+              <NativeText heading="p2">
+                {shownINE ? shownINE : 'Appuyez pour révéler'}
+              </NativeText>
+            </NativeItem>
+          ) : null}
+        </NativeList>
+
+        <NativeList
+          inset
+          header="Options"
+        >
+          <NativeItem
+            leading={<Edit size={24} color="#29947A" />}
+            onPress={() => EditName()}
+          >
+            <NativeText heading="h4">
+            Modifier le nom utilisé
+            </NativeText>
+            <NativeText heading="p2">
+            Utilisez un prénom ou un pseudonyme différent dans l'app Papillon
+            </NativeText>
+          </NativeItem>
+
+          <NativeItem
+            leading={<Trash2 size={24} color="#D81313" />}
+            onPress={() => ResetProfilePic()}
+          >
+            <NativeText heading="h4">
+            Réinitialiser la photo de profil
+            </NativeText>
+            <NativeText heading="p2">
+            Utilise la photo de profil par défaut
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+
+        <AlertBottomSheet
+          visible={ResetProfilePicAlert}
+          title="Réinitialiser la photo de profil"
+          subtitle="Êtes-vous sûr de vouloir réinitialiser la photo de profil ?"
+          icon={<Trash2/>}
+          color='#D81313'
+          primaryButton='Réinitialiser'
+          primaryAction={() => FullResetProfilePic()}
+          cancelButton='Annuler'
+          cancelAction={() => setResetProfilePicAlert(false)}
+        />
       
-    </ScrollView>
+      </ScrollView>
     </View>
   );
 }

@@ -9,6 +9,7 @@ import {
   StatusBar,
   TouchableOpacity,
   Modal,
+  Platform
 } from 'react-native';
 import { useState, useCallback, useEffect } from 'react';
 
@@ -19,7 +20,7 @@ import fr from 'dayjs/locale/fr';
 import GetUIColors from '../../utils/GetUIColors';
 import { Text } from 'react-native-paper';
 
-import { GiftedChat, Bubble, InputToolbar, Send } from 'react-native-gifted-chat'
+import { GiftedChat, Bubble, InputToolbar, Send } from 'react-native-gifted-chat';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppContext } from '../../utils/AppContext';
@@ -90,7 +91,7 @@ function convertPronoteMessages(messages, userData) {
 
   msgs.push({
     _id: 1,
-    text: "Vous avez rejoint la conversation",
+    text: 'Vous avez rejoint la conversation',
     createdAt: new Date(messages[0].date),
     system: true,
   });
@@ -168,9 +169,9 @@ function MessagesScreen ({ route, navigation }) {
   }, [navigation, conversation]);
 
   const openModal = () => {
-    setRecipientsModalVisible(true)
+    setRecipientsModalVisible(true);
     setUrlOpened(true);
-  }
+  };
 
   const sendMessage = (msg) => {
     let newMessage = {
@@ -194,7 +195,7 @@ function MessagesScreen ({ route, navigation }) {
 
     // save newMessages to AsyncStorage
     AsyncStorage.setItem('hasNewMessagesSent', 'true');
-  }
+  };
 
   return (
     <View style={{backgroundColor: UIColors.backgroundHigh, flex: 1}}>
@@ -203,131 +204,131 @@ function MessagesScreen ({ route, navigation }) {
         barStyle={
           !urlOpened ?
             UIColors.theme === 'dark' ? 'light-content' : 'dark-content'
-          : 'light-content'
+            : 'light-content'
         }
       />
 
-        <GiftedChat
+      <GiftedChat
 
-          messages={msgs}
-          onSend={sendMessage}
-          user={{
-            _id: 1,
-          }}
+        messages={msgs}
+        onSend={sendMessage}
+        user={{
+          _id: 1,
+        }}
 
-          renderUsernameOnMessage={true}
+        renderUsernameOnMessage={true}
 
-          timeFormat="HH:mm"
-          dateFormat="dddd DD MMMM"
+        timeFormat="HH:mm"
+        dateFormat="dddd DD MMMM"
 
-          locale='fr'
+        locale='fr'
 
-          renderAvatar={(props) => {
-            return (
-              <View style={{width: 40, height: 40, borderRadius: 20, overflow: 'hidden', backgroundColor: UIColors.primary + '22', alignItems: 'center', justifyContent: 'center'}}>
-                <Text style={{fontFamily: 'Papillon-Medium', fontSize: 20, textAlign: 'center', color: UIColors.primary}}>
-                  {props.currentMessage.user.initials}
-                </Text>
-              </View>
-            )
-          }}
+        renderAvatar={(props) => {
+          return (
+            <View style={{width: 40, height: 40, borderRadius: 20, overflow: 'hidden', backgroundColor: UIColors.primary + '22', alignItems: 'center', justifyContent: 'center'}}>
+              <Text style={{fontFamily: 'Papillon-Medium', fontSize: 20, textAlign: 'center', color: UIColors.primary}}>
+                {props.currentMessage.user.initials}
+              </Text>
+            </View>
+          );
+        }}
 
-          renderBubble={(props) => {
-            return (
-              <Bubble
-                {...props}
-                textStyle={{
-                  right: {
-                    color: "#ffffff",
-                    fontFamily: 'Papillon-Medium',
-                  },
-                  left: {
-                    color: UIColors.text,
-                    fontFamily: 'Papillon-Medium',
-                  },
-                }}
-                wrapperStyle={{
-                  left: {
-                    backgroundColor: UIColors.element,
-                    borderRadius: 14,
-                    borderCurve: 'continuous',
-                    paddingHorizontal: 2,
-                    paddingVertical: 3,
-                  },
-                  right: {
-                    backgroundColor: UIColors.primary,
-                    borderRadius: 14,
-                    borderCurve: 'continuous',
-                    paddingHorizontal: 2,
-                    paddingVertical: 3,
-                  }
-                }}
-              />
-            )
-          }}
-
-          parsePatterns={(linkStyle) => [
-            {
-              type: 'url',
-              style: {
-                textDecorationLine: 'underline',
-              },
-              onPress: (url) => {
-                openURL(url);
-              },
-            },
-          ]}
-
-          renderInputToolbar={(props) => {
-            return (
-              <InputToolbar
-                {...props}
-                containerStyle={{
-                  backgroundColor:
-                    UIColors.dark ? UIColors.background
-                    : UIColors.element + 'FF'
-                  ,
-                  borderTopColor:
-                    UIColors.dark ? UIColors.text + '22'
-                    : UIColors.border
-                  ,
-                  borderTopWidth: 1,
-                  padding: 0,
-                  paddingTop: 6,
-                }}
-                primaryStyle={{
-                  backgroundColor: UIColors.element + '00',
-                  paddingLeft: 10,
-                }}
-                textInputStyle={{
+        renderBubble={(props) => {
+          return (
+            <Bubble
+              {...props}
+              textStyle={{
+                right: {
+                  color: '#ffffff',
+                  fontFamily: 'Papillon-Medium',
+                },
+                left: {
                   color: UIColors.text,
                   fontFamily: 'Papillon-Medium',
-                }}
-              />
-            )
-          }}
+                },
+              }}
+              wrapperStyle={{
+                left: {
+                  backgroundColor: UIColors.element,
+                  borderRadius: 14,
+                  borderCurve: 'continuous',
+                  paddingHorizontal: 2,
+                  paddingVertical: 3,
+                },
+                right: {
+                  backgroundColor: UIColors.primary,
+                  borderRadius: 14,
+                  borderCurve: 'continuous',
+                  paddingHorizontal: 2,
+                  paddingVertical: 3,
+                }
+              }}
+            />
+          );
+        }}
 
-          renderSend={(props) => {
-            return (
-              <Send
-                {...props}
-                containerStyle={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <View style={{marginRight: 18, alignSelf: 'center', marginTop:-6}}>
-                  <SendLucide {...props} color={UIColors.primary} />
-                </View>
-              </Send>
-            )
-          }}
+        parsePatterns={(linkStyle) => [
+          {
+            type: 'url',
+            style: {
+              textDecorationLine: 'underline',
+            },
+            onPress: (url) => {
+              openURL(url);
+            },
+          },
+        ]}
 
-          placeholder="Écrire un message..."
+        renderInputToolbar={(props) => {
+          return (
+            <InputToolbar
+              {...props}
+              containerStyle={{
+                backgroundColor:
+                    UIColors.dark ? UIColors.background
+                      : UIColors.element + 'FF'
+                ,
+                borderTopColor:
+                    UIColors.dark ? UIColors.text + '22'
+                      : UIColors.border
+                ,
+                borderTopWidth: 1,
+                padding: 0,
+                paddingTop: 6,
+              }}
+              primaryStyle={{
+                backgroundColor: UIColors.element + '00',
+                paddingLeft: 10,
+              }}
+              textInputStyle={{
+                color: UIColors.text,
+                fontFamily: 'Papillon-Medium',
+              }}
+            />
+          );
+        }}
 
-          minInputToolbarHeight={50}
-          bottomOffset={tabBarHeight}
-        />
+        renderSend={(props) => {
+          return (
+            <Send
+              {...props}
+              containerStyle={{
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <View style={{marginRight: 18, alignSelf: 'center', marginTop:-6}}>
+                <SendLucide {...props} color={UIColors.primary} />
+              </View>
+            </Send>
+          );
+        }}
+
+        placeholder="Écrire un message..."
+
+        minInputToolbarHeight={50}
+        bottomOffset={tabBarHeight}
+      />
 
       <Modal
         animationType="slide"
@@ -382,7 +383,7 @@ function MessagesScreen ({ route, navigation }) {
         </View>
       </Modal>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({

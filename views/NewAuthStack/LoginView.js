@@ -20,7 +20,7 @@ const LoginView = ({ navigation }) => {
   const dimensions = {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height
-  }
+  };
 
   const openURL = async (url) => {
     await WebBrowser.openBrowserAsync(url, {
@@ -28,7 +28,7 @@ const LoginView = ({ navigation }) => {
       presentationStyle: 'currentContext',
       controlsColor: UIColors.primary,
     });
-  }
+  };
 
   return (
     <LinearGradient
@@ -55,7 +55,7 @@ const LoginView = ({ navigation }) => {
             source={
               UIColors.theme == 'light' ?
                 require('../../assets/logotype_gray.png')
-              :
+                :
                 require('../../assets/logotype_gray_dark.png')
             }
             style={styles.logotype}
@@ -70,7 +70,7 @@ const LoginView = ({ navigation }) => {
           weight='light'
           activeScale={0.95}
           onPress={() => {
-            navigation.navigate('PronoteFindEtab')
+            navigation.navigate('PronoteFindEtab');
           }}
         >
           <Image
@@ -101,7 +101,7 @@ const LoginView = ({ navigation }) => {
           style={[styles.loginBtn, styles.loginBtnOther]}
           activeOpacity={0.5}
           onPress={() => {
-            navigation.navigate('LoginSkolengoSelectSchool')
+            navigation.navigate('LoginSkolengoSelectSchool');
           }}
         >
           <Image
@@ -118,7 +118,7 @@ const LoginView = ({ navigation }) => {
       </View>
       
     </LinearGradient>
-  )
+  );
 };
 
 const styles = StyleSheet.create({

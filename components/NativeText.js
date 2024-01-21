@@ -15,51 +15,51 @@ function NativeText(props) {
   const UIColors = GetUIColors();
 
   const headingStyles = {
-    "h1": {
+    'h1': {
       fontSize: 24,
       fontWeight: 600,
       fontFamily: 'Papillon-Semibold',
     },
-    "h2": {
+    'h2': {
       fontSize: 19,
       fontWeight: 600,
       fontFamily: 'Papillon-Semibold',
     },
-    "h3": {
+    'h3': {
       fontSize: 18,
       fontWeight: 600,
       fontFamily: 'Papillon-Semibold',
     },
-    "h4": {
+    'h4': {
       fontSize: 16,
       fontWeight: 600,
       fontFamily: 'Papillon-Semibold',
     },
-    "subtitle1": {
+    'subtitle1': {
       fontSize: 13,
       fontWeight: 500,
       opacity: 0.6,
     },
-    "subtitle2": {
+    'subtitle2': {
       fontSize: 13,
       fontWeight: 400,
       opacity: 0.6,
     },
-    "subtitle3": {
+    'subtitle3': {
       fontSize: 13,
       fontWeight: 400,
       opacity: 0.6,
       letterSpacing: 0.7,
       textTransform: 'uppercase',
     },
-    "p": {
+    'p': {
       fontSize: 16,
     },
-    "p2": {
+    'p2': {
       fontSize: 16,
       opacity: 0.6,
     },
-    "b": {
+    'b': {
       fontSize: 16,
       fontWeight: '600',
     },

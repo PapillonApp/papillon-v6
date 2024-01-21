@@ -36,31 +36,33 @@ struct AccessoryRectangularCourseWidget: View {
       if let currentCourse = currentCourse {
         VStack(alignment: .leading) {
           Text(currentCourse.subject)
-            .font(.headline)
+            .font(.system(.headline, design: .rounded))
             .lineLimit(1)
           Text(currentCourse.room)
-            .font(.subheadline)
+            .font(.system(.subheadline, design: .rounded))
           Text("Maintenant")
+            .font(.system(.subheadline, design: .rounded))
         }
       }
       //S'il y a au moins un prchain cours
       else if !upcomingCourses.isEmpty {
         VStack(alignment: .leading) {
           Text(upcomingCourses.first!.subject)
-            .font(.headline)
+            .font(.system(.headline, design: .rounded))
             .lineLimit(1)
           Text("salle \(upcomingCourses.first!.room)")
-            .font(.subheadline)
+            .font(.system(.subheadline, design: .rounded))
           Text("à \(formattedTime(upcomingCourses.first!.start))")
+            .font(.system(.subheadline, design: .rounded))
         }
       }
       //Si tout est fini
       else { //Si tout est fini
         VStack(alignment: .leading) {
           Text("Plus de cours pour aujourd'hui")
-            .font(.headline)
+            .font(.system(.headline, design: .rounded))
           Text("Repose-toi bien !")
-            .font(.subheadline)
+            .font(.system(.subheadline, design: .rounded))
         }
       }
     }

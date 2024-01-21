@@ -39,8 +39,8 @@ const NewPapillonHeader = ({ title, props }) => {
         </View>
       ) : null}
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

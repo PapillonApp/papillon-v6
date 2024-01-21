@@ -7,7 +7,7 @@ import {
   getSavedCourseColor,
 } from '../utils/ColorCoursName';
 
-const appGroupIdentifier = 'group.plus.pronote';
+const appGroupIdentifier = 'group.xyz.getpapillon';
 
 async function sendToSharedGroup(timetableData) {
   const coursSharedTable = [];

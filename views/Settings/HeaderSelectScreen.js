@@ -22,175 +22,175 @@ const HeaderSelectScreen = ({ navigation }) => {
 
   const backgrounds = [
     {
-      name: "Papillon",
-      description: "Bandeaux disponibles par défaut",
-      slug: "papillon",
+      name: 'Papillon',
+      description: 'Bandeaux disponibles par défaut',
+      slug: 'papillon',
       images : [
         {
-          name: "Default",
-          slug: "default",
+          name: 'Default',
+          slug: 'default',
           image: require('../../assets/themes/papillon/default.png'),
         },
         {
-          name: "Gros Papillon",
-          slug: "grospapillon",
+          name: 'Gros Papillon',
+          slug: 'grospapillon',
           image: require('../../assets/themes/papillon/grospapillon.png'),
         },
         {
-          name: "Papillon Ligne",
-          slug: "papillonligne",
+          name: 'Papillon Ligne',
+          slug: 'papillonligne',
           image: require('../../assets/themes/papillon/papillonligne.png'),
         },
         {
-          name: "Papillon Lumineux",
-          slug: "papillonlumineux",
+          name: 'Papillon Lumineux',
+          slug: 'papillonlumineux',
           image: require('../../assets/themes/papillon/papillonlumineux.png'),
         },
         {
-          name: "Papillon Papier",
-          slug: "papillonpapier",
+          name: 'Papillon Papier',
+          slug: 'papillonpapier',
           image: require('../../assets/themes/papillon/papillonpapier.png'),
         },
         {
-          name: "Papillon Plusieurs",
-          slug: "papillonplusieurs",
+          name: 'Papillon Plusieurs',
+          slug: 'papillonplusieurs',
           image: require('../../assets/themes/papillon/papillonplusieurs.png'),
         },
         {
-          name: "Formes",
-          slug: "formes",
+          name: 'Formes',
+          slug: 'formes',
           image: require('../../assets/themes/papillon/formes.png'),
         },
         {
-          name: "Formes (Couleur)",
-          slug: "formescolor",
+          name: 'Formes (Couleur)',
+          slug: 'formescolor',
           image: require('../../assets/themes/papillon/formescolor.png'),
         },
       ]
     },
     {
-      name: "Art-déco",
-      description: "Un style art-déco, avec des formes géométriques",
-      slug: "artdeco",
+      name: 'Art-déco',
+      description: 'Un style art-déco, avec des formes géométriques',
+      slug: 'artdeco',
       images : [
         // arrows, clouds, cubes, sparks, stripes
         {
-          name: "Flèches",
-          slug: "arrows",
+          name: 'Flèches',
+          slug: 'arrows',
           image: require('../../assets/themes/artdeco/arrows.png'),
         },
         {
-          name: "Nuages",
-          slug: "clouds",
+          name: 'Nuages',
+          slug: 'clouds',
           image: require('../../assets/themes/artdeco/clouds.png'),
         },
         {
-          name: "Cubes",
-          slug: "cubes",
+          name: 'Cubes',
+          slug: 'cubes',
           image: require('../../assets/themes/artdeco/cubes.png'),
         },
         {
-          name: "Etincelles",
-          slug: "sparks",
+          name: 'Etincelles',
+          slug: 'sparks',
           image: require('../../assets/themes/artdeco/sparks.png'),
         },
         {
-          name: "Rayures",
-          slug: "stripes",
+          name: 'Rayures',
+          slug: 'stripes',
           image: require('../../assets/themes/artdeco/stripes.png'),
         },
       ]
     },
     {
-      name: "Hero Patterns",
-      description: "Des motifs simples inspirés de Hero Patterns",
-      slug: "hero",
+      name: 'Hero Patterns',
+      description: 'Des motifs simples inspirés de Hero Patterns',
+      slug: 'hero',
       images : [
         {
-          name: "Circuit",
-          slug: "circuit",
+          name: 'Circuit',
+          slug: 'circuit',
           image: require('../../assets/themes/hero/circuit.png'),
         },
         {
-          name: "Damier",
-          slug: "damier",
+          name: 'Damier',
+          slug: 'damier',
           image: require('../../assets/themes/hero/damier.png'),
         },
         {
-          name: "Flocons",
-          slug: "flakes",
+          name: 'Flocons',
+          slug: 'flakes',
           image: require('../../assets/themes/hero/flakes.png'),
         },
         {
-          name: "Movement",
-          slug: "movement",
+          name: 'Movement',
+          slug: 'movement',
           image: require('../../assets/themes/hero/movement.png'),
         },
         {
-          name: "Spark Circle",
-          slug: "sparkcircle",
+          name: 'Spark Circle',
+          slug: 'sparkcircle',
           image: require('../../assets/themes/hero/sparkcircle.png'),
         },
         {
-          name: "Topography",
-          slug: "topography",
+          name: 'Topography',
+          slug: 'topography',
           image: require('../../assets/themes/hero/topography.png'),
         },
         {
-          name: "Wave",
-          slug: "wave",
+          name: 'Wave',
+          slug: 'wave',
           image: require('../../assets/themes/hero/wave.png'),
         },
       ]
     },
     {
-      name: "Gribouillage",
-      description: "Des griffonnages basiques et inspirants",
-      slug: "gribouillage",
+      name: 'Gribouillage',
+      description: 'Des griffonnages basiques et inspirants',
+      slug: 'gribouillage',
       images : [
         {
-          name: "Nuages",
-          slug: "clouds",
+          name: 'Nuages',
+          slug: 'clouds',
           image: require('../../assets/themes/gribouillage/clouds.png'),
         },
         {
-          name: "Cross",
-          slug: "cross",
+          name: 'Cross',
+          slug: 'cross',
           image: require('../../assets/themes/gribouillage/cross.png'),
         },
         {
-          name: "Gribs",
-          slug: "gribs",
+          name: 'Gribs',
+          slug: 'gribs',
           image: require('../../assets/themes/gribouillage/gribs.png'),
         },
         {
-          name: "Coeurs",
-          slug: "hearts",
+          name: 'Coeurs',
+          slug: 'hearts',
           image: require('../../assets/themes/gribouillage/hearts.png'),
         },
         {
-          name: "Heavy",
-          slug: "heavy",
+          name: 'Heavy',
+          slug: 'heavy',
           image: require('../../assets/themes/gribouillage/heavy.png'),
         },
         {
-          name: "Lignes",
-          slug: "lines",
+          name: 'Lignes',
+          slug: 'lines',
           image: require('../../assets/themes/gribouillage/lines.png'),
         },
         {
-          name: "Etoiles",
-          slug: "stars",
+          name: 'Etoiles',
+          slug: 'stars',
           image: require('../../assets/themes/gribouillage/stars.png'),
         },
       ]
     },
-  ]
+  ];
 
   const [currentSettings, setCurrentSettings] = useState({
     homeThemesEnabled: false,
     homeThemeColor: '#32AB8E',
-    homeThemeImage: "papillon/default",
+    homeThemeImage: 'papillon/default',
   });
 
   useEffect(() => {
@@ -270,9 +270,9 @@ const HeaderSelectScreen = ({ navigation }) => {
                       currentSettings.homeThemeImage === `${background.slug}/${image.slug}` ? {
                         borderColor: UIColors.text,
                       }
-                      : {
-                        borderColor: UIColors.text + '20',
-                      },
+                        : {
+                          borderColor: UIColors.text + '20',
+                        },
                     ]}
                   >
                     <View

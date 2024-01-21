@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { View, StatusBar, StyleSheet, TouchableOpacity, Image, TextInput, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StatusBar, StyleSheet, Platform } from 'react-native';
 
 import { Text } from 'react-native-paper';
 
@@ -54,10 +54,10 @@ const NewPronoteQR = ({ route, navigation }) => {
         barStyle={
           Platform.OS === 'ios' ?
             'light-content'
-          :
+            :
             UIColors.theme == 'light' ?
               'dark-content'
-            :
+              :
               'light-content'
         }
       />
@@ -88,7 +88,7 @@ const NewPronoteQR = ({ route, navigation }) => {
       />
 
     </View>
-  )
+  );
 };
 
 const styles = StyleSheet.create({

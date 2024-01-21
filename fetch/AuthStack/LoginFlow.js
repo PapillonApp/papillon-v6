@@ -66,20 +66,18 @@ function getToken(credentials) {
     loginTrue = true;
   }
 
-  let flags = "";
+  let flags = '';
 
   if (credentials.parent && credentials.parent === true) {
-    flags += "?type=parent";
+    flags += '?type=parent';
   }
   else {
-    flags += "?type=eleve";
+    flags += '?type=eleve';
   }
 
-  // eslint-disable-next-line no-param-reassign
   credentials.url = `${fixURL(credentials.url)}eleve.html`;
 
   if (loginTrue) {
-    // eslint-disable-next-line no-param-reassign
     credentials.url += '?login=true';
   }
 
