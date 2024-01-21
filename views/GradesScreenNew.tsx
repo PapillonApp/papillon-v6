@@ -438,6 +438,7 @@ const GradesScreen = ({ navigation }) => {
                 style={{
                   color: UIColors.primary,
                   fontSize: 17,
+                  fontFamily: 'Papillon-Medium',
                 }}
               >
                 {selectedPeriod?.name}
