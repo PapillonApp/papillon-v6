@@ -1,23 +1,29 @@
-import * as React from 'react';
-import { StyleSheet, ActivityIndicator, View, Platform } from 'react-native';
+import React from 'react';
+import { StyleSheet, ActivityIndicator, View, Platform, type ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
 
 import GetUIColors from '../utils/GetUIColors';
 
-function PapillonLoading({ title, subtitle, icon = null, style = {} }) {
+interface Props {
+  title: string
+  subtitle: string
+  style?: ViewStyle
+  /** Most likely an icon component from `lucide-react-native`. */
+  icon?: React.ReactElement
+}
+
+const PapillonLoading: React.FC<Props> = ({ title, subtitle, icon = null, style = {} }) => {
   const UIColors = GetUIColors();
 
   return (
     <View style={[styles.newsLoading, style]}>
       {icon ? (
-        <View style={styles.newsLoadingIcon}>{icon}</View>
+        <View>{icon}</View>
       ) : (
         <ActivityIndicator
           style={{ marginTop: 16 }}
           size={26}
-          color={
-            Platform.OS !== 'ios' && UIColors.primary
-          }
+          color={Platform.OS !== 'ios' ? UIColors.primary : void 0}
         />
       )}
 
@@ -25,7 +31,7 @@ function PapillonLoading({ title, subtitle, icon = null, style = {} }) {
       <Text style={styles.newsLoadingSubtext}>{subtitle}</Text>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   newsLoading: {

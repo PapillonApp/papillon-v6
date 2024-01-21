@@ -8,6 +8,8 @@ import type { PapillonGrades } from './types/grades';
 import { loadPronoteConnector } from './PronoteData/connector';
 import { userHandler as pronoteUserHandler } from './PronoteData/user';
 import { gradesHandler as pronoteGradesHandler } from './PronoteData/grades';
+import { timetableHandler as pronoteTimetableHandler } from './PronoteData/timetable';
+import { PapillonLesson } from './types/timetable';
 
 export type ServiceName = 'pronote' | 'skolengo'
 
@@ -203,16 +205,26 @@ export class IndexDataInstance {
     return [[], [], {}];
   }
 
-  // [Service]Timetable.js
-  async getTimetable(day: Date, force = false) {
+  /**
+   * Get a list of user's lessons for the given day.
+   * 
+   * If the user is offline and/or the cache fails, an
+   * empty list is returned.
+   */
+  async getTimetable (day: Date, force = false): Promise<PapillonLesson[]> {
     await this.waitInit();
-    if (this.service === 'skolengo')
-      return this.skolengoInstance.getTimetable(day, force);
-    // if (this.service === 'pronote')
-    //   return require('./PronoteData/PronoteTimetable.js').getTimetable(
-    //     day,
-    //     force
-    //   );
+
+    if (this.service === 'skolengo') {
+      return this.skolengoInstance!.getTimetable(day, force);
+    }
+    else if (this.service === 'pronote') {
+      const timetable = await pronoteTimetableHandler(day, this.pronoteInstance, force);
+      if (timetable) return timetable;
+
+      console.warn('getTimetable: offline and/or no cache.');
+    }
+    
+    console.warn('getTimetable: returning empty list.');
     return [];
   }
 
@@ -253,11 +265,12 @@ export class IndexDataInstance {
       return this.skolengoInstance.getPeriods(force);
     }
     else if (this.service === 'pronote') {
-      return this.pronoteInstance.periods.map(period => ({
-        id: period.id,
-        name: period.name,
-        actual: false // TODO: Check with dates.
-      }));
+      if (this.pronoteInstance)
+        return this.pronoteInstance.periods.map(period => ({
+          id: period.id,
+          name: period.name,
+          actual: false // TODO: Check with dates.
+        }));
     }
   
     return [];

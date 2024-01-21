@@ -9,7 +9,8 @@ export const AsyncStoragePronoteKeys = {
   DEVICE_UUID: 'pronote:device_uuid',
 
   CACHE_GRADES: 'pronote:cache_grades',
-  CACHE_USER: 'pronote:cache_user'
+  CACHE_USER: 'pronote:cache_user',
+  CACHE_TIMETABLE: 'pronote:cache_timetable',
 };
 
 export const removePronoteConnector = async () => {

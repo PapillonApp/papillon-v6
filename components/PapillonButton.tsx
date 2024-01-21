@@ -1,8 +1,24 @@
-import * as React from 'react';
-import { Pressable, StyleSheet, Platform, View } from 'react-native';
+import React from 'react';
+import { Pressable, StyleSheet, Platform, View, type ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
 
-function PapillonButton({ title, color, onPress, style, light, left, right }) {
+interface Props {
+  /** Text displayed inside the button. */
+  title: string
+  /** Should be in HEX format. */
+  color: string
+  onPress: () => unknown
+  style?: ViewStyle
+  /** Defines if the button should be filled or not. */
+  light?: boolean
+  left?: React.ReactElement
+  right?: React.ReactElement
+}
+
+/**
+ * @see https://i.imgur.com/KnBA6qC.png
+ */
+const PapillonButton: React.FC<Props> = ({ title, color, onPress, style, light, left, right }) => {
   return (
     <Pressable
       onPress={() => onPress()}
@@ -15,14 +31,20 @@ function PapillonButton({ title, color, onPress, style, light, left, right }) {
         style,
       ]}
     >
-      <View style={styles.left}>{left}</View>
+      {left && (
+        <View style={styles.left}>{left}</View>
+      )}
+
       <Text style={[styles.btnBackText, { color: light ? color : '#fff' }]}>
         {title}
       </Text>
-      <View style={styles.right}>{right}</View>
+      
+      {right && (
+        <View style={styles.right}>{right}</View>
+      )}
     </Pressable>
   );
-}
+};
 
 const styles = StyleSheet.create({
   btnBack: {

@@ -1,17 +1,22 @@
-import * as React from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 
 import { AlertTriangle } from 'lucide-react-native';
 
-function UnstableItem({ text }) {
+interface Props {
+  /** Text displayed within the item. */
+  text: string
+}
+
+const UnstableItem: React.FC<Props> = ({ text }) => {
   return (
-    <View style={[styles.unstable]}>
+    <View style={styles.unstable}>
       <AlertTriangle size={20} color="#A84700" />
-      <Text style={[styles.unstableText]}>{text}</Text>
+      <Text style={styles.unstableText}>{text}</Text>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   unstable: {

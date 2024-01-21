@@ -20,13 +20,16 @@ interface Props {
   underTitle?: string
   left?: React.ReactElement
   right?: React.ReactElement
+  /** Most likely an icon component from `lucide-react-native`. */
   icon?: React.ReactElement
   style?: ViewStyle
   color: string
+  /** Add more space between `title` and `subtitle`. */
   isLarge?: boolean
   onPress?: () => unknown
   onLongPress?: () => unknown
   fill?: boolean
+  /** Should take all the width from the parent. */
   width?: boolean
   center?: boolean
   chevron?: boolean
@@ -34,6 +37,9 @@ interface Props {
   bottom?: React.ReactElement
 }
 
+/**
+ * @see https://i.imgur.com/rshTN7n.png
+ */
 const ListItem: React.FC<Props> = ({
   title,
   subtitle,
@@ -43,7 +49,7 @@ const ListItem: React.FC<Props> = ({
   icon,
   style,
   color,
-  isLarge,
+  isLarge = false,
   onPress,
   onLongPress,
   fill,
