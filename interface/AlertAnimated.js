@@ -107,11 +107,11 @@ const AlertAnimated = ({ style, height = 70, left, title, subtitle, visible, mar
     >
       <Animated.View style={styles.alertInside}>
         <View style={styles.activity}>
-        { left ? left :
-          <ActivityIndicator
-            animating={true}
-          />
-        }
+          { left ? left :
+            <ActivityIndicator
+              animating={true}
+            />
+          }
         </View>
         <View style={styles.alertContent}>
           <Text style={[styles.alertTitle, { color: UIColors.text }]}>
@@ -123,7 +123,7 @@ const AlertAnimated = ({ style, height = 70, left, title, subtitle, visible, mar
         </View>
       </Animated.View>
     </Animated.View>
-  )
+  );
 };
 
 const styles = StyleSheet.create({

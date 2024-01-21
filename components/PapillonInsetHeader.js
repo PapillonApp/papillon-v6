@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
-import { View, StyleSheet } from "react-native";
-import { Text } from "react-native-paper";
+import { View, StyleSheet } from 'react-native';
+import { Text } from 'react-native-paper';
 
 function PapillonInsetHeader({ icon, title, size= 24, color='#000000', inset=false, style, textStyle }) {
   // add size and color to icon
@@ -30,7 +30,7 @@ function PapillonInsetHeader({ icon, title, size= 24, color='#000000', inset=fal
         {title}
       </Text>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({

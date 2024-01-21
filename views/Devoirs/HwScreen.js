@@ -6,13 +6,15 @@ import {
   StatusBar,
   Platform,
   ActivityIndicator,
+  TouchableOpacity,
+  Alert,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { PressableScale } from 'react-native-pressable-scale';
 
-import { Check, Link, File } from 'lucide-react-native';
+import { Check, Link, File, Trash } from 'lucide-react-native';
 
 import * as WebBrowser from 'expo-web-browser';
 import ParsedText from 'react-native-parsed-text';
@@ -27,6 +29,9 @@ import NativeText from '../../components/NativeText';
 import formatCoursName from '../../utils/FormatCoursName';
 import { useAppContext } from '../../utils/AppContext';
 
+import AlertBottomSheet from '../../interface/AlertBottomSheet';
+import CheckAnimated from '../../interface/CheckAnimated';
+
 function HomeworkScreen({ route, navigation }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -34,6 +39,8 @@ function HomeworkScreen({ route, navigation }) {
   const { homework } = route.params;
   const [thisHwChecked, setThisHwChecked] = React.useState(homework.done);
   const [thisHwLoading, setThisHwLoading] = React.useState(false);
+
+  const [deleteCustomHomeworkAlert, setDeleteCustomHomeworkAlert] = React.useState(false);
 
   console.log(homework);
 
@@ -47,7 +54,69 @@ function HomeworkScreen({ route, navigation }) {
 
   const appctx = useAppContext();
 
+  const deleteCustomHomework = () => {
+    AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+      let hw = [];
+      if (customHomeworks) {
+        hw = JSON.parse(customHomeworks);
+      }
+
+      // find the homework
+      for (let i = 0; i < hw.length; i++) {
+        if (hw[i].local_id === homework.local_id) {
+          hw.splice(i, 1);
+        }
+      }
+
+      AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
+      navigation.goBack();
+    });
+  };
+
+  // add delete button in header
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        homework.custom &&
+        <TouchableOpacity
+          style={[styles.deleteHw]}
+          onPress={() => {
+            setDeleteCustomHomeworkAlert(true);
+          }}
+        >
+          <Trash size={20} color={'#eb4034'} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
   const changeHwState = () => {
+    // if custom : true
+    if (homework.custom) {
+      AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+        let hw = [];
+        if (customHomeworks) {
+          hw = JSON.parse(customHomeworks);
+        }
+
+        // find the homework
+        for (let i = 0; i < hw.length; i++) {
+          if (hw[i].local_id === homework.local_id) {
+            hw[i].done = !thisHwChecked;
+          }
+        }
+
+        setThisHwChecked(!thisHwChecked);
+        AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
+
+        setTimeout(() => {
+          setThisHwLoading(false);
+        }, 100);
+      });
+
+      return;
+    }
+
     appctx.dataprovider
       .changeHomeworkState(!thisHwChecked, homework.date, homework.local_id)
       .then((result) => {
@@ -107,19 +176,19 @@ function HomeworkScreen({ route, navigation }) {
 
           AsyncStorage.setItem('homeworksUpdate', JSON.stringify(updates));
         });
-      })
+      });
   };
 
   // add checkbox in header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: "Devoir en " + formatCoursName(homework.subject.name),
+      headerTitle: 'Devoir en ' + formatCoursName(homework.subject.name),
     });
   }, [navigation, homework]);
 
   const handleUrlPress = (url, matchIndex) => {
     openURL(url);
-  }
+  };
 
   return (
     <ScrollView
@@ -167,15 +236,13 @@ function HomeworkScreen({ route, navigation }) {
       <NativeList inset header="Statut du devoir">
         <NativeItem
           leading={
-            <HwCheckbox
+            <CheckAnimated
               checked={thisHwChecked}
-              theme={theme}
+              loading={thisHwLoading}
               pressed={() => {
                 setThisHwLoading(true);
                 changeHwState();
               }}
-              UIColors={UIColors}
-              loading={thisHwLoading}
             />
           }
           onPress={() => {
@@ -190,11 +257,11 @@ function HomeworkScreen({ route, navigation }) {
         <NativeItem
           trailing={
             <NativeText heading="p2">
-              {new Date(homework.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              {new Date(homework.date).toLocaleDateString('fr-FR', { weekday: 'long', month: 'long', day: 'numeric' })}
             </NativeText>
           }
         >
-          <NativeText>
+          <NativeText numberOfLines={1}>
             A rendre pour le
           </NativeText>
         </NativeItem>
@@ -205,9 +272,9 @@ function HomeworkScreen({ route, navigation }) {
       { homework.files.length > 0 ? (
         <NativeList inset header="Fichiers">
           {homework.files.map((file, index) => {
-            let fileIcon = <Link size={24} color={UIColors.text} />
+            let fileIcon = <Link size={24} color={UIColors.text} />;
             if (file.type === 1) {
-              fileIcon = <File size={24} color={UIColors.text} />
+              fileIcon = <File size={24} color={UIColors.text} />;
             }
 
             return (
@@ -232,6 +299,18 @@ function HomeworkScreen({ route, navigation }) {
           })}
         </NativeList>
       ) : null }
+
+      <AlertBottomSheet
+        visible={deleteCustomHomeworkAlert}
+        title="Supprimer le devoir"
+        subtitle="Êtes-vous sûr de vouloir supprimer ce devoir ?"
+        primaryButton='Supprimer'
+        primaryAction={() => {deleteCustomHomework(); setDeleteCustomHomeworkAlert(false);}}
+        cancelButton='Annuler'
+        cancelAction={() => setDeleteCustomHomeworkAlert(false)}
+        color='#D81313'
+        icon={<Trash size={24} />}
+      />
 
     </ScrollView>
   );
@@ -322,6 +401,20 @@ const styles = StyleSheet.create({
 
   url: {
     textDecorationLine: 'underline',
+  },
+
+  deleteHw: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    backgroundColor: '#eb403422',
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    marginRight: -2,
+    gap: 4,
   },
 });
 

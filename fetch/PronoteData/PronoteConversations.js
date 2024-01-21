@@ -3,7 +3,6 @@ import getConsts from '../consts';
 
 import { refreshToken } from '../AuthStack/LoginFlow';
 
-// eslint-disable-next-line no-unused-vars
 function getConversations(force = false) {
   return getConsts().then((consts) =>
     AsyncStorage.getItem('token')

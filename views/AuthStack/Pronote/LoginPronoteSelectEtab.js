@@ -139,7 +139,7 @@ function LoginPronoteSelectEtab({ navigation }) {
     if (status !== 'granted') {
       Alert.alert(
         'Erreur',
-        "Vous devez autoriser l'application à accéder à votre position pour utiliser cette fonctionnalité."
+        'Vous devez autoriser l\'application à accéder à votre position pour utiliser cette fonctionnalité.'
       );
       return;
     }
@@ -166,7 +166,7 @@ function LoginPronoteSelectEtab({ navigation }) {
     if (Platform.OS === 'ios') {
       Alert.prompt(
         'URL de connexion',
-        "Entrez l'URL de connexion à Pronote de votre établissement",
+        'Entrez l\'URL de connexion à Pronote de votre établissement',
         [
           {
             text: 'Annuler',
@@ -231,7 +231,6 @@ function LoginPronoteSelectEtab({ navigation }) {
   }, [oldLoginEtab]);
 
   const [qrModalVisible, setQrModalVisible] = useState(false);
-  // eslint-disable-next-line no-unused-vars
   const [qrEtabDetected, setQrEtabDetected] = useState(false);
 
   async function scanQR() {
@@ -240,7 +239,7 @@ function LoginPronoteSelectEtab({ navigation }) {
     if (status !== 'granted') {
       Alert.alert(
         'Erreur',
-        "Vous devez autoriser l'application à accéder à votre caméra pour utiliser cette fonctionnalité."
+        'Vous devez autoriser l\'application à accéder à votre caméra pour utiliser cette fonctionnalité.'
       );
       return;
     }
@@ -270,7 +269,6 @@ function LoginPronoteSelectEtab({ navigation }) {
     setQrEtabDetected(false);
   }
 
-  // eslint-disable-next-line no-unused-vars
   function openEtab() {
     closeModal();
     navigation.navigate('LoginPronote', {
@@ -433,7 +431,6 @@ function LoginPronoteSelectEtab({ navigation }) {
             icon={<Link color="#159C5E" />}
             color="#159C5E"
             onPress={() => searchURL()}
-            // eslint-disable-next-line react-hooks/rules-of-hooks
             onLongPress={() => useDemo()}
             style={{ marginTop: 8 }}
           />

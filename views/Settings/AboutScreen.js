@@ -79,7 +79,6 @@ function AboutScreen({ navigation }) {
     'vincelinise.com',
   ];
 
-  // eslint-disable-next-line no-unused-vars
   let knownServer = '';
   const [isKnownServer, setIsKnownServer] = useState(false);
   const [serverTag, setServerTag] = useState('Serveur non vérifié');
@@ -124,9 +123,9 @@ function AboutScreen({ navigation }) {
   }
 
   function formatDate(date) {
-    let s = date.split(" ");
-    let d = s[0].split("-");
-    let t = s[1].split(":");
+    let s = date.split(' ');
+    let d = s[0].split('-');
+    let t = s[1].split(':');
     const month = [
       'janvier',
       'février',
@@ -218,6 +217,77 @@ function AboutScreen({ navigation }) {
           </NativeItem>
         </NativeList>
 
+        <NativeList 
+          inset
+          header="Communauté"
+        >
+          <NativeItem
+            onPress={() => navigation.navigate('Donors')}
+            chevron
+            leading={
+              <PapillonIcon
+                icon={<Euro size={24} color="#bf941d" />}
+                color="#bf941d"
+                size={24}
+                small
+              />
+            }
+          >
+            <NativeText heading="h4">
+              Donateurs
+            </NativeText>
+            <NativeText heading="p2">
+              Voir la liste des donateurs
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={
+              <PapillonIcon
+                icon={<MessageCircle size={24} color="#565EA3" />}
+                color="#565EA3"
+                size={24}
+                small
+              />
+            }
+            chevron
+            onPress={() => Linking.openURL('https://discord.getpapillon.xyz/')}
+          >
+            <NativeText heading="h4">
+              Serveur Discord
+            </NativeText>
+            <NativeText heading="p2">
+              Rejoindre le serveur de Papillon
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+
+        { Platform.OS !== 'ios' ? (
+          <NativeList>
+            <NativeItem
+              leading={
+                <PapillonIcon
+                  icon={<Euro size={24} color="#c9a710" />}
+                  color="#c9a710"
+                  size={24}
+                  small
+                />
+              }
+              chevron
+              onPress={() => Linking.openURL('https://ko-fi.com/thepapillonapp')}
+            >
+              <NativeText heading="h4">
+                Donner 1€ (2 cafés) à l'équipe
+              </NativeText>
+              <NativeText heading="p2">
+                Votre don permet de financer les serveurs et le développement.
+              </NativeText>
+              <NativeText heading="subtitle2">
+                Papillon est 100% libre et indépendant & créé par des élèves.
+              </NativeText>
+            </NativeItem>
+          </NativeList>
+        ) : <View /> }
+
         <NativeList
           inset
           header="Équipe Papillon"
@@ -242,99 +312,6 @@ function AboutScreen({ navigation }) {
               </NativeText>
             </NativeItem>
           ))}
-        </NativeList>
-
-        <NativeList
-          inset
-          header={"Donateurs"}
-        >
-          {KofiSupporters.map((item, index) => (
-            <NativeItem
-              key={index}
-              leading={
-                item.DiscordProfilePicture ? (
-                  <Image
-                    source={{ uri: item.DiscordProfilePicture }}
-                    style={{ width: 38, height: 38, borderRadius: 12, borderWidth: 1, borderColor: UIColors.text + '22' }}
-                  />
-                ) : (
-                  <PapillonIcon
-                    icon={<Euro size={24} color="#565EA3" />}
-                    color="#565EA3"
-                    size={24}
-                    small
-                  />
-                )
-              }
-              trailing={
-                ( item.Monthly === "True" ?
-                  <NativeText heading="p2">
-                    mensuel
-                  </NativeText>
-                : null )
-              }
-            >
-              <NativeText heading="h4">
-                {item.Name}
-              </NativeText>
-              <NativeText heading="p2">
-                à donné {(parseFloat(item.Total.replace(',','.')) / 1).toFixed(0)} café{parseFloat(item.Total.replace(',','.')) > 1 ? 's' : ''}
-              </NativeText>
-
-              <NativeText heading="subtitle2">
-                le {formatDate(item.LastSupportedDateUTC)}
-              </NativeText>
-            </NativeItem>
-          ))}
-        </NativeList>
-
-        <NativeList 
-          inset
-          header="Communauté"
-        >
-          { Platform.OS !== 'ios' ? (
-            <NativeItem
-              leading={
-                <PapillonIcon
-                  icon={<Euro size={24} color="#c9a710" />}
-                  color="#c9a710"
-                  size={24}
-                  small
-                />
-              }
-              chevron
-              onPress={() => Linking.openURL('https://ko-fi.com/thepapillonapp')}
-            >
-              <NativeText heading="h4">
-                Donner 1€ (2 cafés) à l'équipe
-              </NativeText>
-              <NativeText heading="p2">
-                Votre don permet de financer les serveurs et le développement.
-              </NativeText>
-              <NativeText heading="subtitle2">
-                Papillon est 100% libre et indépendant & créé par des élèves.
-              </NativeText>
-            </NativeItem>
-          ) : <View /> }
-          <NativeItem
-            leading={
-              <PapillonIcon
-                icon={<MessageCircle size={24} color="#565EA3" />}
-                color="#565EA3"
-                size={24}
-                small
-              />
-            }
-            chevron
-            onPress={() => Linking.openURL('https://discord.getpapillon.xyz/')}
-          >
-            <NativeText heading="h4">
-              Serveur Discord
-            </NativeText>
-            <NativeText heading="p2">
-              Rejoindre le serveur Discord de Papillon
-            </NativeText>
-          </NativeItem>
         </NativeList>
 
         <NativeList

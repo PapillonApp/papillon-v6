@@ -38,14 +38,14 @@ const AdjustmentsScreen = ({ navigation }) => {
     let hex = colorModalColor;
 
     updateSetting('homeThemeColor', hex, false);
-    setColorModalOpen(false)
+    setColorModalOpen(false);
   };
 
   const [currentSettings, setCurrentSettings] = useState({
     hideTabBarTitle: false,
     homeThemesEnabled: false,
     homeThemeColor: '#32AB8E',
-    homeThemeImage: "papillon/default",
+    homeThemeImage: 'papillon/default',
   });
   const [willNeedRestart, setWillNeedRestart] = useState(false);
 
@@ -79,7 +79,7 @@ const AdjustmentsScreen = ({ navigation }) => {
           setWillNeedRestart(true);
         }, 350);
       }
-    };
+    }
   }
 
   // animate tab name
@@ -147,47 +147,6 @@ const AdjustmentsScreen = ({ navigation }) => {
           backgroundColor: UIColors.primary + '22',
         }}
       />
-      
-      <NativeList header="Navigation" inset>
-        { Platform.OS === 'ios' ? (
-        <NativeItem
-          leading={
-            <View style={[previewStyles.tabPreview, {backgroundColor: UIColors.text + '16', borderColor : UIColors.text + '16', borderWidth: 1}]}>
-              <TouchableOpacity
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: 2,
-                }}
-              >
-                <Animated.View style={{transform: [{translateY: tabNameIconTranslate}]}}>
-                  <Home stroke={UIColors.text} />
-                </Animated.View>
-                <Animated.View style={{opacity: tabNameOpacity, transform: [{translateY: tabNameTranslate}]}}>
-                  <Text style={[previewStyles.tabPreviewText]}>
-                    Accueil
-                  </Text>
-                </Animated.View>
-              </TouchableOpacity>
-            </View>
-          }
-          trailing={
-            <Switch
-              value={currentSettings.hideTabBarTitle}
-              onValueChange={(value) => updateSetting('hideTabBarTitle', value, true)}
-            />
-          }
-        >
-          <NativeText heading="h4">
-            Cacher le nom des onglets
-          </NativeText>
-          <NativeText heading="p2">
-            Masquer le nom des onglets dans la barre de navigation
-          </NativeText>
-        </NativeItem>
-        ) : <View /> }
-      </NativeList>
 
       <NativeList header="Thèmes" inset>
         <NativeItem
@@ -206,7 +165,7 @@ const AdjustmentsScreen = ({ navigation }) => {
             Thèmes de l'écran d'acceuil
           </NativeText>
           <NativeText heading="p2">
-            Afficher le bandeau de l'écran d'accueil
+            Applique un arrière-plan et un bandeau personnalisé
           </NativeText>
         </NativeItem>
         <NativeItem chevron
@@ -228,6 +187,47 @@ const AdjustmentsScreen = ({ navigation }) => {
             Sélectionner un bandeau
           </NativeText>
         </NativeItem>
+      </NativeList>
+
+      <NativeList header="Navigation" inset>
+        { Platform.OS === 'ios' ? (
+          <NativeItem
+            leading={
+              <View style={[previewStyles.tabPreview, {backgroundColor: UIColors.text + '16', borderColor : UIColors.text + '16', borderWidth: 1}]}>
+                <TouchableOpacity
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 2,
+                  }}
+                >
+                  <Animated.View style={{transform: [{translateY: tabNameIconTranslate}]}}>
+                    <Home stroke={UIColors.text} />
+                  </Animated.View>
+                  <Animated.View style={{opacity: tabNameOpacity, transform: [{translateY: tabNameTranslate}]}}>
+                    <Text style={[previewStyles.tabPreviewText]}>
+                    Accueil
+                    </Text>
+                  </Animated.View>
+                </TouchableOpacity>
+              </View>
+            }
+            trailing={
+              <Switch
+                value={currentSettings.hideTabBarTitle}
+                onValueChange={(value) => updateSetting('hideTabBarTitle', value, true)}
+              />
+            }
+          >
+            <NativeText heading="h4">
+            Cacher le nom des onglets
+            </NativeText>
+            <NativeText heading="p2">
+            Masquer le nom des onglets dans la barre de navigation
+            </NativeText>
+          </NativeItem>
+        ) : <View /> }
       </NativeList>
 
       <Modal visible={colorModalOpen} animationType='fade' transparent={true}>
@@ -265,8 +265,8 @@ const AdjustmentsScreen = ({ navigation }) => {
         </View>
       </Modal>
     </ScrollView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -321,10 +321,10 @@ const previewStyles = StyleSheet.create({
     width: 64,
     height: 56,
     borderRadius: 8,
-    borderCurve: "continuous",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+    borderCurve: 'continuous',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     gap: 2,
   },
   tabPreviewText: {

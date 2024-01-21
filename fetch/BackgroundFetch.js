@@ -16,18 +16,18 @@ import { Platform } from 'react-native';
 async function sleep(time) {
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve()
-    }, time)
-  })
+      resolve();
+    }, time);
+  });
 }
 
 async function delNotif() {
   notifee.displayNotification({
-    title: "Récupération des données en arrière-plan",
-    id: "background-fetch",
+    title: 'Récupération des données en arrière-plan',
+    id: 'background-fetch',
     android: {
       timeoutAfter: 200,
-      channelId: "silent",
+      channelId: 'silent',
       progress: {
         max: 10,
         current: 5,
@@ -36,7 +36,7 @@ async function delNotif() {
       ongoing: true
     }
   });
-  notifee.cancelDisplayedNotification("background-fetch")
+  notifee.cancelDisplayedNotification('background-fetch');
 }
 
 // Actualités
@@ -48,10 +48,10 @@ async function newsFetch() {
       oldNews = JSON.parse(oldNews);
       if (Platform.OS === 'android') {
         notifee.displayNotification({
-          title: "Récupération des données en arrière-plan",
-          id: "background-fetch",
+          title: 'Récupération des données en arrière-plan',
+          id: 'background-fetch',
           android: {
-            channelId: "silent",
+            channelId: 'silent',
             progress: {
               max: 10,
               current: 5,
@@ -62,7 +62,7 @@ async function newsFetch() {
         });
       }
       return dataInstance.getNews().then((news) => {
-        delNotif()
+        delNotif();
         if (news.length !== oldNews.length) {
           AsyncStorage.setItem('oldNews', JSON.stringify(news));
 
@@ -73,27 +73,25 @@ async function newsFetch() {
               title: `📰 Nouvelle actualité ${ucFirst(dataInstance.service)}`,
               body: lastNews.title,
               android: {
-                channelId: "new-news"
+                channelId: 'new-news'
               },
               ios: {
                 sound: 'papillon_ding.wav',
               }
-            })
+            });
           }
           // Be sure to return the successful result type!
           return BackgroundFetch.BackgroundFetchResult.NewData;
         }
       })
-      .catch(err => {
-        setTimeout(() => {
-          delNotif()
-        }, 1000)
-        console.error("[Background Fetch/News] Unable to fetch news,", err)
-      })
+        .catch(err => {
+          setTimeout(() => {
+            delNotif();
+          }, 1000);
+          console.error('[Background Fetch/News] Unable to fetch news,', err);
+        });
     }
-    else {
 
-    }
     return dataInstance.getNews().then((news) => {
       AsyncStorage.setItem('oldNews', JSON.stringify(news));
     });
@@ -154,15 +152,15 @@ async function checkUndoneHomeworks() {
     }
 
     notifee.displayNotification({
-      title: `📚 Il te reste des devoirs pour demain !`,
+      title: '📚 Il te reste des devoirs pour demain !',
       body: `Tu as ${undone.length} devoir${plural} à faire pour demain`,
       android: {
-        channelId: "works-remind"
+        channelId: 'works-remind'
       },
       ios: {
         sound: 'papillon_ding.wav',
       }
-    })
+    });
 
     await AsyncStorage.setItem('notifHasAlreadyBeenSent', fireDate.getTime().toString());
   }
@@ -196,7 +194,7 @@ async function setBackgroundFetch() {
 
   registerNewsBackgroundFetchAsync().then((res) => {
   });
-  newsFetch()
+  newsFetch();
 
   registerHomeworksBackgroundFetchAsync().then((res) => {
   });

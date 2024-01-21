@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 function getCoordsFromPostal(_postal) {
   const postal = _postal?.normalize('NFD').replace(/\p{Diacritic}/gu, '');
 

@@ -28,7 +28,7 @@ import NativeText from '../../components/NativeText';
 import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
 
-import { PieChart, Link, File, X, DownloadCloud, MoreHorizontal, MoreVertical } from 'lucide-react-native';
+import { PieChart, Link, File, X, DownloadCloud, MoreHorizontal, MoreVertical, ChevronLeft, Check } from 'lucide-react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 import ListItem from '../../components/ListItem';
 import GetUIColors from '../../utils/GetUIColors';
@@ -47,6 +47,8 @@ function NewsItem({ route, navigation }) {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
+  console.log(news);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ modalURL , setModalURL ] = useState('');
 
@@ -60,11 +62,11 @@ function NewsItem({ route, navigation }) {
       'Sondage',
       'Impossible de répondre au sondage depuis l\'application Papillon pour le moment.',
       [
-        { text: "OK", onPress: () => {} },
+        { text: 'OK', onPress: () => {} },
       ],
       { cancelable: true }
     );
-  }
+  };
 
   const loadNews = async (id) => {
     if (!id) return;
@@ -79,53 +81,69 @@ function NewsItem({ route, navigation }) {
     navigation.setOptions({
       headerTintColor: Platform.OS === 'ios' && '#B42828',
       headerBackTitleVisible: false,
-      headerTitle: Platform.OS === 'ios' ? () => (
-        <PapillonInsetHeader
-          title={news.title}
-          color="#B42828"
-          inset
-        />
-      ) : news.title,
+      headerTitle: news.title,
+      headerTitleStyle: {
+        color: UIColors.text,
+        fontFamily: 'Papillon-Semibold',
+      },
+      headerLeft : () => (
+        <TouchableOpacity
+          style={{
+            backgroundColor: '#B4282800',
+            borderRadius: 100,
+            width: 32,
+            height: 32,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginLeft: -12,
+          }}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <ChevronLeft size={32} color={'#B42828'} />
+        </TouchableOpacity>
+      ),
       headerRight: () => (
-          <ContextMenuButton
-            isMenuPrimaryAction={true}
-            menuConfig={{
-              menuTitle: 'Actions',
-              menuItems: [
-                  {
-                    actionKey  : 'read',
-                    actionTitle: 'Marquer comme lu',
-                    icon: {
-                      type: 'IMAGE_SYSTEM',
-                      imageValue: {
-                        systemName: 'flag',
-                      },
-                    },
-                    menuState: isRead ? 'on' : 'off',
+        <ContextMenuButton
+          isMenuPrimaryAction={true}
+          menuConfig={{
+            menuTitle: 'Actions',
+            menuItems: [
+              {
+                actionKey  : 'read',
+                actionTitle: 'Marquer comme lu',
+                icon: {
+                  type: 'IMAGE_SYSTEM',
+                  imageValue: {
+                    systemName: 'flag',
                   },
-                  {
-                    actionKey  : 'copy',
-                    actionTitle: 'Copier le contenu',
-                    icon: {
-                      type: 'IMAGE_SYSTEM',
-                      imageValue: {
-                        systemName: 'doc.on.doc',
-                      },
-                    },
-                  }
-              ],
-            }}
-            onPressMenuItem={async ({nativeEvent}) => {
-              if (nativeEvent.actionKey === 'read') {
-                markNewsAsRead(news.local_id).then((e) => {
-                  setIsRead(e.current_state);
-                  setReadChanged(true);
-                });
+                },
+                menuState: isRead ? 'on' : 'off',
+              },
+              {
+                actionKey  : 'copy',
+                actionTitle: 'Copier le contenu',
+                icon: {
+                  type: 'IMAGE_SYSTEM',
+                  imageValue: {
+                    systemName: 'doc.on.doc',
+                  },
+                },
               }
-              else if (nativeEvent.actionKey === 'copy') {
-                await Clipboard.setStringAsync(news.html_content[0].texte.V);
-              }
-            }}
+            ],
+          }}
+          onPressMenuItem={async ({nativeEvent}) => {
+            if (nativeEvent.actionKey === 'read') {
+              markNewsAsRead(news.local_id).then((e) => {
+                setIsRead(e.current_state);
+                setReadChanged(true);
+              });
+            }
+            else if (nativeEvent.actionKey === 'copy') {
+              await Clipboard.setStringAsync(news.html_content[0].texte.V);
+            }
+          }}
         >
           <TouchableOpacity>
             <MoreHorizontal size={24} color={'#B42828'} />
@@ -205,7 +223,7 @@ function NewsItem({ route, navigation }) {
         animated
         barStyle={
           isModalOpen ? 'light-content' :
-          theme.dark ? 'light-content' : 'dark-content'
+            theme.dark ? 'light-content' : 'dark-content'
         }
         backgroundColor="transparent"
       />
@@ -309,12 +327,25 @@ function NewsItem({ route, navigation }) {
           <NativeList key={index} inset header={survey.L}>
             <NativeItem>
               <NativeText heading="p">
-                {survey.texte.V.replace( /(<([^>]+)>)/ig, '').replace(/\&nbsp;/g, '').trim()}
+                {survey.texte.V.replace( /(<([^>]+)>)/ig, '').replace(/&nbsp;/g, '').trim()}
               </NativeText>
             </NativeItem>
 
             {survey.listeChoix.V?.map((answer, index) => (
-              <NativeItem key={index} onPress={() => {alertSondage()}}>
+              <NativeItem
+                key={index} onPress={() => {alertSondage();}}
+                trailing={<>
+                  {survey?.reponse?.V?.valeurReponse?.V?.includes(index + 1) ? (
+                    <Check size={20} color={'#B42828'} />
+                  ) : null}
+
+                  {typeof survey?.reponse?.V?.valeurReponse == 'string' ? (
+                    <NativeText heading="p2">
+                      {survey?.reponse?.V?.valeurReponse}
+                    </NativeText>
+                  ) : null}
+                </>}
+              >
                 <NativeText heading="p2">
                   {answer.L}
                 </NativeText>
@@ -336,7 +367,7 @@ function PapillonAttachment({file, index, theme, UIColors, navigation, openURL})
   const [savedLocally, setSavedLocally] = useState(false);
 
   const formattedAttachmentName = attachment.name.replace(/ /g, '_');
-  const formattedFileExtension = attachment.url.split('.').pop().split(/\#|\?/)[0];
+  const formattedFileExtension = attachment.url.split('.').pop().split(/#|\?/)[0];
 
   const [fileURL, setFileURL] = useState(attachment.url);
 
@@ -349,7 +380,7 @@ function PapillonAttachment({file, index, theme, UIColors, navigation, openURL})
           setSavedLocally(true);
         }
         else {
-          FileSystem.downloadAsync(attachment.url, FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
+          FileSystem.downloadAsync(attachment.url, FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then(() => {
             setDownloaded(true);
             setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
             setSavedLocally(true);
@@ -374,7 +405,7 @@ function PapillonAttachment({file, index, theme, UIColors, navigation, openURL})
     <NativeItem
       key={index}
       onPress={downloaded ? () => {
-        if (formattedFileExtension === "pdf") {
+        if (formattedFileExtension === 'pdf') {
           navigation.navigate('PdfViewer', {
             url: fileURL,
           });
@@ -397,31 +428,31 @@ function PapillonAttachment({file, index, theme, UIColors, navigation, openURL})
               'Pièce jointe téléchargée hors-ligne',
               'Cette pièce jointe a été téléchargée pour une consultation hors-ligne. Vous pouvez consulter la pièce jointe originale si celle ci ne fonctionne pas.',
               [
-                { text: "Gérer le téléchargement", onPress: () => {
+                { text: 'Gérer le téléchargement', onPress: () => {
                   Alert.alert(
                     'Gérer le téléchargement',
                     'Que voulez-vous faire ?',
                     [
-                      { text: "Supprimer le téléchargement", onPress: () => {
+                      { text: 'Supprimer le téléchargement', onPress: () => {
                         FileSystem.deleteAsync(fileURL).then(() => {
                           setDownloaded(false);
                           setSavedLocally(false);
                         });
                       }, style: 'destructive' },
-                      { text: "Re-télécharger la pièce jointe", onPress: () => {
+                      { text: 'Re-télécharger la pièce jointe', onPress: () => {
                         FileSystem.deleteAsync(fileURL).then(() => {
                           setDownloaded(false);
                           setSavedLocally(false);
                           redownloadFile();
                         });
                       } },
-                      { text: "Annuler", onPress: () => {} },
+                      { text: 'Annuler', onPress: () => {} },
                     ],
                     { cancelable: true }
                   );
                 } },
-                { text: "Consulter l'originale", onPress: () => openURL(attachment.url) },
-                { text: "OK", onPress: () => {} },
+                { text: 'Consulter l\'originale', onPress: () => openURL(attachment.url) },
+                { text: 'OK', onPress: () => {} },
               ],
               { cancelable: true }
             );
@@ -436,18 +467,18 @@ function PapillonAttachment({file, index, theme, UIColors, navigation, openURL})
       ) : null }
     >
 
-                <View style={[styles.homeworkFileData]}>
-                  <Text style={[styles.homeworkFileText]}>{file.name}</Text>
-                  <Text
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                    style={[styles.homeworkFileUrl]}
-                  >
-                    {file.url}
-                  </Text>
-                </View>
-            </NativeItem>
-  )
+      <View style={[styles.homeworkFileData]}>
+        <Text style={[styles.homeworkFileText]}>{file.name}</Text>
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={[styles.homeworkFileUrl]}
+        >
+          {file.url}
+        </Text>
+      </View>
+    </NativeItem>
+  );
 }
 
 const styles = StyleSheet.create({

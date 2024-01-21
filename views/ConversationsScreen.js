@@ -56,24 +56,6 @@ function ConversationsScreen({ navigation }) {
     });
   }, []);
 
-  // add plus button to header
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('InsetNewConversation');
-          }}
-          style={{
-            
-          }}
-        >
-          <Plus size={24} color="#B18619" />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
-
   // force refresh when screen is focused
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -109,12 +91,22 @@ function ConversationsScreen({ navigation }) {
   }
 
   // add search functionality
+  // add new conversation button
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: 'Conversations',
       headerBackTitle: 'Retour',
       headerTintColor: UIColors.text,
       headerShadowVisible: true,
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('InsetNewConversation');
+          }}
+        >
+          <Plus size={24} />
+        </TouchableOpacity>
+      ),
       headerSearchBarOptions: {
         placeholder: 'Rechercher une conversation',
         cancelButtonText: 'Annuler',
@@ -209,11 +201,11 @@ function ConversationsScreen({ navigation }) {
               </View>
 
               <NativeText heading="p2" numberOfLines={1}>
-                {conversation.messages[conversation.messages.length - 1].content.replace(/(\r\n|\n|\r)/gm," ")}
+                {conversation.messages[conversation.messages.length - 1].content.replace(/(\r\n|\n|\r)/gm,' ')}
               </NativeText>
 
               <NativeText heading="subtitle2" style={{marginTop: 5}} numberOfLines={1}>
-              {conversation.messages[conversation.messages.length - 1].author || 'Vous'} | {moment(conversation.messages[conversation.messages.length - 1].date).fromNow()}
+                {conversation.messages[conversation.messages.length - 1].author || 'Vous'} | {moment(conversation.messages[conversation.messages.length - 1].date).fromNow()}
               </NativeText>
             </NativeItem>
           )) }

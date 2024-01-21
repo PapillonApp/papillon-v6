@@ -1,5 +1,3 @@
-/* eslint-disable global-require */
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export class IndexDataInstance {
@@ -36,8 +34,8 @@ export class IndexDataInstance {
     this.skolengoInstance =
       this.service === 'Skolengo'
         ? await require(
-            `./SkolengoData/SkolengoDatas.js`
-          ).SkolengoDatas?.initSkolengoDatas()
+          './SkolengoData/SkolengoDatas.js'
+        ).SkolengoDatas?.initSkolengoDatas()
         : null;
     this.initialized = true;
   }
@@ -49,11 +47,11 @@ export class IndexDataInstance {
       return this.skolengoInstance.getGrades(selectedPeriod, force);
     }
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteGrades.js`)
+      return require('./PronoteData/PronoteGrades.js')
         .getGrades(force)
         .then((e) => (typeof e === 'string' ? JSON.parse(e) : e));
     // .then((e) => thenHandler('grades', e));
-    return require(`./SkolengoData/SkolengoDatas.js`).SkolengoDatas
+    return require('./SkolengoData/SkolengoDatas.js').SkolengoDatas
       .gradesDefault;
   }
 
@@ -62,7 +60,7 @@ export class IndexDataInstance {
     // TODO: skolengo Evaluation
     if (this.service === 'Skolengo') return [];
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteGrades.js`)
+      return require('./PronoteData/PronoteGrades.js')
         .getEvaluations(force)
         .then((e) => (typeof e === 'string' ? JSON.parse(e) : e));
     // .then((e) => thenHandler('evals', e));
@@ -72,7 +70,7 @@ export class IndexDataInstance {
   async changePeriod(period) {
     await this.waitInit();
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteGrades.js`).changePeriod(period);
+      return require('./PronoteData/PronoteGrades.js').changePeriod(period);
     // .then((e) => thenHandler('changep', e));
     return {};
   }
@@ -84,7 +82,7 @@ export class IndexDataInstance {
     if (this.service === 'Skolengo')
       return this.skolengoInstance.getHomeworks(day, force, day2) || [];
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteHomeworks.js`).getHomeworks(
+      return require('./PronoteData/PronoteHomeworks.js').getHomeworks(
         day,
         force,
         day2
@@ -98,7 +96,7 @@ export class IndexDataInstance {
     if (this.service === 'Skolengo')
       return this.skolengoInstance.patchHomeworkAssignment(id, isDone);
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteHomeworks.js`).changeHomeworkState(
+      return require('./PronoteData/PronoteHomeworks.js').changeHomeworkState(
         day,
         id
       );
@@ -112,7 +110,7 @@ export class IndexDataInstance {
     if (this.service === 'Skolengo')
       return this.skolengoInstance.getNews(force);
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteNews.js`)
+      return require('./PronoteData/PronoteNews.js')
         .getNews(force)
         .then((e) => (typeof e === 'string' ? JSON.parse(e) : e));
     // .then((e) => thenHandler('news', e));
@@ -124,7 +122,7 @@ export class IndexDataInstance {
     if (this.service === 'Skolengo')
       return {status:'', error:'Not implemented'};
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteNews.js`).changeNewsState(id);
+      return require('./PronoteData/PronoteNews.js').changeNewsState(id);
     // .then((e) => thenHandler('changen', e));
     return {};
   }
@@ -145,7 +143,7 @@ export class IndexDataInstance {
     if (this.service === 'Skolengo')
       return this.skolengoInstance.getRecap(day, force).then(storeShared);
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteRecap.js`)
+      return require('./PronoteData/PronoteRecap.js')
         .getRecap(day, force)
         .then(storeShared);
     // .then((e) => thenHandler('recap', e));
@@ -158,7 +156,7 @@ export class IndexDataInstance {
     if (this.service === 'Skolengo')
       return this.skolengoInstance.getTimetable(day, force);
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteTimetable.js`).getTimetable(
+      return require('./PronoteData/PronoteTimetable.js').getTimetable(
         day,
         force
       );
@@ -176,7 +174,7 @@ export class IndexDataInstance {
           return e;
         });
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteUser.js`)
+      return require('./PronoteData/PronoteUser.js')
         .getUser(force)
         .then((e) => ({ ...e, periods: undefined }))
         .then((e) => editUser(e));
@@ -189,7 +187,7 @@ export class IndexDataInstance {
     if (this.service === 'Skolengo')
       return this.skolengoInstance.getPeriods(force);
     if (this.service === 'Pronote')
-      return (await require(`./PronoteData/PronoteUser.js`).getUser(force))
+      return (await require('./PronoteData/PronoteUser.js').getUser(force))
         .periods;
     // .then((e) => thenHandler('usr', e));
     return [];
@@ -201,7 +199,7 @@ export class IndexDataInstance {
     if (this.service === 'Skolengo')
       return this.skolengoInstance.getViesco(force);
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteViesco.js`).getViesco(force);
+      return require('./PronoteData/PronoteViesco.js').getViesco(force);
     // .then((e) => thenHandler('viesco', e));
     return [];
   }
@@ -210,7 +208,7 @@ export class IndexDataInstance {
   async getConversations(force = false) {
     await this.waitInit();
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteConversations.js`).getConversations(
+      return require('./PronoteData/PronoteConversations.js').getConversations(
         force
       );
     return [];
@@ -220,7 +218,7 @@ export class IndexDataInstance {
   async replyToConversation(id, message) {
     await this.waitInit();
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteConversations.js`).replyToConversation(
+      return require('./PronoteData/PronoteConversations.js').replyToConversation(
         id,
         message
       );
@@ -230,7 +228,7 @@ export class IndexDataInstance {
   async readStateConversation(id) {
     await this.waitInit();
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteConversations.js`).readStateConversation(
+      return require('./PronoteData/PronoteConversations.js').readStateConversation(
         id
       );
     return {};
@@ -239,7 +237,7 @@ export class IndexDataInstance {
   async createDiscussion(subject, content, participants) {
     await this.waitInit();
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteConversations.js`).createDiscussion(
+      return require('./PronoteData/PronoteConversations.js').createDiscussion(
         subject,
         content,
         participants
@@ -250,7 +248,7 @@ export class IndexDataInstance {
   async getRecipients() {
     await this.waitInit();
     if (this.service === 'Pronote')
-      return require(`./PronoteData/PronoteConversations.js`).getRecipients();
+      return require('./PronoteData/PronoteConversations.js').getRecipients();
     return [];
   }
 }

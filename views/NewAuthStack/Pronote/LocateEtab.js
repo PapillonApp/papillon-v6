@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, StatusBar, StyleSheet, TouchableOpacity, Image, TextInput, Alert, ScrollView, ActivityIndicator } from 'react-native';
-
-import { Text } from 'react-native-paper';
+import { StatusBar, StyleSheet, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, Platform } from 'react-native';
 
 import GetUIColors from '../../../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import * as Location from 'expo-location';
 
 import NativeList from '../../../components/NativeList';
 import NativeItem from '../../../components/NativeItem';
@@ -47,8 +43,7 @@ const LocateEtab = ({ navigation }) => {
           setResults(data);
           setIsLoading(false);
         })
-        .catch(error => {
-        });
+        .catch(() => void 0);
     }
     else {
       setResults([]);
@@ -66,10 +61,10 @@ const LocateEtab = ({ navigation }) => {
         barStyle={
           Platform.OS === 'ios' ?
             'light-content'
-          :
+            :
             UIColors.theme == 'light' ?
               'dark-content'
-            :
+              :
               'light-content'
         }
       />
@@ -155,12 +150,12 @@ const LocateEtab = ({ navigation }) => {
                   {result.departement.nom} ({result.departement.code})
                 </NativeText>
               </NativeItem>
-            )
+            );
           })}
         </NativeList>
       ) : null}
     </ScrollView>
-  )
+  );
 };
 
 const styles = StyleSheet.create({

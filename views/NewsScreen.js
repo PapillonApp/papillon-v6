@@ -7,14 +7,13 @@ import {
   StatusBar,
   RefreshControl,
   Platform,
-  ActivityIndicator,
   Dimensions,
   ScrollView,
-  Linking,
   Modal,
-  Button,
   TouchableOpacity,
 } from 'react-native';
+
+import { BlurView } from 'expo-blur';
 
 import moment from 'moment/moment';
 import 'moment/locale/fr';
@@ -25,15 +24,11 @@ import PdfRendererView from 'react-native-pdf-renderer';
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
 
-import { ContextMenuView } from 'react-native-ios-context-menu';
-
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Text, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 
-import { Newspaper, ChefHat, Projector, Users2, AlertTriangle, X, DownloadCloud, PieChart } from 'lucide-react-native';
-import { BarChart4, Link, File } from 'lucide-react-native';
-import ListItem from '../components/ListItem';
+import { Newspaper, ChefHat, Projector, Users2, AlertTriangle, X, PieChart, Link, File } from 'lucide-react-native';
 
 import PapillonLoading from '../components/PapillonLoading';
 
@@ -47,6 +42,19 @@ import NativeText from '../components/NativeText';
 import * as WebBrowser from 'expo-web-browser';
 import * as FileSystem from 'expo-file-system';
 
+const yOffset = new Animated.Value(0);
+
+const headerOpacity = yOffset.interpolate({
+  inputRange: [-75, -60],
+  outputRange: [0, 1],
+  extrapolate: 'clamp',
+});
+
+const scrollHandler = Animated.event(
+  [{ nativeEvent: { contentOffset: { y: yOffset } } }],
+  { useNativeDriver: false }
+);
+
 function relativeDate(date) {
   return moment(date).fromNow();
 }
@@ -55,6 +63,7 @@ function normalizeText(text) {
   if (text === undefined) {
     return '';
   }
+
 
   // remove accents and render in lowercase
   return text
@@ -108,9 +117,8 @@ function NewsScreen({ navigation }) {
 
   const [news, setNews] = useState([]);
   const [finalNews, setFinalNews] = useState([]);
-  // eslint-disable-next-line no-unused-vars
   const [showNews, setShowNews] = useState(true);
-  const [currentNewsType, setCurrentNewsType] = useState("Toutes");
+  const [currentNewsType, setCurrentNewsType] = useState('Toutes');
 
   function editNews(n) {
     let newNews = n;
@@ -162,19 +170,43 @@ function NewsScreen({ navigation }) {
           color="#B42828"
         />
       ) : 'Actualités',
+      headerTransparent: Platform.OS === 'ios' ? true : false,
       headerStyle: Platform.OS === 'android' ? {
         backgroundColor: UIColors.background,
         elevation: 0,
       } : undefined,
+      headerBackground: Platform.OS === 'ios' ? () => (
+        <Animated.View 
+          style={[
+            styles.header,
+            {
+              flex: 1,
+              backgroundColor: UIColors.element + '00',
+              opacity: headerOpacity,
+              borderBottomColor: theme.dark ? UIColors.text + '22' : UIColors.text + '55',
+              borderBottomWidth: 0.5,
+            }
+          ]}
+        >
+          <BlurView
+            tint={theme.dark ? 'dark' : 'light'}
+            intensity={120}
+            style={{
+              flex: 1,
+            }}
+          />
+        </Animated.View>
+      ) : undefined,
       headerSearchBarOptions: {
         placeholder: 'Rechercher une actualité',
         cancelButtonText: 'Annuler',
+        tintColor: '#B42828',
         onChangeText: (event) => {
           const text = event.nativeEvent.text.trim();
-
+    
           if (text.length > 2) {
             const newNews = [];
-
+    
             finalNews.forEach((item) => {
               if (
                 normalizeText(item.title).includes(normalizeText(text)) ||
@@ -183,17 +215,21 @@ function NewsScreen({ navigation }) {
                 newNews.push(item);
               }
             });
-
-            setCurrentNewsType("Toutes");
+    
+            setCurrentNewsType('Toutes');
             setNews(newNews);
           } else {
-            setCurrentNewsType("Toutes");
+            setCurrentNewsType('Toutes');
             setNews(finalNews);
           }
         },
       },
     });
-  }, [navigation, finalNews, isHeadLoading]);
+  }, [navigation, finalNews, isHeadLoading, UIColors]);
+
+
+
+
 
   const [newsTypes, setNewsTypes] = useState([
     {
@@ -265,128 +301,135 @@ function NewsScreen({ navigation }) {
   const [ modalURL , setModalURL ] = useState('');
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
-      contentInsetAdjustmentBehavior='automatic'
+    <>
+      <ScrollView
+        style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
+        contentInsetAdjustmentBehavior='automatic'
 
-      refreshControl={
-        <RefreshControl
-          refreshing={isHeadLoading}
-          onRefresh={onRefresh}
-        />
-      }
-    >
-      <StatusBar
-        animated
-        barStyle={
-          ! isModalOpen ?
-          theme.dark ? 'light-content' : 'dark-content'
-          : 'light-content'
-        }
-        backgroundColor="transparent"
-      />
-
-      {isLoading ? (
-        <PapillonLoading
-          title="Chargement des actualités..."
-          subtitle="Obtention des dernières actualités en cours"
-        />
-      ) : null}
-
-      <Modal
-        animationType="slide"
-        presentationStyle='pageSheet'
-        visible={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-      >
-        <SafeAreaView style={{ flex: 1, backgroundColor: theme.dark ? '#000000' : '#ffffff' }}>
-          <TouchableOpacity style={[styles.pdfClose, Platform.OS === 'android' ? { top: insets.top } : null]}
-            onPress={() => setIsModalOpen(false)}
-          >
-            <X
-              color='#ffffff'
-              style={styles.pdfCloseIcon}
-            />
-          </TouchableOpacity>
-
-          <PdfRendererView
-            style={{ flex: 1 }}
-            source={modalURL}
+        refreshControl={
+          <RefreshControl
+            refreshing={isHeadLoading}
+            onRefresh={onRefresh}
+            colors={[Platform.OS === 'android' ? UIColors.primary : null]}
           />
-        </SafeAreaView>
-      </Modal>
+        }
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+      >
+        <StatusBar
+          animated
+          barStyle={
+            isModalOpen ? 'light-content' :
+              theme.dark ? 'light-content' : 'dark-content'
+          }
+          backgroundColor="transparent"
+        />
 
-      { Platform.OS !== 'ios' ? (
-        <View style={{height: 16}} />
-      ) : null }
+        <Modal
+          animationType="slide"
+          presentationStyle='pageSheet'
+          visible={isModalOpen}
+          onRequestClose={() => setIsModalOpen(false)}
+        >
+          <SafeAreaView style={{ flex: 1, backgroundColor: theme.dark ? '#000000' : '#ffffff' }}>
+            <TouchableOpacity style={[styles.pdfClose, Platform.OS === 'android' ? { top: insets.top } : null]}
+              onPress={() => setIsModalOpen(false)}
+            >
+              <X
+                color='#ffffff'
+                style={styles.pdfCloseIcon}
+              />
+            </TouchableOpacity>
 
-      <NativeList inset>
-      {!isLoading && news.length !== 0 && (
-          (news.map((item, index) => {
-            return (
-              <View key={index}>
-                <NativeItem
-                  leading={
-                    <View style={{ paddingHorizontal: 2 }}>
-                      <FullNewsIcon title={item.title} survey={item.survey} />
-                    </View>
-                  }
-                  onPress={() => {
-                    navigation.navigate('NewsDetails', { news: item });
-                  }}
-                >
-                  <View
-                    style={[
-                      { gap: 2 },
-                    ]}
+            <PdfRendererView
+              style={{ flex: 1 }}
+              source={modalURL}
+            />
+          </SafeAreaView>
+        </Modal>
+
+        { Platform.OS !== 'ios' ? (
+          <View style={{height: 16}} />
+        ) : null }
+
+        <NativeList inset>
+          {!isLoading && news.length !== 0 ? (
+            (news.map((item, index) => {
+              return (
+                <View key={index}>
+                  <NativeItem
+                    leading={
+                      <View style={{ paddingHorizontal: 2 }}>
+                        <FullNewsIcon title={item.title} survey={item.survey} />
+                      </View>
+                    }
+                    onPress={() => {
+                      navigation.navigate('NewsDetails', { news: item });
+                    }}
                   >
                     <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: 7,
-                      }}
+                      style={[
+                        { gap: 2 },
+                      ]}
                     >
-                      {!item.read ? (
-                        <View
-                          style={{
-                            backgroundColor: '#B42828',
-                            borderRadius: 300,
-                            padding: 4,
-                            marginRight: 2,
-                            width: 9,
-                            height: 9,
-                          }}
-                        />
-                      ) : null}
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: 7,
+                        }}
+                      >
+                        {!item.read ? (
+                          <View
+                            style={{
+                              backgroundColor: '#B42828',
+                              borderRadius: 300,
+                              padding: 4,
+                              marginRight: 2,
+                              width: 9,
+                              height: 9,
+                            }}
+                          />
+                        ) : null}
 
-                      <NativeText heading="h4" numberOfLines={1}>
-                        {item.title}
+                        <NativeText heading="h4" numberOfLines={1}>
+                          {item.title}
+                        </NativeText>
+                      </View>
+
+                      <NativeText heading="p2" numberOfLines={2}>
+                        {normalizeContent(item.content)}
                       </NativeText>
-                    </View>
 
-                    <NativeText heading="p2" numberOfLines={2}>
-                      {normalizeContent(item.content)}
-                    </NativeText>
+                      <NativeText heading="subtitle2" numberOfLines={1} style={{ marginTop: 4 }}>
+                        {relativeDate(new Date(item.date))}
+                      </NativeText>
 
-                    <NativeText heading="subtitle2" numberOfLines={1} style={{ marginTop: 4 }}>
-                      {relativeDate(new Date(item.date))}
-                    </NativeText>
-
-                    { item.attachments.length !== 0 ? (
-                    <NativeText heading="subtitle2" numberOfLines={1} style={[styles.pj, {backgroundColor: UIColors.text + '22'}]}>
+                      { item.attachments.length !== 0 ? (
+                        <NativeText heading="subtitle2" numberOfLines={1} style={[styles.pj, {backgroundColor: UIColors.text + '22'}]}>
                       contient {item.attachments.length} pièce(s) jointe(s)
-                    </NativeText>
-                    ) : null }
-                  </View>
-                </NativeItem>
-              </View>
-            );
-          }))
-      )}
-      </NativeList>
+                        </NativeText>
+                      ) : null }
+                    </View>
+                  </NativeItem>
+                </View>
+              );
+            }))
+          ): !isLoading && news.length === 0 ? (
+            <PapillonLoading
+              icon={<Newspaper color={UIColors.text} />}
+              title="Aucune actualité"
+              subtitle="Aucune actualité n'a été trouvée"
+            />
+          ): <PapillonLoading
+            title="Chargement des actualités..."
+            subtitle="Obtention des dernières actualités en cours"
+          />
+          }
+        </NativeList>
 
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 }
 
@@ -395,59 +438,59 @@ function PapillonAttachment({ attachment, index, theme, openURL, setIsModalOpen,
   const [savedLocally, setSavedLocally] = useState(false);
 
   const formattedAttachmentName = attachment.name.replace(/ /g, '_');
-  const formattedFileExtension = attachment.url.split('.').pop().split(/\#|\?/)[0];
+  const formattedFileExtension = attachment.url.split('.').pop().split(/#|\?/)[0];
 
   const [fileURL, setFileURL] = useState(attachment.url);
 
   useEffect(() => {
     if (formattedFileExtension == 'pdf') {
-          FileSystem.getInfoAsync(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
-            if (e.exists) {
-              setDownloaded(true);
-              setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
-              setSavedLocally(true);
-            }
-            else {
-              FileSystem.downloadAsync(attachment.url, FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
-                setDownloaded(true);
-                setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
-                setSavedLocally(true);
-              });
-            }
-          });
+      FileSystem.getInfoAsync(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
+        if (e.exists) {
+          setDownloaded(true);
+          setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
+          setSavedLocally(true);
         }
         else {
-          setDownloaded(true);
+          FileSystem.downloadAsync(attachment.url, FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
+            setDownloaded(true);
+            setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
+            setSavedLocally(true);
+          });
         }
+      });
+    }
+    else {
+      setDownloaded(true);
+    }
   }, []);
 
   return (
-      <NativeItem
-        leading={
-          <View style={{ paddingHorizontal: 3.5 }}>
-            {attachment.type === 0 ? (
-              <Link size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
-            ) : (
-              <File size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
-            )}
-          </View>
+    <NativeItem
+      leading={
+        <View style={{ paddingHorizontal: 3.5 }}>
+          {attachment.type === 0 ? (
+            <Link size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
+          ) : (
+            <File size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
+          )}
+        </View>
+      }
+      chevron={true}
+      onPress={() => {
+        if (formattedFileExtension === 'pdf') {
+          setModalURL(fileURL);
+          setIsModalOpen(true);
         }
-        chevron={true}
-        onPress={() => {
-          if (formattedFileExtension === "pdf") {
-            setModalURL(fileURL);
-            setIsModalOpen(true);
-          }
-          else {
-            openURL(fileURL);
-          }
-        }}
-      >
-        <NativeText heading="p2" numberOfLines={1}>
-          {attachment.name}
-        </NativeText>
-      </NativeItem>
-  )
+        else {
+          openURL(fileURL);
+        }
+      }}
+    >
+      <NativeText heading="p2" numberOfLines={1}>
+        {attachment.name}
+      </NativeText>
+    </NativeItem>
+  );
 }
 
 const styles = StyleSheet.create({

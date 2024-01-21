@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { View, StatusBar, StyleSheet, TouchableOpacity, Image, TextInput, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import { View, StatusBar, StyleSheet, TouchableOpacity, Platform, TextInput, Alert, ScrollView, ActivityIndicator } from 'react-native';
 
 import { Text } from 'react-native-paper';
 
@@ -105,10 +105,10 @@ const LocateEtabList = ({ route, navigation }) => {
         barStyle={
           Platform.OS === 'ios' ?
             'light-content'
-          :
+            :
             UIColors.theme == 'light' ?
               'dark-content'
-            :
+              :
               'light-content'
         }
       />
@@ -145,7 +145,7 @@ const LocateEtabList = ({ route, navigation }) => {
                 if (text.length > 2) {
                   setResults({
                     results: finalResults.results.filter((result) => {
-                      return result.nom_etablissement.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ""));
+                      return result.nom_etablissement.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
                     })
                   });
                 }
@@ -220,7 +220,7 @@ const LocateEtabList = ({ route, navigation }) => {
                   {result.adresse_1}
                 </NativeText>
               </NativeItem>
-            )
+            );
           })}
         </NativeList>
       ) : null}
@@ -228,7 +228,7 @@ const LocateEtabList = ({ route, navigation }) => {
       <View style={{padding: 8}}/>
 
     </ScrollView>
-  )
+  );
 };
 
 const styles = StyleSheet.create({

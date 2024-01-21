@@ -120,7 +120,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "6.4.0"
+        versionName "6.5.1"
     }
 
     splits {

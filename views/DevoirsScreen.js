@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import * as React from 'react';
 import { useCallback, useState, useEffect, useRef } from 'react';
 import {
@@ -17,6 +16,8 @@ import {
 import { useTheme, Text } from 'react-native-paper';
 
 import { BlurView } from 'expo-blur';
+
+import CheckAnimated from '../interface/CheckAnimated';
 
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
@@ -77,11 +78,13 @@ function DevoirsScreen({ navigation }) {
   const theme = useTheme();
   const pagerRef = useRef(null);
   const insets = useSafeAreaInsets();
+  const UIColors = GetUIColors();
 
   const [today, setToday] = useState(new Date());
   const [currentIndex, setCurrentIndex] = useState(0);
   const [calendarDate, setCalendarDate] = useState(today);
   const [homeworks, setHomeworks] = useState({});
+  const [customHomeworks, setCustomHomeworks] = useState({});
   const todayRef = useRef(today);
   const homeworksRef = useRef(homeworks);
 
@@ -92,17 +95,19 @@ function DevoirsScreen({ navigation }) {
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       // The screen is focused
+      loadCustomHomeworks();
+
       AsyncStorage.getItem('homeworksUpdate').then((homeworksUpdate) => {
-        if (homeworksUpdate) {
+        if (homeworksUpdate && homeworksUpdate !== null) {
           // for each update
           const updates = JSON.parse(homeworksUpdate);
           const newHomeworks = homeworks;
 
           for (let i = 0; i < updates.length; i++) {
-            update = updates[i]
+            const update = updates[i];
 
             // if the date exists
-            let newUpdateDate = new Date(update.date).toLocaleDateString()
+            let newUpdateDate = new Date(update.date).toLocaleDateString();
             if (newHomeworks[newUpdateDate]) {
               // for each homework
               for (let j = 0; j < newHomeworks[newUpdateDate].length; j++) {
@@ -214,41 +219,41 @@ function DevoirsScreen({ navigation }) {
         elevation: 0,
       } : undefined,
       headerRight: () =>
-      <ContextMenuView
-            previewConfig={{
-              borderRadius: 10,
-            }}
-            menuConfig={{
-              borderRadius: 10,
-              menuTitle: calendarDate.toLocaleDateString('fr', {
-                weekday: 'long',
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric',
-              }),
-            }}
-            onPressMenuItem={({ nativeEvent }) => {
+        <ContextMenuView
+          previewConfig={{
+            borderRadius: 10,
+          }}
+          menuConfig={{
+            borderRadius: 10,
+            menuTitle: calendarDate.toLocaleDateString('fr', {
+              weekday: 'long',
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric',
+            }),
+          }}
+          onPressMenuItem={({ nativeEvent }) => {
               
-            }}
+          }}
+        >
+          <TouchableOpacity
+            style={[
+              styles.calendarDateContainer,
+              {
+                backgroundColor: '#29947A' + '20',
+              }
+            ]}
+            onPress={() => setCalendarModalOpen(true)}
           >
-            <TouchableOpacity
-              style={[
-                styles.calendarDateContainer,
-                {
-                  backgroundColor: "#29947A" + "20",
-                }
-              ]}
-              onPress={() => setCalendarModalOpen(true)}
-            >
-              <CalendarPapillonIcon stroke={"#29947A"} />
-              <Text style={[styles.calendarDateText, {color: "#29947A"}]}>
-                {new Date(calendarDate).toLocaleDateString('fr', {
-                  weekday: 'short',
-                  day: '2-digit',
-                  month: 'short',
-                })}
-              </Text>
-            </TouchableOpacity>
+            <CalendarPapillonIcon stroke={'#29947A'} />
+            <Text style={[styles.calendarDateText, {color: '#29947A'}]}>
+              {new Date(calendarDate).toLocaleDateString('fr', {
+                weekday: 'short',
+                day: '2-digit',
+                month: 'short',
+              })}
+            </Text>
+          </TouchableOpacity>
         </ContextMenuView>
       ,
     });
@@ -270,34 +275,20 @@ function DevoirsScreen({ navigation }) {
         hw = JSON.parse(customHomeworks);
       }
 
-      console.log('custom homeworks', hw);
+      let newCustomHomeworks = {};
 
       for (let i = 0; i < hw.length; i++) {
-        let oldHomeworks = homeworks;
-        let dt = new Date(hw[i].date).toLocaleDateString();
+        const hwPageDate = calcDate(new Date(hw[i].date), 0);
+        const usedDate = hwPageDate.toLocaleDateString();
 
-        if (oldHomeworks[dt]) {
-          // check if the homework is already in the list
-          for (let j = 0; j < oldHomeworks[dt].length; j++) {
-            if (oldHomeworks[dt][j].local_id === hw[i].local_id) {
-              if (oldHomeworks[dt][j] == hw[i]) {
-                continue;
-              }
-              else {
-                // remove the homework
-                oldHomeworks[dt].splice(j, 1);
-              }
-            }
-          }
-
-          oldHomeworks[dt].push(hw[i]);
-        }
-        else {
-          oldHomeworks[dt] = [hw[i]];
+        if (!newCustomHomeworks[usedDate]) {
+          newCustomHomeworks[usedDate] = [];
         }
 
-        setHomeworks(oldHomeworks);
+        newCustomHomeworks[usedDate].push(hw[i]);
       }
+
+      setCustomHomeworks(newCustomHomeworks);
     });
   };
 
@@ -311,13 +302,9 @@ function DevoirsScreen({ navigation }) {
       setHomeworks((prevHomeworks) => ({
         ...prevHomeworks,
         [newDate.toLocaleDateString()]: result || [],
-      }))
+      }));
     }
   };
-
-  useEffect(() => {
-    loadCustomHomeworks();
-  }, []);
 
   const handlePageChange = (page) => {
     const newDate = calcDate(todayRef.current, page);
@@ -335,7 +322,7 @@ function DevoirsScreen({ navigation }) {
     setHomeworks((prevHomeworks) => ({
       ...prevHomeworks,
       [newDate.toLocaleDateString()]: result || [],
-    }))
+    }));
 
     loadCustomHomeworks();
   };
@@ -344,8 +331,6 @@ function DevoirsScreen({ navigation }) {
     todayRef.current = today;
     homeworksRef.current = homeworks;
   }, [today, homeworks]);
-
-  const UIColors = GetUIColors();
 
   return (
     <View
@@ -426,7 +411,7 @@ function DevoirsScreen({ navigation }) {
                     backgroundColor: UIColors.dark ? '#00000066' : '#ffffff12',
                   }
                 ]}>
-                  <CalendarDays size={24} color={"#ffffff"} style={styles.modalTipIcon}/>
+                  <CalendarDays size={24} color={'#ffffff'} style={styles.modalTipIcon}/>
                   <View style={styles.modalTipData}>
                     <NativeText heading="subtitle3" style={{color: '#ffffff'}}>
                       Astuce
@@ -448,7 +433,7 @@ function DevoirsScreen({ navigation }) {
             </Animated.View>
 
             <TouchableOpacity style={styles.modalCloseButton} onPress={() => setCalendarModalOpen(false)}>
-                <X size={24} color={"#ffffff"} style={styles.modalCloseIcon}/>
+              <X size={24} color={'#ffffff'} style={styles.modalCloseIcon}/>
             </TouchableOpacity>
 
             <Animated.View 
@@ -477,7 +462,7 @@ function DevoirsScreen({ navigation }) {
                 style={[
                   styles.calendarModalView,
                   {
-                    backgroundColor: !UIColors.dark ? UIColors.background + "ff" : UIColors.background + "aa",
+                    backgroundColor: !UIColors.dark ? UIColors.background + 'ff' : UIColors.background + 'aa',
                   },
                 ]}
               >
@@ -514,7 +499,7 @@ function DevoirsScreen({ navigation }) {
         animated
         barStyle={
           browserOpen ? 'light-content' :
-          theme.dark ? 'light-content' : 'dark-content'
+            theme.dark ? 'light-content' : 'dark-content'
         }
         backgroundColor="transparent"
       />
@@ -547,7 +532,11 @@ function DevoirsScreen({ navigation }) {
               homeworks={
                 homeworks[calcDate(today, index).toLocaleDateString()] || []
               }
+              customHomeworks={
+                customHomeworks[calcDate(today, index).toLocaleDateString()] || []
+              }
               navigation={navigation}
+              today={today}
               theme={theme}
               forceRefresh={forceRefresh}
               openURL={openURL}
@@ -570,11 +559,13 @@ function DevoirsScreen({ navigation }) {
 
 function Hwpage({
   homeworks,
+  customHomeworks,
   navigation,
   theme,
   forceRefresh,
   openURL,
   UIColors,
+  today,
 }) {
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
@@ -599,7 +590,7 @@ function Hwpage({
         />
       }
     >
-      {homeworks.length === 0 || homeworks == undefined ? (
+      {(homeworks.length === 0 || homeworks == undefined) && customHomeworks.length === 0 ? (
         <PapillonLoading
           icon={<BookOpen size={26} color={UIColors.text} />}
           title="Aucun devoir"
@@ -616,6 +607,19 @@ function Hwpage({
             theme={theme}
             key={index}
             openURL={openURL}
+            today={today}
+            index={index}
+          />
+        ))}
+        {customHomeworks.map((homework, index) => (
+          <Hwitem
+            homework={homework}
+            navigation={navigation}
+            theme={theme}
+            key={index}
+            openURL={openURL}
+            today={today}
+            index={index}
           />
         ))}
       </View>
@@ -649,7 +653,7 @@ function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
   );
 }
 
-function Hwitem({ homework, theme, openURL, navigation }) {
+function Hwitem({ homework, theme, openURL, navigation, today, index }) {
   const [thisHwChecked, setThisHwChecked] = useState(homework.done);
   const [thisHwLoading, setThisHwLoading] = useState(false);
 
@@ -660,6 +664,31 @@ function Hwitem({ homework, theme, openURL, navigation }) {
   const appctx = useAppContext();
 
   const changeHwState = () => {
+    if (homework.custom) {
+      AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+        let hw = [];
+        if (customHomeworks) {
+          hw = JSON.parse(customHomeworks);
+        }
+
+        // find the homework
+        for (let i = 0; i < hw.length; i++) {
+          if (hw[i].local_id === homework.local_id) {
+            hw[i].done = !thisHwChecked;
+          }
+        }
+
+        setThisHwChecked(!thisHwChecked);
+        AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
+
+        setTimeout(() => {
+          setThisHwLoading(false);
+        }, 100);
+      });
+
+      return;
+    }
+    
     appctx.dataprovider
       .changeHomeworkState(!thisHwChecked, homework.date, homework.local_id)
       .then((result) => {
@@ -696,108 +725,152 @@ function Hwitem({ homework, theme, openURL, navigation }) {
           // sync with home page
           AsyncStorage.setItem('homeUpdated', 'true');
 
-        // get homework.date as 2023-01-01
-        const date = new Date(homework.date);
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1;
-        const day = date.getDate();
+          // get homework.date as 2023-01-01
+          const date = new Date(homework.date);
+          const year = date.getFullYear();
+          const month = date.getMonth() + 1;
+          const day = date.getDate();
 
-        // if tomorrow, update badge
-        let tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
+          // if tomorrow, update badge
+          let tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          tomorrow.setHours(0, 0, 0, 0);
 
-        let checked = thisHwChecked;
+          let checked = thisHwChecked;
 
-        // if this homework is for tomorrow
-        if (new Date(homework.date).getDate() === tomorrow.getDate()) {
-          AsyncStorage.getItem('badgesStorage').then((value) => {
-            let currentSyncBadges = JSON.parse(value);
+          // if this homework is for tomorrow
+          if (new Date(homework.date).getDate() === tomorrow.getDate()) {
+            AsyncStorage.getItem('badgesStorage').then((value) => {
+              let currentSyncBadges = JSON.parse(value);
 
-            if (currentSyncBadges === null) {
-              currentSyncBadges = {
-                homeworks: 0,
-              };
-            }
+              if (currentSyncBadges === null) {
+                currentSyncBadges = {
+                  homeworks: 0,
+                };
+              }
 
-            let newBadges = currentSyncBadges;
-            newBadges.homeworks = checked ? newBadges.homeworks + 1 : newBadges.homeworks - 1;
+              let newBadges = currentSyncBadges;
+              newBadges.homeworks = checked ? newBadges.homeworks + 1 : newBadges.homeworks - 1;
 
-            AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
-          });
+              AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
+            });
+          }
         }
-      }
-    });
+      });
   };
 
   const UIColors = GetUIColors();
 
+  // animation
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(0)).current;
+
+  // animate modal when visible changes
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.spring(translateY, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scale, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      })
+    ]).start();
+  }, []);
+
   if (!homework) return;
   return (
-    <NativeList
-      inset
-      style={
-        Platform.OS === 'ios' && {
-        marginBottom: -20,
-      }}
+    <Animated.View
+      style={[{
+        opacity,
+        transform: [
+          {
+            translateY: translateY.interpolate({
+              inputRange: [0, 1],
+              outputRange: [20, 0],
+            }),
+          },
+          {
+            scale: scale.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0.8, 1],
+            }),
+          },
+        ],
+      }]}
     >
-      <NativeItem
-        leading={
-          <HwCheckbox
+      <NativeList
+        inset
+        style={
+          Platform.OS === 'ios' && {
+            marginBottom: -20,
+          }}
+      >
+        <NativeItem
+          leading={
+            <CheckAnimated
               checked={thisHwChecked}
-              theme={theme}
-              UIColors={UIColors}
               loading={thisHwLoading}
               pressed={() => {
                 setThisHwLoading(true);
                 changeHwState();
               }}
-          />
-        }
-        onPress={() => {
-          navigation.navigate('Devoir', { homework: {
-            ...homework,
-            done: thisHwChecked,
-          } });
-        }}
-      >
-        <View style={[styles.hwItemHeader]}>
-          <View
-            style={[
-              styles.hwItemColor,
-              { backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color) },
-            ]}
-          />
-          <NativeText heading="subtitle1" style={{fontSize: 14}}>
-            {homework.subject.name.toUpperCase()}
-          </NativeText>
-        </View>
-        <NativeText>
-          {homework.description}
-        </NativeText>
-      </NativeItem>
-
-      {homework.files.map((file, index) => (
-        <NativeItem
-          key={index}
-          leading={
-            <File size={20} color={UIColors.text} style={{marginHorizontal: 3}} />
+            />
           }
           onPress={() => {
-            openURL(file.url);
+            navigation.navigate('Devoir', { homework: {
+              ...homework,
+              done: thisHwChecked,
+            } });
           }}
-          chevron
         >
-          <NativeText heading="h4">
-            {file.name}
-          </NativeText>
-          <NativeText heading="p2" numberOfLines={1}>
-            {file.url}
+          <View style={[styles.hwItemHeader]}>
+            <View
+              style={[
+                styles.hwItemColor,
+                { backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color) },
+              ]}
+            />
+            <NativeText numberOfLines={1} heading="subtitle1" style={{fontSize: 14, paddingRight: 10}}>
+              {homework.subject.name.toUpperCase()}
+            </NativeText>
+          </View>
+          <NativeText>
+            {homework.description.replace('\n', ' ')}
           </NativeText>
         </NativeItem>
-      ))}
-    </NativeList>
-  )
+
+        {homework.files.map((file, index) => (
+          <NativeItem
+            key={index}
+            leading={
+              <File size={20} color={UIColors.text} style={{marginHorizontal: 3}} />
+            }
+            onPress={() => {
+              openURL(file.url);
+            }}
+            chevron
+          >
+            <NativeText heading="h4">
+              {file.name}
+            </NativeText>
+            <NativeText heading="p2" numberOfLines={1}>
+              {file.url}
+            </NativeText>
+          </NativeItem>
+        ))}
+      </NativeList>
+    </Animated.View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -827,12 +900,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
 
-  calendarModalView: {
-    paddingHorizontal: 14,
-    paddingBottom: 18,
-    backgroundColor: '#ffffff12',
-  },
-
   modalCloseButton: {
     width: 40,
     height: 40,
@@ -860,6 +927,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderCurve: 'continuous',
   },
+
   calendarDateText: {
     fontSize: 16,
     fontWeight: 500,
@@ -897,16 +965,6 @@ const styles = StyleSheet.create({
   modalTipData: {
     flex: 1,
     paddingRight: 16,
-  },
-
-  container: {
-    flex: 1,
-  },
-  viewPager: {
-    flex: 1,
-  },
-  pageWrapper: {
-    flex: 1,
   },
 
   homeworksContainer: {
@@ -1017,14 +1075,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
 
-  calendarModalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    backgroundColor: '#00000099',
-    paddingHorizontal: 12,
-  },
-
   calendarModalView: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
@@ -1041,39 +1091,6 @@ const styles = StyleSheet.create({
       width: 0,
       height: 1,
     },
-  },
-
-  modalCloseButton: {
-    width: 40,
-    height: 40,
-
-    justifyContent: 'center',
-    alignItems: 'center',
-
-    alignSelf: 'flex-end',
-
-    backgroundColor: '#ffffff39',
-    borderRadius: 12,
-    borderCurve: 'continuous',
-    marginTop: -40,
-    marginBottom: 10,
-  },
-
-  calendarDateContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    opacity: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 10,
-    borderCurve: 'continuous',
-  },
-  calendarDateText: {
-    fontSize: 16,
-    fontWeight: 500,
-    fontFamily: 'Papillon-Medium',
   },
 
   addCoursefab: {
