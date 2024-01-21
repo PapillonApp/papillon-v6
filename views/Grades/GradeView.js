@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   ScrollView,
@@ -51,60 +52,10 @@ function GradeView({ route, navigation }) {
   const { grade, allGrades } = route.params;
   const UIColors = GetUIColors();
 
-  const [modalLoading, setModalLoading] = React.useState(false);
-  const [modalLoadingText, setModalLoadingText] = React.useState('');
+  const [modalLoading, setModalLoading] = useState(false);
+  const [modalLoadingText, setModalLoadingText] = useState('');
 
-  const [isShared , setIsShared] = React.useState(false);
-  
-  async function getName() {
-    var user = await appctx.dataprovider.getUser();
-    return user.name.split(' ').pop();
-  }
-
-  async function shareGrade(grade, color) {
-    setModalLoadingText('Génération du lien de partage...');
-    setModalLoading(true);
-
-    let newGrade = grade;
-    // requires YOURLS_SECRET in .env
-    let yourls_secret = Config.YOURLS_SECRET;
-
-    // replace ids with 0 
-    newGrade.subject.id = 0;
-    newGrade.id = 0;
-
-    newGrade.share = {
-      status: true,
-      name: await getName(),
-    };
-
-    // parse grade to JSON
-    let gradeJSON = JSON.stringify(newGrade);
-
-    // encode grade to base64
-    let gradeBase64 = Buffer.from(gradeJSON).toString('base64');
-
-    // create link
-    let link = `https://getpapillon.xyz/grade/${encodeURIComponent(gradeBase64)}`;
-    let shorten_link = link;
-
-    // shorten link
-    let response = await fetch(`https://r.getpapillon.xyz/yourls-api.php?signature=${yourls_secret}&action=shorturl&format=json&url=${encodeURIComponent(link)}`);
-    
-
-    let shortened = await response.json();
-    if (shortened.shorturl) {
-      shorten_link = shortened.shorturl;
-    }
-
-    setModalLoading(false);
-
-    // share shorten_link
-    ShareUI.share({
-      message: `${shorten_link}`,
-      title: 'Note partagée depuis l\'app Papillon',
-    });
-  }
+  const [isShared , setIsShared] = useState(false);
 
   let mainColor = '#888888';
   if (grade.background_color) {
@@ -116,19 +67,6 @@ function GradeView({ route, navigation }) {
     description = 'Aucune description';
   }
 
-  /*
-  // fix (temp) des notes
-  grade.grade.value.value = grade.grade.value.value / 20 * grade.grade.out_of.value;
-  grade.grade.max.value = grade.grade.max.value / 20 * grade.grade.out_of.value;
-  grade.grade.min.value = grade.grade.min.value / 20 * grade.grade.out_of.value;
-  grade.grade.average.value = grade.grade.average.value / 20 * grade.grade.out_of.value;
-
-  // correct class averages
-  grade.grade.average.value = (grade.grade.average.value / 20) * grade.grade.out_of.value;
-  grade.grade.max.value = (grade.grade.max.value / 20) * grade.grade.out_of.value;
-  grade.grade.min.value = (grade.grade.min.value / 20) * grade.grade.out_of.value;
-  */
-
   // change header title component
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -137,11 +75,6 @@ function GradeView({ route, navigation }) {
         backgroundColor: mainColor,
       },
       headerShadowVisible: false,
-      headerRight: () => (
-        <TouchableOpacity onPress={() => shareGrade(grade, mainColor)}>
-          <Share size={24} color="#fff" />
-        </TouchableOpacity>
-      ),
       headerLeft: () => (
         Platform.OS === 'ios' ? (
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iosBack}>
@@ -152,23 +85,15 @@ function GradeView({ route, navigation }) {
     });
   }, [navigation, grade]);
 
-  const formatDate = (dateString) => new Date(dateString).getTime();
-
-  const date = formatDate(grade.date);
-  const formattedGrades = allGrades.filter(grade => formatDate(grade.date) <= date);
-
-  const formattedValue = parseFloat(grade.grade.value.value).toFixed(2);
-  const [valueTop, valueBottom] = formattedValue.split('.');
-
-  const gradesListWithoutGrade = formattedGrades.filter(g => g.id !== grade.id);
-
-  const [average, setAverage] = React.useState(0);
-  const [averageWithoutGrade, setAverageWithoutGrade] = React.useState(0);
-  const [avgInfluence, setAvgInfluence] = React.useState(0);
-  const [avgPercentInfluence, setAvgPercentInfluence] = React.useState(0);
-  const [classAvg, setClassAvg] = React.useState(0);
-  const [classAvgWithoutGrade, setClassAvgWithoutGrade] = React.useState(0);
-  const [classAvgInfluence, setClassAvgInfluence] = React.useState(0);
+  const [average, setAverage] = useState(0);
+  const [averageWithoutGrade, setAverageWithoutGrade] = useState(0);
+  const [avgInfluence, setAvgInfluence] = useState(0);
+  const [avgPercentInfluence, setAvgPercentInfluence] = useState(0);
+  const [classAvg, setClassAvg] = useState(0);
+  const [classAvgWithoutGrade, setClassAvgWithoutGrade] = useState(0);
+  const [classAvgInfluence, setClassAvgInfluence] = useState(0);
+  const [valueTop, setValueTop] = useState(0);
+  const [valueBottom, setValueBottom] = useState(0);
 
   async function calculateInfluence(forgr, grlwg) {
     const naverage = await calculateSubjectAverage(forgr, 'value');
@@ -188,11 +113,22 @@ function GradeView({ route, navigation }) {
     setClassAvgInfluence(nclassAvgInfluence);
   }
 
-  React.useEffect(() => {
-    calculateInfluence(formattedGrades, gradesListWithoutGrade);
-  }, [formattedGrades, gradesListWithoutGrade]);
+  useEffect(() => {
+    const formatDate = (dateString) => new Date(dateString).getTime();
 
-  React.useEffect(() => {
+    const date = formatDate(grade.date);
+    const formattedGrades = allGrades.filter(grade => formatDate(grade.date) <= date);
+
+    const formattedValue = parseFloat(grade.grade.value.value).toFixed(2);
+    setValueTop(formattedValue.split('.')[0]);
+    setValueBottom(formattedValue.split('.')[1]);
+
+    const gradesListWithoutGrade = formattedGrades.filter(g => g.id !== grade.id);
+  
+    calculateInfluence(formattedGrades, gradesListWithoutGrade);
+  }, []);
+
+  useEffect(() => {
     if(grade.share && grade.share.status) {
       setIsShared(true);
     }
