@@ -20,12 +20,9 @@ const LocateEtabList = ({ route, navigation }) => {
   const [instances, setInstances] = React.useState<PronoteInstance[] | null>(null);
 
   const openInstance = (instance: PronoteInstance) => {
-    const school = {
-      nomEtab: instance.name,
-      url: instance.url,
-    };
+    console.log(instance);
 
-    navigation.navigate('NGPronoteLogin', { etab: school });
+    navigation.navigate('NGPronoteLogin', { instance: instance });
   };
 
   React.useLayoutEffect(() => {
@@ -148,8 +145,8 @@ const LocateEtabList = ({ route, navigation }) => {
                 <NativeText heading="h4">
                   {instance.name}
                 </NativeText>
-                <NativeText heading="subtitle2">
-                  À {(instance.distance / 1000).toFixed(2)}km de la localisation donnée.
+                <NativeText heading="p2">
+                  à {(instance.distance / 1000).toFixed(2)} km de {location.properties.name}
                 </NativeText>
               </NativeItem>
             );

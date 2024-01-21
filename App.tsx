@@ -68,6 +68,7 @@ import { AppContextProvider } from './utils/AppContext';
 import NotificationsScreen from './views/Settings/NotificationsScreen';
 
 import LoginView from './views/NewAuthStack/LoginView';
+import SelectService from './views/NewAuthStack/SelectService';
 import FindEtab from './views/NewAuthStack/Pronote/FindEtab';
 import LocateEtab from './views/NewAuthStack/Pronote/LocateEtab';
 
@@ -853,83 +854,6 @@ function Header(props) {
   );
 }
 
-function ModalPronoteLogin() {
-  return (
-    <Stack.Navigator
-      screenOptions={
-        Platform.OS === 'android'
-          ? {
-            navigationBarColor: '#00000000',
-            header: (props) => <Header {...props} />,
-            animation: 'fade_from_bottom',
-          }
-          : {
-            ...headerTitleStyles,
-            header: (props) => <Header {...props} />,
-            modalStatus: true,
-          }
-      }
-    >
-      <Stack.Screen
-        name="FindEtab"
-        component={FindEtab}
-        options={{
-          headerTitle: 'Connexion via PRONOTE',
-        }}
-      />
-      <Stack.Screen
-        name="LocateEtab"
-        component={LocateEtab}
-        options={{
-          headerTitle: 'Ville de l\'établissement',
-          headerBackTitle: 'Retour',
-        }}
-      />
-      <Stack.Screen
-        name="LocateEtabList"
-        component={LocateEtabList}
-        options={{
-          headerTitle: 'Établissements',
-          headerBackTitle: 'Ville',
-        }}
-      />
-      <Stack.Screen
-        name="LoginURL"
-        component={LoginURL}
-        options={{
-          headerTitle: 'Utiliser une URL',
-          headerBackTitle: 'Connexion',
-        }}
-      />
-      <Stack.Screen
-        name="NewPronoteQR"
-        component={ScanPronoteQR}
-        options={{
-          headerTitle: 'Scanner un QR-Code',
-          headerBackTitle: 'Retour',
-          headerTransparent: true,
-          headerForceDarkContent: true,
-        }}
-      />
-      <Stack.Screen
-        name="LoginPronoteQR"
-        component={InputPronoteQRPin}
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="NGPronoteLogin"
-        component={NGPronoteLogin}
-        options={{
-          headerTitle: 'Se connecter',
-          headerTransparent: true,
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
-
 function AppStack() {
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -1124,6 +1048,8 @@ function AppStack() {
 }
 
 function AuthStack() {
+  const UIColors = GetUIColors();
+
   return (
     <Stack.Navigator
       screenOptions={
@@ -1135,6 +1061,8 @@ function AuthStack() {
           }
           : {
             ...headerTitleStyles,
+            headerTintColor: UIColors.text,
+            headerBackTitleVisible: false,
           }
       }
     >
@@ -1147,11 +1075,70 @@ function AuthStack() {
       />
 
       <Stack.Screen
-        name="PronoteFindEtab"
-        component={ModalPronoteLogin}
+        name="SelectService"
+        component={SelectService}
+        options={{
+        }}
+      />
+
+      <Stack.Screen
+        name="FindEtab"
+        component={FindEtab}
+        options={{
+          headerTitle: 'Connexion via PRONOTE',
+        }}
+      />
+      <Stack.Screen
+        name="LocateEtab"
+        component={LocateEtab}
+        options={{
+          headerTitle: 'Ville de l\'établissement',
+          headerBackTitle: 'Retour',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="LocateEtabList"
+        component={LocateEtabList}
+        options={{
+          headerTitle: 'Établissements',
+          headerBackTitle: 'Ville',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="LoginURL"
+        component={LoginURL}
+        options={{
+          headerTitle: 'Utiliser une URL',
+          headerBackTitle: 'Connexion',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="NewPronoteQR"
+        component={ScanPronoteQR}
+        options={{
+          headerTitle: 'Scanner un QR-Code',
+          headerBackTitle: 'Retour',
+          headerTransparent: true,
+          headerTintColor: '#ffffff',
+        }}
+      />
+      <Stack.Screen
+        name="LoginPronoteQR"
+        component={InputPronoteQRPin}
         options={{
           presentation: 'modal',
-          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="NGPronoteLogin"
+        component={NGPronoteLogin}
+        options={{
+          headerTitle: 'Se connecter',
+          headerTransparent: true,
+          presentation: 'modal',
         }}
       />
 

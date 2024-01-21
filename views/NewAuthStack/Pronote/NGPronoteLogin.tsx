@@ -33,7 +33,8 @@ import { AsyncStoragePronoteKeys } from '../../../fetch/PronoteData/connector';
 type PronoteInstanceInformation = Awaited<ReturnType<typeof getPronoteInstanceInformation>>
 
 function NGPronoteLogin({ route, navigation }) {
-  const instanceURL: string = route.params.instanceURL;
+  const instance = route.params.instance;
+  const instanceURL = instance.url || '';
   
   const theme = useTheme();
 
@@ -50,8 +51,18 @@ function NGPronoteLogin({ route, navigation }) {
         setInstanceDetails(details);
       }
       catch {
-        setInstanceDetails(null);
-        setErrorAlert(true);
+        try {
+          const newInstanceURL = instanceURL.replace('index-education.net', 'pronote.toutatice.fr');
+          const details2 = await getPronoteInstanceInformation(defaultPawnoteFetcher, {
+            pronoteURL: newInstanceURL
+          });
+    
+          setInstanceDetails(details2);
+        }
+        catch {
+          setInstanceDetails(null);
+          setErrorAlert(true);
+        }
       }
     })();
   }, [instanceURL]);

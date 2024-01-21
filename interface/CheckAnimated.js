@@ -6,7 +6,7 @@ import { Check } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { set } from 'sync-storage';
 
-const CheckAnimated = ({ checked, pressed = () => {}, loading }) => {
+const CheckAnimated = ({ checked, pressed = () => {}, loading, backgroundColor }) => {
   const UIColors = GetUIColors();
   const [check, setCheck] = useState(checked);
   const [initialState, setInitialState] = useState(false);
@@ -140,7 +140,7 @@ const CheckAnimated = ({ checked, pressed = () => {}, loading }) => {
           styles.checkbox,
           {
             borderColor: !isLoading ? (check ? UIColors.primary : UIColors.border) : 'transparent',
-            backgroundColor: UIColors.element,
+            backgroundColor: backgroundColor ? backgroundColor : UIColors.element,
           }
         ]}
       >
