@@ -1,23 +1,31 @@
-// React Native code
-import * as React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, type ViewStyle } from 'react-native';
 
 import { Text } from 'react-native-paper';
 import GetUIColors from '../utils/GetUIColors';
 
-function PapillonList({ children, inset, title, style, grouped }) {
+interface Props {
+  children: React.ReactNode
+  inset?: boolean
+  title?: string
+  style?: ViewStyle
+  grouped?: boolean
+}
+
+const PapillonList: React.FC<Props> = ({ children, inset, title, style, grouped }) => {
   const UIColors = GetUIColors();
 
   return (
-    <View style={[styles.listGroup]}>
-      { title &&
-        <Text style={[styles.listTitle]}>{title}</Text>
-      }
+    <View style={styles.listGroup}>
+      {title && (
+        <Text style={styles.listTitle}>{title}</Text>
+      )}
+
       <View
         style={[
           styles.list,
           !grouped ? { backgroundColor: UIColors.element } : {gap: 12},
-          inset ? styles.inset : null,
+          inset ? styles.inset : void 0,
           style,
         ]}
       >
@@ -25,7 +33,7 @@ function PapillonList({ children, inset, title, style, grouped }) {
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   listGroup: {
