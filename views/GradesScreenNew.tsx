@@ -33,7 +33,7 @@ interface UIaverage {
   name: string,
   description: string,
   value: number,
-  icon: any,
+  icon: React.ReactElement,
 }
 
 export interface GradeSettings {
