@@ -1,5 +1,5 @@
 import React from 'react';
-import { Animated, ActivityIndicator, StatusBar, View, Dimensions, StyleSheet, Button, ScrollView, TouchableOpacity, RefreshControl, Easing, Platform } from 'react-native';
+import { Animated, ActivityIndicator, StatusBar, View, Dimensions, StyleSheet, Button, ScrollView, TouchableOpacity, RefreshControl, Easing, Platform, Pressable } from 'react-native';
 
 // Custom imports
 import GetUIColors from '../utils/GetUIColors';
@@ -10,6 +10,10 @@ import { SFSymbol } from 'react-native-sfsymbols';
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
+
+import { getSavedCourseColor } from '../utils/ColorCoursName';
+import getClosestGradeEmoji from '../utils/EmojiCoursName';
+import formatCoursName from '../utils/FormatCoursName';
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
@@ -22,6 +26,7 @@ import LineChart from 'react-native-simple-line-chart';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PressableScale } from 'react-native-pressable-scale';
 
 // Interfaces
 interface UIaverage {
@@ -56,9 +61,11 @@ const GradesScreen = ({ navigation }) => {
 
   // Data
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = React.useState<boolean>(false);
   const [periods, setPeriods] = React.useState<PapillonPeriod[]>([]);
   const [selectedPeriod, setSelectedPeriod] = React.useState<PapillonPeriod | null>(null);
   const [grades, setGrades] = React.useState([]);
+  const [latestGrades, setLatestGrades] = React.useState<PapillonGrades | null>(null);
   const [averages, setAverages] = React.useState<PapillonGradesViewAverages[]>({});
   const [averagesOverTime, setAveragesOverTime] = React.useState<PapillonAveragesOverTime[]>([]);
   const [classAveragesOverTime, setClassAveragesOverTime] = React.useState<PapillonAveragesOverTime[]>([]);
@@ -101,19 +108,16 @@ const GradesScreen = ({ navigation }) => {
     setUIaverage([
       {
         name: 'Moyenne groupe',
-        description: 'Moyenne de classe de chaque matière',
         value: averages.group || 0,
         icon: <Users2 color={UIColors.text} />,
       },
       {
         name: 'Moyenne max',
-        description: 'Moyenne la plus faible des matières',
         value: averages.max || 0,
         icon: <TrendingDown color={UIColors.text} />,
       },
       {
         name: 'Moyenne min',
-        description: 'Moyenne la plus élevée des matières',
         value: averages.min || 0,
         icon: <TrendingUp color={UIColors.text} />,
       },
@@ -222,7 +226,7 @@ const GradesScreen = ({ navigation }) => {
   }
 
   async function getGradesFromAPI (force = false, period = selectedPeriod): Promise<void> {
-    setIsLoading(true);
+    if(!force) setIsLoading(true);
 
     if (appContext.dataProvider && period) {
       const grades = await appContext.dataProvider.getGrades(period.name, force);
@@ -236,6 +240,7 @@ const GradesScreen = ({ navigation }) => {
     }
 
     setIsLoading(false);
+    setIsRefreshing(false);
   }
 
   async function addGradesToSubject(grades: PapillonGrades): Promise<void> {
@@ -260,6 +265,9 @@ const GradesScreen = ({ navigation }) => {
       if (subject) {
         subject.grades.push(grade);
       }
+
+      // add background_color to each grade
+      grade.background_color = subject?.color;
     });
 
     // sort grades by date
@@ -275,6 +283,16 @@ const GradesScreen = ({ navigation }) => {
     });
 
     setGrades(data);
+
+    // get 10 latest grades
+    let newGrades = [
+      ...grades.grades,
+    ];
+    newGrades.sort((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+    const latest = newGrades.slice(0, 10);
+    setLatestGrades(latest);
   }
 
   // Calculate averages over time
@@ -401,6 +419,9 @@ const GradesScreen = ({ navigation }) => {
             marginRight: 6,
           }}
         >
+          { isLoading && (
+            <ActivityIndicator />
+          )}
           <ContextMenuButton
             isMenuPrimaryAction={true}
             menuConfig={{
@@ -501,8 +522,9 @@ const GradesScreen = ({ navigation }) => {
         scrollEventThrottle={16}
         refreshControl={
           <RefreshControl
-            refreshing={isLoading}
+            refreshing={isRefreshing}
             onRefresh={() => {
+              setIsRefreshing(true);
               getPeriodsFromAPI().then((period) => {
                 getGradesFromAPI(true, period);
               });
@@ -511,6 +533,16 @@ const GradesScreen = ({ navigation }) => {
         }
       >
         <StatusBar animated barStyle={UIColors.dark ? 'light-content' : 'dark-content'} translucent={true} backgroundColor={UIColors.backgroundHigh} />
+
+        {grades.length === 0 && (
+          <NativeList inset>
+            <NativeItem>
+              <NativeText heading="p2">
+                Aucune note à afficher.
+              </NativeText>
+            </NativeItem>
+          </NativeList>
+        )}
 
         { averages.student && averages.student > 0 && (
           <GradesAverageHistory
@@ -523,18 +555,222 @@ const GradesScreen = ({ navigation }) => {
           />
         )}
 
+        { latestGrades && latestGrades.length > 0 && (
+          <LatestGradesList
+            isLoading={isLoading}
+            grades={latestGrades}
+            gradeSettings={gradeSettings}
+            navigation={navigation}
+          />
+        )}
+
         { Platform.OS === 'android' && (
           <View style={{ height: 16 }} />
         )}
 
-        <GradesAveragesList
-          isLoading={isLoading}
-          UIaverage={UIaverage}
+        { averages.student && averages.student > 0 && (
+          <GradesAveragesList
+            isLoading={isLoading}
+            UIaverage={UIaverage}
+            gradeSettings={gradeSettings}
+          />
+        )}
+
+        <GradesList
+          grades={grades}
           gradeSettings={gradeSettings}
+          navigation={navigation}
         />
       
       </ScrollView>
     </>
+  );
+};
+
+const LatestGradesList = ({ isLoading, grades, gradeSettings, navigation }) => {
+  const UIColors = GetUIColors();
+  console;
+
+  const showGrade = (grade) => {
+    navigation.navigate('Grade', {
+      grade,
+    });
+  };
+
+  return (
+    <NativeList
+      header="Dernières notes"
+      sectionProps={{
+        hideSurroundingSeparators: true,
+        headerTextStyle: {
+          marginLeft: 15,
+        },
+      }}
+      containerStyle={
+        Platform.OS !== 'ios' && { backgroundColor: 'transparent' }
+      }
+    >
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={[
+          subjectStyles.latestGradesList,
+        ]}
+      >
+        <View
+          style={[
+            {
+              flexDirection: 'row',
+              paddingHorizontal: 16,
+              gap: 16,
+            }
+          ]}
+        >
+          {grades.map((grade, index) => (
+            <PressableScale
+              weight="light"
+              activeScale={0.95}
+              onPress={() => showGrade(grade)}
+              key={index}
+              style={[
+                subjectStyles.smallGrade,
+                {
+                  backgroundColor: UIColors.element,
+                }
+              ]}
+            >
+              <View style={[subjectStyles.listItem, {
+                backgroundColor: getSavedCourseColor(grade.subject.name, grade.background_color),
+              }]}>
+                <View style={[subjectStyles.subjectInfoContainer, {
+                  paddingVertical: 5.5,
+                }]}>
+                  <NativeText style={subjectStyles.subjectEmoji}>
+                    {getClosestGradeEmoji(grade.subject.name)}
+                  </NativeText>
+                  <NativeText style={subjectStyles.subjectName} numberOfLines={1} ellipsizeMode="tail">
+                    {formatCoursName(grade.subject.name)}
+                  </NativeText>
+                </View>
+              </View>
+              <View style={subjectStyles.smallGradeData}>
+                <NativeText heading="h4">
+                  {grade.description || 'Aucune description'}
+                </NativeText>
+                <NativeText heading="p2">
+                  {new Date(grade.date).toLocaleDateString('fr-FR', { month: 'long', day: 'numeric', year: 'numeric' })}
+                </NativeText>
+
+                <View style={subjectStyles.smallGradeContainer}>
+                  <NativeText style={subjectStyles.smallGradeValue}>
+                    {((grade.grade.value.value / grade.grade.out_of.value) * gradeSettings.scale).toFixed(2)}
+                  </NativeText>
+                  <NativeText style={subjectStyles.smallGradeScale}>
+                    /{gradeSettings.scale.toFixed(0)}
+                  </NativeText>
+                </View>
+              </View>
+            </PressableScale>
+          ))}
+        </View>
+      </ScrollView>
+    </NativeList>
+  );
+};
+
+const GradesList = ({ grades, gradeSettings, navigation }) => {
+  const UIColors = GetUIColors();
+
+  const showGrade = (grade) => {
+    navigation.navigate('Grade', {
+      grade,
+    });
+  };
+
+  return (
+    <View style={subjectStyles.container}>
+      {grades.map((subject, index) => (
+        <NativeList
+          key={index}
+          inset
+          style={subjectStyles.listContainer}
+          header={formatCoursName(subject.subject.name)}
+        >
+          <Pressable style={[subjectStyles.listItem, {
+            backgroundColor: getSavedCourseColor(subject.subject.name, subject.color),
+          }]}>
+            <View style={subjectStyles.subjectInfoContainer}>
+              <NativeText style={subjectStyles.subjectName} numberOfLines={1} ellipsizeMode="tail">
+                {formatCoursName(subject.subject.name)}
+              </NativeText>
+            </View>
+
+            <View style={subjectStyles.gradeContainer}>
+              <NativeText style={subjectStyles.subjectGradeValue}>
+                {((subject.average.value / subject.out_of.value) * gradeSettings.scale).toFixed(2)}
+              </NativeText>
+              <NativeText style={subjectStyles.subjectGradeScale}>
+                /{gradeSettings.scale.toFixed(0)}
+              </NativeText>
+            </View>
+          </Pressable>
+
+          {subject.grades.map((grade, index) => (
+            <NativeItem
+              key={index}
+              style={subjectStyles.gradeItem}
+
+              onPress={() => showGrade(grade)}
+
+              leading={
+                <NativeText heading="h2" style={subjectStyles.gradeEmoji}>
+                  {getClosestGradeEmoji(subject.subject.name)}
+                </NativeText>
+              }
+
+              cellProps={{
+                contentContainerStyle: {
+                  paddingVertical: 2,
+                },
+              }}
+
+              trailing={
+                <View style={subjectStyles.inGradeContainer}>
+                  <View style={subjectStyles.gradeTextContainer}>
+                    <NativeText heading="p" style={subjectStyles.gradeValue}>
+                      {grade.grade.value.value.toFixed(2)}
+                    </NativeText>
+                    <NativeText heading="p" style={subjectStyles.gradeScale}>
+                        /{grade.grade.out_of.value.toFixed(0)}
+                    </NativeText>
+                  </View>
+                 
+
+                  { parseFloat(grade.grade.coefficient) !== 1 && (
+                    <NativeText heading="p" style={[subjectStyles.gradeCoef]}>
+                      Coeff. {grade.grade.coefficient}
+                    </NativeText>
+                  )}
+                </View>
+              }
+            >
+              <NativeText
+                heading="h4"
+                style={subjectStyles.gradeDescription}
+              >
+                {grade.description || 'Aucune description'}
+              </NativeText>
+              <NativeText
+                heading="p2"
+                style={subjectStyles.gradeDescription}
+              >
+                {new Date(grade.date).toLocaleDateString('fr-FR', { month: 'long', day: 'numeric', year: 'numeric' })}
+              </NativeText>
+            </NativeItem>
+          ))}
+        </NativeList>
+      ))}
+    </View>
   );
 };
 
@@ -619,24 +855,9 @@ const GradesAverageHistory = ({ isLoading, averages, chartLines, chartPoint, set
 };
 
 const GradesAveragesList = ({ isLoading, UIaverage, gradeSettings }) => {
-  // When loading
-  if (isLoading) return (
-    <NativeList inset>
-      <NativeItem
-        trailing={
-          <ActivityIndicator />
-        }
-      >
-        <NativeText heading="p2">
-          Chargement des moyennes...
-        </NativeText>
-      </NativeItem>
-    </NativeList>
-  );
-
   // if UIaverage is empty
-  if (UIaverage.length === 0) return (
-    <NativeList inset>
+  if (UIaverage.length === 0 && !isLoading) return (
+    <NativeList inset header="Moyennes">
       <NativeItem>
         <NativeText heading="p2">
           Aucune moyenne à afficher.
@@ -647,7 +868,7 @@ const GradesAveragesList = ({ isLoading, UIaverage, gradeSettings }) => {
 
   // When loaded
   return (
-    <NativeList inset>
+    <NativeList inset header="Moyennes">
       { UIaverage.map((item, index) => (
         <NativeItem
           key={index}
@@ -680,9 +901,18 @@ const GradesAveragesList = ({ isLoading, UIaverage, gradeSettings }) => {
             </View>
           }
         >
-          <NativeText heading="p2">
-            {item.name}
-          </NativeText>
+          { item.description && item.description.trim() !== '' ? (<>
+            <NativeText heading="h4">
+              {item.name}
+            </NativeText>
+            <NativeText heading="p2">
+              {item.description}
+            </NativeText>
+          </>) : (
+            <NativeText heading="p2">
+              {item.name}
+            </NativeText>
+          )}
         </NativeItem>
       ))}
     </NativeList>
@@ -799,6 +1029,127 @@ const styles = StyleSheet.create({
       }
     }
   }
+});
+
+const subjectStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  listItem: {
+    paddingHorizontal: 16,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  subjectInfoContainer: {
+    flex: 1,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  subjectEmoji: {
+    color: '#ffffff',
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 24,
+  },
+  subjectName: {
+    color: '#ffffff',
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 16,
+    flex: 1,
+  },
+  gradeContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 0,
+  },
+  subjectGradeValue: {
+    color: '#ffffff',
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 17,
+  },
+  subjectGradeScale: {
+    color: '#ffffff99',
+    fontFamily: 'Papillon-Medium',
+    fontSize: 15,
+  },
+  gradeItem: {
+    // Add any additional styling for the grade items here
+  },
+  gradeDescription: {
+    // Add any additional styling for the grade descriptions here
+  },
+
+  gradeEmoji: {
+    color: '#ffffff',
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 24,
+  },
+
+  inGradeContainer : {
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: 3,
+  },
+
+  gradeCoef: {
+    fontFamily: 'Papillon-Medium',
+    fontSize: 15,
+    opacity: 0.5,
+  },
+
+  gradeTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 0,
+  },
+  gradeValue: {
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 17,
+  },
+  gradeScale: {
+    fontFamily: 'Papillon-Medium',
+    fontSize: 15,
+    opacity: 0.5,
+  },
+
+  smallGrade: {
+    width: 200,
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+  },
+
+  smallGradeData: {
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    gap: 4,
+    flex: 1,
+
+    paddingBottom: 38,
+  },
+
+  smallGradeContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 0,
+    position: 'absolute',
+    bottom: 12,
+    left: 15,
+  },
+
+  smallGradeValue: {
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 20,
+  },
+
+  smallGradeScale: {
+    fontFamily: 'Papillon-Medium',
+    fontSize: 15,
+    opacity: 0.5,
+  },
 });
 
 export default GradesScreen;

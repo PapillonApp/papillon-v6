@@ -30,8 +30,6 @@ const NativeItem: React.FC<Props> = ({
 
   return (
     <Cell
-      {...cellProps}
-
       cellImageView={leading &&
         <View style={styles.cellImageView}>
           {leading}
@@ -59,7 +57,9 @@ const NativeItem: React.FC<Props> = ({
       }
 
       backgroundColor={!backgroundColor ? UIColors.element : backgroundColor}
-      onPress={() => onPress?.()}
+      onPress={onPress && onPress}
+
+      {...cellProps}
     />
   );
 };
