@@ -345,16 +345,16 @@ Statut : ${cours.status || 'Aucun'}
     });
   }, [navigation, calendarDate, UIColors]);
 
-  const setCalendarAndToday = (date) => {
+  const setCalendarAndToday = async (date) => {
     setCalendarDate(date);
     setToday(date);
     setCalendarDate(date);
     for (let i = -2; i <= 2; i++) {
-      updateCoursForDate(i, date);
+      await updateCoursForDate(i, date);
     }
   };
 
-  const appctx = useAppContext();
+  const appContext = useAppContext();
 
   const updateCoursForDate = async (dateOffset, setDate) => {
     const newDate = calcDate(setDate, dateOffset);
@@ -372,7 +372,7 @@ Statut : ${cours.status || 'Aucun'}
       }
 
       // fetch
-      const result = await appctx.dataProvider!.getTimetable(newDate);
+      const result = await appContext.dataProvider!.getTimetable(newDate);
       setCours((prevCours) => ({
         ...prevCours,
         [newDate.toLocaleDateString()]: result,
@@ -387,19 +387,19 @@ Statut : ${cours.status || 'Aucun'}
     }
   };
 
-  const handlePageChange = (page) => {
+  const handlePageChange = async (page: number) => {
     const newDate = calcDate(todayRef.current, page);
     setCurrentIndex(page);
     setCalendarDate(newDate);
 
     for (let i = -2; i <= 2; i++) {
-      updateCoursForDate(i, newDate);
+      await updateCoursForDate(i, newDate);
     }
   };
 
   const forceRefresh = async () => {
     const newDate = calcDate(calendarDate, 0);
-    const result = await appctx.dataprovider.getTimetable(newDate, true);
+    const result = await appContext.dataProvider.getTimetable(newDate, true);
 
     const newCours = cours;
     newCours[newDate.toLocaleDateString()] = result;
