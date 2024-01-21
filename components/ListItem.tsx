@@ -10,7 +10,7 @@ import {
 
 import { PressableScale } from 'react-native-pressable-scale';
 import { useTheme, Text } from 'react-native-paper';
-import Haptics from 'expo-haptics';
+import * as Haptics from 'expo-haptics';
 
 import { ChevronRight } from 'lucide-react-native';
 
