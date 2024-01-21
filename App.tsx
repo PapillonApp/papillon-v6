@@ -1053,17 +1053,11 @@ function AuthStack() {
   return (
     <Stack.Navigator
       screenOptions={
-        Platform.OS === 'android'
-          ? {
-            navigationBarColor: '#00000000', // transparent
-            header: (props) => <CustomNavigationBar {...props} />,
-            animation: 'fade_from_bottom',
-          }
-          : {
-            ...headerTitleStyles,
-            headerTintColor: UIColors.text,
-            headerBackTitleVisible: false,
-          }
+        {
+          ...headerTitleStyles,
+          headerTintColor: UIColors.text,
+          headerBackTitleVisible: false,
+        }
       }
     >
       <Stack.Screen

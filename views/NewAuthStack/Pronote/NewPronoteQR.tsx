@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useLayoutEffect} from 'react';
 import * as Haptics from 'expo-haptics';
 
 import { View, StatusBar, StyleSheet, Platform } from 'react-native';
@@ -35,14 +35,22 @@ const NewPronoteQR = ({ navigation }) => {
     navigation.navigate('LoginPronoteQR', { qrData });
   };
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTransparent: true,
+    });
+  }, [UIColors]);
+
   return (
     <View
       // @ts-expect-error : Not sure if this is typed ?
       contentInsetAdjustmentBehavior='automatic'
-      style={[styles.container, {backgroundColor: UIColors.modalBackground}]}
+      style={[styles.container, {backgroundColor: '#000000'}]}
     >
       <StatusBar
         animated
+        translucent={Platform.OS === 'android'}
+        backgroundColor='transparent'
         barStyle={
           Platform.OS === 'ios' ?
             'light-content'
@@ -67,7 +75,7 @@ const NewPronoteQR = ({ navigation }) => {
         }}
       />
 
-      <View style={{ height: insets.top + 44 }} />
+      <View style={{ height: insets.top + 44 + (Platform.OS === 'android' ? 10 : 0) }} />
 
       <NativeText style={styles.instructionsText}>
         Sur votre espace PRONOTE, sélectionnez le pictogramme en forme de QR-code sur le haut de la page juste a coté de votre nom.
@@ -78,7 +86,15 @@ const NewPronoteQR = ({ navigation }) => {
 
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScan}
-        style={StyleSheet.absoluteFillObject}
+        style={[{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
+          height: '100%',
+          transform: Platform.OS === 'android' ? [{ scale: 1.5 }] : [],
+        }]}
       />
     </View>
   );
