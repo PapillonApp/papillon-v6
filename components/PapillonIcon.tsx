@@ -14,6 +14,9 @@ interface Props {
   style?: ViewStyle
 }
 
+/**
+ * @see https://i.imgur.com/yQ2Fde5.png
+ */
 const PapillonIcon: React.FC<Props> = ({ icon, color, style, fill, small, plain }) => {
   let opacity = '10';
   if (fill) opacity = 'FF';

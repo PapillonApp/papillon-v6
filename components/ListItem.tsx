@@ -37,6 +37,9 @@ interface Props {
   bottom?: React.ReactElement
 }
 
+/**
+ * @see https://i.imgur.com/rshTN7n.png
+ */
 const ListItem: React.FC<Props> = ({
   title,
   subtitle,
