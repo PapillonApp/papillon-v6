@@ -31,6 +31,7 @@ import {
 
 import { useLayoutEffect } from 'react';
 import { PressableScale } from 'react-native-pressable-scale';
+import { getSavedCourseColor } from '../../utils/ColorCoursName';
 
 import formatCoursName from '../../utils/FormatCoursName';
 import GetUIColors from '../../utils/GetUIColors';
@@ -42,131 +43,15 @@ import NativeText from '../../components/NativeText';
 
 import { Buffer } from 'buffer';
 
-function calculateSubjectAverage(grades) {
-  // for each grade, calculate average for all
-  let student = 0;
-  let classAverage = 0;
-  let min = 0;
-  let max = 0;
-
-  let count = 0;
-  let out_of_total = 0;
-
-  let useless = 0;
-
-  for (let i = 0; i < grades.length; i++) {
-    if (grades[i].grade.significant !== 0 || grades[i].grade.value < 0 || grades[i].grade.coefficient === 0) {
-      useless += 1;
-    }
-    else {
-      student += grades[i].grade.value * grades[i].grade.coefficient;
-      classAverage += grades[i].grade.average * grades[i].grade.coefficient;
-      min += grades[i].grade.min * grades[i].grade.coefficient;
-      max += grades[i].grade.max * grades[i].grade.coefficient;
-
-      out_of_total += grades[i].grade.out_of * grades[i].grade.coefficient;
-    }
-  }
-
-  student = (student / out_of_total) * 20;
-  classAverage = (classAverage / out_of_total) * 20;
-  min = (min / out_of_total) * 20;
-  max = (max / out_of_total) * 20;
-
-  if (useless === grades.length) {
-    return {
-      average: -1,
-      class_average: -1,
-      min: -1,
-      max: -1,
-      out_of: 20,
-    };
-  }
-
-  return {
-    average: student,
-    class_average: classAverage,
-    min: min,
-    max: max,
-    out_of: 20,
-  };
-}
-function calculateExactGrades(grades, isClass) {
-  // step 1 : subject list
-  let subjects = [];
-  grades.forEach((grade) => {
-    const subjectIndex = subjects.findIndex((subject) => subject.name === grade.subject.name);
-    if (subjectIndex !== -1) {
-      subjects[subjectIndex].grades.push(grade);
-    } else {
-      subjects.push({
-        name: grade.subject.name,
-        subject: grade.subject,
-        grades: [grade],
-        averages: {
-          average: -1,
-          class_average: -1,
-          min: -1,
-          max: -1,
-          out_of: 20,
-        },
-      });
-    }
-  });
-
-  // calculate averages for each subject
-  subjects.forEach((subject) => {
-    subject.averages = calculateSubjectAverage(subject.grades);
-  });
-
-  // step 2 : calculate averages of all subjects
-  let student = 0;
-  let classAverage = 0;
-  let min = 0;
-  let max = 0;
-
-  let count = 0;
-
-  for (let i = 0; i < subjects.length; i++) {
-    if (subjects[i].averages.average === -1) {
-      // ignore
-    }
-    else {
-      student += subjects[i].averages.average;
-      classAverage += subjects[i].averages.class_average;
-      min += subjects[i].averages.min;
-      max += subjects[i].averages.max;
-
-      count += 1;
-    }
-  }
-
-  student = student / count;
-  classAverage = classAverage / count;
-  min = min / count;
-  max = max / count;
-
-  if (isNaN(student)) {
-    student = 0;
-  }
-  if (isNaN(classAverage)) {
-    classAverage = 0;
-  }
-  if (isNaN(min)) {
-    min = 0;
-  }
-  if (isNaN(max)) {
-    max = 0;
-  }
-
-  return isClass ? classAverage : student;
-}
+import {calculateAverage, calculateSubjectAverage} from '../../utils/grades/averages';
 
 function GradeView({ route, navigation }) {
   const appctx = useAppContext();
   const theme = useTheme();
   const { grade, allGrades } = route.params;
   const UIColors = GetUIColors();
+
+  console.log('allGrades', allGrades);
 
   const [modalLoading, setModalLoading] = React.useState(false);
   const [modalLoadingText, setModalLoadingText] = React.useState('');
@@ -226,8 +111,8 @@ function GradeView({ route, navigation }) {
   }
 
   let mainColor = '#888888';
-  if (grade.color) {
-    mainColor = grade.color;
+  if (grade.background_color) {
+    mainColor = getSavedCourseColor(grade.subject.name, grade.background_color);
   }
 
   let { description } = grade;
@@ -237,15 +122,15 @@ function GradeView({ route, navigation }) {
 
   /*
   // fix (temp) des notes
-  grade.grade.value = grade.grade.value / 20 * grade.grade.out_of;
-  grade.grade.max = grade.grade.max / 20 * grade.grade.out_of;
-  grade.grade.min = grade.grade.min / 20 * grade.grade.out_of;
-  grade.grade.average = grade.grade.average / 20 * grade.grade.out_of;
+  grade.grade.value.value = grade.grade.value.value / 20 * grade.grade.out_of.value;
+  grade.grade.max.value = grade.grade.max.value / 20 * grade.grade.out_of.value;
+  grade.grade.min.value = grade.grade.min.value / 20 * grade.grade.out_of.value;
+  grade.grade.average.value = grade.grade.average.value / 20 * grade.grade.out_of.value;
 
   // correct class averages
-  grade.grade.average = (grade.grade.average / 20) * grade.grade.out_of;
-  grade.grade.max = (grade.grade.max / 20) * grade.grade.out_of;
-  grade.grade.min = (grade.grade.min / 20) * grade.grade.out_of;
+  grade.grade.average.value = (grade.grade.average.value / 20) * grade.grade.out_of.value;
+  grade.grade.max.value = (grade.grade.max.value / 20) * grade.grade.out_of.value;
+  grade.grade.min.value = (grade.grade.min.value / 20) * grade.grade.out_of.value;
   */
 
   // change header title component
@@ -271,31 +156,45 @@ function GradeView({ route, navigation }) {
     });
   }, [navigation, grade]);
 
-  let date = new Date(grade.date);
-  let formattedGrades = allGrades.filter((grade) => {
-    return new Date(grade.date).getTime() <= date.getTime();
-  });
+  const formatDate = (dateString) => new Date(dateString).getTime();
 
-  const formattedValue = parseFloat(grade.grade.value).toFixed(2);
-  const valueTop = formattedValue.split('.')[0];
-  const valueBottom = formattedValue.split('.')[1];
+  const date = formatDate(grade.date);
+  const formattedGrades = allGrades.filter(grade => formatDate(grade.date) <= date);
 
-  let gradesListWithoutGrade = [];
-  for (let i = 0; i < formattedGrades.length; i++) {
-    if (formattedGrades[i].id !== grade.id) {
-      gradesListWithoutGrade.push(formattedGrades[i]);
-    }
+  const formattedValue = parseFloat(grade.grade.value.value).toFixed(2);
+  const [valueTop, valueBottom] = formattedValue.split('.');
+
+  const gradesListWithoutGrade = formattedGrades.filter(g => g.id !== grade.id);
+
+  const [average, setAverage] = React.useState(0);
+  const [averageWithoutGrade, setAverageWithoutGrade] = React.useState(0);
+  const [avgInfluence, setAvgInfluence] = React.useState(0);
+  const [avgPercentInfluence, setAvgPercentInfluence] = React.useState(0);
+  const [classAvg, setClassAvg] = React.useState(0);
+  const [classAvgWithoutGrade, setClassAvgWithoutGrade] = React.useState(0);
+  const [classAvgInfluence, setClassAvgInfluence] = React.useState(0);
+
+  async function calculateInfluence(forgr, grlwg) {
+    const naverage = await calculateSubjectAverage(forgr, 'value');
+    const naverageWithoutGrade = await calculateSubjectAverage(grlwg, 'value');
+    const navgInfluence = naverage - naverageWithoutGrade;
+    const navgPercentInfluence = (navgInfluence / naverage) * 100 || 0;
+    const nclassAvg = await calculateSubjectAverage(forgr, 'average');
+    const nclassAvgWithoutGrade = await calculateSubjectAverage(grlwg, 'average');
+    const nclassAvgInfluence = nclassAvg - nclassAvgWithoutGrade;
+
+    setAverage(naverage);
+    setAverageWithoutGrade(naverageWithoutGrade);
+    setAvgInfluence(navgInfluence);
+    setAvgPercentInfluence(navgPercentInfluence);
+    setClassAvg(nclassAvg);
+    setClassAvgWithoutGrade(nclassAvgWithoutGrade);
+    setClassAvgInfluence(nclassAvgInfluence);
   }
 
-  const average = calculateExactGrades(formattedGrades, false);
-  const averageWithoutGrade = calculateExactGrades(gradesListWithoutGrade, false);
-  const avgInfluence = average - averageWithoutGrade;
-
-  const avgPercentInfluence = (avgInfluence / average) * 100;
-
-  const classAvg = calculateExactGrades(formattedGrades, true);
-  const classAvgWithoutGrade = calculateExactGrades(gradesListWithoutGrade, true);
-  const classAvgInfluence = classAvg - classAvgWithoutGrade;
+  React.useEffect(() => {
+    calculateInfluence(formattedGrades, gradesListWithoutGrade);
+  }, [formattedGrades, gradesListWithoutGrade]);
 
   React.useEffect(() => {
     if(grade.share && grade.share.status) {
@@ -342,21 +241,21 @@ function GradeView({ route, navigation }) {
           </Text>
         </View>
         <View style={[styles.gradeHeaderGrade]}>
-          {grade.grade.significant === 0 ? (
+          {grade.grade.value.significant === false ? (
             <>
               <Text style={[styles.gradeHeaderGradeValueTop]}>{valueTop}</Text>
               <Text style={[styles.gradeHeaderGradeValueBottom]}>
                 .{valueBottom}
               </Text>
             </>
-          ) : grade.grade.significant === 3 ? (
-            <Text style={[styles.gradeHeaderGradeValueTop]}>Abs.</Text>
+          ) : grade.grade.value.significant === true ? (
+            <Text style={[styles.gradeHeaderGradeValueTop]}>N.not</Text>
           ) : (
             <Text style={[styles.gradeHeaderGradeValueTop]}>N.not</Text>
           )}
 
           <Text style={[styles.gradeHeaderGradeScale]}>
-            /{grade.grade.out_of}
+            /{grade.grade.out_of.value}
           </Text>
         </View>
       </View>
@@ -410,7 +309,7 @@ function GradeView({ route, navigation }) {
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
                   {parseFloat(
-                    (grade.grade.value / grade.grade.out_of) * 20
+                    (grade.grade.value.value / grade.grade.out_of.value) * 20
                   ).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>/20</Text>
@@ -434,10 +333,10 @@ function GradeView({ route, navigation }) {
             trailing={
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(grade.grade.average).toFixed(2)}
+                  {parseFloat(grade.grade.average.value).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>
-                  /{grade.grade.out_of}
+                  /{grade.grade.out_of.value}
                 </Text>
               </View>
             }
@@ -453,10 +352,10 @@ function GradeView({ route, navigation }) {
             trailing={
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(grade.grade.min).toFixed(2)}
+                  {parseFloat(grade.grade.min.value).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>
-                  /{grade.grade.out_of}
+                  /{grade.grade.out_of.value}
                 </Text>
               </View>
             }
@@ -472,10 +371,10 @@ function GradeView({ route, navigation }) {
             trailing={
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(grade.grade.max).toFixed(2)}
+                  {parseFloat(grade.grade.max.value).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>
-                  /{grade.grade.out_of}
+                  /{grade.grade.out_of.value}
                 </Text>
               </View>
             }
@@ -566,13 +465,13 @@ function GradeView({ route, navigation }) {
               <Diff color={UIColors.text} />
             }
             trailing={
-              (grade.grade.value - grade.grade.average).toFixed(2) > 0 ? (
+              (grade.grade.value.value - grade.grade.average.value).toFixed(2) > 0 ? (
                 <NativeText heading="h4" style={{ color: '#1AA989' }}>
-                  + {(grade.grade.value - grade.grade.average).toFixed(2)} pts
+                  + {(grade.grade.value.value - grade.grade.average.value).toFixed(2)} pts
                 </NativeText>
               ) : (
                 <NativeText heading="h4" style={{ color: '#D81313' }}>
-                  - {(grade.grade.value - grade.grade.average).toFixed(2) * -1} pts
+                  - {(grade.grade.value.value - grade.grade.average.value).toFixed(2) * -1} pts
                 </NativeText>
               )
             }
