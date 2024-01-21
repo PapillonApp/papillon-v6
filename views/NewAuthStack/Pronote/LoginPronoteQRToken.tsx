@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useLayoutEffect} from 'react';
 
 import {
   Platform,
@@ -24,6 +24,16 @@ function LoginPronoteQR({ route, navigation }) {
   const [code, setCode] = React.useState('');
   const [error, setError] = React.useState('');
   const [errPin, setErrPin] = React.useState(false);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: 'Connexion par QR code',
+      headerShadowVisible: true,
+      headerStyle: {
+        backgroundColor: UIColors.background,
+      },
+    });
+  }, [UIColors]);
 
   const appContext = useAppContext();
 
