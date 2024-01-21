@@ -36,7 +36,7 @@ interface UIaverage {
   icon: any,
 }
 
-export interface gradeSettings {
+export interface GradeSettings {
   scale: number,
   mode: string,
 }
@@ -80,7 +80,7 @@ const GradesScreen = ({ navigation }) => {
   const [openedSettings, setOpenedSettings] = React.useState<boolean>(true);
 
   // Constants
-  const [gradeSettings, setGradeSettings] = React.useState<gradeSettings[]>({
+  const [gradeSettings, setGradeSettings] = React.useState<GradeSettings[]>({
     scale: 20,
     mode: 'trimestre'
   });
