@@ -372,7 +372,7 @@ Statut : ${cours.status || 'Aucun'}
       }
 
       // fetch
-      const result = await appctx.dataprovider.getTimetable(newDate);
+      const result = await appctx.dataProvider!.getTimetable(newDate);
       setCours((prevCours) => ({
         ...prevCours,
         [newDate.toLocaleDateString()]: result,
