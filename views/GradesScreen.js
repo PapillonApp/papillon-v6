@@ -28,7 +28,7 @@ import LineChart from 'react-native-simple-line-chart';
 import Fade from 'react-native-fade';
 
 import { Stats } from '../interface/icons/PapillonIcons';
-import { User2, Users2, TrendingDown, TrendingUp, Info, AlertTriangle, FlaskConical, Plus, PlusCircle } from 'lucide-react-native';
+import { User2, BarChart3, Users2, TrendingDown, TrendingUp, Info, AlertTriangle, FlaskConical, Plus, PlusCircle } from 'lucide-react-native';
 
 import { useState } from 'react';
 import { PressableScale } from 'react-native-pressable-scale';
@@ -142,7 +142,7 @@ function GradesScreen({ navigation }) {
         min: -1,
         max: -1,
         out_of: 20,
-      }
+      };
     }
 
     return {
@@ -151,7 +151,7 @@ function GradesScreen({ navigation }) {
       min: min,
       max: max,
       out_of: 20,
-    }
+    };
   }
 
   function calculateExactGrades(grades) {
@@ -228,7 +228,7 @@ function GradesScreen({ navigation }) {
       min: min,
       max: max,
       out_of: 20,
-    }
+    };
   }
 
   // add button to header
@@ -274,13 +274,13 @@ function GradesScreen({ navigation }) {
             isMenuPrimaryAction={true}
             menuConfig={{
               menuTitle: 'Périodes',
-                menuItems: periodsList.map((period) => {
-                  return {
-                    actionKey: period.name,
-                    actionTitle: period.name,
-                    menuState : selectedPeriod?.name === period.name ? 'on' : 'off',
-                  }
-                }),
+              menuItems: periodsList.map((period) => {
+                return {
+                  actionKey: period.name,
+                  actionTitle: period.name,
+                  menuState : selectedPeriod?.name === period.name ? 'on' : 'off',
+                };
+              }),
             }}
             onPressMenuItem={({nativeEvent}) => {
               setSelectedPeriod(periodsList.find((period) => period.name === nativeEvent.actionKey));
@@ -296,14 +296,14 @@ function GradesScreen({ navigation }) {
               style={styles.periodButtonContainer}
             >
               <Text
-                style={[styles.periodButtonText, { color: "#A84700" }]}
+                style={[styles.periodButtonText, { color: '#A84700' }]}
               >
                 {selectedPeriod?.name || ''}
               </Text>
             </TouchableOpacity>
           </ContextMenuButton>
 
-            {/* <TouchableOpacity
+          {/* <TouchableOpacity
               style={[styles.addButtonContainer, {backgroundColor: "#A84700" + '22'}]}
               onPress={() => navigation.navigate('ModalGradesSimulator')}
             >
@@ -441,15 +441,16 @@ function GradesScreen({ navigation }) {
       customGrades.forEach((grade) => {
         hasSimulated = true;
 
-        newGrade = {
+        const newGrade = {
           ...grade,
           isSimulated: true,
-        }
+        };
 
         // check if grade is already in the list
         let index = gradesList.findIndex((item) => item.id === grade.id);
         
         if (index !== -1) {
+          // NOTE: Uh ?
         }
         else {
           gradesList.push(newGrade);
@@ -512,14 +513,14 @@ function GradesScreen({ navigation }) {
       classAverage: parseFloat(avgCalc.class_average).toFixed(2),
       minAverage: parseFloat(avgCalc.min).toFixed(2),
       maxAverage: parseFloat(avgCalc.max).toFixed(2),
-    }
+    };
     setAveragesData(avgNg);
   
     subjects.sort((a, b) => a.name.localeCompare(b.name));
   
     setSubjectsList(subjects);
 
-    latestGradesList = gradesList.sort((a, b) => new Date(b.date) - new Date(a.date));
+    const latestGradesList = gradesList.sort((a, b) => new Date(b.date) - new Date(a.date));
     setLatestGrades(latestGradesList.slice(0, 10));
 
     // for each last grade, calculate average
@@ -652,381 +653,379 @@ function GradesScreen({ navigation }) {
   const openSubject = (subject) => {
     setSelectedCourse(subject);
     setCourseModalVisible(true);
-  }
+  };
 
   return (
     <>
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
-      refreshControl={
-        <RefreshControl
-          refreshing={isHeadLoading}
-          onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? UIColors.primary : null]}
-        />
-      }
-      onScroll={scrollHandler}
-      scrollEventThrottle={16}
-    >
-      <StatusBar
-        animated
-        barStyle={
-          courseModalVisible ? 'light-content' :
-          theme.dark ? 'light-content' : 'dark-content'
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
+        refreshControl={
+          <RefreshControl
+            refreshing={isHeadLoading}
+            onRefresh={onRefresh}
+            colors={[Platform.OS === 'android' ? UIColors.primary : null]}
+          />
         }
-        backgroundColor="transparent"
-      />
-
-      <AlertBottomSheet
-        title={`${calculatedAvg ? 'Moyenne générale calculée' : 'Moyenne générale réelle'}`}
-        subtitle={calculatedAvg ? 
-          hasSimulatedGrades ?
-            `La moyenne affichée ici est une moyenne calculée à partir de vos notes réelles et de vos notes simulées.`
-          :
-            `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant votre moyenne de chaque matière.`
-          :
-            `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`}
-        icon={<Stats width={28} height={28} stroke="#29947a" />}
-        color='#29947a'
-        visible={moyReelleAlert}
-        cancelAction={() => {
-          setMoyReelleAlert(false);
-        }}
-      />
-
-      <Modal
-        animationType="slide"
-        visible={courseModalVisible}
-        onRequestClose={() => setCourseModalVisible(false)}
-        presentationStyle='pageSheet'
-        transparent
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
       >
-        <Pressable
-          style={{flex: 1}}
-          onPress={() => setCourseModalVisible(false)}
+        <StatusBar
+          animated
+          barStyle={
+            courseModalVisible ? 'light-content' :
+              theme.dark ? 'light-content' : 'dark-content'
+          }
+          backgroundColor="transparent"
         />
-        <View style={[styles.modalContainer, { backgroundColor: UIColors.background }]}>
-          {selectedCourse !== null && (
-            <View>
-              <View style={[styles.modalSubjectNameContainer, { backgroundColor: selectedCourse?.averages.color }]}>
-                <Text style={[styles.subjectName]} numberOfLines={1}>
-                  {formatCoursName(selectedCourse?.name)}
-                </Text>
-              </View>
+
+        <AlertBottomSheet
+          title={`${calculatedAvg ? 'Moyenne générale calculée' : 'Moyenne générale réelle'}`}
+          subtitle={calculatedAvg ? 
+            hasSimulatedGrades ?
+              'La moyenne affichée ici est une moyenne calculée à partir de vos notes réelles et de vos notes simulées.'
+              :
+              'Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant votre moyenne de chaque matière.'
+            :
+            `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.
+            
+Les notes affichées dans le graphique sont des estimations sachant que votre établissement ne donne pas accès à votre moyenne passée.`}
+          icon={<BarChart3 />}
+          color='#29947a'
+          visible={moyReelleAlert}
+          cancelAction={() => {
+            setMoyReelleAlert(false);
+          }}
+        />
+
+        <Modal
+          animationType="slide"
+          visible={courseModalVisible}
+          onRequestClose={() => setCourseModalVisible(false)}
+          presentationStyle='pageSheet'
+          transparent
+        >
+          <Pressable
+            style={{flex: 1}}
+            onPress={() => setCourseModalVisible(false)}
+          />
+          <View style={[styles.modalContainer, { backgroundColor: UIColors.background }]}>
+            {selectedCourse !== null && (
+              <View>
+                <View style={[styles.modalSubjectNameContainer, { backgroundColor: selectedCourse?.averages.color }]}>
+                  <Text style={[styles.subjectName]} numberOfLines={1}>
+                    {formatCoursName(selectedCourse?.name)}
+                  </Text>
+                </View>
 
             
-              <NativeList inset header="Moyennes de l'élève">
-                <NativeItem
-                  trailing={
-                    <View style={{flexDirection:'row', alignItems:'flex-end'}}>
-                      <NativeText heading="h3">
-                        {parseFloat(selectedCourse.averages.average).toFixed(2)}
-                      </NativeText>
-                      <NativeText heading="h4" style={{opacity: 0.5}}>
+                <NativeList inset header="Moyennes de l'élève">
+                  <NativeItem
+                    trailing={
+                      <View style={{flexDirection:'row', alignItems:'flex-end'}}>
+                        <NativeText heading="h3">
+                          {parseFloat(selectedCourse.averages.average).toFixed(2)}
+                        </NativeText>
+                        <NativeText heading="h4" style={{opacity: 0.5}}>
                         /{selectedCourse.averages.out_of}
-                      </NativeText>
-                    </View>
-                  }
-                >
-                  <NativeText heading="p2">
-                    Moyenne élève
-                  </NativeText>
-                </NativeItem>
-              </NativeList>
-
-              <NativeList inset header="Moyennes de la classe">
-                <NativeItem
-                  trailing={
-                    <View style={{flexDirection:'row', alignItems:'flex-end'}}>
-                      <NativeText heading="h3">
-                        {parseFloat(selectedCourse.averages.class_average).toFixed(2)}
-                      </NativeText>
-                      <NativeText heading="h4" style={{opacity: 0.5}}>
-                        /{selectedCourse.averages.out_of}
-                      </NativeText>
-                    </View>
-                  }
-                >
-                  <NativeText heading="p2">
-                    Moyenne de classe
-                  </NativeText>
-                </NativeItem>
-                <NativeItem
-                  trailing={
-                    <View style={{flexDirection:'row', alignItems:'flex-end'}}>
-                      <NativeText heading="h3">
-                        {parseFloat(selectedCourse.averages.min).toFixed(2)}
-                      </NativeText>
-                      <NativeText heading="h4" style={{opacity: 0.5}}>
-                        /{selectedCourse.averages.out_of}
-                      </NativeText>
-                    </View>
-                  }
-                >
-                  <NativeText heading="p2">
-                    Moyenne min.
-                  </NativeText>
-                </NativeItem>
-                <NativeItem
-                  trailing={
-                    <View style={{flexDirection:'row', alignItems:'flex-end'}}>
-                      <NativeText heading="h3">
-                        {parseFloat(selectedCourse.averages.max).toFixed(2)}
-                      </NativeText>
-                      <NativeText heading="h4" style={{opacity: 0.5}}>
-                        /{selectedCourse.averages.out_of}
-                      </NativeText>
-                    </View>
-                  }
-                >
-                  <NativeText heading="p2">
-                    Moyenne max.
-                  </NativeText>
-                </NativeItem>
-              </NativeList>
-            </View>
-          )}
-        </View>
-      </Modal>
-
-      {subjectsList.length === 0 && !isLoading ? (
-        <Text style={[styles.noGrades]}>Aucune note à afficher.</Text>
-      ) : null}
-
-      { subjectsList.length !== 0 && !isLoading && avgChartData.length > 0 && averagesData && (
-        <View 
-          style={[
-            styles.averageChart,
-            {
-              backgroundColor: UIColors.element,
-            }
-          ]}
-        >
-          <View style={[styles.averagesgrClassContainer]}>
-            <Text style={[styles.averagegrTitle]}>
-              Moyenne générale
-            </Text>
-
-            <TouchableOpacity 
-              style={[styles.averagegrTitleInfo]}
-              onPress={() => setMoyReelleAlert(true)}
-            >
-              <AlertTriangle size='20' color={UIColors.primary} />
-              <Text style={[styles.averagegrTitleInfoText, {color: UIColors.primary}]}>
-                {calculatedAvg ? 
-                  hasSimulatedGrades ? 'Simulée' : 'Estimation' 
-                : 'Moyenne réelle'}
-              </Text>
-            </TouchableOpacity>
-
-            <View style={[styles.averagegrValCont]}>
-              <Text style={[styles.averagegrValue]}>
-                {averagesData.studentAverage}
-              </Text>
-              <Text style={[styles.averagegrOof]}>
-                /20
-              </Text>
-            </View>
-          </View>
-
-          <LineChart
-            lines={[
-              {
-                data: avgChartData,
-                activePointConfig: {
-                  color: 'black',
-                  showVerticalLine: true,
-                },
-                lineColor: UIColors.primary,
-                curve: 'monotone',
-                endPointConfig: {
-                  color: UIColors.primary,
-                  radius: 8,
-                  animated: true,
-                },
-                lineWidth: 4,
-                activePointConfig: {
-                  color: UIColors.primary,
-                  borderColor: UIColors.element,
-                  radius: 7,
-                  borderWidth: 0,
-                  animated: true,
-                  showVerticalLine: true,
-                  verticalLineColor: UIColors.text,
-                  verticalLineDashArray: [5, 5],
-                  verticalLineOpacity: 0.5,
-                  verticalLineWidth: 2,
-                },
-                activePointComponent: (point) => {
-                  return (
-                    <View
-                      style={[
-                        {
-                          backgroundColor: UIColors.primary
-                        },
-                        styles.activePoint,
-                      ]}
-                    >
-                      <Text style={[styles.activePointDate, styles.grTextWh, {opacity: 0.5}]}>
-                        {new Date(point.x).toLocaleDateString('fr-FR', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                        })}
-                      </Text>
-
-                      <View style={[styles.averagegrValCont]}>
-                        <Text style={[styles.averagegrValue, styles.averagegrValueSm, styles.grTextWh]}>
-                          {point.y.toFixed(2)}
-                        </Text>
-                        <Text style={[styles.averagegrOof, styles.grTextWh]}>
-                          /20
-                        </Text>
+                        </NativeText>
                       </View>
-                    </View>
-                  );
-                },
+                    }
+                  >
+                    <NativeText heading="p2">
+                    Moyenne élève
+                    </NativeText>
+                  </NativeItem>
+                </NativeList>
+
+                <NativeList inset header="Moyennes de la classe">
+                  <NativeItem
+                    trailing={
+                      <View style={{flexDirection:'row', alignItems:'flex-end'}}>
+                        <NativeText heading="h3">
+                          {parseFloat(selectedCourse.averages.class_average).toFixed(2)}
+                        </NativeText>
+                        <NativeText heading="h4" style={{opacity: 0.5}}>
+                        /{selectedCourse.averages.out_of}
+                        </NativeText>
+                      </View>
+                    }
+                  >
+                    <NativeText heading="p2">
+                    Moyenne de classe
+                    </NativeText>
+                  </NativeItem>
+                  <NativeItem
+                    trailing={
+                      <View style={{flexDirection:'row', alignItems:'flex-end'}}>
+                        <NativeText heading="h3">
+                          {parseFloat(selectedCourse.averages.min).toFixed(2)}
+                        </NativeText>
+                        <NativeText heading="h4" style={{opacity: 0.5}}>
+                        /{selectedCourse.averages.out_of}
+                        </NativeText>
+                      </View>
+                    }
+                  >
+                    <NativeText heading="p2">
+                    Moyenne min.
+                    </NativeText>
+                  </NativeItem>
+                  <NativeItem
+                    trailing={
+                      <View style={{flexDirection:'row', alignItems:'flex-end'}}>
+                        <NativeText heading="h3">
+                          {parseFloat(selectedCourse.averages.max).toFixed(2)}
+                        </NativeText>
+                        <NativeText heading="h4" style={{opacity: 0.5}}>
+                        /{selectedCourse.averages.out_of}
+                        </NativeText>
+                      </View>
+                    }
+                  >
+                    <NativeText heading="p2">
+                    Moyenne max.
+                    </NativeText>
+                  </NativeItem>
+                </NativeList>
+              </View>
+            )}
+          </View>
+        </Modal>
+
+        {subjectsList.length === 0 && !isLoading ? (
+          <Text style={[styles.noGrades]}>Aucune note à afficher.</Text>
+        ) : null}
+
+        { subjectsList.length !== 0 && !isLoading && avgChartData.length > 0 && averagesData && (
+          <View 
+            style={[
+              styles.averageChart,
+              {
+                backgroundColor: UIColors.element,
               }
             ]}
-            height={100}
-            width={Dimensions.get('window').width - 28 - 14}
-            extraConfig={{
-              alwaysShowActivePoint: true,
-            }}
-          />
-        </View>
-      )}
-
-      {latestGrades.length > 0 ? (
-        <NativeList
-          header="Dernières notes"
-          sectionProps={{
-            hideSurroundingSeparators: true,
-            headerTextStyle: {
-              marginLeft: 15,
-            },
-          }}
-          containerStyle={
-            Platform.OS !== 'ios' && { backgroundColor: 'transparent' }
-          }
-        >
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={[
-              styles.latestGradesList,
-              Platform.OS !== 'ios' && {paddingHorizontal: 0}
-            ]}
           >
-            {latestGrades.map((grade, index) => (
-              <PressableScale
-                weight="light"
-                activeScale={0.89}
-                key={index}
-                style={[
-                  styles.smallGradeContainer,
-                  { backgroundColor: UIColors.element },
-                ]}
-                onPress={() => showGrade(grade)}
-              >
-                <View
-                  style={[
-                    styles.smallGradeSubjectContainer,
-                    { backgroundColor: grade.color },
-                  ]}
-                >
-                  <Text style={[styles.smallGradeEmoji]}>
-                    {getClosestGradeEmoji(grade.subject.name)}
-                  </Text>
-                  <Text
-                    style={[styles.smallGradeSubject]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {formatCoursName(grade.subject.name.split(' > ')[0])}
-                  </Text>
-                </View>
+            <View style={[styles.averagesgrClassContainer]}>
+              <Text style={[styles.averagegrTitle]}>
+              Moyenne générale
+              </Text>
 
-                <View style={[styles.smallGradeNameContainer]}>
-                  {grade.description ? (
+              <TouchableOpacity 
+                style={[styles.averagegrTitleInfo]}
+                onPress={() => setMoyReelleAlert(true)}
+              >
+                <AlertTriangle size='20' color={UIColors.primary} />
+                <Text style={[styles.averagegrTitleInfoText, {color: UIColors.primary}]}>
+                  {calculatedAvg ? 
+                    hasSimulatedGrades ? 'Simulée' : 'Estimation' 
+                    : 'Moyenne réelle'}
+                </Text>
+              </TouchableOpacity>
+
+              <View style={[styles.averagegrValCont]}>
+                <Text style={[styles.averagegrValue]}>
+                  {averagesData.studentAverage}
+                </Text>
+                <Text style={[styles.averagegrOof]}>
+                /20
+                </Text>
+              </View>
+            </View>
+
+            <LineChart
+              lines={[
+                {
+                  data: avgChartData,
+                  lineColor: UIColors.primary,
+                  curve: 'monotone',
+                  endPointConfig: {
+                    color: UIColors.primary,
+                    radius: 8,
+                    animated: true,
+                  },
+                  lineWidth: 4,
+                  activePointConfig: {
+                    color: UIColors.primary,
+                    borderColor: UIColors.element,
+                    radius: 7,
+                    borderWidth: 0,
+                    animated: true,
+                    showVerticalLine: true,
+                    verticalLineColor: UIColors.text,
+                    verticalLineDashArray: [5, 5],
+                    verticalLineOpacity: 0.5,
+                    verticalLineWidth: 2,
+                  },
+                  activePointComponent: (point) => {
+                    return (
+                      <View
+                        style={[
+                          {
+                            backgroundColor: UIColors.primary
+                          },
+                          styles.activePoint,
+                        ]}
+                      >
+                        <Text style={[styles.activePointDate, styles.grTextWh, {opacity: 0.5}]}>
+                          {new Date(point.x).toLocaleDateString('fr-FR', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                          })}
+                        </Text>
+
+                        <View style={[styles.averagegrValCont]}>
+                          <Text style={[styles.averagegrValue, styles.averagegrValueSm, styles.grTextWh]}>
+                            {point.y.toFixed(2)}
+                          </Text>
+                          <Text style={[styles.averagegrOof, styles.grTextWh]}>
+                          /20
+                          </Text>
+                        </View>
+                      </View>
+                    );
+                  },
+                }
+              ]}
+              height={100}
+              width={Dimensions.get('window').width - 28 - 14}
+              extraConfig={{
+                alwaysShowActivePoint: true,
+              }}
+            />
+          </View>
+        )}
+
+        {latestGrades.length > 0 ? (
+          <NativeList
+            header="Dernières notes"
+            sectionProps={{
+              hideSurroundingSeparators: true,
+              headerTextStyle: {
+                marginLeft: 15,
+              },
+            }}
+            containerStyle={
+              Platform.OS !== 'ios' && { backgroundColor: 'transparent' }
+            }
+          >
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={[
+                styles.latestGradesList,
+                Platform.OS !== 'ios' && {paddingHorizontal: 0}
+              ]}
+            >
+              {latestGrades.map((grade, index) => (
+                <PressableScale
+                  weight="light"
+                  activeScale={0.89}
+                  key={index}
+                  style={[
+                    styles.smallGradeContainer,
+                    { backgroundColor: UIColors.element },
+                  ]}
+                  onPress={() => showGrade(grade)}
+                >
+                  <View
+                    style={[
+                      styles.smallGradeSubjectContainer,
+                      { backgroundColor: grade.color },
+                    ]}
+                  >
+                    <Text style={[styles.smallGradeEmoji]}>
+                      {getClosestGradeEmoji(grade.subject.name)}
+                    </Text>
                     <Text
-                      style={[styles.smallGradeName]}
-                      numberOfLines={3}
+                      style={[styles.smallGradeSubject]}
+                      numberOfLines={1}
                       ellipsizeMode="tail"
                     >
-                      {grade.description}
+                      {formatCoursName(grade.subject.name.split(' > ')[0])}
                     </Text>
-                  ) : (
-                    <Text style={[styles.smallGradeName]}>
+                  </View>
+
+                  <View style={[styles.smallGradeNameContainer]}>
+                    {grade.description ? (
+                      <Text
+                        style={[styles.smallGradeName]}
+                        numberOfLines={3}
+                        ellipsizeMode="tail"
+                      >
+                        {grade.description}
+                      </Text>
+                    ) : (
+                      <Text style={[styles.smallGradeName]}>
                       Note en {formatCoursName(grade.subject.name)}
+                      </Text>
+                    )}
+
+                    <Text style={[styles.smallGradeDate]}>
+                      {new Date(grade.date).toLocaleDateString('fr-FR', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
                     </Text>
-                  )}
+                  </View>
 
-                  <Text style={[styles.smallGradeDate]}>
-                    {new Date(grade.date).toLocaleDateString('fr-FR', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </Text>
-                </View>
-
-                { grade.isSimulated && (
+                  { grade.isSimulated && (
                     <Text style={[styles.smallGradeSimulated, {color: grade.color, borderColor: grade.color}]}>
                       Simulée
                     </Text>
                   )}
 
-                <View style={[styles.smallGradeValueContainer]}>
-                  {grade.grade.significant === 0 ? (
-                    <Text style={[styles.smallGradeValue]}>
-                      {parseFloat(grade.grade.value).toFixed(2)}
-                    </Text>
-                  ) : grade.grade.significant === 3 ? (
-                    <Text style={[styles.smallGradeValue]}>Abs.</Text>
-                  ) : (
-                    <Text style={[styles.smallGradeValue]}>N.not</Text>
-                  )}
-                  <Text style={[styles.smallGradeOutOf]}>
+                  <View style={[styles.smallGradeValueContainer]}>
+                    {grade.grade.significant === 0 ? (
+                      <Text style={[styles.smallGradeValue]}>
+                        {parseFloat(grade.grade.value).toFixed(2)}
+                      </Text>
+                    ) : grade.grade.significant === 3 ? (
+                      <Text style={[styles.smallGradeValue]}>Abs.</Text>
+                    ) : (
+                      <Text style={[styles.smallGradeValue]}>N.not</Text>
+                    )}
+                    <Text style={[styles.smallGradeOutOf]}>
                     /{grade.grade.out_of}
-                  </Text>
+                    </Text>
+                  </View>
+                </PressableScale>
+              ))}
+            </ScrollView>
+          </NativeList>
+        ) : null}
+
+
+        {subjectsList.length > 0 ? (
+          <NativeList header="Moyennes" inset>
+            <NativeItem
+              leading={
+                <View style={{marginHorizontal: 4}}>
+                  <Users2 color={UIColors.text} />
                 </View>
-              </PressableScale>
-            ))}
-          </ScrollView>
-        </NativeList>
-      ) : null}
-
-
-      {subjectsList.length > 0 ? (
-        <NativeList header="Moyennes" inset>
-          <NativeItem
-            leading={
-              <View style={{marginHorizontal: 4}}>
-                <Users2 color={UIColors.text} />
+              }
+              trailing={
+                calculatedClassAvg ? (
+                  <TouchableOpacity
+                    onPress={() => setClasseReelleAlert(true)}
+                  >
+                    <AlertTriangle color={UIColors.primary} />
+                  </TouchableOpacity>
+                ): null}
+            >
+              <Text style={[styles.averageText]}>Moy. de classe</Text>
+              <View style={[styles.averageValueContainer]}>
+                <Text style={[styles.averageValue]}>
+                  {averagesData.classAverage}
+                </Text>
+                <Text style={[styles.averageValueOutOf]}>/20</Text>
               </View>
-            }
-            trailing={
-              calculatedClassAvg ? (
-              <TouchableOpacity
-                onPress={() => setClasseReelleAlert(true)}
-              >
-                <AlertTriangle color={UIColors.primary} />
-              </TouchableOpacity>
-            ): null}
-          >
-            <Text style={[styles.averageText]}>Moy. de classe</Text>
-            <View style={[styles.averageValueContainer]}>
-              <Text style={[styles.averageValue]}>
-                {averagesData.classAverage}
-              </Text>
-              <Text style={[styles.averageValueOutOf]}>/20</Text>
-            </View>
-          </NativeItem>
-          <AlertBottomSheet
+            </NativeItem>
+            <AlertBottomSheet
               title={calculatedClassAvg ? hasSimulatedGrades ? 'Moyenne de classe simulée' : 'Moyenne de classe calculée' : 'Moyenne de classe réelle'}
-              subtitle={calculatedClassAvg ? hasSimulatedGrades ? `La moyenne affichée ici est une moyenne calculée à partir des notes réelles et des notes simulées de la classe.` : `Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant la moyenne de chaque matière.` : `La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.`}
+              subtitle={calculatedClassAvg ? hasSimulatedGrades ? 'La moyenne affichée ici est une moyenne calculée à partir des notes réelles et des notes simulées de la classe.' : 'Votre établissement ne donne pas accès à la moyenne de classe. La moyenne de classe est donc calculée en prenant la moyenne de chaque matière.' : 'La moyenne affichée ici est celle enregistrée à ce jour par votre établissement scolaire.'}
               icon={<Users2/>}
               visible={moyClasseReelleAlert}
               cancelButton='Compris !'
@@ -1034,113 +1033,113 @@ function GradesScreen({ navigation }) {
                 setClasseReelleAlert(false);
               }}
             />
-          <NativeItem
-            leading={
-              <View style={{marginHorizontal: 4}}>
-                <TrendingDown color={UIColors.text} />
+            <NativeItem
+              leading={
+                <View style={{marginHorizontal: 4}}>
+                  <TrendingDown color={UIColors.text} />
+                </View>
+              }
+              trailing={
+                <TouchableOpacity
+                  onPress={() => setClasseBasseAlert(true)}
+                >
+                  <Info color={UIColors.text + '22'} />
+                </TouchableOpacity>
+              }
+            >
+              <AlertBottomSheet
+                title={'Moyenne la plus faible'}
+                subtitle={'La moyenne la plus faible est calculée en prenant la moyenne la plus basse de chaque matière.\n\nIl s\'agit uniquement d\'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n\'est pas représentative d\'une réelle moyenne.'}
+                icon={<TrendingDown />}
+                color='#29947a'
+                visible={moyClasseBasseAlert}
+                cancelButton='Compris !'
+                cancelAction={() => {
+                  setClasseBasseAlert(false);
+                }}
+              />
+              <Text style={[styles.averageText]}>Moy. la plus faible</Text>
+              <View style={[styles.averageValueContainer]}>
+                <Text style={[styles.averageValue]}>
+                  {averagesData.minAverage}
+                </Text>
+                <Text style={[styles.averageValueOutOf]}>/20</Text>
               </View>
-            }
-            trailing={
-              <TouchableOpacity
-                onPress={() => setClasseBasseAlert(true)}
-              >
-                <Info color={UIColors.text + '22'} />
-              </TouchableOpacity>
-            }
-          >
-            <AlertBottomSheet
-              title={'Moyenne la plus faible'}
-              subtitle={`La moyenne la plus faible est calculée en prenant la moyenne la plus basse de chaque matière.\n\nIl s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`}
-              icon={<TrendingDown width={28} height={28} stroke="#29947a" />}
-              color='#29947a'
-              visible={moyClasseBasseAlert}
-              cancelButton='Compris !'
-              cancelAction={() => {
-                setClasseBasseAlert(false);
-              }}
-            />
-            <Text style={[styles.averageText]}>Moy. la plus faible</Text>
-            <View style={[styles.averageValueContainer]}>
-              <Text style={[styles.averageValue]}>
-                {averagesData.minAverage}
-              </Text>
-              <Text style={[styles.averageValueOutOf]}>/20</Text>
-            </View>
-          </NativeItem>
-          <NativeItem
-            leading={
-              <View style={{marginHorizontal: 4}}>
-                <TrendingUp color={UIColors.text} />
+            </NativeItem>
+            <NativeItem
+              leading={
+                <View style={{marginHorizontal: 4}}>
+                  <TrendingUp color={UIColors.text} />
+                </View>
+              }
+              trailing={
+                <TouchableOpacity
+                  onPress={() => setClasseHauteAlert(true)}
+                >
+                  <Info color={UIColors.text + '22'} />
+                </TouchableOpacity>
+              }
+            >
+              <AlertBottomSheet
+                title={'Moyenne la plus élevée'}
+                subtitle={'La moyenne la plus élevée est calculée en prenant la moyenne la plus élevée de chaque matière.\n\nIl s\'agit uniquement d\'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n\'est pas représentative d\'une réelle moyenne.'}
+                icon={<TrendingUp />}
+                color='#29947a'
+                visible={moyClasseHauteAlert}
+                cancelButton='Compris !'
+                cancelAction={() => {
+                  setClasseHauteAlert(false);
+                }}
+              />
+              <Text style={[styles.averageText]}>Moy. la plus élevée</Text>
+              <View style={[styles.averageValueContainer]}>
+                <Text style={[styles.averageValue]}>
+                  {averagesData.maxAverage}
+                </Text>
+                <Text style={[styles.averageValueOutOf]}>/20</Text>
               </View>
-            }
-            trailing={
-              <TouchableOpacity
-                onPress={() => setClasseHauteAlert(true)}
-              >
-                <Info color={UIColors.text + '22'} />
-              </TouchableOpacity>
-            }
-          >
-            <AlertBottomSheet
-              title={'Moyenne la plus élevée'}
-              subtitle={`La moyenne la plus élevée est calculée en prenant la moyenne la plus élevée de chaque matière.\n\nIl s'agit uniquement d'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n'est pas représentative d'une réelle moyenne.`}
-              icon={<TrendingUp width={28} height={28} stroke="#29947a" />}
-              color='#29947a'
-              visible={moyClasseHauteAlert}
-              cancelButton='Compris !'
-              cancelAction={() => {
-                setClasseHauteAlert(false);
-              }}
-            />
-            <Text style={[styles.averageText]}>Moy. la plus élevée</Text>
-            <View style={[styles.averageValueContainer]}>
-              <Text style={[styles.averageValue]}>
-                {averagesData.maxAverage}
-              </Text>
-              <Text style={[styles.averageValueOutOf]}>/20</Text>
-            </View>
-          </NativeItem>
-        </NativeList>
-      ) : null}
+            </NativeItem>
+          </NativeList>
+        ) : null}
 
       
 
-      {subjectsList.length > 0 ? (
-        <View>
-          {subjectsList.map((subject, index) => (
-            <NativeList
-              key={index}
-              inset
-              header={subject.parsedName.sub ? `${subject.parsedName.name} (${subject.parsedName.sub})` : `${subject.parsedName.name}`}
-            >
-              <Pressable
-                style={[
-                  styles.subjectNameContainer,
-                  { backgroundColor: subject.averages.color },
-                ]}
-                onPress={() => openSubject(subject)}
+        {subjectsList.length > 0 ? (
+          <View>
+            {subjectsList.map((subject, index) => (
+              <NativeList
+                key={index}
+                inset
+                header={subject.parsedName.sub ? `${subject.parsedName.name} (${subject.parsedName.sub})` : `${subject.parsedName.name}`}
               >
-                <View style={[styles.subjectNameGroup]}>
-                  <Text style={[styles.subjectName]} numberOfLines={1}>
-                    {formatCoursName(subject.parsedName.name)}
-                  </Text>
-                  { subject.parsedName.sub && (
-                    <Text style={[styles.subjectSub]} numberOfLines={1}>
-                      {formatCoursName(subject.parsedName.sub)}
+                <Pressable
+                  style={[
+                    styles.subjectNameContainer,
+                    { backgroundColor: subject.averages.color },
+                  ]}
+                  onPress={() => openSubject(subject)}
+                >
+                  <View style={[styles.subjectNameGroup]}>
+                    <Text style={[styles.subjectName]} numberOfLines={1}>
+                      {formatCoursName(subject.parsedName.name)}
                     </Text>
-                  )}
-                </View>
-                <View style={[styles.subjectAverageContainer]}>
-                  <Text style={[styles.subjectAverage]}>
-                    {
-                      subject.averages.average !== -1 ? parseFloat(subject.averages.average).toFixed(2) : "Inconnu"
-                    }
-                  </Text>
-                  <Text style={[styles.subjectAverageOutOf]}>
+                    { subject.parsedName.sub && (
+                      <Text style={[styles.subjectSub]} numberOfLines={1}>
+                        {formatCoursName(subject.parsedName.sub)}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={[styles.subjectAverageContainer]}>
+                    <Text style={[styles.subjectAverage]}>
+                      {
+                        subject.averages.average !== -1 ? parseFloat(subject.averages.average).toFixed(2) : 'Inconnu'
+                      }
+                    </Text>
+                    <Text style={[styles.subjectAverageOutOf]}>
                     /{subject.averages.out_of}
-                  </Text>
-                </View>
-              </Pressable>
+                    </Text>
+                  </View>
+                </Pressable>
                 {subject.grades.map((grade, i) => (
                   <NativeItem
                     key={i}
@@ -1217,11 +1216,11 @@ function GradesScreen({ navigation }) {
                     </View>
                   </NativeItem>
                 ))}
-            </NativeList>
-          ))}
-        </View>
-      ) : null}
-    </ScrollView>
+              </NativeList>
+            ))}
+          </View>
+        ) : null}
+      </ScrollView>
     </>
   );
 }
@@ -1545,7 +1544,6 @@ const styles = StyleSheet.create({
   },
 
   averageChart: {
-    borderRadius: 0,
     marginHorizontal: 14,
     marginBottom: 14,
     paddingHorizontal: 0,

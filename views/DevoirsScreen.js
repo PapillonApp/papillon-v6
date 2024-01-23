@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import * as React from 'react';
 import { useCallback, useState, useEffect, useRef } from 'react';
 import {
@@ -17,6 +16,8 @@ import {
 import { useTheme, Text } from 'react-native-paper';
 
 import { BlurView } from 'expo-blur';
+
+import CheckAnimated from '../interface/CheckAnimated';
 
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
@@ -103,10 +104,10 @@ function DevoirsScreen({ navigation }) {
           const newHomeworks = homeworks;
 
           for (let i = 0; i < updates.length; i++) {
-            update = updates[i]
+            const update = updates[i];
 
             // if the date exists
-            let newUpdateDate = new Date(update.date).toLocaleDateString()
+            let newUpdateDate = new Date(update.date).toLocaleDateString();
             if (newHomeworks[newUpdateDate]) {
               // for each homework
               for (let j = 0; j < newHomeworks[newUpdateDate].length; j++) {
@@ -218,41 +219,41 @@ function DevoirsScreen({ navigation }) {
         elevation: 0,
       } : undefined,
       headerRight: () =>
-      <ContextMenuView
-            previewConfig={{
-              borderRadius: 10,
-            }}
-            menuConfig={{
-              borderRadius: 10,
-              menuTitle: calendarDate.toLocaleDateString('fr', {
-                weekday: 'long',
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric',
-              }),
-            }}
-            onPressMenuItem={({ nativeEvent }) => {
+        <ContextMenuView
+          previewConfig={{
+            borderRadius: 10,
+          }}
+          menuConfig={{
+            borderRadius: 10,
+            menuTitle: calendarDate.toLocaleDateString('fr', {
+              weekday: 'long',
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric',
+            }),
+          }}
+          onPressMenuItem={({ nativeEvent }) => {
               
-            }}
+          }}
+        >
+          <TouchableOpacity
+            style={[
+              styles.calendarDateContainer,
+              {
+                backgroundColor: '#29947A' + '20',
+              }
+            ]}
+            onPress={() => setCalendarModalOpen(true)}
           >
-            <TouchableOpacity
-              style={[
-                styles.calendarDateContainer,
-                {
-                  backgroundColor: "#29947A" + "20",
-                }
-              ]}
-              onPress={() => setCalendarModalOpen(true)}
-            >
-              <CalendarPapillonIcon stroke={"#29947A"} />
-              <Text style={[styles.calendarDateText, {color: "#29947A"}]}>
-                {new Date(calendarDate).toLocaleDateString('fr', {
-                  weekday: 'short',
-                  day: '2-digit',
-                  month: 'short',
-                })}
-              </Text>
-            </TouchableOpacity>
+            <CalendarPapillonIcon stroke={'#29947A'} />
+            <Text style={[styles.calendarDateText, {color: '#29947A'}]}>
+              {new Date(calendarDate).toLocaleDateString('fr', {
+                weekday: 'short',
+                day: '2-digit',
+                month: 'short',
+              })}
+            </Text>
+          </TouchableOpacity>
         </ContextMenuView>
       ,
     });
@@ -301,7 +302,7 @@ function DevoirsScreen({ navigation }) {
       setHomeworks((prevHomeworks) => ({
         ...prevHomeworks,
         [newDate.toLocaleDateString()]: result || [],
-      }))
+      }));
     }
   };
 
@@ -321,7 +322,7 @@ function DevoirsScreen({ navigation }) {
     setHomeworks((prevHomeworks) => ({
       ...prevHomeworks,
       [newDate.toLocaleDateString()]: result || [],
-    }))
+    }));
 
     loadCustomHomeworks();
   };
@@ -410,7 +411,7 @@ function DevoirsScreen({ navigation }) {
                     backgroundColor: UIColors.dark ? '#00000066' : '#ffffff12',
                   }
                 ]}>
-                  <CalendarDays size={24} color={"#ffffff"} style={styles.modalTipIcon}/>
+                  <CalendarDays size={24} color={'#ffffff'} style={styles.modalTipIcon}/>
                   <View style={styles.modalTipData}>
                     <NativeText heading="subtitle3" style={{color: '#ffffff'}}>
                       Astuce
@@ -432,7 +433,7 @@ function DevoirsScreen({ navigation }) {
             </Animated.View>
 
             <TouchableOpacity style={styles.modalCloseButton} onPress={() => setCalendarModalOpen(false)}>
-                <X size={24} color={"#ffffff"} style={styles.modalCloseIcon}/>
+              <X size={24} color={'#ffffff'} style={styles.modalCloseIcon}/>
             </TouchableOpacity>
 
             <Animated.View 
@@ -461,7 +462,7 @@ function DevoirsScreen({ navigation }) {
                 style={[
                   styles.calendarModalView,
                   {
-                    backgroundColor: !UIColors.dark ? UIColors.background + "ff" : UIColors.background + "aa",
+                    backgroundColor: !UIColors.dark ? UIColors.background + 'ff' : UIColors.background + 'aa',
                   },
                 ]}
               >
@@ -498,7 +499,7 @@ function DevoirsScreen({ navigation }) {
         animated
         barStyle={
           browserOpen ? 'light-content' :
-          theme.dark ? 'light-content' : 'dark-content'
+            theme.dark ? 'light-content' : 'dark-content'
         }
         backgroundColor="transparent"
       />
@@ -724,38 +725,38 @@ function Hwitem({ homework, theme, openURL, navigation, today, index }) {
           // sync with home page
           AsyncStorage.setItem('homeUpdated', 'true');
 
-        // get homework.date as 2023-01-01
-        const date = new Date(homework.date);
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1;
-        const day = date.getDate();
+          // get homework.date as 2023-01-01
+          const date = new Date(homework.date);
+          const year = date.getFullYear();
+          const month = date.getMonth() + 1;
+          const day = date.getDate();
 
-        // if tomorrow, update badge
-        let tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
+          // if tomorrow, update badge
+          let tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          tomorrow.setHours(0, 0, 0, 0);
 
-        let checked = thisHwChecked;
+          let checked = thisHwChecked;
 
-        // if this homework is for tomorrow
-        if (new Date(homework.date).getDate() === tomorrow.getDate()) {
-          AsyncStorage.getItem('badgesStorage').then((value) => {
-            let currentSyncBadges = JSON.parse(value);
+          // if this homework is for tomorrow
+          if (new Date(homework.date).getDate() === tomorrow.getDate()) {
+            AsyncStorage.getItem('badgesStorage').then((value) => {
+              let currentSyncBadges = JSON.parse(value);
 
-            if (currentSyncBadges === null) {
-              currentSyncBadges = {
-                homeworks: 0,
-              };
-            }
+              if (currentSyncBadges === null) {
+                currentSyncBadges = {
+                  homeworks: 0,
+                };
+              }
 
-            let newBadges = currentSyncBadges;
-            newBadges.homeworks = checked ? newBadges.homeworks + 1 : newBadges.homeworks - 1;
+              let newBadges = currentSyncBadges;
+              newBadges.homeworks = checked ? newBadges.homeworks + 1 : newBadges.homeworks - 1;
 
-            AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
-          });
+              AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
+            });
+          }
         }
-      }
-    });
+      });
   };
 
   const UIColors = GetUIColors();
@@ -811,20 +812,18 @@ function Hwitem({ homework, theme, openURL, navigation, today, index }) {
         inset
         style={
           Platform.OS === 'ios' && {
-          marginBottom: -20,
-        }}
+            marginBottom: -20,
+          }}
       >
         <NativeItem
           leading={
-            <HwCheckbox
-                checked={thisHwChecked}
-                theme={theme}
-                UIColors={UIColors}
-                loading={thisHwLoading}
-                pressed={() => {
-                  setThisHwLoading(true);
-                  changeHwState();
-                }}
+            <CheckAnimated
+              checked={thisHwChecked}
+              loading={thisHwLoading}
+              pressed={() => {
+                setThisHwLoading(true);
+                changeHwState();
+              }}
             />
           }
           onPress={() => {
@@ -871,7 +870,7 @@ function Hwitem({ homework, theme, openURL, navigation, today, index }) {
         ))}
       </NativeList>
     </Animated.View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -901,12 +900,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
 
-  calendarModalView: {
-    paddingHorizontal: 14,
-    paddingBottom: 18,
-    backgroundColor: '#ffffff12',
-  },
-
   modalCloseButton: {
     width: 40,
     height: 40,
@@ -934,6 +927,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderCurve: 'continuous',
   },
+
   calendarDateText: {
     fontSize: 16,
     fontWeight: 500,
@@ -971,16 +965,6 @@ const styles = StyleSheet.create({
   modalTipData: {
     flex: 1,
     paddingRight: 16,
-  },
-
-  container: {
-    flex: 1,
-  },
-  viewPager: {
-    flex: 1,
-  },
-  pageWrapper: {
-    flex: 1,
   },
 
   homeworksContainer: {
@@ -1091,14 +1075,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
 
-  calendarModalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    backgroundColor: '#00000099',
-    paddingHorizontal: 12,
-  },
-
   calendarModalView: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
@@ -1115,39 +1091,6 @@ const styles = StyleSheet.create({
       width: 0,
       height: 1,
     },
-  },
-
-  modalCloseButton: {
-    width: 40,
-    height: 40,
-
-    justifyContent: 'center',
-    alignItems: 'center',
-
-    alignSelf: 'flex-end',
-
-    backgroundColor: '#ffffff39',
-    borderRadius: 12,
-    borderCurve: 'continuous',
-    marginTop: -40,
-    marginBottom: 10,
-  },
-
-  calendarDateContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    opacity: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 10,
-    borderCurve: 'continuous',
-  },
-  calendarDateText: {
-    fontSize: 16,
-    fontWeight: 500,
-    fontFamily: 'Papillon-Medium',
   },
 
   addCoursefab: {

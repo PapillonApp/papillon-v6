@@ -44,7 +44,7 @@ function NativeItem(props) {
         )}
       </View>
     </TouchableNativeFeedback>
-  )
+  );
 }
 
 const styles = StyleSheet.create({

@@ -33,7 +33,7 @@ function OldNativeList(props) {
     <View>
       {childrenWithKeys}
     </View>
-  )
+  );
 }
 
 function NativeList(props) {
@@ -71,7 +71,7 @@ function NativeList(props) {
 
       {footer && <List.Subheader>{footer}</List.Subheader>}
     </List.Section>
-  )
+  );
 }
 
 const styles = StyleSheet.create({

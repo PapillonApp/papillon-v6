@@ -62,11 +62,11 @@ function NewsItem({ route, navigation }) {
       'Sondage',
       'Impossible de répondre au sondage depuis l\'application Papillon pour le moment.',
       [
-        { text: "OK", onPress: () => {} },
+        { text: 'OK', onPress: () => {} },
       ],
       { cancelable: true }
     );
-  }
+  };
 
   const loadNews = async (id) => {
     if (!id) return;
@@ -105,45 +105,45 @@ function NewsItem({ route, navigation }) {
         </TouchableOpacity>
       ),
       headerRight: () => (
-          <ContextMenuButton
-            isMenuPrimaryAction={true}
-            menuConfig={{
-              menuTitle: 'Actions',
-              menuItems: [
-                  {
-                    actionKey  : 'read',
-                    actionTitle: 'Marquer comme lu',
-                    icon: {
-                      type: 'IMAGE_SYSTEM',
-                      imageValue: {
-                        systemName: 'flag',
-                      },
-                    },
-                    menuState: isRead ? 'on' : 'off',
+        <ContextMenuButton
+          isMenuPrimaryAction={true}
+          menuConfig={{
+            menuTitle: 'Actions',
+            menuItems: [
+              {
+                actionKey  : 'read',
+                actionTitle: 'Marquer comme lu',
+                icon: {
+                  type: 'IMAGE_SYSTEM',
+                  imageValue: {
+                    systemName: 'flag',
                   },
-                  {
-                    actionKey  : 'copy',
-                    actionTitle: 'Copier le contenu',
-                    icon: {
-                      type: 'IMAGE_SYSTEM',
-                      imageValue: {
-                        systemName: 'doc.on.doc',
-                      },
-                    },
-                  }
-              ],
-            }}
-            onPressMenuItem={async ({nativeEvent}) => {
-              if (nativeEvent.actionKey === 'read') {
-                markNewsAsRead(news.local_id).then((e) => {
-                  setIsRead(e.current_state);
-                  setReadChanged(true);
-                });
+                },
+                menuState: isRead ? 'on' : 'off',
+              },
+              {
+                actionKey  : 'copy',
+                actionTitle: 'Copier le contenu',
+                icon: {
+                  type: 'IMAGE_SYSTEM',
+                  imageValue: {
+                    systemName: 'doc.on.doc',
+                  },
+                },
               }
-              else if (nativeEvent.actionKey === 'copy') {
-                await Clipboard.setStringAsync(news.html_content[0].texte.V);
-              }
-            }}
+            ],
+          }}
+          onPressMenuItem={async ({nativeEvent}) => {
+            if (nativeEvent.actionKey === 'read') {
+              markNewsAsRead(news.local_id).then((e) => {
+                setIsRead(e.current_state);
+                setReadChanged(true);
+              });
+            }
+            else if (nativeEvent.actionKey === 'copy') {
+              await Clipboard.setStringAsync(news.html_content[0].texte.V);
+            }
+          }}
         >
           <TouchableOpacity>
             <MoreHorizontal size={24} color={'#B42828'} />
@@ -223,7 +223,7 @@ function NewsItem({ route, navigation }) {
         animated
         barStyle={
           isModalOpen ? 'light-content' :
-          theme.dark ? 'light-content' : 'dark-content'
+            theme.dark ? 'light-content' : 'dark-content'
         }
         backgroundColor="transparent"
       />
@@ -327,19 +327,19 @@ function NewsItem({ route, navigation }) {
           <NativeList key={index} inset header={survey.L}>
             <NativeItem>
               <NativeText heading="p">
-                {survey.texte.V.replace( /(<([^>]+)>)/ig, '').replace(/\&nbsp;/g, '').trim()}
+                {survey.texte.V.replace( /(<([^>]+)>)/ig, '').replace(/&nbsp;/g, '').trim()}
               </NativeText>
             </NativeItem>
 
             {survey.listeChoix.V?.map((answer, index) => (
               <NativeItem
-                key={index} onPress={() => {alertSondage()}}
+                key={index} onPress={() => {alertSondage();}}
                 trailing={<>
                   {survey?.reponse?.V?.valeurReponse?.V?.includes(index + 1) ? (
                     <Check size={20} color={'#B42828'} />
                   ) : null}
 
-                  {typeof survey?.reponse?.V?.valeurReponse == "string" ? (
+                  {typeof survey?.reponse?.V?.valeurReponse == 'string' ? (
                     <NativeText heading="p2">
                       {survey?.reponse?.V?.valeurReponse}
                     </NativeText>
@@ -367,7 +367,7 @@ function PapillonAttachment({file, index, theme, UIColors, navigation, openURL})
   const [savedLocally, setSavedLocally] = useState(false);
 
   const formattedAttachmentName = attachment.name.replace(/ /g, '_');
-  const formattedFileExtension = attachment.url.split('.').pop().split(/\#|\?/)[0];
+  const formattedFileExtension = attachment.url.split('.').pop().split(/#|\?/)[0];
 
   const [fileURL, setFileURL] = useState(attachment.url);
 
@@ -380,7 +380,7 @@ function PapillonAttachment({file, index, theme, UIColors, navigation, openURL})
           setSavedLocally(true);
         }
         else {
-          FileSystem.downloadAsync(attachment.url, FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
+          FileSystem.downloadAsync(attachment.url, FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then(() => {
             setDownloaded(true);
             setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
             setSavedLocally(true);
@@ -405,7 +405,7 @@ function PapillonAttachment({file, index, theme, UIColors, navigation, openURL})
     <NativeItem
       key={index}
       onPress={downloaded ? () => {
-        if (formattedFileExtension === "pdf") {
+        if (formattedFileExtension === 'pdf') {
           navigation.navigate('PdfViewer', {
             url: fileURL,
           });
@@ -428,31 +428,31 @@ function PapillonAttachment({file, index, theme, UIColors, navigation, openURL})
               'Pièce jointe téléchargée hors-ligne',
               'Cette pièce jointe a été téléchargée pour une consultation hors-ligne. Vous pouvez consulter la pièce jointe originale si celle ci ne fonctionne pas.',
               [
-                { text: "Gérer le téléchargement", onPress: () => {
+                { text: 'Gérer le téléchargement', onPress: () => {
                   Alert.alert(
                     'Gérer le téléchargement',
                     'Que voulez-vous faire ?',
                     [
-                      { text: "Supprimer le téléchargement", onPress: () => {
+                      { text: 'Supprimer le téléchargement', onPress: () => {
                         FileSystem.deleteAsync(fileURL).then(() => {
                           setDownloaded(false);
                           setSavedLocally(false);
                         });
                       }, style: 'destructive' },
-                      { text: "Re-télécharger la pièce jointe", onPress: () => {
+                      { text: 'Re-télécharger la pièce jointe', onPress: () => {
                         FileSystem.deleteAsync(fileURL).then(() => {
                           setDownloaded(false);
                           setSavedLocally(false);
                           redownloadFile();
                         });
                       } },
-                      { text: "Annuler", onPress: () => {} },
+                      { text: 'Annuler', onPress: () => {} },
                     ],
                     { cancelable: true }
                   );
                 } },
-                { text: "Consulter l'originale", onPress: () => openURL(attachment.url) },
-                { text: "OK", onPress: () => {} },
+                { text: 'Consulter l\'originale', onPress: () => openURL(attachment.url) },
+                { text: 'OK', onPress: () => {} },
               ],
               { cancelable: true }
             );
@@ -467,18 +467,18 @@ function PapillonAttachment({file, index, theme, UIColors, navigation, openURL})
       ) : null }
     >
 
-                <View style={[styles.homeworkFileData]}>
-                  <Text style={[styles.homeworkFileText]}>{file.name}</Text>
-                  <Text
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                    style={[styles.homeworkFileUrl]}
-                  >
-                    {file.url}
-                  </Text>
-                </View>
-            </NativeItem>
-  )
+      <View style={[styles.homeworkFileData]}>
+        <Text style={[styles.homeworkFileText]}>{file.name}</Text>
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={[styles.homeworkFileUrl]}
+        >
+          {file.url}
+        </Text>
+      </View>
+    </NativeItem>
+  );
 }
 
 const styles = StyleSheet.create({

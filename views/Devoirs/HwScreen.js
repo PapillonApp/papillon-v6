@@ -30,6 +30,7 @@ import formatCoursName from '../../utils/FormatCoursName';
 import { useAppContext } from '../../utils/AppContext';
 
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
+import CheckAnimated from '../../interface/CheckAnimated';
 
 function HomeworkScreen({ route, navigation }) {
   const theme = useTheme();
@@ -83,7 +84,7 @@ function HomeworkScreen({ route, navigation }) {
             setDeleteCustomHomeworkAlert(true);
           }}
         >
-          <Trash size={20} color={"#eb4034"} />
+          <Trash size={20} color={'#eb4034'} />
         </TouchableOpacity>
       ),
     });
@@ -175,19 +176,19 @@ function HomeworkScreen({ route, navigation }) {
 
           AsyncStorage.setItem('homeworksUpdate', JSON.stringify(updates));
         });
-      })
+      });
   };
 
   // add checkbox in header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: "Devoir en " + formatCoursName(homework.subject.name),
+      headerTitle: 'Devoir en ' + formatCoursName(homework.subject.name),
     });
   }, [navigation, homework]);
 
   const handleUrlPress = (url, matchIndex) => {
     openURL(url);
-  }
+  };
 
   return (
     <ScrollView
@@ -235,15 +236,13 @@ function HomeworkScreen({ route, navigation }) {
       <NativeList inset header="Statut du devoir">
         <NativeItem
           leading={
-            <HwCheckbox
+            <CheckAnimated
               checked={thisHwChecked}
-              theme={theme}
+              loading={thisHwLoading}
               pressed={() => {
                 setThisHwLoading(true);
                 changeHwState();
               }}
-              UIColors={UIColors}
-              loading={thisHwLoading}
             />
           }
           onPress={() => {
@@ -273,9 +272,9 @@ function HomeworkScreen({ route, navigation }) {
       { homework.files.length > 0 ? (
         <NativeList inset header="Fichiers">
           {homework.files.map((file, index) => {
-            let fileIcon = <Link size={24} color={UIColors.text} />
+            let fileIcon = <Link size={24} color={UIColors.text} />;
             if (file.type === 1) {
-              fileIcon = <File size={24} color={UIColors.text} />
+              fileIcon = <File size={24} color={UIColors.text} />;
             }
 
             return (
@@ -306,7 +305,7 @@ function HomeworkScreen({ route, navigation }) {
         title="Supprimer le devoir"
         subtitle="Êtes-vous sûr de vouloir supprimer ce devoir ?"
         primaryButton='Supprimer'
-        primaryAction={() => {deleteCustomHomework(); setDeleteCustomHomeworkAlert(false)}}
+        primaryAction={() => {deleteCustomHomework(); setDeleteCustomHomeworkAlert(false);}}
         cancelButton='Annuler'
         cancelAction={() => setDeleteCustomHomeworkAlert(false)}
         color='#D81313'

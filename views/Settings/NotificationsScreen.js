@@ -93,7 +93,7 @@ function NotificationsScreen() {
     Notifications.scheduleNotificationAsync({
       content: {
         title: '📚 Il est temps de faire tes devoirs !',
-        body: "Ouvre l'app Papillon pour voir ce que tu as à faire.",
+        body: 'Ouvre l\'app Papillon pour voir ce que tu as à faire.',
         sound: 'papillon_ding.wav',
       },
       trigger: {

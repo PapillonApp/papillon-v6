@@ -54,7 +54,6 @@ function getEvaluations(force = false) {
   return getConsts().then((consts) =>
     AsyncStorage.getItem('evaluationsCache').then((evaluationsCache) => {
       if (evaluationsCache && !force) {
-        // eslint-disable-next-line no-param-reassign
         evaluationsCache = JSON.parse(evaluationsCache);
 
         const userCacheDate = new Date(evaluationsCache.date);

@@ -1,5 +1,5 @@
-import * as React from "react";
-import Svg, { Path, G, Defs, ClipPath } from "react-native-svg";
+import * as React from 'react';
+import Svg, { Path, G, Defs, ClipPath } from 'react-native-svg';
 
 function Papillon(props) {
   return (

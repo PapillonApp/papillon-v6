@@ -26,6 +26,9 @@ Si vous avez des compétences techniques, vous pouvez contribuer en soumettant d
 - Créez une nouvelle branche à partir de la branche main.
 - Effectuez vos modifications sur la nouvelle branche.
 - Testez les modifications pour vous assurer qu'elles fonctionnent correctement.
+- Vérifiez le style de votre code (avec `npm run lint`)
+  - S'il y a des erreurs qui peuvent être corrigés automatiquement, utilisez `npm run lint -- --fix` pour les corriger.
+  - Utilisez l'extension ESLint pour votre éditeur de code pour vous aider à respecter le style.
 - Soumettez une pull request en expliquant les modifications que vous avez apportées et en fournissant des captures d'écran si cela est pertinent.
   Nous examinerons votre pull request dès que possible et nous vous fournirons des commentaires pour vous aider à l'améliorer si nécessaire.
 

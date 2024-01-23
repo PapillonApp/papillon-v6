@@ -1,0 +1,10 @@
+# Dependencies
+node_modules
+
+# Native projects
+android
+ios
+
+# Miscs
+.github
+.idea

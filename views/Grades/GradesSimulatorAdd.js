@@ -83,7 +83,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
     }
 
     funct(nValue);
-  }
+  };
 
   function addGrade() {
     let id = randomUUID();
@@ -99,23 +99,23 @@ const GradesSimulatorAdd = ({ navigation }) => {
     }
 
     let grade = {
-      "id": id,
-      "subject": subjectList[selectedSubject],
-      "date": new Date().toISOString(),
-      "description": description ? description : "Note simulée",
-      "is_bonus": false,
-      "is_optional": false,
-      "is_out_of_20": out_of === '20' ? true : false,
-      "grade": {
-          "value": parseFloat(student.replace(',', '.')),
-          "out_of": parseFloat(out_of.replace(',', '.')),
-          "coefficient": parseFloat(coefficient.replace(',', '.')),
-          "average": parseFloat(classGrade.replace(',', '.')) || parseFloat(student.replace(',', '.')),
-          "max": parseFloat(out_of.replace(',', '.')),
-          "min": parseFloat(classGrade.replace(',', '.')) || parseFloat(student.replace(',', '.')),
-          "significant": 0
+      'id': id,
+      'subject': subjectList[selectedSubject],
+      'date': new Date().toISOString(),
+      'description': description ? description : 'Note simulée',
+      'is_bonus': false,
+      'is_optional': false,
+      'is_out_of_20': out_of === '20' ? true : false,
+      'grade': {
+        'value': parseFloat(student.replace(',', '.')),
+        'out_of': parseFloat(out_of.replace(',', '.')),
+        'coefficient': parseFloat(coefficient.replace(',', '.')),
+        'average': parseFloat(classGrade.replace(',', '.')) || parseFloat(student.replace(',', '.')),
+        'max': parseFloat(out_of.replace(',', '.')),
+        'min': parseFloat(classGrade.replace(',', '.')) || parseFloat(student.replace(',', '.')),
+        'significant': 0
       }
-    }
+    };
 
     AsyncStorage.getItem('custom-grades').then((grades) => {
       if (grades) {
@@ -324,7 +324,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
                       }
                     ]}
                   >
-                    <NativeText heading="h4" style={{color: "#fff"}}>
+                    <NativeText heading="h4" style={{color: '#fff'}}>
                       {subject.name}
                     </NativeText>
                   </TouchableOpacity>
@@ -336,7 +336,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
         </View>
       </Modal>
     </ScrollView>
-  )
+  );
 };
 
 const styles = StyleSheet.create({

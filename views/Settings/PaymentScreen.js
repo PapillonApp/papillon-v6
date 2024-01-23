@@ -125,7 +125,7 @@ const PaymentScreen = ({ navigation }) => {
   }, []);
 
   // words title animation
-  const words = ["indépendante", "open-source", "100% gratuite", "sans publicité", "qui vous respecte"];
+  const words = ['indépendante', 'open-source', '100% gratuite', 'sans publicité', 'qui vous respecte'];
   const [wordIndex, setWordIndex] = useState(0);
 
   const wordAnim = new Animated.Value(0);
@@ -166,9 +166,9 @@ const PaymentScreen = ({ navigation }) => {
       >
         <View style={{
           flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#000000a5",
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#000000a5',
           gap: 10,
         }}>
           <ActivityIndicator color="#ffffff" />
@@ -234,42 +234,42 @@ const PaymentScreen = ({ navigation }) => {
       </NativeText>
 
       { !loading ? (
-      <NativeList 
-        inset
-        header="Pourboire unique">
-        {products.map((product) => (
-          <NativeItem
-            key={product.productId}
-            onPress={() => subGrade(product.productId)}
+        <NativeList 
+          inset
+          header="Pourboire unique">
+          {products.map((product) => (
+            <NativeItem
+              key={product.productId}
+              onPress={() => subGrade(product.productId)}
 
-            leading={
-              <NativeText heading="h1" style={{fontSize: 30}}>
-                {
-                  product.productId === 'chenille' ? '🐛' :
-                  product.productId === 'cocon' ? '🪺' :
-                  '🦋'
-                }
+              leading={
+                <NativeText heading="h1" style={{fontSize: 30}}>
+                  {
+                    product.productId === 'chenille' ? '🐛' :
+                      product.productId === 'cocon' ? '🪺' :
+                        '🦋'
+                  }
+                </NativeText>
+              }
+              trailing={
+                <NativeText heading="p" style={{marginLeft: 5}}>
+                  {product.price}
+                </NativeText>
+              }
+            >
+              <NativeText heading="h4">
+                {product.title}
               </NativeText>
-            }
-            trailing={
-              <NativeText heading="p" style={{marginLeft: 5}}>
-                {product.price}
+              <NativeText heading="p2">
+                {product.description}
               </NativeText>
-            }
-          >
-            <NativeText heading="h4">
-              {product.title}
-            </NativeText>
-            <NativeText heading="p2">
-              {product.description}
-            </NativeText>
-          </NativeItem>
-        ))}
-      </NativeList>
+            </NativeItem>
+          ))}
+        </NativeList>
       ) : (
         <NativeList 
-        inset
-        header="Pourboire unique"
+          inset
+          header="Pourboire unique"
         >
           <NativeItem
             leading={
@@ -284,7 +284,7 @@ const PaymentScreen = ({ navigation }) => {
       )}
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   donateTitle: {
