@@ -395,7 +395,17 @@ function ProfileScreen({ route, navigation }) {
             Utilisez un prénom ou un pseudonyme différent dans l'app Papillon
           </NativeText>
         </NativeItem>
-
+        <NativeItem
+          leading={<Edit size={24} color="#29947A" />}
+          onPress={() => 123456()}
+        >
+          <NativeText heading="h4">
+            Crash
+          </NativeText>
+          <NativeText heading="p2">
+            Utilisez un prénom ou un pseudonyme différent dans l'app Papillon
+          </NativeText>
+        </NativeItem>
         <NativeItem
           leading={<Trash2 size={24} color="#D81313" />}
           onPress={() => ResetProfilePic()}
