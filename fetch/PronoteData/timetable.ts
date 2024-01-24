@@ -2,6 +2,7 @@ import { type Pronote } from 'pawnote';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AsyncStoragePronoteKeys } from './connector';
 import type { CachedPapillonTimetable, PapillonLesson } from '../types/timetable';
+import { dateToFrenchFormat } from '../../utils/dates';
 
 function removeDuplicateCourses(courses: PapillonLesson[]): PapillonLesson[] {
   const result = courses;
@@ -24,8 +25,8 @@ function removeDuplicateCourses(courses: PapillonLesson[]): PapillonLesson[] {
 }
 
 export const timetableHandler = async (interval: [from: Date, to?: Date], instance?: Pronote, force = false): Promise<PapillonLesson[] | null> => {
-  let weekCacheString = interval[0].toISOString();
-  if (interval[1]) weekCacheString += '-' + interval[1].toISOString();
+  let weekCacheString = dateToFrenchFormat(interval[0]);
+  if (interval[1]) weekCacheString += '-' + dateToFrenchFormat(interval[1]);
   console.log(weekCacheString);
 
   const cache = await AsyncStorage.getItem(AsyncStoragePronoteKeys.CACHE_TIMETABLE + '-' + weekCacheString);
@@ -34,8 +35,8 @@ export const timetableHandler = async (interval: [from: Date, to?: Date], instan
 
     for (const cachedTimetable of data) {
       const cacheInterval = cachedTimetable.interval;
-      if (cacheInterval.from === interval[0].toISOString()) {
-        if (interval[1] && cacheInterval.to !== interval[1].toISOString()) continue;
+      if (cacheInterval.from === dateToFrenchFormat(interval[0])) {
+        if (interval[1] && cacheInterval.to !== dateToFrenchFormat(interval[1])) continue;
 
         console.log('timetable: use cache');
         return cachedTimetable.timetable;
@@ -78,8 +79,8 @@ export const timetableHandler = async (interval: [from: Date, to?: Date], instan
 
     cachedTimetable.push({
       interval: {
-        from: interval[0].toISOString(),
-        to: interval[1] ? interval[1].toISOString() : void 0
+        from: dateToFrenchFormat(interval[0]),
+        to: interval[1] ? dateToFrenchFormat(interval[1]) : void 0
       },
 
       timetable: cleanedUpTimetable,
