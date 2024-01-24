@@ -88,6 +88,7 @@ import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
 // notifs.init();
 const Tab = createBottomTabNavigator();
 import * as Sentry from '@sentry/react-native';
+import { DSN_URL } from '@env';
 
 import {
   Home as PapillonIconsHome,
@@ -102,8 +103,8 @@ import {
 import InputPronoteQRPin from './views/NewAuthStack/Pronote/LoginPronoteQRToken';
 
 Sentry.init({
-  dsn: 'http://4f5fa3f4dc364796bbdac55029146458@sentry.getpapillon.xyz/3',
-  enableInExpoDevelopment: true,
+  dsn: DSN_URL,
+  tracesSampleRate: 0.75,
 });
 
 // stack
@@ -1148,7 +1149,7 @@ function AuthStack() {
   );
 }
 
-export default function App() {
+function App() {
   const scheme = useColorScheme();
   
   const [dataProvider, setDataProvider] = React.useState<IndexDataInstance | null>(null);	
@@ -1219,3 +1220,5 @@ export default function App() {
     </View>
   ) : null;
 }
+
+export default Sentry.wrap(App);
