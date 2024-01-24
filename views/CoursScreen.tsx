@@ -6,7 +6,6 @@ import {
   StyleSheet,
   StatusBar,
   Platform,
-  ActivityIndicator,
   RefreshControl,
   TouchableOpacity,
   Alert,
@@ -26,7 +25,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import { PressableScale } from 'react-native-pressable-scale';
 
-import InfinitePager from 'react-native-infinite-pager';
+import InfinitePager, { type InfinitePagerImperativeApi } from 'react-native-infinite-pager';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import * as Notifications from 'expo-notifications';
@@ -46,8 +45,6 @@ import {
   X,
   TextSelect,
   BookOpenCheck,
-  Album,
-  Paperclip,
 } from 'lucide-react-native';
 
 import formatCoursName from '../utils/FormatCoursName';
@@ -61,27 +58,27 @@ import ListItem from '../components/ListItem';
 
 import { useAppContext } from '../utils/AppContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CalendarFill, Calendar as CalendarPapillonIcon } from '../interface/icons/PapillonIcons';
-import AlertAnimated from '../interface/AlertAnimated';
+import { Calendar as CalendarPapillonIcon } from '../interface/icons/PapillonIcons';
 import NativeText from '../components/NativeText';
+import { PapillonLesson } from '../fetch/types/timetable';
 
-const calcDate = (date, days) => {
-  const result = new Date(date);
-  result.setDate(result.getDate() + days);
-  return result;
+const calcDate = (date: Date, days: number) => {
+  return date;
 };
 
+const getDateKey = (date: Date): string => {
+  return date.toLocaleDateString('fr-FR');
+};
+
+// TODO: Type this inside react-navigation
+// @ts-expect-error
 function CoursScreen({ navigation }) {
   const theme = useTheme();
-  const pagerRef = useRef(null);
+  const pagerRef = useRef<InfinitePagerImperativeApi | null>(null);
   const insets = useSafeAreaInsets();
 
-  const [today, setToday] = useState(new Date());
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [calendarDate, setCalendarDate] = useState(today);
-  const [cours, setCours] = useState({});
-  const todayRef = useRef(today);
-  const coursRef = useRef(cours);
+  const [calendarDate, setCalendarDate] = useState(new Date());
+  const [cours, setCours] = useState<PapillonLesson[]>([]);
 
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
 
@@ -101,12 +98,10 @@ function CoursScreen({ navigation }) {
         }),
         Animated.spring(translateY, {
           toValue: 1,
-          duration: 200,
           useNativeDriver: true,
         }),
         Animated.spring(scale, {
           toValue: 1,
-          duration: 200,
           useNativeDriver: true,
         })
       ]).start();
@@ -119,12 +114,10 @@ function CoursScreen({ navigation }) {
         }),
         Animated.spring(translateY, {
           toValue: 0,
-          duration: 200,
           useNativeDriver: true,
         }),
         Animated.spring(scale, {
           toValue: 0,
-          duration: 200,
           useNativeDriver: true,
         })
       ]).start();
@@ -271,6 +264,8 @@ Statut : ${cours.status || 'Aucun'}
     );
   }
 
+  const UIColors = GetUIColors();
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: Platform.OS === 'ios' ? () => (
@@ -292,7 +287,6 @@ Statut : ${cours.status || 'Aucun'}
             borderRadius: 10,
           }}
           menuConfig={{
-            borderRadius: 10,
             menuTitle: calendarDate.toLocaleDateString('fr', {
               weekday: 'long',
               day: '2-digit',
@@ -345,20 +339,27 @@ Statut : ${cours.status || 'Aucun'}
     });
   }, [navigation, calendarDate, UIColors]);
 
-  const setCalendarAndToday = async (date) => {
+  /**
+   * Handler that triggers whenever the user changes the date
+   * using the selector on the navigation bar.
+   */
+  const handleCalendarAndTodaySelection = (date: Date) => {
+    const today = new Date();
+    const diffTime = Math.abs(date.getTime() - today.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+    // 1. Change the date.
     setCalendarDate(date);
-    setToday(date);
-    setCalendarDate(date);
-    for (let i = -2; i <= 2; i++) {
-      await updateCoursForDate(i, date);
-    }
+    console.info('handleCalendae');
+    
+    if (pagerRef.current) pagerRef.current.setPage(diffDays, { animated: false });
   };
 
   const appContext = useAppContext();
 
-  const updateCoursForDate = async (dateOffset, setDate) => {
-    const newDate = calcDate(setDate, dateOffset);
-    if (!coursRef.current[newDate.toLocaleDateString()]) {
+  const updateCoursForDate = async (dateOffset: number, dateSelected: Date) => {
+    const newDate = calcDate(dateSelected, dateOffset);
+    if (!cours[newDate.toLocaleDateString()]) {
       // load cache before fetching
       const cacheResult = await AsyncStorage.getItem('@cours');
       if (cacheResult) {
@@ -377,74 +378,58 @@ Statut : ${cours.status || 'Aucun'}
         ...prevCours,
         [newDate.toLocaleDateString()]: result,
       }));
-
-      // save to cache
-      AsyncStorage.getItem('@cours').then((value) => {
-        const c = JSON.parse(value) || {};
-        c[newDate.toLocaleDateString()] = result;
-        AsyncStorage.setItem('@cours', JSON.stringify(cours));
-      });
     }
   };
 
   const handlePageChange = async (page: number) => {
-    const newDate = calcDate(todayRef.current, page);
-    setCurrentIndex(page);
-    setCalendarDate(newDate);
-
-    for (let i = -2; i <= 2; i++) {
-      await updateCoursForDate(i, newDate);
+    const date = new Date();
+    date.setDate(date.getDate() + page);
+    
+    if (calendarDate.getDate() !== date.getDate()) {
+      setCalendarDate(date);
+      console.info('handlePageChange');
     }
   };
 
+  React.useEffect(() => {
+    (async () => {
+      console.log('selected date:', calendarDate.toLocaleString());
+    })();
+  }, [calendarDate]);
+
   const forceRefresh = async () => {
-    const newDate = calcDate(calendarDate, 0);
-    const result = await appContext.dataProvider.getTimetable(newDate, true);
+    const day = calcDate(calendarDate, 0);
+    if (!appContext.dataProvider) return; // TODO: Handle when not defined ?
 
-    const newCours = cours;
-    newCours[newDate.toLocaleDateString()] = result;
-    setCours(newCours);
+    // const result = await appContext.dataProvider.getTimetable(day, true);
+    // setCours((old) => ({ ...old, [day.toLocaleDateString()]: result }));
   };
-
-  useEffect(() => {
-    todayRef.current = today;
-    coursRef.current = cours;
-  }, [today, cours]);
-
-  const UIColors = GetUIColors();
 
   return (
     <View
-      contentInsetAdjustmentBehavior="automatic"
-      style={[styles.container, { backgroundColor: UIColors.background, paddingTop: Platform.OS === 'ios' ? insets.top + 44 : 0 }]}
+      style={[styles.container, {
+        backgroundColor: UIColors.background,
+        paddingTop: Platform.OS === 'ios' ? insets.top + 44 : 0
+      }]}
     >
-      {Platform.OS === 'android' && calendarModalOpen ? (
+      {Platform.OS === 'android' && calendarModalOpen && (
         <DateTimePicker
           value={calendarDate}
-          locale="fr_FR"
           mode="date"
           display="calendar"
           onChange={(event, date) => {
-            if (event.type === 'dismissed') {
+            if (event.type === 'dismissed' || !date) {
               setCalendarModalOpen(false);
               return;
             }
 
             setCalendarModalOpen(false);
-
-            setCalendarAndToday(date);
-            pagerRef.current.setPage(0);
-            if (currentIndex === 0) {
-              setCurrentIndex(1);
-              setTimeout(() => {
-                setCurrentIndex(0);
-              }, 10);
-            }
+            handleCalendarAndTodaySelection(date);
           }}
         />
-      ) : null}
+      )}
 
-      {Platform.OS === 'ios' && calendarModalOpen ? (
+      {Platform.OS === 'ios' && calendarModalOpen && (
         <Modal
           transparent={true}
           animationType='fade'
@@ -553,28 +538,20 @@ Statut : ${cours.status || 'Aucun'}
                   mode="date"
                   display="inline"
                   onChange={(event, date) => {
-                    if (event.type === 'dismissed') {
+                    if (event.type === 'dismissed' || !date) {
                       setCalendarModalOpen(false);
                       return;
                     }
 
                     setCalendarModalOpen(false);
-
-                    setCalendarAndToday(date);
-                    pagerRef.current.setPage(0);
-                    if (currentIndex === 0) {
-                      setCurrentIndex(1);
-                      setTimeout(() => {
-                        setCurrentIndex(0);
-                      }, 10);
-                    }
+                    handleCalendarAndTodaySelection(date);
                   }}
                 />
               </BlurView>
             </Animated.View>
           </Animated.View>
         </Modal>
-      ) : null}
+      )}
 
       <StatusBar
         animated
@@ -585,17 +562,18 @@ Statut : ${cours.status || 'Aucun'}
       <InfinitePager
         style={[styles.viewPager]}
         pageWrapperStyle={[styles.pageWrapper]}
-        onPageChange={handlePageChange}
+        
+        onPageChange={(page) => handlePageChange(page)}
         ref={pagerRef}
         pageBuffer={4}
         gesturesDisabled={false}
         renderPage={({ index }) =>
-          cours[calcDate(today, index).toLocaleDateString()] ? (
+          cours[0] ? (
             <CoursPage
-              cours={cours[calcDate(today, index).toLocaleDateString()] || []}
+              cours={cours[calcDate(new Date(), index).toLocaleDateString()] || []}
               navigation={navigation}
               theme={theme}
-              forceRefresh={forceRefresh}
+              forceRefresh={() => forceRefresh()}
             />
           ) : (
             <View style={[styles.coursContainer]}>
@@ -611,7 +589,10 @@ Statut : ${cours.status || 'Aucun'}
   );
 }
 
-const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
+const CoursItem = React.memo(({ cours, theme, lessonPressed, navigation }: {
+  cours: PapillonLesson
+  lessonPressed: () => unknown
+}) => {
   const formattedStartTime = useCallback(
     () =>
       new Date(cours.start).toLocaleTimeString([], {
@@ -633,11 +614,11 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
   const start = new Date(cours.start);
   const end = new Date(cours.end);
 
-  function lz(num) {
+  function lz(num: number) {
     return num < 10 ? `0${num}` : num;
   }
 
-  const length = Math.floor((end - start) / 60000);
+  const length = Math.floor((end.getTime() - start.getTime()) / 60000);
   let lengthString = `${Math.floor(length / 60)}h ${lz(
     Math.floor(length % 60)
   )}min`;
@@ -655,12 +636,6 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
     lengthString = `${Math.floor((length / 60) + 1)} heure(s)`;
   }
 
-  
-
-  const handleCoursPressed = useCallback(() => {
-    CoursPressed(cours);
-  }, [CoursPressed, cours]);
-
   const UIColors = GetUIColors();
   const mainColor = theme.dark ? '#ffffff' : '#444444';
 
@@ -676,7 +651,6 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
       </View>
       <ContextMenuView
         style={{ flex: 1 }}
-        borderRadius={10}
         previewConfig={{
           borderRadius: 10,
           previewType: 'CUSTOM',
@@ -685,7 +659,7 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
           preferredCommitStyle: 'pop',
         }}
         menuConfig={{
-          menuTitle: cours.subject.name,
+          menuTitle: cours.subject?.name ?? 'Cours',
           menuItems: [
             {
               actionKey: 'open',
@@ -774,14 +748,14 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
             styles.coursItemContainer,
             { backgroundColor: theme.dark ? '#111111' : '#ffffff' },
           ]}
-          onPress={handleCoursPressed}
+          onPress={() => lessonPressed()}
         >
           <View
             style={[
               styles.coursItem,
               {
                 backgroundColor: `${getSavedCourseColor(
-                  cours.subject.name,
+                  cours.subject?.name ?? '',
                   cours.background_color
                 )}22`,
               },
@@ -792,7 +766,7 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
                 styles.coursColor,
                 {
                   backgroundColor: getSavedCourseColor(
-                    cours.subject.name,
+                    cours.subject?.name ?? '',
                     cours.background_color
                   ),
                 },
@@ -801,7 +775,7 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
             <View style={[styles.coursInfo]}>
               <Text style={[styles.coursTime]}>{lengthString}</Text>
               <Text style={[styles.coursMatiere]}>
-                {formatCoursName(cours.subject.name)}
+                {formatCoursName(cours.subject?.name ?? 'Cours')}
               </Text>
 
               {length / 60 > 1.4 ? <View style={{ height: 25 }} /> : null}
@@ -836,13 +810,14 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
                     strokeWidth={2.2}
                   />
                 )}
-                {cours.content.files && cours.content.files.length > 0 && (
+                <Text>TODO: FILES</Text>
+                {/* {cours.content.files && cours.content.files.length > 0 && (
                   <Paperclip
                     size={21}
                     color={UIColors.text}
                     strokeWidth={2.2}
                   />
-                )}
+                )} */}
               </View>
 
               {cours.status && (
@@ -851,7 +826,7 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
                     styles.coursStatus,
                     {
                       backgroundColor: `${getSavedCourseColor(
-                        cours.subject.name,
+                        cours.subject?.name ?? '',
                         cours.background_color
                       )}22`,
                     },
@@ -888,25 +863,19 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
   );
 });
 
-function CoursPage({ cours, navigation, theme, forceRefresh }) {
-  const CoursPressed = useCallback(
-    (_cours) => {
-      navigation.navigate('Lesson', { event: _cours });
-    },
-    [navigation]
-  );
-
+function CoursPage({ cours, navigation, theme, forceRefresh }: {
+  cours: PapillonLesson[]
+  forceRefresh: () => Promise<unknown>
+}) {
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = async () => {
     setIsHeadLoading(true);
+    await forceRefresh();
+    setIsHeadLoading(false);
+  };
 
-    forceRefresh().then(() => {
-      setIsHeadLoading(false);
-    });
-  }, []);
-
-  function lz(nb) {
+  function lz (nb: number) {
     return nb < 10 ? `0${nb}` : nb.toString();
   }
 
@@ -920,60 +889,61 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
         <RefreshControl
           refreshing={isHeadLoading}
           onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? '#29947A' : null]}
+          colors={[Platform.OS === 'android' ? '#29947A' : '']}
         />
       }
     >
-      {cours.length === 0 ? (
+      {cours.length === 0 && (
         <PapillonLoading
           icon={<IconCalendar size={26} color={UIColors.text} />}
           title="Aucun cours"
           subtitle="Vous n'avez aucun cours ce jour"
           style={{ marginTop: 36 }}
         />
-      ) : null}
+      )}
 
-      {cours.map((_cours, index) => (
-        <View key={index}>
-          {/* si le cours précédent était il y a + de 30 min du cours actuel */}
-          {index !== 0 &&
-          new Date(_cours.start) - new Date(cours[index - 1].end) > 1800000 ? (
-              <View style={styles.coursSeparator}>
-                <View
-                  style={[
-                    styles.coursSeparatorLine,
-                    { backgroundColor: `${UIColors.text}15` },
-                  ]}
-                />
+      {cours.map((lesson, index) => (
+        <View key={lesson.id}>
+          {/* Si le cours précédent était il y a + de 30 min du cours actuel. */}
+          {index !== 0 && new Date(lesson.start).getTime() - new Date(cours[index - 1].end).getTime() > 1800000 && (
+            <View style={styles.coursSeparator}>
+              <View
+                style={[
+                  styles.coursSeparatorLine,
+                  { backgroundColor: `${UIColors.text}15` },
+                ]}
+              />
 
-                <Text style={{ color: `${UIColors.text}30` }}>
-                  {`${Math.floor(
-                    (new Date(_cours.start) - new Date(cours[index - 1].end)) /
+              <Text style={{ color: `${UIColors.text}30` }}>
+                {`${Math.floor(
+                  (new Date(lesson.start).getTime() - new Date(cours[index - 1].end).getTime()) /
                     3600000
-                  )} h ${lz(
-                    Math.floor(
-                      ((new Date(_cours.start) - new Date(cours[index - 1].end)) %
+                )} h ${lz(
+                  Math.floor(
+                    ((new Date(lesson.start).getTime() - new Date(cours[index - 1].end).getTime()) %
                       3600000) /
                       60000
-                    )
-                  )} min`}
-                </Text>
+                  )
+                )} min`}
+              </Text>
 
-                <View
-                  style={[
-                    styles.coursSeparatorLine,
-                    { backgroundColor: `${UIColors.text}15` },
-                  ]}
-                />
-              </View>
-            ) : null}
+              <View
+                style={[
+                  styles.coursSeparatorLine,
+                  { backgroundColor: `${UIColors.text}15` },
+                ]}
+              />
+            </View>
+          )}
 
           <CoursItem
             key={index}
-            cours={_cours}
+            cours={lesson}
             theme={theme}
             navigation={navigation}
-            CoursPressed={CoursPressed}
+            lessonPressed={() => {
+              navigation.navigate('Lesson', { event: lesson });
+            }}
           />
         </View>
       ))}
