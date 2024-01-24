@@ -72,6 +72,7 @@ function CoursScreen({ navigation }) {
 
   const pagerRef = useRef<InfinitePagerImperativeApi | null>(null);
   const [calendarDate, setCalendarDate] = useState(new Date());
+  const [isLoading, setIsLoading] = useState(true);
 
   /**
    * Simple cache to prevent sneaking into the `AsyncStorage`.
@@ -86,8 +87,17 @@ function CoursScreen({ navigation }) {
    * }
    */
   type TimetableViewCache = Record<string, { [id: string]: PapillonLesson }>;
-  const [cours, setCours] = useState<TimetableViewCache>({});
-  const readLessons = useCallback((page: number) => {
+  const [cours, _setCours] = useState<TimetableViewCache>({});
+
+  // We make a ref of it to be accessible inside our event handlers.
+  // See <https://medium.com/geographit/accessing-react-state-in-event-listeners-with-usestate-and-useref-hooks-8cceee73c559>.
+  const coursRef = useRef(cours); 
+  const setCours = (cours: TimetableViewCache) => {
+    coursRef.current = cours;
+    _setCours(cours);
+  };
+
+  const lessonsFromPage = useCallback((page: number) => {
     const dayKey = dateToFrenchFormat(getDateFromPageNumber(page));
     if (dayKey in cours) return Object.values(cours[dayKey]);
     
@@ -327,6 +337,8 @@ Statut : ${cours.status || 'Aucun'}
           }}
           onPressMenuItem={({ nativeEvent }) => {
             const dayKey = dateToFrenchFormat(calendarDate);
+            const cours = coursRef.current;
+
             if (!(dayKey in cours)) return; // Pretty useless otherwise...
 
             if (nativeEvent.actionKey === 'addtoCalendar') {
@@ -380,21 +392,31 @@ Statut : ${cours.status || 'Aucun'}
   
   const refreshStateCache = async (date: Date, force: boolean): Promise<void> => {
     if (!appContext.dataProvider) return;
-    let lessonsViewCache = { ...cours };
+    // Temporary clone.
+    let lessonsViewCache = { ...coursRef.current };
 
     console.info('timetable: fetching from scratch for state.');
     
     const lessons = await appContext.dataProvider.getTimetable(date, force);
     if (!lessons) return; // No-op, not sure if that's good here.
+    
+    // We fill undefined objects.
+    const mondayIndex = date.getDate() - date.getDay() + 1;
+    for (let i = 0; i <= 6; i++) {
+      const day = new Date(date);
+      day.setDate(mondayIndex + i);
 
-    // Register every lessons of the week inside our state cache.
-    for (const lesson of lessons) {
-      const dayKey = dateToFrenchFormat(new Date(lesson.start));
-      
+      const dayKey = dateToFrenchFormat(day);
+
       // Create the object if not done.
       if (!(dayKey in lessonsViewCache)) {
         lessonsViewCache[dayKey] = {};
       }
+    }
+
+    // Register every lessons of the week inside our state cache.
+    for (const lesson of lessons) {
+      const dayKey = dateToFrenchFormat(new Date(lesson.start));
 
       // Insert the lesson in the day object.
       lessonsViewCache[dayKey][lesson.id] = lesson;
@@ -403,7 +425,7 @@ Statut : ${cours.status || 'Aucun'}
     setCours(lessonsViewCache);
   };
 
-  const handlePageChange = async (page: number): Promise<void> => {
+  const handlePageChange = async (page: number) => {
     // Get the date selected using the page number.
     const date = getDateFromPageNumber(page);
     
@@ -413,22 +435,20 @@ Statut : ${cours.status || 'Aucun'}
 
     // If inside cache, then simply use it.
     const currentDayKey = dateToFrenchFormat(date);
-    if (currentDayKey in cours) {
-      console.info('timetable: used memory cached lessons.');
+    if (currentDayKey in coursRef.current) {
+      setIsLoading(false);
       return;
     }
+    
+    setIsLoading(true);
 
     // Otherwise, we need to fetch. Make sure to not
     // force to also use storage cache, if it's in there.
     await refreshStateCache(date, false);
+    setIsLoading(false);
   };
 
-  const forceRefresh = async () => {
-    const currentDayKey = dateToFrenchFormat(calendarDate);
-    console.log('timetable: should force refresh for', currentDayKey);
-
-    await refreshStateCache(calendarDate, true);
-  };
+  const forceRefresh = () => refreshStateCache(calendarDate, true);
 
   return (
     <View
@@ -589,14 +609,14 @@ Statut : ${cours.status || 'Aucun'}
         style={styles.viewPager}
         pageWrapperStyle={styles.pageWrapper}
         
-        pageBuffer={7}
+        pageBuffer={1}
         gesturesDisabled={false}
-        onPageChange={(page) => handlePageChange(page)}
+        onPageChange={handlePageChange}
         
         renderPage={({ index }) => (
-          readLessons(index).length > 0 ? (
+          !isLoading ? (
             <CoursPage
-              cours={readLessons(index)}
+              cours={lessonsFromPage(index)}
               navigation={navigation}
               theme={theme}
               forceRefresh={() => forceRefresh()}
@@ -906,7 +926,6 @@ function CoursPage({ cours, navigation, theme, forceRefresh }: {
   }
 
   const UIColors = GetUIColors();
-  console.log(cours.length);
 
   return (
     <ScrollView
