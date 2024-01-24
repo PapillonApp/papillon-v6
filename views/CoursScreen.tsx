@@ -856,14 +856,6 @@ const CoursItem = ({ cours, theme, lessonPressed, navigation }: {
                     strokeWidth={2.2}
                   />
                 )}
-                <Text>TODO: FILES</Text>
-                {/* {cours.content.files && cours.content.files.length > 0 && (
-                  <Paperclip
-                    size={21}
-                    color={UIColors.text}
-                    strokeWidth={2.2}
-                  />
-                )} */}
               </View>
 
               {cours.status && (
