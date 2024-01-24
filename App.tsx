@@ -105,7 +105,7 @@ import InputPronoteQRPin from './views/NewAuthStack/Pronote/LoginPronoteQRToken'
 Sentry.init({
   dsn: DSN_URL,
   tracesSampleRate: 0.75,
-  debug: true,
+  debug: false,
   enableInExpoDevelopment: true,
 });
 
