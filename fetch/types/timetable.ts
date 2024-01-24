@@ -1,9 +1,5 @@
 export interface CachedPapillonTimetable {
-  /** `cacheDay` */
-  date: string
-  /** `cacheTime` */
-  dateSaved: string
-
+  interval: { from: string, to?: string }
   timetable: PapillonLesson[]
 }
 
@@ -19,17 +15,17 @@ export interface PapillonLesson {
   rooms: string[]
   group_names: string[]
   memo?: string
-  content: Array<{
-    title: string
-    description: string
-    category: string
-    files: Array<{
-      id: string
-      name: string
-      url: string
-      type: number
-    }>
-  }>
+  // content: Array<{
+  //   title: string
+  //   description: string
+  //   category: string
+  //   files: Array<{
+  //     id: string
+  //     name: string
+  //     url: string
+  //     type: number
+  //   }>
+  // }>
   virtual: string[]
   start: string
   end: string

@@ -23,36 +23,31 @@ function removeDuplicateCourses(courses: PapillonLesson[]): PapillonLesson[] {
   return result;
 }
 
-export const timetableHandler = async (day: Date, instance?: Pronote, force = false): Promise<PapillonLesson[] | null> => {
-  const today = new Date(day);
-  today.setHours(0, 0, 0, 0);
-  
-  const cache = await AsyncStorage.getItem(AsyncStoragePronoteKeys.CACHE_TIMETABLE);
+export const timetableHandler = async (interval: [from: Date, to?: Date], instance?: Pronote, force = false): Promise<PapillonLesson[] | null> => {
+  let weekCacheString = interval[0].toISOString();
+  if (interval[1]) weekCacheString += '-' + interval[1].toISOString();
+  console.log(weekCacheString);
+
+  const cache = await AsyncStorage.getItem(AsyncStoragePronoteKeys.CACHE_TIMETABLE + '-' + weekCacheString);
   if (cache && !force) {
     const data: Array<CachedPapillonTimetable> = JSON.parse(cache);
 
-    for (let i = 0; i < data.length; i += 1) {
-      const cacheDay = new Date(data[i].date);
-      cacheDay.setHours(0, 0, 0, 0);
+    for (const cachedTimetable of data) {
+      const cacheInterval = cachedTimetable.interval;
+      if (cacheInterval.from === interval[0].toISOString()) {
+        if (interval[1] && cacheInterval.to !== interval[1].toISOString()) continue;
 
-      if (today.getTime() === cacheDay.getTime()) {
-        const currentTime = new Date();
-        currentTime.setHours(0, 0, 0, 0);
-
-        const cacheTime = new Date(data[i].dateSaved);
-        cacheTime.setHours(0, 0, 0, 0);
-
-        if (currentTime.getTime() === cacheTime.getTime()) {
-          return data[i].timetable;
-        }
+        console.log('timetable: use cache');
+        return cachedTimetable.timetable;
       }
     }
   }
 
   if (!instance) throw new Error('No instance available.');
+  console.log('timetable: fetch timetable');
 
   try {
-    const timetableFromPawnote = await instance.getLessonsForInterval(day);
+    const timetableFromPawnote = await instance.getLessonsForInterval(...interval);
     
     const timetable: PapillonLesson[] = timetableFromPawnote.map(lesson => ({
       id: lesson.id,
@@ -62,7 +57,6 @@ export const timetableHandler = async (day: Date, instance?: Pronote, force = fa
       rooms: lesson.classrooms,
       group_names: lesson.groupNames,
       memo: lesson.memo,
-      content: [], // TODO in Pawnote
       virtual: lesson.virtualClassrooms,
       start: lesson.start.toISOString(),
       end: lesson.end.toISOString(),
@@ -82,17 +76,16 @@ export const timetableHandler = async (day: Date, instance?: Pronote, force = fa
       cachedTimetable = JSON.parse(cache);
     }
 
-    cachedTimetable = cachedTimetable.filter(
-      (entry) => new Date(entry.date) !== today
-    );
-
     cachedTimetable.push({
-      date: today.toISOString(),
-      dateSaved: new Date().toISOString(),
+      interval: {
+        from: interval[0].toISOString(),
+        to: interval[1] ? interval[1].toISOString() : void 0
+      },
+
       timetable: cleanedUpTimetable,
     });
 
-    await AsyncStorage.setItem(AsyncStoragePronoteKeys.CACHE_TIMETABLE, JSON.stringify(cachedTimetable));
+    await AsyncStorage.setItem(AsyncStoragePronoteKeys.CACHE_TIMETABLE + '-' + weekCacheString, JSON.stringify(cachedTimetable));
     return cleanedUpTimetable;
   } catch (error) {
     console.info('pronote/timetableHandler: network failed, no cache', error);

@@ -206,7 +206,9 @@ export class IndexDataInstance {
   }
 
   /**
-   * Get a list of user's lessons for the given day.
+   * Get a list of user's lessons for a week.
+   * The week is calculated from the given day.
+   * A week goes from the Monday to the Sunday.
    * 
    * If the user is offline and/or the cache fails, an
    * empty list is returned.
@@ -214,11 +216,20 @@ export class IndexDataInstance {
   async getTimetable (day: Date, force = false): Promise<PapillonLesson[]> {
     await this.waitInit();
 
+    // JS dates are starting from Sunday, we do +1 to be on Monday;
+    const mondayIndex = day.getDate() - day.getDay() + 1;
+    const sundayIndex = mondayIndex + 6;
+
+    const monday = new Date(day);
+    monday.setDate(mondayIndex);
+    const sunday = new Date(day);
+    sunday.setDate(sundayIndex);
+
     if (this.service === 'skolengo') {
       return this.skolengoInstance!.getTimetable(day, force);
     }
     else if (this.service === 'pronote') {
-      const timetable = await pronoteTimetableHandler(day, this.pronoteInstance, force);
+      const timetable = await pronoteTimetableHandler([monday, sunday], this.pronoteInstance, force);
       if (timetable) return timetable;
 
       console.warn('getTimetable: offline and/or no cache.');
