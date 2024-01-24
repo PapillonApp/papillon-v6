@@ -72,6 +72,8 @@ import SelectService from './views/NewAuthStack/SelectService';
 import FindEtab from './views/NewAuthStack/Pronote/FindEtab';
 import LocateEtab from './views/NewAuthStack/Pronote/LocateEtab';
 
+import NetworkLoggerScreen from './views/Settings/NetworkLogger';
+
 import PdfViewer from './views/Modals/PdfViewer';
 
 import { LoginSkolengoSelectSchool } from './views/NewAuthStack/Skolengo/LoginSkolengoSelectSchool';
@@ -89,6 +91,9 @@ import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
 const Tab = createBottomTabNavigator();
 import * as Sentry from '@sentry/react-native';
 import { DSN_URL } from '@env';
+
+import { startNetworkLogging } from 'react-native-network-logger';
+startNetworkLogging();
 
 import {
   Home as PapillonIconsHome,
@@ -377,6 +382,15 @@ function InsetSettings() {
         options={{
           headerTitle: 'Réglages',
           headerBackTitle: 'Préférences',
+        }}
+      />
+
+      <Stack.Screen
+        name="NetworkLoggerScreen"
+        component={NetworkLoggerScreen}
+        options={{
+          presentation: 'modal',
+          headerTitle: 'Historique réseau',
         }}
       />
 
@@ -1075,6 +1089,15 @@ function AuthStack() {
         name="SelectService"
         component={SelectService}
         options={{
+        }}
+      />
+
+      <Stack.Screen
+        name="NetworkLoggerScreen"
+        component={NetworkLoggerScreen}
+        options={{
+          presentation: 'modal',
+          headerTitle: 'Historique réseau',
         }}
       />
 

@@ -81,6 +81,7 @@
     "react-native-infinite-pager": "^0.2.0",
     "react-native-ios-context-menu": "^1.15.3",
     "react-native-linear-gradient": "^2.8.3",
+    "react-native-network-logger": "^1.15.0",
     "react-native-paper": "^5.9.1",
     "react-native-parsed-text": "^0.0.22",
     "react-native-pdf-renderer": "^1.2.0",
