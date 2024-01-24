@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { useCallback, useState, useEffect, useRef } from 'react';
+import React, { useCallback, useState, useEffect, useRef, useLayoutEffect } from 'react';
 import {
   Animated,
   View,
@@ -31,7 +30,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Notifications from 'expo-notifications';
 
 import * as Calendar from 'expo-calendar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import PapillonLoading from '../components/PapillonLoading';
 
@@ -61,30 +59,47 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Calendar as CalendarPapillonIcon } from '../interface/icons/PapillonIcons';
 import NativeText from '../components/NativeText';
 import { PapillonLesson } from '../fetch/types/timetable';
+import { dateToFrenchFormat } from '../utils/dates';
 
-const calcDate = (date: Date, days: number) => {
-  return date;
-};
-
-const getDateKey = (date: Date): string => {
-  return date.toLocaleDateString('fr-FR');
-};
 
 // TODO: Type this inside react-navigation
 // @ts-expect-error
 function CoursScreen({ navigation }) {
-  const theme = useTheme();
-  const pagerRef = useRef<InfinitePagerImperativeApi | null>(null);
+  const appContext = useAppContext();
   const insets = useSafeAreaInsets();
+  const UIColors = GetUIColors();
+  const theme = useTheme();
 
+  const pagerRef = useRef<InfinitePagerImperativeApi | null>(null);
   const [calendarDate, setCalendarDate] = useState(new Date());
-  const [cours, setCours] = useState<PapillonLesson[]>([]);
+
+  /**
+   * Simple cache to prevent sneaking into the `AsyncStorage`.
+   * Keys are made from the function `dateToFrenchFormat`.
+   * 
+   * @example
+   * {
+   *   "24/01/2024": { // To read only lessons from this day, use `Object.values()`.
+   *     "123#...": { ...PapillonLesson },
+   *     "123#...": { ...PapillonLesson },
+   *   }
+   * }
+   */
+  type TimetableViewCache = Record<string, { [id: string]: PapillonLesson }>;
+  const [cours, setCours] = useState<TimetableViewCache>({});
+  const readLessons = useCallback((page: number) => {
+    const dayKey = dateToFrenchFormat(getDateFromPageNumber(page));
+    if (dayKey in cours) return Object.values(cours[dayKey]);
+    
+    // Not yet fetched...
+    return [];
+  }, [cours]);
 
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
 
   // animate calendar modal
-  const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0)).current;
 
   // animate modal when visible changes
@@ -124,19 +139,19 @@ function CoursScreen({ navigation }) {
     }
   }, [calendarModalOpen]);
 
-  async function addToCalendar(cours) {
-
+  async function addToCalendar (cours: Record<string, PapillonLesson>): Promise<void> {
     // get calendar permission
     const { status } = await Calendar.requestCalendarPermissionsAsync();
+
     if (status === 'granted') {
-      // for each cours
-        
-      cours.forEach(async (cours) => {
+      Object.values(cours).forEach(async (cours) => {
+        if (!cours.subject) return;
+
         // get calendar
         const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
 
         // if Papillon-(cours.subject.name) calendar exists
-        let calendarId = null;
+        let calendarId: string | undefined;
 
         for (const calendar of calendars) {
           if (calendar.title === `Papillon-${cours.subject.name}`) {
@@ -146,10 +161,10 @@ function CoursScreen({ navigation }) {
         }
 
         // if not, create it
-        if (calendarId === null) {
+        if (!calendarId) {
           await Calendar.createCalendarAsync({
             title: `Papillon-${cours.subject.name}`,
-            color: getClosestCourseColor(cours.subject.name, cours.background_color),
+            color: cours.background_color ?? getClosestCourseColor(cours.subject.name),
             entityType: Calendar.EntityTypes.EVENT,
           });
 
@@ -157,7 +172,6 @@ function CoursScreen({ navigation }) {
           const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
 
           // get calendar id
-
           for (const calendar of calendars) {
             if (calendar.title === `Papillon-${cours.subject.name}`) {
               calendarId = calendar.id;
@@ -165,17 +179,19 @@ function CoursScreen({ navigation }) {
             }
           }
         }
+
+        // if we still don't have it, then skip.
+        if (!calendarId) return;
           
         // add event to calendar
-
         if (!cours.is_cancelled) {
-          const event = await Calendar.createEventAsync(calendarId, {
+          await Calendar.createEventAsync(calendarId, {
             startDate: new Date(cours.start),
             endDate: new Date(cours.end),
             title: cours.subject.name,
             location: cours.rooms.join(', '),
             notes: `
-                Professeur(s) : ${cours.teachers.length > 1 ? 's' : ''} : ${cours.teachers.join(', ')}
+Professeur(s) : ${cours.teachers.length > 1 ? 's' : ''} : ${cours.teachers.join(', ')}
 Statut : ${cours.status || 'Aucun'}
               `.trim(),
             status: cours.is_cancelled ? 'CANCELED' : 'CONFIRMED',
@@ -212,30 +228,29 @@ Statut : ${cours.status || 'Aucun'}
     }
   }
 
-  async function notifyAll(_cours) {
+  async function notifyAll (_cours: Record<string, PapillonLesson>): Promise<void> {
     // for each cours
-    for (let i = 0; i < _cours.length; i++) {
-      const coursThis = _cours[i];
-      const identifier =
-        coursThis.subject.name + new Date(coursThis.start).getTime();
+    for (const coursThis of Object.values(_cours)) {
+      if (!coursThis.subject) continue;
+
+      const identifier = coursThis.subject.name + new Date(coursThis.start).getTime();
 
       // if notification already exists
-      Notifications.getAllScheduledNotificationsAsync().then((value) => {
-        // if item.identifier is found in value
-        for (const item of value) {
-          if (item.identifier === identifier) {
-            // cancel it
-            Notifications.cancelScheduledNotificationAsync(identifier);
-            break;
-          }
+      const value = await Notifications.getAllScheduledNotificationsAsync();
+      // if item.identifier is found in value
+      for (const item of value) {
+        if (item.identifier === identifier) {
+          // cancel it
+          await Notifications.cancelScheduledNotificationAsync(identifier);
+          break;
         }
-      });
+      }
 
       const time = new Date(coursThis.start);
       time.setMinutes(time.getMinutes() - 5);
 
       // schedule notification
-      Notifications.scheduleNotificationAsync({
+      await Notifications.scheduleNotificationAsync({
         identifier,
         content: {
           title: `${getClosestGradeEmoji(coursThis.subject.name)} ${
@@ -264,9 +279,11 @@ Statut : ${cours.status || 'Aucun'}
     );
   }
 
-  const UIColors = GetUIColors();
-
-  React.useLayoutEffect(() => {
+  /**
+   * Update the navigation bar according to the current
+   * states of the view.
+   */
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
@@ -309,21 +326,22 @@ Statut : ${cours.status || 'Aucun'}
             ],
           }}
           onPressMenuItem={({ nativeEvent }) => {
+            const dayKey = dateToFrenchFormat(calendarDate);
+            if (!(dayKey in cours)) return; // Pretty useless otherwise...
+
             if (nativeEvent.actionKey === 'addtoCalendar') {
-              addToCalendar(cours[calendarDate.toLocaleDateString()]);
+              addToCalendar(cours[dayKey]);
             } else if (nativeEvent.actionKey === 'notifyAll') {
-              notifyAll(cours[calendarDate.toLocaleDateString()]);
+              notifyAll(cours[dayKey]);
             }
           }}
         >
           <TouchableOpacity
+            onPress={() => setCalendarModalOpen(true)}
             style={[
               styles.calendarDateContainer,
-              {
-                backgroundColor: '#0065A8' + '20',
-              }
+              { backgroundColor: '#0065A8' + '20' }
             ]}
-            onPress={() => setCalendarModalOpen(true)}
           >
             <CalendarPapillonIcon stroke={'#0065A8'} />
             <Text style={[styles.calendarDateText, {color: '#0065A8'}]}>
@@ -335,9 +353,15 @@ Statut : ${cours.status || 'Aucun'}
             </Text>
           </TouchableOpacity>
         </ContextMenuView>
-      ,
     });
   }, [navigation, calendarDate, UIColors]);
+
+  const getDateFromPageNumber = (page: number): Date => {
+    const date = new Date();
+    date.setDate(date.getDate() + page);
+
+    return date;
+  };
 
   /**
    * Handler that triggers whenever the user changes the date
@@ -345,64 +369,65 @@ Statut : ${cours.status || 'Aucun'}
    */
   const handleCalendarAndTodaySelection = (date: Date) => {
     const today = new Date();
-    const diffTime = Math.abs(date.getTime() - today.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    // Read the new page number, to set the page to it.
+    const diffTime = date.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    // 1. Change the date.
-    setCalendarDate(date);
-    console.info('handleCalendae');
-    
+    // Change the selected page, it'll automatically trigger the
+    // `handlePageChange` function and then do `setCalendarDate(date)`.
     if (pagerRef.current) pagerRef.current.setPage(diffDays, { animated: false });
   };
+  
+  const refreshStateCache = async (date: Date, force: boolean): Promise<void> => {
+    if (!appContext.dataProvider) return;
+    let lessonsViewCache = { ...cours };
 
-  const appContext = useAppContext();
+    console.info('timetable: fetching from scratch for state.');
+    
+    const lessons = await appContext.dataProvider.getTimetable(date, force);
+    if (!lessons) return; // No-op, not sure if that's good here.
 
-  const updateCoursForDate = async (dateOffset: number, dateSelected: Date) => {
-    const newDate = calcDate(dateSelected, dateOffset);
-    if (!cours[newDate.toLocaleDateString()]) {
-      // load cache before fetching
-      const cacheResult = await AsyncStorage.getItem('@cours');
-      if (cacheResult) {
-        const cache = JSON.parse(cacheResult);
-        if (cache[newDate.toLocaleDateString()]) {
-          setCours((prevCours) => ({
-            ...prevCours,
-            [newDate.toLocaleDateString()]: cache[newDate.toLocaleDateString()],
-          }));
-        }
+    // Register every lessons of the week inside our state cache.
+    for (const lesson of lessons) {
+      const dayKey = dateToFrenchFormat(new Date(lesson.start));
+      
+      // Create the object if not done.
+      if (!(dayKey in lessonsViewCache)) {
+        lessonsViewCache[dayKey] = {};
       }
 
-      // fetch
-      const result = await appContext.dataProvider!.getTimetable(newDate);
-      setCours((prevCours) => ({
-        ...prevCours,
-        [newDate.toLocaleDateString()]: result,
-      }));
+      // Insert the lesson in the day object.
+      lessonsViewCache[dayKey][lesson.id] = lesson;
     }
+
+    setCours(lessonsViewCache);
   };
 
-  const handlePageChange = async (page: number) => {
-    const date = new Date();
-    date.setDate(date.getDate() + page);
+  const handlePageChange = async (page: number): Promise<void> => {
+    // Get the date selected using the page number.
+    const date = getDateFromPageNumber(page);
     
-    if (calendarDate.getDate() !== date.getDate()) {
-      setCalendarDate(date);
-      console.info('handlePageChange');
-    }
-  };
+    // Change the calendar.
+    // Should be the only place where it changes it !
+    setCalendarDate(date);
 
-  React.useEffect(() => {
-    (async () => {
-      console.log('selected date:', calendarDate.toLocaleString());
-    })();
-  }, [calendarDate]);
+    // If inside cache, then simply use it.
+    const currentDayKey = dateToFrenchFormat(date);
+    if (currentDayKey in cours) {
+      console.info('timetable: used memory cached lessons.');
+      return;
+    }
+
+    // Otherwise, we need to fetch. Make sure to not
+    // force to also use storage cache, if it's in there.
+    await refreshStateCache(date, false);
+  };
 
   const forceRefresh = async () => {
-    const day = calcDate(calendarDate, 0);
-    if (!appContext.dataProvider) return; // TODO: Handle when not defined ?
+    const currentDayKey = dateToFrenchFormat(calendarDate);
+    console.log('timetable: should force refresh for', currentDayKey);
 
-    // const result = await appContext.dataProvider.getTimetable(day, true);
-    // setCours((old) => ({ ...old, [day.toLocaleDateString()]: result }));
+    await refreshStateCache(calendarDate, true);
   };
 
   return (
@@ -560,36 +585,37 @@ Statut : ${cours.status || 'Aucun'}
       />
 
       <InfinitePager
-        style={[styles.viewPager]}
-        pageWrapperStyle={[styles.pageWrapper]}
-        
-        onPageChange={(page) => handlePageChange(page)}
         ref={pagerRef}
-        pageBuffer={4}
+        style={styles.viewPager}
+        pageWrapperStyle={styles.pageWrapper}
+        
+        pageBuffer={7}
         gesturesDisabled={false}
-        renderPage={({ index }) =>
-          cours[0] ? (
+        onPageChange={(page) => handlePageChange(page)}
+        
+        renderPage={({ index }) => (
+          readLessons(index).length > 0 ? (
             <CoursPage
-              cours={cours[calcDate(new Date(), index).toLocaleDateString()] || []}
+              cours={readLessons(index)}
               navigation={navigation}
               theme={theme}
               forceRefresh={() => forceRefresh()}
             />
           ) : (
-            <View style={[styles.coursContainer]}>
+            <View style={styles.coursContainer}>
               <PapillonLoading
                 title="Chargement des cours..."
                 subtitle="Obtention des cours en cours"
               />
             </View>
           )
-        }
+        )}
       />
     </View>
   );
 }
 
-const CoursItem = React.memo(({ cours, theme, lessonPressed, navigation }: {
+const CoursItem = ({ cours, theme, lessonPressed, navigation }: {
   cours: PapillonLesson
   lessonPressed: () => unknown
 }) => {
@@ -861,7 +887,7 @@ const CoursItem = React.memo(({ cours, theme, lessonPressed, navigation }: {
       </ContextMenuView>
     </View>
   );
-});
+};
 
 function CoursPage({ cours, navigation, theme, forceRefresh }: {
   cours: PapillonLesson[]
@@ -880,6 +906,7 @@ function CoursPage({ cours, navigation, theme, forceRefresh }: {
   }
 
   const UIColors = GetUIColors();
+  console.log(cours.length);
 
   return (
     <ScrollView
@@ -904,7 +931,6 @@ function CoursPage({ cours, navigation, theme, forceRefresh }: {
 
       {cours.map((lesson, index) => (
         <View key={lesson.id}>
-          {/* Si le cours précédent était il y a + de 30 min du cours actuel. */}
           {index !== 0 && new Date(lesson.start).getTime() - new Date(cours[index - 1].end).getTime() > 1800000 && (
             <View style={styles.coursSeparator}>
               <View
@@ -985,12 +1011,12 @@ const styles = StyleSheet.create({
 
   ctStart: {
     fontSize: 18,
-    fontWeight: 600,
+    fontWeight: '600',
     fontFamily: 'Papillon-Semibold',
   },
   ctEnd: {
     fontSize: 15,
-    fontWeight: 400,
+    fontWeight: '400',
     opacity: 0.5,
     fontFamily: 'Papillon-Regular',
   },
@@ -1035,12 +1061,12 @@ const styles = StyleSheet.create({
   },
   coursSalle: {
     fontSize: 14.5,
-    fontWeight: 500,
+    fontWeight: '500',
     fontFamily: 'Papillon-Semibold',
   },
   coursProf: {
     fontSize: 14.5,
-    fontWeight: 400,
+    fontWeight: '400',
     opacity: 0.5,
     fontFamily: 'Papillon-Medium',
   },
@@ -1059,7 +1085,7 @@ const styles = StyleSheet.create({
   },
   coursStatusText: {
     fontSize: 15,
-    fontWeight: 500,
+    fontWeight: '500',
   },
 
   coursStatusCancelled: {
@@ -1071,7 +1097,7 @@ const styles = StyleSheet.create({
 
   noCourses: {
     fontSize: 17,
-    fontWeight: 400,
+    fontWeight: '400',
     fontFamily: 'Papillon-Medium',
     opacity: 0.5,
     textAlign: 'center',
@@ -1150,7 +1176,7 @@ const styles = StyleSheet.create({
   },
   calendarDateText: {
     fontSize: 16,
-    fontWeight: 500,
+    fontWeight: '500',
     fontFamily: 'Papillon-Medium',
   },
 
