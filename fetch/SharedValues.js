@@ -1,11 +1,7 @@
 import SharedGroupPreferences from 'react-native-shared-group-preferences';
 import formatCoursName from '../utils/FormatCoursName';
-import getClosestColor from '../utils/ColorCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
-import {
-  forceSavedCourseColor,
-  getSavedCourseColor,
-} from '../utils/ColorCoursName';
+import getSavedCourseColor from '../utils/ColorCoursName';
 
 const appGroupIdentifier = 'group.xyz.getpapillon';
 
@@ -35,6 +31,8 @@ async function sendToSharedGroup(timetableData) {
     stringifiedData,
     appGroupIdentifier
   );
+
+  console.log(stringifiedData);
 }
 
 
