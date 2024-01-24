@@ -72,6 +72,8 @@ import SelectService from './views/NewAuthStack/SelectService';
 import FindEtab from './views/NewAuthStack/Pronote/FindEtab';
 import LocateEtab from './views/NewAuthStack/Pronote/LocateEtab';
 
+import NetworkLoggerScreen from './views/Settings/NetworkLogger';
+
 import PdfViewer from './views/Modals/PdfViewer';
 
 import { LoginSkolengoSelectSchool } from './views/NewAuthStack/Skolengo/LoginSkolengoSelectSchool';
@@ -88,6 +90,10 @@ import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
 // notifs.init();
 const Tab = createBottomTabNavigator();
 import * as Sentry from '@sentry/react-native';
+import { DSN_URL } from '@env';
+
+import { startNetworkLogging } from 'react-native-network-logger';
+startNetworkLogging();
 
 import {
   Home as PapillonIconsHome,
@@ -102,7 +108,9 @@ import {
 import InputPronoteQRPin from './views/NewAuthStack/Pronote/LoginPronoteQRToken';
 
 Sentry.init({
-  dsn: 'http://4f5fa3f4dc364796bbdac55029146458@sentry.getpapillon.xyz/3',
+  dsn: DSN_URL,
+  tracesSampleRate: 0.75,
+  debug: false,
   enableInExpoDevelopment: true,
 });
 
@@ -374,6 +382,15 @@ function InsetSettings() {
         options={{
           headerTitle: 'Réglages',
           headerBackTitle: 'Préférences',
+        }}
+      />
+
+      <Stack.Screen
+        name="NetworkLoggerScreen"
+        component={NetworkLoggerScreen}
+        options={{
+          presentation: 'modal',
+          headerTitle: 'Historique réseau',
         }}
       />
 
@@ -1076,6 +1093,15 @@ function AuthStack() {
       />
 
       <Stack.Screen
+        name="NetworkLoggerScreen"
+        component={NetworkLoggerScreen}
+        options={{
+          presentation: 'modal',
+          headerTitle: 'Historique réseau',
+        }}
+      />
+
+      <Stack.Screen
         name="FindEtab"
         component={FindEtab}
         options={{
@@ -1148,7 +1174,7 @@ function AuthStack() {
   );
 }
 
-export default function App() {
+function App() {
   const scheme = useColorScheme();
   
   const [dataProvider, setDataProvider] = React.useState<IndexDataInstance | null>(null);	
@@ -1219,3 +1245,5 @@ export default function App() {
     </View>
   ) : null;
 }
+
+export default Sentry.wrap(App);

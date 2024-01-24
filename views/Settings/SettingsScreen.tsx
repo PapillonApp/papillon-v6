@@ -69,15 +69,16 @@ function SettingsScreen({ navigation }) {
               Régénérer le token de votre compte
             </NativeText>
           </NativeItem>
-          <AlertBottomSheet
-            visible={pronoteTokenActionAlert}
-            title="Régénérer le token"
-            subtitle="Le token de votre compte a été régénéré avec succès !"
-            icon={<RefreshCw/>}
-            cancelAction={() => setPronoteTokenActionAlert(false)}
-          />
         </NativeList>
       )}
+
+      <AlertBottomSheet
+        visible={pronoteTokenActionAlert}
+        title="Régénérer le token"
+        subtitle="Le token de votre compte a été régénéré avec succès !"
+        icon={<RefreshCw/>}
+        cancelAction={() => setPronoteTokenActionAlert(false)}
+      />
 
       {appContext.dataProvider.service === 'skolengo' && (
         <NativeList

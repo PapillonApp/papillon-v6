@@ -178,20 +178,42 @@ function AboutScreen({ navigation }) {
           inset
           header="Informations sur l'app"
         >
-          {dataList.map((item, index) => (
-            <NativeItem
-              trailing={
-                <NativeText heading="p2">
-                  {item.subtitle}
-                </NativeText>
-              }
-              key={index}
-            >
-              <NativeText heading="h4">
-                {item.title}
+          <NativeItem
+            trailing={
+              <NativeText heading="p2">
+                {packageJson.version} {packageJson.canal}
               </NativeText>
-            </NativeItem>
-          ))}
+            }
+          >
+            <NativeText heading="h4">
+                Version de Papillon
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            trailing={
+              <NativeText heading="p2">
+                {packageJson.dependencies['pawnote'].split('^')[1]}
+              </NativeText>
+            }
+            onPress={() => navigation.navigate('NetworkLoggerScreen')}
+          >
+            <NativeText heading="h4">
+              Version de Pawnote
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            trailing={
+              <NativeText heading="p2">
+                {`RN: ${
+                  packageJson.dependencies['react-native'].split('^')[1]
+                }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`}
+              </NativeText>
+            }
+          >
+            <NativeText heading="h4">
+              Dépendances
+            </NativeText>
+          </NativeItem>
         </NativeList>
       </ScrollView>
     </View>

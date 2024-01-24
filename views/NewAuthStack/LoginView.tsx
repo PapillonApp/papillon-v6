@@ -218,7 +218,12 @@ const LoginView = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <Text style={[styles.mainVersion, {top: insets.top}]}>
+      <Text
+        style={[styles.mainVersion, {top: insets.top}]}
+        onLongPress={() => {
+          navigation.navigate('NetworkLoggerScreen');
+        }}
+      >
         v{packageJson.version} {packageJson.canal}
       </Text>
     </View>
