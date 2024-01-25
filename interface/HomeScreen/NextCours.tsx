@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, type ViewStyle } from 'react-native';
 
 import { Text } from 'react-native-paper';
 
@@ -10,21 +10,26 @@ import GetUIColors from '../../utils/GetUIColors';
 import { getSavedCourseColor } from '../../utils/ColorCoursName';
 import formatCoursName from '../../utils/FormatCoursName';
 import { MapPin, UserCircle2 } from 'lucide-react-native';
+import { PapillonLesson } from '../../fetch/types/timetable';
 
-function lz(num) {
+function lz(num: number): string {
   return (num < 10 ? '0' : '') + num;
 }
 
-const NextCours = ({ cours, style, navigation, color }) => {
+const NextCours = ({ cours, style, navigation, color }: {
+  cours: PapillonLesson[] | null
+  style?: ViewStyle
+  color?: string,
+  navigation: any
+}) => {
   const UIColors = GetUIColors();
 
   const [nxid, setNxid] = useState(0);
-
-  const [showLen, setShowLen] = useState(true);
-  const [coursStarted, setCoursStarted] = useState(false);
-  const [lenText, setLenText] = useState('à venir');
+  const [lenText, setLenText] = useState('À venir');
   const [barPercent, setBarPercent] = useState(0);
 
+  // TODO: @Vexcited to contributors : is this implemented ?
+  // I don't see any usage of `setCoursEnded` but `coursEnded` is used...
   const [coursEnded, setCoursEnded] = useState(false);
 
   function updateNext() {
@@ -39,46 +44,40 @@ const NextCours = ({ cours, style, navigation, color }) => {
     let now = new Date();
 
     // if the cours is in the next hour
-    if (hb < new Date(now) && st > new Date(now)) {
-      setCoursStarted(false);
-        
+    if (hb.getTime() < new Date(now).getTime() && st.getTime() > new Date(now).getTime()) {
       // calculate the time between now and the start
-      let diff = new Date(now) - st;
+      let diff = new Date(now).getTime() - st.getTime();
       diff = Math.floor(diff / 1000 / 60);
       setLenText('dans ' + Math.abs(diff) + ' min');
 
       // calculate the progression
-      let q = Math.abs(now-hb);
-      let d = Math.abs(st-hb);
+      let q = Math.abs(now.getTime() - hb.getTime());
+      let d = Math.abs(st.getTime() - hb.getTime());
       diff = q / d * 100;
       setBarPercent(diff);
     }
     // if the cours is in progress
     else if (st < new Date(now) && en > new Date(now)) {
-      setCoursStarted(true);
-
       // calculate the time between now and the end
-      let diff = en - new Date(now);
+      let diff: string | number = en.getTime() - new Date(now).getTime();
       diff = Math.floor(diff / 1000 / 60);
 
-      if(diff == 0) {
+      if (diff == 0) {
         diff = 'moins d\'une';
       }
 
       setLenText(diff + ' min rest.');
 
       // calculate the progression between the start and the end
-      let q = Math.abs(now-st);
-      let d = Math.abs(en-st);
+      let q = Math.abs(now.getTime()-st.getTime());
+      let d = Math.abs(en.getTime()-st.getTime());
       diff = q / d * 100;
       setBarPercent(diff);
     }
     // if the cours has not started yet
     else if (st > new Date(now)) {
-      setCoursStarted(false);
-        
       // calculate the time between now and the start
-      let diff = st - new Date(now);
+      let diff = st.getTime() - new Date(now).getTime();
       diff = Math.floor(diff / 1000 / 60);
 
       let hours = Math.floor(diff / 60);
@@ -109,7 +108,6 @@ const NextCours = ({ cours, style, navigation, color }) => {
       return 0;
     });
 
-    let currentOrNextClass = null;
     let minTimeDiff = Infinity;
 
     // find the class that is currently happening or next
@@ -120,18 +118,16 @@ const NextCours = ({ cours, style, navigation, color }) => {
 
       // if the class is currently happening
       if (classStart < now && classEnd > now) {
-        currentOrNextClass = classInfo;
         setNxid(cours.indexOf(classInfo));
         break;
       }
 
       // if the class is in the future
       if (classStart > now) {
-        const timeDiff = classStart - now;
+        const timeDiff = classStart.getTime() - now.getTime();
 
         // if the class is closer than the current closest class
         if (timeDiff < minTimeDiff) {
-          currentOrNextClass = classInfo;
           setNxid(cours.indexOf(classInfo));
           minTimeDiff = timeDiff;
         }
@@ -140,42 +136,61 @@ const NextCours = ({ cours, style, navigation, color }) => {
   }
 
   useEffect(() => {
+    // Setup an interval to update the next cours
+    // every second.
     const interval = setInterval(() => {
       updateNext();
       checkCours();
     }, 1000);
-  
+    
+    // Also update when mounted.
+    updateNext();
+    checkCours();
+
     return () => clearInterval(interval);
   }, [cours, nxid]);
 
-  useEffect(() => {
-    updateNext();
-    checkCours();
-  }, [cours, nxid]);
-
   if(!cours || !cours[nxid]) return (
-    <PressableScale style={[styles.container, styles.end.container, { backgroundColor: UIColors.element }, style]}
+    <PressableScale
+      style={[
+        styles.container,
+        styles.end.container,
+        { backgroundColor: UIColors.element },
+        style
+      ]}
       onPress={() => {
         if(navigation) {
           navigation.navigate('CoursHandler');
         }
       }}
     >
-      <Text style={[styles.end.text, {color: UIColors.text}]} numberOfLines={1}>
+      <Text
+        numberOfLines={1}
+        style={[styles.end.text, { color: UIColors.text }]}
+      >
         Aucun cours aujourd'hui
       </Text>
     </PressableScale>
   );
 
   if(coursEnded) return (
-    <PressableScale style={[styles.container, styles.end.container, { backgroundColor: UIColors.element }, style]}
+    <PressableScale
+      style={[
+        styles.container,
+        styles.end.container,
+        { backgroundColor: UIColors.element },
+        style
+      ]}
       onPress={() => {
         if(navigation) {
           navigation.navigate('CoursHandler');
         }
       }}
     >
-      <Text style={[styles.end.text, {color: UIColors.text}]} numberOfLines={1}>
+      <Text
+        numberOfLines={1}
+        style={[styles.end.text, { color: UIColors.text }]}
+      >
         Pas de prochain cours
       </Text>
     </PressableScale>
@@ -187,47 +202,45 @@ const NextCours = ({ cours, style, navigation, color }) => {
     <PressableScale
       style={[
         styles.container,
-        { backgroundColor: color !== null ? color : getSavedCourseColor(cours[nxid].subject.name, cours[nxid].background_color) },
+        { backgroundColor: color ? color : getSavedCourseColor(cours[nxid].subject?.name ?? '', cours[nxid].background_color) },
         style
       ]}
       onPress={() => {
-        if(navigation) {
+        if (navigation) {
           navigation.navigate('Lesson', { event: cours[nxid] });
         }
       }}
     >
-      <View style={[styles.time.container]}>
-        <Text style={[styles.time.text]}>
+      <View style={styles.time.container}>
+        <Text style={styles.time.text}>
           { new Date(cours[nxid].start).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
         </Text>
       </View>
-      <View style={[styles.data.container]}>
-        <View style={[styles.subject.container]}>
-          <Text style={[styles.subject.text]} numberOfLines={1}>
-            { formatCoursName(cours[nxid].subject.name) }
+      <View style={styles.data.container}>
+        <View style={styles.subject.container}>
+          <Text style={styles.subject.text} numberOfLines={1}>
+            { formatCoursName(cours[nxid].subject?.name ?? '(inconnu)') }
           </Text>
         </View>
 
-        { showLen && (
-          <View style={[styles.len.container]}>
-            <Text style={[styles.len.startText]}>
-              {lenText}
-            </Text>
+        <View style={[styles.len.container]}>
+          <Text style={[styles.len.startText]}>
+            {lenText}
+          </Text>
 
-            <View style={[styles.len.bar]}>
-              <View style={[
-                styles.len.barFill,
-                {
-                  width: barPercent + '%',
-                }
-              ]} />
-            </View>
-
-            <Text style={[styles.len.endText]}>
-              { new Date(cours[nxid].end).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
-            </Text>
+          <View style={[styles.len.bar]}>
+            <View style={[
+              styles.len.barFill,
+              {
+                width: barPercent + '%',
+              }
+            ]} />
           </View>
-        )}
+
+          <Text style={[styles.len.endText]}>
+            { new Date(cours[nxid].end).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
+          </Text>
+        </View>
 
         <View style={[styles.details.container]}>
           { cours[nxid].rooms && cours[nxid].rooms.length > 0 && (

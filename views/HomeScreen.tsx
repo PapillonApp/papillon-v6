@@ -385,11 +385,11 @@ function HomeScreen({ navigation }) {
   // Load navigation bar data.
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: Platform.OS === 'ios' && (() => (
+      headerLeft: () => Platform.OS === 'ios' && (
         themeAdjustments.enabled
           ? <PapillonIcon fill={'#ffffff'} width={32} height={32} />
           : <PapillonIcon fill={UIColors.text + '26'} width={32} height={32} />
-      )),
+      ),
       headerTitle: 'Vue d\'ensemble',
       headerLargeTitle: false,
       headerShadowVisible: false,
@@ -625,12 +625,10 @@ function HomeScreen({ navigation }) {
       )}
       
       <Animated.View
-        style={[
-          { 
-            opacity: headerOpacity,
-            transform: [{ scale: headerScale }],
-          },
-        ]}
+        style={{ 
+          opacity: headerOpacity,
+          transform: [{ scale: headerScale }],
+        }}
       >
         <NextCoursElem
           cours={lessons.data}
@@ -644,12 +642,10 @@ function HomeScreen({ navigation }) {
       </Animated.View>
 
       <Animated.View
-        style={[
-          {
-            opacity: tabsOpacity,
-            transform: [{ scale: tabsScale }],
-          },
-        ]}
+        style={{
+          opacity: tabsOpacity,
+          transform: [{ scale: tabsScale }],
+        }}
       >
         <TabsElement navigation={navigation} />
       </Animated.View>
