@@ -29,7 +29,6 @@ import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContextMenuView } from 'react-native-ios-context-menu';
 import NextCoursElem from '../interface/HomeScreen/NextCours';
-import getConsts from '../fetch/consts';
 import SyncStorage from 'sync-storage';
 import * as ExpoLinking from 'expo-linking';
 
@@ -49,16 +48,14 @@ import CheckAnimated from '../interface/CheckAnimated';
 
 import { useAppContext } from '../utils/AppContext';
 import sendToSharedGroup from '../fetch/SharedValues';
-import { expireToken } from '../fetch/AuthStack/LoginFlow';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import AlertBottomSheet from '../interface/AlertBottomSheet';
 import NetInfo from '@react-native-community/netinfo';
 import AlertAnimated from '../interface/AlertAnimated';
 import { PapillonUser } from '../fetch/types/user';
 
 // Functions
-const openURL = (url) => {
+const openURL = (url: string) => {
   const isURL = url.includes('http://') || url.includes('https://');
 
   if (!isURL) {
@@ -84,10 +81,40 @@ const openURL = (url) => {
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
     presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
-    controlsColor: Platform.OS === 'ios' ? '#29947A' : null,
+    controlsColor: Platform.OS === 'ios' ? '#29947A' : void 0,
     readerMode: true,
     createTask: false,
   });
+};
+
+const THEME_IMAGES = {
+  'papillon/default': require('../assets/themes/papillon/default.png'),
+  'papillon/grospapillon': require('../assets/themes/papillon/grospapillon.png'),
+  'papillon/papillonligne': require('../assets/themes/papillon/papillonligne.png'),
+  'papillon/papillonlumineux': require('../assets/themes/papillon/papillonlumineux.png'),
+  'papillon/papillonpapier': require('../assets/themes/papillon/papillonpapier.png'),
+  'papillon/papillonplusieurs': require('../assets/themes/papillon/papillonplusieurs.png'),
+  'papillon/formes': require('../assets/themes/papillon/formes.png'),
+  'papillon/formescolor': require('../assets/themes/papillon/formescolor.png'),
+  'hero/circuit': require('../assets/themes/hero/circuit.png'),
+  'hero/damier': require('../assets/themes/hero/damier.png'),
+  'hero/flakes': require('../assets/themes/hero/flakes.png'),
+  'hero/movement': require('../assets/themes/hero/movement.png'),
+  'hero/sparkcircle': require('../assets/themes/hero/sparkcircle.png'),
+  'hero/topography': require('../assets/themes/hero/topography.png'),
+  'hero/wave': require('../assets/themes/hero/wave.png'),
+  'gribouillage/clouds': require('../assets/themes/gribouillage/clouds.png'),
+  'gribouillage/cross': require('../assets/themes/gribouillage/cross.png'),
+  'gribouillage/gribs': require('../assets/themes/gribouillage/gribs.png'),
+  'gribouillage/hearts': require('../assets/themes/gribouillage/hearts.png'),
+  'gribouillage/heavy': require('../assets/themes/gribouillage/heavy.png'),
+  'gribouillage/lines': require('../assets/themes/gribouillage/lines.png'),
+  'gribouillage/stars': require('../assets/themes/gribouillage/stars.png'),
+  'artdeco/arrows': require('../assets/themes/artdeco/arrows.png'),
+  'artdeco/clouds': require('../assets/themes/artdeco/clouds.png'),
+  'artdeco/cubes': require('../assets/themes/artdeco/cubes.png'),
+  'artdeco/sparks': require('../assets/themes/artdeco/sparks.png'),
+  'artdeco/stripes': require('../assets/themes/artdeco/stripes.png'),
 };
 
 function HomeScreen({ navigation }) {
@@ -111,7 +138,7 @@ function HomeScreen({ navigation }) {
 
   const [homeworks, setHomeworks] = useState([]);
   const [customHomeworks, setCustomHomeworks] = useState([]);
-  const [homeworksDays, setHomeworksDays] = useState([]);
+  const [homeworksDays, setHomeworksDays] = useState<Array<{ custom: boolean, date: number }>>([]);
   const [loadingHw, setLoadingHw] = useState(true);
   const [timetable, setTimetable] = useState([]);
   const [loadingCours, setLoadingCours] = useState(true);
@@ -156,37 +183,6 @@ function HomeScreen({ navigation }) {
     }
   }
 
-  // theme
-  const themeImages = {
-    'papillon/default': require('../assets/themes/papillon/default.png'),
-    'papillon/grospapillon': require('../assets/themes/papillon/grospapillon.png'),
-    'papillon/papillonligne': require('../assets/themes/papillon/papillonligne.png'),
-    'papillon/papillonlumineux': require('../assets/themes/papillon/papillonlumineux.png'),
-    'papillon/papillonpapier': require('../assets/themes/papillon/papillonpapier.png'),
-    'papillon/papillonplusieurs': require('../assets/themes/papillon/papillonplusieurs.png'),
-    'papillon/formes': require('../assets/themes/papillon/formes.png'),
-    'papillon/formescolor': require('../assets/themes/papillon/formescolor.png'),
-    'hero/circuit': require('../assets/themes/hero/circuit.png'),
-    'hero/damier': require('../assets/themes/hero/damier.png'),
-    'hero/flakes': require('../assets/themes/hero/flakes.png'),
-    'hero/movement': require('../assets/themes/hero/movement.png'),
-    'hero/sparkcircle': require('../assets/themes/hero/sparkcircle.png'),
-    'hero/topography': require('../assets/themes/hero/topography.png'),
-    'hero/wave': require('../assets/themes/hero/wave.png'),
-    'gribouillage/clouds': require('../assets/themes/gribouillage/clouds.png'),
-    'gribouillage/cross': require('../assets/themes/gribouillage/cross.png'),
-    'gribouillage/gribs': require('../assets/themes/gribouillage/gribs.png'),
-    'gribouillage/hearts': require('../assets/themes/gribouillage/hearts.png'),
-    'gribouillage/heavy': require('../assets/themes/gribouillage/heavy.png'),
-    'gribouillage/lines': require('../assets/themes/gribouillage/lines.png'),
-    'gribouillage/stars': require('../assets/themes/gribouillage/stars.png'),
-    'artdeco/arrows': require('../assets/themes/artdeco/arrows.png'),
-    'artdeco/clouds': require('../assets/themes/artdeco/clouds.png'),
-    'artdeco/cubes': require('../assets/themes/artdeco/cubes.png'),
-    'artdeco/sparks': require('../assets/themes/artdeco/sparks.png'),
-    'artdeco/stripes': require('../assets/themes/artdeco/stripes.png'),
-  };
-
   const [themeEnabled, setThemeEnabled] = useState(false);
   const [themeColor, setThemeColor] = useState('#32AB8E');
   const [themeImage, setThemeImage] = useState('papillon/default');
@@ -215,18 +211,16 @@ function HomeScreen({ navigation }) {
 
   
 
-  const loadCustomHomeworks = async () => {
+  const loadCustomHomeworks = async (): Promise<void> => {
     const customHomeworks = await AsyncStorage.getItem('customHomeworks');
-    
-    let hw = [];
-    if (customHomeworks) hw = JSON.parse(customHomeworks);
+    const homeworks: any[] = JSON.parse(customHomeworks || '[]');
 
-    hw.forEach((homework) => {
+    homeworks.forEach((homework) => {
       let hwDate = new Date(homework.date);
       hwDate.setHours(0, 0, 0, 0);
 
       setHomeworksDays((prevDays) => {
-        let newDays = prevDays;
+        const newDays = [...prevDays];
 
         // check if day already exists
         if (!newDays.find((day) => day.date === hwDate.getTime())) {
@@ -243,7 +237,7 @@ function HomeScreen({ navigation }) {
       });
     });
       
-    setCustomHomeworks(hw);
+    setCustomHomeworks(homeworks);
   };
 
   /**
@@ -687,7 +681,7 @@ function HomeScreen({ navigation }) {
             }]}
           />
           <Image 
-            source={themeImages[themeImage]}
+            source={THEME_IMAGES[themeImage]}
             // @ts-expect-error : Not typed well ?
             style={[styles.headerThemeImage]}
           />
