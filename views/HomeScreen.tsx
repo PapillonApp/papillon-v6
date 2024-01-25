@@ -15,6 +15,7 @@ import {
   Platform,
   StatusBar,
   TouchableOpacity,
+  type ImageSourcePropType,
 } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
 
@@ -29,11 +30,11 @@ import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContextMenuView } from 'react-native-ios-context-menu';
 import NextCoursElem from '../interface/HomeScreen/NextCours';
-import SyncStorage from 'sync-storage';
+import SyncStorage, { set } from 'sync-storage';
 import * as ExpoLinking from 'expo-linking';
 
 // Icons 
-import { DownloadCloud, Check, AlertCircle, UserCircle2, Globe2, ServerOff } from 'lucide-react-native';
+import { DownloadCloud, Check, AlertCircle, UserCircle2, Globe2 } from 'lucide-react-native';
 import { Competences, Messages, Papillon as PapillonIcon, UserCheck } from '../interface/icons/PapillonIcons';
 
 // Formatting
@@ -50,9 +51,11 @@ import { useAppContext } from '../utils/AppContext';
 import sendToSharedGroup from '../fetch/SharedValues';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import NetInfo from '@react-native-community/netinfo';
+import { useNetInfo } from '@react-native-community/netinfo';
 import AlertAnimated from '../interface/AlertAnimated';
 import { PapillonUser } from '../fetch/types/user';
+import { PapillonLesson } from '../fetch/types/timetable';
+import { dateToFrenchFormat } from '../utils/dates';
 
 // Functions
 const openURL = (url: string) => {
@@ -87,7 +90,7 @@ const openURL = (url: string) => {
   });
 };
 
-const THEME_IMAGES = {
+const THEME_IMAGES: Record<string, ImageSourcePropType> = {
   'papillon/default': require('../assets/themes/papillon/default.png'),
   'papillon/grospapillon': require('../assets/themes/papillon/grospapillon.png'),
   'papillon/papillonligne': require('../assets/themes/papillon/papillonligne.png'),
@@ -117,101 +120,84 @@ const THEME_IMAGES = {
   'artdeco/stripes': require('../assets/themes/artdeco/stripes.png'),
 };
 
+// @ts-expect-error : Type inside react-navigation
 function HomeScreen({ navigation }) {
   const appContext = useAppContext();
   const theme = useTheme();
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
-  const url = ExpoLinking.useURL();
+  const expoLinkedURL = ExpoLinking.useURL();
 
-  const [refreshCount, setRefreshCount] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
-  const [loadingUser, setLoadingUser] = useState(true);
-  const [userData, setUserData] = React.useState<PapillonUser | null>(null);
-
-  const [formattedUserData, setFormattedUserData] = useState({
-    prenom: '',
-    establishment: '',
-    avatarURL: '',
-  });
-
-  const [homeworks, setHomeworks] = useState([]);
   const [customHomeworks, setCustomHomeworks] = useState([]);
   const [homeworksDays, setHomeworksDays] = useState<Array<{ custom: boolean, date: number }>>([]);
-  const [loadingHw, setLoadingHw] = useState(true);
-  const [timetable, setTimetable] = useState([]);
-  const [loadingCours, setLoadingCours] = useState(true);
 
-  const [usesCache, setUsesCache] = useState(false);
-  const [showsTomorrow, setShowsTomorrow] = useState(false);
-
-  const [noInternetAlert, setNoInternetAlert] = useState(false);
-  const [offlineServerAlert, setOfflineServerAlert] = useState(false);
-
-  const [isConnected, setIsConnected] = useState(true);
-  const [isServerOnline, setIsServerOnline] = useState(true);
+  const [showsTomorrowLessons, setShowsTomorrowLessons] = useState(false);
+  const net = useNetInfo();
 
   // url handling
   useEffect(() => {
     setTimeout(() => {
-      handleURL(url);
+      if (expoLinkedURL) handleURL(expoLinkedURL);
     }, 1000);
 
     // subscribe to url changes
     ExpoLinking.addEventListener('url', ({ url }) => {
       handleURL(url);
     });
-  }, [url]);
+  }, [expoLinkedURL]);
 
-  function handleURL (url?: string): void {
+  /**
+   * For now, it only handles papillon://grade?=... URLs.
+   * @param url The URL to handle.
+   */
+  const handleURL = (url: string): void => {
     // if url is papillon://grade?=...
-    if (url && url.startsWith('papillon://grade?=')) {
-      const grade = url.split('papillon://grade?=')[1];
+    if (!url || !url.startsWith('papillon://grade?=')) return;
+    const grade = url.split('papillon://grade?=')[1];
 
-      // decode base64
-      const decodedGrade = Buffer.from(grade, 'base64').toString();
+    // decode base64
+    const decodedGrade = Buffer.from(grade, 'base64').toString();
 
-      // remove everything before the first { and after the last }
-      const decodedGradeRegex = decodedGrade.replace(/.*?({.*}).*/g, '$1');
+    // remove everything before the first { and after the last }
+    const decodedGradeRegex = decodedGrade.replace(/.*?({.*}).*/g, '$1');
 
-      // parse JSON
-      const decodedGradeJSON = JSON.parse(decodedGradeRegex);
-      
-      // open grade modal
-      navigation.navigate('Grade', { grade: decodedGradeJSON, allGrades: [decodedGradeJSON] });
-    }
-  }
+    // parse JSON
+    const decodedGradeJSON = JSON.parse(decodedGradeRegex);
+    
+    // open grade modal
+    navigation.navigate('Grade', { grade: decodedGradeJSON, allGrades: [decodedGradeJSON] });
+  };
 
-  const [themeEnabled, setThemeEnabled] = useState(false);
-  const [themeColor, setThemeColor] = useState('#32AB8E');
-  const [themeImage, setThemeImage] = useState('papillon/default');
-
-  useEffect(() => {
-    // refresh settings every time the screen is focused
-    const unsubscribe = navigation.addListener('focus', () => {
-      refreshSettings();
-    });
-
-    refreshSettings();
-
-    return unsubscribe;
-  }, []);
+  const [themeAdjustments, setThemeAdjustments] = useState({
+    enabled: false,
+    color: '#32AB8E',
+    image: 'papillon/default'
+  });
 
   const refreshSettings = () => {
     const settings = SyncStorage.get('adjustments');
     if (settings) {
-      setThemeEnabled(settings.homeThemesEnabled ?? false);
-      setThemeColor(settings.homeThemeColor ?? '#32AB8E');
-      setThemeImage(settings.homeThemeImage ?? 'papillon/default');
+      setThemeAdjustments({
+        enabled: settings.homeThemesEnabled ?? false,
+        color: settings.homeThemeColor ?? '#32AB8E',
+        image: settings.homeThemeImage ?? 'papillon/default'
+      });
     }
   };
 
-  const today = new Date();
+  useEffect(() => {
+    // Refresh on first load.
+    refreshSettings();
+    
+    // Refresh settings every time the screen is focused
+    return navigation.addListener('focus', () => refreshSettings());
+  }, []);
 
-  
-
+  const now = new Date();
   const loadCustomHomeworks = async (): Promise<void> => {
+    return;
     const customHomeworks = await AsyncStorage.getItem('customHomeworks');
     const homeworks: any[] = JSON.parse(customHomeworks || '[]');
 
@@ -237,239 +223,204 @@ function HomeScreen({ navigation }) {
       });
     });
       
-    setCustomHomeworks(homeworks);
+    // setCustomHomeworks(homeworks);
   };
 
   /**
    * Once the data has been fetched from either cache or APIs,
    * we need to process them before displaying.
    */
-  const applyHomeworksAndLessonsData = async (hwData, coursData): Promise<void> => {
-    const groupedHomeworks = hwData.reduce((grouped, homework) => {
-      const homeworkDate = new Date(homework.date);
-      homeworkDate.setHours(0, 0, 0, 0);
+  const applyHomeworksAndLessonsData = async (homeworks: unknown[], lessons: PapillonLesson[]): Promise<void> => {
+    setLessons({ loading: false, data: lessons });
+    setHomeworks({ loading: false, data: [] });
+    
+    // const groupedHomeworks = homeworks.reduce((grouped, homework) => {
+    //   const homeworkDate = new Date(homework.date);
+    //   homeworkDate.setHours(0, 0, 0, 0);
 
-      setHomeworksDays((prevDays) => {
-        let newDays = prevDays;
+    //   setHomeworksDays((prevDays) => {
+    //     let newDays = prevDays;
 
-        // check if day already exists
-        if (!newDays.find((day) => day.date === homeworkDate.getTime())) {
-          newDays.push({
-            date: homeworkDate.getTime(),
-            custom: false,
-          });
-        }
+    //     // check if day already exists
+    //     if (!newDays.find((day) => day.date === homeworkDate.getTime())) {
+    //       newDays.push({
+    //         date: homeworkDate.getTime(),
+    //         custom: false,
+    //       });
+    //     }
 
-        // sort days
-        newDays.sort((a, b) => a.date - b.date);
+    //     // sort days
+    //     newDays.sort((a, b) => a.date - b.date);
 
-        return newDays;
-      });
+    //     return newDays;
+    //   });
 
-      const formattedDate = homeworkDate.getDate() === today.getDate() + 1
-        ? 'demain'
-        : new Date(homeworkDate).toLocaleDateString('fr-FR', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-        });
+    //   const formattedDate = homeworkDate.getDate() === now.getDate() + 1
+    //     ? 'demain'
+    //     : new Date(homeworkDate).toLocaleDateString('fr-FR', {
+    //       weekday: 'long',
+    //       day: 'numeric',
+    //       month: 'long',
+    //     });
 
-      const formattedTime = homeworkDate.getTime();
+    //   const formattedTime = homeworkDate.getTime();
 
-      if (!grouped[formattedDate]) {
-        grouped[formattedDate] = {
-          date: homeworkDate,
-          formattedDate: formattedDate,
-          time: formattedTime,
-          homeworks: [],
-        };
-      }
+    //   if (!grouped[formattedDate]) {
+    //     grouped[formattedDate] = {
+    //       date: homeworkDate,
+    //       formattedDate: formattedDate,
+    //       time: formattedTime,
+    //       homeworks: [],
+    //     };
+    //   }
 
-      // find all homeworks for tomorrow
-      let tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
+    //   // find all homeworks for tomorrow
+    //   let tomorrow = new Date();
+    //   tomorrow.setDate(tomorrow.getDate() + 1);
+    //   tomorrow.setHours(0, 0, 0, 0);
 
-      let tomorrowHomeworks = hwData.filter((hw) => {
-        const hwDate = new Date(hw.date);
-        hwDate.setHours(0, 0, 0, 0);
+    //   let tomorrowHomeworks = hwData.filter((hw) => {
+    //     const hwDate = new Date(hw.date);
+    //     hwDate.setHours(0, 0, 0, 0);
 
-        return hwDate.getDate() === tomorrow.getDate();
-      });
+    //     return hwDate.getDate() === tomorrow.getDate();
+    //   });
 
-      grouped[formattedDate].homeworks.push(homework);
-      return grouped;
-    }, {});
+    //   grouped[formattedDate].homeworks.push(homework);
+    //   return grouped;
+    // }, {});
 
-    const result = Object.values(groupedHomeworks).sort((a, b) => a.date - b.date);
-    setHomeworks(result);
-    setLoadingHw(false);
-    setTimetable(coursData);
-    setLoadingCours(false);
+    // const result = Object.values(groupedHomeworks).sort((a, b) => a.date - b.date);
+    // setHomeworks(result);
+    // setLoadingHw(false);
+    // setTimetable(coursData);
+    // setLoadingCours(false);
     
     await loadCustomHomeworks();
-    await sendToSharedGroup(coursData);
+    await sendToSharedGroup(lessons);
   };
 
-  // Check for internet connection.
-  React.useEffect(() => {
-    NetInfo.fetch().then(state => {
-      if (state.isConnected) {
-        setNoInternetAlert(false);
-        setIsConnected(true);
-      }
-      else {
-        if (isConnected) {
-          setOfflineServerAlert(true);
-        }
+  /**
+   * `data` is only allowed when we strictly
+   * check that the state is not loading.
+   */
+  type LazyLoadedValue<T> = { 
+    loading: true
+    data: null
+  } | {
+    loading: false,
+    data: T
+  }
 
-        setIsConnected(false);
-      }
-    });
+  const [user, setUser] = useState<LazyLoadedValue<PapillonUser>>({
+    loading: true,
+    data: null
+  });
 
-    // subscribe to connection changes
-    const unsubscribe = NetInfo.addEventListener(state => {
-      if (state.isConnected) {
-        if (!isConnected) {
-          setRefreshCount(refreshCount + 1);
-        }
+  const [lessons, setLessons] = useState<LazyLoadedValue<PapillonLesson[]>>({
+    loading: true,
+    data: null
+  });
 
-        setIsConnected(true);
-      }
-      else {
-        if (isConnected) {
-          setNoInternetAlert(true);
-        }
+  const [homeworks, setHomeworks] = useState<LazyLoadedValue<PapillonLesson[]>>({
+    loading: true,
+    data: null
+  });
 
-        setIsConnected(false);
-      }
-    });
+  /**
+   * Fetch timetable (1st) and homeworks (2nd) and apply them
+   * so that they can be displayed.
+   * 
+   * @param force - Whether to force the refresh of the data.
+   */
+  const refreshScreenData = async (force: boolean): Promise<void> => {
+    if (!appContext.dataProvider) return;
 
-    return unsubscribe;
-  }, [noInternetAlert, offlineServerAlert]);
+    const todayKey = dateToFrenchFormat(now);
+    let timetable = await appContext.dataProvider.getTimetable(now, force);
+    // Take only the lessons that are for today.
+    let lessons = timetable.filter(lesson => dateToFrenchFormat(new Date(lesson.start)) === todayKey);
 
-  // Load data from cache, if exists, on mount.
-  React.useEffect(() => {
+    // const [hwData, coursData] = await Promise.all([
+    //   appContext.dataProvider.getHomeworks(today, false, new Date(today).setDate(today.getDate() + 7)).then(e=>e?.flat()),
+    // ]);
+
+    // Check if all lessons for today are done.
+    const todayLessonsDone = lessons.every(lesson => new Date(lesson.end) < now);
+
+    if (todayLessonsDone) {
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowKey = dateToFrenchFormat(tomorrow);
+
+      // Check if tomorrow is monday.
+      const isTomorrowMonday = tomorrow.getDay() === 1;
+
+      // We need to fetch next week's timetable.
+      if (isTomorrowMonday) {
+        timetable = await appContext.dataProvider.getTimetable(tomorrow, force);
+      } // else, we just keep our current timetable array.
+
+      lessons = timetable.filter(lesson => dateToFrenchFormat(new Date(lesson.start)) === tomorrowKey);
+      setShowsTomorrowLessons(true);
+    }
+    
+    await applyHomeworksAndLessonsData([], lessons);
+  };
+
+  // On first mount, we need to fetch user data
+  // and finally all the data that will be displayed.
+  // We don't force the refresh of the data, so cache can be used.
+  useEffect(() => {
     (async () => {
-      const cachedUserData = await AsyncStorage.getItem('appcache-user');
-      if (cachedUserData) {
-        const data = JSON.parse(cachedUserData) as PapillonUser;
-        setUserData(data);
+      if (!appContext.dataProvider) return;
 
-        // Remove any loader if there was.
-        setLoadingUser(false);
-      }
+      const userData = await appContext.dataProvider.getUser();
+      setUser({ loading: false, data: userData });
+
+      await refreshScreenData(false);
     })();
   }, []);
 
-  // Request each data needed on mount.
-  React.useEffect(() => {
-    (async () => {
-      setLoadingUser(true);
-      
-      // Fetch user from APIs.
-      const userData = await appContext.dataProvider.getUser();
-
-      // Process user information.
-      const prenom = userData.name.split(' ').pop();
-      const establishment = userData.establishment;
-      const avatarURL = userData.profile_picture;
-
-      setFormattedUserData({ prenom, establishment, avatarURL });
-      
-      // Save and cache fetched data.
-      setUserData(userData);
-      await AsyncStorage.setItem('appcache-user', JSON.stringify(userData));
-
-      // User data loading is now done, let's proceed with everything else.
-      setLoadingUser(false);
-
-      let force = refreshCount > 0;
-      setLoadingHw(true);
-      setLoadingCours(true);
-
-      const [hwData, coursData] = await Promise.all([
-        appContext.dataProvider.getHomeworks(today, force, new Date(today).setDate(today.getDate() + 7)).then(e=>e?.flat()),
-        appContext.dataProvider.getTimetable(today, force)
-      ]);
-      
-      if (showsTomorrow == false) {
-        applyHomeworksAndLessonsData(hwData, coursData);
-        await AsyncStorage.setItem('appcache-homedata', JSON.stringify({ homeworks: hwData, timetable: coursData }));
-        
-        setUsesCache(false);
-      }
-  
-      // Check if all lessons are done.
-      let doneCours = 0;
-      coursData.forEach((cours) => {
-        if (new Date(cours.end) < new Date(today)) {
-          doneCours++;
-        }
-      });
-  
-      if (doneCours === coursData.length) {
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-
-        const nextWeekCoursData = await appContext.dataProvider.getTimetable(tomorrow, true);
-        
-        applyHomeworksAndLessonsData(hwData, nextWeekCoursData);
-        await AsyncStorage.setItem('appcache-homedata', JSON.stringify({ homeworks: hwData, timetable: nextWeekCoursData }));
-        
-        setUsesCache(false);
-        setShowsTomorrow(true);
-      }
-  
-      await loadCustomHomeworks();
-    })();
-  }, [refreshCount]);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      AsyncStorage.getItem('homeUpdated').then((value) => {
-        if (value === 'true') {
-          setRefreshCount((prevCount) => prevCount + 1);
-          AsyncStorage.setItem('homeUpdated', 'false');
-        }
-      });
-    }, [navigation])
-  );
-
+  // Load navigation bar data.
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: Platform.OS === 'ios' ? () => (
-        themeEnabled
+      headerLeft: Platform.OS === 'ios' && (() => (
+        themeAdjustments.enabled
           ? <PapillonIcon fill={'#ffffff'} width={32} height={32} />
           : <PapillonIcon fill={UIColors.text + '26'} width={32} height={32} />
-      ) : null,
+      )),
       headerTitle: 'Vue d\'ensemble',
       headerLargeTitle: false,
       headerShadowVisible: false,
       headerTransparent: true,
-      headerTintColor: themeEnabled ? '#ffffff' : UIColors.text,
+      headerTintColor: themeAdjustments.enabled ? '#ffffff' : UIColors.text,
       headerLargeStyle: {
-        backgroundColor: themeEnabled ? themeColor + '00' : UIColors.backgroundHigh + '00',
+        backgroundColor: themeAdjustments.enabled ? themeAdjustments.color + '00' : UIColors.backgroundHigh + '00',
       },
       headerRight: () => (
         <TouchableOpacity
           style={headerStyles.headerPfpContainer}
           onPress={() => navigation.navigate('InsetSettings', { isModal: true })}
         >
-          {userData && userData.profile_picture ? (
+          {!user.loading && user.data.profile_picture ? (
             <Image
-              source={{ uri: userData.profile_picture }}
+              source={{ uri: user.data.profile_picture }}
               style={headerStyles.headerPfp}
             />
           ) : (
-            <UserCircle2 size={36} style={headerStyles.headerPfp} color="#ccc" />
+            <UserCircle2
+              size={36}
+              style={headerStyles.headerPfp}
+              color="#ccc"
+            />
           )}
         </TouchableOpacity>
       ),
       headerBackground: () => Platform.OS === 'ios' ? ( 
         <Animated.View
           style={{
-            backgroundColor: themeEnabled ? themeColor : UIColors.background,
+            backgroundColor: themeAdjustments.enabled ? themeAdjustments.color : UIColors.background,
             borderBottomColor: UIColors.dark ? UIColors.text + '25' : UIColors.text + '40',
             borderBottomWidth: 0.5,
             position: 'absolute',
@@ -480,7 +431,7 @@ function HomeScreen({ navigation }) {
             opacity: topOpacity,
           }}
         >
-          {themeEnabled ? (
+          {themeAdjustments.enabled && (
             <View
               style={{
                 backgroundColor: '#00000038',
@@ -491,12 +442,12 @@ function HomeScreen({ navigation }) {
                 height: '100%',
               }}
             />
-          ) : null}
+          )}
         </Animated.View>
       ) : (
         <View
           style={{
-            backgroundColor: themeEnabled && !UIColors.dark ? themeColor : UIColors.background,
+            backgroundColor: themeAdjustments.enabled && !UIColors.dark ? themeAdjustments.color : UIColors.background,
             position: 'absolute',
             top: 0,
             left: 0,
@@ -506,18 +457,9 @@ function HomeScreen({ navigation }) {
         />
       ),
     });
-  }, [navigation, timetable, formattedUserData, showsTomorrow, UIColors, themeEnabled, themeColor]);
+  }, [navigation, user, themeAdjustments, showsTomorrowLessons, UIColors, theme]);
 
-  // Reload custom homeworks when page focus.
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      loadCustomHomeworks();
-    });
-
-    return unsubscribe;
-  }, [navigation]);
-
-  // animations
+  // Animations
   const yOffset = new Animated.Value(0);
 
   const scrollHandler = Animated.event(
@@ -525,11 +467,8 @@ function HomeScreen({ navigation }) {
     { useNativeDriver: false }
   );
 
-  const scrollY = Animated.add(yOffset, 0);
-  const it = insets.top;
-
   let mainHeaderSize = [-60, -30];
-  if (it > 30) {
+  if (insets.top > 30) {
     mainHeaderSize = [-85, -50];
   }
 
@@ -594,43 +533,43 @@ function HomeScreen({ navigation }) {
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
-          colors={[Platform.OS === 'android' ? UIColors.primary : null]}
-          onRefresh={() => {
+          colors={[Platform.OS === 'android' ? UIColors.primary : '']}
+          onRefresh={async () => {
+            // Refresh data
             setRefreshing(true);
-            setTimeout(() => {
-              setRefreshCount(refreshCount + 1);
-            }, 500);
-            setTimeout(() => {
-              setRefreshing(false);
-            }, 1000);
+            setHomeworks({ loading: true, data: null });
+            setLessons({ loading: true, data: null });
+
+            await refreshScreenData(true);
+            setRefreshing(false);
           }}
         />
       }
       onScroll={scrollHandler}
       scrollEventThrottle={16}
     >
-      { Platform.OS === 'android' ? (
-        <View style={{height: 100}} />
+      {Platform.OS === 'android' ? (
+        <View style={{ height: 100 }} />
       ) : (
-        <View style={{height: 10}} />
+        <View style={{ height: 10 }} />
       )}
 
-      { isFocused ? (
+      {isFocused ? (
         <StatusBar
           barStyle={
-            themeEnabled ? 'light-content' :
+            themeAdjustments.enabled ? 'light-content' :
               theme.dark ? 'light-content' : 'dark-content'
           }
           backgroundColor={UIColors.backgroundHigh}
         />
       ) : null }
 
-      { themeEnabled && (
+      {themeAdjustments.enabled && (
         <Animated.View
           style={[
             styles.headerTheme,
             {
-              backgroundColor: themeColor,
+              backgroundColor: themeAdjustments.color,
               top: -300 - insets.top,
               transform: [{ translateY: bannerTranslate }],
               borderBottomColor: UIColors.dark ? UIColors.text + '30' : UIColors.text + '35',
@@ -653,13 +592,11 @@ function HomeScreen({ navigation }) {
               hidesWhenStopped={false}
               animating={refreshing}
               color={'#ffffff'}
-              style={[{
-              }]}
             />
           </Animated.View>
 
           <View
-            style={[{
+            style={{
               backgroundColor: '#00000038',
               position: 'absolute',
               top: 0,
@@ -667,11 +604,11 @@ function HomeScreen({ navigation }) {
               width: '100%',
               height: '100%',
               zIndex: 9999,
-            }]}
+            }}
           />  
 
           <LinearGradient
-            colors={[themeColor, themeColor + '00']}
+            colors={[themeAdjustments.color, themeAdjustments.color + '00']}
             style={[{
               top: 150,
               left: 0,
@@ -681,9 +618,8 @@ function HomeScreen({ navigation }) {
             }]}
           />
           <Image 
-            source={THEME_IMAGES[themeImage]}
-            // @ts-expect-error : Not typed well ?
-            style={[styles.headerThemeImage]}
+            source={THEME_IMAGES[themeAdjustments.image]}
+            style={styles.headerThemeImage}
           />
         </Animated.View>
       )}
@@ -697,13 +633,13 @@ function HomeScreen({ navigation }) {
         ]}
       >
         <NextCoursElem
-          cours={timetable}
+          cours={lessons.data}
           navigation={navigation}
-          color={themeEnabled ? themeColor : null}
-          style={[{
+          color={themeAdjustments.enabled ? themeAdjustments.color : void 0}
+          style={{
             marginHorizontal: 16,
             marginVertical: 0,
-          }]}
+          }}
         />
       </Animated.View>
 
@@ -715,11 +651,11 @@ function HomeScreen({ navigation }) {
           },
         ]}
       >
-        <TabsElement navigation={navigation} theme={theme} UIColors={UIColors} />
+        <TabsElement navigation={navigation} />
       </Animated.View>
 
       <AlertAnimated
-        visible={!isConnected}
+        visible={!net.isConnected}
         title="Vous êtes hors-ligne"
         subtitle="Les informations affichées peuvent être obsolètes."
         left={<Globe2 color={UIColors.text} />}
@@ -727,103 +663,110 @@ function HomeScreen({ navigation }) {
         style={{marginHorizontal: 16}}
       />
 
-      <AlertAnimated
-        visible={!isServerOnline}
-        title="Serveurs inaccessibles"
-        subtitle="Les informations affichées peuvent être obsolètes."
-        left={<ServerOff color={UIColors.text} />}
-        height={80}
-        style={{marginHorizontal: 16}}
-      />
-
       <CoursElement
-        cours={timetable}
-        theme={theme}
-        UIColors={UIColors}
+        cours={lessons.data}
         navigation={navigation}
-        loading={loadingCours}
-        showsTomorrow={showsTomorrow}
+        loading={lessons.loading}
+        showsTomorrow={showsTomorrowLessons}
       />
       
       <DevoirsElement
-        homeworks={homeworks}
+        homeworks={homeworks.data}
         customHomeworks={customHomeworks}
         homeworksDays={homeworksDays}
-        theme={theme}
-        UIColors={UIColors}
         navigation={navigation}
-        loading={loadingHw}
+        loading={homeworks.loading}
       />
     </ScrollView>
   );
 }
 
-function TabsElement({ navigation, theme, UIColors }) {
+const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const theme = useTheme();
+  const UIColors = GetUIColors();
+
   return (
-    <View style={[styles.tabs.tabsContainer]}>
-      <View style={[styles.tabs.tabRow]}>
+    <View style={styles.tabsTabsContainer}>
+      <View style={styles.tabsTabRow}>
         <PressableScale
-          style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+          style={[styles.tabsTab, { backgroundColor: UIColors.element }]}
           weight="light"
           activeScale={0.9}
           onPress={() => navigation.navigate('InsetSchoollife')}
         >
           <UserCheck width={26} height={26} stroke={theme.dark ? '#ffffff' : '#000000'} />
-          <Text style={[styles.tabs.tabText]}>Vie scolaire</Text>
+          <Text style={styles.tabsTabText}>Vie scolaire</Text>
         </PressableScale>
         <PressableScale
-          style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+          style={[styles.tabsTab, { backgroundColor: UIColors.element }]}
           weight="light"
           activeScale={0.9}
           onPress={() => navigation.navigate('InsetConversations')}
         >
           <Messages stroke={theme.dark ? '#ffffff' : '#000000'} />
-          <Text style={[styles.tabs.tabText]}>Messages</Text>
+          <Text style={styles.tabsTabText}>Messages</Text>
         </PressableScale>
         <PressableScale
-          style={[styles.tabs.tab, { backgroundColor: UIColors.element }]}
+          style={[styles.tabsTab, { backgroundColor: UIColors.element }]}
           weight="light"
           activeScale={0.9}
           onPress={() => navigation.navigate('InsetEvaluations')}
         >
           <Competences stroke={theme.dark ? '#ffffff' : '#000000'} />
-          <Text style={[styles.tabs.tabText]}>Compét.</Text>
+          <Text style={styles.tabsTabText}>
+            Compét.
+          </Text>
         </PressableScale>
       </View>
     </View>
   );
-}
+};
 
-function CoursElement({ cours, theme, UIColors, navigation, loading, showsTomorrow }) {
+const CoursElement: React.FC<{
+  cours: PapillonLesson[] | null
+  navigation: any // TODO: type from react-navigation
+  loading: boolean
+  showsTomorrow: boolean
+}> = ({ cours, navigation, loading, showsTomorrow }) => {
   return (
-    !loading ? (
-      cours && cours.length > 0 ? (
-        <PapillonList inset title={!showsTomorrow ? 'Emploi du temps' : 'Votre journée de demain'} style={styles.cours.container}>
-          {cours.map((day, index) => (
+    <PapillonList inset title={!showsTomorrow ? 'Emploi du temps' : 'Votre journée de demain'} style={styles.coursContainer}>
+      {!loading ? (
+        cours && cours.length > 0 ? (
+          cours.map((lesson, index) => (
             <View key={index}>
-              <CoursItem key={index} index={index} cours={day} day={cours} theme={theme} UIColors={UIColors} navigation={navigation} />
+              <CoursItem
+                key={lesson.id}
+                index={index}
+                lesson={lesson}
+                cours={cours}
+                navigation={navigation}
+              />
             </View>
-          ))}
-        </PapillonList>
-      ) : (
-        <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
-          <View style={styles.loading.container}>
-            <Text style={styles.loading.text}>Aucun cours aujourd'hui</Text>
+          ))
+        ) : (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Aucun cours aujourd'hui</Text>
           </View>
-        </PapillonList>
-      )
-    ) : (
-      <PapillonList inset title="Emploi du temps" style={styles.cours.container}>
-        <View style={styles.loading.container}>
+        )
+      ) : (
+        <View style={styles.loadingContainer}>
           <ActivityIndicator />
-          <Text style={styles.loading.text}>Chargement de l'emploi du temps...</Text>
+          <Text style={styles.loadingText}>
+            Chargement de l'emploi du temps...
+          </Text>
         </View>
-      </PapillonList>
-    )
+      )}
+    </PapillonList>
   );
-}
+};
 
-function CoursItem ({ cours, day, theme, UIColors, navigation, index }) {
+function CoursItem ({ lesson, cours, navigation, index }: {
+  lesson: PapillonLesson
+  cours: PapillonLesson[]
+  index: number
+  navigation: any // TODO: type from react-navigation
+}) {
+  const UIColors = GetUIColors();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -836,16 +779,16 @@ function CoursItem ({ cours, day, theme, UIColors, navigation, index }) {
     }).start();
   });
 
-  function lz(nb) {
+  function lz(nb: number) {
     return nb < 10 ? `0${nb}` : nb.toString();
   }
 
   return (
     <>
-      {day[index - 1] && new Date(cours.start) - new Date(day[index - 1].end) > 1800000 ? (
+      {cours[index - 1] && new Date(lesson.start).getTime() - new Date(cours[index - 1].end).getTime() > 1800000 && (
         <Animated.View
           style={[
-            styles.cours.separator,
+            styles.coursSeparator,
             {
               opacity: fadeAnim,
               transform: [
@@ -865,25 +808,24 @@ function CoursItem ({ cours, day, theme, UIColors, navigation, index }) {
             }
           ]}
         >
-          <View style={[styles.cours.separatorLine, { backgroundColor: UIColors.text + '15' }]} />
+          <View style={[styles.coursSeparatorLine, { backgroundColor: UIColors.text + '15' }]} />
 
           <Text style={{ color: UIColors.text + '30' }}>
-            {`${Math.floor((new Date(cours.start) - new Date(day[index - 1].end)) / 3600000)} h ${lz(Math.floor(((new Date(cours.start) - new Date(day[index - 1].end)) % 3600000) / 60000))} min`}
+            {`${Math.floor((new Date(lesson.start).getTime() - new Date(cours[index - 1].end).getTime()) / 3600000)} h ${lz(Math.floor(((new Date(lesson.start).getTime() - new Date(cours[index - 1].end).getTime()) % 3600000) / 60000))} min`}
           </Text>
           
-          <View style={[styles.cours.separatorLine, { backgroundColor: UIColors.text + '15' }]} />
+          <View style={[styles.coursSeparatorLine, { backgroundColor: UIColors.text + '15' }]} />
         </Animated.View>
-      ) : null}
+      )}
 
       <ContextMenuView
         style={{ flex: 1 }}
-        borderRadius={14}
         previewConfig={{
           borderRadius: 12,
           backgroundColor: UIColors.element,
         }}
         menuConfig={{
-          menuTitle: cours.subject.name,
+          menuTitle: lesson.subject?.name ?? '(inconnu)',
           menuItems: [
             {
               actionKey  : 'open',
@@ -899,16 +841,16 @@ function CoursItem ({ cours, day, theme, UIColors, navigation, index }) {
         }}
         onPressMenuItem={({nativeEvent}) => {
           if (nativeEvent.actionKey === 'open') {
-            navigation.navigate('Lesson', { event: cours });
+            navigation.navigate('Lesson', { event: lesson });
           }
         }}
         onPressMenuPreview={() => {
-          navigation.navigate('Lesson', { event: cours });
+          navigation.navigate('Lesson', { event: lesson });
         }}
       >
         <Animated.View
           style={[
-            styles.homeworks.devoirsDay.container,
+            styles.homeworksDevoirsDayContainer,
             {
             // Bind opacity to animated value
               opacity: fadeAnim,
@@ -930,42 +872,45 @@ function CoursItem ({ cours, day, theme, UIColors, navigation, index }) {
           ]}
         >
           <TouchableHighlight
-            style={styles.cours.item.container}
+            style={styles.coursItemContainer}
             underlayColor={UIColors.text + '12'}
-            onPress={() => navigation.navigate('Lesson', { event: cours })}
+            onPress={() => navigation.navigate('Lesson', { event: lesson })}
           >
             <>
-              <View style={styles.cours.item.time.container}>
-                <Text style={styles.cours.item.time.start}>
-                  {new Date(cours.start).toLocaleTimeString('fr-FR', {
+              <View style={styles.coursItemTimeContainer}>
+                <Text style={styles.coursItemTimeStart}>
+                  {new Date(lesson.start).toLocaleTimeString('fr-FR', {
                     hour: 'numeric',
                     minute: 'numeric',
                   })}
                 </Text>
-                <Text style={styles.cours.item.time.end}>
-                  {new Date(cours.end).toLocaleTimeString('fr-FR', {
+                <Text style={styles.coursItemTimeEnd}>
+                  {new Date(lesson.end).toLocaleTimeString('fr-FR', {
                     hour: 'numeric',
                     minute: 'numeric',
                   })}
                 </Text>
               </View>
-              <View style={[styles.cours.item.color, {backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color)}]} />
-              <View style={styles.cours.item.data.container}>
-                <Text style={[styles.cours.item.data.subject]}>
-                  {formatCoursName(cours.subject.name)}
+              <View style={[styles.coursItemColor, {backgroundColor: getSavedCourseColor(lesson.subject?.name ?? '', lesson.background_color)}]} />
+              <View style={styles.coursItemDataContainer}>
+                <Text style={[styles.coursItemDataSubject]}>
+                  {formatCoursName(lesson.subject?.name ?? '(inconnu)')}
                 </Text>
-                <Text style={[styles.cours.item.data.teachers]}>
-                  {cours.teachers.join(', ')}
+                <Text style={[styles.coursItemDataTeachers]}>
+                  {lesson.teachers.join(', ')}
                 </Text>
-                <Text style={[styles.cours.item.data.room]}>
-                  {cours.rooms.join(', ') || 'Aucune salle'}
+                <Text style={[styles.coursItemDataRoom]}>
+                  {lesson.rooms.join(', ') || 'Aucune salle'}
                 </Text>
 
-                { cours.status ? (
-                  <Text style={[styles.cours.item.data.status, {backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color) + '22', color: getSavedCourseColor(cours.subject.name, cours.background_color)}]}>
-                    {cours.status}
+                {lesson.status && (
+                  <Text style={[styles.coursItemDataStatus, {
+                    backgroundColor: getSavedCourseColor(lesson.subject?.name ?? '', lesson.background_color) + '22',
+                    color: getSavedCourseColor(lesson.subject?.name ?? '', lesson.background_color)
+                  }]}>
+                    {lesson.status}
                   </Text>
-                ) : null }
+                )}
 
               </View>
             </>
@@ -976,11 +921,11 @@ function CoursItem ({ cours, day, theme, UIColors, navigation, index }) {
   );
 }
 
-function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, theme, UIColors, navigation, loading }) {
+function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation, loading }) {
   return (
     !loading ? (
       homeworks.length > 0 ? (
-        <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
+        <PapillonList inset title="Travail à faire" style={styles.homeworksDevoirsElementContainer}>
           {homeworksDays.map((day, index) => (
             <DevoirsDay
               key={index}
@@ -998,8 +943,6 @@ function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, theme, UIC
                     homeworks: [],
                   }
               }
-              theme={theme}
-              UIColors={UIColors}
               navigation={navigation}
               customHomeworks={customHomeworks.filter((hw) => {
                 let hwDate = new Date(hw.date);
@@ -1011,24 +954,27 @@ function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, theme, UIC
           ))}
         </PapillonList>
       ) : (
-        <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
-          <View style={styles.loading.container}>
-            <Text style={styles.loading.text}>Aucun devoir à faire</Text>
+        <PapillonList inset title="Travail à faire" style={styles.homeworksDevoirsElementContainer}>
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Aucun devoir à faire</Text>
           </View>
         </PapillonList>
       )
     ) : (
-      <PapillonList inset title="Travail à faire" style={[styles.homeworks.devoirsElement.container]}>
-        <View style={styles.loading.container}>
+      <PapillonList inset title="Travail à faire" style={styles.homeworksDevoirsElementContainer}>
+        <View style={styles.loadingContainer}>
           <ActivityIndicator />
-          <Text style={styles.loading.text}>Chargement des devoirs...</Text>
+          <Text style={styles.loadingText}>Chargement des devoirs...</Text>
         </View>
       </PapillonList>
     )
   );
 }
 
-const DevoirsDay = ({ homeworks, customHomeworks, theme, UIColors, navigation, index }) => {
+const DevoirsDay = ({ homeworks, customHomeworks, navigation, index }) => {
+  const UIColors = GetUIColors();
+  const theme = useTheme();
+
   // sort homeworks by index
   homeworks.homeworks.sort((a, b) => a.index - b.index);
 
@@ -1049,7 +995,7 @@ const DevoirsDay = ({ homeworks, customHomeworks, theme, UIColors, navigation, i
   return (
     <Animated.View
       style={[
-        styles.homeworks.devoirsDay.container,
+        styles.homeworksDevoirsDayContainer,
         {
           // Bind opacity to animated value
           opacity: fadeAnim,
@@ -1072,11 +1018,11 @@ const DevoirsDay = ({ homeworks, customHomeworks, theme, UIColors, navigation, i
     >
       { homeworks.homeworks.length > 0 || customHomeworks.length > 0 ? (<>
         <View
-          style={[styles.homeworks.devoirsDay.header.container, UIColors.theme == 'dark' && Platform.OS !== 'ios' ? { backgroundColor: UIColors.text + '22' } : { backgroundColor: UIColors.primary + '22' }]}
+          style={[styles.homeworksDevoirsDayHeaderContainer, UIColors.theme == 'dark' && Platform.OS !== 'ios' ? { backgroundColor: UIColors.text + '22' } : { backgroundColor: UIColors.primary + '22' }]}
         >
           <Text
             style={[
-              styles.homeworks.devoirsDay.header.title,
+              styles.homeworksDevoirsDayHeaderTitle,
               UIColors.theme == 'dark' && Platform.OS !== 'ios' ? { color: UIColors.text } : { color: UIColors.primary }
             ]}
           >
@@ -1084,7 +1030,7 @@ const DevoirsDay = ({ homeworks, customHomeworks, theme, UIColors, navigation, i
           </Text>
         </View>
 
-        <View style={styles.homeworks.devoirsDay.content}>
+        <View style={styles.homeworksDevoirsDayContent}>
           { homeworks.homeworks.map((homework, index) => (
             <DevoirsContent key={index} index={index} parentIndex={parentIndex} homework={homework} theme={theme} UIColors={UIColors} navigation={navigation} />
           ))}
@@ -1316,34 +1262,37 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
         ]}
       >
         <TouchableHighlight
-          style={[styles.homeworks.devoirsContent.container]}
+          style={[styles.homeworksDevoirsContentContainer]}
           underlayColor={UIColors.text + '12'}
           onPress={() => navigation.navigate('Devoir', { homework: {... homework, done: checked} })}
         >
-          <View style={styles.homeworks.devoirsContent.inner}>
+          <View style={styles.homeworksDevoirsContentInner}>
             <CheckAnimated
+              backgroundColor={'#ffffff00'}
               checked={checked}
               pressed={() => {checkThis();}}
               loading={checkLoading}
             />
 
-            <View style={styles.homeworks.devoirsContent.parent}>
-              <View style={styles.homeworks.devoirsContent.header.container}>
-                <View style={styles.homeworks.devoirsContent.header.subject.container}>
-                  <View style={[styles.homeworks.devoirsContent.header.subject.color, {backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color)}]} />
-                  <Text style={[styles.homeworks.devoirsContent.header.subject.title, { color: UIColors.text }]} numberOfLines={1} ellipsizeMode='tail'>{formatCoursName(homework.subject.name)}</Text>
+            <View style={styles.homeworksDevoirsContentParent}>
+              <View>
+                <View style={styles.homeworksDevoirsContentHeaderSubjectContainer}>
+                  <View style={[styles.homeworksDevoirsContentHeaderSubjectColor, { backgroundColor: homework.background_color ?? getSavedCourseColor(homework.subject.name) }]} />
+                  <Text style={[styles.homeworksDevoirsContentHeaderSubjectTitle, { color: UIColors.text }]} numberOfLines={1} ellipsizeMode='tail'>{formatCoursName(homework.subject.name)}</Text>
                 </View>
               </View>
 
               <Animated.View
-                style={[
-                  styles.homeworks.devoirsContent.content.container,
-                  { maxHeight: textMaxHeight, overflow:'visible', opacity: textOpacity, marginTop: textMargin },
-                ]}
+                style={{
+                  maxHeight: textMaxHeight,
+                  overflow:'visible',
+                  opacity: textOpacity,
+                  marginTop: textMargin
+                }}
               >
                 <Text numberOfLines={2}
                   style={[
-                    styles.homeworks.devoirsContent.content.description, 
+                    styles.homeworksDevoirsContentContentDescription, 
                     {
                       color: UIColors.text,
                       height: homework.description.length > 40 ? 38 : 20,
@@ -1355,13 +1304,13 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
               </Animated.View>
 
               { homework.files.length > 0 && (
-                <View style={styles.homeworks.devoirsContent.footer.container}>
-                  <View style={styles.homeworks.devoirsContent.footer.files.container}>
+                <View style={styles.homeworksDevoirsContentFooterContainer}>
+                  <View style={styles.homeworksDevoirsContentFooterFilesContainer}>
                     { homework.files.map((file, index) => (
                       <PressableScale
                         key={index}
                         style={[
-                          styles.homeworks.devoirsContent.footer.files.file.container,
+                          styles.homeworksDevoirsContentFooterFilesFileContainer,
                           { backgroundColor: UIColors.text + '12' }
                         ]}
                         onPress={() => openURL(file.url)}
@@ -1370,11 +1319,12 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
                           <DownloadCloud size={22} color={UIColors.text} />
                           : <AlertCircle size={22} color={'#ff0000'} />
                         }
-                        <Text style={styles.homeworks.devoirsContent.footer.files.file.text} numberOfLines={1}>{file.name ? file.name : 'Lien invalide'}</Text>
+                        <Text style={styles.homeworksDevoirsContentFooterFilesFileText} numberOfLines={1}>{file.name ? file.name : 'Lien invalide'}</Text>
                       </PressableScale>
                     ))}
                   </View>
-                  <View style={styles.homeworks.devoirsContent.footer.done}/>
+
+                  <View style={{}} />
                 </View>
               )}
             </View>
@@ -1390,9 +1340,9 @@ function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
     !loading ? (
       <PressableScale
         style={[
-          styles.checkbox.checkContainer,
+          styles.checkboxCheckContainer,
           { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
-          checked ? styles.checkbox.checkChecked : null,
+          checked ? styles.checkboxCheckChecked : void 0,
           checked ? {backgroundColor: UIColors.primary, borderColor: UIColors.primary} : null,
         ]}
         weight="light"
@@ -1706,261 +1656,230 @@ function HomeHeader({ navigation, timetable, user, showsTomorrow }) {
 }
 
 const styles = StyleSheet.create({
-  loading: {
-    container: {
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'center',
-      gap: 12,
-      marginVertical: 12,
-    },
-    text: {
-      fontSize: 15,
-      opacity: 0.5,
-    },
+  loadingContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
+    marginVertical: 12,
   },
 
-  homeworks: {
-    devoirsElement: {
-      container: {
-        paddingVertical: 8,
-
-        borderRadius: 12,
-        borderCurve: 'continuous',
-
-        overflow: 'hidden',
-      },
-    },
-    devoirsDay: {
-      container: {
-        flex: 1,
-        marginTop: 5,
-      },
-      header: {
-        container: {
-          paddingHorizontal: 16,
-          paddingVertical: 6,
-          alignSelf: 'flex-start',
-          borderTopRightRadius: 16,
-          borderBottomRightRadius: 16,
-        },
-        title: {
-          fontSize: 15,
-          fontFamily: 'Papillon-Semibold',
-        },
-      },
-      content: {
-        paddingTop: 5,
-      },
-    },
-    devoirsContent: {
-      container: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        flex: 1,
-      },
-      inner: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-      },
-      parent: {
-        flex: 1,
-        paddingHorizontal: 14,
-        gap: 6,
-      },
-      header: {
-        container: {},
-        subject: {
-          container: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-          },
-          color: {
-            width: 10,
-            height: 10,
-            borderRadius: 8,
-          },
-          title: {
-            fontSize: 16,
-            fontFamily: 'Papillon-Semibold',
-          },
-        }
-      },
-      content: {
-        container: {},
-        description: {
-          fontSize: 15,
-        },
-      },
-      footer: {
-        container: {
-          marginTop: 4,
-        },
-        files: {
-          container: {
-            gap: 2,
-          },
-          file: {
-            container: {
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 8,
-              alignSelf: 'flex-start',
-              paddingVertical: 4,
-              paddingHorizontal: 12,
-              borderRadius: 8,
-            },
-            text: {
-              fontSize: 15,
-              fontFamily: 'Papillon-Semibold',
-            },
-          },
-        },
-        done: {
-
-        },
-      },
-    },
+  loadingText: {
+    fontSize: 15,
+    opacity: 0.5,
   },
 
-  checkbox: {
-    checkContainer: {
-      width: 26,
-      height: 26,
-      borderRadius: 16,
-      borderCurve: 'continuous',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-  
-      borderWidth: 1,
-    },
-    checkChecked: {
-      backgroundColor: '#159C5E',
-      borderColor: '#159C5E',
-    },
+  homeworksDevoirsElementContainer: {
+    paddingVertical: 8,
+
+    borderRadius: 12,
+    borderCurve: 'continuous',
+
+    overflow: 'hidden',
+  },
+  homeworksDevoirsDayContainer: {
+    flex: 1,
+    marginTop: 5,
+  },
+  homeworksDevoirsDayHeaderContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    alignSelf: 'flex-start',
+    borderTopRightRadius: 16,
+    borderBottomRightRadius: 16,
+  },
+  homeworksDevoirsDayHeaderTitle: {
+    fontSize: 15,
+    fontFamily: 'Papillon-Semibold',
+  },
+  homeworksDevoirsDayContent: {
+    paddingTop: 5,
   },
 
-  cours: {
-    container: {
-      paddingVertical: 6,
-      overflow: 'hidden',
-      gap: 0,
-    },
-    item: {
-      container: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        flex: 1,
-        flexDirection: 'row',
-        gap: 12,
-        marginTop: -4,
-      },
-      time: {
-        container: {
-          width: 50,
-          justifyContent: 'space-between',
-        },
-        start: {
-          textAlign: 'right',
-          fontWeight: 600,
-        },
-        end: {
-          textAlign: 'right',
-          opacity: 0.5,
-        },
-      },
-      color: {
-        width: 5,
-        height: '100%',
-        borderRadius: 8,
-      },
-      data: {
-        container: {
-          flex: 1,
-        },
-        subject: {
-          fontSize: 16,
-          fontFamily: 'Papillon-Semibold',
-          marginBottom: 8,
-        },
-        teachers: {
-          opacity: 0.5,
-        },
-        room: {
-          fontWeight: 500,
-        },
-        status: {
-          fontWeight: 500,
-          marginTop: 8,
-          alignSelf: 'flex-start',
-          paddingHorizontal: 8,
-          paddingVertical: 4,
-          borderRadius: 8,
-          overflow: 'hidden',
-        },
-      },
-    },
-    separator: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 12,
-      marginVertical: 2,
-      marginHorizontal: 12,
-      marginBottom: 2,
-    },
-    separatorLine: {
-      flex: 1,
-      height: 2,
-      borderRadius:3,
-    },
+  homeworksDevoirsContentContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    flex: 1,
+  },
+  homeworksDevoirsContentInner: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  homeworksDevoirsContentParent: {
+    flex: 1,
+    paddingHorizontal: 14,
+    gap: 6,
   },
 
-  tabs: {
-    tabsContainer: {
-      marginTop: 8,
-      marginHorizontal: 16,
-      gap: 6,
-      marginBottom: 16,
+  homeworksDevoirsContentHeaderSubjectContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  homeworksDevoirsContentHeaderSubjectColor: {
+    width: 10,
+    height: 10,
+    borderRadius: 8,
+  },
+  homeworksDevoirsContentHeaderSubjectTitle: {
+    fontSize: 16,
+    fontFamily: 'Papillon-Semibold',
+  },
+
+  homeworksDevoirsContentContentDescription: {
+    fontSize: 15,
+  },
+
+  homeworksDevoirsContentFooterContainer: {
+    marginTop: 4,
+  },
+  homeworksDevoirsContentFooterFilesContainer: {
+    gap: 2,
+  },
+  homeworksDevoirsContentFooterFilesFileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    alignSelf: 'flex-start',
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  homeworksDevoirsContentFooterFilesFileText: {
+    fontSize: 15,
+    fontFamily: 'Papillon-Semibold',
+  },
+
+  checkboxCheckContainer: {
+    width: 26,
+    height: 26,
+    borderRadius: 16,
+    borderCurve: 'continuous',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    borderWidth: 1,
+  },
+  checkboxCheckChecked: {
+    backgroundColor: '#159C5E',
+    borderColor: '#159C5E',
+  },
+
+  coursContainer: {
+    paddingVertical: 6,
+    overflow: 'hidden',
+    gap: 0,
+  },
+
+  coursItemContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    flex: 1,
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: -4,
+  },
+
+  coursItemTimeContainer: {
+    width: 50,
+    justifyContent: 'space-between',
+  },
+  coursItemTimeStart: {
+    textAlign: 'right',
+    fontWeight: '600',
+  },
+  coursItemTimeEnd: {
+    textAlign: 'right',
+    opacity: 0.5,
+  },
+
+  coursItemColor: {
+    width: 5,
+    height: '100%',
+    borderRadius: 8,
+  },
+  coursItemDataContainer: {
+    flex: 1,
+  },
+  coursItemDataSubject: {
+    fontSize: 16,
+    fontFamily: 'Papillon-Semibold',
+    marginBottom: 8,
+  },
+  coursItemDataTeachers: {
+    opacity: 0.5,
+  },
+  coursItemDataRoom: {
+    fontWeight: '500',
+  },
+  coursItemDataStatus: {
+    fontWeight: '500',
+    marginTop: 8,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+
+  coursSeparator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginVertical: 2,
+    marginHorizontal: 12,
+    marginBottom: 2,
+  },
+  coursSeparatorLine: {
+    flex: 1,
+    height: 2,
+    borderRadius:3,
+  },
+
+  tabsTabsContainer: {
+    marginTop: 8,
+    marginHorizontal: 16,
+    gap: 6,
+    marginBottom: 16,
+  },
+
+  tabsTabRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 6,
+  },
+
+  tabsTab: {
+    borderRadius: 12,
+    borderCurve: 'continuous',
+
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    gap: 4,
+
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 0.5,
     },
-    tabRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      gap: 6,
-    },
-  
-    tab: {
-      borderRadius: 12,
-      borderCurve: 'continuous',
-  
-      flex: 1,
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingVertical: 12,
-      paddingHorizontal: 8,
-      gap: 4,
-  
-      shadowColor: '#000',
-      shadowOffset: {
-        width: 0,
-        height: 0.5,
-      },
-      shadowOpacity: 0.15,
-      shadowRadius: 1,
-  
-      elevation: 0,
-    },
-  
-    tabText: {
-      fontSize: 14.5,
-      fontFamily: 'Onest-Semibold',
-    },
+    shadowOpacity: 0.15,
+    shadowRadius: 1,
+
+    elevation: 0,
+  },
+
+  tabsTabText: {
+    fontSize: 14.5,
+    fontFamily: 'Onest-Semibold',
   },
 
   nextCoursContainer: {
