@@ -1,7 +1,7 @@
-import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, TouchableOpacity, Image, ScrollView, ActivityIndicator, Alert, StatusBar, RefreshControl} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
 
-import {Text, useTheme} from 'react-native-paper';
+import { Text } from 'react-native-paper';
 
 import { PressableScale } from 'react-native-pressable-scale';
 
@@ -15,7 +15,7 @@ function lz(num) {
   return (num < 10 ? '0' : '') + num;
 }
 
-const NextCours = ({ cours, style, navigation, color = null }) => {
+const NextCours = ({ cours, style, navigation, color }) => {
   const UIColors = GetUIColors();
 
   const [nxid, setNxid] = useState(0);
