@@ -1,4 +1,6 @@
+import type { PapillonLesson } from '../fetch/types/timetable';
 import React, { useCallback, useState, useEffect, useRef, useLayoutEffect } from 'react';
+
 import {
   Animated,
   View,
@@ -11,28 +13,26 @@ import {
   Modal,
   Pressable,
 } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
-
-import { BlurView } from 'expo-blur';
-
-import { SFSymbol } from 'react-native-sfsymbols';
-import PapillonInsetHeader from '../components/PapillonInsetHeader';
-
-import { ContextMenuView } from 'react-native-ios-context-menu';
-
-import { ScrollView } from 'react-native-gesture-handler';
-
-import { PressableScale } from 'react-native-pressable-scale';
 
 import InfinitePager, { type InfinitePagerImperativeApi } from 'react-native-infinite-pager';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ContextMenuView } from 'react-native-ios-context-menu';
+import { PressableScale } from 'react-native-pressable-scale';
+import { ScrollView } from 'react-native-gesture-handler';
+import { useTheme, Text } from 'react-native-paper';
+import { SFSymbol } from 'react-native-sfsymbols';
 
 import * as Notifications from 'expo-notifications';
-
 import * as Calendar from 'expo-calendar';
+import { BlurView } from 'expo-blur';
 
+import PapillonInsetHeader from '../components/PapillonInsetHeader';
 import PapillonLoading from '../components/PapillonLoading';
+import NativeText from '../components/NativeText';
+import ListItem from '../components/ListItem';
 
+import { Calendar as CalendarPapillonIcon } from '../interface/icons/PapillonIcons';
 import {
   DoorOpen,
   User2,
@@ -45,26 +45,16 @@ import {
   BookOpenCheck,
 } from 'lucide-react-native';
 
-import formatCoursName from '../utils/FormatCoursName';
 import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
-
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
-
+import formatCoursName from '../utils/FormatCoursName';
+import { dateToFrenchFormat } from '../utils/dates';
+import { useAppContext } from '../utils/AppContext';
 import GetUIColors from '../utils/GetUIColors';
 
-import ListItem from '../components/ListItem';
-
-import { useAppContext } from '../utils/AppContext';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Calendar as CalendarPapillonIcon } from '../interface/icons/PapillonIcons';
-import NativeText from '../components/NativeText';
-import { PapillonLesson } from '../fetch/types/timetable';
-import { dateToFrenchFormat } from '../utils/dates';
-
-
-// TODO: Type this inside react-navigation
-// @ts-expect-error
-function CoursScreen({ navigation }) {
+export default function CoursScreen ({ navigation }: {
+  navigation: any // TODO
+}) {
   const appContext = useAppContext();
   const insets = useSafeAreaInsets();
   const UIColors = GetUIColors();
@@ -322,7 +312,7 @@ Statut : ${cours.status || 'Aucun'}
             }),
             menuItems: [
               {
-                actionKey: 'addtoCalendar',
+                actionKey: 'addToCalendar',
                 actionTitle: 'Ajouter au calendrier',
                 actionSubtitle:
                     'Ajoute tous les cours de la journée au calendrier',
@@ -341,7 +331,7 @@ Statut : ${cours.status || 'Aucun'}
 
             if (!(dayKey in cours)) return; // Pretty useless otherwise...
 
-            if (nativeEvent.actionKey === 'addtoCalendar') {
+            if (nativeEvent.actionKey === 'addToCalendar') {
               addToCalendar(cours[dayKey]);
             } else if (nativeEvent.actionKey === 'notifyAll') {
               notifyAll(cours[dayKey]);
@@ -522,7 +512,7 @@ Statut : ${cours.status || 'Aucun'}
                     backgroundColor: UIColors.dark ? '#00000066' : '#ffffff12',
                   }
                 ]}>
-                  <CalendarDays size={24} color={'#ffffff'} style={styles.modalTipIcon}/>
+                  <CalendarDays size={24} color={'#ffffff'} />
                   <View style={styles.modalTipData}>
                     <NativeText heading="subtitle3" style={{color: '#ffffff'}}>
                       Astuce
@@ -544,7 +534,7 @@ Statut : ${cours.status || 'Aucun'}
             </Animated.View>
 
             <TouchableOpacity style={styles.modalCloseButton} onPress={() => setCalendarModalOpen(false)}>
-              <X size={24} color={'#ffffff'} style={styles.modalCloseIcon}/>
+              <X size={24} color={'#ffffff'} />
             </TouchableOpacity>
 
             <Animated.View 
@@ -618,7 +608,6 @@ Statut : ${cours.status || 'Aucun'}
             <CoursPage
               cours={lessonsFromPage(index)}
               navigation={navigation}
-              theme={theme}
               forceRefresh={() => forceRefresh()}
             />
           ) : (
@@ -635,8 +624,9 @@ Statut : ${cours.status || 'Aucun'}
   );
 }
 
-const CoursItem = ({ cours, theme, lessonPressed, navigation }: {
+const CoursItem = ({ cours, lessonPressed, navigation }: {
   cours: PapillonLesson
+  navigation: any // TODO
   lessonPressed: () => unknown
 }) => {
   const formattedStartTime = useCallback(
@@ -682,6 +672,7 @@ const CoursItem = ({ cours, theme, lessonPressed, navigation }: {
     lengthString = `${Math.floor((length / 60) + 1)} heure(s)`;
   }
 
+  const theme = useTheme();
   const UIColors = GetUIColors();
   const mainColor = theme.dark ? '#ffffff' : '#444444';
 
@@ -901,8 +892,9 @@ const CoursItem = ({ cours, theme, lessonPressed, navigation }: {
   );
 };
 
-function CoursPage({ cours, navigation, theme, forceRefresh }: {
+function CoursPage({ cours, navigation, forceRefresh }: {
   cours: PapillonLesson[]
+  navigation: any // TODO
   forceRefresh: () => Promise<unknown>
 }) {
   const [isHeadLoading, setIsHeadLoading] = useState(false);
@@ -976,7 +968,6 @@ function CoursPage({ cours, navigation, theme, forceRefresh }: {
           <CoursItem
             key={index}
             cours={lesson}
-            theme={theme}
             navigation={navigation}
             lessonPressed={() => {
               navigation.navigate('Lesson', { event: lesson });
@@ -1233,5 +1224,3 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   }
 });
-
-export default CoursScreen;
