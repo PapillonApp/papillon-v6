@@ -741,7 +741,7 @@ const CoursElement: React.FC<{
           ))
         ) : (
           <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Aucun cours aujourd'hui</Text>
+            <Text style={styles.loadingText}>Aucun cours {!showsTomorrow ? 'aujourd\'hui' : 'demain'}</Text>
           </View>
         )
       ) : (
