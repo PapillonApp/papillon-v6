@@ -1,15 +1,17 @@
+import type { Pronote } from 'pawnote';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type { SkolengoDatas } from './SkolengoData/SkolengoDatas';
-import type { Pronote } from 'pawnote';
-import type { PapillonUser } from './types/user';
+import type { PapillonLesson } from './types/timetable';
 import type { PapillonGrades } from './types/grades';
+import type { PapillonUser } from './types/user';
+import type { PapillonHomework } from './types/homework';
 
 import { loadPronoteConnector } from './PronoteData/connector';
 import { userHandler as pronoteUserHandler } from './PronoteData/user';
 import { gradesHandler as pronoteGradesHandler } from './PronoteData/grades';
 import { timetableHandler as pronoteTimetableHandler } from './PronoteData/timetable';
-import { PapillonLesson } from './types/timetable';
+import { homeworkHandler as pronoteHomeworkHandler } from './PronoteData/homework';
 
 export type ServiceName = 'pronote' | 'skolengo'
 
@@ -94,7 +96,7 @@ export class IndexDataInstance {
 
     if (this.service === 'skolengo') {
       // TODO: Typings and stuff for Skolengo.
-      grades = await this.skolengoInstance.getGrades(selectedPeriodName, force) as unknown as PapillonGrades;
+      // grades = await this.skolengoInstance.getGrades(selectedPeriodName, force) as unknown as PapillonGrades;
     }
     else if (this.service === 'pronote') {
       const gradesReceived = await pronoteGradesHandler(selectedPeriodName, this.pronoteInstance, force);
@@ -129,23 +131,23 @@ export class IndexDataInstance {
     return [];
   }
 
-  // [Service]Homeworks.js
-  async getHomeworks(day, force = false, day2 = null) {
-    if (!day2) day2 = day;
+  /**
+   * @returns every homework from today 'till the end of the year or `end` parameter.
+   */
+  async getHomeworks (start: Date, force = false, end: Date): Promise<PapillonHomework[]> {
     await this.waitInit();
     
     if (this.service === 'skolengo') {
-      return this.skolengoInstance.getHomeworks(day, force, day2) || [];
+      // return this.skolengoInstance.getHomeworks(day, force, day2) || [];
     }
-    
     else if (this.service === 'pronote') {
-      // return require('./PronoteData/PronoteHomeworks.js').getHomeworks(
-      //   day,
-      //   force,
-      //   day2
-      // );
+      const homeworkReceived = await pronoteHomeworkHandler(start, end, this.pronoteInstance);
+      if (homeworkReceived) return homeworkReceived;
+
+      console.warn('getHomeworks: offline.');
     }
 
+    console.warn('getHomeworks: returning empty list.');
     return [];
   }
 

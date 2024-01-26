@@ -11,6 +11,7 @@ export const AsyncStoragePronoteKeys = {
   CACHE_GRADES: 'pronote:cache_grades',
   CACHE_USER: 'pronote:cache_user',
   CACHE_TIMETABLE: 'pronote:cache_timetable',
+  CACHE_HOMEWORK: 'pronote:cache_homework',
 };
 
 export const removePronoteConnector = async () => {

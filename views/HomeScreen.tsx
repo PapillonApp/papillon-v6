@@ -26,11 +26,11 @@ import { PressableScale } from 'react-native-pressable-scale';
 // Modules
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ContextMenuView } from 'react-native-ios-context-menu';
+import { ContextMenuView, MenuElementConfig } from 'react-native-ios-context-menu';
 import NextCoursElem from '../interface/HomeScreen/NextCours';
-import SyncStorage, { set } from 'sync-storage';
+import SyncStorage from 'sync-storage';
 import * as ExpoLinking from 'expo-linking';
 
 // Icons 
@@ -53,8 +53,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { useNetInfo } from '@react-native-community/netinfo';
 import AlertAnimated from '../interface/AlertAnimated';
-import { PapillonUser } from '../fetch/types/user';
-import { PapillonLesson } from '../fetch/types/timetable';
+import type { PapillonUser } from '../fetch/types/user';
+import type { PapillonLesson } from '../fetch/types/timetable';
+import type { PapillonGroupedHomeworks, PapillonHomework } from '../fetch/types/homework';
 import { dateToFrenchFormat } from '../utils/dates';
 
 // Functions
@@ -120,8 +121,7 @@ const THEME_IMAGES: Record<string, ImageSourcePropType> = {
   'artdeco/stripes': require('../assets/themes/artdeco/stripes.png'),
 };
 
-// @ts-expect-error : Type inside react-navigation
-function HomeScreen({ navigation }) {
+function HomeScreen({ navigation }: { navigation: any }) {
   const appContext = useAppContext();
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -197,7 +197,7 @@ function HomeScreen({ navigation }) {
 
   const now = new Date();
   const loadCustomHomeworks = async (): Promise<void> => {
-    return;
+    return; // TODO
     const customHomeworks = await AsyncStorage.getItem('customHomeworks');
     const homeworks: any[] = JSON.parse(customHomeworks || '[]');
 
@@ -230,71 +230,52 @@ function HomeScreen({ navigation }) {
    * Once the data has been fetched from either cache or APIs,
    * we need to process them before displaying.
    */
-  const applyHomeworksAndLessonsData = async (homeworks: unknown[], lessons: PapillonLesson[]): Promise<void> => {
+  const applyHomeworksAndLessonsData = async (homeworks: PapillonHomework[], lessons: PapillonLesson[]): Promise<void> => {
     setLessons({ loading: false, data: lessons });
-    setHomeworks({ loading: false, data: [] });
     
-    // const groupedHomeworks = homeworks.reduce((grouped, homework) => {
-    //   const homeworkDate = new Date(homework.date);
-    //   homeworkDate.setHours(0, 0, 0, 0);
+    const groupedHomeworks = homeworks.reduce((grouped, homework) => {
+      const homeworkDate = new Date(homework.date);
+      homeworkDate.setHours(0, 0, 0, 0);
 
-    //   setHomeworksDays((prevDays) => {
-    //     let newDays = prevDays;
+      setHomeworksDays((prevDays) => {
+        let days = [...prevDays]; // Copy of the old value.
 
-    //     // check if day already exists
-    //     if (!newDays.find((day) => day.date === homeworkDate.getTime())) {
-    //       newDays.push({
-    //         date: homeworkDate.getTime(),
-    //         custom: false,
-    //       });
-    //     }
+        const existingDay = days.find((day) => day.date === homeworkDate.getTime());
+        if (!existingDay) {
+          days.push({
+            date: homeworkDate.getTime(),
+            custom: false,
+          });
+        }
 
-    //     // sort days
-    //     newDays.sort((a, b) => a.date - b.date);
+        days.sort((a, b) => a.date - b.date);
+        return days;
+      });
 
-    //     return newDays;
-    //   });
+      const formattedDate = homeworkDate.getDate() === now.getDate() + 1
+        ? 'demain'
+        : new Date(homeworkDate).toLocaleDateString('fr-FR', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+        });
 
-    //   const formattedDate = homeworkDate.getDate() === now.getDate() + 1
-    //     ? 'demain'
-    //     : new Date(homeworkDate).toLocaleDateString('fr-FR', {
-    //       weekday: 'long',
-    //       day: 'numeric',
-    //       month: 'long',
-    //     });
+      const formattedTime = homeworkDate.getTime();
 
-    //   const formattedTime = homeworkDate.getTime();
+      if (!(formattedDate in grouped)) {
+        grouped[formattedDate] = {
+          date: homeworkDate,
+          formattedDate: formattedDate,
+          time: formattedTime,
+          homeworks: [],
+        };
+      }
 
-    //   if (!grouped[formattedDate]) {
-    //     grouped[formattedDate] = {
-    //       date: homeworkDate,
-    //       formattedDate: formattedDate,
-    //       time: formattedTime,
-    //       homeworks: [],
-    //     };
-    //   }
+      grouped[formattedDate].homeworks.push(homework);
+      return grouped;
+    }, {} as Record<string, PapillonGroupedHomeworks>);
 
-    //   // find all homeworks for tomorrow
-    //   let tomorrow = new Date();
-    //   tomorrow.setDate(tomorrow.getDate() + 1);
-    //   tomorrow.setHours(0, 0, 0, 0);
-
-    //   let tomorrowHomeworks = hwData.filter((hw) => {
-    //     const hwDate = new Date(hw.date);
-    //     hwDate.setHours(0, 0, 0, 0);
-
-    //     return hwDate.getDate() === tomorrow.getDate();
-    //   });
-
-    //   grouped[formattedDate].homeworks.push(homework);
-    //   return grouped;
-    // }, {});
-
-    // const result = Object.values(groupedHomeworks).sort((a, b) => a.date - b.date);
-    // setHomeworks(result);
-    // setLoadingHw(false);
-    // setTimetable(coursData);
-    // setLoadingCours(false);
+    setHomeworks({ loading: false, data: Object.values(groupedHomeworks).sort((a, b) => a.time - b.time) });
     
     await loadCustomHomeworks();
     await sendToSharedGroup(lessons);
@@ -322,7 +303,7 @@ function HomeScreen({ navigation }) {
     data: null
   });
 
-  const [homeworks, setHomeworks] = useState<LazyLoadedValue<PapillonLesson[]>>({
+  const [homeworks, setHomeworks] = useState<LazyLoadedValue<PapillonGroupedHomeworks[]>>({
     loading: true,
     data: null
   });
@@ -340,10 +321,6 @@ function HomeScreen({ navigation }) {
     let timetable = await appContext.dataProvider.getTimetable(now, force);
     // Take only the lessons that are for today.
     let lessons = timetable.filter(lesson => dateToFrenchFormat(new Date(lesson.start)) === todayKey);
-
-    // const [hwData, coursData] = await Promise.all([
-    //   appContext.dataProvider.getHomeworks(today, false, new Date(today).setDate(today.getDate() + 7)).then(e=>e?.flat()),
-    // ]);
 
     // Check if all lessons for today are done.
     const todayLessonsDone = lessons.every(lesson => new Date(lesson.end) < now);
@@ -364,8 +341,13 @@ function HomeScreen({ navigation }) {
       lessons = timetable.filter(lesson => dateToFrenchFormat(new Date(lesson.start)) === tomorrowKey);
       setShowsTomorrowLessons(true);
     }
-    
-    await applyHomeworksAndLessonsData([], lessons);
+
+    // Get the homeworks until next week.
+    const nextWeekDate = new Date(now);
+    nextWeekDate.setDate(nextWeekDate.getDate() + 7);
+
+    const homeworks = await appContext.dataProvider.getHomeworks(now, false, nextWeekDate);
+    await applyHomeworksAndLessonsData(homeworks, lessons);
   };
 
   // On first mount, we need to fetch user data
@@ -917,14 +899,20 @@ function CoursItem ({ lesson, cours, navigation, index }: {
   );
 }
 
-function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation, loading }) {
+function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation, loading }: {
+  homeworks: PapillonGroupedHomeworks[] | null
+  customHomeworks: any[] // TODO
+  homeworksDays: Array<{ custom: boolean, date: number }>
+  navigation: any // TODO: type from react-navigation
+  loading: boolean
+}) {
   return (
     !loading ? (
-      homeworks.length > 0 ? (
+      homeworks ? (
         <PapillonList inset title="Travail à faire" style={styles.homeworksDevoirsElementContainer}>
           {homeworksDays.map((day, index) => (
             <DevoirsDay
-              key={index}
+              key={day.date}
               index={index}
               homeworks={
                 !day.custom ?
@@ -935,9 +923,10 @@ function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation
                       day: 'numeric',
                       month: 'long',
                     }),
-                    date : day.date,
-                    homeworks: [],
-                  }
+                    time: day.date,
+                    date: new Date(day.date),
+                    homeworks: [] as PapillonHomework[],
+                  } as PapillonGroupedHomeworks
               }
               navigation={navigation}
               customHomeworks={customHomeworks.filter((hw) => {
@@ -967,13 +956,13 @@ function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation
   );
 }
 
-const DevoirsDay = ({ homeworks, customHomeworks, navigation, index }) => {
+const DevoirsDay = ({ homeworks, customHomeworks, navigation, index }: {
+  homeworks?: PapillonGroupedHomeworks
+  customHomeworks: any[] // TODO
+  navigation: any // TODO: type from react-navigation
+  index: number
+}) => {
   const UIColors = GetUIColors();
-  const theme = useTheme();
-
-  // sort homeworks by index
-  homeworks.homeworks.sort((a, b) => a.index - b.index);
-
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -1012,40 +1001,63 @@ const DevoirsDay = ({ homeworks, customHomeworks, navigation, index }) => {
         },
       ]}
     >
-      { homeworks.homeworks.length > 0 || customHomeworks.length > 0 ? (<>
-        <View
-          style={[styles.homeworksDevoirsDayHeaderContainer, UIColors.theme == 'dark' && Platform.OS !== 'ios' ? { backgroundColor: UIColors.text + '22' } : { backgroundColor: UIColors.primary + '22' }]}
-        >
-          <Text
-            style={[
-              styles.homeworksDevoirsDayHeaderTitle,
-              UIColors.theme == 'dark' && Platform.OS !== 'ios' ? { color: UIColors.text } : { color: UIColors.primary }
-            ]}
+      {((homeworks && homeworks.homeworks.length > 0) || customHomeworks.length > 0) && (
+        <>
+          <View
+            style={[styles.homeworksDevoirsDayHeaderContainer, UIColors.theme == 'dark' && Platform.OS !== 'ios' ? { backgroundColor: UIColors.text + '22' } : { backgroundColor: UIColors.primary + '22' }]}
           >
-          pour {homeworks.formattedDate}
-          </Text>
-        </View>
+            <Text
+              style={[
+                styles.homeworksDevoirsDayHeaderTitle,
+                UIColors.theme == 'dark' && Platform.OS !== 'ios' ? { color: UIColors.text } : { color: UIColors.primary }
+              ]}
+            >
+              pour {homeworks?.formattedDate}
+            </Text>
+          </View>
 
-        <View style={styles.homeworksDevoirsDayContent}>
-          { homeworks.homeworks.map((homework, index) => (
-            <DevoirsContent key={index} index={index} parentIndex={parentIndex} homework={homework} theme={theme} UIColors={UIColors} navigation={navigation} />
-          ))}
+          <View style={styles.homeworksDevoirsDayContent}>
+            {homeworks && homeworks.homeworks.map((homework, index) => (
+              <DevoirsContent
+                key={homework.localID}
+                index={index}
+                parentIndex={parentIndex}
+                homework={homework}
+                navigation={navigation}
+              />
+            ))}
 
-          { customHomeworks.map((homework, index) => (
-            <DevoirsContent key={index} index={index} parentIndex={parentIndex} homework={homework} theme={theme} UIColors={UIColors} navigation={navigation} />
-          ))}
-        </View>
-      </>) : null }
+            {customHomeworks && customHomeworks.map((homework, index) => (
+              <DevoirsContent
+                key={homework.localID}
+                index={index}
+                parentIndex={parentIndex}
+                homework={homework}
+                navigation={navigation}
+              />
+            ))}
+          </View>
+        </>
+      )}
     </Animated.View>
   );
 };
 
-function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIndex }) {
+function DevoirsContent({ homework, navigation, index, parentIndex }: {
+  homework: PapillonHomework
+  index: number
+  parentIndex: number
+  navigation: any // TODO: type from react-navigation
+}) {
+  const UIColors = GetUIColors();
+
   const [checkLoading, setCheckLoading] = useState(false);
   const [checked, setChecked] = useState(homework.done);
-  const appctx = useAppContext();
+  const appContext = useAppContext();
 
+  // TODO
   const checkThis = () => {
+    return;
     // définir le loading
     setCheckLoading(true);
 
@@ -1074,7 +1086,7 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
       return;
     }
 
-    appctx.dataprovider.changeHomeworkState(!checked, homework.date, homework.local_id).then((result) => {
+    appContext.dataProvider.changeHomeworkState(!checked, homework.date, homework.local_id).then((result) => {
 
       setCheckLoading(false);
 
@@ -1174,11 +1186,11 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
     }
   }, [checked]);
   
-  if(!homework || !homework.subject) return;
+  if (!homework || !homework.subject) return null;
+
   return (
     <ContextMenuView
       style={{ flex: 1 }}
-      borderRadius={14}
       previewConfig={{
         borderRadius: 12,
         backgroundColor: UIColors.element,
@@ -1207,17 +1219,17 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
               },
             },
           },
-          homework.files.length > 0 ? {
+          ...[homework.attachments.length > 0 ? {
             actionKey  : 'files',
             actionTitle: 'Ouvrir la pièce jointe',
-            actionSubtitle: homework.files[0].name,
+            actionSubtitle: homework.attachments[0].name,
             icon: {
               type: 'IMAGE_SYSTEM',
               imageValue: {
                 systemName: 'paperclip',
               },
             },
-          } : null,
+          } : void 0] as MenuElementConfig[],
         ],
       }}
       onPressMenuItem={({nativeEvent}) => {
@@ -1228,7 +1240,7 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
           checkThis();
         }
         else if (nativeEvent.actionKey === 'files') {
-          openURL(homework.files[0].url);
+          openURL(homework.attachments[0].url);
         }
       }}
       onPressMenuPreview={() => {
@@ -1299,10 +1311,10 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
                 </Text>
               </Animated.View>
 
-              { homework.files.length > 0 && (
+              { homework.attachments.length > 0 && (
                 <View style={styles.homeworksDevoirsContentFooterContainer}>
                   <View style={styles.homeworksDevoirsContentFooterFilesContainer}>
-                    { homework.files.map((file, index) => (
+                    { homework.attachments.map((file, index) => (
                       <PressableScale
                         key={index}
                         style={[
@@ -1328,326 +1340,6 @@ function DevoirsContent({ homework, theme, UIColors, navigation, index, parentIn
         </TouchableHighlight>
       </Animated.View>
     </ContextMenuView>
-  );
-}
-
-function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
-  return (
-    !loading ? (
-      <PressableScale
-        style={[
-          styles.checkboxCheckContainer,
-          { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
-          checked ? styles.checkboxCheckChecked : void 0,
-          checked ? {backgroundColor: UIColors.primary, borderColor: UIColors.primary} : null,
-        ]}
-        weight="light"
-        activeScale={0.7}
-        onPress={() => {
-          pressed();
-        }}
-      >
-        {checked ? <Check size={20} color="#ffffff" /> : null}
-      </PressableScale>
-    ) : (
-      <ActivityIndicator size={26} />
-    )
-  );
-}
-
-const lightenDarkenColor = (color, amount) => {
-  let colorWithoutHash = color.replace('#', '');
-  if (colorWithoutHash.length === 3) {
-    colorWithoutHash = colorWithoutHash
-      .split('')
-      .map((c) => `${c}${c}`)
-      .join('');
-  }
-
-  const getColorChannel = (substring) => {
-    let colorChannel = parseInt(substring, 16) + amount;
-    colorChannel = Math.max(Math.min(255, colorChannel), 0).toString(16);
-
-    if (colorChannel.length < 2) {
-      colorChannel = `0${colorChannel}`;
-    }
-
-    return colorChannel;
-  };
-
-  const colorChannelRed = getColorChannel(colorWithoutHash.substring(0, 2));
-  const colorChannelGreen = getColorChannel(colorWithoutHash.substring(2, 4));
-  const colorChannelBlue = getColorChannel(colorWithoutHash.substring(4, 6));
-
-  return `#${colorChannelRed}${colorChannelGreen}${colorChannelBlue}`;
-};
-
-function NextCours({ cours, navigation }) {
-  const lz = (number) => (number < 10 ? `0${number}` : number);
-
-  const calculateTimeLeft = (date) => {
-    const now = new Date();
-    const start = new Date(date);
-    const diff = start - now;
-
-    if (diff > 0) {
-      const diffMinutes = Math.floor(diff / 1000 / 60);
-      const diffSeconds = Math.floor((diff / 1000) % 60);
-
-      if (diffMinutes < 60) {
-        return `dans ${lz(diffMinutes)}:${lz(diffSeconds)}`;
-      }
-
-      return `dans ${Math.ceil((diffMinutes / 60) - 1)}h${lz(diffMinutes % 60)}`;
-    }
-    return 'maintenant';
-  };
-
-  const openCours = () => {
-    navigation.navigate('Lesson', { event: cours });
-  };
-
-  const isTimeSet = !!cours?.start;
-
-  const formattedStartTime = isTimeSet
-    ? new Date(cours.start).toLocaleTimeString('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-    : '';
-
-  const formattedEndTime = isTimeSet
-    ? new Date(cours.end).toLocaleTimeString('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-    : '';
-
-  const timeLeft = isTimeSet ? calculateTimeLeft(cours.start) : '';
-
-  if (!cours) {
-    return null;
-  }
-
-  return (
-    <PressableScale
-      style={[
-        nextCoursStyles.nextCoursContainer,
-        { backgroundColor: getSavedCourseColor(cours.subject.name, cours.background_color) },
-      ]}
-      onPress={openCours}
-    >
-      <View style={nextCoursStyles.nextCoursLeft}>
-        <View style={nextCoursStyles.nextCoursEmoji}>
-          <Text style={nextCoursStyles.nextCoursEmojiText}>
-            {getClosestGradeEmoji(cours.subject.name)}
-          </Text>
-        </View>
-        <View style={nextCoursStyles.nextCoursLeftData}>
-          <Text numberOfLines={1} style={nextCoursStyles.nextCoursLeftDataText}>
-            {formatCoursName(cours.subject.name)}
-          </Text>
-
-          <Text numberOfLines={1} style={nextCoursStyles.nextCoursLeftDataTextRoom}>
-            {cours.status === null
-              ? `salle ${cours.rooms[0] || 'inconnue'} - avec ${cours.teachers[0]}`
-              : `${cours.status} - salle ${cours.rooms[0] || 'inconnue'} - avec ${cours.teachers[0]}`}
-          </Text>
-        </View>
-      </View>
-      <View style={nextCoursStyles.nextCoursRight}>
-        <Text numberOfLines={1} style={nextCoursStyles.nextCoursRightTime}>
-          à {formattedStartTime}
-        </Text>
-
-        {isTimeSet ? (
-          <Text numberOfLines={1} style={nextCoursStyles.nextCoursRightDelay}>
-            {timeLeft}
-          </Text>
-        ) : (
-          <Text numberOfLines={1} style={nextCoursStyles.nextCoursRightDelay}>
-            {formattedEndTime}
-          </Text>
-        )}
-      </View>
-    </PressableScale>
-  );
-}
-
-function getNextCours(classes) {
-  if (!classes || classes.length === 0) {
-    return {
-      next: null,
-      nextClasses: [],
-    };
-  }
-
-  const now = new Date();
-
-  const activeClasses = classes.filter((classInfo) => !classInfo.is_cancelled);
-
-  let currentOrNextClass = null;
-  let minTimeDiff = Infinity;
-
-  for (const classInfo of activeClasses) {
-    const startTime = new Date(classInfo.start);
-    const endTime = new Date(classInfo.end);
-
-    if (startTime <= now && now <= endTime) {
-      currentOrNextClass = classInfo;
-      break; // Found the current class, no need to continue
-    } else if (startTime > now) {
-      const timeDiff = startTime - now;
-
-      if (timeDiff < minTimeDiff) {
-        minTimeDiff = timeDiff;
-        currentOrNextClass = classInfo;
-      }
-    }
-  }
-
-  if (currentOrNextClass === null) {
-    return {
-      next: null,
-      nextClasses: [],
-    };
-  }
-
-  const nextClasses = activeClasses.filter((classInfo) => {
-    const startTime = new Date(classInfo.start);
-    return startTime > new Date(currentOrNextClass.start);
-  });
-
-  return {
-    next: currentOrNextClass,
-    nextClasses,
-  };
-}
-
-function HomeHeader({ navigation, timetable, user, showsTomorrow }) {
-  const theme = useTheme();
-  const insets = useSafeAreaInsets();
-
-  const [nextCourse, setNextCourse] = React.useState(null);
-  const [leftCourses, setLeftCourses] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
-
-  const isFocused = useIsFocused();
-
-  const fetchNextCourses = () => {
-    if (timetable !== null) {
-      const { next, nextClasses } = getNextCours(timetable);
-      setNextCourse(next);
-      setLeftCourses(nextClasses);
-      setLoading(false);
-    }
-  };
-
-  React.useEffect(() => {
-    fetchNextCourses();
-    const interval = setInterval(fetchNextCourses, 1000);
-    return () => clearInterval(interval);
-  }, [timetable]);
-
-  const getColorCoursBg = (color) =>
-    lightenDarkenColor(color, -20);
-
-  const getPrenom = (name) => name.split(' ').pop();
-
-  const getFormulePolitesse = () => {
-    const hours = new Date().getHours();
-    return hours > 17 ? 'Bonsoir' : 'Bonjour';
-  };
-
-  const openProfile = () => {
-    navigation.navigate('InsetSettings', { isModal: true });
-  };
-
-  const openNextCours = () => {
-    if (nextCourse && nextCourse.id !== null) {
-      navigation.navigate('Lesson', { event: nextCourse });
-    } else {
-      navigation.navigate('CoursHandler');
-    }
-  };
-
-  const UIColors = GetUIColors();
-  const hasTimetable = timetable && leftCourses && leftCourses.length > 0;
-
-  let plural = false;
-  if (leftCourses && leftCourses.length > 1) {
-    plural = true;
-  }
-
-  let atAGlance = '';
-  if (hasTimetable) {
-    if(!showsTomorrow) {
-      atAGlance = `${leftCourses.length + 1} cours ${plural ? 'restants' : 'restant'} dans ta journée.`;
-    }
-    else {
-      atAGlance = `${leftCourses.length + 1} cours ${plural ? 'sont' : 'est'} prévu${plural ? 's' : ''} demain.`;
-    }
-  }
-  else {
-    if(!showsTomorrow) {
-      atAGlance = 'Aucun cours restant aujourd\'hui.';
-    }
-    else {
-      atAGlance = 'Aucun cours prévu demain.';
-    }
-  }
-
-  return (
-    <View
-      style={[
-        headerStyles.header,
-        {
-          backgroundColor: nextCourse
-            ? getColorCoursBg(getSavedCourseColor(nextCourse.subject.name, nextCourse.background_color))
-            : UIColors.primaryBackground,
-          paddingTop: insets.top + 13,
-          borderColor: theme.dark ? '#ffffff15' : '#00000032',
-          borderBottomWidth: 1,
-        },
-      ]}
-    >
-      <View style={headerStyles.headerContainer}>
-        <Text style={[headerStyles.headerNameText]}>
-          {`${getFormulePolitesse()}${user ? `, ${getPrenom(user.name)} !` : ' !'}`}
-        </Text>
-        <Text style={[headerStyles.headerCoursesText]}>
-          {atAGlance}
-        </Text>
-
-        
-        <TouchableOpacity
-          style={[headerStyles.headerPfpContainer]}
-          onPress={openProfile}
-        >
-          {user && user.profile_picture ? (<Image
-            source={{ uri: user.profile_picture }}
-            style={[headerStyles.headerPfp]}
-          />) : (
-            <UserCircle2 size={36} style={[headerStyles.headerPfp]} color="#ccc" />
-          )
-          }
-        </TouchableOpacity>
-        
-      </View>
-
-      { !loading && (
-        <View style={styles.nextCoursContainer}>
-          <NextCoursElem
-            cours={timetable}
-            navigation={navigation}
-            style={[{
-              marginHorizontal: 16,
-              marginVertical: 14,
-            }]}
-          />
-        </View>
-      )}
-    </View>
   );
 }
 
@@ -2122,136 +1814,6 @@ const headerStyles = StyleSheet.create({
     borderRadius: 24,
     borderColor: '#ffffff25',
     borderWidth: 1,
-  },
-});
-
-const nextCoursStyles = StyleSheet.create({
-  nextCoursContainer: {
-    marginHorizontal: 16,
-    height: 68,
-    borderRadius: 12,
-    borderCurve: 'continuous',
-
-    marginTop: 2,
-    marginBottom: -32,
-
-    borderWidth: 0,
-
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 0.5,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 1,
-
-    elevation: 3,
-
-    flexDirection: 'row',
-  },
-
-  nextCoursLoading: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-  },
-  nextCoursLoadingText: {
-    fontSize: 15,
-    opacity: 0.5,
-  },
-
-  nextCoursLeft: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-
-    gap: 14,
-  },
-  nextCoursEmoji: {
-    width: 42,
-    height: 42,
-    borderRadius: 24,
-    backgroundColor: '#ffffff10',
-    borderColor: '#ffffff25',
-    borderWidth: 1,
-
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  nextCoursEmojiText: {
-    fontSize: 22,
-  },
-
-  nextCoursLeftData: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    gap: 2,
-    flex: 1,
-  },
-  nextCoursLeftDataText: {
-    fontSize: 18,
-    fontFamily: 'Papillon-Semibold',
-    color: '#ffffff',
-    flex: 1,
-    marginTop: 2,
-  },
-  nextCoursLeftDataTextRoom: {
-    fontSize: 15,
-    color: '#ffffff99',
-    flex: 1,
-  },
-
-  nextCoursRight: {
-    width: '35%',
-
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-
-    backgroundColor: '#ffffff10',
-    borderLeftWidth: 1,
-    borderLeftColor: '#ffffff25',
-
-    gap: 0,
-
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 12,
-  },
-  nextCoursRightTime: {
-    fontSize: 17,
-    fontFamily: 'Papillon-Semibold',
-    color: '#ffffff',
-    flex: 1,
-    marginTop: 3,
-
-    letterSpacing: 0.5,
-  },
-  nextCoursRightDelay: {
-    fontSize: 15,
-    color: '#ffffff99',
-    flex: 1,
-    fontVariant: ['tabular-nums'],
-  },
-
-  nextCoursInfo: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  nextCoursInfoText: {
-    fontSize: 15,
-    opacity: 0.5,
   },
 });
 

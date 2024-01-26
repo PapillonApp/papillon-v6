@@ -15,7 +15,6 @@ const getGradeState = (gradeValue: number | PronoteApiGradeType): PapillonGradeV
     value: gradeValue
   };
   
-  
   return {
     significant: true,
     type: gradeValue
@@ -41,10 +40,10 @@ export const gradesHandler = async (periodName: string, instance?: Pronote, forc
     return gradesHandler(periodName, instance, true);
   }
 
-  if (!instance) throw new Error('No instance available.');
-
+  if (!instance) return null;
+  
   const period = instance.periods.find(period => period.name === periodName);
-  if (!period) throw new Error('Période inexistante.');
+  if (!period) return null;
 
   try {
     const gradesOverview = await period.getGradesOverview();

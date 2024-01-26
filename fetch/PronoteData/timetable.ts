@@ -27,7 +27,6 @@ function removeDuplicateCourses(courses: PapillonLesson[]): PapillonLesson[] {
 export const timetableHandler = async (interval: [from: Date, to?: Date], instance?: Pronote, force = false): Promise<PapillonLesson[] | null> => {
   let weekCacheString = dateToFrenchFormat(interval[0]);
   if (interval[1]) weekCacheString += '-' + dateToFrenchFormat(interval[1]);
-  console.log(weekCacheString);
 
   const cache = await AsyncStorage.getItem(AsyncStoragePronoteKeys.CACHE_TIMETABLE + '-' + weekCacheString);
   if (cache && !force) {
@@ -37,15 +36,12 @@ export const timetableHandler = async (interval: [from: Date, to?: Date], instan
       const cacheInterval = cachedTimetable.interval;
       if (cacheInterval.from === dateToFrenchFormat(interval[0])) {
         if (interval[1] && cacheInterval.to !== dateToFrenchFormat(interval[1])) continue;
-
-        console.log('timetable: use cache');
         return cachedTimetable.timetable;
       }
     }
   }
 
-  if (!instance) throw new Error('No instance available.');
-  console.log('timetable: fetch timetable');
+  if (!instance) return null;
 
   try {
     const timetableFromPawnote = await instance.getLessonsForInterval(...interval);
