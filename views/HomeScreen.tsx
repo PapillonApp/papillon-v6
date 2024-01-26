@@ -16,12 +16,14 @@ import {
   StatusBar,
   TouchableOpacity,
   type ImageSourcePropType,
+  Dimensions,
 } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
 
 // Components & Styles
 import { useTheme, Text } from 'react-native-paper';
 import { PressableScale } from 'react-native-pressable-scale';
+import RenderHtml from 'react-native-render-html';
 
 // Modules
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,14 +36,13 @@ import SyncStorage from 'sync-storage';
 import * as ExpoLinking from 'expo-linking';
 
 // Icons 
-import { DownloadCloud, Check, AlertCircle, UserCircle2, Globe2 } from 'lucide-react-native';
+import { DownloadCloud, AlertCircle, UserCircle2, Globe2 } from 'lucide-react-native';
 import { Competences, Messages, Papillon as PapillonIcon, UserCheck } from '../interface/icons/PapillonIcons';
 
 // Formatting
 import GetUIColors from '../utils/GetUIColors';
 import { getSavedCourseColor } from '../utils/ColorCoursName';
 import formatCoursName from '../utils/FormatCoursName';
-import getClosestGradeEmoji from '../utils/EmojiCoursName';
 
 // Custom components
 import PapillonList from '../components/PapillonList';
@@ -1187,7 +1188,7 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
   }, [checked]);
   
   if (!homework || !homework.subject) return null;
-
+  
   return (
     <ContextMenuView
       style={{ flex: 1 }}
@@ -1298,17 +1299,17 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
                   marginTop: textMargin
                 }}
               >
-                <Text numberOfLines={2}
-                  style={[
-                    styles.homeworksDevoirsContentContentDescription, 
-                    {
-                      color: UIColors.text,
-                      height: homework.description.length > 40 ? 38 : 20,
+                <RenderHtml source={{ html: homework.description }}
+                  contentWidth={Dimensions.get('window').width - 32}
+                  domVisitors={{
+                    onElement: (element) => {
+                      element.attribs.style = `
+                        color: ${UIColors.text};
+                        font-size: 15px;
+                      `;
                     }
-                  ]}
-                >
-                  {homework.description}
-                </Text>
+                  }}
+                />
               </Animated.View>
 
               { homework.attachments.length > 0 && (
