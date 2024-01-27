@@ -347,7 +347,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
     const nextWeekDate = new Date(now);
     nextWeekDate.setDate(nextWeekDate.getDate() + 7);
 
-    const homeworks = await appContext.dataProvider.getHomeworks(now, false, nextWeekDate);
+    const homeworks = await appContext.dataProvider.getHomeworks(now, force, nextWeekDate);
     await applyHomeworksAndLessonsData(homeworks, lessons);
   };
 
