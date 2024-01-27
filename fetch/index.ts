@@ -134,7 +134,7 @@ export class IndexDataInstance {
   /**
    * @returns every homework from today 'till the end of the year or `end` parameter.
    */
-  async getHomeworks (start: Date, force = false, end: Date): Promise<PapillonHomework[]> {
+  async getHomeworks (start: Date, force = false, end?: Date): Promise<PapillonHomework[]> {
     await this.waitInit();
     
     if (this.service === 'skolengo') {

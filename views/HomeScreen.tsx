@@ -234,6 +234,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
   const applyHomeworksAndLessonsData = async (homeworks: PapillonHomework[], lessons: PapillonLesson[]): Promise<void> => {
     setLessons({ loading: false, data: lessons });
     
+    // Group them by day, so it is easier to display them.
     const groupedHomeworks = homeworks.reduce((grouped, homework) => {
       const homeworkDate = new Date(homework.date);
       homeworkDate.setHours(0, 0, 0, 0);
