@@ -17,8 +17,12 @@ import formatCoursName from '../utils/FormatCoursName';
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
+// Components & Styles
+import { useTheme } from 'react-native-paper';
+
 // Icons
-import { BarChart3, Users2, TrendingDown, TrendingUp, Info, AlertTriangle, MoreVertical } from 'lucide-react-native';
+import { Users2, TrendingDown, TrendingUp, AlertTriangle, MoreVertical } from 'lucide-react-native';
+import { Stats } from '../interface/icons/PapillonIcons';
 
 // Plugins
 import { ContextMenuButton } from 'react-native-ios-context-menu';
@@ -27,6 +31,7 @@ import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PressableScale } from 'react-native-pressable-scale';
+
 
 // Interfaces
 interface UIaverage {
@@ -54,9 +59,11 @@ import { PronoteApiGradeType } from 'pawnote';
 import { formatPapillonGradeValue } from '../utils/grades/format';
 
 import {calculateAverage, calculateSubjectAverage} from '../utils/grades/averages';
+import PapillonLoading from '../components/PapillonLoading';
 
 const GradesScreen = ({ navigation }) => {
   const UIColors = GetUIColors();
+  const theme = useTheme();
   const appContext = useAppContext();
   const insets = useSafeAreaInsets();
   const { showActionSheetWithOptions } = useActionSheet();
@@ -518,13 +525,11 @@ const GradesScreen = ({ navigation }) => {
         <StatusBar animated barStyle={UIColors.dark ? 'light-content' : 'dark-content'} translucent={true} backgroundColor={UIColors.backgroundHigh} />
 
         {grades.length === 0 && (
-          <NativeList inset>
-            <NativeItem>
-              <NativeText heading="p2">
-                Aucune note à afficher.
-              </NativeText>
-            </NativeItem>
-          </NativeList>
+          <PapillonLoading
+            title='Aucune note à afficher'
+            subtitle='Vos notes apparaîtront ici.'
+            icon={<Stats stroke={UIColors.text}/>}
+          />
         )}
 
         { averages.student && averages.student > 0 && (
