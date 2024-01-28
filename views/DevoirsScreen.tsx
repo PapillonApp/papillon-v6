@@ -8,7 +8,8 @@ import {
   Platform,
   ActivityIndicator,
   RefreshControl,
-  SectionList
+  SectionList,
+  ScrollView
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -45,6 +46,7 @@ import NativeText from '../components/NativeText';
 
 import * as WebBrowser from 'expo-web-browser';
 import type { PapillonHomework } from '../fetch/types/homework';
+import { BlurView } from 'expo-blur';
 
 function DevoirsScreen({ navigation }: {
   navigation: any
@@ -54,6 +56,20 @@ function DevoirsScreen({ navigation }: {
   const theme = useTheme();
 
   const [browserOpen, setBrowserOpen] = useState(false);
+
+  const yOffset = new Animated.Value(0);
+
+
+  const headerOpacity = yOffset.interpolate({
+    inputRange: [-75, -60],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+  
+  const scrollHandler = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: yOffset } } }],
+    { useNativeDriver: false }
+  );
 
   const openURL = async (url: string) => {
     if (Platform.OS === 'ios') {
@@ -69,7 +85,7 @@ function DevoirsScreen({ navigation }: {
     setBrowserOpen(false);
   };
 
-  useLayoutEffect(() => {
+  React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
@@ -78,12 +94,33 @@ function DevoirsScreen({ navigation }: {
           color="#29947A"
         />
       ) : 'Devoirs',
-      headerShadowVisible: Platform.OS !== 'ios',
-      headerTransparent: Platform.OS === 'ios',
+      headerTransparent: Platform.OS === 'ios' ? true : false,
       headerStyle: Platform.OS === 'android' ? {
         backgroundColor: UIColors.background,
         elevation: 0,
-      } : void 0
+      } : undefined,
+      headerBackground: Platform.OS === 'ios' ? () => (
+        <Animated.View 
+          style={[
+            styles.header,
+            {
+              flex: 1,
+              backgroundColor: UIColors.element + '00',
+              opacity: headerOpacity,
+              borderBottomColor: theme.dark ? UIColors.text + '22' : UIColors.text + '55',
+              borderBottomWidth: 0.5,
+            }
+          ]}
+        >
+          <BlurView
+            tint={theme.dark ? 'dark' : 'light'}
+            intensity={120}
+            style={{
+              flex: 1,
+            }}
+          />
+        </Animated.View>
+      ) : undefined,
     });
   }, [navigation, UIColors]);
 
@@ -166,13 +203,21 @@ function DevoirsScreen({ navigation }: {
   }, []);
 
   return (
-    <View style={[
+    <ScrollView style={[
       styles.container,
       {
         backgroundColor: UIColors.backgroundHigh,
-        paddingTop: Platform.OS === 'ios' ? insets.top + 44 : 0
-      }
-    ]}>
+      }]}
+    contentInsetAdjustmentBehavior='automatic'
+    onScroll={scrollHandler}
+    scrollEventThrottle={16}
+    refreshControl={
+      <RefreshControl
+        refreshing={isHeadLoading}
+        onRefresh={onRefresh}
+        colors={[Platform.OS === 'android' ? UIColors.primary : '']}
+      />
+    }>
       <StatusBar
         animated
         barStyle={
@@ -226,16 +271,9 @@ function DevoirsScreen({ navigation }: {
               </Text>
             </View>
           )}
-          refreshControl={
-            <RefreshControl
-              refreshing={isHeadLoading}
-              onRefresh={onRefresh}
-              colors={[Platform.OS === 'android' ? UIColors.primary : '']}
-            />
-          }
         />
       )}
-    </View>
+    </ScrollView>
   );
 }
 
