@@ -16,29 +16,13 @@ function lz(num: number): string {
   return (num < 10 ? '0' : '') + num;
 }
 
-const NextCours = ({ cours, style, setNextColor = (color) => {}, navigation, color }: {
+const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, navigation, color }: {
   cours: PapillonLesson[] | null
   style?: ViewStyle
   color?: string,
   navigation: any
 }) => {
   const UIColors = GetUIColors();
-
-  const [height, setHeight] = useState(88);
-
-  const bottomAnim = useRef(new Animated.Value(0)).current;
-
-  
-  const onLayout = (event) => {
-    if (Platform.OS !== 'android') {
-      const { height } = event.nativeEvent.layout;
-      setHeight(height);
-    }
-  };
-
-  useEffect(() => {
-    bottomAnim.setValue(height);
-  }, [height]);
 
   const [nxid, setNxid] = useState(0);
   const [lenText, setLenText] = useState('À venir');
@@ -224,11 +208,10 @@ const NextCours = ({ cours, style, setNextColor = (color) => {}, navigation, col
     cours && cours[nxid] && !coursEnded &&
 
     <PressableScale
-      onLayout={onLayout}
       style={[
         styles.container,
         { backgroundColor: color ? color : getSavedCourseColor(cours[nxid].subject?.name ?? '', cours[nxid].background_color) },
-        style
+        style,
       ]}
       onPress={() => {
         if (navigation) {
@@ -240,9 +223,9 @@ const NextCours = ({ cours, style, setNextColor = (color) => {}, navigation, col
         style={[
           styles.inContainer,
           {
-            opacity: bottomAnim.interpolate({
-              inputRange: [30, 50],
-              outputRange: [0, 1],
+            opacity: yOffset.interpolate({
+              inputRange: [40, 70],
+              outputRange: [1, 0],
               extrapolate: 'clamp',
             })
           }
@@ -257,9 +240,9 @@ const NextCours = ({ cours, style, setNextColor = (color) => {}, navigation, col
           style={[
             styles.data.container,
             {
-              marginTop: bottomAnim.interpolate({
-                inputRange: [68, 88],
-                outputRange: [24, 0],
+              marginTop: yOffset.interpolate({
+                inputRange: [1, 30],
+                outputRange: [0, 24],
                 extrapolate: 'clamp',
               })
             }
@@ -293,9 +276,9 @@ const NextCours = ({ cours, style, setNextColor = (color) => {}, navigation, col
           <Animated.View style={[
             styles.details.container,
             {
-              opacity: bottomAnim.interpolate({
-                inputRange: [78, 88],
-                outputRange: [0, 1],
+              opacity: yOffset.interpolate({
+                inputRange: [1, 30],
+                outputRange: [1, 0],
                 extrapolate: 'clamp',
               })
             }

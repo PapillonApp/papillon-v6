@@ -367,6 +367,9 @@ function HomeScreen({ navigation }: { navigation: any }) {
     })();
   }, []);
 
+
+  const yOffset = new Animated.Value(0);
+
   // Load navigation bar data.
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -466,6 +469,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 setNextColor={(color) => {
                   setNextColor(color);
                 }}
+                yOffset={yOffset}
                 color={themeAdjustments.enabled ? nextColor : void 0}
                 style={{
                   marginHorizontal: 16,
@@ -479,10 +483,9 @@ function HomeScreen({ navigation }: { navigation: any }) {
         </View>
       )
     });
-  }, [navigation, user, themeAdjustments, insets, UIColors, theme, nextColor, setNextColor]);
+  }, [navigation, user, themeAdjustments, insets, yOffset, UIColors, theme, nextColor, setNextColor]);
 
   // Animations
-  const yOffset = new Animated.Value(0);
 
   const scrollHandler = Animated.event(
     [{ nativeEvent: { contentOffset: { y: yOffset } } }],
