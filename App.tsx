@@ -1233,7 +1233,10 @@ function App() {
   }),	[loggedIn, dataProvider]);
 
   return appIsReady ? (
-    <View style={{ flex: 1, backgroundColor: scheme === 'dark' ? '#000' : '#f2f2f7' }}>
+    <View style={{
+      flex: 1,
+      backgroundColor: scheme === 'dark' ? '#000' : '#f2f2f7',
+    }}>
       <PaperProvider>
         <AppContextProvider state={ctxValue}>
           <View style={{ flex: 1 }} onLayout={onLayoutRootView}>

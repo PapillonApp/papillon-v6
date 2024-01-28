@@ -30,7 +30,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContextMenuView, MenuElementConfig } from 'react-native-ios-context-menu';
 import NextCoursElem from '../interface/HomeScreen/NextCours';
-import SyncStorage from 'sync-storage';
+import SyncStorage, { set } from 'sync-storage';
 import * as ExpoLinking from 'expo-linking';
 
 // Icons 
@@ -171,16 +171,18 @@ function HomeScreen({ navigation }: { navigation: any }) {
   };
 
   const [themeAdjustments, setThemeAdjustments] = useState({
-    enabled: false,
+    enabled: true,
     color: '#32AB8E',
     image: 'papillon/default'
   });
+
+  const [nextColor, setNextColor] = useState('#32AB8E');
 
   const refreshSettings = () => {
     const settings = SyncStorage.get('adjustments');
     if (settings) {
       setThemeAdjustments({
-        enabled: settings.homeThemesEnabled ?? false,
+        enabled: true,
         color: settings.homeThemeColor ?? '#32AB8E',
         image: settings.homeThemeImage ?? 'papillon/default'
       });
@@ -365,85 +367,125 @@ function HomeScreen({ navigation }: { navigation: any }) {
     })();
   }, []);
 
+
+  const yOffset = new Animated.Value(0);
+
   // Load navigation bar data.
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => Platform.OS === 'ios' && (
-        themeAdjustments.enabled
-          ? <PapillonIcon fill={'#ffffff'} width={32} height={32} />
-          : <PapillonIcon fill={UIColors.text + '26'} width={32} height={32} />
-      ),
-      headerTitle: 'Vue d\'ensemble',
-      headerLargeTitle: false,
-      headerShadowVisible: false,
-      headerTransparent: true,
-      headerTintColor: themeAdjustments.enabled ? '#ffffff' : UIColors.text,
-      headerLargeStyle: {
-        backgroundColor: themeAdjustments.enabled ? themeAdjustments.color + '00' : UIColors.backgroundHigh + '00',
-      },
-      headerRight: () => (
-        <TouchableOpacity
-          style={headerStyles.headerPfpContainer}
-          onPress={() => navigation.navigate('InsetSettings', { isModal: true })}
-        >
-          {!user.loading && user.data.profile_picture ? (
-            <Image
-              source={{ uri: user.data.profile_picture }}
-              style={headerStyles.headerPfp}
-            />
-          ) : (
-            <UserCircle2
-              size={36}
-              style={headerStyles.headerPfp}
-              color="#ccc"
-            />
-          )}
-        </TouchableOpacity>
-      ),
-      headerBackground: () => Platform.OS === 'ios' ? ( 
+      header: () => (
         <Animated.View
-          style={{
-            backgroundColor: themeAdjustments.enabled ? themeAdjustments.color : UIColors.background,
-            borderBottomColor: UIColors.dark ? UIColors.text + '25' : UIColors.text + '40',
-            borderBottomWidth: 0.5,
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            height: 44 + insets.top,
-            width: '100%',
-            opacity: topOpacity,
-          }}
+          style={[{
+            backgroundColor: nextColor,
+            overflow: 'hidden',
+          }]}
         >
-          {themeAdjustments.enabled && (
+          <Animated.Image
+            source={THEME_IMAGES[themeAdjustments.image]}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: 150,
+              opacity: themeImageOpacity,
+              transform: [{
+                scale: themeImageTransform.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1, 0.9],
+                })
+              }],
+            }}
+          />
+          <LinearGradient
+            colors={[nextColor + '00', nextColor + 'FF']}
+            locations={[0, 0.8]}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: 150,
+            }}
+          />
+          <View
+            style={[{
+              backgroundColor: '#00000032',
+              paddingTop: insets.top,
+              paddingBottom: 0,
+              flexDirection: 'column',
+              zIndex: 3,
+            }]}
+          >
             <View
               style={{
-                backgroundColor: '#00000038',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingHorizontal: 16,
+                paddingBottom: 6,
+                paddingTop: 4,
               }}
-            />
-          )}
+            >
+              <PapillonIcon fill={'#ffffff99'} width={32} height={32} />
+              <Text
+                style={{
+                  color: '#ffffff',
+                  fontSize: 17,
+                  fontFamily: 'Papillon-Semibold',
+                }}
+              >
+                Vue d'ensemble
+              </Text>
+              <TouchableOpacity
+                style={headerStyles.headerPfpContainer}
+                onPress={() => navigation.navigate('InsetSettings', { isModal: true })}
+              >
+                {!user.loading && user.data.profile_picture ? (
+                  <Image
+                    source={{ uri: user.data.profile_picture }}
+                    style={headerStyles.headerPfp}
+                  />
+                ) : (
+                  <UserCircle2
+                    size={36}
+                    style={headerStyles.headerPfp}
+                    color="#ccc"
+                  />
+                )}
+              </TouchableOpacity>
+            </View>
+            <Animated.View
+              style={[
+                {
+                  marginTop: 0,
+                  height: Platform.OS === 'ios' ? nextCoursHeight : 108,
+                }
+              ]}
+            >
+              <NextCoursElem
+                cours={lessons.data}
+                navigation={navigation}
+                setNextColor={(color) => {
+                  setNextColor(color);
+                }}
+                yOffset={yOffset}
+                color={themeAdjustments.enabled ? nextColor : void 0}
+                style={{
+                  marginHorizontal: 16,
+                  marginVertical: 0,
+                  marginTop: 2,
+                }}
+              />
+              <View style={{ height: 16 }} />
+            </Animated.View>
+          </View>
         </Animated.View>
-      ) : (
-        <View
-          style={{
-            backgroundColor: themeAdjustments.enabled && !UIColors.dark ? themeAdjustments.color : UIColors.background,
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            height: 54 + insets.top,
-            width: '100%',
-          }}
-        />
-      ),
+      )
     });
-  }, [navigation, user, themeAdjustments, showsTomorrowLessons, UIColors, theme]);
+  }, [navigation, user, themeAdjustments, insets, yOffset, UIColors, theme, nextColor, setNextColor]);
 
   // Animations
-  const yOffset = new Animated.Value(0);
 
   const scrollHandler = Animated.event(
     [{ nativeEvent: { contentOffset: { y: yOffset } } }],
@@ -455,57 +497,21 @@ function HomeScreen({ navigation }: { navigation: any }) {
     mainHeaderSize = [-85, -50];
   }
 
-  const headerOpacity = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? mainHeaderSize : [0, 40],
-    outputRange: [1, 0],
+  const nextCoursHeight = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [0, 150] : [0, 1],
+    outputRange: [106, 0],
     extrapolate: 'clamp',
   });
 
-  const headerScale = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? mainHeaderSize : [0, 40],
-    outputRange: [1, 0.9],
+  const themeImageOpacity = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [0, 100] : [0, 1],
+    outputRange: [0.8, 0],
     extrapolate: 'clamp',
   });
 
-  const tabsOpacity = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [0, 30] : [30, 70],
-    outputRange: [1, 0],
-    extrapolate: 'clamp',
-  });
-
-  const tabsScale = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [0, 30] : [30, 70],
-    outputRange: [1, 0.9],
-    extrapolate: 'clamp',
-  });
-
-  const topOpacity = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [0, 20] : [0, 40],
+  const themeImageTransform = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [0, 100] : [0, 1],
     outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
-
-  const bannerTranslate = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-44, 20] : [0, 40],
-    outputRange: [0, 64],
-    extrapolate: 'clamp',
-  });
-
-  const loaderOpacity = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-150, -100] : [0, 40],
-    outputRange: [1, 0],
-    extrapolate: 'clamp',
-  });
-
-  const loaderRotate = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-240, -100] : [0, 40],
-    outputRange: ['180deg', '0deg'],
-    extrapolate: 'clamp',
-  });
-
-  const loaderScale = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-240, -100] : [0, 40],
-    outputRange: [1.5, 1],
     extrapolate: 'clamp',
   });
 
@@ -532,7 +538,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
       scrollEventThrottle={16}
     >
       {Platform.OS === 'android' ? (
-        <View style={{ height: 100 }} />
+        <View style={{ height: 10 }} />
       ) : (
         <View style={{ height: 10 }} />
       )}
@@ -543,95 +549,12 @@ function HomeScreen({ navigation }: { navigation: any }) {
             themeAdjustments.enabled ? 'light-content' :
               theme.dark ? 'light-content' : 'dark-content'
           }
-          backgroundColor={UIColors.backgroundHigh}
+          translucent={true}
+          backgroundColor={'transparent'}
         />
       ) : null }
 
-      {themeAdjustments.enabled && (
-        <Animated.View
-          style={[
-            styles.headerTheme,
-            {
-              backgroundColor: themeAdjustments.color,
-              top: -300 - insets.top,
-              transform: [{ translateY: bannerTranslate }],
-              borderBottomColor: UIColors.dark ? UIColors.text + '30' : UIColors.text + '35',
-              borderBottomWidth: 0.5,
-            }
-          ]}
-        >
-          <Animated.View
-            style={[{
-              position: 'absolute',
-              top: 310,
-              left: 0,
-              width: '100%',
-              zIndex: 9999,
-              opacity: loaderOpacity,
-              transform: [{ rotate: loaderRotate }, { scale: loaderScale }],
-            }]}
-          >
-            <ActivityIndicator
-              hidesWhenStopped={false}
-              animating={refreshing}
-              color={'#ffffff'}
-            />
-          </Animated.View>
-
-          <View
-            style={{
-              backgroundColor: '#00000038',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              zIndex: 9999,
-            }}
-          />  
-
-          <LinearGradient
-            colors={[themeAdjustments.color, themeAdjustments.color + '00']}
-            style={[{
-              top: 150,
-              left: 0,
-              width: '100%',
-              height: 150,
-              zIndex: 999,
-            }]}
-          />
-          <Image 
-            source={THEME_IMAGES[themeAdjustments.image]}
-            style={styles.headerThemeImage}
-          />
-        </Animated.View>
-      )}
-      
-      <Animated.View
-        style={{ 
-          opacity: headerOpacity,
-          transform: [{ scale: headerScale }],
-        }}
-      >
-        <NextCoursElem
-          cours={lessons.data}
-          navigation={navigation}
-          color={themeAdjustments.enabled ? themeAdjustments.color : void 0}
-          style={{
-            marginHorizontal: 16,
-            marginVertical: 0,
-          }}
-        />
-      </Animated.View>
-
-      <Animated.View
-        style={{
-          opacity: tabsOpacity,
-          transform: [{ scale: tabsScale }],
-        }}
-      >
-        <TabsElement navigation={navigation} />
-      </Animated.View>
+      <TabsElement navigation={navigation} />
 
       <AlertAnimated
         visible={!net.isConnected}
