@@ -205,6 +205,7 @@ function DevoirsScreen({ navigation }: {
             openURL={openURL}
           />
         )}
+        stickySectionHeadersEnabled={true}
         renderSectionHeader={({ section: { title } }) => (
           <View
             style={{
