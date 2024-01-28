@@ -535,7 +535,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
       scrollEventThrottle={16}
     >
       {Platform.OS === 'android' ? (
-        <View style={{ height: 100 }} />
+        <View style={{ height: 10 }} />
       ) : (
         <View style={{ height: 10 }} />
       )}
