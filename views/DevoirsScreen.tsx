@@ -224,18 +224,18 @@ function DevoirsScreen({ navigation }: {
               }}
             >
               <View style={{
-                backgroundColor: UIColors.text + '18',
+                backgroundColor: UIColors.text + '20',
                 alignSelf: 'flex-start',
                 borderRadius: 10,
                 borderCurve: 'continuous',
                 overflow: 'hidden',
               }}>
                 <BlurView
-                  intensity={40}
+                  intensity={50}
                   tint={theme.dark ? 'dark' : 'light'}
                   style={{
-                    paddingHorizontal: 16,
-                    paddingVertical: 8,
+                    paddingHorizontal: 15,
+                    paddingVertical: 7,
                   }}
                 >
                   <Text style={{fontSize: 15, fontFamily: 'Papillon-Semibold'}}>
