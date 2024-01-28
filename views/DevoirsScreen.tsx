@@ -182,6 +182,11 @@ function DevoirsScreen({ navigation }: {
         flex: 1,
       }}
     >
+      <StatusBar
+        animated
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor={'transparent'}
+      />
       <SectionList
         sections={homeworks}
         getItem={(data, index) => data[index]}
@@ -205,42 +210,55 @@ function DevoirsScreen({ navigation }: {
             openURL={openURL}
           />
         )}
-        stickySectionHeadersEnabled={true}
+        stickySectionHeadersEnabled={Platform.OS === 'ios'}
         renderSectionFooter={() => (
           <View style={{height: 5}} />
         )}
         renderSectionHeader={({ section: { title } }) => (
-          <View
-            style={{
-              marginBottom: -16,
+          Platform.OS === 'ios' ? (
+            <View
+              style={{
+                marginBottom: -16,
+                paddingHorizontal: 15,
+                paddingVertical: 16,
+              }}
+            >
+              <View style={{
+                backgroundColor: UIColors.text + '20',
+                alignSelf: 'flex-start',
+                borderRadius: 10,
+                borderCurve: 'continuous',
+                overflow: 'hidden',
+              }}>
+                <BlurView
+                  intensity={50}
+                  tint={theme.dark ? 'dark' : 'light'}
+                  style={{
+                    paddingHorizontal: 15,
+                    paddingVertical: 7,
+                  }}
+                >
+                  <Text style={{fontSize: 15, fontFamily: 'Papillon-Semibold'}}>
+                    {title}
+                  </Text>
+                </BlurView>
+              </View>
+            </View>
+          ) : (
+            <View style={{
               paddingHorizontal: 15,
               paddingVertical: 16,
-            }}
-          >
-            <View style={{
-              backgroundColor: UIColors.text + '18',
-              alignSelf: 'flex-start',
-              borderRadius: 10,
-              borderCurve: 'continuous',
-              overflow: 'hidden',
             }}>
-              <BlurView
-                intensity={40}
-                tint={theme.dark ? 'dark' : 'light'}
-                style={{
-                  paddingHorizontal: 16,
-                  paddingVertical: 8,
-                }}
-              >
-                <Text style={{fontSize: 15, fontFamily: 'Papillon-Semibold'}}>
-                  {title}
-                </Text>
-              </BlurView>
+              <Text style={{fontSize: 14, fontWeight: 'bold', letterSpacing: 0.7, textTransform: 'uppercase', opacity: 0.6}}>
+                {title}
+              </Text>
             </View>
-          </View>
+          )
         )}
         ListFooterComponent={() => (
-          <View style={{height: 20}} />
+          <View style={{
+            height: Platform.OS === 'ios' ? 20 + 65 : 16
+          }} />
         )}
       />
       {Platform.OS === 'ios' &&  (
