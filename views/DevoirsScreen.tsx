@@ -94,33 +94,6 @@ function DevoirsScreen({ navigation }: {
           color="#29947A"
         />
       ) : 'Devoirs',
-      headerTransparent: Platform.OS === 'ios' ? true : false,
-      headerStyle: Platform.OS === 'android' ? {
-        backgroundColor: UIColors.background,
-        elevation: 0,
-      } : undefined,
-      headerBackground: Platform.OS === 'ios' ? () => (
-        <Animated.View 
-          style={[
-            styles.header,
-            {
-              flex: 1,
-              backgroundColor: UIColors.element + '00',
-              opacity: headerOpacity,
-              borderBottomColor: theme.dark ? UIColors.text + '22' : UIColors.text + '55',
-              borderBottomWidth: 0.5,
-            }
-          ]}
-        >
-          <BlurView
-            tint={theme.dark ? 'dark' : 'light'}
-            intensity={120}
-            style={{
-              flex: 1,
-            }}
-          />
-        </Animated.View>
-      ) : undefined,
     });
   }, [navigation, UIColors]);
 
@@ -203,63 +176,66 @@ function DevoirsScreen({ navigation }: {
   }, []);
 
   return (
-    <>
-      <ScrollView style={[
-        styles.container,
-        {
-          backgroundColor: UIColors.backgroundHigh,
-        }]}
-      contentInsetAdjustmentBehavior='automatic'
-      onScroll={scrollHandler}
-      scrollEventThrottle={16}
-      refreshControl={
-        <RefreshControl
-          refreshing={isHeadLoading}
-          onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? UIColors.primary : '']}
-        />
-      }>
-        <StatusBar
-          animated
-          barStyle={
-            browserOpen ? 'light-content' :
-              theme.dark ? 'light-content' : 'dark-content'
-          }
-          backgroundColor="transparent"
-        />
-
-        {isFirstLoading ? (
-          <PapillonLoading
-            icon={<BookOpen size={26} color={UIColors.text} />}
-            title="Chargement des devoirs"
-            subtitle="Veuillez patienter"
-            style={{ marginTop: 48 }}
+    <View
+      style={{
+        backgroundColor: UIColors.backgroundHigh,
+        flex: 1,
+      }}
+    >
+      <SectionList
+        sections={homeworks}
+        getItem={(data, index) => data[index]}
+        getItemCount={data => data.length}
+        keyExtractor={(item: PapillonHomework) => item.id}
+        contentInsetAdjustmentBehavior='automatic'
+        initialNumToRender={15}
+        refreshing={isHeadLoading}
+        refreshControl={
+          <RefreshControl
+            refreshing={isHeadLoading}
+            onRefresh={onRefresh}
+            tintColor={Platform.OS === 'android' ? UIColors.primary : ''}
           />
-        ) : (
-          <SectionList
-            sections={homeworks}
-            getItem={(data, index) => data[index]}
-            getItemCount={data => data.length}
-            keyExtractor={(item: PapillonHomework) => item.id}
-            initialNumToRender={15}
-            renderItem={({ item, index }) =>  (
-              <Hwitem
-                key={index}
-                homework={item}
-                navigation={navigation}
-                openURL={openURL}
-              />
-            )}
-            renderSectionHeader={({ section: { title } }) => (
-              <View style={{paddingHorizontal: 16, paddingVertical: 12}}>
-                <Text style={{fontSize: 15, fontWeight: 'bold'}}>
-                  {title}
-                </Text>
-              </View>
-            )}
+        }
+        renderItem={({ item, index }) =>  (
+          <Hwitem
+            key={index}
+            homework={item}
+            navigation={navigation}
+            openURL={openURL}
           />
         )}
-      </ScrollView>
+        renderSectionHeader={({ section: { title } }) => (
+          <View
+            style={{
+              marginBottom: -16,
+              paddingHorizontal: 15,
+              paddingVertical: 16,
+            }}
+          >
+            <View style={{
+              backgroundColor: UIColors.text + '22',
+              alignSelf: 'flex-start',
+              borderRadius: 10,
+              borderCurve: 'continuous',
+              overflow: 'hidden',
+            }}>
+              <BlurView
+                intensity={50}
+                tint={theme.dark ? 'dark' : 'light'}
+                style={{
+                  paddingHorizontal: 16,
+                  paddingVertical: 8,
+                }}
+              >
+                <Text style={{fontSize: 15, fontFamily: 'Papillon-Semibold'}}>
+                  {title}
+                </Text>
+              </BlurView>
+            </View>
+          </View>
+        )}
+      />
       {Platform.OS === 'ios' &&  (
         <PressableScale
           style={[styles.addCoursefab, {backgroundColor: UIColors.primary}]}
@@ -274,7 +250,7 @@ function DevoirsScreen({ navigation }: {
           <Plus color='#ffffff' />
         </PressableScale>
       )}
-    </>
+    </View>
   );
 }
 
@@ -461,6 +437,7 @@ function Hwitem({ homework, openURL, navigation }: {
       }]}
     >
       <NativeList
+        inset
         style={
           Platform.OS === 'ios' ? {
             marginBottom: -20,
