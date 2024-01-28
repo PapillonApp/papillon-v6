@@ -8,7 +8,8 @@ import {
   Platform,
   ActivityIndicator,
   RefreshControl,
-  VirtualizedList
+  VirtualizedList,
+  SectionList
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -45,6 +46,7 @@ import NativeText from '../components/NativeText';
 
 import * as WebBrowser from 'expo-web-browser';
 import type { PapillonHomework } from '../fetch/types/homework';
+import { dateToFrenchFormat } from '../utils/dates';
 
 function DevoirsScreen({ navigation }: {
   navigation: any
@@ -114,54 +116,44 @@ function DevoirsScreen({ navigation }: {
 
   const appContext = useAppContext();
   
-  type HomeworkItem = {
-    type: 'separator',
-    data: Date
-  } | {
-    type: 'item'
-    data: PapillonHomework
-  }
+  type HomeworkItem = { title: string, data: PapillonHomework[] }
   
   const [isFirstLoading, setFirstLoading] = useState(true);
   const [isHeadLoading, setHeadLoading] = useState(false);
-  const [listItems, setListItems] = useState<Array<HomeworkItem>>([]);
+  const [homeworks, setHomeworks] = useState<Array<HomeworkItem>>([]);
 
-  const retrieveHomeworkItems = async (date: Date, force = false): Promise<HomeworkItem[]> => {
+  const retrieveHomeworkItems = async (date: Date, force = false): Promise<Array<HomeworkItem>> => {
     const homeworks = await appContext.dataProvider?.getHomeworks(date, force);
     if (!homeworks) return [];
-      
-    // sort the results by date.
+
+    // Sort the results by date.
     homeworks.sort((a, b) => {
       return new Date(a.date).getTime() - new Date(b.date).getTime();
     });
 
-    let currentDate: string | undefined;
-    let listItems: Array<HomeworkItem> = [];
+    let items: Record<string, PapillonHomework[]> = {};
 
     for (const homework of homeworks) {
-      if (currentDate !== homework.date) {
-        currentDate = homework.date;
-        listItems.push({
-          type: 'separator',
-          data: new Date(homework.date)
-        });
-      }
-
-      listItems.push({
-        type: 'item',
-        data: homework
+      const key = new Date(homework.date).toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
       });
+
+      if (!(key in items)) {
+        items[key] = [homework];
+      } else items[key].push(homework);
     }
 
-    return listItems;
+    return Object.entries(items).map(([title, data]) => ({ title, data }));
   };
 
   const onRefresh = React.useCallback(() => {
     setHeadLoading(true);
 
     (async () => {
-      const listItems = await retrieveHomeworkItems(new Date());
-      setListItems(listItems);
+      const homeworks = await retrieveHomeworkItems(new Date());
+      setHomeworks(homeworks);
       setHeadLoading(false);
     })();
   }, []);
@@ -169,8 +161,8 @@ function DevoirsScreen({ navigation }: {
   // Load initial homeworks on first render.
   useEffect(() => {
     (async () => {
-      const listItems = await retrieveHomeworkItems(new Date());
-      setListItems(listItems);
+      const homeworks = await retrieveHomeworkItems(new Date());
+      setHomeworks(homeworks);
       setFirstLoading(false);
     })();
   }, []);
@@ -215,36 +207,27 @@ function DevoirsScreen({ navigation }: {
           style={{ marginTop: 48 }}
         />
       ) : (
-        <VirtualizedList
-          data={listItems}
+        <SectionList
+          sections={homeworks}
           getItem={(data, index) => data[index]}
           getItemCount={data => data.length}
-          keyExtractor={(item: HomeworkItem) => item.type === 'separator' ? item.data.toLocaleDateString() : item.data.id}
+          keyExtractor={(item: PapillonHomework) => item.id}
           initialNumToRender={15}
-          renderItem={({ item, index }) => {
-            if (item.type === 'separator') {
-              return (
-                <View key={index} style={{paddingHorizontal: 16, paddingVertical: 12}}>
-                  <Text style={{fontSize: 15, fontWeight: 'bold'}}>
-                    {item.data.toLocaleString('fr-FR', {
-                      weekday: 'long',
-                      day: 'numeric',
-                      month: 'long',
-                    })}
-                  </Text>
-                </View>
-              );
-            } else {
-              return (
-                <Hwitem
-                  key={index}
-                  homework={item.data}
-                  navigation={navigation}
-                  openURL={openURL}
-                />
-              );
-            }
-          }}
+          renderItem={({ item, index }) =>  (
+            <Hwitem
+              key={index}
+              homework={item}
+              navigation={navigation}
+              openURL={openURL}
+            />
+          )}
+          renderSectionHeader={({ section: { title } }) => (
+            <View style={{paddingHorizontal: 16, paddingVertical: 12}}>
+              <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                {title}
+              </Text>
+            </View>
+          )}
           refreshControl={
             <RefreshControl
               refreshing={isHeadLoading}
@@ -257,74 +240,6 @@ function DevoirsScreen({ navigation }: {
     </View>
   );
 }
-
-// function Hwpage({
-//   homeworks,
-//   customHomeworks,
-//   navigation,
-//   theme,
-//   forceRefresh,
-//   openURL,
-//   UIColors,
-//   today,
-// }) {
-//   const [isHeadLoading, setIsHeadLoading] = useState(false);
-
-//   const onRefresh = React.useCallback(() => {
-//     setIsHeadLoading(true);
-
-//     forceRefresh().then(() => {
-//       setIsHeadLoading(false);
-//     });
-//   }, []);
-
-//   return (
-//     <ScrollView
-//       contentInsetAdjustmentBehavior="automatic"
-//       style={[styles.homeworksContainer]}
-//       nestedScrollEnabled
-//       refreshControl={
-        
-//       }
-//     >
-//       {(homeworks.length === 0 || homeworks == undefined) && customHomeworks.length === 0 ? (
-//         <PapillonLoading
-//           icon={<BookOpen size={26} color={UIColors.text} />}
-//           title="Aucun devoir"
-//           subtitle="Aucun devoir n'est disponible pour cette date"
-//           style={{ marginTop: 48 }}
-//         />
-//       ) : null}
-
-//       <View>
-//         {homeworks.map((homework, index) => (
-//           <Hwitem
-//             homework={homework}
-//             navigation={navigation}
-//             theme={theme}
-//             key={index}
-//             openURL={openURL}
-//             today={today}
-//             index={index}
-//           />
-//         ))}
-//         {customHomeworks.map((homework, index) => (
-//           <Hwitem
-//             homework={homework}
-//             navigation={navigation}
-//             theme={theme}
-//             key={index}
-//             openURL={openURL}
-//             today={today}
-//             index={index}
-//           />
-//         ))}
-//       </View>
-
-//       <View style={{ height: 36 + 56 }} />
-//     </ScrollView>
-//   );
-// }
 
 function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
   return !loading ? (
