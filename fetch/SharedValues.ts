@@ -1,7 +1,7 @@
 import SharedGroupPreferences from 'react-native-shared-group-preferences';
 import formatCoursName from '../utils/FormatCoursName';
 import getClosestGradeEmoji from '../utils/EmojiCoursName';
-import getSavedCourseColor from '../utils/ColorCoursName';
+import { getSavedCourseColor } from '../utils/ColorCoursName';
 import type { PapillonLesson } from './types/timetable';
 
 const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon';
@@ -18,7 +18,7 @@ export default async function sendToSharedGroup(lessons: PapillonLesson[]) {
       room: lesson.rooms.join(', '),
       start: new Date(lesson.start).getTime(),
       end: new Date(lesson.end).getTime(),
-      background_color: lesson.background_color ?? getSavedCourseColor(lesson.subject.name),
+      background_color: lesson.background_color ?? getSavedCourseColor(lesson.subject.name, lesson.background_color),
       emoji: getClosestGradeEmoji(lesson.subject.name),
       is_cancelled: lesson.is_cancelled,
     });

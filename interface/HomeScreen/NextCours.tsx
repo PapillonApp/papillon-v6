@@ -163,7 +163,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
       style={[
         styles.container,
         styles.end.container,
-        { backgroundColor: UIColors.element },
+        { backgroundColor: '#ffffff30' },
         style
       ]}
       onPress={() => {
@@ -174,7 +174,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
     >
       <Text
         numberOfLines={1}
-        style={[styles.end.text, { color: UIColors.text }]}
+        style={[styles.end.text, { color: '#ffffff' }]}
       >
         Aucun cours aujourd'hui
       </Text>
@@ -186,7 +186,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
       style={[
         styles.container,
         styles.end.container,
-        { backgroundColor: UIColors.element },
+        { backgroundColor: '#ffffff30' },
         style
       ]}
       onPress={() => {
@@ -197,7 +197,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
     >
       <Text
         numberOfLines={1}
-        style={[styles.end.text, { color: UIColors.text }]}
+        style={[styles.end.text, { color: '#ffffff' }]}
       >
         Pas de prochain cours
       </Text>
