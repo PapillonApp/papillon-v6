@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
+
 import {
   StyleSheet,
   View,
@@ -7,7 +8,6 @@ import {
   Platform,
   ActivityIndicator,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,6 +20,7 @@ import * as WebBrowser from 'expo-web-browser';
 import ParsedText from 'react-native-parsed-text';
 
 import { useTheme } from 'react-native-paper';
+import { convert as convertHTML } from 'html-to-text';
 
 import GetUIColors from '../../utils/GetUIColors';
 
@@ -31,8 +32,14 @@ import { useAppContext } from '../../utils/AppContext';
 
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
 import CheckAnimated from '../../interface/CheckAnimated';
+import type { PapillonHomework } from '../../fetch/types/homework';
 
-function HomeworkScreen({ route, navigation }) {
+function HomeworkScreen({ route, navigation }: {
+  navigation: any
+  route: {
+    params: { homework: PapillonHomework }
+  }
+}) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
@@ -44,15 +51,15 @@ function HomeworkScreen({ route, navigation }) {
 
   console.log(homework);
 
-  const openURL = async (url) => {
+  const openURL = async (url: string) => {
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
-      presentationStyle: 'pageSheet',
+      presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
       controlsColor: UIColors.primary,
     });
   };
 
-  const appctx = useAppContext();
+  const appContext = useAppContext();
 
   const deleteCustomHomework = () => {
     AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
@@ -63,7 +70,7 @@ function HomeworkScreen({ route, navigation }) {
 
       // find the homework
       for (let i = 0; i < hw.length; i++) {
-        if (hw[i].local_id === homework.local_id) {
+        if (hw[i].localID === homework.localID) {
           hw.splice(i, 1);
         }
       }
@@ -74,7 +81,7 @@ function HomeworkScreen({ route, navigation }) {
   };
 
   // add delete button in header
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         homework.custom &&
@@ -90,7 +97,7 @@ function HomeworkScreen({ route, navigation }) {
     });
   }, [navigation]);
 
-  const changeHwState = () => {
+  const changeHwState = async () => {
     // if custom : true
     if (homework.custom) {
       AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
@@ -117,8 +124,11 @@ function HomeworkScreen({ route, navigation }) {
       return;
     }
 
-    appctx.dataprovider
-      .changeHomeworkState(!thisHwChecked, homework.date, homework.local_id)
+    console.log('should change state of homework', homework.localID);
+    return; // TODO
+
+    appContext.dataProvider
+      .changeHomeworkState(!thisHwChecked, homework.date, homework.localID)
       .then((result) => {
 
         if (result.status === 'not found') {
@@ -129,7 +139,7 @@ function HomeworkScreen({ route, navigation }) {
           setThisHwChecked(!thisHwChecked);
           setThisHwLoading(false);
 
-          if (appctx.dataprovider.service === 'Pronote') {
+          if (appContext.dataProvider.service === 'Pronote') {
             AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
               // find the homework
               const cachedHomeworks = JSON.parse(homeworksCache);
@@ -137,8 +147,8 @@ function HomeworkScreen({ route, navigation }) {
               for (let i = 0; i < cachedHomeworks.length; i++) {
                 for (let j = 0; j < cachedHomeworks[i].timetable.length; j++) {
                   if (
-                    cachedHomeworks[i].timetable[j].local_id ===
-                    homework.local_id
+                    cachedHomeworks[i].timetable[j].localID ===
+                    homework.localID
                   ) {
                     cachedHomeworks[i].timetable[j].done =
                       !cachedHomeworks[i].timetable[j].done;
@@ -163,14 +173,14 @@ function HomeworkScreen({ route, navigation }) {
 
           // if the homework is already in the list, remove it
           for (let i = 0; i < updates.length; i++) {
-            if (updates[i].local_id === homework.local_id) {
+            if (updates[i].localID === homework.localID) {
               updates.splice(i, 1);
             }
           }
 
           updates.push({
             date: homework.date,
-            local_id: homework.local_id,
+            localID: homework.localID,
             done: !thisHwChecked,
           });
 
@@ -186,13 +196,9 @@ function HomeworkScreen({ route, navigation }) {
     });
   }, [navigation, homework]);
 
-  const handleUrlPress = (url, matchIndex) => {
-    openURL(url);
-  };
-
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
+      style={{ backgroundColor: UIColors.modalBackground }}
       contentInsetAdjustmentBehavior="automatic"
     >
       {Platform.OS === 'ios' ? (
@@ -207,7 +213,7 @@ function HomeworkScreen({ route, navigation }) {
 
       <View style={{ height: 6 }} />
 
-      <NativeList header="Contenu du devoir" inset>
+      <NativeList header="Contenu du devoir">
         <NativeItem>
           <ParsedText
             style={[styles.hwContentText, {color: UIColors.text}]}
@@ -217,7 +223,7 @@ function HomeworkScreen({ route, navigation }) {
                 {
                   type: 'url',
                   style: [styles.url, {color: UIColors.primary}],
-                  onPress: handleUrlPress
+                  onPress: (url) => openURL(url),
                 },
                 {
                   type: 'email',
@@ -226,17 +232,18 @@ function HomeworkScreen({ route, navigation }) {
               ]
             }
           >
-            {homework.description}
+            {convertHTML(homework.description)}
           </ParsedText>
         </NativeItem>
       </NativeList>
 
       <View style={{ height: 6 }} />
 
-      <NativeList inset header="Statut du devoir">
+      <NativeList header="Statut du devoir">
         <NativeItem
           leading={
             <CheckAnimated
+              backgroundColor={void 0}
               checked={thisHwChecked}
               loading={thisHwLoading}
               pressed={() => {
@@ -269,9 +276,9 @@ function HomeworkScreen({ route, navigation }) {
 
       <View style={{ height: 6 }} />
 
-      { homework.files.length > 0 ? (
-        <NativeList inset header="Fichiers">
-          {homework.files.map((file, index) => {
+      {homework.attachments.length > 0 && (
+        <NativeList header="Fichiers">
+          {homework.attachments.map((file, index) => {
             let fileIcon = <Link size={24} color={UIColors.text} />;
             if (file.type === 1) {
               fileIcon = <File size={24} color={UIColors.text} />;
@@ -298,14 +305,18 @@ function HomeworkScreen({ route, navigation }) {
 
           })}
         </NativeList>
-      ) : null }
+      )}
 
       <AlertBottomSheet
         visible={deleteCustomHomeworkAlert}
         title="Supprimer le devoir"
         subtitle="Êtes-vous sûr de vouloir supprimer ce devoir ?"
         primaryButton='Supprimer'
-        primaryAction={() => {deleteCustomHomework(); setDeleteCustomHomeworkAlert(false);}}
+        // @ts-expect-error : AlertBottomSheet issue
+        primaryAction={() => {
+          deleteCustomHomework();
+          setDeleteCustomHomeworkAlert(false);
+        }}
         cancelButton='Annuler'
         cancelAction={() => setDeleteCustomHomeworkAlert(false)}
         color='#D81313'
@@ -389,12 +400,12 @@ const styles = StyleSheet.create({
 
   homeworkFileText: {
     fontSize: 17,
-    fontWeight: 400,
+    fontWeight: '400',
     fontFamily: 'Papillon-Semibold',
   },
   homeworkFileUrl: {
     fontSize: 15,
-    fontWeight: 400,
+    fontWeight: '400',
     fontFamily: 'Papillon-Medium',
     opacity: 0.5,
   },
