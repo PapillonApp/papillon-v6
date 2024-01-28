@@ -49,12 +49,13 @@ export const loadPronoteConnector = async (): Promise<Pronote | null> => {
       username,
       deviceUUID: uuid
     });
-  
+
     console.log('loadPronoteConnector:', username, 'authenticated ! see token:', pronote.nextTimeToken);
-  
+    
     // We save the next token, for next auth.
     await AsyncStorage.setItem(AsyncStoragePronoteKeys.NEXT_TIME_TOKEN, pronote.nextTimeToken);
-
+    
+    pronote.startPresenceRequests();
     return pronote;
   }
   /**
