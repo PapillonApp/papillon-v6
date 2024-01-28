@@ -182,6 +182,11 @@ function DevoirsScreen({ navigation }: {
         flex: 1,
       }}
     >
+      <StatusBar
+        animated
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor={'transparent'}
+      />
       <SectionList
         sections={homeworks}
         getItem={(data, index) => data[index]}
