@@ -213,7 +213,7 @@ function HomeworkScreen({ route, navigation }: {
 
       <View style={{ height: 6 }} />
 
-      <NativeList header="Contenu du devoir">
+      <NativeList header="Description">
         <NativeItem>
           <ParsedText
             style={[styles.hwContentText, {color: UIColors.text}]}
@@ -239,7 +239,7 @@ function HomeworkScreen({ route, navigation }: {
 
       <View style={{ height: 6 }} />
 
-      <NativeList header="Statut du devoir">
+      <NativeList header="Statut">
         <NativeItem
           leading={
             <CheckAnimated
