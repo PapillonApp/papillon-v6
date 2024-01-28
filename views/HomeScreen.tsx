@@ -15,15 +15,13 @@ import {
   Platform,
   StatusBar,
   TouchableOpacity,
-  type ImageSourcePropType,
-  Dimensions,
+  type ImageSourcePropType
 } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
 
 // Components & Styles
 import { useTheme, Text } from 'react-native-paper';
 import { PressableScale } from 'react-native-pressable-scale';
-import RenderHtml from 'react-native-render-html';
 
 // Modules
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -58,6 +56,7 @@ import type { PapillonUser } from '../fetch/types/user';
 import type { PapillonLesson } from '../fetch/types/timetable';
 import type { PapillonGroupedHomeworks, PapillonHomework } from '../fetch/types/homework';
 import { dateToFrenchFormat } from '../utils/dates';
+import { convert as convertHTML } from 'html-to-text';
 
 // Functions
 const openURL = (url: string) => {
@@ -1220,17 +1219,17 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
                   marginTop: textMargin
                 }}
               >
-                <RenderHtml source={{ html: homework.description }}
-                  contentWidth={Dimensions.get('window').width - 32}
-                  domVisitors={{
-                    onElement: (element) => {
-                      element.attribs.style = `
-                        color: ${UIColors.text};
-                        font-size: 15px;
-                      `;
+                <Text numberOfLines={2}
+                  style={[
+                    styles.homeworksDevoirsContentContentDescription, 
+                    {
+                      color: UIColors.text,
+                      height: homework.description.length > 40 ? 38 : 20,
                     }
-                  }}
-                />
+                  ]}
+                >
+                  {convertHTML(homework.description)}
+                </Text>
               </Animated.View>
 
               { homework.attachments.length > 0 && (
