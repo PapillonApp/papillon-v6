@@ -459,7 +459,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
               style={[
                 {
                   marginTop: 0,
-                  height: Platform.OS === 'ios' ? nextCoursHeight : 106,
+                  height: Platform.OS === 'ios' ? nextCoursHeight : 108,
                 }
               ]}
             >

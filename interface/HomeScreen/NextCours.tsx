@@ -223,11 +223,11 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
         style={[
           styles.inContainer,
           {
-            opacity: yOffset.interpolate({
+            opacity: Platform.OS === 'ios' ? yOffset.interpolate({
               inputRange: [40, 70],
               outputRange: [1, 0],
               extrapolate: 'clamp',
-            })
+            }) : 1
           }
         ]}
       >
@@ -240,11 +240,11 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
           style={[
             styles.data.container,
             {
-              marginTop: yOffset.interpolate({
-                inputRange: [1, 30],
+              marginTop: Platform.OS === 'ios' ? yOffset.interpolate({
+                inputRange: [1, 25],
                 outputRange: [0, 24],
                 extrapolate: 'clamp',
-              })
+              }) : 0,
             }
           ]}
         >
@@ -276,11 +276,11 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
           <Animated.View style={[
             styles.details.container,
             {
-              opacity: yOffset.interpolate({
-                inputRange: [1, 30],
+              opacity: Platform.OS === 'ios' ? yOffset.interpolate({
+                inputRange: [1, 25],
                 outputRange: [1, 0],
                 extrapolate: 'clamp',
-              })
+              }) : 1,
             }
           ]}>
             { cours[nxid].rooms && cours[nxid].rooms.length > 0 && (
