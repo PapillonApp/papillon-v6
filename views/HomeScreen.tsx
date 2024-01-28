@@ -374,7 +374,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       header: () => (
-        <View
+        <Animated.View
           style={[{
             backgroundColor: nextColor,
             overflow: 'hidden',
@@ -480,7 +480,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
               <View style={{ height: 16 }} />
             </Animated.View>
           </View>
-        </View>
+        </Animated.View>
       )
     });
   }, [navigation, user, themeAdjustments, insets, yOffset, UIColors, theme, nextColor, setNextColor]);

@@ -227,7 +227,16 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
               inputRange: [40, 70],
               outputRange: [1, 0],
               extrapolate: 'clamp',
-            }) : 1
+            }) : 1,
+            transform: [
+              {
+                scale: Platform.OS === 'ios' ? yOffset.interpolate({
+                  inputRange: [30, 70],
+                  outputRange: [1, 0.95],
+                  extrapolate: 'clamp',
+                }) : 1,
+              }
+            ]
           }
         ]}
       >
