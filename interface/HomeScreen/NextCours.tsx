@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, type ViewStyle } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { Animated, View, StyleSheet, type ViewStyle } from 'react-native';
 
 import { Text } from 'react-native-paper';
 
@@ -16,13 +16,26 @@ function lz(num: number): string {
   return (num < 10 ? '0' : '') + num;
 }
 
-const NextCours = ({ cours, style, navigation, color }: {
+const NextCours = ({ cours, style, setNextColor = (color) => {}, navigation, color }: {
   cours: PapillonLesson[] | null
   style?: ViewStyle
   color?: string,
   navigation: any
 }) => {
   const UIColors = GetUIColors();
+
+  const [height, setHeight] = useState(0);
+
+  const bottomAnim = useRef(new Animated.Value(0)).current;
+
+  const onLayout = (event) => {
+    const { height } = event.nativeEvent.layout;
+    setHeight(height);
+  };
+
+  useEffect(() => {
+    bottomAnim.setValue(height);
+  }, [height]);
 
   const [nxid, setNxid] = useState(0);
   const [lenText, setLenText] = useState('À venir');
@@ -150,6 +163,14 @@ const NextCours = ({ cours, style, navigation, color }: {
     return () => clearInterval(interval);
   }, [cours, nxid]);
 
+  // set the color of the next cours
+  useEffect(() => {
+    if (!setNextColor) return;
+    if(!cours || !cours[nxid]) return;
+
+    setNextColor(getSavedCourseColor(cours[nxid].subject?.name ?? '', cours[nxid].background_color));
+  }, [cours, nxid]);
+
   if(!cours || !cours[nxid]) return (
     <PressableScale
       style={[
@@ -200,6 +221,7 @@ const NextCours = ({ cours, style, navigation, color }: {
     cours && cours[nxid] && !coursEnded &&
 
     <PressableScale
+      onLayout={onLayout}
       style={[
         styles.container,
         { backgroundColor: color ? color : getSavedCourseColor(cours[nxid].subject?.name ?? '', cours[nxid].background_color) },
@@ -211,61 +233,94 @@ const NextCours = ({ cours, style, navigation, color }: {
         }
       }}
     >
-      <View style={styles.time.container}>
-        <Text style={styles.time.text}>
-          { new Date(cours[nxid].start).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
-        </Text>
-      </View>
-      <View style={styles.data.container}>
-        <View style={styles.subject.container}>
-          <Text style={styles.subject.text} numberOfLines={1}>
-            { formatCoursName(cours[nxid].subject?.name ?? '(inconnu)') }
+      <Animated.View
+        style={[
+          styles.inContainer,
+          {
+            opacity: bottomAnim.interpolate({
+              inputRange: [30, 50],
+              outputRange: [0, 1],
+              extrapolate: 'clamp',
+            })
+          }
+        ]}
+      >
+        <View style={styles.time.container}>
+          <Text style={styles.time.text}>
+            { new Date(cours[nxid].start).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
           </Text>
         </View>
-
-        <View style={[styles.len.container]}>
-          <Text style={[styles.len.startText]}>
-            {lenText}
-          </Text>
-
-          <View style={[styles.len.bar]}>
-            <View style={[
-              styles.len.barFill,
-              {
-                width: barPercent + '%',
-              }
-            ]} />
+        <Animated.View
+          style={[
+            styles.data.container,
+            {
+              marginTop: bottomAnim.interpolate({
+                inputRange: [68, 88],
+                outputRange: [24, 0],
+                extrapolate: 'clamp',
+              })
+            }
+          ]}
+        >
+          <View style={styles.subject.container}>
+            <Text style={styles.subject.text} numberOfLines={1}>
+              { formatCoursName(cours[nxid].subject?.name ?? '(inconnu)') }
+            </Text>
           </View>
 
-          <Text style={[styles.len.endText]}>
-            { new Date(cours[nxid].end).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
-          </Text>
-        </View>
+          <View style={[styles.len.container]}>
+            <Text style={[styles.len.startText]}>
+              {lenText}
+            </Text>
 
-        <View style={[styles.details.container]}>
-          { cours[nxid].rooms && cours[nxid].rooms.length > 0 && (
-            <View style={[styles.details.item]}>
-              <MapPin size={20} color={'#ffffff'} style={[styles.details.icon]} />
-              <Text style={[styles.details.text]} numberOfLines={1}>
-                { cours[nxid].rooms[0] }
-              </Text>
+            <View style={[styles.len.bar]}>
+              <View style={[
+                styles.len.barFill,
+                {
+                  width: barPercent + '%',
+                }
+              ]} />
             </View>
-          )}
 
-          { cours[nxid].teachers && cours[nxid].teachers.length > 0 && (
-            <View style={[styles.details.separator]} />
-          )}
+            <Text style={[styles.len.endText]}>
+              { new Date(cours[nxid].end).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
+            </Text>
+          </View>
 
-          { cours[nxid].teachers && cours[nxid].teachers.length > 0 && (
-            <View style={[styles.details.item]}>
-              <UserCircle2 size={20} color={'#ffffff'} style={[styles.details.icon]} />
-              <Text style={[styles.details.text]} numberOfLines={1}>
-                { cours[nxid].teachers[0] }
-              </Text>
-            </View>
-          )}
-        </View>
-      </View>
+          <Animated.View style={[
+            styles.details.container,
+            {
+              opacity: bottomAnim.interpolate({
+                inputRange: [78, 88],
+                outputRange: [0, 1],
+                extrapolate: 'clamp',
+              })
+            }
+          ]}>
+            { cours[nxid].rooms && cours[nxid].rooms.length > 0 && (
+              <View style={[styles.details.item]}>
+                <MapPin size={20} color={'#ffffff'} style={[styles.details.icon]} />
+                <Text style={[styles.details.text]} numberOfLines={1}>
+                  { cours[nxid].rooms[0] }
+                </Text>
+              </View>
+            )}
+
+            { cours[nxid].teachers && cours[nxid].teachers.length > 0 && (
+              <View style={[styles.details.separator]} />
+            )}
+
+            { cours[nxid].teachers && cours[nxid].teachers.length > 0 && (
+              <View style={[styles.details.item]}>
+                <UserCircle2 size={20} color={'#ffffff'} style={[styles.details.icon]} />
+                <Text style={[styles.details.text]} numberOfLines={1}>
+                  { cours[nxid].teachers[0] }
+                </Text>
+              </View>
+            )}
+          </Animated.View>
+        </Animated.View>
+      </Animated.View>
     </PressableScale>
   );
 };
@@ -286,6 +341,10 @@ const styles = StyleSheet.create({
     elevation: 2,
 
     flex: 1,
+    overflow: 'hidden',
+  },
+
+  inContainer: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -295,15 +354,18 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
 
     gap: 16,
+    flex: 1,
   },
 
   time: {
     container: {
+      height: 26,
+      alignItems: 'center',
+      justifyContent: 'center',
       paddingHorizontal: 8,
-      paddingVertical: 4,
       borderRadius: 8,
       borderCurve: 'continuous',
-      backgroundColor: '#ffffff22',
+      backgroundColor: '#ffffff22'
     },
     text: {
       fontSize: 16,
@@ -315,8 +377,9 @@ const styles = StyleSheet.create({
 
   data: {
     container: {
-      gap: 4,
+      gap: 0,
       flex: 1,
+      height: 64,
       overflow: 'hidden',
     }
   },
@@ -328,6 +391,8 @@ const styles = StyleSheet.create({
       gap: 10,
       marginTop: 0,
       flex: 1,
+      paddingTop: 4,
+      overflow: 'hidden',
     },
     item: {
       flexDirection: 'row',
@@ -372,6 +437,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'justify-content',
       gap: 10,
+      paddingTop: 4,
     },
     startText: {
       fontFamily: 'Papillon-Medium',
