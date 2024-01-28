@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Animated, View, StyleSheet, type ViewStyle } from 'react-native';
+import { Animated, View, StyleSheet, type ViewStyle, Platform } from 'react-native';
 
 import { Text } from 'react-native-paper';
 
@@ -24,13 +24,16 @@ const NextCours = ({ cours, style, setNextColor = (color) => {}, navigation, col
 }) => {
   const UIColors = GetUIColors();
 
-  const [height, setHeight] = useState(0);
+  const [height, setHeight] = useState(88);
 
   const bottomAnim = useRef(new Animated.Value(0)).current;
 
+  
   const onLayout = (event) => {
-    const { height } = event.nativeEvent.layout;
-    setHeight(height);
+    if (Platform.OS !== 'android') {
+      const { height } = event.nativeEvent.layout;
+      setHeight(height);
+    }
   };
 
   useEffect(() => {
