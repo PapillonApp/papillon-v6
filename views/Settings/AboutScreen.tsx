@@ -148,31 +148,36 @@ function AboutScreen({ navigation }) {
           </NativeList>
         ) : <View /> }
 
-        <NativeList
-          inset
-          header="Équipe Papillon"
-        >
-          {team.team.map((item, index) => (
-            <NativeItem
-              key={index}
-              leading={
-                <Image
-                  source={{ uri: item.avatar }}
-                  style={{ width: 38, height: 38, borderRadius: 12 }}
-                />
-              }
-              chevron
-              onPress={() => openUserLink(item.link)}
-            >
-              <NativeText heading="h4">
-                {item.name}
-              </NativeText>
-              <NativeText heading="p2">
-                {item.role}
-              </NativeText>
-            </NativeItem>
-          ))}
-        </NativeList>
+        {team.team.map((team, index) => (
+          <NativeList
+            key={index}
+            inset
+            header={team.name}
+          >
+            
+            {team.member.map((item, index) => (
+              <NativeItem
+                key={index}
+                leading={
+                  <Image
+                    source={{ uri: item.avatar }}
+                    style={{ width: 38, height: 38, borderRadius: 12 }}
+                  />
+                }
+                chevron
+                onPress={() => openUserLink(item.link)}
+              >
+                <NativeText heading="h4">
+                  {item.name}
+                </NativeText>
+                <NativeText heading="p2">
+                  {item.role}
+                </NativeText>
+              </NativeItem>
+            ))}
+          </NativeList>
+        ))}
+        
 
         <NativeList
           inset
