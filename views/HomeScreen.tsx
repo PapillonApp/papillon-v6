@@ -410,7 +410,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
           />
           <View
             style={[{
-              backgroundColor: '#00000022',
+              backgroundColor: '#00000032',
               paddingTop: insets.top,
               paddingBottom: 0,
               flexDirection: 'column',
