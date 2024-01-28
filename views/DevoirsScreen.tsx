@@ -203,30 +203,63 @@ function DevoirsScreen({ navigation }: {
   }, []);
 
   return (
-    <ScrollView style={[
-      styles.container,
-      {
-        backgroundColor: UIColors.backgroundHigh,
-      }]}
-    contentInsetAdjustmentBehavior='automatic'
-    onScroll={scrollHandler}
-    scrollEventThrottle={16}
-    refreshControl={
-      <RefreshControl
-        refreshing={isHeadLoading}
-        onRefresh={onRefresh}
-        colors={[Platform.OS === 'android' ? UIColors.primary : '']}
-      />
-    }>
-      <StatusBar
-        animated
-        barStyle={
-          browserOpen ? 'light-content' :
-            theme.dark ? 'light-content' : 'dark-content'
-        }
-        backgroundColor="transparent"
-      />
+    <>
+      <ScrollView style={[
+        styles.container,
+        {
+          backgroundColor: UIColors.backgroundHigh,
+        }]}
+      contentInsetAdjustmentBehavior='automatic'
+      onScroll={scrollHandler}
+      scrollEventThrottle={16}
+      refreshControl={
+        <RefreshControl
+          refreshing={isHeadLoading}
+          onRefresh={onRefresh}
+          colors={[Platform.OS === 'android' ? UIColors.primary : '']}
+        />
+      }>
+        <StatusBar
+          animated
+          barStyle={
+            browserOpen ? 'light-content' :
+              theme.dark ? 'light-content' : 'dark-content'
+          }
+          backgroundColor="transparent"
+        />
 
+        {isFirstLoading ? (
+          <PapillonLoading
+            icon={<BookOpen size={26} color={UIColors.text} />}
+            title="Chargement des devoirs"
+            subtitle="Veuillez patienter"
+            style={{ marginTop: 48 }}
+          />
+        ) : (
+          <SectionList
+            sections={homeworks}
+            getItem={(data, index) => data[index]}
+            getItemCount={data => data.length}
+            keyExtractor={(item: PapillonHomework) => item.id}
+            initialNumToRender={15}
+            renderItem={({ item, index }) =>  (
+              <Hwitem
+                key={index}
+                homework={item}
+                navigation={navigation}
+                openURL={openURL}
+              />
+            )}
+            renderSectionHeader={({ section: { title } }) => (
+              <View style={{paddingHorizontal: 16, paddingVertical: 12}}>
+                <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                  {title}
+                </Text>
+              </View>
+            )}
+          />
+        )}
+      </ScrollView>
       {Platform.OS === 'ios' &&  (
         <PressableScale
           style={[styles.addCoursefab, {backgroundColor: UIColors.primary}]}
@@ -241,39 +274,7 @@ function DevoirsScreen({ navigation }: {
           <Plus color='#ffffff' />
         </PressableScale>
       )}
-
-      {isFirstLoading ? (
-        <PapillonLoading
-          icon={<BookOpen size={26} color={UIColors.text} />}
-          title="Chargement des devoirs"
-          subtitle="Veuillez patienter"
-          style={{ marginTop: 48 }}
-        />
-      ) : (
-        <SectionList
-          sections={homeworks}
-          getItem={(data, index) => data[index]}
-          getItemCount={data => data.length}
-          keyExtractor={(item: PapillonHomework) => item.id}
-          initialNumToRender={15}
-          renderItem={({ item, index }) =>  (
-            <Hwitem
-              key={index}
-              homework={item}
-              navigation={navigation}
-              openURL={openURL}
-            />
-          )}
-          renderSectionHeader={({ section: { title } }) => (
-            <View style={{paddingHorizontal: 16, paddingVertical: 12}}>
-              <Text style={{fontSize: 15, fontWeight: 'bold'}}>
-                {title}
-              </Text>
-            </View>
-          )}
-        />
-      )}
-    </ScrollView>
+    </>
   );
 }
 
