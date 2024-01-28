@@ -1235,24 +1235,16 @@ function App() {
   return appIsReady ? (
     <View style={{
       flex: 1,
-      backgroundColor: '#000',
+      backgroundColor: scheme === 'dark' ? '#000' : '#f2f2f7',
     }}>
-      <View style={{
-        flex: 1,
-        backgroundColor: scheme === 'dark' ? '#000' : '#f2f2f7',
-        borderRadius: 20,
-        borderCurve: 'continuous',
-        overflow: 'hidden',
-      }}>
-        <PaperProvider>
-          <AppContextProvider state={ctxValue}>
-            <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-              {loggedIn ? <AppStack /> : <AuthStack />}
-            </View>
-          </AppContextProvider>
-        </PaperProvider>
-        <FlashMessage position="top" />
-      </View>
+      <PaperProvider>
+        <AppContextProvider state={ctxValue}>
+          <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+            {loggedIn ? <AppStack /> : <AuthStack />}
+          </View>
+        </AppContextProvider>
+      </PaperProvider>
+      <FlashMessage position="top" />
     </View>
   ) : null;
 }
