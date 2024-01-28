@@ -184,6 +184,7 @@ function AboutScreen({ navigation }) {
                 {packageJson.version} {packageJson.canal}
               </NativeText>
             }
+            onPress={() => navigation.navigate('ChangelogScreen')}
           >
             <NativeText heading="h4">
                 Version de Papillon
