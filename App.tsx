@@ -395,7 +395,7 @@ function InsetSettings() {
       />
 
       <Stack.Screen
-        name="Changelog"
+        name="ChangelogScreen"
         component={ChangelogScreen}
         options={{
           headerTitle: 'Quoi de neuf ?',
