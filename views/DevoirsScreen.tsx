@@ -8,7 +8,6 @@ import {
   Platform,
   ActivityIndicator,
   RefreshControl,
-  VirtualizedList,
   SectionList
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
@@ -46,7 +45,6 @@ import NativeText from '../components/NativeText';
 
 import * as WebBrowser from 'expo-web-browser';
 import type { PapillonHomework } from '../fetch/types/homework';
-import { dateToFrenchFormat } from '../utils/dates';
 
 function DevoirsScreen({ navigation }: {
   navigation: any
