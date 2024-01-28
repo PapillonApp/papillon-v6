@@ -206,6 +206,9 @@ function DevoirsScreen({ navigation }: {
           />
         )}
         stickySectionHeadersEnabled={true}
+        renderSectionFooter={() => (
+          <View style={{height: 5}} />
+        )}
         renderSectionHeader={({ section: { title } }) => (
           <View
             style={{
@@ -235,6 +238,9 @@ function DevoirsScreen({ navigation }: {
               </BlurView>
             </View>
           </View>
+        )}
+        ListFooterComponent={() => (
+          <View style={{height: 20}} />
         )}
       />
       {Platform.OS === 'ios' &&  (
