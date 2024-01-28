@@ -9,7 +9,7 @@ import {
   Linking
 } from 'react-native';
 
-import { Calendar, BarChart3, Palette, Bug } from 'lucide-react-native';
+import { Calendar, BarChart3, Palette, Bug, ServerOff, WifiOff, Wind } from 'lucide-react-native';
 
 import { Text, useTheme } from 'react-native-paper';
 import packageJson from '../package.json';
@@ -22,30 +22,38 @@ function ChangelogScreen() {
 
   const features = [
     {
-      title: 'Améliorations de l\'interface iOS',
-      subtitle: 'Des légers changements d\'interface sont apparus.',
+      title: 'Fini les bugs de connexions/serveurs',
+      subtitle: 'Les connexions passent maintenant par votre téléphone et non plus par les serveurs de Papillon. \n(Merci Vexcited pour Pawnote!)',
+      icon: <ServerOff size={24} color={UIColors.text} />,
+    },
+    {
+      title: 'Améliorations de l\'interface',
+      subtitle: 'De nombreux changements d\'interface sont apparus.',
       icon: <Palette size={24} color={UIColors.text} />,
     },
   ];
 
   const fixes = [
     {
-      title: 'Cours annulés / changements de salle',
-      subtitle:
-        'Les changements de salle n\'apparaîteront VRAIMENT plus comme des cours annulés.',
-      icon: <Bug size={24} color={UIColors.text} />,
-    },
-    {
-      title: 'Langue du calendrier',
-      subtitle:
-        'Les dates apparaîssent maintenant dans la bonne langue sous iOS.',
-      icon: <Calendar size={24} color={UIColors.text} />,
-    },
-    {
       title: 'Affichage des notes',
       subtitle:
-        'Les notes ne se divisent et ne se modifient plus à leur ouverture.',
+        'Les notes sont maintenant affichées correctement et les moyennes sont calculées correctement.',
       icon: <BarChart3 size={24} color={UIColors.text} />,
+    },
+  ];
+
+  const optimisation = [
+    {
+      title: 'Optimisation des chargements',
+      subtitle:
+        'Les chargements sont maintenant plus rapides.',
+      icon: <Wind size={24} color={UIColors.text} />,
+    },
+    {
+      title: 'Disponibilité hors-ligne',
+      subtitle:
+        'Les données sont disponibles sans connexion (première connexion à internet requise pour enregistrer les données).',
+      icon: <WifiOff size={24} color={UIColors.text} />,
     },
   ];
 
@@ -115,6 +123,23 @@ function ChangelogScreen() {
           <Text style={[styles.ListTitle]}>Bugs réparés</Text>
 
           {fixes.map((feature, index) => (
+            <ListItem
+              key={index}
+              title={feature.title}
+              subtitle={feature.subtitle}
+              icon={feature.icon}
+              color={UIColors.element}
+              center
+              width
+              style={{ backgroundColor: `${UIColors.element}99` }}
+            />
+          ))}
+        </View>
+
+        <View style={styles.optionsList}>
+          <Text style={[styles.ListTitle]}>Optimisations</Text>
+
+          {optimisation.map((feature, index) => (
             <ListItem
               key={index}
               title={feature.title}
