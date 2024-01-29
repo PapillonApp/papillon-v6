@@ -55,7 +55,7 @@ const HEADING_STYLES = {
 } as const;
 
 interface Props {
-  children: string
+  children: React.ReactNode
   heading?: keyof typeof HEADING_STYLES 
   style?: TextStyle
   numberOfLines?: number
