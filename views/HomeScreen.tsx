@@ -982,71 +982,36 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
   const [checkLoading, setCheckLoading] = useState(false);
   const appContext = useAppContext();
 
-  // TODO
-  const checkThis = () => {
-    return;
-    // définir le loading
+  const handleCheckChange = async () => {
     setCheckLoading(true);
 
-    if (homework.custom) {
-      AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
-        let hw = [];
-        if (customHomeworks) {
-          hw = JSON.parse(customHomeworks);
-        }
+    // if (homework.custom) {
+    //   AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+    //     let hw = [];
+    //     if (customHomeworks) {
+    //       hw = JSON.parse(customHomeworks);
+    //     }
 
-        // find the homework
-        for (let i = 0; i < hw.length; i++) {
-          if (hw[i].local_id === homework.local_id) {
-            hw[i].done = !checked;
-          }
-        }
+    //     // find the homework
+    //     for (let i = 0; i < hw.length; i++) {
+    //       if (hw[i].local_id === homework.local_id) {
+    //         hw[i].done = !checked;
+    //       }
+    //     }
 
-        setChecked(!checked);
-        AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
+    //     setChecked(!checked);
+    //     AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
 
-        setTimeout(() => {
-          setCheckLoading(false);
-        }, 100);
-      });
+    //     setTimeout(() => {
+    //       setCheckLoading(false);
+    //     }, 100);
+    //   });
 
-      return;
-    }
+    //   return;
+    // }
 
-    appContext.dataProvider.changeHomeworkState(!checked, homework.date, homework.local_id).then((result) => {
-
-      setCheckLoading(false);
-
-      if (result.status === 'not found') {
-        return;
-      }
-      else if (result.status === 'ok') {
-        setChecked(!checked);
-
-        // if tomorrow, update badge
-        let tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
-
-        // if this homework is for tomorrow
-        if (new Date(homework.date).getDate() === tomorrow.getDate()) {
-          AsyncStorage.getItem('badgesStorage').then((value) => {
-            let currentSyncBadges = JSON.parse(value);
-
-            if (currentSyncBadges === null) {
-              currentSyncBadges = {
-                homeworks: 0,
-              };
-            }
-
-            let newBadges = currentSyncBadges;
-            newBadges.homeworks = checked ? newBadges.homeworks + 1 : newBadges.homeworks - 1;
-
-            AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
-          });
-        }
-      }
-    });
+    await appContext.dataProvider?.changeHomeworkState(homework, !homework.done);
+    setCheckLoading(false);
   };
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -1164,7 +1129,7 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
           navigation.navigate('Devoir', { homeworkLocalID: homework.localID });
         }
         else if (nativeEvent.actionKey === 'check') {
-          checkThis();
+          handleCheckChange();
         }
         else if (nativeEvent.actionKey === 'files') {
           openURL(homework.attachments[0].url);
@@ -1204,8 +1169,8 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
           <View style={styles.homeworksDevoirsContentInner}>
             <CheckAnimated
               backgroundColor={'#ffffff00'}
-              checked={homework.done}
-              pressed={() => {checkThis();}}
+              checked={homework.done && !checkLoading}
+              pressed={handleCheckChange}
               loading={checkLoading}
             />
 

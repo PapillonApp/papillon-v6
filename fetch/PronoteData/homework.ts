@@ -134,10 +134,11 @@ export const homeworkPatchHandler = async (homework: PapillonHomework, newDoneSt
     homeworks = await homeworkHandler(true, instance);
   }
 
+  
   if (!homeworks) return false;
 
   // We search for the homework with the same localID.
-  const homeworkIndex = homeworks.findIndex(homework => homework.localID === homework.localID);
+  const homeworkIndex = homeworks.findIndex(currentHomework => currentHomework.localID === homework.localID);
   if (homeworkIndex === -1) return false;
   const homeworkID = homeworks[homeworkIndex].id;
 

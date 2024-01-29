@@ -18,8 +18,6 @@ import PapillonInsetHeader from '../components/PapillonInsetHeader';
 
 import { PressableScale } from 'react-native-pressable-scale';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import { convert as convertHTML } from 'html-to-text';
@@ -88,30 +86,30 @@ function DevoirsScreen({ navigation }: {
     });
   }, [navigation, UIColors]);
 
-  const loadCustomHomeworks = async () => {
-    return; // TODO
-    AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
-      let hw = [];
-      if (customHomeworks) {
-        hw = JSON.parse(customHomeworks);
-      }
+  // const loadCustomHomeworks = async () => {
+  //   return; // TODO
+  //   AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+  //     let hw = [];
+  //     if (customHomeworks) {
+  //       hw = JSON.parse(customHomeworks);
+  //     }
 
-      let newCustomHomeworks = {};
+  //     let newCustomHomeworks = {};
 
-      for (let i = 0; i < hw.length; i++) {
-        const hwPageDate = calcDate(new Date(hw[i].date), 0);
-        const usedDate = hwPageDate.toLocaleDateString();
+  //     for (let i = 0; i < hw.length; i++) {
+  //       const hwPageDate = calcDate(new Date(hw[i].date), 0);
+  //       const usedDate = hwPageDate.toLocaleDateString();
 
-        // if (!newCustomHomeworks[usedDate]) {
-        //   newCustomHomeworks[usedDate] = [];
-        // }
+  //       // if (!newCustomHomeworks[usedDate]) {
+  //       //   newCustomHomeworks[usedDate] = [];
+  //       // }
 
-        // newCustomHomeworks[usedDate].push(hw[i]);
-      }
+  //       // newCustomHomeworks[usedDate].push(hw[i]);
+  //     }
 
-      setCustomHomeworks(newCustomHomeworks);
-    });
-  };
+  //     setCustomHomeworks(newCustomHomeworks);
+  //   });
+  // };
 
   const appContext = useAppContext();
   
@@ -296,110 +294,40 @@ function Hwitem({ homework, openURL, navigation }: {
   openURL: (url: string) => void
   navigation: any
 }) {
-  const [thisHwChecked, setThisHwChecked] = useState(homework.done);
-  const [thisHwLoading, setThisHwLoading] = useState(false);
+  const [checkStateLoading, setCheckStateLoading] = useState(false);
 
-  useEffect(() => {
-    setThisHwChecked(homework.done);
-  }, [homework]);
+  const appContext = useAppContext();
 
-  const appctx = useAppContext();
+  const handleStateChange = async () => {
+    setCheckStateLoading(true);
 
-  const changeHwState = () => {
-    return; // TODO
-    if (homework.custom) {
-      AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
-        let hw = [];
-        if (customHomeworks) {
-          hw = JSON.parse(customHomeworks);
-        }
+    // if (homework.custom) {
+    //   AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+    //     let hw = [];
+    //     if (customHomeworks) {
+    //       hw = JSON.parse(customHomeworks);
+    //     }
 
-        // find the homework
-        for (let i = 0; i < hw.length; i++) {
-          if (hw[i].local_id === homework.local_id) {
-            hw[i].done = !thisHwChecked;
-          }
-        }
+    //     // find the homework
+    //     for (let i = 0; i < hw.length; i++) {
+    //       if (hw[i].local_id === homework.local_id) {
+    //         hw[i].done = !thisHwChecked;
+    //       }
+    //     }
 
-        setThisHwChecked(!thisHwChecked);
-        AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
+    //     setThisHwChecked(!thisHwChecked);
+    //     AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
 
-        setTimeout(() => {
-          setThisHwLoading(false);
-        }, 100);
-      });
+    //     setTimeout(() => {
+    //       setThisHwLoading(false);
+    //     }, 100);
+    //   });
 
-      return;
-    }
+    //   return;
+    // }
     
-    appctx.dataprovider
-      .changeHomeworkState(!thisHwChecked, homework.date, homework.local_id)
-      .then((result) => {
-
-        if (result.status === 'not found') {
-          setTimeout(() => {
-            setThisHwChecked(homework.done);
-          }, 100);
-        } else if (result.status === 'ok') {
-          setThisHwChecked(!thisHwChecked);
-          setThisHwLoading(false);
-
-          AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
-            // find the homework
-            const cachedHomeworks = JSON.parse(homeworksCache);
-
-            for (let i = 0; i < cachedHomeworks?.length; i++) {
-              for (let j = 0; j < cachedHomeworks[i].timetable?.length; j++) {
-                if (
-                  cachedHomeworks[i].timetable[j].local_id === homework.local_id
-                ) {
-                  cachedHomeworks[i].timetable[j].done =
-                    !cachedHomeworks[i].timetable[j].done;
-                }
-              }
-            }
-
-            AsyncStorage.setItem(
-              'homeworksCache',
-              JSON.stringify(cachedHomeworks)
-            );
-          });
-
-          // sync with home page
-          AsyncStorage.setItem('homeUpdated', 'true');
-
-          // get homework.date as 2023-01-01
-          const date = new Date(homework.date);
-          const year = date.getFullYear();
-          const month = date.getMonth() + 1;
-          const day = date.getDate();
-
-          // if tomorrow, update badge
-          let tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          tomorrow.setHours(0, 0, 0, 0);
-
-          let checked = thisHwChecked;
-
-          // if this homework is for tomorrow
-          if (new Date(homework.date).getDate() === tomorrow.getDate()) {
-            AsyncStorage.getItem('badgesStorage').then((value) => {
-              let currentSyncBadges = JSON.parse(value);
-
-              if (currentSyncBadges === null) {
-                currentSyncBadges = {
-                  homeworks: 0,
-                };
-              }
-
-              let newBadges = currentSyncBadges;
-              newBadges.homeworks = checked ? newBadges.homeworks + 1 : newBadges.homeworks - 1;
-
-              AsyncStorage.setItem('badgesStorage', JSON.stringify(newBadges));
-            });
-          }
-        }
-      });
+    await appContext.dataProvider?.changeHomeworkState(homework, !homework.done);
+    setCheckStateLoading(false);
   };
 
   const UIColors = GetUIColors();
@@ -450,7 +378,6 @@ function Hwitem({ homework, openURL, navigation }: {
       }]}
     >
       <NativeList
-        inset
         style={
           Platform.OS === 'ios' ? {
             marginBottom: -20,
@@ -461,13 +388,9 @@ function Hwitem({ homework, openURL, navigation }: {
           leading={
             <CheckAnimated
               backgroundColor={void 0}
-              checked={thisHwChecked}
-              loading={thisHwLoading}
-              pressed={() => {
-                // TODO
-                // setThisHwLoading(true);
-                // changeHwState();
-              }}
+              checked={homework.done && !checkStateLoading}
+              loading={checkStateLoading}
+              pressed={handleStateChange}
             />
           }
           onPress={() => {
