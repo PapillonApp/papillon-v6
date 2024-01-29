@@ -35,6 +35,7 @@ const FindEtab = ({ navigation }) => {
 
       <NativeList
         header="Recommandations Papillon"
+        inset
       >
         <NativeItem
           leading={
@@ -64,6 +65,7 @@ const FindEtab = ({ navigation }) => {
 
       <NativeList
         header="Options avancées"
+        inset
       >
         <NativeItem
           leading={
