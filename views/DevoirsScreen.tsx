@@ -471,10 +471,7 @@ function Hwitem({ homework, openURL, navigation }: {
             />
           }
           onPress={() => {
-            navigation.navigate('Devoir', { homework: {
-              ...homework,
-              done: thisHwChecked,
-            } });
+            navigation.navigate('Devoir', { homeworkLocalID: homework.localID });
           }}
         >
           <View style={styles.hwItemHeader}>

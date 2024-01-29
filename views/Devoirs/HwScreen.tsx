@@ -6,16 +6,12 @@ import {
   ScrollView,
   StatusBar,
   Platform,
-  ActivityIndicator,
-  TouchableOpacity,
-  Dimensions,
+  RefreshControl,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { PressableScale } from 'react-native-pressable-scale';
-
-import { Check, Link, File, Trash } from 'lucide-react-native';
+import { Link, File, Trash } from 'lucide-react-native';
 
 import * as WebBrowser from 'expo-web-browser';
 import ParsedText from 'react-native-parsed-text';
@@ -35,21 +31,24 @@ import AlertBottomSheet from '../../interface/AlertBottomSheet';
 import CheckAnimated from '../../interface/CheckAnimated';
 import type { PapillonHomework } from '../../fetch/types/homework';
 import { PronoteApiHomeworkDifficulty, PronoteApiHomeworkReturnType } from 'pawnote';
+import { useAtom } from 'jotai';
+import { homeworksAtom } from '../../atoms/homeworks';
 
 function HomeworkScreen({ route, navigation }: {
   navigation: any
   route: {
     params: {
-      homework: PapillonHomework,
-      
+      homeworkLocalID: string,
     }
   }
 }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
-  const { homework } = route.params;
-  const [thisHwChecked, setThisHwChecked] = useState(homework.done);
+  const { homeworkLocalID } = route.params;
+  const [homeworks] = useAtom(homeworksAtom);
+  const homework = homeworks!.find((hw) => hw.localID === homeworkLocalID) as PapillonHomework;
+
   const [homeworkStateLoading, setHomeworkStateLoading] = useState(false);
   const [homeworkRefreshLoading, setHomeworkRefreshLoading] = useState(false);
 
@@ -65,6 +64,7 @@ function HomeworkScreen({ route, navigation }: {
 
   const appContext = useAppContext();
 
+  // TODO
   const deleteCustomHomework = () => {
     AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
       let hw = [];
@@ -87,116 +87,60 @@ function HomeworkScreen({ route, navigation }: {
   // add delete button in header
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        homework.custom &&
-        <TouchableOpacity
-          style={[styles.deleteHw]}
-          onPress={() => {
-            setDeleteCustomHomeworkAlert(true);
-          }}
-        >
-          <Trash size={20} color={'#eb4034'} />
-        </TouchableOpacity>
-      ),
+      // TODO
+      // headerRight: () => (
+      //   homework.custom &&
+      //   <TouchableOpacity
+      //     style={[styles.deleteHw]}
+      //     onPress={() => {
+      //       setDeleteCustomHomeworkAlert(true);
+      //     }}
+      //   >
+      //     <Trash size={20} color={'#eb4034'} />
+      //   </TouchableOpacity>
+      // ),
     });
   }, [navigation]);
 
   const changeHwState = async () => {
-    // if custom : true
-    if (homework.custom) {
-      AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
-        let hw = [];
-        if (customHomeworks) {
-          hw = JSON.parse(customHomeworks);
-        }
+    // TODO: if custom : true
+    // if (homework.custom) {
+    //   AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+    //     let hw = [];
+    //     if (customHomeworks) {
+    //       hw = JSON.parse(customHomeworks);
+    //     }
 
-        // find the homework
-        for (let i = 0; i < hw.length; i++) {
-          if (hw[i].local_id === homework.local_id) {
-            hw[i].done = !thisHwChecked;
-          }
-        }
+    //     // find the homework
+    //     for (let i = 0; i < hw.length; i++) {
+    //       if (hw[i].local_id === homework.local_id) {
+    //         hw[i].done = !thisHwChecked;
+    //       }
+    //     }
 
-        setThisHwChecked(!thisHwChecked);
-        AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
+    //     setThisHwChecked(!thisHwChecked);
+    //     AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
 
-        setTimeout(() => {
-          setHomeworkStateLoading(false);
-        }, 100);
-      });
+    //     setTimeout(() => {
+    //       setHomeworkStateLoading(false);
+    //     }, 100);
+    //   });
 
-      return;
-    }
+    //   return;
+    // }
 
-    console.log('should change state of homework', homework.localID);
-    return; // TODO
+    await appContext.dataProvider?.changeHomeworkState(homework, !homework.done);
+    setHomeworkStateLoading(false);
+  };
 
-    appContext.dataProvider
-      .changeHomeworkState(!thisHwChecked, homework.date, homework.localID)
-      .then((result) => {
-
-        if (result.status === 'not found') {
-          setTimeout(() => {
-            setThisHwChecked(homework.done);
-          }, 100);
-        } else if (result.status === 'ok') {
-          setThisHwChecked(!thisHwChecked);
-          setHomeworkStateLoading(false);
-
-          if (appContext.dataProvider.service === 'Pronote') {
-            AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
-              // find the homework
-              const cachedHomeworks = JSON.parse(homeworksCache);
-
-              for (let i = 0; i < cachedHomeworks.length; i++) {
-                for (let j = 0; j < cachedHomeworks[i].timetable.length; j++) {
-                  if (
-                    cachedHomeworks[i].timetable[j].localID ===
-                    homework.localID
-                  ) {
-                    cachedHomeworks[i].timetable[j].done =
-                      !cachedHomeworks[i].timetable[j].done;
-                  }
-                }
-              }
-
-              AsyncStorage.setItem(
-                'homeworksCache',
-                JSON.stringify(cachedHomeworks)
-              );
-            });
-          }
-        }
-
-        // sync with devoirs page
-        AsyncStorage.getItem('homeworksUpdate').then((homeworksUpdate) => {
-          let updates = [];
-          if (homeworksUpdate) {
-            updates = JSON.parse(homeworksUpdate);
-          }
-
-          // if the homework is already in the list, remove it
-          for (let i = 0; i < updates.length; i++) {
-            if (updates[i].localID === homework.localID) {
-              updates.splice(i, 1);
-            }
-          }
-
-          updates.push({
-            date: homework.date,
-            localID: homework.localID,
-            done: !thisHwChecked,
-          });
-
-          AsyncStorage.setItem('homeworksUpdate', JSON.stringify(updates));
-        });
-      });
+  const onRefresh = async () => {
+    console.log('should refresh hw', homework!.localID);
   };
 
   // add checkbox in header
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: 'Devoir en ' + formatCoursName(homework.subject.name),
+      headerTitle: 'Devoir en ' + formatCoursName(homework!.subject.name),
     });
   }, [navigation, homework]);
 
@@ -291,7 +235,7 @@ function HomeworkScreen({ route, navigation }: {
               leading={
                 <CheckAnimated
                   backgroundColor={void 0}
-                  checked={thisHwChecked}
+                  checked={homework.done && !homeworkStateLoading}
                   loading={homeworkStateLoading}
                   pressed={() => {
                     setHomeworkStateLoading(true);
@@ -388,24 +332,6 @@ function HomeworkScreen({ route, navigation }: {
           Dernière mise à jour du cache : {new Date(homework.cacheDateTimestamp).toLocaleString('fr-FR')}
         </NativeText>
       </View>
-      {/* <NativeList header="Cache">
-        <NativeItem trailing={
-        }>
-          <NativeText numberOfLines={1}>
-            Dernière MaJ
-          </NativeText>
-        </NativeItem>
-        <NativeItem trailing={
-          <NativeText heading="p2">
-            {homework.pronoteCachedSessionID}
-          </NativeText>
-        }>
-          <NativeText numberOfLines={1}>
-            ID de session utilisé
-          </NativeText>
-        </NativeItem>
-
-      </NativeList> */}
 
       <AlertBottomSheet
         visible={deleteCustomHomeworkAlert}

@@ -980,7 +980,6 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
   const UIColors = GetUIColors();
 
   const [checkLoading, setCheckLoading] = useState(false);
-  const [checked, setChecked] = useState(homework.done);
   const appContext = useAppContext();
 
   // TODO
@@ -1068,7 +1067,7 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
 
   // when check, animate text to 0
   useEffect(() => {
-    if (checked) {
+    if (homework.done) {
       Animated.parallel([
         Animated.timing(textMaxHeight, {
           toValue: 0,
@@ -1112,7 +1111,7 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
         }),
       ]).start();
     }
-  }, [checked]);
+  }, [homework.done]);
   
   if (!homework || !homework.subject) return null;
   
@@ -1139,7 +1138,7 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
           {
             actionKey  : 'check',
             actionTitle: 'Marquer comme fait',
-            menuState  : checked ? 'on' : 'off',
+            menuState  : homework.done ? 'on' : 'off',
             icon: {
               type: 'IMAGE_SYSTEM',
               imageValue: {
@@ -1162,7 +1161,7 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
       }}
       onPressMenuItem={({nativeEvent}) => {
         if (nativeEvent.actionKey === 'open') {
-          navigation.navigate('Devoir', { homework: {... homework, done: checked}});
+          navigation.navigate('Devoir', { homeworkLocalID: homework.localID });
         }
         else if (nativeEvent.actionKey === 'check') {
           checkThis();
@@ -1172,7 +1171,7 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
         }
       }}
       onPressMenuPreview={() => {
-        navigation.navigate('Devoir', { homework: {... homework, done: checked}});
+        navigation.navigate('Devoir', { homeworkLocalID: homework.localID });
       }}
     >
       <Animated.View
@@ -1200,12 +1199,12 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
         <TouchableHighlight
           style={[styles.homeworksDevoirsContentContainer]}
           underlayColor={UIColors.text + '12'}
-          onPress={() => navigation.navigate('Devoir', { homework: {... homework, done: checked} })}
+          onPress={() => navigation.navigate('Devoir', { homeworkLocalID: homework.localID })}
         >
           <View style={styles.homeworksDevoirsContentInner}>
             <CheckAnimated
               backgroundColor={'#ffffff00'}
-              checked={checked}
+              checked={homework.done}
               pressed={() => {checkThis();}}
               loading={checkLoading}
             />

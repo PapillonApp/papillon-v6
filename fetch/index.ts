@@ -11,7 +11,7 @@ import { loadPronoteConnector } from './PronoteData/connector';
 import { userHandler as pronoteUserHandler } from './PronoteData/user';
 import { gradesHandler as pronoteGradesHandler } from './PronoteData/grades';
 import { timetableHandler as pronoteTimetableHandler } from './PronoteData/timetable';
-import { homeworkHandler as pronoteHomeworkHandler } from './PronoteData/homework';
+import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as pronoteHomeworkHandler } from './PronoteData/homework';
 
 export type ServiceName = 'pronote' | 'skolengo'
 
@@ -151,17 +151,13 @@ export class IndexDataInstance {
     return [];
   }
 
-  async changeHomeworkState(isDone, day, id) {
+  async changeHomeworkState (homework: PapillonHomework, isDone: boolean) {
     await this.waitInit();
     if (this.service === 'skolengo')
       return this.skolengoInstance.patchHomeworkAssignment(id, isDone);
-    if (this.service === 'pronote')
-      // return require('./PronoteData/PronoteHomeworks.js').changeHomeworkState(
-      //   day,
-      //   id
-      // );
-    // .then((e) => thenHandler('changeh', e));
-      return {};
+    else if (this.service === 'pronote') {
+      return pronoteHomeworkPatchHandler(homework, isDone, this.pronoteInstance);
+    }
   }
 
   // [Service]News.js

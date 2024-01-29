@@ -3,6 +3,10 @@ import { PronoteApiHomeworkReturnType, type Pronote } from 'pawnote';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AsyncStoragePronoteKeys } from './connector';
+import { getDefaultStore } from 'jotai';
+import { homeworksAtom } from '../../atoms/homeworks';
+
+const defaultStore = getDefaultStore();
 
 const makeLocalID = (homework: {
   description: string
@@ -120,13 +124,27 @@ export const homeworkHandler = async (force = false, instance?: Pronote): Promis
   return data;
 };
 
-// export const homeworkPatchHandler = async (homeworkID: string, newDoneState: boolean, instance?: Pronote): Promise<boolean> => {
-//   if (!instance) return false;
-//   try {
-//     await instance.patchHomeworkStatus(homeworkID, newDoneState);
-//     return true;
-//   } catch (error) {
-//     console.info('pronote/homeworkPatchHandler: network failed', error);
-//     return false;
-//   }
-// };
+export const homeworkPatchHandler = async (homework: PapillonHomework, newDoneState: boolean, instance?: Pronote): Promise<boolean> => {
+  if (!instance) return false;
+
+  let homeworks = defaultStore.get(homeworksAtom);
+
+  // Not on same session, we fetch again.
+  if (homework.pronoteCachedSessionID !== instance.sessionID) {
+    homeworks = await homeworkHandler(true, instance);
+  }
+
+  if (!homeworks) return false;
+
+  // We search for the homework with the same localID.
+  const homeworkIndex = homeworks.findIndex(homework => homework.localID === homework.localID);
+  if (homeworkIndex === -1) return false;
+  const homeworkID = homeworks[homeworkIndex].id;
+
+  // We patch the homework.
+  await instance.patchHomeworkStatus(homeworkID, newDoneState);
+  homeworks[homeworkIndex].done = newDoneState;
+  defaultStore.set(homeworksAtom, homeworks);
+
+  return true;
+};
