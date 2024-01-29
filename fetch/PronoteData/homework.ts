@@ -1,11 +1,8 @@
 import type { PapillonHomework, PapillonHomeworkAttachment } from '../types/homework';
-import type { Pronote } from 'pawnote';
+import { PronoteApiHomeworkReturnType, type Pronote } from 'pawnote';
 
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { dateToFrenchFormat } from '../../utils/dates';
-// import { AsyncStoragePronoteKeys } from './connector';
-
-// const makeCacheKey = (day: Date): string => `${AsyncStoragePronoteKeys.CACHE_HOMEWORK}-${dateToFrenchFormat(day)}`;
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AsyncStoragePronoteKeys } from './connector';
 
 const makeLocalID = (homework: {
   description: string
@@ -31,22 +28,40 @@ const makeLocalID = (homework: {
   return localID;
 };
 
-export const homeworkHandler = async (start: Date, end?: Date, instance?: Pronote/*, force = false*/): Promise<PapillonHomework[] | null> => {
-  // const cacheKey = makeCacheKey(day);
-  // const cache = await AsyncStorage.getItem(cacheKey);
-  // if (cache && !force) {
-  // TODO: cache ?
-  // }
+export const homeworkHandler = async (force = false, instance?: Pronote): Promise<PapillonHomework[]> => {
+  const cache = await AsyncStorage.getItem(AsyncStoragePronoteKeys.CACHE_HOMEWORK);
+  let data: PapillonHomework[] = cache ? JSON.parse(cache) : [];
 
-  if (!instance) return null;
+  if (cache && !force) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Check if every items has been fetched in less than 24 hours.
+    const isNotOutdated = data.every(homework => {
+      const cacheDate = new Date(homework.cacheDateTimestamp);
+      cacheDate.setHours(0, 0, 0, 0);
+
+      return cacheDate.getTime() === today.getTime();
+    });
+
+    // We don't need to fetch again if everything is up to date.
+    if (isNotOutdated) {
+      console.info('homeworks: cache is up to date, using it.');
+      return data;
+    }
+  } // otherwise, we fetch.
+
+  // Prevent errors when not initialized.
+  if (!instance) return [];
+  console.info('homeworks: fetching new data.');
 
   try {
     // We don't pass the end of the interval, because we want every homework
     // from the given day until the end of the year.
-    const everyHomework = await instance.getHomeworkForInterval(start, end);
-    const parsedHomework: PapillonHomework[] = [];
+    const homeworks = await instance.getHomeworkForInterval(instance.startDay);
+    data = [];
 
-    for (const homework of everyHomework) {
+    for (const homework of homeworks) {
       const attachments: PapillonHomeworkAttachment[] = [];
       for (const attachment of homework.attachments) {
         attachments.push({
@@ -62,31 +77,56 @@ export const homeworkHandler = async (start: Date, end?: Date, instance?: Pronot
         date: homework.deadline,
       });
 
-      parsedHomework.push({
+      const themes = homework.themes.map(theme => theme.name);
+
+      data.push({
         id: homework.id,
+
         localID,
+        pronoteCachedSessionID: instance.sessionID,
+        cacheDateTimestamp: Date.now(),
+
+        themes,
         attachments,
+
         subject: {
           id: homework.subject.id,
           name: homework.subject.name,
           groups: homework.subject.groups,
         },
+
         description: homework.description,
         background_color: homework.backgroundColor,
+        
         done: homework.done,
         date: homework.deadline.toISOString(),
+        return: homework.return ? {
+          type: homework.return.type,
+          uploaded: homework.return.type === PronoteApiHomeworkReturnType.FILE_UPLOAD ? homework.return.uploaded : undefined,
+        } : undefined,
+
+        difficulty: homework.difficulty,
+        lengthInMinutes: homework.lengthInMinutes,
       });
     }
 
-    return parsedHomework;
-  } catch (error) {
-    // if (cache) {
-    //   console.info('pronote/homeworkHandler: network failed, recover with cache');
-    //   const data: CachedPapillonHomework = JSON.parse(cache);
-    //   return data.homework;
-    // }
-    
-    console.info('pronote/homeworkHandler: network failed, no cache', error);
-    return null;
+    await AsyncStorage.setItem(AsyncStoragePronoteKeys.CACHE_HOMEWORK, JSON.stringify(data));
   }
+  catch (error) {
+    console.info('pronote/homeworkHandler: network failed, recovering with possible cache');
+    console.error(error);
+  }
+
+  return data;
 };
+
+// export const homeworkPatchHandler = async (homeworkID: string, newDoneState: boolean, instance?: Pronote): Promise<boolean> => {
+//   if (!instance) return false;
+//   try {
+//     await instance.patchHomeworkStatus(homeworkID, newDoneState);
+//     return true;
+//   } catch (error) {
+//     console.info('pronote/homeworkPatchHandler: network failed', error);
+//     return false;
+//   }
+// };
