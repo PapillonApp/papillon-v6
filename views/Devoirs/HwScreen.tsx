@@ -170,7 +170,7 @@ function HomeworkScreen({ route, navigation }: {
       <View>
         <View style={{ height: 6 }} />
 
-        <NativeList header="Description">
+        <NativeList header="Description" inset>
           <NativeItem>
             <ParsedText
               style={[styles.hwContentText, {color: UIColors.text}]}
@@ -219,7 +219,7 @@ function HomeworkScreen({ route, navigation }: {
 
         <View style={{ height: 6 }} />
 
-        <NativeList header="Statut">
+        <NativeList header="Statut" inset>
           {homework.return && homework.return.type === PronoteApiHomeworkReturnType.FILE_UPLOAD ? (
             <NativeItem>
               <PaperButton
@@ -279,7 +279,7 @@ function HomeworkScreen({ route, navigation }: {
           <>
             <View style={{ height: 6 }} />
 
-            <NativeList header="Thèmes">
+            <NativeList header="Thèmes" inset>
               {homework.themes.map((themeName, index) => (
                 <NativeItem key={index}>
                   <NativeText heading="p">
@@ -295,7 +295,7 @@ function HomeworkScreen({ route, navigation }: {
           <>
             <View style={{ height: 6 }} />
 
-            <NativeList header="Fichiers">
+            <NativeList header="Fichiers" inset>
               {homework.attachments.map((file, index) => {
                 let fileIcon = <Link size={24} color={UIColors.text} />;
                 if (file.type === 1) {
