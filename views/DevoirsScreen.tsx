@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect, useMemo } from 'react';
 
 import {
   Animated,
@@ -6,10 +6,8 @@ import {
   StyleSheet,
   StatusBar,
   Platform,
-  ActivityIndicator,
   RefreshControl,
   SectionList,
-  ScrollView
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -22,16 +20,12 @@ import { PressableScale } from 'react-native-pressable-scale';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import PapillonLoading from '../components/PapillonLoading';
-
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import { convert as convertHTML } from 'html-to-text';
 
 import {
-  BookOpen,
   File,
-  Check,
   Plus,
   ExternalLink
 } from 'lucide-react-native';
@@ -41,51 +35,48 @@ import { getSavedCourseColor } from '../utils/ColorCoursName';
 import GetUIColors from '../utils/GetUIColors';
 
 import { useAppContext } from '../utils/AppContext';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import NativeText from '../components/NativeText';
 
 import * as WebBrowser from 'expo-web-browser';
 import type { PapillonHomework } from '../fetch/types/homework';
 import { BlurView } from 'expo-blur';
 
+// Atoms
+import { atom, useAtom } from 'jotai';
+import { homeworksAtom } from '../atoms/homeworks';
+
+const dateFromAtom = atom(new Date());
+const homeworksUntilDateAtom = atom((get) => {
+  const date = get(dateFromAtom);
+  date.setHours(0, 0, 0, 0);
+  const dateTimestamp = date.getTime();
+
+  const homeworks = get(homeworksAtom);
+  if (homeworks === null) return null;
+
+  return homeworks.filter((homework) => {
+    const homeworkDate = new Date(homework.date);
+    homeworkDate.setHours(0, 0, 0, 0);
+  
+    return homeworkDate.getTime() >= dateTimestamp;
+  });
+});
+
 function DevoirsScreen({ navigation }: {
   navigation: any
 }) {
-  const insets = useSafeAreaInsets();
   const UIColors = GetUIColors();
   const theme = useTheme();
 
-  const [browserOpen, setBrowserOpen] = useState(false);
-
-  const yOffset = new Animated.Value(0);
-
-
-  const headerOpacity = yOffset.interpolate({
-    inputRange: [-75, -60],
-    outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
-  
-  const scrollHandler = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: yOffset } } }],
-    { useNativeDriver: false }
-  );
-
   const openURL = async (url: string) => {
-    if (Platform.OS === 'ios') {
-      setBrowserOpen(true);
-    }
-
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
       presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
       controlsColor: UIColors.primary,
     });
-
-    setBrowserOpen(false);
   };
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: Platform.OS === 'ios' ? () => (
         <PapillonInsetHeader
@@ -126,42 +117,55 @@ function DevoirsScreen({ navigation }: {
   
   type HomeworkItem = { title: string, data: PapillonHomework[] }
   
-  const [isFirstLoading, setFirstLoading] = useState(true);
   const [isHeadLoading, setHeadLoading] = useState(false);
-  const [homeworks, setHomeworks] = useState<Array<HomeworkItem>>([]);
+  
+  const [fromDate, setFromDate] = useAtom(dateFromAtom);
+  const [totalHomeworks, setTotalHomeworks] = useAtom(homeworksAtom);
+  const [groupedHomeworks] = useAtom<HomeworkItem[] | null>(
+    useMemo(
+      () => atom((get) => {
+        let homeworks = get(homeworksUntilDateAtom);
+        if (homeworks === null) return null;
 
-  const retrieveHomeworkItems = async (date: Date, force = false): Promise<Array<HomeworkItem>> => {
-    const homeworks = await appContext.dataProvider?.getHomeworks(date, force);
-    if (!homeworks) return [];
+        // Sort the results by date.
+        homeworks.sort((a, b) => {
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        });
 
-    // Sort the results by date.
-    homeworks.sort((a, b) => {
-      return new Date(a.date).getTime() - new Date(b.date).getTime();
-    });
+        let items: Record<string, PapillonHomework[]> = {};
 
-    let items: Record<string, PapillonHomework[]> = {};
+        for (const homework of homeworks) {
+          const key = new Date(homework.date).toLocaleDateString('fr-FR', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+          });
 
-    for (const homework of homeworks) {
-      const key = new Date(homework.date).toLocaleDateString('fr-FR', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-      });
+          if (!(key in items)) {
+            items[key] = [homework];
+          } else items[key].push(homework);
+        }
 
-      if (!(key in items)) {
-        items[key] = [homework];
-      } else items[key].push(homework);
+        return Object.entries(items).map(([title, data]) => ({ title, data }));
+      }),
+      []
+    )
+  );
+
+  const fetchHomeworks = async (date: Date, force = false): Promise<void> => {
+    setFromDate(date);
+    
+    if (totalHomeworks === null || force) {
+      const homeworks = await appContext.dataProvider?.getHomeworks(force);
+      setTotalHomeworks(homeworks ?? []);
     }
-
-    return Object.entries(items).map(([title, data]) => ({ title, data }));
   };
 
   const onRefresh = React.useCallback(() => {
     setHeadLoading(true);
 
     (async () => {
-      const homeworks = await retrieveHomeworkItems(new Date());
-      setHomeworks(homeworks);
+      await fetchHomeworks(new Date(), true);
       setHeadLoading(false);
     })();
   }, []);
@@ -169,9 +173,7 @@ function DevoirsScreen({ navigation }: {
   // Load initial homeworks on first render.
   useEffect(() => {
     (async () => {
-      const homeworks = await retrieveHomeworkItems(new Date());
-      setHomeworks(homeworks);
-      setFirstLoading(false);
+      await fetchHomeworks(new Date());
     })();
   }, []);
 
@@ -187,119 +189,105 @@ function DevoirsScreen({ navigation }: {
         barStyle={theme.dark ? 'light-content' : 'dark-content'}
         backgroundColor={'transparent'}
       />
-      <SectionList
-        sections={homeworks}
-        getItem={(data, index) => data[index]}
-        getItemCount={data => data.length}
-        keyExtractor={(item: PapillonHomework) => item.id}
-        contentInsetAdjustmentBehavior='automatic'
-        initialNumToRender={15}
-        refreshing={isHeadLoading}
-        refreshControl={
-          <RefreshControl
+
+      {groupedHomeworks !== null ? (
+        <>
+          <SectionList
+            sections={groupedHomeworks}
+            getItem={(data, index) => data[index]}
+            getItemCount={data => data.length}
+            keyExtractor={(item: PapillonHomework) => item.id}
+            contentInsetAdjustmentBehavior='automatic'
+            initialNumToRender={15}
             refreshing={isHeadLoading}
-            onRefresh={onRefresh}
-            tintColor={Platform.OS === 'android' ? UIColors.primary : ''}
-          />
-        }
-        renderItem={({ item, index }) =>  (
-          <Hwitem
-            key={index}
-            homework={item}
-            navigation={navigation}
-            openURL={openURL}
-          />
-        )}
-        stickySectionHeadersEnabled={Platform.OS === 'ios'}
-        renderSectionFooter={() => (
-          <View style={{height: 5}} />
-        )}
-        renderSectionHeader={({ section: { title } }) => (
-          Platform.OS === 'ios' ? (
-            <View
-              style={{
-                marginBottom: -16,
-                paddingHorizontal: 15,
-                paddingVertical: 16,
-              }}
-            >
-              <View style={{
-                backgroundColor: UIColors.text + '20',
-                alignSelf: 'flex-start',
-                borderRadius: 10,
-                borderCurve: 'continuous',
-                overflow: 'hidden',
-              }}>
-                <BlurView
-                  intensity={50}
-                  tint={theme.dark ? 'dark' : 'light'}
+            refreshControl={
+              <RefreshControl
+                refreshing={isHeadLoading}
+                onRefresh={onRefresh}
+                tintColor={Platform.OS === 'android' ? UIColors.primary : ''}
+              />
+            }
+            renderItem={({ item, index }) =>  (
+              <Hwitem
+                key={index}
+                homework={item}
+                navigation={navigation}
+                openURL={openURL}
+              />
+            )}
+            stickySectionHeadersEnabled={Platform.OS === 'ios'}
+            renderSectionFooter={() => (
+              <View style={{height: 5}} />
+            )}
+            renderSectionHeader={({ section: { title } }) => (
+              Platform.OS === 'ios' ? (
+                <View
                   style={{
+                    marginBottom: -16,
                     paddingHorizontal: 15,
-                    paddingVertical: 7,
+                    paddingVertical: 16,
                   }}
                 >
-                  <Text style={{fontSize: 15, fontFamily: 'Papillon-Semibold'}}>
+                  <View style={{
+                    backgroundColor: UIColors.text + '20',
+                    alignSelf: 'flex-start',
+                    borderRadius: 10,
+                    borderCurve: 'continuous',
+                    overflow: 'hidden',
+                  }}>
+                    <BlurView
+                      intensity={50}
+                      tint={theme.dark ? 'dark' : 'light'}
+                      style={{
+                        paddingHorizontal: 15,
+                        paddingVertical: 7,
+                      }}
+                    >
+                      <Text style={{fontSize: 15, fontFamily: 'Papillon-Semibold'}}>
+                        {title}
+                      </Text>
+                    </BlurView>
+                  </View>
+                </View>
+              ) : (
+                <View style={{
+                  paddingHorizontal: 15,
+                  paddingVertical: 16,
+                }}>
+                  <Text style={{fontSize: 14, fontWeight: 'bold', letterSpacing: 0.7, textTransform: 'uppercase', opacity: 0.6}}>
                     {title}
                   </Text>
-                </BlurView>
-              </View>
-            </View>
-          ) : (
-            <View style={{
-              paddingHorizontal: 15,
-              paddingVertical: 16,
-            }}>
-              <Text style={{fontSize: 14, fontWeight: 'bold', letterSpacing: 0.7, textTransform: 'uppercase', opacity: 0.6}}>
-                {title}
-              </Text>
-            </View>
-          )
-        )}
-        ListFooterComponent={() => (
-          <View style={{
-            height: Platform.OS === 'ios' ? 20 + 65 : 16
-          }} />
-        )}
-      />
-      {Platform.OS === 'ios' &&  (
-        <PressableScale
-          style={[styles.addCoursefab, {backgroundColor: UIColors.primary}]}
-          weight="light"
-          activeScale={0.87}
-          onPress={() => {
-            navigation.navigate('CreateHomework', {
-              date: calendarDate,
-            });
-          }}
-        >
-          <Plus color='#ffffff' />
-        </PressableScale>
+                </View>
+              )
+            )}
+            ListFooterComponent={() => (
+              <View style={{
+                height: Platform.OS === 'ios' ? 20 + 65 : 16
+              }} />
+            )}
+          />
+  
+          {Platform.OS === 'ios' &&  (
+            <PressableScale
+              style={[styles.addCoursefab, {backgroundColor: UIColors.primary}]}
+              weight="light"
+              activeScale={0.87}
+              onPress={() => {
+                navigation.navigate('CreateHomework', {
+                  date: fromDate,
+                });
+              }}
+            >
+              <Plus color='#ffffff' />
+            </PressableScale>
+          )}
+        </>
+      ) : (
+        <NativeText heading="h4" style={styles.noHomework}>
+          Chargement des devoirs...
+        </NativeText>
       )}
     </View>
-  );
-}
-
-function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
-  return !loading ? (
-    <PressableScale
-      style={[
-        styles.checkContainer,
-        { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
-        checked ? styles.checkChecked : null,
-        checked
-          ? { backgroundColor: UIColors.primary, borderColor: UIColors.primary }
-          : null,
-      ]}
-      weight="light"
-      activeScale={0.7}
-      onPress={() => {
-        pressed();
-      }}
-    >
-      {checked ? <Check size={20} color="#ffffff" /> : null}
-    </PressableScale>
-  ) : (
-    <ActivityIndicator size={26} />
   );
 }
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import {
   View,
@@ -30,7 +30,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContextMenuView, MenuElementConfig } from 'react-native-ios-context-menu';
 import NextCoursElem from '../interface/HomeScreen/NextCours';
-import SyncStorage, { set } from 'sync-storage';
+import SyncStorage from 'sync-storage';
 import * as ExpoLinking from 'expo-linking';
 
 // Icons 
@@ -57,6 +57,8 @@ import type { PapillonLesson } from '../fetch/types/timetable';
 import type { PapillonGroupedHomeworks, PapillonHomework } from '../fetch/types/homework';
 import { dateToFrenchFormat } from '../utils/dates';
 import { convert as convertHTML } from 'html-to-text';
+import { atom, useAtom, useSetAtom } from 'jotai';
+import { homeworksAtom, homeworksUntilNextWeekAtom } from '../atoms/homeworks';
 
 // Functions
 const openURL = (url: string) => {
@@ -135,6 +137,63 @@ function HomeScreen({ navigation }: { navigation: any }) {
 
   const [showsTomorrowLessons, setShowsTomorrowLessons] = useState(false);
   const net = useNetInfo();
+  const now = new Date();
+
+  const setHomeworks = useSetAtom(homeworksAtom);
+  const [groupedHomeworks] = useAtom(
+    useMemo( // We group homeworks by day, so we can display them in a list.
+      () => atom((get) => {
+        // Make sure to only display the homeworks until the next week.
+        const homeworks = get(homeworksUntilNextWeekAtom);
+        if (homeworks === null) return null;
+
+        const groupedHomeworks = homeworks.reduce((grouped, homework) => {
+          const homeworkDate = new Date(homework.date);
+          homeworkDate.setHours(0, 0, 0, 0);
+
+          setHomeworksDays((prevDays) => {
+            let days = [...prevDays]; // Copy of the old value.
+
+            const existingDay = days.find((day) => day.date === homeworkDate.getTime());
+            if (!existingDay) {
+              days.push({
+                date: homeworkDate.getTime(),
+                custom: false,
+              });
+            }
+
+            days.sort((a, b) => a.date - b.date);
+            return days;
+          });
+
+          const formattedDate = homeworkDate.getDate() === now.getDate() + 1
+            ? 'demain'
+            : new Date(homeworkDate).toLocaleDateString('fr-FR', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+            });
+
+          const formattedTime = homeworkDate.getTime();
+
+          if (!(formattedDate in grouped)) {
+            grouped[formattedDate] = {
+              date: homeworkDate,
+              formattedDate: formattedDate,
+              time: formattedTime,
+              homeworks: [],
+            };
+          }
+
+          grouped[formattedDate].homeworks.push(homework);
+          return grouped;
+        }, {} as Record<string, PapillonGroupedHomeworks>);
+
+        return Object.values(groupedHomeworks).sort((a, b) => a.time - b.time);
+      }),
+      []
+    )
+  );
 
   // url handling
   useEffect(() => {
@@ -197,7 +256,6 @@ function HomeScreen({ navigation }: { navigation: any }) {
     return navigation.addListener('focus', () => refreshSettings());
   }, []);
 
-  const now = new Date();
   const loadCustomHomeworks = async (): Promise<void> => {
     return; // TODO
     const customHomeworks = await AsyncStorage.getItem('customHomeworks');
@@ -232,53 +290,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
    * Once the data has been fetched from either cache or APIs,
    * we need to process them before displaying.
    */
-  const applyHomeworksAndLessonsData = async (homeworks: PapillonHomework[], lessons: PapillonLesson[]): Promise<void> => {
+  const applyHomeworksAndLessonsData = async (lessons: PapillonLesson[]): Promise<void> => {
     setLessons({ loading: false, data: lessons });
-    
-    // Group them by day, so it is easier to display them.
-    const groupedHomeworks = homeworks.reduce((grouped, homework) => {
-      const homeworkDate = new Date(homework.date);
-      homeworkDate.setHours(0, 0, 0, 0);
-
-      setHomeworksDays((prevDays) => {
-        let days = [...prevDays]; // Copy of the old value.
-
-        const existingDay = days.find((day) => day.date === homeworkDate.getTime());
-        if (!existingDay) {
-          days.push({
-            date: homeworkDate.getTime(),
-            custom: false,
-          });
-        }
-
-        days.sort((a, b) => a.date - b.date);
-        return days;
-      });
-
-      const formattedDate = homeworkDate.getDate() === now.getDate() + 1
-        ? 'demain'
-        : new Date(homeworkDate).toLocaleDateString('fr-FR', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-        });
-
-      const formattedTime = homeworkDate.getTime();
-
-      if (!(formattedDate in grouped)) {
-        grouped[formattedDate] = {
-          date: homeworkDate,
-          formattedDate: formattedDate,
-          time: formattedTime,
-          homeworks: [],
-        };
-      }
-
-      grouped[formattedDate].homeworks.push(homework);
-      return grouped;
-    }, {} as Record<string, PapillonGroupedHomeworks>);
-
-    setHomeworks({ loading: false, data: Object.values(groupedHomeworks).sort((a, b) => a.time - b.time) });
     
     await loadCustomHomeworks();
     await sendToSharedGroup(lessons);
@@ -306,11 +319,6 @@ function HomeScreen({ navigation }: { navigation: any }) {
     data: null
   });
 
-  const [homeworks, setHomeworks] = useState<LazyLoadedValue<PapillonGroupedHomeworks[]>>({
-    loading: true,
-    data: null
-  });
-
   /**
    * Fetch timetable (1st) and homeworks (2nd) and apply them
    * so that they can be displayed.
@@ -318,39 +326,42 @@ function HomeScreen({ navigation }: { navigation: any }) {
    * @param force - Whether to force the refresh of the data.
    */
   const refreshScreenData = async (force: boolean): Promise<void> => {
-    if (!appContext.dataProvider) return;
+    try {
+      if (!appContext.dataProvider) return;
+  
+      const todayKey = dateToFrenchFormat(now);
+      let timetable = await appContext.dataProvider.getTimetable(now, force);
+      // Take only the lessons that are for today.
+      let lessons = timetable.filter(lesson => dateToFrenchFormat(new Date(lesson.start)) === todayKey);
+  
+      // Check if all lessons for today are done.
+      const todayLessonsDone = lessons.every(lesson => new Date(lesson.end) < now);
+  
+      if (todayLessonsDone) {
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowKey = dateToFrenchFormat(tomorrow);
+  
+        // Check if tomorrow is monday.
+        const isTomorrowMonday = tomorrow.getDay() === 1;
+  
+        // We need to fetch next week's timetable.
+        if (isTomorrowMonday) {
+          timetable = await appContext.dataProvider.getTimetable(tomorrow, force);
+        } // else, we just keep our current timetable array.
+  
+        lessons = timetable.filter(lesson => dateToFrenchFormat(new Date(lesson.start)) === tomorrowKey);
+        setShowsTomorrowLessons(true);
+      }
 
-    const todayKey = dateToFrenchFormat(now);
-    let timetable = await appContext.dataProvider.getTimetable(now, force);
-    // Take only the lessons that are for today.
-    let lessons = timetable.filter(lesson => dateToFrenchFormat(new Date(lesson.start)) === todayKey);
+      if (groupedHomeworks === null) {
+        const homeworks = await appContext.dataProvider.getHomeworks(force);
+        setHomeworks(homeworks);
+      }
 
-    // Check if all lessons for today are done.
-    const todayLessonsDone = lessons.every(lesson => new Date(lesson.end) < now);
-
-    if (todayLessonsDone) {
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tomorrowKey = dateToFrenchFormat(tomorrow);
-
-      // Check if tomorrow is monday.
-      const isTomorrowMonday = tomorrow.getDay() === 1;
-
-      // We need to fetch next week's timetable.
-      if (isTomorrowMonday) {
-        timetable = await appContext.dataProvider.getTimetable(tomorrow, force);
-      } // else, we just keep our current timetable array.
-
-      lessons = timetable.filter(lesson => dateToFrenchFormat(new Date(lesson.start)) === tomorrowKey);
-      setShowsTomorrowLessons(true);
+      await applyHomeworksAndLessonsData(lessons);
     }
-
-    // Get the homeworks until next week.
-    const nextWeekDate = new Date(now);
-    nextWeekDate.setDate(nextWeekDate.getDate() + 7);
-
-    const homeworks = await appContext.dataProvider.getHomeworks(now, force, nextWeekDate);
-    await applyHomeworksAndLessonsData(homeworks, lessons);
+    catch { /** No-op. */}
   };
 
   // On first mount, we need to fetch user data
@@ -486,16 +497,10 @@ function HomeScreen({ navigation }: { navigation: any }) {
   }, [navigation, user, themeAdjustments, insets, yOffset, UIColors, theme, nextColor, setNextColor]);
 
   // Animations
-
   const scrollHandler = Animated.event(
     [{ nativeEvent: { contentOffset: { y: yOffset } } }],
     { useNativeDriver: false }
   );
-
-  let mainHeaderSize = [-60, -30];
-  if (insets.top > 30) {
-    mainHeaderSize = [-85, -50];
-  }
 
   const nextCoursHeight = yOffset.interpolate({
     inputRange: Platform.OS === 'ios' ? [0, 150] : [0, 1],
@@ -526,7 +531,6 @@ function HomeScreen({ navigation }: { navigation: any }) {
           onRefresh={async () => {
             // Refresh data
             setRefreshing(true);
-            setHomeworks({ loading: true, data: null });
             setLessons({ loading: true, data: null });
 
             await refreshScreenData(true);
@@ -573,11 +577,11 @@ function HomeScreen({ navigation }: { navigation: any }) {
       />
       
       <DevoirsElement
-        homeworks={homeworks.data}
+        homeworks={groupedHomeworks}
         customHomeworks={customHomeworks}
         homeworksDays={homeworksDays}
         navigation={navigation}
-        loading={homeworks.loading}
+        loading={groupedHomeworks === null}
       />
     </ScrollView>
   );

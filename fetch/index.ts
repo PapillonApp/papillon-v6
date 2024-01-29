@@ -132,16 +132,16 @@ export class IndexDataInstance {
   }
 
   /**
-   * @returns every homework from today 'till the end of the year or `end` parameter.
+   * Get all the homeworks from first day to end of the year.
    */
-  async getHomeworks (start: Date, force = false, end?: Date): Promise<PapillonHomework[]> {
+  async getHomeworks (force = false): Promise<PapillonHomework[]> {
     await this.waitInit();
     
     if (this.service === 'skolengo') {
       // return this.skolengoInstance.getHomeworks(day, force, day2) || [];
     }
     else if (this.service === 'pronote') {
-      const homeworkReceived = await pronoteHomeworkHandler(start, end, this.pronoteInstance);
+      const homeworkReceived = await pronoteHomeworkHandler(force, this.pronoteInstance);
       if (homeworkReceived) return homeworkReceived;
 
       console.warn('getHomeworks: offline.');
