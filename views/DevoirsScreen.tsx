@@ -383,6 +383,7 @@ function Hwitem({ homework, openURL, navigation }: {
             marginBottom: -20,
           } : void 0
         }
+        inset={Platform.OS === 'ios'}
       >
         <NativeItem
           leading={

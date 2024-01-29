@@ -34,6 +34,8 @@ import { PronoteApiHomeworkDifficulty, PronoteApiHomeworkReturnType } from 'pawn
 import { useAtom } from 'jotai';
 import { homeworksAtom } from '../../atoms/homeworks';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 function HomeworkScreen({ route, navigation }: {
   navigation: any
   route: {
@@ -44,6 +46,7 @@ function HomeworkScreen({ route, navigation }: {
 }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
 
   const { homeworkLocalID } = route.params;
   const [homeworks] = useAtom(homeworksAtom);
@@ -327,7 +330,7 @@ function HomeworkScreen({ route, navigation }: {
         )}
       </View>
 
-      <View style={{ display: 'flex', alignItems: 'center', paddingBottom: 16 }}>
+      <View style={{ display: 'flex', alignItems: 'center', paddingBottom: insets.bottom + 2 }}>
         <NativeText heading="p2" style={{ fontSize: 12, opacity: .35 }}>
           Dernière mise à jour du cache : {new Date(homework.cacheDateTimestamp).toLocaleString('fr-FR')}
         </NativeText>
