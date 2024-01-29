@@ -133,7 +133,6 @@ export const homeworkPatchHandler = async (homework: PapillonHomework, newDoneSt
   if (homework.pronoteCachedSessionID !== instance.sessionID) {
     homeworks = await homeworkHandler(true, instance);
   }
-
   
   if (!homeworks) return false;
 
