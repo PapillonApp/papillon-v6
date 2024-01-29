@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 
 import {
   StyleSheet,
@@ -8,6 +8,7 @@ import {
   Platform,
   ActivityIndicator,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,7 +20,7 @@ import { Check, Link, File, Trash } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import ParsedText from 'react-native-parsed-text';
 
-import { useTheme } from 'react-native-paper';
+import { Button as PaperButton, useTheme } from 'react-native-paper';
 import { convert as convertHTML } from 'html-to-text';
 
 import GetUIColors from '../../utils/GetUIColors';
@@ -33,23 +34,26 @@ import { useAppContext } from '../../utils/AppContext';
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
 import CheckAnimated from '../../interface/CheckAnimated';
 import type { PapillonHomework } from '../../fetch/types/homework';
+import { PronoteApiHomeworkDifficulty, PronoteApiHomeworkReturnType } from 'pawnote';
 
 function HomeworkScreen({ route, navigation }: {
   navigation: any
   route: {
-    params: { homework: PapillonHomework }
+    params: {
+      homework: PapillonHomework,
+      
+    }
   }
 }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
   const { homework } = route.params;
-  const [thisHwChecked, setThisHwChecked] = React.useState(homework.done);
-  const [thisHwLoading, setThisHwLoading] = React.useState(false);
+  const [thisHwChecked, setThisHwChecked] = useState(homework.done);
+  const [homeworkStateLoading, setHomeworkStateLoading] = useState(false);
+  const [homeworkRefreshLoading, setHomeworkRefreshLoading] = useState(false);
 
-  const [deleteCustomHomeworkAlert, setDeleteCustomHomeworkAlert] = React.useState(false);
-
-  console.log(homework);
+  const [deleteCustomHomeworkAlert, setDeleteCustomHomeworkAlert] = useState(false);
 
   const openURL = async (url: string) => {
     await WebBrowser.openBrowserAsync(url, {
@@ -117,7 +121,7 @@ function HomeworkScreen({ route, navigation }: {
         AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
 
         setTimeout(() => {
-          setThisHwLoading(false);
+          setHomeworkStateLoading(false);
         }, 100);
       });
 
@@ -137,7 +141,7 @@ function HomeworkScreen({ route, navigation }: {
           }, 100);
         } else if (result.status === 'ok') {
           setThisHwChecked(!thisHwChecked);
-          setThisHwLoading(false);
+          setHomeworkStateLoading(false);
 
           if (appContext.dataProvider.service === 'Pronote') {
             AsyncStorage.getItem('homeworksCache').then((homeworksCache) => {
@@ -190,7 +194,7 @@ function HomeworkScreen({ route, navigation }: {
   };
 
   // add checkbox in header
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: 'Devoir en ' + formatCoursName(homework.subject.name),
     });
@@ -198,6 +202,14 @@ function HomeworkScreen({ route, navigation }: {
 
   return (
     <ScrollView
+      refreshControl={
+        <RefreshControl
+          refreshing={homeworkRefreshLoading}
+          onRefresh={onRefresh}
+          tintColor={Platform.OS === 'android' ? UIColors.primary : ''}
+        />
+      }
+      contentContainerStyle={{ display: 'flex', flexGrow: 1, flexDirection: 'column', justifyContent: 'space-between'}}
       style={{ backgroundColor: UIColors.modalBackground }}
       contentInsetAdjustmentBehavior="automatic"
     >
@@ -211,101 +223,189 @@ function HomeworkScreen({ route, navigation }: {
         />
       )}
 
-      <View style={{ height: 6 }} />
+      <View>
+        <View style={{ height: 6 }} />
 
-      <NativeList header="Description">
-        <NativeItem>
-          <ParsedText
-            style={[styles.hwContentText, {color: UIColors.text}]}
-            selectable={true}
-            parse={
-              [
-                {
-                  type: 'url',
-                  style: [styles.url, {color: UIColors.primary}],
-                  onPress: (url) => openURL(url),
-                },
-                {
-                  type: 'email',
-                  style: [styles.url, {color: UIColors.primary}],
-                },
-              ]
-            }
-          >
-            {convertHTML(homework.description)}
-          </ParsedText>
-        </NativeItem>
-      </NativeList>
+        <NativeList header="Description">
+          <NativeItem>
+            <ParsedText
+              style={[styles.hwContentText, {color: UIColors.text}]}
+              selectable={true}
+              parse={
+                [
+                  {
+                    type: 'url',
+                    style: [styles.url, {color: UIColors.primary}],
+                    onPress: (url) => openURL(url),
+                  },
+                  {
+                    type: 'email',
+                    style: [styles.url, {color: UIColors.primary}],
+                  },
+                ]
+              }
+            >
+              {convertHTML(homework.description)}
+            </ParsedText>
+          </NativeItem>
+          {homework.difficulty !== PronoteApiHomeworkDifficulty.NONE && (
+            <NativeItem trailing={
+              <NativeText heading="p2">
+                {homework.difficulty === PronoteApiHomeworkDifficulty.EASY ? 'Facile' : 
+                  homework.difficulty === PronoteApiHomeworkDifficulty.MEDIUM ? 'Moyen' : 'Difficile'}
+              </NativeText>
+            }>
+              <NativeText numberOfLines={1}>
+                Difficulté
+              </NativeText>
+            </NativeItem>
+          )}
+          {typeof homework.lengthInMinutes !== 'undefined' && homework.lengthInMinutes > 0 && (
+            <NativeItem trailing={
+              <NativeText heading="p2">
+                {homework.lengthInMinutes.toString()} minute{homework.lengthInMinutes > 1 ? 's' : ''}
+              </NativeText>
+            }>
+              <NativeText numberOfLines={1}>
+                Temps estimé
+              </NativeText>
+            </NativeItem>
+          )}
+        </NativeList>
 
-      <View style={{ height: 6 }} />
+        <View style={{ height: 6 }} />
 
-      <NativeList header="Statut">
-        <NativeItem
-          leading={
-            <CheckAnimated
-              backgroundColor={void 0}
-              checked={thisHwChecked}
-              loading={thisHwLoading}
-              pressed={() => {
-                setThisHwLoading(true);
+        <NativeList header="Statut">
+          {homework.return && homework.return.type === PronoteApiHomeworkReturnType.FILE_UPLOAD ? (
+            <NativeItem>
+              <PaperButton
+                onPress={() => {
+                  console.log('upload !');
+                }}
+              >
+                Déposer ma copie
+              </PaperButton>
+            </NativeItem>
+          ) : (
+            <NativeItem
+              leading={
+                <CheckAnimated
+                  backgroundColor={void 0}
+                  checked={thisHwChecked}
+                  loading={homeworkStateLoading}
+                  pressed={() => {
+                    setHomeworkStateLoading(true);
+                    changeHwState();
+                  }}
+                />
+              }
+              onPress={() => {
+                setHomeworkStateLoading(true);
                 changeHwState();
               }}
-            />
-          }
-          onPress={() => {
-            setThisHwLoading(true);
-            changeHwState();
-          }}
-        >
-          <NativeText heading="b">
-            Marquer comme fait
-          </NativeText>
-        </NativeItem>
-        <NativeItem
-          trailing={
-            <NativeText heading="p2">
-              {new Date(homework.date).toLocaleDateString('fr-FR', { weekday: 'long', month: 'long', day: 'numeric' })}
-            </NativeText>
-          }
-        >
-          <NativeText numberOfLines={1}>
-            A rendre pour le
-          </NativeText>
-        </NativeItem>
-      </NativeList>
+            >
+              <NativeText heading="b">
+                Marquer comme fait
+              </NativeText>
+            </NativeItem>
+          )}
 
-      <View style={{ height: 6 }} />
-
-      {homework.attachments.length > 0 && (
-        <NativeList header="Fichiers">
-          {homework.attachments.map((file, index) => {
-            let fileIcon = <Link size={24} color={UIColors.text} />;
-            if (file.type === 1) {
-              fileIcon = <File size={24} color={UIColors.text} />;
+          <NativeItem
+            trailing={
+              <NativeText heading="p2">
+                {new Date(homework.date).toLocaleDateString('fr-FR', { weekday: 'long', month: 'long', day: 'numeric' })}
+              </NativeText>
             }
+          >
+            <NativeText numberOfLines={1}>
+              À rendre pour le
+            </NativeText>
+          </NativeItem>
 
-            return (
-              <NativeItem
-                key={index}
-                onPress={() => {
-                  openURL(file.url);
-                }}
-                leading={fileIcon}
-              >
-                <View style={{marginRight: 80, paddingLeft: 6}}>
-                  <NativeText heading="h4">
-                    {file.name}
-                  </NativeText>
-                  <NativeText numberOfLines={1}>
-                    {file.url}
-                  </NativeText>
-                </View>
-              </NativeItem>
-            );
-
-          })}
+          {homework.return && homework.return.type === PronoteApiHomeworkReturnType.PAPER && (
+            <NativeItem>
+              <NativeText numberOfLines={1} heading="b">
+                À rendre au format papier
+              </NativeText>
+            </NativeItem>
+          )}
         </NativeList>
-      )}
+
+        {homework.themes.length > 0 && (
+          <>
+            <View style={{ height: 6 }} />
+
+            <NativeList header="Thèmes">
+              {homework.themes.map((themeName, index) => (
+                <NativeItem key={index}>
+                  <NativeText heading="p">
+                    {themeName}
+                  </NativeText>
+                </NativeItem>
+              ))}
+            </NativeList>
+          </>
+        )}
+
+        {homework.attachments.length > 0 && (
+          <>
+            <View style={{ height: 6 }} />
+
+            <NativeList header="Fichiers">
+              {homework.attachments.map((file, index) => {
+                let fileIcon = <Link size={24} color={UIColors.text} />;
+                if (file.type === 1) {
+                  fileIcon = <File size={24} color={UIColors.text} />;
+                }
+
+                return (
+                  <NativeItem
+                    key={index}
+                    onPress={() => {
+                      openURL(file.url);
+                    }}
+                    leading={fileIcon}
+                  >
+                    <View style={{marginRight: 80, paddingLeft: 6}}>
+                      <NativeText heading="h4">
+                        {file.name}
+                      </NativeText>
+                      <NativeText numberOfLines={1}>
+                        {file.url}
+                      </NativeText>
+                    </View>
+                  </NativeItem>
+                );
+
+              })}
+            </NativeList>
+          </>
+        )}
+      </View>
+
+      <View style={{ display: 'flex', alignItems: 'center', paddingBottom: 16 }}>
+        <NativeText heading="p2" style={{ fontSize: 12, opacity: .35 }}>
+          Dernière mise à jour du cache : {new Date(homework.cacheDateTimestamp).toLocaleString('fr-FR')}
+        </NativeText>
+      </View>
+      {/* <NativeList header="Cache">
+        <NativeItem trailing={
+        }>
+          <NativeText numberOfLines={1}>
+            Dernière MaJ
+          </NativeText>
+        </NativeItem>
+        <NativeItem trailing={
+          <NativeText heading="p2">
+            {homework.pronoteCachedSessionID}
+          </NativeText>
+        }>
+          <NativeText numberOfLines={1}>
+            ID de session utilisé
+          </NativeText>
+        </NativeItem>
+
+      </NativeList> */}
 
       <AlertBottomSheet
         visible={deleteCustomHomeworkAlert}
@@ -324,30 +424,6 @@ function HomeworkScreen({ route, navigation }: {
       />
 
     </ScrollView>
-  );
-}
-
-function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
-  return !loading ? (
-    <PressableScale
-      style={[
-        styles.checkContainer,
-        { borderColor: theme.dark ? '#333333' : '#c5c5c5' },
-        checked ? styles.checkChecked : null,
-        checked
-          ? { backgroundColor: UIColors.primary, borderColor: UIColors.primary }
-          : null,
-      ]}
-      weight="light"
-      activeScale={0.7}
-      onPress={() => {
-        pressed();
-      }}
-    >
-      {checked ? <Check size={20} color="#ffffff" /> : null}
-    </PressableScale>
-  ) : (
-    <ActivityIndicator size={26} />
   );
 }
 
