@@ -34,6 +34,8 @@ import { PronoteApiHomeworkDifficulty, PronoteApiHomeworkReturnType } from 'pawn
 import { useAtom } from 'jotai';
 import { homeworksAtom } from '../../atoms/homeworks';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 function HomeworkScreen({ route, navigation }: {
   navigation: any
   route: {
@@ -44,6 +46,7 @@ function HomeworkScreen({ route, navigation }: {
 }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
 
   const { homeworkLocalID } = route.params;
   const [homeworks] = useAtom(homeworksAtom);
@@ -170,7 +173,7 @@ function HomeworkScreen({ route, navigation }: {
       <View>
         <View style={{ height: 6 }} />
 
-        <NativeList header="Description">
+        <NativeList header="Description" inset>
           <NativeItem>
             <ParsedText
               style={[styles.hwContentText, {color: UIColors.text}]}
@@ -219,7 +222,7 @@ function HomeworkScreen({ route, navigation }: {
 
         <View style={{ height: 6 }} />
 
-        <NativeList header="Statut">
+        <NativeList header="Statut" inset>
           {homework.return && homework.return.type === PronoteApiHomeworkReturnType.FILE_UPLOAD ? (
             <NativeItem>
               <PaperButton
@@ -279,7 +282,7 @@ function HomeworkScreen({ route, navigation }: {
           <>
             <View style={{ height: 6 }} />
 
-            <NativeList header="Thèmes">
+            <NativeList header="Thèmes" inset>
               {homework.themes.map((themeName, index) => (
                 <NativeItem key={index}>
                   <NativeText heading="p">
@@ -295,7 +298,7 @@ function HomeworkScreen({ route, navigation }: {
           <>
             <View style={{ height: 6 }} />
 
-            <NativeList header="Fichiers">
+            <NativeList header="Fichiers" inset>
               {homework.attachments.map((file, index) => {
                 let fileIcon = <Link size={24} color={UIColors.text} />;
                 if (file.type === 1) {
@@ -327,7 +330,7 @@ function HomeworkScreen({ route, navigation }: {
         )}
       </View>
 
-      <View style={{ display: 'flex', alignItems: 'center', paddingBottom: 16 }}>
+      <View style={{ display: 'flex', alignItems: 'center', paddingBottom: insets.bottom + 2 }}>
         <NativeText heading="p2" style={{ fontSize: 12, opacity: .35 }}>
           Dernière mise à jour du cache : {new Date(homework.cacheDateTimestamp).toLocaleString('fr-FR')}
         </NativeText>
