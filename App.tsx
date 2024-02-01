@@ -675,7 +675,7 @@ function WrappedGradesScreen() {
               headerLargeTitle: false,
               headerTitle: 'Notes',
             }
-            : null
+            : void 0
         }
       />
       <Stack.Screen

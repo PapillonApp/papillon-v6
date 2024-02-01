@@ -205,11 +205,11 @@ const GradesScreen = ({ navigation }) => {
   }, [averagesOverTime, classAveragesOverTime, UIColors.text, UIColors.border, UIColors.primary, UIColors.element]);
 
   async function getPeriodsFromAPI (mode:string=gradeSettings.mode): Promise<PapillonPeriod> {
-    const value = await AsyncStorage.getItem('gradeSettings');
-    if (!value) return;
+    // const value = await AsyncStorage.getItem('gradeSettings');
+    // if (!value) return;
 
-    const settings = JSON.parse(value);
-    mode = settings.mode !== mode ? settings.mode : mode;
+    // const settings = JSON.parse(value);
+    // mode = settings.mode !== mode ? settings.mode : mode;
 
     const allPeriods = await appContext.dataProvider!.getPeriods();
     const periods: PapillonPeriod[] = allPeriods.filter((period) => period.name.toLowerCase().normalize('NFD').includes(mode));

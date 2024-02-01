@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Animated,
   View,
@@ -327,7 +327,7 @@ function GradesScreen({ navigation }) {
                   actionKey: period.name,
                   actionTitle: period.name,
                   menuState : selectedPeriod?.name === period.name ? 'on' : 'off',
-                };
+                };²
               }),
             }}
             onPressMenuItem={({nativeEvent}) => {
@@ -410,6 +410,7 @@ function GradesScreen({ navigation }) {
    * - selectedPeriod (setSelectedPeriod)
    */
   async function getPeriodsFromAPI (): Promise<PapillonPeriod> {
+    console.log('get periods ?');
     const allPeriods = await appContext.dataProvider!.getPeriods();
     const firstPeriod = allPeriods[0]; // TODO: Define `actual` on the connector.
 
@@ -617,14 +618,14 @@ function GradesScreen({ navigation }) {
     setIsLoading(false);
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       console.log('GradesScreen(onMount): getPeriodsFromAPI');
       const selectedPeriod = await getPeriodsFromAPI();
       console.log('GradesScreen(onMount): getGradesFromAPI ->', selectedPeriod.name);
       await getGradesFromAPI(false, selectedPeriod);
     })();
-  }, [navigation]);
+  }, []);
 
   function showGrade (grade: PapillonGrades['grades'][number]): void {
     navigation.navigate('Grade', { grade, allGrades: allGradesNonReactive });
@@ -681,10 +682,11 @@ function GradesScreen({ navigation }) {
             refreshing={isHeadLoading}
             onRefresh={async () => {
               setHeadLoading(true);
+              await getPeriodsFromAPI();
               await getGradesFromAPI(true);
               setHeadLoading(false);
             }}
-            colors={[Platform.OS === 'android' ? UIColors.primary : void 0]}
+            colors={[Platform.OS === 'android' ? UIColors.primary : '']}
           />
         }
         onScroll={scrollHandler}
