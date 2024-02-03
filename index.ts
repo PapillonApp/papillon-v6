@@ -12,7 +12,7 @@ import { setJSExceptionHandler } from "react-native-exception-handler";
 import { Alert } from 'react-native';
 import RNRestart from 'react-native-restart';
 
-setJSExceptionHandler((error, isFatal) => {
+setJSExceptionHandler((error: Error, isFatal: Boolean) => {
   Sentry.captureException(error)
   console.error("Error caught! ", error, isFatal)
   Alert.alert(
@@ -27,8 +27,10 @@ setJSExceptionHandler((error, isFatal) => {
     }]
   )
 }, true);
-
+import { DSN_URL } from '@env';
 Sentry.init({
-    dsn: 'http://4f5fa3f4dc364796bbdac55029146458@sentry.getpapillon.xyz/3',
-    enableInExpoDevelopment: true,
+  dsn: DSN_URL,
+  tracesSampleRate: 0.75,
+  debug: false,
+  enableInExpoDevelopment: true,
 });
