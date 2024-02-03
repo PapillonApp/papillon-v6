@@ -1,0 +1,212 @@
+{
+  "expo": {
+    "name": "Papillon",
+    "slug": "papillonvex",
+    "scheme": "papillon",
+    "version": "6.5.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "intentFilters": [
+      {
+        "action": "VIEW",
+        "autoVerify": true,
+        "data": [
+          {
+            "scheme": "skoapp-prod"
+          }
+        ],
+        "category": [
+          "BROWSABLE",
+          "DEFAULT"
+        ]
+      }
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "appStoreUrl": "https://apps.apple.com/fr/app/papillon-pour-pronote-ed/id1662669707",
+      "bundleIdentifier": "plus.pronote.app",
+      "associatedDomains": ["applinks:getpapillon.xyz"],
+      "splash": {
+        "image": "./assets/launch/splash-light.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#F3F2F8",
+        "dark": {
+          "image": "./assets/launch/splash-dark.png",
+          "resizeMode": "cover",
+          "backgroundColor": "#000000"
+        }
+      }
+    },
+    "android": {
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=plus.pronote.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#29947A"
+      },
+      "splash": {
+        "image": "./assets/launch/splash-light.png",
+        "backgroundColor": "#32AB8E",
+        "resizeMode": "cover",
+        "dark": {
+          "image": "./assets/launch/splash-dark.png",
+          "resizeMode": "cover",
+          "backgroundColor": "#000000"
+        }
+      },
+      "package": "plus.pronote.app",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.FOREGROUND_SERVICE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f2cc90da-6b71-4890-860a-d4f72c764f3a"
+      }
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "sounds": [
+            "assets/papillon_ding.wav"
+          ]
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Papillon utilise ta position pour localiser des établissements autour de toi et également pour te localiser sur la carte."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Papillon utilise ta pellicule pour personnaliser ton profil et ton expérience."
+        }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Papillon utilise ton calendrier pour ajouter des cours à celui-ci.",
+          "remindersPermission": "Papillon utilise tes rappels pour ajouter des devoirs à celui-ci."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Autorisez Papillon à utiliser Face ID."
+        }
+      ],
+      [
+        "expo-barcode-scanner",
+        {
+          "cameraPermission": "Papillon utilise ta caméra pour personnaliser ton compte ou scanner un QR-Code."
+        }
+      ],
+      [
+        "expo-dynamic-app-icon",
+        {
+          "relief": {
+            "image": "./assets/customicons/relief.png",
+            "prerendered": true
+          },
+          "beta": {
+            "image": "./assets/customicons/beta.png",
+            "prerendered": true
+          },
+          "black": {
+            "image": "./assets/customicons/black.png",
+            "prerendered": true
+          },
+          "chip": {
+            "image": "./assets/customicons/chip.png",
+            "prerendered": true
+          },
+          "cutted": {
+            "image": "./assets/customicons/cutted.png",
+            "prerendered": true
+          },
+          "classic": {
+            "image": "./assets/customicons/classic.png",
+            "prerendered": true
+          },
+          "gold": {
+            "image": "./assets/customicons/gold.png",
+            "prerendered": true
+          },
+          "gradient": {
+            "image": "./assets/customicons/gradient.png",
+            "prerendered": true
+          },
+          "metal": {
+            "image": "./assets/customicons/metal.png",
+            "prerendered": true
+          },
+          "neon": {
+            "image": "./assets/customicons/neon.png",
+            "prerendered": true
+          },
+          "pride": {
+            "image": "./assets/customicons/pride.png",
+            "prerendered": true
+          },
+          "purple": {
+            "image": "./assets/customicons/purple.png",
+            "prerendered": true
+          },
+          "rayspurple": {
+            "image": "./assets/customicons/rayspurple.png",
+            "prerendered": true
+          },
+          "rays": {
+            "image": "./assets/customicons/rays.png",
+            "prerendered": true
+          },
+          "retro": {
+            "image": "./assets/customicons/retro.png",
+            "prerendered": true
+          },
+          "sparkles": {
+            "image": "./assets/customicons/sparkles.png",
+            "prerendered": true
+          },
+          "backtoschool": {
+            "image": "./assets/customicons/backtoschool.png",
+            "prerendered": true
+          },
+          "barbie": {
+            "image": "./assets/customicons/barbie.png",
+            "prerendered": true
+          },
+          "betterneon": {
+            "image": "./assets/customicons/betterneon.png",
+            "prerendered": true
+          },
+          "macos": {
+            "image": "./assets/customicons/macos.png",
+            "prerendered": true
+          },
+          "oldios": {
+            "image": "./assets/customicons/oldios.png",
+            "prerendered": true
+          },
+          "verscinq": {
+            "image": "./assets/customicons/verscinq.png",
+            "prerendered": true
+          }
+        }
+      ],
+      "sentry-expo"
+    ],
+    "owner": "papillonapp"
+  }
+}
