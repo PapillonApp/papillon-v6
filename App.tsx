@@ -89,8 +89,6 @@ import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
 // import * as notifs from './components/Notifications';
 // notifs.init();
 const Tab = createBottomTabNavigator();
-import * as Sentry from '@sentry/react-native';
-import { DSN_URL } from '@env';
 
 import { startNetworkLogging } from 'react-native-network-logger';
 startNetworkLogging();
@@ -106,13 +104,6 @@ import {
   NewsFill as PapillonIconsNewsFill,
 } from './interface/icons/PapillonIcons';
 import InputPronoteQRPin from './views/NewAuthStack/Pronote/LoginPronoteQRToken';
-
-Sentry.init({
-  dsn: DSN_URL,
-  tracesSampleRate: 0.75,
-  debug: false,
-  enableInExpoDevelopment: true,
-});
 
 // stack
 const Stack = createNativeStackNavigator();
