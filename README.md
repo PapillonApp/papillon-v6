@@ -129,10 +129,6 @@ Si malgré tout le serveur ne s'affiche pas, un QR Code est généré dans le te
 Il est tout à fait possible d'avoir son pc chez soi et son téléphone au lycée (à titre d'exemple). Dans la ligne de commande, il faudra simplement rajouter `--tunnel`.
 Le scan du QR Code sera requis pour connecter le téléphone au PC.
 
-## 📈 Avancement
-
-Nous travaillons actuellement sur la version 6.3.0 de l'application.
-
 ## 👥 Contribuer
 
 Nous accueillons les contributions de tous. Veuillez lire notre [guide de contribution](CONTRIBUTING.md) pour commencer.
