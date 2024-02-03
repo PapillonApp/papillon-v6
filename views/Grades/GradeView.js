@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   ScrollView,
@@ -31,6 +32,7 @@ import {
 
 import { useLayoutEffect } from 'react';
 import { PressableScale } from 'react-native-pressable-scale';
+import { getSavedCourseColor } from '../../utils/ColorCoursName';
 
 import formatCoursName from '../../utils/FormatCoursName';
 import GetUIColors from '../../utils/GetUIColors';
@@ -42,125 +44,7 @@ import NativeText from '../../components/NativeText';
 
 import { Buffer } from 'buffer';
 
-function calculateSubjectAverage(grades) {
-  // for each grade, calculate average for all
-  let student = 0;
-  let classAverage = 0;
-  let min = 0;
-  let max = 0;
-
-  let count = 0;
-  let out_of_total = 0;
-
-  let useless = 0;
-
-  for (let i = 0; i < grades.length; i++) {
-    if (grades[i].grade.significant !== 0 || grades[i].grade.value < 0 || grades[i].grade.coefficient === 0) {
-      useless += 1;
-    }
-    else {
-      student += grades[i].grade.value * grades[i].grade.coefficient;
-      classAverage += grades[i].grade.average * grades[i].grade.coefficient;
-      min += grades[i].grade.min * grades[i].grade.coefficient;
-      max += grades[i].grade.max * grades[i].grade.coefficient;
-
-      out_of_total += grades[i].grade.out_of * grades[i].grade.coefficient;
-    }
-  }
-
-  student = (student / out_of_total) * 20;
-  classAverage = (classAverage / out_of_total) * 20;
-  min = (min / out_of_total) * 20;
-  max = (max / out_of_total) * 20;
-
-  if (useless === grades.length) {
-    return {
-      average: -1,
-      class_average: -1,
-      min: -1,
-      max: -1,
-      out_of: 20,
-    };
-  }
-
-  return {
-    average: student,
-    class_average: classAverage,
-    min: min,
-    max: max,
-    out_of: 20,
-  };
-}
-function calculateExactGrades(grades, isClass) {
-  // step 1 : subject list
-  let subjects = [];
-  grades.forEach((grade) => {
-    const subjectIndex = subjects.findIndex((subject) => subject.name === grade.subject.name);
-    if (subjectIndex !== -1) {
-      subjects[subjectIndex].grades.push(grade);
-    } else {
-      subjects.push({
-        name: grade.subject.name,
-        subject: grade.subject,
-        grades: [grade],
-        averages: {
-          average: -1,
-          class_average: -1,
-          min: -1,
-          max: -1,
-          out_of: 20,
-        },
-      });
-    }
-  });
-
-  // calculate averages for each subject
-  subjects.forEach((subject) => {
-    subject.averages = calculateSubjectAverage(subject.grades);
-  });
-
-  // step 2 : calculate averages of all subjects
-  let student = 0;
-  let classAverage = 0;
-  let min = 0;
-  let max = 0;
-
-  let count = 0;
-
-  for (let i = 0; i < subjects.length; i++) {
-    if (subjects[i].averages.average === -1) {
-      // ignore
-    }
-    else {
-      student += subjects[i].averages.average;
-      classAverage += subjects[i].averages.class_average;
-      min += subjects[i].averages.min;
-      max += subjects[i].averages.max;
-
-      count += 1;
-    }
-  }
-
-  student = student / count;
-  classAverage = classAverage / count;
-  min = min / count;
-  max = max / count;
-
-  if (isNaN(student)) {
-    student = 0;
-  }
-  if (isNaN(classAverage)) {
-    classAverage = 0;
-  }
-  if (isNaN(min)) {
-    min = 0;
-  }
-  if (isNaN(max)) {
-    max = 0;
-  }
-
-  return isClass ? classAverage : student;
-}
+import {calculateAverage, calculateSubjectAverage} from '../../utils/grades/averages';
 
 function GradeView({ route, navigation }) {
   const appctx = useAppContext();
@@ -168,85 +52,20 @@ function GradeView({ route, navigation }) {
   const { grade, allGrades } = route.params;
   const UIColors = GetUIColors();
 
-  const [modalLoading, setModalLoading] = React.useState(false);
-  const [modalLoadingText, setModalLoadingText] = React.useState('');
+  const [modalLoading, setModalLoading] = useState(false);
+  const [modalLoadingText, setModalLoadingText] = useState('');
 
-  const [isShared , setIsShared] = React.useState(false);
-  
-  async function getName() {
-    var user = await appctx.dataprovider.getUser();
-    return user.name.split(' ').pop();
-  }
-
-  async function shareGrade(grade, color) {
-    setModalLoadingText('Génération du lien de partage...');
-    setModalLoading(true);
-
-    let newGrade = grade;
-    // requires YOURLS_SECRET in .env
-    let yourls_secret = Config.YOURLS_SECRET;
-
-    // replace ids with 0 
-    newGrade.subject.id = 0;
-    newGrade.id = 0;
-
-    newGrade.share = {
-      status: true,
-      name: await getName(),
-    };
-
-    // parse grade to JSON
-    let gradeJSON = JSON.stringify(newGrade);
-
-    // encode grade to base64
-    let gradeBase64 = Buffer.from(gradeJSON).toString('base64');
-
-    // create link
-    let link = `https://getpapillon.xyz/grade/${encodeURIComponent(gradeBase64)}`;
-    let shorten_link = link;
-
-    // shorten link
-    let response = await fetch(`https://r.getpapillon.xyz/yourls-api.php?signature=${yourls_secret}&action=shorturl&format=json&url=${encodeURIComponent(link)}`);
-    
-
-    let shortened = await response.json();
-    if (shortened.shorturl) {
-      shorten_link = shortened.shorturl;
-    }
-
-    console.log(shorten_link);
-
-    setModalLoading(false);
-
-    // share shorten_link
-    ShareUI.share({
-      message: `${shorten_link}`,
-      title: 'Note partagée depuis l\'app Papillon',
-    });
-  }
+  const [isShared , setIsShared] = useState(false);
 
   let mainColor = '#888888';
-  if (grade.color) {
-    mainColor = grade.color;
+  if (grade.background_color) {
+    mainColor = getSavedCourseColor(grade.subject.name, grade.background_color);
   }
 
   let { description } = grade;
   if (description === '') {
     description = 'Aucune description';
   }
-
-  /*
-  // fix (temp) des notes
-  grade.grade.value = grade.grade.value / 20 * grade.grade.out_of;
-  grade.grade.max = grade.grade.max / 20 * grade.grade.out_of;
-  grade.grade.min = grade.grade.min / 20 * grade.grade.out_of;
-  grade.grade.average = grade.grade.average / 20 * grade.grade.out_of;
-
-  // correct class averages
-  grade.grade.average = (grade.grade.average / 20) * grade.grade.out_of;
-  grade.grade.max = (grade.grade.max / 20) * grade.grade.out_of;
-  grade.grade.min = (grade.grade.min / 20) * grade.grade.out_of;
-  */
 
   // change header title component
   useLayoutEffect(() => {
@@ -256,11 +75,6 @@ function GradeView({ route, navigation }) {
         backgroundColor: mainColor,
       },
       headerShadowVisible: false,
-      headerRight: () => (
-        <TouchableOpacity onPress={() => shareGrade(grade, mainColor)}>
-          <Share size={24} color="#fff" />
-        </TouchableOpacity>
-      ),
       headerLeft: () => (
         Platform.OS === 'ios' ? (
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iosBack}>
@@ -271,33 +85,50 @@ function GradeView({ route, navigation }) {
     });
   }, [navigation, grade]);
 
-  let date = new Date(grade.date);
-  let formattedGrades = allGrades.filter((grade) => {
-    return new Date(grade.date).getTime() <= date.getTime();
-  });
+  const [average, setAverage] = useState(0);
+  const [averageWithoutGrade, setAverageWithoutGrade] = useState(0);
+  const [avgInfluence, setAvgInfluence] = useState(0);
+  const [avgPercentInfluence, setAvgPercentInfluence] = useState(0);
+  const [classAvg, setClassAvg] = useState(0);
+  const [classAvgWithoutGrade, setClassAvgWithoutGrade] = useState(0);
+  const [classAvgInfluence, setClassAvgInfluence] = useState(0);
+  const [valueTop, setValueTop] = useState(0);
+  const [valueBottom, setValueBottom] = useState(0);
 
-  const formattedValue = parseFloat(grade.grade.value).toFixed(2);
-  const valueTop = formattedValue.split('.')[0];
-  const valueBottom = formattedValue.split('.')[1];
+  async function calculateInfluence(forgr, grlwg) {
+    const naverage = await calculateSubjectAverage(forgr, 'value');
+    const naverageWithoutGrade = await calculateSubjectAverage(grlwg, 'value');
+    const navgInfluence = naverage - naverageWithoutGrade;
+    const navgPercentInfluence = (navgInfluence / naverage) * 100 || 0;
+    const nclassAvg = await calculateSubjectAverage(forgr, 'average');
+    const nclassAvgWithoutGrade = await calculateSubjectAverage(grlwg, 'average');
+    const nclassAvgInfluence = nclassAvg - nclassAvgWithoutGrade;
 
-  let gradesListWithoutGrade = [];
-  for (let i = 0; i < formattedGrades.length; i++) {
-    if (formattedGrades[i].id !== grade.id) {
-      gradesListWithoutGrade.push(formattedGrades[i]);
-    }
+    setAverage(naverage);
+    setAverageWithoutGrade(naverageWithoutGrade);
+    setAvgInfluence(navgInfluence);
+    setAvgPercentInfluence(navgPercentInfluence);
+    setClassAvg(nclassAvg);
+    setClassAvgWithoutGrade(nclassAvgWithoutGrade);
+    setClassAvgInfluence(nclassAvgInfluence);
   }
 
-  const average = calculateExactGrades(formattedGrades, false);
-  const averageWithoutGrade = calculateExactGrades(gradesListWithoutGrade, false);
-  const avgInfluence = average - averageWithoutGrade;
+  useEffect(() => {
+    const formatDate = (dateString) => new Date(dateString).getTime();
 
-  const avgPercentInfluence = (avgInfluence / average) * 100;
+    const date = formatDate(grade.date);
+    const formattedGrades = allGrades.filter(grade => formatDate(grade.date) <= date);
 
-  const classAvg = calculateExactGrades(formattedGrades, true);
-  const classAvgWithoutGrade = calculateExactGrades(gradesListWithoutGrade, true);
-  const classAvgInfluence = classAvg - classAvgWithoutGrade;
+    const formattedValue = parseFloat(grade.grade.value.value).toFixed(2);
+    setValueTop(formattedValue.split('.')[0]);
+    setValueBottom(formattedValue.split('.')[1]);
 
-  React.useEffect(() => {
+    const gradesListWithoutGrade = formattedGrades.filter(g => g.id !== grade.id);
+  
+    calculateInfluence(formattedGrades, gradesListWithoutGrade);
+  }, []);
+
+  useEffect(() => {
     if(grade.share && grade.share.status) {
       setIsShared(true);
     }
@@ -330,7 +161,7 @@ function GradeView({ route, navigation }) {
       </Modal>
       <View style={[styles.gradeHeader, { backgroundColor: mainColor }]}>
         <View style={[styles.gradeHeaderTitle]}>
-          <Text style={[styles.gradeHeaderSubject]}>
+          <Text style={[styles.gradeHeaderSubject]} numberOfLines={1} ellipsizeMode='tail'>
             {formatCoursName(grade.subject.name)}
           </Text>
           <Text style={[styles.gradeHeaderDate]}>
@@ -342,21 +173,29 @@ function GradeView({ route, navigation }) {
           </Text>
         </View>
         <View style={[styles.gradeHeaderGrade]}>
-          {grade.grade.significant === 0 ? (
+          {grade.grade.value.significant === false && (
             <>
               <Text style={[styles.gradeHeaderGradeValueTop]}>{valueTop}</Text>
               <Text style={[styles.gradeHeaderGradeValueBottom]}>
                 .{valueBottom}
               </Text>
             </>
-          ) : grade.grade.significant === 3 ? (
-            <Text style={[styles.gradeHeaderGradeValueTop]}>Abs.</Text>
-          ) : (
-            <Text style={[styles.gradeHeaderGradeValueTop]}>N.not</Text>
           )}
 
+          {grade.grade.value.significant === true && (<>
+            {grade.grade.value.type[0] == '1' ? (
+              <Text style={[styles.gradeHeaderGradeValueTop]}>
+                Abs.
+              </Text>
+            ) : (
+              <Text style={[styles.gradeHeaderGradeValueTop]}>
+                N.not
+              </Text>
+            )}
+          </>)}
+
           <Text style={[styles.gradeHeaderGradeScale]}>
-            /{grade.grade.out_of}
+            /{grade.grade.out_of.value}
           </Text>
         </View>
       </View>
@@ -410,7 +249,7 @@ function GradeView({ route, navigation }) {
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
                   {parseFloat(
-                    (grade.grade.value / grade.grade.out_of) * 20
+                    (grade.grade.value.value / grade.grade.out_of.value) * 20
                   ).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>/20</Text>
@@ -434,10 +273,10 @@ function GradeView({ route, navigation }) {
             trailing={
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(grade.grade.average).toFixed(2)}
+                  {parseFloat(grade.grade.average.value).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>
-                  /{grade.grade.out_of}
+                  /{grade.grade.out_of.value}
                 </Text>
               </View>
             }
@@ -453,10 +292,10 @@ function GradeView({ route, navigation }) {
             trailing={
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(grade.grade.min).toFixed(2)}
+                  {parseFloat(grade.grade.min.value).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>
-                  /{grade.grade.out_of}
+                  /{grade.grade.out_of.value}
                 </Text>
               </View>
             }
@@ -472,10 +311,10 @@ function GradeView({ route, navigation }) {
             trailing={
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(grade.grade.max).toFixed(2)}
+                  {parseFloat(grade.grade.max.value).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>
-                  /{grade.grade.out_of}
+                  /{grade.grade.out_of.value}
                 </Text>
               </View>
             }
@@ -566,13 +405,13 @@ function GradeView({ route, navigation }) {
               <Diff color={UIColors.text} />
             }
             trailing={
-              (grade.grade.value - grade.grade.average).toFixed(2) > 0 ? (
+              (grade.grade.value.value - grade.grade.average.value).toFixed(2) > 0 ? (
                 <NativeText heading="h4" style={{ color: '#1AA989' }}>
-                  + {(grade.grade.value - grade.grade.average).toFixed(2)} pts
+                  + {(grade.grade.value.value - grade.grade.average.value).toFixed(2)} pts
                 </NativeText>
               ) : (
                 <NativeText heading="h4" style={{ color: '#D81313' }}>
-                  - {(grade.grade.value - grade.grade.average).toFixed(2) * -1} pts
+                  - {(grade.grade.value.value - grade.grade.average.value).toFixed(2) * -1} pts
                 </NativeText>
               )
             }
@@ -614,12 +453,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'center',
     gap: 2,
-    maxWidth: '72%',
+    flex: 1,
+    marginRight: 10,
   },
   gradeHeaderSubject: {
     fontSize: 17,
     fontFamily: 'Papillon-Semibold',
     color: '#fff',
+    flex: 1,
   },
   gradeHeaderDate: {
     fontSize: 15,

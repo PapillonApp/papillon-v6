@@ -1,4 +1,7 @@
 {
-  "compilerOptions": {},
+  "compilerOptions": {
+    "module": "ES2020",
+    "strict": true
+  },
   "extends": "expo/tsconfig.base"
 }
