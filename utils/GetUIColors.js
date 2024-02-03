@@ -16,7 +16,8 @@ function GetUIColors(schemeForce) {
   }
 
   // background
-  let background = '';
+  let background;
+  let backgroundHigh;
 
   if (Platform.OS === 'ios') {
     background = isDark ? '#0B0B0C' : '#ffffff';
@@ -68,9 +69,11 @@ function GetUIColors(schemeForce) {
 
   // border
   let borderColor = '';
+  let borderColorLight = '';
 
   if (Platform.OS === 'ios') {
     borderColor = isDark ? '#444444' : '#d5d5d5';
+    borderColorLight = isDark ? '#333333' : '#d5d5d5';
   } else {
     borderColor = theme.colors.border;
   }
@@ -87,6 +90,7 @@ function GetUIColors(schemeForce) {
     primary,
     primaryBackground,
     border: borderColor,
+    borderLight: borderColorLight,
   };
 }
 

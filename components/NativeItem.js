@@ -13,6 +13,7 @@ function NativeItem(props) {
     chevron,
     cellProps,
     style,
+    innerStyle,
   } = props;
 
   const UIColors = GetUIColors();
@@ -25,7 +26,7 @@ function NativeItem(props) {
       ]}
       onPress={onPress}
     >
-      <View style={[styles.content]}>
+      <View style={[styles.content, innerStyle]}>
         {leading && (
           <View style={styles.leading}>
             {leading}
@@ -43,7 +44,7 @@ function NativeItem(props) {
         )}
       </View>
     </TouchableNativeFeedback>
-  )
+  );
 }
 
 const styles = StyleSheet.create({

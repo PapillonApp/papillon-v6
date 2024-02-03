@@ -439,7 +439,7 @@
     <key>CFBundlePackageType</key>
     <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
     <key>CFBundleShortVersionString</key>
-    <string>6.4.0</string>
+    <string>6.5.1</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleURLTypes</key>
@@ -447,6 +447,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
+          <string>papillon</string>
           <string>plus.pronote.app</string>
         </array>
       </dict>

@@ -30,10 +30,10 @@ const FindEtab = ({ navigation }) => {
         barStyle={
           Platform.OS === 'ios' ?
             'light-content'
-          :
+            :
             UIColors.theme == 'light' ?
               'dark-content'
-            :
+              :
               'light-content'
         }
       />
@@ -53,10 +53,10 @@ const FindEtab = ({ navigation }) => {
             <NativeText heading="h4" style={{flex: 1}}>
               Trouver mon collège ou mon lycée
             </NativeText>
-              <NativeText heading="h4" style={{paddingHorizontal: 10, paddingVertical: 5, backgroundColor: UIColors.primary + '22', borderRadius: 5, alignSelf: 'flex-start', color: UIColors.primary, overflow: 'hidden', marginRight: -10}}>
+            <NativeText heading="h4" style={{paddingHorizontal: 10, paddingVertical: 5, backgroundColor: UIColors.primary + '22', borderRadius: 5, alignSelf: 'flex-start', color: UIColors.primary, overflow: 'hidden', marginRight: -10}}>
                 Recommandé
-              </NativeText>
-            </View>
+            </NativeText>
+          </View>
           <NativeText heading="p2">
             Trouver un établissement à partir d'une recherche
           </NativeText>
@@ -105,7 +105,7 @@ const FindEtab = ({ navigation }) => {
         </NativeItem>
       </NativeList>
     </ScrollView>
-  )
+  );
 };
 
 const styles = StyleSheet.create({

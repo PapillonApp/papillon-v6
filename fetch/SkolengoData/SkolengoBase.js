@@ -26,7 +26,7 @@ export class SkolengoBase {
         value === null || value === undefined || value === '' || value === false
           ? acc
           : typeof value === 'object'
-          ? {
+            ? {
               ...acc,
               ...this.searchParamsSerialiser(
                 value,
@@ -34,7 +34,7 @@ export class SkolengoBase {
                 true
               ),
             }
-          : { ...acc, [notroot ? `${prekey}[${key}]` : key]: value },
+            : { ...acc, [notroot ? `${prekey}[${key}]` : key]: value },
       {}
     );
     if (notroot) return result;

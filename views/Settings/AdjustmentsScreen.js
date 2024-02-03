@@ -6,10 +6,17 @@ import { Text } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GetUIColors from '../../utils/GetUIColors';
 
+import ColorPicker, {
+  Panel1,
+  Swatches,
+  Preview,
+  HueSlider,
+} from 'reanimated-color-picker';
+
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
-import { AlertTriangle, Type } from 'lucide-react-native';
+import { AlertTriangle, Palette, Type } from 'lucide-react-native';
 
 import SyncStorage from 'sync-storage';
 import { Home } from '../../interface/icons/PapillonIcons';
@@ -20,8 +27,25 @@ const AdjustmentsScreen = ({ navigation }) => {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
 
+  const [colorModalOpen, setColorModalOpen] = useState(false);
+  const [colorModalColor, setColorModalColor] = useState('#000000');
+
+  const onSelectColor = ({ hex }) => {
+    setColorModalColor(hex);
+  };
+
+  const onSave = () => {
+    let hex = colorModalColor;
+
+    updateSetting('homeThemeColor', hex, false);
+    setColorModalOpen(false);
+  };
+
   const [currentSettings, setCurrentSettings] = useState({
     hideTabBarTitle: false,
+    homeThemesEnabled: false,
+    homeThemeColor: '#32AB8E',
+    homeThemeImage: 'papillon/default',
   });
   const [willNeedRestart, setWillNeedRestart] = useState(false);
 
@@ -29,24 +53,32 @@ const AdjustmentsScreen = ({ navigation }) => {
     const settings = SyncStorage.get('adjustments');
     if (settings) {
       setCurrentSettings(settings);
+      setColorModalColor(settings.homeThemeColor || '#32AB8E');
+    }
+    else {
+      SyncStorage.set('adjustments', currentSettings);
     }
   }, []);
 
   function updateSetting(element, value, needsRestart = false) {
-    setCurrentSettings({
-      ...currentSettings,
-      [element]: value,
-    });
+    const settings = SyncStorage.get('adjustments');
+    
+    if (settings) {
+      setCurrentSettings({
+        ...settings,
+        [element]: value,
+      });
 
-    SyncStorage.set('adjustments', {
-      ...currentSettings,
-      [element]: value,
-    });
+      SyncStorage.set('adjustments', {
+        ...settings,
+        [element]: value,
+      });
 
-    if (needsRestart) {
-      setTimeout(() => {
-        setWillNeedRestart(true);
-      }, 350);
+      if (needsRestart) {
+        setTimeout(() => {
+          setWillNeedRestart(true);
+        }, 350);
+      }
     }
   }
 
@@ -107,63 +139,181 @@ const AdjustmentsScreen = ({ navigation }) => {
           <AlertTriangle color={UIColors.primary} />
         }
         title="Redémarrage requis"
-        subtitle="Vous devez redémarrer l'application pour appliquer certains changements."
-        height={74}
+        subtitle="Redémarrage requis pour appliquer certains changements."
+        height={76}
         marginVertical={16}
         style={{
           marginHorizontal: 16,
           backgroundColor: UIColors.primary + '22',
         }}
       />
-      
-      <NativeList header="Navigation" inset>
-        { Platform.OS === 'ios' ? (
+
+      <NativeList header="Thèmes" inset>
         <NativeItem
           leading={
-            <View style={[previewStyles.tabPreview, {backgroundColor: UIColors.text + '16', borderColor : UIColors.text + '16', borderWidth: 1}]}>
-              <TouchableOpacity
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: 2,
-                }}
-              >
-                <Animated.View style={{transform: [{translateY: tabNameIconTranslate}]}}>
-                  <Home stroke={UIColors.text} />
-                </Animated.View>
-                <Animated.View style={{opacity: tabNameOpacity, transform: [{translateY: tabNameTranslate}]}}>
-                  <Text style={[previewStyles.tabPreviewText]}>
-                    Accueil
-                  </Text>
-                </Animated.View>
-              </TouchableOpacity>
-            </View>
+            <Palette color={UIColors.text} />
           }
           trailing={
             <Switch
-              value={currentSettings.hideTabBarTitle}
-              onValueChange={(value) => updateSetting('hideTabBarTitle', value, true)}
+              style={{marginLeft:8}}
+              value={currentSettings.homeThemesEnabled}
+              onValueChange={(value) => updateSetting('homeThemesEnabled', value, false)}
             />
           }
         >
           <NativeText heading="h4">
-            Cacher le nom des onglets
+            Thèmes de l'écran d'acceuil
           </NativeText>
           <NativeText heading="p2">
-            Masquer le nom des onglets dans la barre de navigation
+            Applique un arrière-plan et un bandeau personnalisé
           </NativeText>
         </NativeItem>
+        <NativeItem chevron
+          trailing={
+            <View style={[styles.colorPreview, {backgroundColor: currentSettings.homeThemeColor}]} />
+          }
+          onPress={() => {
+            setColorModalOpen(true);
+          }}
+        >
+          <NativeText heading="p2">
+            Sélectionner une couleur
+          </NativeText>
+        </NativeItem>
+        <NativeItem onPress={() => {
+          navigation.navigate('HeaderSelect');
+        }} chevron>
+          <NativeText heading="p2">
+            Sélectionner un bandeau
+          </NativeText>
+        </NativeItem>
+      </NativeList>
+
+      <NativeList header="Navigation" inset>
+        { Platform.OS === 'ios' ? (
+          <NativeItem
+            leading={
+              <View style={[previewStyles.tabPreview, {backgroundColor: UIColors.text + '16', borderColor : UIColors.text + '16', borderWidth: 1}]}>
+                <TouchableOpacity
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 2,
+                  }}
+                >
+                  <Animated.View style={{transform: [{translateY: tabNameIconTranslate}]}}>
+                    <Home stroke={UIColors.text} />
+                  </Animated.View>
+                  <Animated.View style={{opacity: tabNameOpacity, transform: [{translateY: tabNameTranslate}]}}>
+                    <Text style={[previewStyles.tabPreviewText]}>
+                    Accueil
+                    </Text>
+                  </Animated.View>
+                </TouchableOpacity>
+              </View>
+            }
+            trailing={
+              <Switch
+                value={currentSettings.hideTabBarTitle}
+                onValueChange={(value) => updateSetting('hideTabBarTitle', value, true)}
+              />
+            }
+          >
+            <NativeText heading="h4">
+            Cacher le nom des onglets
+            </NativeText>
+            <NativeText heading="p2">
+            Masquer le nom des onglets dans la barre de navigation
+            </NativeText>
+          </NativeItem>
         ) : <View /> }
       </NativeList>
+
+      <Modal visible={colorModalOpen} animationType='fade' transparent={true}>
+        <View style={[styles.colorModalContainer]}>
+          <View style={[styles.colorModal, {backgroundColor: UIColors.element}]}>
+            <ColorPicker style={styles.picker} value={colorModalColor} onComplete={onSelectColor}>
+              <Preview
+                textStyle={{
+                  fontFamily: 'Papillon-Semibold',
+                }}
+              />
+              <Panel1 />
+              <HueSlider />
+              <Swatches />
+            </ColorPicker>
+
+            <View style={[styles.modalActions, {borderColor: UIColors.border}]}>
+              <TouchableOpacity style={[styles.modalAction]} onPress={() => setColorModalOpen(false)}>
+                <Text
+                  style={[styles.modalActionText]}
+                >
+                  Annuler
+                </Text>
+              </TouchableOpacity>
+              <View style={{width: 1, height: 47, backgroundColor: UIColors.border + '99'}} />
+              <TouchableOpacity style={[styles.modalAction]} onPress={onSave}>
+                <Text
+                  style={[styles.modalActionText, {color: colorModalColor}]}
+                >
+                  Enregistrer
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+
+  colorModalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000000aa',
+  },
+  colorModal: {
+    width: '70%',
+    borderRadius: 20,
+    borderCurve: 'continuous',
+  },
+
+  picker: {
+    gap: 14,
+    padding: 18
+  },
+
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    height: 48,
+    borderTopWidth: 1,
+  },
+  modalAction: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalActionText: {
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 16,
+  },
+
+  colorPreview: {
+    width: 48,
+    height: 20,
+    borderRadius: 6,
+    borderCurve: 'continuous',
+    marginRight: 2,
+  }
 });
 
 const previewStyles = StyleSheet.create({
@@ -171,10 +321,10 @@ const previewStyles = StyleSheet.create({
     width: 64,
     height: 56,
     borderRadius: 8,
-    borderCurve: "continuous",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+    borderCurve: 'continuous',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     gap: 2,
   },
   tabPreviewText: {

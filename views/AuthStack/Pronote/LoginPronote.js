@@ -30,6 +30,8 @@ import PapillonButton from '../../../components/PapillonButton';
 import GetUIColors from '../../../utils/GetUIColors';
 import { useAppContext } from '../../../utils/AppContext';
 
+import AlertAnimated from '../../../interface/AlertAnimated';
+
 const entities = require('entities');
 
 function LoginPronote({ route, navigation }) {
@@ -37,14 +39,15 @@ function LoginPronote({ route, navigation }) {
   const { showActionSheetWithOptions } = useActionSheet();
 
   const { etab, useDemo } = route.params;
-  // eslint-disable-next-line no-unused-vars
   const [etabName, setEtabName] = useState(etab.nomEtab);
   const [etabInfo, setEtabInfo] = useState(etab);
 
-  // eslint-disable-next-line no-unused-vars
   const [useEduconnect, setUseEduconnect] = React.useState(false);
 
   const [isENTUsed, setIsENTUsed] = React.useState(false);
+
+  const [errorAlert, setErrorAlert] = React.useState(false);
+
   const onToggleSwitch = () => setIsENTUsed(!isENTUsed);
 
   React.useLayoutEffect(() => {
@@ -171,12 +174,13 @@ function LoginPronote({ route, navigation }) {
       const token = result.token;
 
       if (!token) {
-        let errorMessage = ""
+        let errorMessage = '';
         if(result.error) {
-          if(result.error.includes("probably wrong login")) errorMessage = "Vos identifiants semblent incorrects. Veuillez les vérifier."
-          else errorMessage = "Une erreur s'est produite (" + result.error + ")"
+          if(result.error.includes('probably wrong login')) errorMessage = 'Vos identifiants semblent incorrects. Veuillez les vérifier.';
+          else errorMessage = 'Une erreur s\'est produite (' + result.error + ')';
         }
-        else errorMessage = "Une erreur indéterminée s'est produite."
+        else errorMessage = 'Une erreur indéterminée s\'est produite.';
+
         Alert.alert(
           'Échec de la connexion',
           errorMessage,
@@ -239,7 +243,6 @@ function LoginPronote({ route, navigation }) {
       >
         <Image
           style={styles.loginHeaderLogo}
-          // eslint-disable-next-line global-require
           source={require('../../../assets/logo_pronote.png')}
         />
         <Text style={styles.loginHeaderText}>

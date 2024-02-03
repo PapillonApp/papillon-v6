@@ -42,7 +42,7 @@
         <data android:scheme="exp+papillonvex"/>
         <data android:scheme="skoapp-prod"/>
         <data android:scheme="plus.pronote.app"/>
-        <data android:scheme="plus.pronote.app.dev"/>
+        <data android:scheme="papillon"/>
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>

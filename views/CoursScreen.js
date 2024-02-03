@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import * as React from 'react';
 import { useCallback, useState, useEffect, useRef } from 'react';
 import {
@@ -45,6 +44,10 @@ import {
   Users,
   CalendarDays,
   X,
+  TextSelect,
+  BookOpenCheck,
+  Album,
+  Paperclip,
 } from 'lucide-react-native';
 
 import formatCoursName from '../utils/FormatCoursName';
@@ -130,17 +133,37 @@ function CoursScreen({ navigation }) {
 
   async function addToCalendar(cours) {
 
-      // get calendar permission
-      const { status } = await Calendar.requestCalendarPermissionsAsync();
-      if (status === 'granted') {
-        // for each cours
+    // get calendar permission
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (status === 'granted') {
+      // for each cours
         
-        cours.forEach(async (cours) => {
+      cours.forEach(async (cours) => {
+        // get calendar
+        const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+
+        // if Papillon-(cours.subject.name) calendar exists
+        let calendarId = null;
+
+        for (const calendar of calendars) {
+          if (calendar.title === `Papillon-${cours.subject.name}`) {
+            calendarId = calendar.id;
+            break;
+          }
+        }
+
+        // if not, create it
+        if (calendarId === null) {
+          await Calendar.createCalendarAsync({
+            title: `Papillon-${cours.subject.name}`,
+            color: getClosestCourseColor(cours.subject.name, cours.background_color),
+            entityType: Calendar.EntityTypes.EVENT,
+          });
+
           // get calendar
           const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
 
-          // if Papillon-(cours.subject.name) calendar exists
-          let calendarId = null;
+          // get calendar id
 
           for (const calendar of calendars) {
             if (calendar.title === `Papillon-${cours.subject.name}`) {
@@ -148,73 +171,53 @@ function CoursScreen({ navigation }) {
               break;
             }
           }
-
-          // if not, create it
-          if (calendarId === null) {
-            await Calendar.createCalendarAsync({
-              title: `Papillon-${cours.subject.name}`,
-              color: getClosestCourseColor(cours.subject.name, cours.background_color),
-              entityType: Calendar.EntityTypes.EVENT,
-            });
-
-            // get calendar
-            const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-
-            // get calendar id
-
-            for (const calendar of calendars) {
-              if (calendar.title === `Papillon-${cours.subject.name}`) {
-                calendarId = calendar.id;
-                break;
-              }
-            }
-          }
+        }
           
-          // add event to calendar
+        // add event to calendar
 
-          if (!cours.is_cancelled) {
-            const event = await Calendar.createEventAsync(calendarId, {
-              startDate: new Date(cours.start),
-              endDate: new Date(cours.end),
-              title: cours.subject.name,
-              location: cours.rooms.join(', '),
-              notes: `
+        if (!cours.is_cancelled) {
+          const event = await Calendar.createEventAsync(calendarId, {
+            startDate: new Date(cours.start),
+            endDate: new Date(cours.end),
+            title: cours.subject.name,
+            location: cours.rooms.join(', '),
+            notes: `
                 Professeur(s) : ${cours.teachers.length > 1 ? 's' : ''} : ${cours.teachers.join(', ')}
 Statut : ${cours.status || 'Aucun'}
               `.trim(),
-              status: cours.is_cancelled ? 'CANCELED' : 'CONFIRMED',
-              organizer: cours.teachers[0],
-              creationDate: new Date(),
-              lastModifiedDate: new Date(),
-            });
-          }
-        });
+            status: cours.is_cancelled ? 'CANCELED' : 'CONFIRMED',
+            organizer: cours.teachers[0],
+            creationDate: new Date(),
+            lastModifiedDate: new Date(),
+          });
+        }
+      });
 
-        // alert user
-        Alert.alert(
-          'Cours ajoutés au calendrier',
-          'Les cours ont été ajoutés au calendrier.',
-          [
-            {
-              text: 'OK',
-              style: 'cancel'
-            },
-          ]
-        );
-      }
-      else {
-        Alert.alert(
-          'Permission refusée',
-          'Vous devez autoriser l\'application à accéder à votre calendrier pour pouvoir ajouter des cours au calendrier.',
-          [
-            {
-              text: 'OK',
-              style: 'cancel'
-            },
-          ]
-        );
-      }
-  };
+      // alert user
+      Alert.alert(
+        'Cours ajoutés au calendrier',
+        'Les cours ont été ajoutés au calendrier.',
+        [
+          {
+            text: 'OK',
+            style: 'cancel'
+          },
+        ]
+      );
+    }
+    else {
+      Alert.alert(
+        'Permission refusée',
+        'Vous devez autoriser l\'application à accéder à votre calendrier pour pouvoir ajouter des cours au calendrier.',
+        [
+          {
+            text: 'OK',
+            style: 'cancel'
+          },
+        ]
+      );
+    }
+  }
 
   async function notifyAll(_cours) {
     // for each cours
@@ -279,60 +282,64 @@ Statut : ${cours.status || 'Aucun'}
       ) : 'Emploi du temps',
       headerShadowVisible: Platform.OS !== 'ios',
       headerTransparent: Platform.OS === 'ios',
+      headerStyle: Platform.OS === 'android' ? {
+        backgroundColor: UIColors.background,
+        elevation: 0,
+      } : undefined,
       headerRight: () =>
-      <ContextMenuView
-            previewConfig={{
-              borderRadius: 10,
-            }}
-            menuConfig={{
-              borderRadius: 10,
-              menuTitle: calendarDate.toLocaleDateString('fr', {
-                weekday: 'long',
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric',
-              }),
-              menuItems: [
-                {
-                  actionKey: 'addtoCalendar',
-                  actionTitle: 'Ajouter au calendrier',
-                  actionSubtitle:
+        <ContextMenuView
+          previewConfig={{
+            borderRadius: 10,
+          }}
+          menuConfig={{
+            borderRadius: 10,
+            menuTitle: calendarDate.toLocaleDateString('fr', {
+              weekday: 'long',
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric',
+            }),
+            menuItems: [
+              {
+                actionKey: 'addtoCalendar',
+                actionTitle: 'Ajouter au calendrier',
+                actionSubtitle:
                     'Ajoute tous les cours de la journée au calendrier',
-                  icon: {
-                    type: 'IMAGE_SYSTEM',
-                    imageValue: {
-                      systemName: 'calendar.badge.plus',
-                    },
+                icon: {
+                  type: 'IMAGE_SYSTEM',
+                  imageValue: {
+                    systemName: 'calendar.badge.plus',
                   },
                 },
-              ],
-            }}
-            onPressMenuItem={({ nativeEvent }) => {
-              if (nativeEvent.actionKey === 'addtoCalendar') {
-                addToCalendar(cours[calendarDate.toLocaleDateString()]);
-              } else if (nativeEvent.actionKey === 'notifyAll') {
-                notifyAll(cours[calendarDate.toLocaleDateString()]);
+              },
+            ],
+          }}
+          onPressMenuItem={({ nativeEvent }) => {
+            if (nativeEvent.actionKey === 'addtoCalendar') {
+              addToCalendar(cours[calendarDate.toLocaleDateString()]);
+            } else if (nativeEvent.actionKey === 'notifyAll') {
+              notifyAll(cours[calendarDate.toLocaleDateString()]);
+            }
+          }}
+        >
+          <TouchableOpacity
+            style={[
+              styles.calendarDateContainer,
+              {
+                backgroundColor: '#0065A8' + '20',
               }
-            }}
+            ]}
+            onPress={() => setCalendarModalOpen(true)}
           >
-            <TouchableOpacity
-              style={[
-                styles.calendarDateContainer,
-                {
-                  backgroundColor: "#0065A8" + "20",
-                }
-              ]}
-              onPress={() => setCalendarModalOpen(true)}
-            >
-              <CalendarPapillonIcon stroke={"#0065A8"} />
-              <Text style={[styles.calendarDateText, {color: "#0065A8"}]}>
-                {new Date(calendarDate).toLocaleDateString('fr', {
-                  weekday: 'short',
-                  day: '2-digit',
-                  month: 'short',
-                })}
-              </Text>
-            </TouchableOpacity>
+            <CalendarPapillonIcon stroke={'#0065A8'} />
+            <Text style={[styles.calendarDateText, {color: '#0065A8'}]}>
+              {new Date(calendarDate).toLocaleDateString('fr', {
+                weekday: 'short',
+                day: '2-digit',
+                month: 'short',
+              })}
+            </Text>
+          </TouchableOpacity>
         </ContextMenuView>
       ,
     });
@@ -485,7 +492,7 @@ Statut : ${cours.status || 'Aucun'}
                     backgroundColor: UIColors.dark ? '#00000066' : '#ffffff12',
                   }
                 ]}>
-                  <CalendarDays size={24} color={"#ffffff"} style={styles.modalTipIcon}/>
+                  <CalendarDays size={24} color={'#ffffff'} style={styles.modalTipIcon}/>
                   <View style={styles.modalTipData}>
                     <NativeText heading="subtitle3" style={{color: '#ffffff'}}>
                       Astuce
@@ -507,7 +514,7 @@ Statut : ${cours.status || 'Aucun'}
             </Animated.View>
 
             <TouchableOpacity style={styles.modalCloseButton} onPress={() => setCalendarModalOpen(false)}>
-                <X size={24} color={"#ffffff"} style={styles.modalCloseIcon}/>
+              <X size={24} color={'#ffffff'} style={styles.modalCloseIcon}/>
             </TouchableOpacity>
 
             <Animated.View 
@@ -536,7 +543,7 @@ Statut : ${cours.status || 'Aucun'}
                 style={[
                   styles.calendarModalView,
                   {
-                    backgroundColor: !UIColors.dark ? UIColors.background + "ff" : UIColors.background + "aa",
+                    backgroundColor: !UIColors.dark ? UIColors.background + 'ff' : UIColors.background + 'aa',
                   },
                 ]}
               >
@@ -814,6 +821,30 @@ const CoursItem = React.memo(({ cours, theme, CoursPressed, navigation }) => {
                 <Text style={[styles.coursProf]}>Aucun professeur</Text>
               )}
 
+              <View style={[styles.coursIcons]}>
+                {cours.memo && (
+                  <TextSelect
+                    size={21}
+                    color={UIColors.text}
+                    strokeWidth={2.2}
+                  />
+                )}
+                {cours.is_test && (
+                  <BookOpenCheck
+                    size={21}
+                    color={UIColors.text}
+                    strokeWidth={2.2}
+                  />
+                )}
+                {cours.content.files && cours.content.files.length > 0 && (
+                  <Paperclip
+                    size={21}
+                    color={UIColors.text}
+                    strokeWidth={2.2}
+                  />
+                )}
+              </View>
+
               {cours.status && (
                 <View
                   style={[
@@ -897,7 +928,7 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
         <PapillonLoading
           icon={<IconCalendar size={26} color={UIColors.text} />}
           title="Aucun cours"
-          subtitle="Vous n'avez aucun cours aujourd'hui"
+          subtitle="Vous n'avez aucun cours ce jour"
           style={{ marginTop: 36 }}
         />
       ) : null}
@@ -907,35 +938,35 @@ function CoursPage({ cours, navigation, theme, forceRefresh }) {
           {/* si le cours précédent était il y a + de 30 min du cours actuel */}
           {index !== 0 &&
           new Date(_cours.start) - new Date(cours[index - 1].end) > 1800000 ? (
-            <View style={styles.coursSeparator}>
-              <View
-                style={[
-                  styles.coursSeparatorLine,
-                  { backgroundColor: `${UIColors.text}15` },
-                ]}
-              />
+              <View style={styles.coursSeparator}>
+                <View
+                  style={[
+                    styles.coursSeparatorLine,
+                    { backgroundColor: `${UIColors.text}15` },
+                  ]}
+                />
 
-              <Text style={{ color: `${UIColors.text}30` }}>
-                {`${Math.floor(
-                  (new Date(_cours.start) - new Date(cours[index - 1].end)) /
+                <Text style={{ color: `${UIColors.text}30` }}>
+                  {`${Math.floor(
+                    (new Date(_cours.start) - new Date(cours[index - 1].end)) /
                     3600000
-                )} h ${lz(
-                  Math.floor(
-                    ((new Date(_cours.start) - new Date(cours[index - 1].end)) %
+                  )} h ${lz(
+                    Math.floor(
+                      ((new Date(_cours.start) - new Date(cours[index - 1].end)) %
                       3600000) /
                       60000
-                  )
-                )} min`}
-              </Text>
+                    )
+                  )} min`}
+                </Text>
 
-              <View
-                style={[
-                  styles.coursSeparatorLine,
-                  { backgroundColor: `${UIColors.text}15` },
-                ]}
-              />
-            </View>
-          ) : null}
+                <View
+                  style={[
+                    styles.coursSeparatorLine,
+                    { backgroundColor: `${UIColors.text}15` },
+                  ]}
+                />
+              </View>
+            ) : null}
 
           <CoursItem
             key={index}
@@ -1184,6 +1215,15 @@ const styles = StyleSheet.create({
   modalTipData: {
     flex: 1,
     paddingRight: 16,
+  },
+
+  coursIcons: {
+    position: 'absolute',
+    right: 16,
+    bottom: 15,
+    flexDirection: 'row',
+    gap: 12,
+    opacity: 0.5,
   }
 });
 

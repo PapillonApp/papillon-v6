@@ -26,8 +26,9 @@ import ListItem from '../../components/ListItem';
 
 import getConsts from '../../fetch/consts';
 import packageJson from '../../package.json';
-import donors from './Donateurs.json';
 import team from './Team.json';
+
+import KofiSupporters from './KofiSupporters.json';
 
 import { getInfo } from '../../fetch/AuthStack/LoginFlow';
 import GetUIColors from '../../utils/GetUIColors';
@@ -78,7 +79,6 @@ function AboutScreen({ navigation }) {
     'vincelinise.com',
   ];
 
-  // eslint-disable-next-line no-unused-vars
   let knownServer = '';
   const [isKnownServer, setIsKnownServer] = useState(false);
   const [serverTag, setServerTag] = useState('Serveur non vérifié');
@@ -120,6 +120,29 @@ function AboutScreen({ navigation }) {
         server: serverInfo.server,
       });
     }
+  }
+
+  function formatDate(date) {
+    let s = date.split(' ');
+    let d = s[0].split('-');
+    let t = s[1].split(':');
+    const month = [
+      'janvier',
+      'février',
+      'mars',
+      'avril',
+      'mai',
+      'juin',
+      'juillet',
+      'août',
+      'septembre',
+      'octobre',
+      'novembre',
+      'décembre',
+    ];
+    return `${d[2].startsWith('0') ? d[2].replace('0', '') : d[2]} ${
+      month[parseInt(d[1]) - 1]
+    } ${d[0]} à ${t[0]}h${t[1]} (UTC-0)`;
   }
 
   return (
@@ -194,6 +217,77 @@ function AboutScreen({ navigation }) {
           </NativeItem>
         </NativeList>
 
+        <NativeList 
+          inset
+          header="Communauté"
+        >
+          <NativeItem
+            onPress={() => navigation.navigate('Donors')}
+            chevron
+            leading={
+              <PapillonIcon
+                icon={<Euro size={24} color="#bf941d" />}
+                color="#bf941d"
+                size={24}
+                small
+              />
+            }
+          >
+            <NativeText heading="h4">
+              Donateurs
+            </NativeText>
+            <NativeText heading="p2">
+              Voir la liste des donateurs
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={
+              <PapillonIcon
+                icon={<MessageCircle size={24} color="#565EA3" />}
+                color="#565EA3"
+                size={24}
+                small
+              />
+            }
+            chevron
+            onPress={() => Linking.openURL('https://discord.getpapillon.xyz/')}
+          >
+            <NativeText heading="h4">
+              Serveur Discord
+            </NativeText>
+            <NativeText heading="p2">
+              Rejoindre le serveur de Papillon
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+
+        { Platform.OS !== 'ios' ? (
+          <NativeList>
+            <NativeItem
+              leading={
+                <PapillonIcon
+                  icon={<Euro size={24} color="#c9a710" />}
+                  color="#c9a710"
+                  size={24}
+                  small
+                />
+              }
+              chevron
+              onPress={() => Linking.openURL('https://ko-fi.com/thepapillonapp')}
+            >
+              <NativeText heading="h4">
+                Donner 1€ (2 cafés) à l'équipe
+              </NativeText>
+              <NativeText heading="p2">
+                Votre don permet de financer les serveurs et le développement.
+              </NativeText>
+              <NativeText heading="subtitle2">
+                Papillon est 100% libre et indépendant & créé par des élèves.
+              </NativeText>
+            </NativeItem>
+          </NativeList>
+        ) : <View /> }
+
         <NativeList
           inset
           header="Équipe Papillon"
@@ -218,57 +312,6 @@ function AboutScreen({ navigation }) {
               </NativeText>
             </NativeItem>
           ))}
-        </NativeList>
-
-        <NativeList
-          inset
-          header={"Donateurs (au " + new Date(donors.lastupdated).toLocaleDateString('fr', { dateStyle: 'medium' }) + ")"}
-        >
-          {donors.donors.map((item, index) => (
-            <NativeItem
-              key={index}
-              leading={
-                <PapillonIcon
-                  icon={<Euro size={24} color="#565EA3" />}
-                  color="#565EA3"
-                  size={24}
-                  small
-                />
-              }
-            >
-              <NativeText heading="h4">
-                {item.name}
-              </NativeText>
-              <NativeText heading="p2">
-                à donné {item.times} fois
-              </NativeText>
-            </NativeItem>
-          ))}
-        </NativeList>
-
-        <NativeList 
-          inset
-          header="Communauté"
-        >
-          <NativeItem
-            leading={
-              <PapillonIcon
-                icon={<MessageCircle size={24} color="#565EA3" />}
-                color="#565EA3"
-                size={24}
-                small
-              />
-            }
-            chevron
-            onPress={() => Linking.openURL('https://discord.getpapillon.xyz/')}
-          >
-            <NativeText heading="h4">
-              Serveur Discord
-            </NativeText>
-            <NativeText heading="p2">
-              Rejoindre le serveur Discord de Papillon
-            </NativeText>
-          </NativeItem>
         </NativeList>
 
         <NativeList

@@ -1,21 +1,21 @@
-import React, {useState, useEffect} from "react";
-import {View, StyleSheet, TouchableOpacity, Image, ScrollView, ActivityIndicator, Alert, StatusBar, RefreshControl} from "react-native";
+import React, {useState, useEffect} from 'react';
+import {View, StyleSheet, TouchableOpacity, Image, ScrollView, ActivityIndicator, Alert, StatusBar, RefreshControl} from 'react-native';
 
-import {Text, useTheme} from "react-native-paper";
+import {Text, useTheme} from 'react-native-paper';
 
-import { PressableScale } from "react-native-pressable-scale";
+import { PressableScale } from 'react-native-pressable-scale';
 
-import GetUIColors from "../../utils/GetUIColors";
+import GetUIColors from '../../utils/GetUIColors';
 
-import { getSavedCourseColor } from "../../utils/ColorCoursName";
-import formatCoursName from "../../utils/FormatCoursName";
-import { MapPin, UserCircle2 } from "lucide-react-native";
+import { getSavedCourseColor } from '../../utils/ColorCoursName';
+import formatCoursName from '../../utils/FormatCoursName';
+import { MapPin, UserCircle2 } from 'lucide-react-native';
 
 function lz(num) {
   return (num < 10 ? '0' : '') + num;
 }
 
-const NextCours = ({ cours, style, navigation }) => {
+const NextCours = ({ cours, style, navigation, color = null }) => {
   const UIColors = GetUIColors();
 
   const [nxid, setNxid] = useState(0);
@@ -30,65 +30,65 @@ const NextCours = ({ cours, style, navigation }) => {
   function updateNext() {
     if(!cours || !cours[nxid]) return;
 
-      st = new Date(cours[nxid].start);
-      en = new Date(cours[nxid].end);
+    let st = new Date(cours[nxid].start);
+    let en = new Date(cours[nxid].end);
 
-      hb = new Date(cours[nxid].start); // hour before
-      hb.setHours(hb.getHours() - 1);
+    let hb = new Date(cours[nxid].start); // hour before
+    hb.setHours(hb.getHours() - 1);
 
-      now = new Date();
+    let now = new Date();
 
-      // if the cours is in the next hour
-      if (hb < new Date(now) && st > new Date(now)) {
-        setCoursStarted(false);
+    // if the cours is in the next hour
+    if (hb < new Date(now) && st > new Date(now)) {
+      setCoursStarted(false);
         
-        // calculate the time between now and the start
-        diff = new Date(now) - st;
-        diff = Math.floor(diff / 1000 / 60);
-        setLenText('dans ' + Math.abs(diff) + ' min');
+      // calculate the time between now and the start
+      let diff = new Date(now) - st;
+      diff = Math.floor(diff / 1000 / 60);
+      setLenText('dans ' + Math.abs(diff) + ' min');
 
-        // calculate the progression
-        var q = Math.abs(now-hb);
-        var d = Math.abs(st-hb);
-        diff = q / d * 100;
-        setBarPercent(diff);
+      // calculate the progression
+      let q = Math.abs(now-hb);
+      let d = Math.abs(st-hb);
+      diff = q / d * 100;
+      setBarPercent(diff);
+    }
+    // if the cours is in progress
+    else if (st < new Date(now) && en > new Date(now)) {
+      setCoursStarted(true);
+
+      // calculate the time between now and the end
+      let diff = en - new Date(now);
+      diff = Math.floor(diff / 1000 / 60);
+
+      if(diff == 0) {
+        diff = 'moins d\'une';
       }
-      // if the cours is in progress
-      else if (st < new Date(now) && en > new Date(now)) {
-        setCoursStarted(true);
 
-        // calculate the time between now and the end
-        diff = en - new Date(now);
-        diff = Math.floor(diff / 1000 / 60);
+      setLenText(diff + ' min rest.');
 
-        if(diff == 0) {
-          diff = 'moins d\'une';
-        }
-
-        setLenText(diff + ' min rest.');
-
-        // calculate the progression between the start and the end
-        var q = Math.abs(now-st);
-        var d = Math.abs(en-st);
-        diff = q / d * 100;
-        setBarPercent(diff);
-      }
-      // if the cours has not started yet
-      else if (st > new Date(now)) {
-        setCoursStarted(false);
+      // calculate the progression between the start and the end
+      let q = Math.abs(now-st);
+      let d = Math.abs(en-st);
+      diff = q / d * 100;
+      setBarPercent(diff);
+    }
+    // if the cours has not started yet
+    else if (st > new Date(now)) {
+      setCoursStarted(false);
         
-        // calculate the time between now and the start
-        diff = new Date(now) - st;
-        diff = Math.floor(diff / 1000 / 60);
+      // calculate the time between now and the start
+      let diff = st - new Date(now);
+      diff = Math.floor(diff / 1000 / 60);
 
-        let hours = Math.floor(diff / 60);
-        let minutes = diff % 60;
+      let hours = Math.floor(diff / 60);
+      let minutes = diff % 60;
 
-        setLenText('dans ' + Math.abs(hours) + 'h ' + lz(Math.abs(minutes)) + 'min');
+      setLenText('dans ' + Math.abs(hours) + 'h ' + lz(Math.abs(minutes)) + 'min');
 
-        // calculate the progression
-        setBarPercent(0);
-      }
+      // calculate the progression
+      setBarPercent(0);
+    }
   }
 
   // check which cours is next
@@ -187,7 +187,7 @@ const NextCours = ({ cours, style, navigation }) => {
     <PressableScale
       style={[
         styles.container,
-        { backgroundColor: getSavedCourseColor(cours[nxid].subject.name, cours[nxid].background_color) },
+        { backgroundColor: color !== null ? color : getSavedCourseColor(cours[nxid].subject.name, cours[nxid].background_color) },
         style
       ]}
       onPress={() => {
@@ -232,7 +232,7 @@ const NextCours = ({ cours, style, navigation }) => {
         <View style={[styles.details.container]}>
           { cours[nxid].rooms && cours[nxid].rooms.length > 0 && (
             <View style={[styles.details.item]}>
-              <MapPin size={20} color={"#ffffff"} style={[styles.details.icon]} />
+              <MapPin size={20} color={'#ffffff'} style={[styles.details.icon]} />
               <Text style={[styles.details.text]} numberOfLines={1}>
                 { cours[nxid].rooms[0] }
               </Text>
@@ -245,7 +245,7 @@ const NextCours = ({ cours, style, navigation }) => {
 
           { cours[nxid].teachers && cours[nxid].teachers.length > 0 && (
             <View style={[styles.details.item]}>
-              <UserCircle2 size={20} color={"#ffffff"} style={[styles.details.icon]} />
+              <UserCircle2 size={20} color={'#ffffff'} style={[styles.details.icon]} />
               <Text style={[styles.details.text]} numberOfLines={1}>
                 { cours[nxid].teachers[0] }
               </Text>
@@ -254,7 +254,7 @@ const NextCours = ({ cours, style, navigation }) => {
         </View>
       </View>
     </PressableScale>
-  )
+  );
 };
 
 const styles = StyleSheet.create({

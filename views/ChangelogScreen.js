@@ -1,4 +1,3 @@
-/* eslint-disable global-require */
 import React from 'react';
 import {
   StyleSheet,
@@ -7,6 +6,7 @@ import {
   StatusBar,
   Platform,
   Image,
+  Linking
 } from 'react-native';
 
 import { Calendar, BarChart3, Palette, Bug } from 'lucide-react-native';
@@ -22,8 +22,8 @@ function ChangelogScreen() {
 
   const features = [
     {
-      title: "Améliorations de l'interface iOS",
-      subtitle: "Des légers changements d'interface sont apparus.",
+      title: 'Améliorations de l\'interface iOS',
+      subtitle: 'Des légers changements d\'interface sont apparus.',
       icon: <Palette size={24} color={UIColors.text} />,
     },
   ];
@@ -32,7 +32,7 @@ function ChangelogScreen() {
     {
       title: 'Cours annulés / changements de salle',
       subtitle:
-        "Les changements de salle n'apparaîteront VRAIMENT plus comme des cours annulés.",
+        'Les changements de salle n\'apparaîteront VRAIMENT plus comme des cours annulés.',
       icon: <Bug size={24} color={UIColors.text} />,
     },
     {

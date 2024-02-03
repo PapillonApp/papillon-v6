@@ -2,6 +2,7 @@
 
 import { LogBox } from 'react-native';
 
+// eslint-disable-next-line no-undef
 if (__DEV__) {
   const ignoreWarns = [
     'EventEmitter.removeListener',
@@ -9,7 +10,7 @@ if (__DEV__) {
     'Setting a timer for a long period of time',
     'ViewPropTypes will be removed from React Native',
     'AsyncStorage has been extracted from react-native',
-    "exported from 'deprecated-react-native-prop-types'.",
+    'exported from \'deprecated-react-native-prop-types\'.',
     'Non-serializable values were found in the navigation state.',
     'VirtualizedLists should never be nested inside plain ScrollViews',
     'Modal with \'pageSheet\' presentation style and \'transparent\' value is not supported.',

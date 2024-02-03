@@ -9,17 +9,19 @@ import NativeText from '../../components/NativeText';
 
 import GetUIColors from '../../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Plus, PlusCircle } from 'lucide-react-native';
+import { Plus, Trash2 } from 'lucide-react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { get } from 'sync-storage';
+import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
 const GradesSimulatorMenu = ({ navigation }) => {
   const UIColors = GetUIColors();
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
 
   const [grades, setGrades] = useState([]);
+
+  const [gradeAlert, setGradeAlert] = useState(false);
+  const [selectedGrade, setSelectedGrade] = useState({'date': null, 'description': 'Note simulée', 'grade': {'average': null, 'coefficient': null, 'max': null, 'min': null, 'out_of': null, 'significant': 0, 'value': null}, 'id': '', 'is_bonus': false, 'is_optional': false, 'is_out_of_20': false, 'subject': {'groups': false, 'id': '', 'name': ''}});
 
   // when transition ends refresh
   useEffect(() => {
@@ -37,7 +39,7 @@ const GradesSimulatorMenu = ({ navigation }) => {
         setGrades(val);
       }
     });
-  }
+  };
 
   useEffect(() => {
     getGrades();
@@ -63,33 +65,18 @@ const GradesSimulatorMenu = ({ navigation }) => {
     });
   }, []);
 
-  const openGrade = (grade) => {
-    Alert.alert(
-      grade.subject.name,
-      "Que voulez-vous faire ?",
-      [
-        {
-          text: "Supprimer",
-          onPress: () => {
-            AsyncStorage.getItem('custom-grades').then((value) => {
-              if (value !== null) {
-                let val = JSON.parse(value);
-                let index = val.findIndex((item) => item.id === grade.id);
-                val.splice(index, 1);
-                AsyncStorage.setItem('custom-grades', JSON.stringify(val));
-                setGrades(val);
-              }
-            });
-          },
-          style: "destructive"
-        },
-        {
-          text: "Annuler",
-          style: "cancel"
-        },
-      ],
-      { cancelable: true }
-    );
+  const delGrade = (grade) => {
+    console.log(grade);
+    AsyncStorage.getItem('custom-grades').then((value) => {
+      if (value !== null) {
+        let val = JSON.parse(value);
+        let index = val.findIndex((item) => item.id === grade.id);
+        val.splice(index, 1);
+        AsyncStorage.setItem('custom-grades', JSON.stringify(val));
+        setGrades(val);
+      }
+    });
+
   };
 
   return (
@@ -97,6 +84,7 @@ const GradesSimulatorMenu = ({ navigation }) => {
       contentInsetAdjustmentBehavior='automatic'
       style={{ backgroundColor: UIColors.modalBackground }}
     >
+
       { Platform.OS === 'ios' ? <StatusBar barStyle='light-content' /> : <StatusBar barStyle={theme.dark ? 'light-content' : 'dark-content'} /> }
 
       {grades.length === 0 && (
@@ -121,7 +109,10 @@ const GradesSimulatorMenu = ({ navigation }) => {
                 </NativeText>
               </View>
             }
-            onPress={() => openGrade(item) }
+            onPress={() => {
+              setSelectedGrade(item);
+              setGradeAlert(true);
+            }}
           >
             <NativeText heading="h4">
               {item.subject.name}
@@ -130,11 +121,23 @@ const GradesSimulatorMenu = ({ navigation }) => {
               {new Date(item.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </NativeText>
           </NativeItem>
+          
         ))}
       </NativeList>
 
+      <AlertBottomSheet
+        visible={gradeAlert}
+        title={selectedGrade.subject.name}
+        subtitle="Voulez-vous supprimer cette note ?"
+        primaryButton='Supprimer'
+        primaryAction={() => {delGrade(selectedGrade); setGradeAlert(false);}}
+        cancelAction={() => setGradeAlert(false)}
+        color='#D81313'
+        icon={<Trash2 />}
+      />
+
     </ScrollView>
-  )
+  );
 };
 
 const styles = StyleSheet.create({

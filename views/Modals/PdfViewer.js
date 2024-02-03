@@ -39,7 +39,7 @@ const PdfViewer = ({ route, navigation }) => {
         source={url}
       />
     </View>
-  )
+  );
 };
 
 const styles = StyleSheet.create({

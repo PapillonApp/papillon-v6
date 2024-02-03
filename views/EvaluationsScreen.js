@@ -171,7 +171,6 @@ function EvaluationsScreen({ navigation }) {
 
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
-  // eslint-disable-next-line no-unused-vars
   const onRefresh = React.useCallback(() => {
     setRefreshCount(refreshCount + 1);
   }, []);
@@ -221,110 +220,110 @@ function EvaluationsScreen({ navigation }) {
 
       {evaluations.length > 0
         ? evaluations.map((subject, index) => (
-            <View
-              key={index}
+          <View
+            key={index}
+            style={[
+              styles.subjectContainer,
+              { backgroundColor: UIColors.element },
+            ]}
+          >
+            <Pressable
               style={[
-                styles.subjectContainer,
-                { backgroundColor: UIColors.element },
+                styles.subjectNameContainer,
+                { backgroundColor: getSavedCourseColor(subject.subject.name, UIColors.primary) },
               ]}
             >
-              <Pressable
-                style={[
-                  styles.subjectNameContainer,
-                  { backgroundColor: getSavedCourseColor(subject.subject.name, UIColors.primary) },
-                ]}
-              >
-                <Text style={[styles.subjectName]}>
-                  {formatCoursName(subject.subject.name)}
-                </Text>
-              </Pressable>
-              <View style={[styles.competencesList]}>
-                {subject.evals.map((evaluation, id) => (
-                  <View
-                    key={id}
-                    style={[
-                      styles.competenceContainer,
-                      {
-                        borderColor: theme.dark ? '#ffffff20' : '#00000015',
-                        borderBottomWidth:
+              <Text style={[styles.subjectName]}>
+                {formatCoursName(subject.subject.name)}
+              </Text>
+            </Pressable>
+            <View style={[styles.competencesList]}>
+              {subject.evals.map((evaluation, id) => (
+                <View
+                  key={id}
+                  style={[
+                    styles.competenceContainer,
+                    {
+                      borderColor: theme.dark ? '#ffffff20' : '#00000015',
+                      borderBottomWidth:
                           id !== subject.evals.length - 1 ? 1 : 0,
-                      },
-                    ]}
-                  >
-                    <PressableScale style={[styles.competence]}>
-                      <View style={styles.competenceEmojiContainer}>
-                        <Text style={[styles.competenceEmoji]}>
-                          {getClosestGradeEmoji(evaluation.subject.name)}
-                        </Text>
-                      </View>
-                      <View style={styles.competenceNameContainer}>
-                        <Text style={[styles.competenceName]}>
-                          {formatCoursName(evaluation.name)}
-                        </Text>
-                        <Text style={[styles.competenceDate]}>
-                          {new Date(evaluation.date).toLocaleDateString('fr', {
-                            weekday: 'long',
-                            day: '2-digit',
-                            month: 'short',
-                          })}
-                        </Text>
-                      </View>
-                      <View style={styles.competenceGradeContainer}>
-                        {evaluation.acquisitions
-                          .slice(0, 3)
-                          .map((acquisition, i) => {
-                            const abbreviationColors = {
-                              A: '#1C7B64',
-                              'A+': '#1C7B64',
-                              B: UIColors.primary,
-                              C: '#A84700',
-                              D: '#B42828',
-                              1: '#1C7B64',
-                              2: UIColors.primary,
-                              3: '#A84700',
-                              4: '#B42828',
-                            };
+                    },
+                  ]}
+                >
+                  <PressableScale style={[styles.competence]}>
+                    <View style={styles.competenceEmojiContainer}>
+                      <Text style={[styles.competenceEmoji]}>
+                        {getClosestGradeEmoji(evaluation.subject.name)}
+                      </Text>
+                    </View>
+                    <View style={styles.competenceNameContainer}>
+                      <Text style={[styles.competenceName]}>
+                        {formatCoursName(evaluation.name)}
+                      </Text>
+                      <Text style={[styles.competenceDate]}>
+                        {new Date(evaluation.date).toLocaleDateString('fr', {
+                          weekday: 'long',
+                          day: '2-digit',
+                          month: 'short',
+                        })}
+                      </Text>
+                    </View>
+                    <View style={styles.competenceGradeContainer}>
+                      {evaluation.acquisitions
+                        .slice(0, 3)
+                        .map((acquisition, i) => {
+                          const abbreviationColors = {
+                            A: '#1C7B64',
+                            'A+': '#1C7B64',
+                            B: UIColors.primary,
+                            C: '#A84700',
+                            D: '#B42828',
+                            1: '#1C7B64',
+                            2: UIColors.primary,
+                            3: '#A84700',
+                            4: '#B42828',
+                          };
 
-                            let text = acquisition.abbreviation;
-                            if (acquisition.abbreviation === 'A+') text = '+';
+                          let text = acquisition.abbreviation;
+                          if (acquisition.abbreviation === 'A+') text = '+';
 
-                            return (
-                              <View
-                                style={[
-                                  styles.competenceGrade,
-                                  {
-                                    backgroundColor:
+                          return (
+                            <View
+                              style={[
+                                styles.competenceGrade,
+                                {
+                                  backgroundColor:
                                       abbreviationColors[
                                         acquisition.abbreviation
                                       ],
-                                  },
-                                ]}
-                                key={i}
-                              >
-                                <Text style={styles.competenceGradeText}>
-                                  {text}
-                                </Text>
-                              </View>
-                            );
-                          })}
+                                },
+                              ]}
+                              key={i}
+                            >
+                              <Text style={styles.competenceGradeText}>
+                                {text}
+                              </Text>
+                            </View>
+                          );
+                        })}
 
-                        {evaluation.acquisitions.length > 3 ? (
-                          <View
-                            style={[
-                              styles.competenceGrade,
-                              { backgroundColor: '#888' },
-                            ]}
-                          >
-                            <Text style={styles.competenceGradeText}>...</Text>
-                          </View>
-                        ) : null}
-                      </View>
-                    </PressableScale>
-                  </View>
-                ))}
-              </View>
+                      {evaluation.acquisitions.length > 3 ? (
+                        <View
+                          style={[
+                            styles.competenceGrade,
+                            { backgroundColor: '#888' },
+                          ]}
+                        >
+                          <Text style={styles.competenceGradeText}>...</Text>
+                        </View>
+                      ) : null}
+                    </View>
+                  </PressableScale>
+                </View>
+              ))}
             </View>
-          ))
+          </View>
+        ))
         : null}
 
       <View style={{ height: 20 }} />

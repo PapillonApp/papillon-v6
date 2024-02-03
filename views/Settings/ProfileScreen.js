@@ -20,12 +20,15 @@ import {
 } from 'react-native-paper';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
 
 import { ContextMenuButton } from 'react-native-ios-context-menu';
 import * as Clipboard from 'expo-clipboard';
 
 import * as ImagePicker from 'expo-image-picker';
 import * as LocalAuthentication from 'expo-local-authentication';
+
+import { BlurView } from 'expo-blur';
 
 import { useEffect } from 'react';
 
@@ -37,7 +40,6 @@ import {
   Trash2,
   Contact2,
   Lock,
-  LogOut,
   UserCircle2,
 } from 'lucide-react-native';
 
@@ -50,6 +52,9 @@ import { useAppContext } from '../../utils/AppContext';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
+import { LinearGradient } from 'expo-linear-gradient';
+
+import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
 function ProfileScreen({ route, navigation }) {
   const theme = useTheme();
@@ -60,6 +65,8 @@ function ProfileScreen({ route, navigation }) {
   const [profilePicture, setProfilePicture] = React.useState('');
 
   const [shownINE, setShownINE] = React.useState('');
+
+  const [ResetProfilePicAlert, setResetProfilePicAlert] = React.useState(false);
 
   const appctx = useAppContext();
 
@@ -73,40 +80,6 @@ function ProfileScreen({ route, navigation }) {
       }
     });
   }, []);
-
-  function LogOutAction() {
-    Alert.alert('Déconnexion', 'Êtes-vous sûr de vouloir vous déconnecter ?', [
-      {
-        text: 'Annuler',
-        style: 'cancel',
-      },
-      {
-        text: 'Déconnexion',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            AsyncStorage.getItem('credentials').then((result) => {
-              const res = JSON.parse(result || 'null');
-              if (res)
-                AsyncStorage.setItem(
-                  'old_login',
-                  JSON.stringify({ url: res.url })
-                );
-            });
-            if (appctx.dataprovider.service === 'Skolengo')
-              appctx.dataprovider.skolengoInstance?.skolengoDisconnect();
-          } catch (e) {
-            /* empty */
-          }
-
-          AsyncStorage.clear();
-
-          appctx.setLoggedIn(false);
-          navigation.popToTop();
-        },
-      },
-    ]);
-  }
 
   async function getINE() {
     if (shownINE === '') {
@@ -139,41 +112,20 @@ function ProfileScreen({ route, navigation }) {
     });
 
     if (!result.canceled) {
-      AsyncStorage.getItem('old_profile_picture').then((res) => {
-        if (res === null || res === '') {
-          if (
-            userData.profile_picture !== null &&
-            userData.profile_picture !== ''
-          ) {
-            AsyncStorage.setItem(
-              'old_profile_picture',
-              userData.profile_picture
-            );
-          } else {
-            AsyncStorage.setItem('old_profile_picture', '');
-          }
-        }
-      });
+      let uri = result.assets[0].uri;
 
-      setProfilePicture(result.assets[0].uri);
-      AsyncStorage.setItem('custom_profile_picture', result.assets[0].uri);
+      FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      }).then((base64) => {
+        AsyncStorage.setItem('custom_profile_picture', 'data:image/png;base64,' + base64);
+        setProfilePicture('data:image/png;base64,' + base64);
+      });
     }
   }
 
   function ResetProfilePic() {
-    Alert.alert(
-      'Réinitialiser la photo de profil',
-      'Êtes-vous sûr de vouloir réinitialiser la photo de profil ?',
-      [
-        {
-          text: 'Réinitialiser',
-          isPreferred: true,
-          onPress: () => FullResetProfilePic(),
-          style: 'destructive',
-        },
-        { text: 'Annuler', style: 'cancel' },
-      ]
-    );
+    setResetProfilePicAlert(true);
+    return;
   }
 
   function FullResetProfilePic() {
@@ -217,7 +169,7 @@ function ProfileScreen({ route, navigation }) {
     if (Platform.OS === 'ios') {
       Alert.prompt(
         'Modifier le nom utilisé',
-        "Utilisez un prénom ou un pseudonyme différent dans l'app Papillon",
+        'Utilisez un prénom ou un pseudonyme différent dans l\'app Papillon',
         [
           {
             text: 'Modifier',
@@ -273,172 +225,204 @@ function ProfileScreen({ route, navigation }) {
   }, []);
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
-    >
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated barStyle="light-content" />
-      ) : (
-        <StatusBar
-          animated
-          barStyle={theme.dark ? 'light-content' : 'dark-content'}
-          backgroundColor="transparent"
-        />
-      )}
-
-      <Portal>
-        <Dialog
-          style={{ bottom }}
-          visible={androidNamePromptVisible}
-          onDismiss={() => setAndroidNamePromptVisible(false)}
-        >
-          <Dialog.Title>Modifier le nom utilisé</Dialog.Title>
-          <Dialog.Content>
-            <TextInput
-              label="Entrez un prénom ou un pseudonyme"
-              value={androidNamePrompt}
-              onChangeText={(text) => setAndroidNamePrompt(text)}
-            />
-          </Dialog.Content>
-          <Dialog.Actions>
-            <PaperButton onPress={() => setAndroidNamePromptVisible(false)}>
-              Annuler
-            </PaperButton>
-            <PaperButton
-              onPress={() => {
-                ResetName();
-                setAndroidNamePromptVisible(false);
-              }}
-            >
-              Réinitialiser
-            </PaperButton>
-            <PaperButton
-              onPress={() => {
-                ModifyName(androidNamePrompt);
-                setAndroidNamePromptVisible(false);
-              }}
-            >
-              Modifier
-            </PaperButton>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-
-      <View style={styles.profileContainer}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.profilePictureContainer,
-            { opacity: pressed ? 0.6 : 1 },
-          ]}
-          onPress={() => EditProfilePicture()}
-        >
-          {profilePicture && profilePicture !== '' ? (
+    <View style={[{ backgroundColor: UIColors.modalBackground, flex: 1 }]}>
+      { Platform.OS === 'ios' && (
+        <View style={styles.profilePictureBgContainer}>
+          {profilePicture && profilePicture !== '' && (
             <Image
-              style={styles.profilePicture}
+              style={styles.profilePictureBg}
               source={{ uri: profilePicture }}
             />
-          ) : (
-            <UserCircle2
-              size={86}
-              color={theme.dark ? '#fff' : '#000'}
-              style={styles.profilePicture}
-            />
           )}
-
-          <View style={[styles.profilePictureEdit]}>
-            <Pencil size={18} color="#fff" />
-          </View>
-        </Pressable>
-
-        <Text style={styles.name}>{userData?.name}</Text>
-        {[userData.class, userData.establishment].filter((e) => e).length >
-          0 && (
-          <Text style={styles.userData}>
-            {[userData.class, userData.establishment]
-              .filter((e) => e)
-              .join(' - ')}
-          </Text>
+          <BlurView
+            intensity={100}
+            style={styles.profilePictureBgOverlay}
+          />
+          <LinearGradient
+            colors={['#00000000', UIColors.modalBackground]}
+            style={styles.profilePictureGradientOverlay}
+          />
+        </View>
+      )}
+      <ScrollView
+        style={[styles.container]}
+      >
+        {Platform.OS === 'ios' ? (
+          <StatusBar animated barStyle="light-content" />
+        ) : (
+          <StatusBar
+            animated
+            barStyle={theme.dark ? 'light-content' : 'dark-content'}
+            backgroundColor="transparent"
+          />
         )}
-      </View>
 
-      <NativeList
-        inset
-        header="Données de contact"
-      >
-        {userData.email !== '' ? (
-          <NativeItem
-            leading={<Mail size={24} color="#565EA3" />}
+        <Portal>
+          <Dialog
+            style={{ bottom }}
+            visible={androidNamePromptVisible}
+            onDismiss={() => setAndroidNamePromptVisible(false)}
           >
-            <NativeText heading="h4">
+            <Dialog.Title>Modifier le nom utilisé</Dialog.Title>
+            <Dialog.Content>
+              <TextInput
+                label="Entrez un prénom ou un pseudonyme"
+                value={androidNamePrompt}
+                onChangeText={(text) => setAndroidNamePrompt(text)}
+              />
+            </Dialog.Content>
+            <Dialog.Actions>
+              <PaperButton onPress={() => setAndroidNamePromptVisible(false)}>
+              Annuler
+              </PaperButton>
+              <PaperButton
+                onPress={() => {
+                  ResetName();
+                  setAndroidNamePromptVisible(false);
+                }}
+              >
+              Réinitialiser
+              </PaperButton>
+              <PaperButton
+                onPress={() => {
+                  ModifyName(androidNamePrompt);
+                  setAndroidNamePromptVisible(false);
+                }}
+              >
+              Modifier
+              </PaperButton>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+
+        <View style={styles.profileContainer}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.profilePictureContainer,
+              { opacity: pressed ? 0.6 : 1 },
+            ]}
+            onPress={() => EditProfilePicture()}
+          >
+            {profilePicture && profilePicture !== '' ? (
+              <Image
+                style={styles.profilePicture}
+                source={{ uri: profilePicture }}
+              />
+            ) : (
+              <UserCircle2
+                size={86}
+                color={theme.dark ? '#fff' : '#000'}
+                style={styles.profilePicture}
+              />
+            )}
+
+            <View style={[styles.profilePictureEdit]}>
+              <Pencil size={18} color="#fff" />
+            </View>
+          </Pressable>
+
+          <Text style={styles.name}>{userData?.name}</Text>
+          {[userData.class, userData.establishment].filter((e) => e).length >
+          0 && (
+            <Text style={styles.userData}>
+              {[userData.class, userData.establishment]
+                .filter((e) => e)
+                .join(' - ')}
+            </Text>
+          )}
+        </View>
+
+        <NativeList
+          inset
+          header="Données de contact"
+        >
+          {userData.email !== '' ? (
+            <NativeItem
+              leading={<Mail size={24} color="#565EA3" />}
+            >
+              <NativeText heading="h4">
               Adresse e-mail
-            </NativeText>
-            <NativeText heading="p2">
-              {userData.email}
-            </NativeText>
-          </NativeItem>
-        ) : null}
+              </NativeText>
+              <NativeText heading="p2">
+                {userData.email}
+              </NativeText>
+            </NativeItem>
+          ) : null}
 
-        {userData.phone !== '' && userData.phone !== '+' ? (
-          <NativeItem
-            leading={<Phone size={24} color="#B9670F" />}
-          >
-            <NativeText heading="h4">
+          {userData.phone !== '' && userData.phone !== '+' ? (
+            <NativeItem
+              leading={<Phone size={24} color="#B9670F" />}
+            >
+              <NativeText heading="h4">
               Téléphone
-            </NativeText>
-            <NativeText heading="p2">
-              {userData.phone}
-            </NativeText>
-          </NativeItem>
-        ) : null}
+              </NativeText>
+              <NativeText heading="p2">
+                {userData.phone}
+              </NativeText>
+            </NativeItem>
+          ) : null}
 
-        {typeof userData?.ine === 'string' && userData?.ine?.length > 0 ? (
-          <NativeItem
-            leading={<Contact2 size={24} color="#0065A8" />}
-            onPress={() => getINE()}
-            trailing={ shownINE === '' &&
+          {typeof userData?.ine === 'string' && userData?.ine?.length > 0 ? (
+            <NativeItem
+              leading={<Contact2 size={24} color="#0065A8" />}
+              onPress={() => getINE()}
+              trailing={ shownINE === '' &&
               <Lock size={16} color={UIColors.text} style={{ opacity: 0.6 }} />
-            }
+              }
+            >
+              <NativeText heading="h4">
+              Numéro INE
+              </NativeText>
+              <NativeText heading="p2">
+                {shownINE ? shownINE : 'Appuyez pour révéler'}
+              </NativeText>
+            </NativeItem>
+          ) : null}
+        </NativeList>
+
+        <NativeList
+          inset
+          header="Options"
+        >
+          <NativeItem
+            leading={<Edit size={24} color="#29947A" />}
+            onPress={() => EditName()}
           >
             <NativeText heading="h4">
-              Numéro INE
+            Modifier le nom utilisé
             </NativeText>
             <NativeText heading="p2">
-              {shownINE ? shownINE : 'Appuyez pour révéler'}
+            Utilisez un prénom ou un pseudonyme différent dans l'app Papillon
             </NativeText>
           </NativeItem>
-        ) : null}
-      </NativeList>
 
-      <NativeList
-        inset
-        header="Options"
-      >
-        <NativeItem
-          leading={<Edit size={24} color="#29947A" />}
-          onPress={() => EditName()}
-        >
-          <NativeText heading="h4">
-            Modifier le nom utilisé
-          </NativeText>
-          <NativeText heading="p2">
-            Utilisez un prénom ou un pseudonyme différent dans l'app Papillon
-          </NativeText>
-        </NativeItem>
-
-        <NativeItem
-          leading={<Trash2 size={24} color="#c44b1b" />}
-          onPress={() => ResetProfilePic()}
-        >
-          <NativeText heading="h4">
+          <NativeItem
+            leading={<Trash2 size={24} color="#D81313" />}
+            onPress={() => ResetProfilePic()}
+          >
+            <NativeText heading="h4">
             Réinitialiser la photo de profil
-          </NativeText>
-          <NativeText heading="p2">
+            </NativeText>
+            <NativeText heading="p2">
             Utilise la photo de profil par défaut
-          </NativeText>
-        </NativeItem>
-      </NativeList>
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+
+        <AlertBottomSheet
+          visible={ResetProfilePicAlert}
+          title="Réinitialiser la photo de profil"
+          subtitle="Êtes-vous sûr de vouloir réinitialiser la photo de profil ?"
+          icon={<Trash2/>}
+          color='#D81313'
+          primaryButton='Réinitialiser'
+          primaryAction={() => FullResetProfilePic()}
+          cancelButton='Annuler'
+          cancelAction={() => setResetProfilePicAlert(false)}
+        />
       
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -499,6 +483,45 @@ const styles = StyleSheet.create({
     backgroundColor: '#B42828',
     borderRadius: 70,
     padding: 4,
+  },
+
+  profilePictureBgContainer : {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 250,
+    overflow: 'hidden',
+    zIndex: -1,
+    opacity: 0.4,
+  },
+
+  profilePictureBg: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 0,
+  },
+
+  profilePictureBgOverlay: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 5,
+  },
+
+  profilePictureGradientOverlay: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 10,
   },
 });
 

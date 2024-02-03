@@ -7,7 +7,6 @@ import {
   TextInput,
   StatusBar,
   ActivityIndicator,
-  Alert,
   Image,
   Switch,
   Dimensions
@@ -26,18 +25,20 @@ import { showMessage } from 'react-native-flash-message';
 import { useState } from 'react';
 
 import { UserCircle, KeyRound, AlertTriangle } from 'lucide-react-native';
-import { expireToken, getENTs, getInfo, getToken, refreshToken } from '../../../fetch/AuthStack/LoginFlow';
+import { getENTs, getInfo, getToken } from '../../../fetch/AuthStack/LoginFlow';
 
 import PapillonButton from '../../../components/PapillonButton';
-import GetUIColors from '../../../utils/GetUIColors';
-import { useAppContext } from '../../../utils/AppContext';
-
 import NativeList from '../../../components/NativeList';
 import NativeItem from '../../../components/NativeItem';
 import NativeText from '../../../components/NativeText';
 
-import SegmentedControl from "react-native-segmented-control-2";
-import { width } from 'deprecated-react-native-prop-types/DeprecatedImagePropType';
+import AlertBottomSheet from '../../../interface/AlertBottomSheet';
+
+import GetUIColors from '../../../utils/GetUIColors';
+import { useAppContext } from '../../../utils/AppContext';
+
+import SegmentedControl from 'react-native-segmented-control-2';
+
 
 const entities = require('entities');
 
@@ -46,12 +47,12 @@ function NGPronoteLogin({ route, navigation }) {
   const { showActionSheetWithOptions } = useActionSheet();
 
   const { etab, useDemo } = route.params;
-  // eslint-disable-next-line no-unused-vars
   const [etabName, setEtabName] = useState(etab.nomEtab);
   const [etabInfo, setEtabInfo] = useState(etab);
 
-  // eslint-disable-next-line no-unused-vars
   const [useEduconnect, setUseEduconnect] = React.useState(false);
+
+  const [errorAlert, setErrorAlert] = useState(false);
 
   const [isENTUsed, setIsENTUsed] = React.useState(false);
   const onToggleSwitch = () => setIsENTUsed(!isENTUsed);
@@ -181,16 +182,7 @@ function NGPronoteLogin({ route, navigation }) {
       const token = result.token;
 
       if (!token) {
-        Alert.alert(
-          'Échec de la connexion',
-          'Vérifiez vos identifiants et réessayez.',
-          [
-            {
-              text: 'OK',
-              style: 'cancel',
-            },
-          ]
-        );
+        setErrorAlert(true);
       } else {
         AsyncStorage.setItem('token', token);
         AsyncStorage.setItem('credentials', JSON.stringify(credentials));
@@ -222,218 +214,227 @@ function NGPronoteLogin({ route, navigation }) {
   const UIColors = GetUIColors();
 
   return (
+    
     <>
-    <LinearGradient
-      colors={[UIColors.modalBackground, UIColors.modalBackground + '00']}
-      locations={[0, 1]}
-      style={{
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        height: 100,
-        zIndex: 9999,
-      }}
-    />
-    <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
-    >
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated barStyle="light-content" />
-      ) : (
-        <StatusBar
-          animated
-          barStyle={theme.dark ? 'light-content' : 'dark-content'}
-          backgroundColor="transparent"
-        />
-      )}
-
-      {Platform.OS === 'android' ? (
-        <View style={{ height: 24 }} />
-      ) : null}
-
-      <View
-        style={styles.loginHeader}
+      <LinearGradient
+        colors={[UIColors.modalBackground, UIColors.modalBackground + '00']}
+        locations={[0, 1]}
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 0,
+          height: 100,
+          zIndex: 9999,
+        }}
+      />
+      <ScrollView
+        style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
       >
-        <Image
-          style={styles.loginHeaderLogo}
-          // eslint-disable-next-line global-require
-          source={require('../../../assets/logo_pronote.png')}
-        />
-        <Text style={styles.loginHeaderText}>
-          {entities.decodeHTML(etab.nomEtab)}
-        </Text>
 
-        {!isENTUsed ? (
-          <Text style={styles.loginHeaderDescription}>
-            Identifiants PRONOTE
-          </Text>
+        <AlertBottomSheet
+          title="Échec de la connexion"
+          subtitle="Vérifiez vos identifiants et réessayez."
+          visible={errorAlert}
+          icon={<AlertTriangle/>}
+          cancelAction={() => setErrorAlert(false)}
+        />
+
+        {Platform.OS === 'ios' ? (
+          <StatusBar animated barStyle="light-content" />
         ) : (
-          <Text style={styles.loginHeaderDescription}>
-            {ENTs.name}
-          </Text>
+          <StatusBar
+            animated
+            barStyle={theme.dark ? 'light-content' : 'dark-content'}
+            backgroundColor="transparent"
+          />
         )}
-      </View>
-
-
-      { Platform.OS === 'ios' ? (
-        <SegmentedControl
-          tabs={["Espace élèves", "Espace parents"]}
-          width={
-            Dimensions.get('window').width > 600 ? 600 : undefined
-          }
-          style={{ 
-            backgroundColor: UIColors.text + '12',
-            marginHorizontal: 15,
-            alignSelf: 'center',
-          }}
-          activeTabColor={
-            theme.dark ? "#333333" :
-            UIColors.element
-          }
-          activeTextColor={UIColors.text}
-          textStyle={{ color: UIColors.text + '55' }}
-          onChange={(index) => {
-            setModeParent(index === 1);
-          }}
-        />
-      ) : (
-        <SegmentedControl
-          tabs={["Espace élèves", "Espace parents"]}
-          style={{ 
-            backgroundColor: UIColors.text + '00',
-            marginHorizontal: 15,
-            borderRadius: 0,
-            height: 42,
-          }}
-          tabStyle={{
-            borderRadius: 0,
-          }}
-          selectedTabStyle={{
-            borderRadius: 0,
-            elevation: 0,
-            borderBottomColor: UIColors.primary,
-            borderBottomWidth: 2,
-            borderTopLeftRadius: 4,
-            borderTopRightRadius: 4,
-          }}
-          activeTabColor={
-            UIColors.primary + '00'
-          }
-          activeTextColor={UIColors.primary}
-          textStyle={{ color: UIColors.text + '55', marginTop: -2, fontSize:16, fontFamily: 'Papillon-Semibold' }}
-          onChange={(index) => {
-            setModeParent(index === 1);
-          }}
-        />
-      )}
-
-      {Platform.OS === 'android' ? (
-        <View style={{ height: 15 }} />
-      ) : null}
-
-      <NativeList inset>
-        <NativeItem
-          leading={
-            <UserCircle
-              color={theme.dark ? '#fff' : '#000'}
-              style={{ opacity: 0.5 }}
-            />
-          }
-        >
-          <TextInput
-            placeholder="Identifiant"
-            placeholderTextColor={theme.dark ? '#ffffff55' : '#00000055'}
-            style={[styles.nginput, {color: UIColors.text}]}
-            value={username}
-            onChangeText={(text) => setUsername(text)}
-          />
-        </NativeItem>
-        <NativeItem
-          leading={
-            <KeyRound
-              color={theme.dark ? '#fff' : '#000'}
-              style={{ opacity: 0.5 }}
-            />
-          }
-        >
-          <TextInput
-            placeholder="Mot de passe"
-            placeholderTextColor={theme.dark ? '#ffffff55' : '#00000055'}
-            style={[styles.nginput, {color: UIColors.text}]}
-            value={password}
-            secureTextEntry
-            onChangeText={(text) => setPassword(text)}
-          />
-        </NativeItem>
-
-        {ENTs !== undefined && ENTs.length !== 0 ? (
-          <NativeItem
-            trailing={
-              <Switch value={isENTUsed} onValueChange={onToggleSwitch} color={UIColors.primary} />
-            }
-          >
-            <View style={{paddingVertical: 4, gap:2}}>
-              <NativeText heading="p2" style={{fontSize: 15}}>
-                Se connecter avec l'ENT
-                </NativeText>
-              <NativeText heading="h4">
-                {ENTs.name}
-              </NativeText>
-            </View>
-          </NativeItem>
-        ) : <View/>}
-      </NativeList>
-
-      <View style={[styles.loginForm, Platform.OS !== 'ios' && styles.loginFormAndroid]}>
-        <View style={[styles.buttons]}>
-          <PapillonButton
-            title="Se connecter"
-            color="#159C5E"
-            onPress={() => login()}
-            style={[styles.button]}
-            right={connecting && <ActivityIndicator color="#ffffff" />}
-          />
-        </View>
 
         {Platform.OS === 'android' ? (
-        <View style={{ height: 15 }} />
-      ) : null}
+          <View style={{ height: 24 }} />
+        ) : null}
 
-        { modeParent ? (
+        <View
+          style={styles.loginHeader}
+        >
+          <Image
+            style={styles.loginHeaderLogo}
+            source={require('../../../assets/logo_pronote.png')}
+          />
+          <Text style={styles.loginHeaderText}>
+            {entities.decodeHTML(etab.nomEtab)}
+          </Text>
+
+          {!isENTUsed ? (
+            <Text style={styles.loginHeaderDescription}>
+            Identifiants PRONOTE
+            </Text>
+          ) : (
+            <Text style={styles.loginHeaderDescription}>
+              {ENTs.name}
+            </Text>
+          )}
+        </View>
+
+
+        { Platform.OS === 'ios' ? (
+          <SegmentedControl
+            tabs={['Espace élèves', 'Espace parents']}
+            width={
+              Dimensions.get('window').width > 600 ? 600 : undefined
+            }
+            style={{ 
+              backgroundColor: UIColors.text + '12',
+              marginHorizontal: 15,
+              alignSelf: 'center',
+            }}
+            activeTabColor={
+              theme.dark ? '#333333' :
+                UIColors.element
+            }
+            activeTextColor={UIColors.text}
+            textStyle={{ color: UIColors.text + '55' }}
+            onChange={(index) => {
+              setModeParent(index === 1);
+            }}
+          />
+        ) : (
+          <SegmentedControl
+            tabs={['Espace élèves', 'Espace parents']}
+            style={{ 
+              backgroundColor: UIColors.text + '00',
+              marginHorizontal: 15,
+              borderRadius: 0,
+              height: 42,
+            }}
+            tabStyle={{
+              borderRadius: 0,
+            }}
+            selectedTabStyle={{
+              borderRadius: 0,
+              elevation: 0,
+              borderBottomColor: UIColors.primary,
+              borderBottomWidth: 2,
+              borderTopLeftRadius: 4,
+              borderTopRightRadius: 4,
+            }}
+            activeTabColor={
+              UIColors.primary + '00'
+            }
+            activeTextColor={UIColors.primary}
+            textStyle={{ color: UIColors.text + '55', marginTop: -2, fontSize:16, fontFamily: 'Papillon-Semibold' }}
+            onChange={(index) => {
+              setModeParent(index === 1);
+            }}
+          />
+        )}
+
+        {Platform.OS === 'android' ? (
+          <View style={{ height: 15 }} />
+        ) : null}
+
         <NativeList inset>
           <NativeItem
             leading={
-              <AlertTriangle
-                color={'#FFC107'}
+              <UserCircle
+                color={theme.dark ? '#fff' : '#000'}
+                style={{ opacity: 0.5 }}
               />
             }
           >
-            <NativeText heading="h4">
-              Support des comptes parents en beta
-            </NativeText>
-            <NativeText heading="p2">
-              Il est possible que certaines fonctionnalités ne soient pas disponibles ou ne fonctionnent pas correctement.
-            </NativeText>
+            <TextInput
+              placeholder="Identifiant"
+              placeholderTextColor={theme.dark ? '#ffffff55' : '#00000055'}
+              style={[styles.nginput, {color: UIColors.text}]}
+              value={username}
+              onChangeText={(text) => setUsername(text)}
+            />
           </NativeItem>
+          <NativeItem
+            leading={
+              <KeyRound
+                color={theme.dark ? '#fff' : '#000'}
+                style={{ opacity: 0.5 }}
+              />
+            }
+          >
+            <TextInput
+              placeholder="Mot de passe"
+              placeholderTextColor={theme.dark ? '#ffffff55' : '#00000055'}
+              style={[styles.nginput, {color: UIColors.text}]}
+              value={password}
+              secureTextEntry
+              onChangeText={(text) => setPassword(text)}
+            />
+          </NativeItem>
+
+          {ENTs !== undefined && ENTs.length !== 0 ? (
+            <NativeItem
+              trailing={
+                <Switch value={isENTUsed} onValueChange={onToggleSwitch} color={UIColors.primary} />
+              }
+            >
+              <View style={{paddingVertical: 4, gap:2}}>
+                <NativeText heading="p2" style={{fontSize: 15}}>
+                Se connecter avec l'ENT
+                </NativeText>
+                <NativeText heading="h4">
+                  {ENTs.name}
+                </NativeText>
+              </View>
+            </NativeItem>
+          ) : <View/>}
         </NativeList>
-        ) : null }
 
-        <View style={[styles.bottomText]}>
-          <Text style={[styles.bottomTextText]}>
-            En vous connectant, vous acceptez les{' '}
-            <Text style={{ fontWeight: 'bold' }}>conditions d'utilisation</Text>{' '}
-            de Papillon.
-          </Text>
+        <View style={[styles.loginForm, Platform.OS !== 'ios' && styles.loginFormAndroid]}>
+          <View style={[styles.buttons]}>
+            <PapillonButton
+              title="Se connecter"
+              color="#159C5E"
+              onPress={() => login()}
+              style={[styles.button]}
+              right={connecting && <ActivityIndicator color="#ffffff" />}
+            />
+          </View>
 
-          {etabInfo.version && etabInfo.version.length > 0 ? (
-            <Text style={[styles.bottomTextText]}>
-              Pronote Espace {!modeParent ? 'Élèves' : 'Parents'} ver. {etabInfo.version.join('.')}
-            </Text>
+          {Platform.OS === 'android' ? (
+            <View style={{ height: 15 }} />
           ) : null}
+
+          { modeParent ? (
+            <NativeList inset>
+              <NativeItem
+                leading={
+                  <AlertTriangle
+                    color={'#FFC107'}
+                  />
+                }
+              >
+                <NativeText heading="h4">
+              Support des comptes parents en beta
+                </NativeText>
+                <NativeText heading="p2">
+              Il est possible que certaines fonctionnalités ne soient pas disponibles ou ne fonctionnent pas correctement.
+                </NativeText>
+              </NativeItem>
+            </NativeList>
+          ) : null }
+
+          <View style={[styles.bottomText]}>
+            <Text style={[styles.bottomTextText]}>
+            En vous connectant, vous acceptez les{' '}
+              <Text style={{ fontWeight: 'bold' }}>conditions d'utilisation</Text>{' '}
+            de Papillon.
+            </Text>
+
+            {etabInfo.version && etabInfo.version.length > 0 ? (
+              <Text style={[styles.bottomTextText]}>
+              Pronote Espace {!modeParent ? 'Élèves' : 'Parents'} ver. {etabInfo.version.join('.')}
+              </Text>
+            ) : null}
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
     </>
   );
 }

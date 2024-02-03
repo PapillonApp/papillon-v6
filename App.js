@@ -21,6 +21,8 @@ import { useCallback } from 'react';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import * as ExpoLinking from 'expo-linking';
+
 import * as SplashScreen from 'expo-splash-screen';
 SplashScreen.preventAutoHideAsync();
 
@@ -44,11 +46,13 @@ import LessonScreen from './views/Cours/LessonScreen';
 
 import DevoirsScreen from './views/DevoirsScreen';
 import HomeworkScreen from './views/Devoirs/HwScreen';
+import CreateHomeworkScreen from './views/Devoirs/CreateHomeworkScreen';
 
 import ChangelogScreen from './views/ChangelogScreen';
 
 import SettingsScreen from './views/SettingsScreen';
 import AboutScreen from './views/Settings/AboutScreen';
+import DonorsScreen from './views/Settings/DonorsScreen';
 import ProfileScreen from './views/Settings/ProfileScreen';
 import OfficialServer from './views/Settings/OfficialServer';
 import AppearanceScreen from './views/Settings/AppearanceScreen';
@@ -57,6 +61,8 @@ import IconsScreen from './views/Settings/IconsScreen';
 import ChangeServer from './views/Settings/ChangeServer';
 import CoursColor from './views/Settings/CoursColor';
 import AdjustmentsScreen from './views/Settings/AdjustmentsScreen';
+import HeaderSelectScreen from './views/Settings/HeaderSelectScreen';
+import PaymentScreen from './views/Settings/PaymentScreen';
 
 import GradesScreen from './views/GradesScreen';
 import GradeView from './views/Grades/GradeView';
@@ -103,8 +109,8 @@ import NewPronoteQR from './views/NewAuthStack/Pronote/NewPronoteQR';
 import NGPronoteLogin from './views/NewAuthStack/Pronote/NGPronoteLogin';
 import GradesSimulatorMenu from './views/Grades/GradesSimulatorMenu';
 import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
-import * as notifs from './components/Notifications'
-notifs.init()
+import * as notifs from './components/Notifications';
+notifs.init();
 const Tab = createBottomTabNavigator();
 import * as Sentry from '@sentry/react-native';
 
@@ -196,13 +202,13 @@ function InsetSchoolLifeScreen() {
       screenOptions={
         Platform.OS === 'android'
           ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
-            }
+            animation: 'fade_from_bottom',
+            navigationBarColor: '#00000000',
+            header: (props) => <CustomNavigationBar {...props} />,
+          }
           : {
-              ...headerTitleStyles,
-            }
+            ...headerTitleStyles,
+          }
       }
     >
       <Stack.Screen
@@ -224,13 +230,13 @@ function InsetConversationsScreen() {
       screenOptions={
         Platform.OS === 'android'
           ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
-            }
+            animation: 'fade_from_bottom',
+            navigationBarColor: '#00000000',
+            header: (props) => <CustomNavigationBar {...props} />,
+          }
           : {
-              ...headerTitleStyles,
-            }
+            ...headerTitleStyles,
+          }
       }
     >
       <Stack.Screen
@@ -252,13 +258,13 @@ function InsetEvaluationsScreen() {
       screenOptions={
         Platform.OS === 'android'
           ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
-            }
+            animation: 'fade_from_bottom',
+            navigationBarColor: '#00000000',
+            header: (props) => <CustomNavigationBar {...props} />,
+          }
           : {
-              ...headerTitleStyles,
-            }
+            ...headerTitleStyles,
+          }
       }
     >
       <Stack.Screen
@@ -282,13 +288,13 @@ function InsetSettings() {
       screenOptions={
         Platform.OS === 'android'
           ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-            }
+            animation: 'fade_from_bottom',
+            navigationBarColor: '#00000000',
+          }
           : {
-              ...headerTitleStyles,
-              modalStatus: true,
-            }
+            ...headerTitleStyles,
+            modalStatus: true,
+          }
       }
     >
       <Stack.Screen
@@ -300,7 +306,7 @@ function InsetSettings() {
               headerTitle: 'Préférences',
               headerLargeTitle: false,
             }
-          :
+            :
             {
               headerTitle: 'Compte',
             }
@@ -326,7 +332,7 @@ function InsetSettings() {
         name="CoursColor"
         component={CoursColor}
         options={{
-          headerTitle: 'Couleur des matières',
+          headerTitle: 'Gestion des matières',
           headerBackTitle: 'Retour',
         }}
       />
@@ -339,11 +345,34 @@ function InsetSettings() {
         }}
       />
       <Stack.Screen
+        name="HeaderSelect"
+        component={HeaderSelectScreen}
+        options={{
+          headerTitle: 'Bandeau',
+        }}
+      />
+      <Stack.Screen
+        name="PaymentScreen"
+        component={PaymentScreen}
+        options={{
+          headerTitle: 'Soutenir Papillon',
+          headerBackTitle: 'Retour',
+        }}
+      />
+      <Stack.Screen
         name="About"
         component={AboutScreen}
         options={{
           headerTitle: 'A propos de Papillon',
           headerBackTitle: 'Préférences',
+        }}
+      />
+      <Stack.Screen
+        name="Donors"
+        component={DonorsScreen}
+        options={{
+          headerTitle: 'Donateurs',
+          headerBackTitle: 'A propos',
         }}
       />
       <Stack.Screen
@@ -359,7 +388,6 @@ function InsetSettings() {
         component={NotificationsScreen}
         options={{
           headerTitle: 'Notifications',
-          headerBackTitle: 'Retour',
           headerBackTitle: 'Préférences',
         }}
       />
@@ -367,7 +395,7 @@ function InsetSettings() {
         name="Icons"
         component={IconsScreen}
         options={{
-          headerTitle: "Icône de l'application",
+          headerTitle: 'Icône de l\'application',
           presentation: 'modal',
           modalStatus: Platform.OS === 'ios',
         }}
@@ -376,7 +404,7 @@ function InsetSettings() {
         name="changeServer"
         component={ChangeServer}
         options={{
-          headerTitle: "Changer de serveur",
+          headerTitle: 'Changer de serveur',
           presentation: 'modal',
         }}
       />
@@ -411,12 +439,12 @@ function WrappedHomeScreen() {
       screenOptions={
         Platform.OS === 'android'
           ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-            }
+            animation: 'fade_from_bottom',
+            navigationBarColor: '#00000000',
+          }
           : {
-              ...headerTitleStyles,
-            }
+            ...headerTitleStyles,
+          }
       }
     >
       <Stack.Screen
@@ -539,12 +567,12 @@ function WrappedCoursScreen() {
       screenOptions={
         Platform.OS === 'android'
           ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-            }
+            animation: 'fade_from_bottom',
+            navigationBarColor: '#00000000',
+          }
           : {
-              ...headerTitleStyles,
-            }
+            ...headerTitleStyles,
+          }
       }
     >
       <Stack.Screen
@@ -571,12 +599,12 @@ function WrappedDevoirsScreen() {
       screenOptions={
         Platform.OS === 'android'
           ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-            }
+            animation: 'fade_from_bottom',
+            navigationBarColor: '#00000000',
+          }
           : {
-              ...headerTitleStyles,
-            }
+            ...headerTitleStyles,
+          }
       }
     >
       <Stack.Screen
@@ -596,6 +624,15 @@ function WrappedDevoirsScreen() {
           modalStatus: Platform.OS === 'ios',
         }}
       />
+      <Stack.Screen
+        name="CreateHomework"
+        component={CreateHomeworkScreen}
+        options={{
+          headerShown: true,
+          presentation: 'modal',
+          modalStatus: Platform.OS === 'ios',
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -606,13 +643,13 @@ function ModalGradesSimulator() {
       screenOptions={
         Platform.OS === 'android'
           ? {
-              navigationBarColor: '#00000000',
-              animation: 'fade_from_bottom',
-            }
+            navigationBarColor: '#00000000',
+            animation: 'fade_from_bottom',
+          }
           : {
-              ...headerTitleStyles,
-              modalStatus: true,
-            }
+            ...headerTitleStyles,
+            modalStatus: true,
+          }
       }
     >
       <Stack.Screen
@@ -643,12 +680,12 @@ function WrappedGradesScreen() {
       screenOptions={
         Platform.OS === 'android'
           ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-            }
+            animation: 'fade_from_bottom',
+            navigationBarColor: '#00000000',
+          }
           : {
-              ...headerTitleStyles,
-            }
+            ...headerTitleStyles,
+          }
       }
     >
       <Stack.Screen
@@ -657,10 +694,10 @@ function WrappedGradesScreen() {
         options={
           Platform.OS === 'ios'
             ? {
-                headerShown: true,
-                headerLargeTitle: false,
-                headerTitle: 'Notes',
-              }
+              headerShown: true,
+              headerLargeTitle: false,
+              headerTitle: 'Notes',
+            }
             : null
         }
       />
@@ -695,12 +732,12 @@ function WrappedNewsScreen() {
       screenOptions={
         Platform.OS === 'android'
           ? {
-              animation: 'fade_from_bottom',
-              navigationBarColor: '#00000000',
-            }
+            animation: 'fade_from_bottom',
+            navigationBarColor: '#00000000',
+          }
           : {
-              ...headerTitleStyles,
-            }
+            ...headerTitleStyles,
+          }
       }
     >
       <Stack.Screen
@@ -819,8 +856,8 @@ function Header(props) {
           backgroundColor: !translucent ? 
             isModal ?
               UIColors.modalBackground
-            : UIColors.background
-          : UIColors.background + '00',
+              : UIColors.background
+            : UIColors.background + '00',
         },
         styles.header,
       ]}
@@ -833,7 +870,7 @@ function Header(props) {
           >
             <ChevronLeft size={28} color={UIColors.text + 'e5'} />
           </TouchableOpacity>
-        : null }
+          : null }
       </View>
       <View style={styles.headerContent}>
         <Text style={[styles.headerText, {color: UIColors.text}]} numberOfLines={1} ellipsizeMode="tail">
@@ -853,15 +890,15 @@ function ModalPronoteLogin() {
       screenOptions={
         Platform.OS === 'android'
           ? {
-              navigationBarColor: '#00000000',
-              header: (props) => <Header {...props} />,
-              animation: 'fade_from_bottom',
-            }
+            navigationBarColor: '#00000000',
+            header: (props) => <Header {...props} />,
+            animation: 'fade_from_bottom',
+          }
           : {
-              ...headerTitleStyles,
-              header: (props) => <Header {...props} />,
-              modalStatus: true,
-            }
+            ...headerTitleStyles,
+            header: (props) => <Header {...props} />,
+            modalStatus: true,
+          }
       }
     >
       <Stack.Screen
@@ -968,8 +1005,8 @@ function AppStack() {
               options.tabBarLabel !== undefined
                 ? options.tabBarLabel
                 : options.title !== undefined
-                ? options.title
-                : route.title;
+                  ? options.title
+                  : route.title;
 
             return label;
           }}
@@ -1003,13 +1040,16 @@ function AppStack() {
         },
         tabBarShowLabel: settings?.hideTabBarTitle ? false : true,
         tabBarActiveTintColor: theme.dark ? '#ffffff' : '#000000',
-        tabBarInactiveTintColor: theme.dark ? '#ffffff' : '#000000',
+        tabBarInactiveTintColor: 
+          settings?.hideTabBarTitle ?
+            theme.dark ? '#ffffff' : '#000000' :
+            theme.dark ? '#ffffffa5' : '#000000a5',
         tabBarStyle: {
           paddingHorizontal: 8,
           backgroundColor: UIColors.background,
           borderTopWidth: UIColors.dark ? 0 : 0.5,
         },
-        tabBarButton: (props) => {
+        tabBarButton: settings?.hideTabBarTitle ? (props) => {
           return (
             <PressableScale
               {...props}
@@ -1024,7 +1064,7 @@ function AppStack() {
               ]}
             />
           );
-        }
+        } : undefined,
       }}
     >
       <Tab.Screen
@@ -1121,13 +1161,13 @@ function AuthStack() {
       screenOptions={
         Platform.OS === 'android'
           ? {
-              navigationBarColor: '#00000000',
-              header: (props) => <CustomNavigationBar {...props} />,
-              animation: 'fade_from_bottom',
-            }
+            navigationBarColor: '#00000000',
+            header: (props) => <CustomNavigationBar {...props} />,
+            animation: 'fade_from_bottom',
+          }
           : {
-              ...headerTitleStyles,
-            }
+            ...headerTitleStyles,
+          }
       }
     >
       <Stack.Screen
