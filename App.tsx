@@ -93,6 +93,15 @@ const Tab = createBottomTabNavigator();
 import { startNetworkLogging } from 'react-native-network-logger';
 startNetworkLogging();
 
+import * as Sentry from '@sentry/react-native';
+import { DSN_URL } from '@env';
+Sentry.init({
+  dsn: DSN_URL,
+  tracesSampleRate: 0.75,
+  debug: false,
+  enableInExpoDevelopment: true,
+});
+
 import {
   Home as PapillonIconsHome,
   HomeFill as PapillonIconsHomeFill,
