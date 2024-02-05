@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct systemMediumCourseWidget: View {
+struct SystemMediumCourseWidget: View {
   
   let currentDate = Date()
 
@@ -111,7 +111,7 @@ struct systemMediumCourseWidget: View {
               )
             }
           }
-        } 
+        }
         // S'il reste au moins un cours suivant
         else if !upcomingCourses.isEmpty {
           ZStack {
@@ -216,6 +216,7 @@ struct systemMediumCourseWidget: View {
             Spacer()
           }
         }
+      .widgetBackground(Color.clear)
       }
     }
 }

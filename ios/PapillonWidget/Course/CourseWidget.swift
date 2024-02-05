@@ -2,7 +2,7 @@ import WidgetKit
 import SwiftUI
 import Foundation
 
-// Define your data model
+//MARK: - Défiinition du model Course (Cours)
 struct Course: Identifiable {
   let id = UUID()
   let subject: String
@@ -15,7 +15,7 @@ struct Course: Identifiable {
   let isCancelled: Bool
 }
 
-// Retrieve shared data from UserDefaults shared between your app and widget
+//MARK: - Recepteur données partagé
 func retrieveSharedData() -> [Course]? {
   let sharedDefaults = UserDefaults(suiteName: "group.xyz.getpapillon")
   if let jsonString = sharedDefaults?.string(forKey: "getEdtF"),
@@ -45,7 +45,7 @@ func retrieveSharedData() -> [Course]? {
   return nil
 }
 
-// Widget TimelineProvider
+//MARK: - Widget TimelineProvider
 struct CourseWidgetProvider: TimelineProvider {
   typealias Entry = CourseWidgetEntry
 
@@ -80,13 +80,13 @@ struct CourseWidgetProvider: TimelineProvider {
   }
 }
 
-// Widget Entry
+//MARK: - Widget Entry
 struct CourseWidgetEntry: TimelineEntry {
   let date: Date
   let courses: [Course]
 }
 
-// Widget View
+//MARK: - Widget View
 struct CourseWidgetView: View {
   var entry: CourseWidgetEntry
 
@@ -112,8 +112,8 @@ struct CourseWidgetView: View {
     var body: some View {
       switch family {
         case .systemSmall: SystemSmallCourseWidget(entry: entry)
-        case .systemMedium: systemMediumCourseWidget(entry: entry)
-        case .accessoryInline: AccessoryInlineCourseWidget(entry: entry)   
+        case .systemMedium: SystemMediumCourseWidget(entry: entry)
+        case .accessoryInline: AccessoryInlineCourseWidget(entry: entry)
         case .accessoryRectangular: AccessoryRectangularCourseWidget(entry: entry)
         default:
           Text("Bug")
@@ -158,7 +158,7 @@ struct CourseWidget_Previews: PreviewProvider {
   }
 }
 
-//Convertisseur HEX vers Color
+//MARK: - Convertisseur HEX vers Color
 extension Color {
   init(hex: String) {
     var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -172,7 +172,7 @@ extension Color {
   }
 }
 
-//Widget background pour iOS 17
+//MARK: - Widget background pour iOS 17
 extension View {
   func widgetBackground(_ backgroundView: some View) -> some View {
     if #available(iOSApplicationExtension 17.0, *) {

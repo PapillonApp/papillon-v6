@@ -43,6 +43,7 @@ struct AccessoryRectangularCourseWidget: View {
           Text("Maintenant")
             .font(.system(.subheadline, design: .rounded))
         }
+        .widgetBackground(Color.clear)
       }
       //S'il y a au moins un prchain cours
       else if !upcomingCourses.isEmpty {
@@ -55,6 +56,7 @@ struct AccessoryRectangularCourseWidget: View {
           Text("à \(formattedTime(upcomingCourses.first!.start))")
             .font(.system(.subheadline, design: .rounded))
         }
+        .widgetBackground(Color.clear)
       }
       //Si tout est fini
       else { //Si tout est fini
@@ -64,6 +66,7 @@ struct AccessoryRectangularCourseWidget: View {
           Text("Repose-toi bien !")
             .font(.system(.subheadline, design: .rounded))
         }
+        .widgetBackground(Color.clear)
       }
     }
   }
