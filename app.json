@@ -83,7 +83,8 @@
             "./assets/fonts/FixelText-Light.ttf",
             "./assets/fonts/FixelText-Medium.ttf",
             "./assets/fonts/FixelText-Regular.ttf",
-            "./assets/fonts/FixelText-SemiBold.ttf"
+            "./assets/fonts/FixelText-SemiBold.ttf",
+            "./assets/fonts/material.ttf"
           ],
           "widgets": [
             {
