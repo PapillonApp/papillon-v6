@@ -432,22 +432,13 @@ function HomeScreen({ navigation }: { navigation: any }) {
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                justifyContent: 'flex-start',
+                gap: 16,
                 paddingHorizontal: 16,
-                paddingBottom: 6,
+                paddingBottom: 8,
                 paddingTop: 4,
               }}
             >
-              <PapillonIcon fill={'#ffffff00'} width={32} height={32} />
-              <Text
-                style={{
-                  color: '#ffffff',
-                  fontSize: 17,
-                  fontFamily: 'Papillon-Semibold',
-                }}
-              >
-                Vue d'ensemble
-              </Text>
               <TouchableOpacity
                 style={headerStyles.headerPfpContainer}
                 onPress={() => navigation.navigate('InsetSettings', { isModal: true })}
@@ -465,6 +456,15 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   />
                 )}
               </TouchableOpacity>
+              <Text
+                style={{
+                  color: '#ffffff',
+                  fontSize: 17,
+                  fontFamily: 'Papillon-Semibold',
+                }}
+              >
+                Vue d'ensemble
+              </Text>
             </View>
             <Animated.View
               style={[
