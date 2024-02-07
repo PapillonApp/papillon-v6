@@ -1,6 +1,11 @@
-# 🦋 Papillon — Votre vie scolaire
+# ?????? — Votre vie scolaire
 
-Votre emploi du temps 📅, votre agenda 📓, vos notes 📝, vos news 📰 et bien plus encore en un clin d’œil grâce à l'application Papillon.
+> [!WARNING]  
+> **Des modifications majeures de la structure de ce projet sont en cours**
+> 
+> Le fonctionnement du code risque de changer de manière importante, merci de ne pas merge sur `main`
+
+Votre emploi du temps 📅, votre agenda 📓, vos notes 📝, vos news 📰 et bien plus encore en un clin d’œil grâce à l'application Renard.
 
 **📚 [Voir la documentation](https://docs.getpapillon.xyz/)**
 
