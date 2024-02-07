@@ -87,7 +87,7 @@ const openURL = (url: string) => {
   WebBrowser.openBrowserAsync(url, {
     dismissButtonStyle: 'done',
     presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
-    controlsColor: Platform.OS === 'ios' ? '#29947A' : void 0,
+    controlsColor: Platform.OS === 'ios' ? '#FA5D0F' : void 0,
     readerMode: true,
     createTask: false,
   });
@@ -231,18 +231,18 @@ function HomeScreen({ navigation }: { navigation: any }) {
 
   const [themeAdjustments, setThemeAdjustments] = useState({
     enabled: true,
-    color: '#32AB8E',
+    color: '#FA5D0F',
     image: 'papillon/default'
   });
 
-  const [nextColor, setNextColor] = useState('#32AB8E');
+  const [nextColor, setNextColor] = useState('#FA5D0F');
 
   const refreshSettings = () => {
     const settings = SyncStorage.get('adjustments');
     if (settings) {
       setThemeAdjustments({
         enabled: true,
-        color: settings.homeThemeColor ?? '#32AB8E',
+        color: settings.homeThemeColor ?? '#FA5D0F',
         image: settings.homeThemeImage ?? 'papillon/default'
       });
     }
@@ -1490,7 +1490,7 @@ const headerStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
 
-    backgroundColor: '#29947A',
+    backgroundColor: '#FA5D0F',
 
     elevation: 1,
   },

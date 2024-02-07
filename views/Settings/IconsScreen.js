@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   iconElemCurrent: {
-    borderColor: '#29947A',
+    borderColor: '#FA5D0F',
     borderWidth: 2,
   },
 });

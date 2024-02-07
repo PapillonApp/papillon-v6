@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   startText: {
     fontSize: 16,
     fontFamily: 'Papillon-Semibold',
-    color: '#32AB8E',
+    color: '#FA5D0F',
   },
 
   mainVersion: {

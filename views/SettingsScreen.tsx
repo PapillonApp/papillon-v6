@@ -37,11 +37,11 @@ function SettingsScreen({ navigation }) {
         <ListItem
           title="Mon profil"
           subtitle="Configurez votre compte Papillon, votre pseudonyme, votre photo de profil..."
-          color="#29947A"
+          color="#FA5D0F"
           left={
             <PapillonIcon
               icon={<User2 size={24} color="#fff" />}
-              color="#29947A"
+              color="#FA5D0F"
               size={24}
               fill
               small

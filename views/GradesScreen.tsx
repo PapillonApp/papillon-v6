@@ -281,7 +281,7 @@ function GradesScreen({ navigation }) {
   // Add buttons to navigation header.
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: Platform.OS === 'ios' ? () => (
+      headerLeft: Platform.OS === 'ios' && () => (
         <PapillonInsetHeader
           style={{}}
           textStyle={{}}
@@ -289,7 +289,8 @@ function GradesScreen({ navigation }) {
           title="Notes"
           color="#A84700"
         />
-      ) : 'Notes',
+      ),
+      headerTitle: Platform.OS === 'ios' ? '' : 'Notes',
       headerTransparent: Platform.OS === 'ios' ? true : false,
       headerStyle: Platform.OS === 'android' ? {
         backgroundColor: UIColors.background,
@@ -713,7 +714,7 @@ function GradesScreen({ navigation }) {
             
 Les notes affichées dans le graphique sont des estimations sachant que votre établissement ne donne pas accès à votre moyenne passée.`}
           icon={<BarChart3 />}
-          color='#29947a'
+          color='#FA5D0F'
           visible={moyReelleAlert}
           cancelAction={() => {
             setMoyReelleAlert(false);
@@ -1071,7 +1072,7 @@ Les notes affichées dans le graphique sont des estimations sachant que votre é
                 title={'Moyenne la plus faible'}
                 subtitle={'La moyenne la plus faible est calculée en prenant la moyenne la plus basse de chaque matière.\n\nIl s\'agit uniquement d\'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n\'est pas représentative d\'une réelle moyenne.'}
                 icon={<TrendingDown />}
-                color='#29947a'
+                color='#FA5D0F'
                 visible={moyClasseBasseAlert}
                 cancelButton='Compris !'
                 cancelAction={() => {
@@ -1104,7 +1105,7 @@ Les notes affichées dans le graphique sont des estimations sachant que votre é
                 title={'Moyenne la plus élevée'}
                 subtitle={'La moyenne la plus élevée est calculée en prenant la moyenne la plus élevée de chaque matière.\n\nIl s\'agit uniquement d\'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n\'est pas représentative d\'une réelle moyenne.'}
                 icon={<TrendingUp />}
-                color='#29947a'
+                color='#FA5D0F'
                 visible={moyClasseHauteAlert}
                 cancelButton='Compris !'
                 cancelAction={() => {

@@ -920,7 +920,7 @@ function CoursPage({ cours, navigation, forceRefresh }: {
         <RefreshControl
           refreshing={isHeadLoading}
           onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? '#29947A' : '']}
+          colors={[Platform.OS === 'android' ? '#FA5D0F' : '']}
         />
       }
     >

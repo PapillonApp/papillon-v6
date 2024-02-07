@@ -45,11 +45,11 @@
       "playStoreUrl": "https://play.google.com/store/apps/details?id=fr.renardapp.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#29947A"
+        "backgroundColor": "#FA5D0F"
       },
       "splash": {
         "image": "./assets/launch/splash-light.png",
-        "backgroundColor": "#32AB8E",
+        "backgroundColor": "#FA5D0F",
         "resizeMode": "cover",
         "dark": {
           "image": "./assets/launch/splash-dark.png",

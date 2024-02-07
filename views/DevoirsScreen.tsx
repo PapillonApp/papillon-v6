@@ -80,7 +80,7 @@ function DevoirsScreen({ navigation }: {
         <PapillonInsetHeader
           icon={<SFSymbol name="checkmark.rectangle.stack.fill" />}
           title="Devoirs"
-          color="#29947A"
+          color="#FA5D0F"
         />
       ) : 'Devoirs',
     });

@@ -18,7 +18,7 @@ import { getRandomColor } from '../../utils/ColorCoursName';
 const HeaderSelectScreen = ({ navigation }) => {
   const UIColors = GetUIColors();
 
-  const [selectedColor, setSelectedColor] = useState('#32AB8E');
+  const [selectedColor, setSelectedColor] = useState('#FA5D0F');
 
   const backgrounds = [
     {
@@ -189,7 +189,7 @@ const HeaderSelectScreen = ({ navigation }) => {
 
   const [currentSettings, setCurrentSettings] = useState({
     homeThemesEnabled: false,
-    homeThemeColor: '#32AB8E',
+    homeThemeColor: '#FA5D0F',
     homeThemeImage: 'papillon/default',
   });
 
@@ -199,10 +199,10 @@ const HeaderSelectScreen = ({ navigation }) => {
       setCurrentSettings({
         ...settings,
         homeThemesEnabled: settings.homeThemesEnabled || false,
-        homeThemeColor: settings.homeThemeColor || '#32AB8E',
+        homeThemeColor: settings.homeThemeColor || '#FA5D0F',
         homeThemeImage: settings.homeThemeImage || 'papillon/default',
       });
-      setSelectedColor(settings.homeThemeColor || '#32AB8E');
+      setSelectedColor(settings.homeThemeColor || '#FA5D0F');
     }
   }, []);
 

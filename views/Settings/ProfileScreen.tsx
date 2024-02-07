@@ -359,7 +359,7 @@ function ProfileScreen() {
           header="Options"
         >
           <NativeItem
-            leading={<Edit size={24} color="#29947A" />}
+            leading={<Edit size={24} color="#FA5D0F" />}
             onPress={() => promptUpdateCustomUserName()}
           >
             <NativeText heading="h4">
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 14,
     right: -3,
-    backgroundColor: '#29947A',
+    backgroundColor: '#FA5D0F',
     borderRadius: 100,
     padding: 6,
     elevation: 2,

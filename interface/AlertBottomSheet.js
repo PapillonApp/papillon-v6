@@ -10,7 +10,7 @@ import { PressableScale } from 'react-native-pressable-scale';
 
 import { X } from 'lucide-react-native';
 
-const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, icon, color = '#32AB8E', cancelAction = () => {}, primaryAction = undefined, cancelButton = 'Compris !', primaryButton = 'Valider'}) => {
+const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, icon, color = '#FA5D0F', cancelAction = () => {}, primaryAction = undefined, cancelButton = 'Compris !', primaryButton = 'Valider'}) => {
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ['25%', '50%'], []);
 
