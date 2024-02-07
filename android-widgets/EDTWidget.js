@@ -54,7 +54,15 @@ export function EDTWidgetRender(edt) {
   else {
     return (
       <OverlapWidget style={{ width: "match_parent", height: "match_parent" }}>
-        <OverlapWidget style={{ backgroundColor: edt.next.background_color, height: 87.3, width: "match_parent" }}>
+        <OverlapWidget style={{ backgroundColor: "#32ab8e", height: 21, width: "match_parent" }}>
+          <FlexWidget style={{ justifyContent: "center", height: "match_parent" }}>
+            <TextWidget 
+              text="Papillon EDT"
+              style={styles.Header}
+            />
+          </FlexWidget>
+        </OverlapWidget>
+        <OverlapWidget style={{ marginTop: 21, backgroundColor: edt.next.background_color, height: 80.3, width: "match_parent" }}>
           <FlexWidget style={{ justifyContent: 'center', height: "match_parent", marginLeft: 15 }}>
             <TextWidget
               text={getClosestGradeEmoji(edt.next.subject.name)}
@@ -74,12 +82,18 @@ export function EDTWidgetRender(edt) {
               text={"Avec " + edt.next.teachers[0]}
               style={styles.DescriptionCours}
             />
-            <TextWidget
-              text="Changement de salle"
-              style={styles.DescriptionCoursAnnote}
-            />
+            {
+              edt.next.status ? (
+                <TextWidget
+                  text={edt.next.status}
+                  style={edt.next.is_cancelled ? styles.DescriptionCoursAnnule : styles.DescriptionCoursAnnote}
+                />
+              ) : (
+                null
+              )
+            }
           </FlexWidget>
-          <FlexWidget style={{ justifyContent: 'center', marginLeft: 265, width: 109, height: 87.3, backgroundColor: "#ffffff50", paddingRight: 10 }}>
+          <FlexWidget style={{ justifyContent: 'center', marginLeft: 265, width: 109, height: 80.3, backgroundColor: "#ffffff50", paddingRight: 10 }}>
             <TextWidget
               text="à 10:20"
               style={styles.HeureCours}
@@ -91,10 +105,10 @@ export function EDTWidgetRender(edt) {
           </FlexWidget>
         </OverlapWidget>
         {edt.nextClasses[0].background_color ? (
-        <OverlapWidget style={{ marginTop: 87.3, backgroundColor: "#00000055", height: 87.3, width: "match_parent", borderColor: "#00000077", borderTopWidth: 2 }}>
+        <OverlapWidget style={{ marginTop: 101.3, backgroundColor: "#00000055", height: 80.3, width: "match_parent", borderColor: "#00000077", borderTopWidth: 2 }}>
           <FlexWidget style={{ justifyContent: 'center', height: "match_parent", marginLeft: 15 }}>
             <TextWidget
-              text="🇬🇧"
+              text={getClosestGradeEmoji(edt.nextClasses[0].subject.name)}
               style={{ fontSize: 30 }}
             />
           </FlexWidget>
@@ -104,19 +118,25 @@ export function EDTWidgetRender(edt) {
               style={{...styles.TitleCours, color: edt.nextClasses[0].background_color, }}
             />
             <TextWidget
-              text="Salle B205"
+              text={"Salle " + edt.nextClasses[0].rooms[0]}
               style={styles.DescriptionCours}
             />
             <TextWidget
-              text="Avec M. QUELQUECHOSE"
+              text={"Avec " + edt.nextClasses[0].teachers[0]}
               style={styles.DescriptionCours}
             />
-            <TextWidget
-              text="Cours modifié"
-              style={styles.DescriptionCoursAnnote}
-            />
+            {
+              edt.nextClasses[0].status ? (
+                <TextWidget
+                  text={edt.nextClasses[0].status}
+                  style={edt.nextClasses[0].is_cancelled ? styles.DescriptionCoursAnnule : styles.DescriptionCoursAnnote}
+                />
+              ) : (
+                null
+              )
+            }
           </FlexWidget>
-          <FlexWidget style={{ justifyContent: 'center', marginLeft: 265, width: 109, height: 87.3, backgroundColor: "#ffffff25", paddingRight: 10 }}>
+          <FlexWidget style={{ justifyContent: 'center', marginLeft: 265, width: 109, height: 80.3, backgroundColor: "#ffffff25", paddingRight: 10 }}>
             <TextWidget
               text="à 11:20"
               style={styles.HeureCours}
@@ -125,14 +145,18 @@ export function EDTWidgetRender(edt) {
               text="Dans 1h 30 min."
               style={styles.TimestampCours}
             />
+            <TextWidget
+              text="Remplacement"
+              style={styles.DescriptionCoursAnnote}
+            />
           </FlexWidget>
         </OverlapWidget>
         ) : (
-          <OverlapWidget style={{ marginTop: 87.3, backgroundColor: "#00000055", height: 87.3, width: "match_parent", borderColor: "#00000077", borderTopWidth: 2 }}>
+          <OverlapWidget style={{ marginTop: 101.3, backgroundColor: "#00000055", height: 80.3, width: "match_parent", borderColor: "#00000077", borderTopWidth: 2 }}>
 
           </OverlapWidget>
         )}
-        <OverlapWidget style={{ marginTop: 174.6, backgroundColor: "#00000055", height: 87.3, width: "match_parent", borderColor: "#00000077", borderTopWidth: 2 }}>
+        <OverlapWidget style={{ marginTop: 181.6, backgroundColor: "#00000055", height: 80.3, width: "match_parent", borderColor: "#00000077", borderTopWidth: 2 }}>
           <FlexWidget style={{ justifyContent: 'center', height: "match_parent", marginLeft: 15 }}>
             <TextWidget
               text="📚"
@@ -157,7 +181,7 @@ export function EDTWidgetRender(edt) {
               style={styles.DescriptionCoursAnnote}
             />
           </FlexWidget>
-          <FlexWidget style={{ justifyContent: 'center', marginLeft: 265, width: 109, height: 87.3, backgroundColor: "#ffffff25", paddingRight: 10 }}>
+          <FlexWidget style={{ justifyContent: 'center', marginLeft: 265, width: 109, height: 80.3, backgroundColor: "#ffffff25", paddingRight: 10 }}>
             <TextWidget
               text="à 11:20"
               style={styles.HeureCours}
@@ -174,6 +198,9 @@ export function EDTWidgetRender(edt) {
 }
 
 let styles = {
+  Header: {
+    fontSize: 10
+  },
   TitleCours: {
     fontSize: 18,
     fontFamily: 'FixelText-SemiBold',

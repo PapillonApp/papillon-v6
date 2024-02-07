@@ -59,7 +59,7 @@ function getNextCours(classes) {
 }
 
 module.exports = (Widget, name) => {
-    instance.getTimetable(Date.now())
+    instance.getTimetable(/*Date.now()*/ "2024-02-07")
     .then((edt) => {
         let next = getNextCours(edt)
         console.log("next", next)
