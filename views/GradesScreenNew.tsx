@@ -464,7 +464,8 @@ const GradesScreen = ({ navigation }) => {
   // Change header title
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: Platform.OS === 'ios' ? () => <HeaderTitle navigation={navigation} UIColors={UIColors} /> : 'Notes',
+      headerLeft: Platform.OS === 'ios' ? () => <HeaderTitle navigation={navigation} UIColors={UIColors} /> : () => (<></>),
+      headerTitle : Platform.OS === 'ios' ? ' ' : 'Notes',
       headerRight: () => <HeaderRight navigation={navigation} periods={periods} selectedPeriod={selectedPeriod} UIColors={UIColors} isLoading={isLoading} changePeriod={changePeriod} androidPeriodChangePicker={androidPeriodChangePicker} setOpenedSettings={setOpenedSettings} />,
       headerShadowVisible: false,
       headerTransparent: Platform.OS === 'ios' ? true : false,
