@@ -438,7 +438,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 paddingTop: 4,
               }}
             >
-              <PapillonIcon fill={'#ffffff99'} width={32} height={32} />
+              <PapillonIcon fill={'#ffffff'} width={32} height={32} />
               <Text
                 style={{
                   color: '#ffffff',
