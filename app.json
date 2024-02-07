@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Papillon",
-    "slug": "papillonvex",
-    "scheme": "papillon",
+    "name": "Renard",
+    "slug": "renardvex",
+    "scheme": "renard",
     "version": "6.5.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -27,8 +27,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "appStoreUrl": "https://apps.apple.com/fr/app/papillon-pour-pronote-ed/id1662669707",
-      "bundleIdentifier": "plus.pronote.app",
+      "appStoreUrl": "https://apps.apple.com/fr/app/",
+      "bundleIdentifier": "fr.renardapp.app",
       "associatedDomains": ["applinks:getpapillon.xyz"],
       "splash": {
         "image": "./assets/launch/splash-light.png",
@@ -42,7 +42,7 @@
       }
     },
     "android": {
-      "playStoreUrl": "https://play.google.com/store/apps/details?id=plus.pronote.app",
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=fr.renardapp.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#29947A"
@@ -57,7 +57,7 @@
           "backgroundColor": "#000000"
         }
       },
-      "package": "plus.pronote.app",
+      "package": "fr.renardapp.app",
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
@@ -84,26 +84,26 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Papillon utilise ta position pour localiser des établissements autour de toi et également pour te localiser sur la carte."
+          "locationAlwaysAndWhenInUsePermission": "Renard utilise ta position pour localiser des établissements autour de toi et également pour te localiser sur la carte."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Papillon utilise ta pellicule pour personnaliser ton profil et ton expérience."
+          "photosPermission": "Renard utilise ta pellicule pour personnaliser ton profil et ton expérience."
         }
       ],
       [
         "expo-calendar",
         {
-          "calendarPermission": "Papillon utilise ton calendrier pour ajouter des cours à celui-ci.",
-          "remindersPermission": "Papillon utilise tes rappels pour ajouter des devoirs à celui-ci."
+          "calendarPermission": "Renard utilise ton calendrier pour ajouter des cours à celui-ci.",
+          "remindersPermission": "Renard utilise tes rappels pour ajouter des devoirs à celui-ci."
         }
       ],
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Autorisez Papillon à utiliser Face ID."
+          "faceIDPermission": "Autorisez Renard à utiliser Face ID."
         }
       ],
       [

@@ -233,7 +233,7 @@ const LoginView = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#32AB8E',
+    backgroundColor: '#FA5D0F',
   },
 
   shapes: {

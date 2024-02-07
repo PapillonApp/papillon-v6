@@ -42,6 +42,9 @@
         <data android:scheme="skoapp-prod"/>
         <data android:scheme="plus.pronote.app"/>
         <data android:scheme="papillon"/>
+        <data android:scheme="renard"/>
+        <data android:scheme="fr.renardapp.app"/>
+        <data android:scheme="exp+renardvex"/>
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>
@@ -304,6 +307,138 @@
       </intent-filter>
     </activity-alias>
     <activity-alias android:name="plus.pronote.app.MainActivityverscinq" android:enabled="false" android:exported="true" android:icon="@mipmap/verscinq" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivityrelief" android:enabled="false" android:exported="true" android:icon="@mipmap/relief" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivitybeta" android:enabled="false" android:exported="true" android:icon="@mipmap/beta" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivityblack" android:enabled="false" android:exported="true" android:icon="@mipmap/black" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivitychip" android:enabled="false" android:exported="true" android:icon="@mipmap/chip" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivitycutted" android:enabled="false" android:exported="true" android:icon="@mipmap/cutted" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivityclassic" android:enabled="false" android:exported="true" android:icon="@mipmap/classic" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivitygold" android:enabled="false" android:exported="true" android:icon="@mipmap/gold" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivitygradient" android:enabled="false" android:exported="true" android:icon="@mipmap/gradient" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivitymetal" android:enabled="false" android:exported="true" android:icon="@mipmap/metal" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivityneon" android:enabled="false" android:exported="true" android:icon="@mipmap/neon" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivitypride" android:enabled="false" android:exported="true" android:icon="@mipmap/pride" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivitypurple" android:enabled="false" android:exported="true" android:icon="@mipmap/purple" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivityrayspurple" android:enabled="false" android:exported="true" android:icon="@mipmap/rayspurple" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivityrays" android:enabled="false" android:exported="true" android:icon="@mipmap/rays" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivityretro" android:enabled="false" android:exported="true" android:icon="@mipmap/retro" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivitysparkles" android:enabled="false" android:exported="true" android:icon="@mipmap/sparkles" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivitybacktoschool" android:enabled="false" android:exported="true" android:icon="@mipmap/backtoschool" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivitybarbie" android:enabled="false" android:exported="true" android:icon="@mipmap/barbie" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivitybetterneon" android:enabled="false" android:exported="true" android:icon="@mipmap/betterneon" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivitymacos" android:enabled="false" android:exported="true" android:icon="@mipmap/macos" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivityoldios" android:enabled="false" android:exported="true" android:icon="@mipmap/oldios" android:targetActivity=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity-alias>
+    <activity-alias android:name="fr.renardapp.app.MainActivityverscinq" android:enabled="false" android:exported="true" android:icon="@mipmap/verscinq" android:targetActivity=".MainActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>

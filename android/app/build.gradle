@@ -114,9 +114,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace 'plus.pronote.app'
+    namespace 'fr.renardapp.app'
     defaultConfig {
-        applicationId 'plus.pronote.app'
+        applicationId 'fr.renardapp.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

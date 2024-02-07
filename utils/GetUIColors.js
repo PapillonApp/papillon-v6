@@ -52,8 +52,8 @@ function GetUIColors(schemeForce) {
   let primary = '';
 
   if (Platform.OS === 'ios') {
-    // primary = '#29947A';
-    primary = '#29947A';
+    // primary = '#FA5D0F';
+    primary = '#FA5D0F';
   } else {
     // primary = theme.colors.primary;
     primary = isDark
