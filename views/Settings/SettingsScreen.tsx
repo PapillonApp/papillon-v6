@@ -199,7 +199,7 @@ function SettingsScreen({ navigation }) {
       <AlertBottomSheet
         visible={deleteAccountAlert}
         title="Êtes-vous sûr ?"
-        subtitle="Tous vos paramètres et comptes seront supprimés définitivement de Papillon."
+        subtitle="Tous vos paramètres et comptes seront supprimés définitivement de Renard."
         icon={<LogOut size={24}/>}
         color='#D81313'
         cancelButton='Annuler'

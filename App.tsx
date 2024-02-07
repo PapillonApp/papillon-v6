@@ -331,7 +331,7 @@ function InsetSettings() {
         name="PaymentScreen"
         component={PaymentScreen}
         options={{
-          headerTitle: 'Soutenir Papillon',
+          headerTitle: 'Soutenir Renard',
           headerBackTitle: 'Retour',
         }}
       />
@@ -339,7 +339,7 @@ function InsetSettings() {
         name="About"
         component={AboutScreen}
         options={{
-          headerTitle: 'A propos de Papillon',
+          headerTitle: 'A propos de Renard',
           headerBackTitle: 'Préférences',
         }}
       />

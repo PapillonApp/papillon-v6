@@ -41,7 +41,7 @@ function AboutScreen({ navigation }) {
 
   const dataList = [
     {
-      title: 'Version de Papillon',
+      title: 'Version de Renard',
       subtitle: `${packageJson.version} ${packageJson.canal}`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
@@ -142,7 +142,7 @@ function AboutScreen({ navigation }) {
                 Votre don permet de financer les serveurs et le développement.
               </NativeText>
               <NativeText heading="subtitle2">
-                Papillon est 100% libre et indépendant & créé par des élèves.
+                Renard est 100% libre et indépendant & créé par des élèves.
               </NativeText>
             </NativeItem>
           </NativeList>
@@ -192,7 +192,7 @@ function AboutScreen({ navigation }) {
             onPress={() => navigation.navigate('ChangelogScreen')}
           >
             <NativeText heading="h4">
-                Version de Papillon
+                Version de Renard
             </NativeText>
           </NativeItem>
           <NativeItem
