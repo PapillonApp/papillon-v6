@@ -1,16 +1,13 @@
 # Politique de sécurité
 
-## Versions prises en charge
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 6.4.0   | :white_check_mark: |
-| 6.3.3   | :x:                |
-| 6.3.0   | :x:                |
-| 6.2.3   | :x:                |
-| 6.1.0   | :x:                |
-| 6.0.0   | :x:                |
-| < 6.0   | :x:                |
+## Disclaimer
+- Il est clairement mentionné que cette application n'est pas l'application officielle des logiciels de vie scolaire.
+- Cette application n'est pas une contrefaçon car elle ne prétend pas être éditée par les éditeurs de logiciels de vie scolaire.
+- Les utilisateurs ne peuvent accéder qu'à leurs propres données. Ils sont soumis au même processus d'authentification que celui implémenté dans les applications officielles.
+- Les données des utilisateurs ne sont pas davantage exposées puisqu'un utilisateur ne peut accéder qu'à ses propres données. Personne n'a le contrôle sur cette limitation qui est inhérente au fonctionnement de l'API des serveurs de logiciels de vie scolaire.
+- Tout utilisateur de cette application a *a priori* lu l'entièreté du fichier de licence MIT disponible publiquement [LICENSE](./LICENSE) ainsi que de ce présent fichier de présentation.
+- Tout utilisateur de cette application a *a priori* lu l'entièreté du code de ce projet avant toute utilisation.
+- Eu égard l'ensemble de ces remarques, les contributeurs et *a fortiori* l'auteur du projet ne peuvent être tenus comme responsables de tout dommage potentiel.
 
 ## Signalement d'une vulnérabilité ou d'un problème
 
