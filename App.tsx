@@ -11,7 +11,7 @@ import SyncStorage from 'sync-storage';
 
 import { getHeaderTitle } from '@react-navigation/elements';
 import { useMemo, useEffect } from 'react';
-import { Platform, StyleSheet, useColorScheme, View, TouchableOpacity } from 'react-native';
+import { Easing, Platform, StyleSheet, useColorScheme, View, TouchableOpacity, Animated } from 'react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 
 import { useCallback } from 'react';
@@ -75,6 +75,8 @@ import LocateEtab from './views/NewAuthStack/Pronote/LocateEtab';
 import NetworkLoggerScreen from './views/Settings/NetworkLogger';
 
 import PdfViewer from './views/Modals/PdfViewer';
+
+import LottieView from 'lottie-react-native';
 
 import { LoginSkolengoSelectSchool } from './views/NewAuthStack/Skolengo/LoginSkolengoSelectSchool';
 import { IndexDataInstance } from './fetch';
@@ -1181,6 +1183,27 @@ function App() {
   const [appIsReady, setAppIsReady] = React.useState(false);
   const [loggedIn, setLoggedIn] = React.useState(false);
 
+  const iconScale = React.useRef(new Animated.Value(0.8)).current;
+  const iconOpacity = React.useRef(new Animated.Value(0)).current;
+
+  // scale up the icon when visible
+  React.useEffect(() => {
+    Animated.parallel([
+      Animated.timing(iconScale, {
+        toValue: 1,
+        duration: 300,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(iconOpacity, {
+        toValue: 1,
+        duration: 300,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
   useEffect(() => {
     async function prepare() {
       try {
@@ -1207,7 +1230,28 @@ function App() {
         console.error('app.prepare:', error);
       } finally {
         // Tell the application to render
-        setAppIsReady(true);
+
+        // scale down the icon and fade it out
+        Animated.parallel([
+          Animated.timing(iconScale, {
+            toValue: 1.2,
+            delay: 200,
+            duration: 300,
+            easing: Easing.in(Easing.cubic),
+            useNativeDriver: true,
+          }),
+          Animated.timing(iconOpacity, {
+            toValue: 0,
+            delay: 200,
+            duration: 300,
+            easing: Easing.in(Easing.cubic),
+            useNativeDriver: true,
+          }),
+        ]).start();
+
+        setTimeout(() => {
+          setAppIsReady(true);
+        }, 400);
       }
     }
 
@@ -1246,7 +1290,53 @@ function App() {
       </PaperProvider>
       <FlashMessage position="top" />
     </View>
-  ) : null;
+  ) : (
+    <View
+      style={{
+        backgroundColor: '#963809',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Animated.View
+        style={{
+          width: 80,
+          height: 80,
+          borderRadius: 20,
+          borderCurve: 'continuous',
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: 3,
+          },
+          shadowOpacity: 0.15,
+          shadowRadius: 4,
+          transform: [{ scale: iconScale }],
+          opacity: iconOpacity,
+        }}
+      >
+        <LottieView
+          source={require('./assets/renard.json')}
+          style={{
+            width: 80,
+            height: 80,
+            borderRadius: 20,
+            borderCurve: 'continuous',
+            overflow: 'hidden',
+          }}
+          autoPlay
+          loop
+        />
+      </Animated.View>
+
+    </View>
+  );
 }
 
 export default Sentry.wrap(App);

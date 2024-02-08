@@ -3,7 +3,7 @@
     "name": "Renard",
     "slug": "renardvex",
     "scheme": "renard",
-    "version": "6.5.1",
+    "version": "6.6.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -25,19 +25,20 @@
         ]
       }
     ],
+    "splash": {
+      "image": "./assets/launch/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#963809"
+    },
     "ios": {
       "supportsTablet": true,
       "appStoreUrl": "https://apps.apple.com/fr/app/",
       "bundleIdentifier": "fr.renardapp.app",
       "associatedDomains": ["applinks:getpapillon.xyz"],
       "splash": {
-        "image": "./assets/launch/splash-light.png",
-        "resizeMode": "cover",
-        "backgroundColor": "#F3F2F8",
+        "backgroundColor": "#963809",
         "dark": {
-          "image": "./assets/launch/splash-dark.png",
-          "resizeMode": "cover",
-          "backgroundColor": "#000000"
+          "backgroundColor": "#963809"
         }
       }
     },
@@ -49,13 +50,9 @@
         "backgroundColor": "#FA5D0F"
       },
       "splash": {
-        "image": "./assets/launch/splash-light.png",
-        "backgroundColor": "#FA5D0F",
-        "resizeMode": "cover",
+        "backgroundColor": "#963809",
         "dark": {
-          "image": "./assets/launch/splash-dark.png",
-          "resizeMode": "cover",
-          "backgroundColor": "#000000"
+          "backgroundColor": "#963809"
         }
       },
       "package": "fr.renardapp.app",
