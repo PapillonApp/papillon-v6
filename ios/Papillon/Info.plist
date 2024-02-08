@@ -480,7 +480,7 @@
     <key>NSCalendarsUsageDescription</key>
     <string>Renard utilise ton calendrier pour ajouter des cours à celui-ci.</string>
     <key>NSCameraUsageDescription</key>
-    <string>Papillon utilise ta caméra pour personnaliser ton compte ou scanner un QR-Code.</string>
+    <string>Renard utilise ta caméra pour personnaliser ton compte ou scanner un QR-Code.</string>
     <key>NSFaceIDUsageDescription</key>
     <string>Autorisez Renard à utiliser Face ID.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
