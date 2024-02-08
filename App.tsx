@@ -1181,28 +1181,11 @@ function App() {
   
   const [dataProvider, setDataProvider] = React.useState<IndexDataInstance | null>(null);	
   const [appIsReady, setAppIsReady] = React.useState(false);
+  const [hideSplash, setHideSplash] = React.useState(false);
   const [loggedIn, setLoggedIn] = React.useState(false);
 
-  const iconScale = React.useRef(new Animated.Value(0.8)).current;
-  const iconOpacity = React.useRef(new Animated.Value(0)).current;
-
-  // scale up the icon when visible
-  React.useEffect(() => {
-    Animated.parallel([
-      Animated.timing(iconScale, {
-        toValue: 1,
-        duration: 300,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-      Animated.timing(iconOpacity, {
-        toValue: 1,
-        duration: 300,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
+  const iconScale = React.useRef(new Animated.Value(1)).current;
+  const iconOpacity = React.useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     async function prepare() {
@@ -1230,28 +1213,7 @@ function App() {
         console.error('app.prepare:', error);
       } finally {
         // Tell the application to render
-
-        // scale down the icon and fade it out
-        Animated.parallel([
-          Animated.timing(iconScale, {
-            toValue: 1.2,
-            delay: 200,
-            duration: 300,
-            easing: Easing.in(Easing.cubic),
-            useNativeDriver: true,
-          }),
-          Animated.timing(iconOpacity, {
-            toValue: 0,
-            delay: 200,
-            duration: 300,
-            easing: Easing.in(Easing.cubic),
-            useNativeDriver: true,
-          }),
-        ]).start();
-
-        setTimeout(() => {
-          setAppIsReady(true);
-        }, 400);
+        setAppIsReady(true);
       }
     }
 
@@ -1266,6 +1228,9 @@ function App() {
       // we hide the splash screen once we know the root view has already
       // performed layout.
       await SplashScreen.hideAsync();
+      setTimeout(() => {
+        setHideSplash(true);
+      }, 200);
     }
   }, [appIsReady]);
 
@@ -1276,11 +1241,93 @@ function App() {
     setDataProvider
   }),	[loggedIn, dataProvider]);
 
+  const splashMainAnimation = React.useRef(new Animated.Value(0)).current;
+  const splashIconAnimation = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    if (hideSplash) {
+      Animated.parallel([
+        Animated.timing(splashMainAnimation, {
+          toValue: 1,
+          delay: 700,
+          duration: 300,
+          useNativeDriver: true,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+        }),
+        Animated.timing(splashIconAnimation, {
+          toValue: 1,
+          delay: 500,
+          duration: 300,
+          useNativeDriver: true,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+        }),
+      ]).start();
+    }
+  }, [hideSplash]);
+
   return appIsReady ? (
     <View style={{
       flex: 1,
       backgroundColor: scheme === 'dark' ? '#000' : '#f2f2f7',
     }}>
+      
+        <Animated.View
+          pointerEvents={hideSplash ? 'none' : 'auto'}
+          style={{
+            backgroundColor: '#963809',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 1000,
+            height: '100%',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: splashMainAnimation.interpolate({
+              inputRange: [0, 1],
+              outputRange: [1, 0],
+            }),
+          }}
+        >
+          <Animated.View
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: 20,
+              borderCurve: 'continuous',
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 3,
+              },
+              shadowOpacity: 0.15,
+              shadowRadius: 4,
+              transform: [{ scale: splashIconAnimation.interpolate({
+                inputRange: [0, 1],
+                outputRange: [1, 1.1],
+              }) }],
+              opacity: splashIconAnimation.interpolate({
+                inputRange: [0, 1],
+                outputRange: [1, 0],
+              }),
+            }}
+          >
+            <LottieView
+              source={require('./assets/renard.json')}
+              style={{
+                width: 80,
+                height: 80,
+                borderRadius: 20,
+                borderCurve: 'continuous',
+                overflow: 'hidden',
+              }}
+              autoPlay
+              loop
+            />
+          </Animated.View>
+
+        </Animated.View>
+
       <PaperProvider>
         <AppContextProvider state={ctxValue}>
           <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
@@ -1290,53 +1337,7 @@ function App() {
       </PaperProvider>
       <FlashMessage position="top" />
     </View>
-  ) : (
-    <View
-      style={{
-        backgroundColor: '#963809',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-        height: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Animated.View
-        style={{
-          width: 80,
-          height: 80,
-          borderRadius: 20,
-          borderCurve: 'continuous',
-          shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: 3,
-          },
-          shadowOpacity: 0.15,
-          shadowRadius: 4,
-          transform: [{ scale: iconScale }],
-          opacity: iconOpacity,
-        }}
-      >
-        <LottieView
-          source={require('./assets/renard.json')}
-          style={{
-            width: 80,
-            height: 80,
-            borderRadius: 20,
-            borderCurve: 'continuous',
-            overflow: 'hidden',
-          }}
-          autoPlay
-          loop
-        />
-      </Animated.View>
-
-    </View>
-  );
+  ) : null;
 }
 
 export default Sentry.wrap(App);
