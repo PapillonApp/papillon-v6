@@ -107,7 +107,7 @@
       [
         "expo-barcode-scanner",
         {
-          "cameraPermission": "Papillon utilise ta caméra pour personnaliser ton compte ou scanner un QR-Code."
+          "cameraPermission": "Renard utilise ta caméra pour personnaliser ton compte ou scanner un QR-Code."
         }
       ],
       [

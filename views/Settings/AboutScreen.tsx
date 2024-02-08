@@ -117,7 +117,7 @@ function AboutScreen({ navigation }) {
               Serveur Discord
             </NativeText>
             <NativeText heading="p2">
-              Rejoindre le serveur de Papillon
+              Rejoindre le serveur de Renard
             </NativeText>
           </NativeItem>
         </NativeList>

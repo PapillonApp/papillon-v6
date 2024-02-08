@@ -91,10 +91,10 @@ function ChangelogScreen() {
             ]}
           />
           <Text style={styles.headerTitleTitle}>
-            Quoi de neuf dans Papillon ?
+            Quoi de neuf dans Renard ?
           </Text>
           <Text style={styles.headerTitleText}>
-            Papillon à été mis à jour à la version {packageJson.version}.
+          Renard à été mis à jour à la version {packageJson.version}.
             Découvrons ensemble, pas-à-pas, toutes les nouvelles fonctionnalités
             !
           </Text>

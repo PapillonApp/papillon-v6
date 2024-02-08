@@ -22,7 +22,7 @@ const HeaderSelectScreen = ({ navigation }) => {
 
   const backgrounds = [
     {
-      name: 'Papillon',
+      name: 'Renard',
       description: 'Bandeaux disponibles par défaut',
       slug: 'papillon',
       images : [
