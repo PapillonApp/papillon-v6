@@ -12,6 +12,8 @@ web-build/
 .env
 .idea
 .vscode
+*.pepk
+*.jks
 
 # macOS
 .DS_Store
