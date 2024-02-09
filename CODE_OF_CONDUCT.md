@@ -1,6 +1,6 @@
-# Code de Conduite - Projet Papillon
+# Code de Conduite - Projet Renard
 
-Le projet Papillon s'engage à maintenir un environnement ouvert, respectueux et collaboratif pour tous les membres de sa communauté. Notre objectif est de développer une application de vie scolaire en France qui soit inclusive et bénéfique pour tous, tout en créant une atmosphère collaborative et agréable pour nos contributeurs.
+Le projet Renard s'engage à maintenir un environnement ouvert, respectueux et collaboratif pour tous les membres de sa communauté. Notre objectif est de développer une application de vie scolaire en France qui soit inclusive et bénéfique pour tous, tout en créant une atmosphère collaborative et agréable pour nos contributeurs.
 
 ## Nos Engagements
 
@@ -40,7 +40,7 @@ Ce Code de Conduite s'applique dans tous les espaces de la communauté, et égal
 
 ## Application
 
-Les incidents de comportement abusif, de harcèlement ou autrement inacceptable peuvent être signalés aux leaders de la communauté responsables de l'application à support@getpapillon.xyz.
+Les incidents de comportement abusif, de harcèlement ou autrement inacceptable peuvent être signalés aux leaders de la communauté responsables de l'application à support@getRenard.xyz.
 Toutes les plaintes seront examinées et traitées rapidement et équitablement.
 
 Tous les leaders de la communauté sont tenus de respecter la confidentialité et la sécurité du rapporteur de tout incident.
@@ -73,4 +73,4 @@ Les leaders de la communauté suivront ces Lignes Directrices d'Impact sur la Co
 
 **Conséquence** : Une exclusion permanente de toute interaction publique au sein de la communauté.
 
-> \*Ce code de conduite est spécifiquement adapté pour le projet Papillon, en prenant en compte des éléments d'inclusion, de collaboration et de respect mutuel.
+> \*Ce code de conduite est spécifiquement adapté pour le projet Renard, en prenant en compte des éléments d'inclusion, de collaboration et de respect mutuel.
