@@ -1,10 +1,10 @@
-# Contribuer à notre projet Papillon
+# Contribuer à notre projet Renard
 
-Nous sommes ravis que vous souhaitiez contribuer à notre projet open source de gestion de vie étudiante Papillon ! Voici quelques éléments à prendre en compte avant de commencer :
+Nous sommes ravis que vous souhaitiez contribuer à notre projet open source de gestion de vie étudiante Renard ! Voici quelques éléments à prendre en compte avant de commencer :
 
 ## Code de conduite
 
-Nous attendons de tous les contributeurs qu'ils respectent notre code de conduite. Veuillez lire attentivement le fichier [CODE_OF_CONDUCT.md](https://github.com/PapillonApp/Papillon/blob/development/CODE_OF_CONDUCT.md) avant de contribuer.
+Nous attendons de tous les contributeurs qu'ils respectent notre code de conduite. Veuillez lire attentivement le fichier [CODE_OF_CONDUCT.md](https://github.com/RenardApp/Renard/blob/development/CODE_OF_CONDUCT.md) avant de contribuer.
 
 ## Comment contribuer
 
@@ -34,4 +34,4 @@ Si vous avez des compétences techniques, vous pouvez contribuer en soumettant d
 
 ## Licence
 
-Le projet Papillon est sous licence MIT. En contribuant à ce projet, vous acceptez que vos contributions soient sous licence MIT également.
+Le projet Renard est sous licence MIT. En contribuant à ce projet, vous acceptez que vos contributions soient sous licence MIT également.
