@@ -156,7 +156,7 @@ function HomeworkScreen({ route, navigation }: {
           tintColor={Platform.OS === 'android' ? UIColors.primary : ''}
         />
       }
-      contentContainerStyle={{ display: 'flex', flexGrow: 1, flexDirection: 'column', justifyContent: 'space-between'}}
+      contentContainerStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}
       style={{ backgroundColor: UIColors.modalBackground }}
       contentInsetAdjustmentBehavior="automatic"
     >
@@ -328,12 +328,6 @@ function HomeworkScreen({ route, navigation }: {
             </NativeList>
           </>
         )}
-      </View>
-
-      <View style={{ display: 'flex', alignItems: 'center', paddingBottom: insets.bottom + 2 }}>
-        <NativeText heading="p2" style={{ fontSize: 12, opacity: .35 }}>
-          Dernière mise à jour du cache : {new Date(homework.cacheDateTimestamp).toLocaleString('fr-FR')}
-        </NativeText>
       </View>
 
       <AlertBottomSheet
