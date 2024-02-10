@@ -148,14 +148,7 @@ function HomeworkScreen({ route, navigation }: {
   }, [navigation, homework]);
 
   return (
-    <ScrollView
-      refreshControl={
-        <RefreshControl
-          refreshing={homeworkRefreshLoading}
-          onRefresh={onRefresh}
-          tintColor={Platform.OS === 'android' ? UIColors.primary : ''}
-        />
-      }
+    <View
       contentContainerStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}
       style={{ backgroundColor: UIColors.modalBackground }}
       contentInsetAdjustmentBehavior="automatic"
@@ -346,7 +339,7 @@ function HomeworkScreen({ route, navigation }: {
         icon={<Trash size={24} />}
       />
 
-    </ScrollView>
+    </View>
   );
 }
 
