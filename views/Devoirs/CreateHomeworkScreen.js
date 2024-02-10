@@ -228,7 +228,7 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
       style={{flex: 1, backgroundColor: UIColors.modalBackground}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
     >
-      <View style={{ backgroundColor: UIColors.element, borderBottomColor: UIColors.border, borderBottomWidth: 0.5, gap: 9, paddingBottom: 16, zIndex: 99 }}>
+      <View style={{ backgroundColor: UIColors.element, borderBottomColor: UIColors.borderLight, borderBottomWidth: 0.5, gap: 9, paddingBottom: 16, zIndex: 99 }}>
         <View style={[styles.newHwInput, {borderColor: UIColors.text + '18'}]}>
           <SFSymbol style={[styles.newHwIcon]} size={20} color={UIColors.text + '80'} name="square.and.pencil" />
           <TextInput
@@ -319,7 +319,7 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
         />
       </View>
       <InputAccessoryView nativeID='main'>
-        <View style={{ backgroundColor: UIColors.element, borderTopColor: UIColors.border, borderTopWidth: 0.5, gap: 9, paddingBottom: 12, paddingHorizontal: 16, paddingTop: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <View style={{ backgroundColor: UIColors.element, borderTopColor: UIColors.borderLight, borderTopWidth: 0.5, gap: 9, paddingBottom: 12, paddingHorizontal: 16, paddingTop: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <TouchableOpacity
             style={{
               width: 32,
