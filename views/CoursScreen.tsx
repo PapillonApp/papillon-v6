@@ -691,25 +691,41 @@ const CoursItem = ({ cours, lessonPressed, navigation }: {
         style={{ flex: 1 }}
         previewConfig={{
           borderRadius: 10,
-          previewType: 'CUSTOM',
-          previewSize: 'INHERIT',
-          backgroundColor: 'rgba(255,255,255,0)',
-          preferredCommitStyle: 'pop',
         }}
         menuConfig={{
-          menuTitle: cours.subject?.name ?? 'Cours',
+          menuTitle: cours.subject?.name ?? '',
           menuItems: [
             {
-              actionKey: 'open',
-              actionTitle: 'Voir le cours en détail',
-              actionSubtitle: 'Ouvrir la page détaillée du cours',
-              icon: {
-                type: 'IMAGE_SYSTEM',
-                imageValue: {
-                  systemName: 'book.pages',
-                },
-              },
+              actionKey: 'data-room',
+              actionTitle: 'Salle de cours',
+              actionSubtitle: cours.rooms.join(', ') || 'Aucune salle',
             },
+            {
+              actionKey: 'data-teacher',
+              actionTitle: `Professeur${cours.teachers.length > 1 ? 's' : ''}`,
+              actionSubtitle: cours.teachers.join(', ') || 'Aucun professeur',
+            },
+            cours.group_names.length > 0 && {
+              actionKey: 'data-groupes',
+              actionTitle: `Groupe${cours.group_names.length > 1 ? 's' : ''}`,
+              actionSubtitle: cours.group_names.join(', ') || 'Aucun groupe',
+            },
+            {
+              menuTitle: '',
+              menuOptions: ['displayInline'],
+              menuItems: [
+                {
+                  actionKey: 'open',
+                  actionTitle: 'Voir le cours en détail',
+                  icon: {
+                    type: 'IMAGE_SYSTEM',
+                    imageValue: {
+                      systemName: 'book.pages',
+                    },
+                  },
+                },
+              ]
+            }
           ],
         }}
         onPressMenuItem={({ nativeEvent }) => {
@@ -717,67 +733,6 @@ const CoursItem = ({ cours, lessonPressed, navigation }: {
             navigation.navigate('Lesson', { event: cours });
           }
         }}
-        onPressMenuPreview={() => {
-          navigation.navigate('Lesson', { event: cours });
-        }}
-        renderPreview={() => (
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: `${UIColors.background}99`,
-              width: 350,
-            }}
-          >
-            <View style={styles.coursPreviewList}>
-              {cours.rooms.length > 0 ? (
-                <ListItem
-                  title="Salle de cours"
-                  subtitle={cours.rooms.join(', ')}
-                  color={mainColor}
-                  left={<DoorOpen size={24} color={mainColor} />}
-                  width
-                  center
-                />
-              ) : null}
-              {cours.teachers.length > 0 ? (
-                <ListItem
-                  title={`Professeur${cours.teachers.length > 1 ? 's' : ''}`}
-                  subtitle={cours.teachers.join(', ')}
-                  color={mainColor}
-                  left={<User2 size={24} color={mainColor} />}
-                  width
-                  center
-                />
-              ) : null}
-              {cours.group_names.length > 0 ? (
-                <ListItem
-                  title={`Groupe${cours.group_names.length > 1 ? 's' : ''}`}
-                  subtitle={cours.group_names.join(', ')}
-                  color={mainColor}
-                  left={<Users size={24} color={mainColor} />}
-                  width
-                  center
-                />
-              ) : null}
-              {cours.status !== null ? (
-                <ListItem
-                  title="Statut du cours"
-                  subtitle={cours.status}
-                  color={!cours.is_cancelled ? mainColor : '#B42828'}
-                  left={
-                    <Info
-                      size={24}
-                      color={!cours.is_cancelled ? mainColor : '#ffffff'}
-                    />
-                  }
-                  fill={!!cours.is_cancelled}
-                  width
-                  center
-                />
-              ) : null}
-            </View>
-          </View>
-        )}
       >
         <PressableScale
           weight="light"
