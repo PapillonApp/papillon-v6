@@ -41,7 +41,7 @@ function AboutScreen({ navigation }) {
 
   const dataList = [
     {
-      title: 'Version de Renard',
+      title: 'Version de Papillon',
       subtitle: `${packageJson.version} ${packageJson.canal}`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
@@ -117,7 +117,7 @@ function AboutScreen({ navigation }) {
               Serveur Discord
             </NativeText>
             <NativeText heading="p2">
-              Rejoindre le serveur de Renard
+              Rejoindre le serveur de Papillon
             </NativeText>
           </NativeItem>
         </NativeList>
@@ -142,7 +142,7 @@ function AboutScreen({ navigation }) {
                 Votre don permet de financer les serveurs et le développement.
               </NativeText>
               <NativeText heading="subtitle2">
-                Renard est 100% libre et indépendant & créé par des élèves.
+                Papillon est 100% libre et indépendant & créé par des élèves.
               </NativeText>
             </NativeItem>
           </NativeList>
@@ -192,7 +192,7 @@ function AboutScreen({ navigation }) {
             onPress={() => navigation.navigate('ChangelogScreen')}
           >
             <NativeText heading="h4">
-                Version de Renard
+                Version de Papillon
             </NativeText>
           </NativeItem>
           <NativeItem

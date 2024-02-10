@@ -114,9 +114,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace 'fr.renardapp.app'
+    namespace 'xyz.getpapillon.app'
     defaultConfig {
-        applicationId 'fr.renardapp.app'
+        applicationId 'xyz.getpapillon.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

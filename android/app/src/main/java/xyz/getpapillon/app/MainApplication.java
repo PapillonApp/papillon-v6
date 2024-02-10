@@ -1,4 +1,4 @@
-package fr.renardapp.app;
+package xyz.getpapillon.app;
 
 import android.app.Application;
 import android.content.res.Configuration;

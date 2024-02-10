@@ -1,11 +1,11 @@
-# Renard — Votre vie scolaire
+# Papillon — Votre vie scolaire
 
 > [!WARNING]  
 > **Des modifications majeures de la structure de ce projet sont en cours**
 > 
 > Le fonctionnement du code risque de changer de manière importante, merci de ne pas merge sur `main`
 
-Votre emploi du temps 📅, votre agenda 📓, vos notes 📝, vos news 📰 et bien plus encore en un clin d’œil grâce à l'application Renard.
+Votre emploi du temps 📅, votre agenda 📓, vos notes 📝, vos news 📰 et bien plus encore en un clin d’œil grâce à l'application Papillon.
 
 ## 🚀 Sommaire
 
@@ -48,7 +48,7 @@ Voici un aperçu de ce que nous avons accompli jusqu'à présent et de ce qui re
 
 ## 📖 À propos du projet
 
-Renard est une application mobile qui vise à simplifier la vie scolaire des étudiants en France.
+Papillon est une application mobile qui vise à simplifier la vie scolaire des étudiants en France.
 
 ## 🛠 Développé avec
 
@@ -69,7 +69,7 @@ Renard est une application mobile qui vise à simplifier la vie scolaire des ét
 1. Clonez le repo
 
 ```sh
-git clone https://github.com/RenardApp/Renard.git
+git clone https://github.com/PapillonApp/Papillon.git
 ```
 
 2. Installez les packages NPM

@@ -70,7 +70,7 @@ function DonorsScreen({ navigation }) {
         <PapillonLoading
           icon={<Heart size={32} color="#bf941d" />}
           title="Merci à tous nos donateurs !"
-          subtitle="Vous êtes géniaux ! Grâce à vous, nous pouvons continuer à développer Renard de manière indépendante & gratuite !"
+          subtitle="Vous êtes géniaux ! Grâce à vous, nous pouvons continuer à développer Papillon de manière indépendante & gratuite !"
         />
 
         <NativeList
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   certif: {
-    backgroundColor: '#FA5D0F',
+    backgroundColor: '#32AB8E',
 
     padding: 1,
     borderRadius: 8,

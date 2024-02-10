@@ -36,12 +36,12 @@ function SettingsScreen({ navigation }) {
 
         <ListItem
           title="Mon profil"
-          subtitle="Configurez votre compte Renard, votre pseudonyme, votre photo de profil..."
-          color="#FA5D0F"
+          subtitle="Configurez votre compte Papillon, votre pseudonyme, votre photo de profil..."
+          color="#32AB8E"
           left={
             <PapillonIcon
               icon={<User2 size={24} color="#fff" />}
-              color="#FA5D0F"
+              color="#32AB8E"
               size={24}
               fill
               small
@@ -89,8 +89,8 @@ function SettingsScreen({ navigation }) {
         <Text style={styles.ListTitle}>A propos</Text>
 
         <ListItem
-          title="A propos de Renard"
-          subtitle={`Renard version ${packageJson.version} ${packageJson.canal}`}
+          title="A propos de Papillon"
+          subtitle={`Papillon version ${packageJson.version} ${packageJson.canal}`}
           color="#888888"
           left={
             <PapillonIcon

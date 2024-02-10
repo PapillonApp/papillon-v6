@@ -60,7 +60,7 @@ function NewsItem({ route, navigation }) {
   const alertSondage = () => {
     Alert.alert(
       'Sondage',
-      'Impossible de répondre au sondage depuis l\'application Renard pour le moment.',
+      'Impossible de répondre au sondage depuis l\'application Papillon pour le moment.',
       [
         { text: 'OK', onPress: () => {} },
       ],
@@ -239,7 +239,7 @@ function NewsItem({ route, navigation }) {
               Cette actualité contient un sondage
             </NativeText>
             <NativeText heading="p2">
-              Impossible de répondre au sondage depuis l'application Renard pour le moment.
+              Impossible de répondre au sondage depuis l'application Papillon pour le moment.
             </NativeText>
 
             <NativeText heading="subtitle2" style={{marginTop: 8}}>

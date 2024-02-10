@@ -202,7 +202,7 @@ const LoginView = ({ navigation }) => {
           Envolez-vous vers une meilleure vie scolaire
         </Text>
         <Text style={[styles.mainSubtitle]}>
-          Papillon vous permet de profiter d’une expérience améliorée pour les logiciels de vie scolaire Pronote et Skolengo.
+          Toute votre vie scolaire et bien plus au même endroit, une application que vous risquez d'adorer !
         </Text>
 
         <TouchableOpacity
@@ -233,7 +233,7 @@ const LoginView = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FA5D0F',
+    backgroundColor: '#32AB8E',
   },
 
   shapes: {
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   startText: {
     fontSize: 16,
     fontFamily: 'Papillon-Semibold',
-    color: '#FA5D0F',
+    color: '#32AB8E',
   },
 
   mainVersion: {

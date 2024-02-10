@@ -35,11 +35,11 @@ function AppearanceScreen({ navigation }) {
         <ListItem
           title="Icône de l'application"
           subtitle="Changer l'icône de l'application"
-          color="#FA5D0F"
+          color="#32AB8E"
           left={
             <PapillonIcon
-              icon={<Maximize size={24} color="#FA5D0F" />}
-              color="#FA5D0F"
+              icon={<Maximize size={24} color="#32AB8E" />}
+              color="#32AB8E"
               small
             />
           }
@@ -49,11 +49,11 @@ function AppearanceScreen({ navigation }) {
         <ListItem
           title="Couleur des matières"
           subtitle="Changer la couleur des matières"
-          color="#FA5D0F"
+          color="#32AB8E"
           left={
             <PapillonIcon
-              icon={<Palette size={24} color="#FA5D0F" />}
-              color="#FA5D0F"
+              icon={<Palette size={24} color="#32AB8E" />}
+              color="#32AB8E"
               small
             />
           }
@@ -67,7 +67,7 @@ function AppearanceScreen({ navigation }) {
         <ListItem
           title="Notifications"
           subtitle="Gérer les rappels et les mises à jour des données en arrière plan"
-          color="#FA5D0F"
+          color="#32AB8E"
           left={
             <PapillonIcon
               icon={<Bell size={24} color="#5d75de" />}

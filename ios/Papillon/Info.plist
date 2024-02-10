@@ -5,7 +5,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>Renard</string>
+    <string>Papillon</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIcons</key>
@@ -447,14 +447,14 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>renard</string>
-          <string>fr.renardapp.app</string>
+          <string>papillon</string>
+          <string>xyz.getpapillon.ios</string>
         </array>
       </dict>
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>exp+renardvex</string>
+          <string>exp+papillonvex</string>
         </array>
       </dict>
     </array>
@@ -476,15 +476,15 @@
       </dict>
     </dict>
     <key>NSCalendarsFullAccessUsageDescription</key>
-    <string>Renard utilise ton calendrier pour ajouter des cours à celui-ci.</string>
+    <string>Papillon utilise ton calendrier pour ajouter des cours à celui-ci.</string>
     <key>NSCalendarsUsageDescription</key>
-    <string>Renard utilise ton calendrier pour ajouter des cours à celui-ci.</string>
+    <string>Papillon utilise ton calendrier pour ajouter des cours à celui-ci.</string>
     <key>NSCameraUsageDescription</key>
-    <string>Renard utilise ta caméra pour personnaliser ton compte ou scanner un QR-Code.</string>
+    <string>Papillon utilise ta caméra pour personnaliser ton compte ou scanner un QR-Code.</string>
     <key>NSFaceIDUsageDescription</key>
-    <string>Autorisez Renard à utiliser Face ID.</string>
+    <string>Autorisez Papillon à utiliser Face ID.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>Renard utilise ta position pour localiser des établissements autour de toi et également pour te localiser sur la carte.</string>
+    <string>Papillon utilise ta position pour localiser des établissements autour de toi et également pour te localiser sur la carte.</string>
     <key>NSLocationAlwaysUsageDescription</key>
     <string>Papillon utilise ton emplacement pour trouver des établissements autour de toi.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
@@ -492,11 +492,11 @@
     <key>NSMicrophoneUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your microphone</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>Renard utilise ta pellicule pour personnaliser ton profil et ton expérience.</string>
+    <string>Papillon utilise ta pellicule pour personnaliser ton profil et ton expérience.</string>
     <key>NSRemindersFullAccessUsageDescription</key>
-    <string>Renard utilise tes rappels pour ajouter des devoirs à celui-ci.</string>
+    <string>Papillon utilise tes rappels pour ajouter des devoirs à celui-ci.</string>
     <key>NSRemindersUsageDescription</key>
-    <string>Renard utilise tes rappels pour ajouter des devoirs à celui-ci.</string>
+    <string>Papillon utilise tes rappels pour ajouter des devoirs à celui-ci.</string>
     <key>UIBackgroundModes</key>
     <array>
       <string>fetch</string>

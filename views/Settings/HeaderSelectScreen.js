@@ -18,11 +18,11 @@ import { getRandomColor } from '../../utils/ColorCoursName';
 const HeaderSelectScreen = ({ navigation }) => {
   const UIColors = GetUIColors();
 
-  const [selectedColor, setSelectedColor] = useState('#FA5D0F');
+  const [selectedColor, setSelectedColor] = useState('#32AB8E');
 
   const backgrounds = [
     {
-      name: 'Renard',
+      name: 'Papillon',
       description: 'Bandeaux disponibles par défaut',
       slug: 'papillon',
       images : [
@@ -189,7 +189,7 @@ const HeaderSelectScreen = ({ navigation }) => {
 
   const [currentSettings, setCurrentSettings] = useState({
     homeThemesEnabled: false,
-    homeThemeColor: '#FA5D0F',
+    homeThemeColor: '#32AB8E',
     homeThemeImage: 'papillon/default',
   });
 
@@ -199,10 +199,10 @@ const HeaderSelectScreen = ({ navigation }) => {
       setCurrentSettings({
         ...settings,
         homeThemesEnabled: settings.homeThemesEnabled || false,
-        homeThemeColor: settings.homeThemeColor || '#FA5D0F',
+        homeThemeColor: settings.homeThemeColor || '#32AB8E',
         homeThemeImage: settings.homeThemeImage || 'papillon/default',
       });
-      setSelectedColor(settings.homeThemeColor || '#FA5D0F');
+      setSelectedColor(settings.homeThemeColor || '#32AB8E');
     }
   }, []);
 

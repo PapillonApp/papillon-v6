@@ -42,7 +42,7 @@ const AdjustmentsScreen = ({ navigation }) => {
   const [currentSettings, setCurrentSettings] = useState({
     hideTabBarTitle: false,
     homeThemesEnabled: false,
-    homeThemeColor: '#FA5D0F',
+    homeThemeColor: '#32AB8E',
     homeThemeImage: 'papillon/default',
   });
   const [willNeedRestart, setWillNeedRestart] = useState(false);
@@ -51,7 +51,7 @@ const AdjustmentsScreen = ({ navigation }) => {
     const settings = SyncStorage.get('adjustments');
     if (settings) {
       setCurrentSettings(settings);
-      setColorModalColor(settings.homeThemeColor || '#FA5D0F');
+      setColorModalColor(settings.homeThemeColor || '#32AB8E');
     }
     else {
       SyncStorage.set('adjustments', currentSettings);

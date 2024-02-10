@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Votre problème concerne une faille de sécurité ?
-    url: https://github.com/RenardApp/Renard/security/advisories/
+    url: https://github.com/PapillonApp/Papillon/security/advisories/
     about: Merci de nous contacter via ce formulaire.
   - name: Vous avez un problème personnel ?
     url: https://discord.gg/WXntBawAk8

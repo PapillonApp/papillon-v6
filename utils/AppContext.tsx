@@ -30,7 +30,7 @@ export const DefaultValuesAppContext: AppContextType = {
 const AppContext = React.createContext<AppContextType>(DefaultValuesAppContext);
 export const useAppContext = () => React.useContext(AppContext);
 
-export const baseColor = '#FA5D0F';
+export const baseColor = '#32AB8E';
 
 export function AppContextProvider({ children, state }) {
   const scheme = useColorScheme();

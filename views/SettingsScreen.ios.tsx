@@ -85,7 +85,7 @@ function NewSettings({navigation}) {
                 {userData.name}
               </NativeText>
               <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-                Personnaliser le profil Renard
+                Personnaliser le profil Papillon
               </NativeText>
             </View>
           </NativeItem>
@@ -256,7 +256,7 @@ function NewSettings({navigation}) {
           onPress={() => navigation.navigate('PaymentScreen')}
         >
           <NativeText heading="h4">
-            Soutenir Renard
+            Soutenir Papillon
           </NativeText>
         </NativeItem>
         <NativeItem
@@ -285,7 +285,7 @@ function NewSettings({navigation}) {
           A propos
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Renard version {packageJson.version} {packageJson.canal}
+            Papillon version {packageJson.version} {packageJson.canal}
           </NativeText>
         </NativeItem>
       </NativeList>

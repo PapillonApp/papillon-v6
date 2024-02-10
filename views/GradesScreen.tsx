@@ -714,7 +714,7 @@ function GradesScreen({ navigation }) {
             
 Les notes affichées dans le graphique sont des estimations sachant que votre établissement ne donne pas accès à votre moyenne passée.`}
           icon={<BarChart3 />}
-          color='#FA5D0F'
+          color='#32AB8E'
           visible={moyReelleAlert}
           cancelAction={() => {
             setMoyReelleAlert(false);
@@ -1072,7 +1072,7 @@ Les notes affichées dans le graphique sont des estimations sachant que votre é
                 title={'Moyenne la plus faible'}
                 subtitle={'La moyenne la plus faible est calculée en prenant la moyenne la plus basse de chaque matière.\n\nIl s\'agit uniquement d\'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n\'est pas représentative d\'une réelle moyenne.'}
                 icon={<TrendingDown />}
-                color='#FA5D0F'
+                color='#32AB8E'
                 visible={moyClasseBasseAlert}
                 cancelButton='Compris !'
                 cancelAction={() => {
@@ -1105,7 +1105,7 @@ Les notes affichées dans le graphique sont des estimations sachant que votre é
                 title={'Moyenne la plus élevée'}
                 subtitle={'La moyenne la plus élevée est calculée en prenant la moyenne la plus élevée de chaque matière.\n\nIl s\'agit uniquement d\'une estimation qui variera en fonction de vos options, langues et spécialités. Celle-ci n\'est pas représentative d\'une réelle moyenne.'}
                 icon={<TrendingUp />}
-                color='#FA5D0F'
+                color='#32AB8E'
                 visible={moyClasseHauteAlert}
                 cancelButton='Compris !'
                 cancelAction={() => {

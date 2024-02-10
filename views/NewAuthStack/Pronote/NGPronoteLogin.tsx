@@ -265,7 +265,7 @@ function NGPronoteLogin({ route, navigation }) {
             <Text style={[styles.bottomTextText]}>
             En vous connectant, vous acceptez les{' '}
               <Text style={{ fontWeight: 'bold' }}>conditions d'utilisation</Text>{' '}
-            de Renard.
+            de Papillon.
             </Text>
 
             <Text style={[styles.bottomTextText]}>

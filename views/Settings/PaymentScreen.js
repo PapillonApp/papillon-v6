@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Papillon-Semibold',
   },
   donateTitleEmphaseText: {
-    color: '#FA5D0F',
+    color: '#32AB8E',
   },
 
   donateDescription: {
