@@ -228,7 +228,7 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
       style={{flex: 1, backgroundColor: UIColors.modalBackground}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
     >
-      <View style={{ backgroundColor: UIColors.element, borderBottomColor: UIColors.border, borderBottomWidth: 0.5, gap: 9, paddingBottom: 16 }}>
+      <View style={{ backgroundColor: UIColors.element, borderBottomColor: UIColors.border, borderBottomWidth: 0.5, gap: 9, paddingBottom: 16, zIndex: 99 }}>
         <View style={[styles.newHwInput, {borderColor: UIColors.text + '18'}]}>
           <SFSymbol style={[styles.newHwIcon]} size={20} color={UIColors.text + '80'} name="square.and.pencil" />
           <TextInput
