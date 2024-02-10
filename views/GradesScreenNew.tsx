@@ -407,7 +407,7 @@ const GradesScreen = ({ navigation }) => {
   
   const HeaderRight = ({ navigation, periods, selectedPeriod, UIColors, isLoading, changePeriod, androidPeriodChangePicker, setOpenedSettings }) => {
     const menuConfig = useMemo(() => ({
-      menuTitle: 'Périodes',
+      menuTitle: '',
       menuItems: periods.map((period) => ({
         actionKey: period.name,
         actionTitle: period.name,
