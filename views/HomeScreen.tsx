@@ -33,6 +33,7 @@ import { ContextMenuView, MenuElementConfig } from 'react-native-ios-context-men
 import NextCoursElem from '../interface/HomeScreen/NextCours';
 import SyncStorage from 'sync-storage';
 import * as ExpoLinking from 'expo-linking';
+import * as Haptics from 'expo-haptics';
 
 // Icons 
 import { DownloadCloud, AlertCircle, UserCircle2, Globe2 } from 'lucide-react-native';
@@ -422,11 +423,13 @@ function HomeScreen({ navigation }: { navigation: any }) {
           />
           <View
             style={[{
-              backgroundColor: '#00000032',
+              backgroundColor: scrolled ? UIColors.element : '#00000032',
               paddingTop: insets.top,
               paddingBottom: 0,
               flexDirection: 'column',
               zIndex: 3,
+              borderBottomWidth: scrolled ? 0.5 : 0,
+              borderBottomColor: UIColors.borderLight,
             }]}
           >
             <View
@@ -439,10 +442,12 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 paddingTop: 4,
               }}
             >
-              <PapillonIcon fill={'#ffffff'} width={32} height={32} />
+              <PapillonIcon fill={scrolled ? UIColors.text + '88' : '#ffffff'} width={32} height={32} />
               <Text
                 style={{
-                  color: '#ffffff',
+                  color:
+                    scrolled ? UIColors.text : '#ffffff'
+                  ,
                   fontSize: 17,
                   fontFamily: 'Papillon-Semibold',
                 }}
@@ -549,43 +554,75 @@ function HomeScreen({ navigation }: { navigation: any }) {
               style={[
                 {
                   marginTop: 0,
-                  height: Platform.OS === 'ios' ? nextCoursHeight : 108,
+                  height: Platform.OS === 'ios' ?
+                    scrolledAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [106, 0],
+                      extrapolate: 'clamp',
+                      useNativeDriver: false,
+                    })
+                  : 106,
                 }
               ]}
             >
-              <NextCoursElem
-                cours={lessons.data}
-                navigation={navigation}
-                setNextColor={(color) => {
-                  setNextColor(color);
-                }}
-                yOffset={yOffset}
-                color={themeAdjustments.enabled ? nextColor : void 0}
+              <Animated.View
                 style={{
-                  marginHorizontal: 16,
-                  marginVertical: 0,
-                  marginTop: 2,
+                  flex: 1,
                 }}
-              />
-              <View style={{ height: 16 }} />
+              >
+                <NextCoursElem
+                  cours={lessons.data}
+                  navigation={navigation}
+                  setNextColor={(color) => {
+                    setNextColor(color);
+                  }}
+                  yOffset={new Animated.Value(0)}
+                  color={themeAdjustments.enabled ? nextColor : void 0}
+                  style={{
+                    marginHorizontal: 16,
+                    marginVertical: 0,
+                    marginTop: 2,
+                  }}
+                />
+                <Animated.View style={{
+                  height: 16,
+                }} />
+              </Animated.View>
+              
             </Animated.View>
+            
           </View>
         </Animated.View>
       )
     });
-  }, [navigation, user, themeAdjustments, insets, yOffset, UIColors, theme, nextColor, setNextColor]);
+  }, [navigation, user, themeAdjustments, insets, UIColors, theme, nextColor, setNextColor]);
+
+  const [scrolled, setScrolled] = useState(false);
+  const scrolledAnim = useRef(new Animated.Value(0)).current;
+
+  yOffset.addListener(({ value }) => {
+    if (value > 80) {
+      setScrolled(true); 
+    } else {
+      setScrolled(false);
+    }
+  });
+
+  useEffect(() => {
+    Animated.timing(scrolledAnim, {
+      toValue: scrolled ? 1 : 0,
+      duration: 400,
+      easing: Easing.in(Easing.bezier(0.5, 0 , 0, 1)),
+      useNativeDriver: false,
+    }).start();
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, [scrolled]);
 
   // Animations
   const scrollHandler = Animated.event(
     [{ nativeEvent: { contentOffset: { y: yOffset } } }],
     { useNativeDriver: false }
   );
-
-  const nextCoursHeight = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [0, 150] : [0, 1],
-    outputRange: [106, 0],
-    extrapolate: 'clamp',
-  });
 
   const themeImageOpacity = yOffset.interpolate({
     inputRange: Platform.OS === 'ios' ? [0, 100] : [0, 1],
@@ -629,8 +666,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
       {isFocused ? (
         <StatusBar
           barStyle={
-            themeAdjustments.enabled ? 'light-content' :
-              theme.dark ? 'light-content' : 'dark-content'
+            !scrolled ? 'light-content' :
+            theme.dark ? 'light-content' : 'dark-content'
           }
           translucent={true}
           backgroundColor={'transparent'}
