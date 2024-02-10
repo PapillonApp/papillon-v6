@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, Modal, Animated, ScrollView, Switch, Platform } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Modal, Animated, ScrollView, Switch, Platform } from 'react-native';
 
 import { Text } from 'react-native-paper';
 
@@ -19,7 +19,6 @@ import { AlertTriangle, Palette } from 'lucide-react-native';
 
 import SyncStorage from 'sync-storage';
 import { Home } from '../../interface/icons/PapillonIcons';
-import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import AlertAnimated from '../../interface/AlertAnimated';
 
 const AdjustmentsScreen = ({ navigation }) => {

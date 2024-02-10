@@ -22,6 +22,7 @@ import { useEffect, useState, useRef } from 'react';
 // Components & Styles
 import { useTheme, Text } from 'react-native-paper';
 import { PressableScale } from 'react-native-pressable-scale';
+import { ContextMenuButton } from 'react-native-ios-context-menu';
 
 // Modules
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -448,23 +449,101 @@ function HomeScreen({ navigation }: { navigation: any }) {
               >
                 Vue d'ensemble
               </Text>
-              <TouchableOpacity
-                style={headerStyles.headerPfpContainer}
-                onPress={() => navigation.navigate('InsetSettings', { isModal: true })}
+
+              <ContextMenuButton
+                isMenuPrimaryAction={true}
+                menuConfig={{
+                  menuTitle: '',
+                  menuItems: [
+                    {
+                      actionKey  : 'profile',
+                      actionTitle: 'Mon profil',
+                      actionSubtitle: user.loading ? 'Chargement...' : user.data.name,
+                      icon: {
+                        type: 'IMAGE_SYSTEM',
+                        imageValue: {
+                          systemName: 'person.crop.circle.fill',
+                        },
+                      },
+                    },
+                    {
+                      menuTitle: 'Personnalisation',
+                      icon: {
+                        type: 'IMAGE_SYSTEM',
+                        imageValue: {
+                          systemName: 'paintbrush',
+                        },
+                      },
+                      menuItems: [
+                        {
+                          actionKey  : 'theme',
+                          actionTitle: 'Bandeau',
+                          icon: {
+                            type: 'IMAGE_SYSTEM',
+                            imageValue: {
+                              systemName: 'swatchpalette',
+                            },
+                          },
+                        },
+                        {
+                          actionKey  : 'cours',
+                          actionTitle: 'Matières',
+                          icon: {
+                            type: 'IMAGE_SYSTEM',
+                            imageValue: {
+                              systemName: 'paintpalette',
+                            },
+                          },
+                        },
+                      ],
+                    },
+                    {
+                      actionKey  : 'preferences',
+                      actionTitle: 'Préférences',
+                      icon: {
+                        type: 'IMAGE_SYSTEM',
+                        imageValue: {
+                          systemName: 'gear',
+                        },
+                      },
+                    }
+                  ],
+                }}
+                onPressMenuItem={({nativeEvent}) => {
+                  if (nativeEvent.actionKey === 'preferences') {
+                    navigation.navigate('InsetSettings', { isModal: true });
+                  }
+                  else if (nativeEvent.actionKey === 'theme') {
+                    navigation.navigate('InsetThemes', { isModal: true });
+                  }
+                  else if (nativeEvent.actionKey === 'profile') {
+                    navigation.navigate('InsetProfile', { isModal: true });
+                  }
+                  else if (nativeEvent.actionKey === 'cours') {
+                    navigation.navigate('InsetMatieres', { isModal: true });
+                  }
+                }}
               >
-                {!user.loading && user.data.profile_picture ? (
-                  <Image
-                    source={{ uri: user.data.profile_picture }}
-                    style={headerStyles.headerPfp}
-                  />
-                ) : (
-                  <UserCircle2
-                    size={36}
-                    style={headerStyles.headerPfp}
-                    color="#ccc"
-                  />
-                )}
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={headerStyles.headerPfpContainer}
+                  onPress={() => {
+                    Platform.OS === 'android' && navigation.navigate('InsetSettings', { isModal: true });
+                  }}
+                >
+                  {!user.loading && user.data.profile_picture ? (
+                    <Image
+                      source={{ uri: user.data.profile_picture }}
+                      style={headerStyles.headerPfp}
+                    />
+                  ) : (
+                    <UserCircle2
+                      size={36}
+                      style={headerStyles.headerPfp}
+                      color="#ccc"
+                    />
+                  )}
+                </TouchableOpacity>
+              </ContextMenuButton>
             </View>
             <Animated.View
               style={[

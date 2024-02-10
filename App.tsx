@@ -492,6 +492,32 @@ function WrappedHomeScreen() {
           presentation: 'modal',
         }}
       />
+      <Stack.Screen
+        name="InsetProfile"
+        component={ProfileScreen}
+        options={{
+          headerTitle: 'Mon profil',
+          headerBackTitle: 'Préférences',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="InsetThemes"
+        component={HeaderSelectScreen}
+        options={{
+          headerTitle: 'Bandeau',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="InsetMatieres"
+        component={CoursColor}
+        options={{
+          headerTitle: 'Gestion des matières',
+          headerBackTitle: 'Retour',
+          presentation: 'modal',
+        }}
+      />
 
       <Stack.Screen
         name="Lesson"
