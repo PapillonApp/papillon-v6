@@ -887,19 +887,23 @@ const GradesAverageHistory = React.memo(({ isLoading, averages, chartLines, char
           </NativeText>
         </View>
       </View>
-      <View>
-        <LineChart
-          lines={chartLines}
-          width={Dimensions.get('window').width - (16 * 2)}
-          height={110}
-          extraConfig={{
-            alwaysShowActivePoint: true,
-          }}
+      { chartLines[0] && chartLines[0].data.length > 2 ? (
+        <View>
+          <LineChart
+            lines={chartLines}
+            width={Dimensions.get('window').width - (16 * 2)}
+            height={110}
+            extraConfig={{
+              alwaysShowActivePoint: true,
+            }}
 
-          onPointFocus={handlePointFocus}
-          onPointLoseFocus={handlePointLoseFocus}
-        />
-      </View>
+            onPointFocus={handlePointFocus}
+            onPointLoseFocus={handlePointLoseFocus}
+          />
+        </View>
+      ) : (
+        <View style={{height: 8}} />
+      )}
     </View>
   );
 });
