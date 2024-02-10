@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Pressable } from 'react-native';
+import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Pressable, Platform, StatusBar } from 'react-native';
 
 import { useTheme, Text } from 'react-native-paper';
 import GetUIColors from '../../utils/GetUIColors';
@@ -9,6 +9,8 @@ import SyncStorage, { set } from 'sync-storage';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
+
+import { ContextMenuButton } from 'react-native-ios-context-menu';
 
 import ColorPicker, {
   Panel1,
@@ -171,6 +173,10 @@ const CoursColor = ({ navigation }) => {
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
     >
+      { Platform.OS === 'ios' &&
+        <StatusBar barStyle={'light-content'} />
+      }
+
       <NativeList
         header="Matières enregistrées"
         inset
@@ -197,8 +203,10 @@ const CoursColor = ({ navigation }) => {
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    gap: 8,
-                    marginRight: -5,
+                    gap: 12,
+                    padding: 15,
+                    margin: -15,
+                    marginRight: -20,
                   }}>
                     <LockToggle
                       color={savedColors[key].color}
@@ -213,15 +221,55 @@ const CoursColor = ({ navigation }) => {
                         });
                       }}
                     />
-                    <TouchableOpacity
-                      onPress={() => {
-                        moreActions(key);
+
+                    <ContextMenuButton
+                      isMenuPrimaryAction={true}
+                      menuConfig={{
+                        menuTitle: '',
+                        menuItems: [
+                          {
+                            actionKey: 'delete',
+                            actionTitle: 'Supprimer',
+                            menuAttributes: ['destructive'],
+                            icon: {
+                              type: 'IMAGE_SYSTEM',
+                              imageValue: {
+                                systemName: 'trash',
+                              },
+                            },
+                          },
+                        ],
+                      }}
+                      onPressMenuItem={({nativeEvent}) => {
+                        if (nativeEvent.actionKey === 'delete') {
+                          let newCol = JSON.parse(SyncStorage.get('savedColors'));
+                          delete newCol[key];
+                          setSavedColors(newCol);
+                          SyncStorage.set('savedColors', JSON.stringify(newCol));
+                        }
                       }}
                     >
-                      <MoreVertical size={20} color={UIColors.text + '75'} />
-                    </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => {
+                          Platform.OS === 'android' && moreActions(key)
+                        }}
+                        style={{
+                          padding: 15,
+                          margin: -15,
+                        }}
+                      >
+                        <MoreVertical size={20} color={UIColors.text + '75'} />
+                      </TouchableOpacity>
+                    </ContextMenuButton>
                   </View>
                 }
+
+                onPress={() => {
+                  setColorModalOpen(true);
+                  setColorModalColor(savedColors[key].color);
+
+                  setCurrentEditedSubject(key);
+                }}
               >
                 <NativeText heading="b">
                   {formatCoursName(savedColors[key].originalCourseName)}
@@ -283,7 +331,7 @@ const LockToggle = ({ value, onValueChange, color }) => {
   const UIColors = GetUIColors();
 
   return (
-    <Pressable
+    <TouchableOpacity
       onPress={() => {
         setLocked(!locked);
         onValueChange(!locked);
@@ -294,6 +342,8 @@ const LockToggle = ({ value, onValueChange, color }) => {
           backgroundColor: UIColors.text + '15',
           padding: 7,
           borderRadius: 100,
+          margin: 5,
+          marginRight: 0,
         },
         locked ? {
           backgroundColor: 
@@ -313,7 +363,7 @@ const LockToggle = ({ value, onValueChange, color }) => {
           !locked ? {opacity: 0.4} : {},
         ]}
       />
-    </Pressable>
+    </TouchableOpacity>
   );
 };
 
