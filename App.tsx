@@ -1243,4 +1243,4 @@ function App() {
   ) : null;
 }
 
-export default Sentry.wrap(App);
+export default App;
