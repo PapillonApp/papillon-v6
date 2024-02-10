@@ -654,9 +654,15 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
                 </NativeText>
 
                 <View style={subjectStyles.smallGradeContainer}>
-                  <NativeText style={subjectStyles.smallGradeValue}>
-                    {((grade.grade.value?.value / grade.grade.out_of.value) * gradeSettings.scale).toFixed(2)}
-                  </NativeText>
+                  { grade.grade.value?.value ? ( 
+                    <NativeText style={subjectStyles.smallGradeValue}>
+                      {((grade.grade.value?.value / grade.grade.out_of.value) * gradeSettings.scale).toFixed(2)}
+                    </NativeText>
+                  ) : (
+                    <NativeText style={subjectStyles.smallGradeValue}>
+                      N/A
+                    </NativeText>
+                  )}
                   <NativeText style={subjectStyles.smallGradeScale}>
                     /{gradeSettings.scale.toFixed(0)}
                   </NativeText>
