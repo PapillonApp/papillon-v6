@@ -230,7 +230,9 @@ const GradesScreen = ({ navigation }) => {
   }
 
   async function getGradesFromAPI (force = false, period = selectedPeriod): Promise<void> {
-    setIsLoading(true);
+    if (!isRefreshing) {
+      setIsLoading(true);
+    }
 
     try {
       if (appContext.dataProvider && period) {
@@ -359,10 +361,22 @@ const GradesScreen = ({ navigation }) => {
     if (period) setChangedPeriod(true);
   }
 
+  function loadAll(mode) {
+    getPeriodsFromAPI(mode).then((period) => {
+      getGradesFromAPI(true, period);
+    });
+  }
+
   // On mount
   React.useEffect(() => {
-    getPeriodsFromAPI().then((period) => {
-      getGradesFromAPI(false, period);
+    AsyncStorage.getItem('gradeSettings').then(async (value) => {
+      if (value) {
+        value = JSON.parse(value);
+        loadAll(value.mode || 'trimestre');
+      }
+      else {
+        loadAll();
+      }
     });
   }, []);
 
@@ -516,9 +530,7 @@ const GradesScreen = ({ navigation }) => {
             refreshing={isRefreshing}
             onRefresh={() => {
               setIsRefreshing(true);
-              getPeriodsFromAPI().then((period) => {
-                getGradesFromAPI(true, period);
-              });
+              loadAll();
             }}
           />
         }
