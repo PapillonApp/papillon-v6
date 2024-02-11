@@ -405,6 +405,11 @@ Statut : ${cours.status || 'Aucun'}
       }
     }
 
+    // Empty every lessons of the week inside our state cache.
+    for (let dayKey in lessonsViewCache) {
+      lessonsViewCache[dayKey] = {};
+    }
+
     // Register every lessons of the week inside our state cache.
     for (const lesson of lessons) {
       const dayKey = dateToFrenchFormat(new Date(lesson.start));
