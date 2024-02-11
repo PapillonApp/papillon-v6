@@ -158,6 +158,30 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
     setNextColor(getSavedCourseColor(cours[nxid].subject?.name ?? '', cours[nxid].background_color));
   }, [cours, nxid]);
 
+  if (tiny & coursEnded || tiny && !cours || tiny && !cours[nxid]) {
+    return (
+      <PressableScale
+        style={[
+          styles.tinyContainer,
+          { backgroundColor: UIColors.text + "12" },
+          style
+        ]}
+        onPress={() => {
+          if(navigation) {
+            navigation.navigate('CoursHandler');
+          }
+        }}
+      >
+        <Text
+          numberOfLines={1}
+          style={[styles.end.text, { color: UIColors.text }]}
+        >
+          Aucun cours aujourd'hui
+        </Text>
+      </PressableScale>
+    );
+  }
+
   if(!cours || !cours[nxid]) return (
     <PressableScale
       style={[
