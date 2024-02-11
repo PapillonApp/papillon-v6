@@ -16,7 +16,7 @@ function lz(num: number): string {
   return (num < 10 ? '0' : '') + num;
 }
 
-const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, navigation, color }: {
+const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, navigation, color, tiny, mainAction = () => {} }: {
   cours: PapillonLesson[] | null
   style?: ViewStyle
   color?: string,
@@ -204,12 +204,38 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
     </PressableScale>
   );
 
+  if (tiny) {
+    return (
+      <PressableScale
+        style={[
+          styles.tinyContainer,
+          { backgroundColor: color ? color : getSavedCourseColor(cours[nxid].subject?.name ?? '', cours[nxid].background_color) },
+          style,
+        ]}
+        onPress={() => {
+          mainAction();
+        }}
+      >
+        <Text style={styles.tinyStart} numberOfLines={1}>
+          { new Date(cours[nxid].start).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
+        </Text>
+
+        <View style={styles.tinyBar} />
+
+        <Text style={styles.tinyCourse} numberOfLines={1}>
+          { formatCoursName(cours[nxid].subject?.name ?? '(inconnu)') }
+        </Text>
+      </PressableScale>
+    );
+  }
+
   return (
     cours && cours[nxid] && !coursEnded &&
 
     <PressableScale
       style={[
         styles.container,
+        tiny && styles.tinyContainer,
         { backgroundColor: color ? color : getSavedCourseColor(cours[nxid].subject?.name ?? '', cours[nxid].background_color) },
         style,
       ]}
@@ -222,6 +248,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
       <Animated.View
         style={[
           styles.inContainer,
+          tiny && styles.tinyInContainer,
           {
             opacity: Platform.OS === 'ios' ? yOffset.interpolate({
               inputRange: [40, 70],
@@ -479,7 +506,43 @@ const styles = StyleSheet.create({
       fontSize: 15,
       opacity: 0.6,
     },
-  }
+  },
+
+  tinyContainer: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 14,
+  },
+
+  tinyStart: {
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 16,
+    color: '#ffffff',
+    opacity: 1,
+  },
+
+  tinyBar: {
+    width: 2,
+    height: '60%',
+    backgroundColor: '#ffffff',
+    opacity: 0.3,
+    borderRadius: 2,
+  },
+
+  tinyCourse: {
+    fontFamily: 'Papillon-Medium',
+    fontSize: 16,
+    color: '#ffffff',
+    opacity: 0.8,
+    flex: 1,
+  },
 });
 
 export default NextCours;

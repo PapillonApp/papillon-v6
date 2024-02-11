@@ -443,17 +443,58 @@ function HomeScreen({ navigation }: { navigation: any }) {
               }}
             >
               <PapillonIcon fill={scrolled ? UIColors.text + '88' : '#ffffff'} width={32} height={32} />
-              <Text
-                style={{
-                  color:
-                    scrolled ? UIColors.text : '#ffffff'
-                  ,
-                  fontSize: 17,
-                  fontFamily: 'Papillon-Semibold',
-                }}
-              >
-                Vue d'ensemble
-              </Text>
+              
+              { !scrolled ? (
+                <Text
+                  style={{
+                    color:
+                      scrolled ? UIColors.text : '#ffffff'
+                    ,
+                    fontSize: 17,
+                    fontFamily: 'Papillon-Semibold',
+                    marginVertical: 8,
+                  }}
+                >
+                  Vue d'ensemble
+                </Text>
+              ) : (
+                <Animated.View
+                  style={{
+                    flex: 1,
+                    height: 38,
+                    marginHorizontal: 16,
+                    marginTop: -2,
+                    opacity: scrolledAnim,
+                    transform: [
+                      {
+                        scale: scrolledAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0.8, 1],
+                          extrapolate: 'clamp',
+                        })
+                      },
+                      {
+                        translateY: scrolledAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [100, 0],
+                          extrapolate: 'clamp',
+                        })
+                      }
+                    ],
+                  }}
+                >
+                  <NextCoursElem
+                    tiny
+                    cours={lessons.data}
+                    navigation={navigation}
+                    yOffset={new Animated.Value(0)}
+                    mainAction={() => {
+                      // scroll up
+                      scrollRef.current?.scrollTo({ y: 0, animated: true });
+                    }}
+                  />
+                </Animated.View>
+              )}
 
               <ContextMenuButton
                 isMenuPrimaryAction={true}
@@ -608,6 +649,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
     }
   });
 
+  const scrollRef = useRef<ScrollView>(null);
+
   useEffect(() => {
     Animated.timing(scrolledAnim, {
       toValue: scrolled ? 1 : 0,
@@ -638,6 +681,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
 
   return (
     <ScrollView
+      ref={scrollRef}
       style={{ backgroundColor: UIColors.backgroundHigh }}
       contentInsetAdjustmentBehavior='automatic'
       refreshControl={
