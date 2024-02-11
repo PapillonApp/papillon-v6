@@ -642,10 +642,12 @@ function HomeScreen({ navigation }: { navigation: any }) {
   const scrolledAnim = useRef(new Animated.Value(0)).current;
 
   yOffset.addListener(({ value }) => {
-    if (value > 80) {
-      setScrolled(true); 
-    } else {
-      setScrolled(false);
+    if (Platform.OS === 'ios') {
+      if (value > 80) {
+        setScrolled(true); 
+      } else {
+        setScrolled(false);
+      }
     }
   });
 
@@ -1328,7 +1330,7 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
         >
           <View style={styles.homeworksDevoirsContentInner}>
             <CheckAnimated
-              backgroundColor={'#ffffff00'}
+              backgroundColor={UIColors.element}
               checked={homework.done && !checkLoading}
               pressed={handleCheckChange}
               loading={checkLoading}
