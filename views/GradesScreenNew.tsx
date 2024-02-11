@@ -732,10 +732,8 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation })
             inset
             style={[
               subjectStyles.listContainer,
-              Platform.OS === 'android' && {
-                marginTop: 16,
-              }
             ]}
+            header={formattedCourseName}
           >
             <Pressable style={[subjectStyles.listItem, { backgroundColor }]}>
               <View style={subjectStyles.subjectInfoContainer}>
