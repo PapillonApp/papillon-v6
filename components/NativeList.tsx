@@ -20,15 +20,16 @@ const NativeList: React.FC<Props> = ({
   footer,
   style,
   containerStyle,
+  plain,
 }) => {
-  const UIColors = GetUIColors();
+  const UIColors = GetUIColors(null, plain ? 'ios' : null);
   const childrenWithKeys = mapChildrenWithKeys(children);
 
   return (
     <List.Section style={[styles.container, style]}>
       {header && <List.Subheader>{header}</List.Subheader>}
 
-      <View style={[styles.children, { backgroundColor: UIColors.element }, containerStyle]}>
+      <View style={[styles.children, { backgroundColor: UIColors.element, borderColor: UIColors.borderLight }, plain && styles.plain, containerStyle]}>
         {childrenWithKeys}
       </View>
 
@@ -45,7 +46,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderRadius: 10,
     overflow: 'hidden',
-  }
+  },
+  plain: {
+    borderWidth: 0.5,
+    shadowColor: '#00000055',
+    elevation: 3,
+  },
 });
 
 export default NativeList;

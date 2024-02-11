@@ -592,7 +592,7 @@ const GradesScreen = ({ navigation }) => {
 };
 
 const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettings, navigation }) => {
-  const UIColors = GetUIColors();
+  const UIColors = GetUIColors(null, 'ios');
 
   const showGrade = useCallback((grade) => {
     navigation.navigate('Grade', {
@@ -601,7 +601,7 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
     });
   }, [allGrades, navigation]);
 
-  return (
+  return (<>
     <NativeList
       header="Dernières notes"
       sectionProps={{
@@ -614,12 +614,25 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
         Platform.OS !== 'ios' && { backgroundColor: 'transparent' }
       }
     >
+      <View />
+    </NativeList>
+
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={[
-          subjectStyles.latestGradesList
+          subjectStyles.latestGradesList,
+          Platform.OS === 'android' && {
+            paddingHorizontal: 16,
+            overflow: 'visible',
+            paddingBottom: 16,
+            marginBottom: -16,
+          },
         ]}
+        style={[{
+          marginTop: Platform.OS === 'ios' ? -16 : -8,
+          overflow: 'visible',
+        }]}
       >
         <View
           style={[
@@ -627,6 +640,7 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
               flexDirection: 'row',
               paddingHorizontal: Platform.OS === 'ios' ? 16 : 0,
               gap: 12,
+              overflow: 'visible',
             }
           ]}
         >
@@ -640,6 +654,12 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
                 subjectStyles.smallGrade,
                 {
                   backgroundColor: UIColors.element,
+                },
+                Platform.OS === 'android' && {
+                  borderColor: UIColors.border,
+                  borderWidth: 0.5,
+                  shadowColor: '#00000055',
+                  elevation: 3,
                 }
               ]}
             >
@@ -684,12 +704,11 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
           ))}
         </View>
       </ScrollView>
-    </NativeList>
-  );
+  </>);
 });
 
 const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation }) => {
-  const UIColors = GetUIColors();
+  const UIColors = GetUIColors(null, 'ios');
 
   const showGrade = useCallback((grade) => {
     navigation.navigate('Grade', {
@@ -708,10 +727,15 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation })
 
         return (
           <NativeList
+            plain
             key={index}
             inset
-            style={subjectStyles.listContainer}
-            header={formattedCourseName}
+            style={[
+              subjectStyles.listContainer,
+              Platform.OS === 'android' && {
+                marginTop: 16,
+              }
+            ]}
           >
             <Pressable style={[subjectStyles.listItem, { backgroundColor }]}>
               <View style={subjectStyles.subjectInfoContainer}>
@@ -794,7 +818,7 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation })
 });
 
 const GradesAverageHistory = React.memo(({ isLoading, averages, chartLines, chartPoint, setChartPoint, gradeSettings, pronoteStudentAverage }) => {
-  const UIColors = GetUIColors();
+  const UIColors = GetUIColors(null, 'ios');
   if (chartLines === null || chartLines === undefined) return null;
 
   const [isReal, setIsReal] = useState<boolean>(false);
@@ -855,6 +879,10 @@ const GradesAverageHistory = React.memo(({ isLoading, averages, chartLines, char
         backgroundColor: UIColors.element,
         borderColor: UIColors.dark ? UIColors.border + '55' : UIColors.border + 'c5',
         borderWidth: 0.5,
+      },
+      Platform.OS === 'android' && {
+        shadowColor: '#00000055',
+        elevation: 3,
       }
     ]}>
       <View style={[styles.chart.header.container]}>
@@ -936,14 +964,14 @@ const GradesAveragesList = ({ isLoading, UIaverage, gradeSettings }) => {
   );
 
   const renderNativeList = useMemo(() => (
-    <NativeList inset header="Moyennes">
+    <NativeList plain inset header="Moyennes">
       {UIaverage.map(renderNativeItem)}
     </NativeList>
   ), [UIaverage]);
 
   if (UIaverage.length === 0 && !isLoading) {
     return (
-      <NativeList inset header="Moyennes">
+      <NativeList plain inset header="Moyennes">
         <NativeItem>
           <NativeText heading="p2">
             Aucune moyenne à afficher.
@@ -1001,7 +1029,6 @@ const styles = StyleSheet.create({
       value: {
         fontFamily: 'Papillon-Semibold',
         fontSize: 26,
-        fontVariant: ['tabular-nums'],
       },
       out_of: {
         fontFamily: 'Papillon-Medium',

@@ -1,11 +1,12 @@
 import { Platform, useColorScheme } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
-function GetUIColors(schemeForce) {
+function GetUIColors(schemeForce, platformForce) {
   const theme = useTheme();
   const scheme = useColorScheme();
 
   let isDark = scheme === 'dark';
+  let platform = Platform.OS;
 
   if (schemeForce) {
     if (schemeForce === 'dark') {
@@ -15,20 +16,32 @@ function GetUIColors(schemeForce) {
     }
   }
 
+  if (platformForce) {
+    if (platformForce === 'ios') {
+      platform = 'ios';
+    }
+    if (platformForce === 'android') {
+      platform = 'android';
+    }
+  }
+
   // background
   let background;
   let backgroundHigh;
+  let backgroundItems;
 
-  if (Platform.OS === 'ios') {
+  if (platform === 'ios') {
     background = isDark ? '#0B0B0C' : '#ffffff';
     backgroundHigh = isDark ? '#0B0B0C' : '#f2f2f7';
+    backgroundItems = backgroundHigh;
   } else {
     background = theme.colors.background;
     backgroundHigh = theme.colors.background;
+    backgroundItems = theme.colors.elevation.level1;
   }
 
   let modalBackground = background;
-  if (Platform.OS === 'ios') {
+  if (platform === 'ios') {
     modalBackground = isDark ? '#0B0B0C' : '#f2f2f7';
   }
 
@@ -36,7 +49,7 @@ function GetUIColors(schemeForce) {
   let element = '';
   let elementHigh = '';
 
-  if (Platform.OS === 'ios') {
+  if (platform === 'ios') {
     element = isDark ? '#161618' : '#ffffff';
     elementHigh = isDark ? '#161618' : '#f2f2f7';
   } else {
@@ -51,7 +64,7 @@ function GetUIColors(schemeForce) {
   let primaryBackground = '';
   let primary = '';
 
-  if (Platform.OS === 'ios') {
+  if (platform === 'ios') {
     // primary = '#32AB8E';
     primary = '#32AB8E';
   } else {
@@ -63,7 +76,7 @@ function GetUIColors(schemeForce) {
 
   primaryBackground = primary;
 
-  if (Platform.OS === 'android' && isDark) {
+  if (platform === 'android' && isDark) {
     primaryBackground = theme.colors.primaryContainer;
   }
 
@@ -71,7 +84,7 @@ function GetUIColors(schemeForce) {
   let borderColor = '';
   let borderColorLight = '';
 
-  if (Platform.OS === 'ios') {
+  if (platform === 'ios') {
     borderColor = isDark ? '#444444' : '#d5d5d5';
     borderColorLight = isDark ? '#333333' : '#d5d5d5';
   } else {
@@ -84,6 +97,7 @@ function GetUIColors(schemeForce) {
     dark: isDark,
     background,
     backgroundHigh,
+    backgroundItems,
     modalBackground,
     element,
     elementHigh,
