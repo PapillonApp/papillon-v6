@@ -98,6 +98,9 @@ function LessonScreen({ route, navigation }) {
   // change header component
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerStyle: {
+        backgroundColor: color,
+      },
       headerTitle: () => (
         <View
           style={{
@@ -106,10 +109,10 @@ function LessonScreen({ route, navigation }) {
             maxWidth: '92%',
           }}
         >
-          <Text numberOfLines={1} style={{fontFamily: 'Papillon-Semibold', fontSize: 17}}>
+          <Text numberOfLines={1} style={{fontFamily: 'Papillon-Semibold', fontSize: 17, color: "#fff"}}>
             {formatCoursName(lesson.subject.name)}
           </Text>
-          <Text numberOfLines={1} style={{fontFamily: 'Papillon-Medium', fontSize: 15, opacity:0.5}}>
+          <Text numberOfLines={1} style={{fontFamily: 'Papillon-Medium', fontSize: 15, opacity:0.5, color: "#fff"}}>
             {'salle ' + lesson.rooms.join(', ') + ' - '}
             {lesson.status?.toLowerCase() || lengthString + ' de cours'}
           </Text>
@@ -133,20 +136,7 @@ function LessonScreen({ route, navigation }) {
       >
         <NativeItem
           leading={
-            etabRoom && etabRoom.building !== undefined ? (
-              <View
-                style={[
-                  styles.courseBuilding,
-                  { backgroundColor: color },
-                ]}
-              >
-                <Text style={styles.courseBuildingText}>
-                  {etabRoom.building}
-                </Text>
-              </View>
-            ) : (
-              <DoorOpen size={24} color={mainColor} />
-            )
+            <DoorOpen size={24} color={mainColor} />
           }
         >
           <NativeText heading="p2">
