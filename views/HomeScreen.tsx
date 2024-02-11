@@ -508,7 +508,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                       icon: {
                         type: 'IMAGE_SYSTEM',
                         imageValue: {
-                          systemName: 'person.crop.circle.fill',
+                          systemName: 'person.crop.circle',
                         },
                       },
                     },

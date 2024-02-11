@@ -352,7 +352,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
               </View>
             )}
 
-            { cours[nxid].teachers && cours[nxid].teachers.length > 0 && (
+            { (cours[nxid].teachers && cours[nxid].teachers.length > 0) && (cours[nxid].rooms && cours[nxid].rooms.length > 0) && (
               <View style={[styles.details.separator]} />
             )}
 
