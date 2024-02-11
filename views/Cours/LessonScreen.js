@@ -98,22 +98,19 @@ function LessonScreen({ route, navigation }) {
   // change header component
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerStyle: {
-        backgroundColor: color,
-      },
       headerTitle: () => (
         <View
           style={{
             flexDirection: 'column',
             alignItems: Platform.OS === 'ios' ? 'center' : 'flex-start',
-            maxWidth: '92%',
+            maxWidth: Platform.OS === 'ios' ? '92%' : null,
           }}
         >
-          <Text numberOfLines={1} style={{fontFamily: 'Papillon-Semibold', fontSize: 17, color: "#fff"}}>
+          <Text numberOfLines={1} style={{fontFamily: 'Papillon-Semibold', fontSize: 17}}>
             {formatCoursName(lesson.subject.name)}
           </Text>
-          <Text numberOfLines={1} style={{fontFamily: 'Papillon-Medium', fontSize: 15, opacity:0.5, color: "#fff"}}>
-            {'salle ' + lesson.rooms.join(', ') + ' - '}
+          <Text numberOfLines={1} style={{fontFamily: 'Papillon-Medium', fontSize: 15, opacity:0.5}}>
+            {'salle ' + (lesson.rooms.length > 0 ? lesson.rooms.join(', ') : 'inconnue') + ' - '}
             {lesson.status?.toLowerCase() || lengthString + ' de cours'}
           </Text>
         </View>

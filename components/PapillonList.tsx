@@ -12,8 +12,8 @@ interface Props {
   grouped?: boolean
 }
 
-const PapillonList: React.FC<Props> = ({ children, inset, title, style, grouped }) => {
-  const UIColors = GetUIColors();
+const PapillonList: React.FC<Props> = ({ children, inset, title, style, grouped, plain }) => {
+  const UIColors = GetUIColors(null, plain ? 'ios' : null);
 
   return (
     <View style={styles.listGroup}>
@@ -26,6 +26,12 @@ const PapillonList: React.FC<Props> = ({ children, inset, title, style, grouped 
           styles.list,
           !grouped ? { backgroundColor: UIColors.element } : {gap: 12},
           inset ? styles.inset : void 0,
+          plain && {
+            borderColor: UIColors.border + 55,
+            borderWidth: 0.5,
+            shadowColor: '#00000055',
+            elevation: 3,
+          },
           style,
         ]}
       >

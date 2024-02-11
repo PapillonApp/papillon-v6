@@ -20,7 +20,7 @@ import {
 import { useEffect, useState, useRef } from 'react';
 
 // Components & Styles
-import { useTheme, Text } from 'react-native-paper';
+import { useTheme, Text, Menu, Divider } from 'react-native-paper';
 import { PressableScale } from 'react-native-pressable-scale';
 import { ContextMenuButton } from 'react-native-ios-context-menu';
 
@@ -383,6 +383,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
 
   const yOffset = new Animated.Value(0);
 
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
   // Load navigation bar data.
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -391,24 +393,29 @@ function HomeScreen({ navigation }: { navigation: any }) {
           style={[{
             backgroundColor: nextColor,
             overflow: 'hidden',
+            elevation: 4,
           }]}
         >
           <Animated.Image
             source={THEME_IMAGES[themeAdjustments.image]}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: 150,
-              opacity: themeImageOpacity,
-              transform: [{
-                scale: themeImageTransform.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, 0.9],
-                })
-              }],
-            }}
+            style={[
+              {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: 150,
+              },
+              Platform.OS === 'ios' && {
+                opacity: themeImageOpacity,
+                transform: [{
+                  scale: themeImageTransform.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 0.9],
+                  })
+                }],
+              }
+            ]}
           />
           <LinearGradient
             colors={[nextColor + '00', nextColor + 'FF']}
@@ -442,18 +449,26 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 paddingTop: 4,
               }}
             >
-              <PapillonIcon fill={scrolled ? UIColors.text + '88' : '#ffffff'} width={32} height={32} />
+              { Platform.OS === 'ios' && (
+                <PapillonIcon fill={scrolled ? UIColors.text + '88' : '#ffffff'} width={32} height={32} />
+              )}
               
               { !scrolled ? (
                 <Text
-                  style={{
-                    color:
-                      scrolled ? UIColors.text : '#ffffff'
-                    ,
-                    fontSize: 17,
-                    fontFamily: 'Papillon-Semibold',
-                    marginVertical: 8,
-                  }}
+                  style={[
+                    Platform.OS === 'ios' ? {
+                      color:
+                        scrolled ? UIColors.text : '#ffffff'
+                      ,
+                      fontSize: 17,
+                      fontFamily: 'Papillon-Semibold',
+                      marginVertical: 8,
+                    } : {
+                      color: '#ffffff',
+                      fontSize: 18,
+                      marginVertical: 9,
+                    }
+                ]}
                 >
                   Vue d'ensemble
                 </Text>
@@ -496,100 +511,156 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 </Animated.View>
               )}
 
-              <ContextMenuButton
-                isMenuPrimaryAction={true}
-                menuConfig={{
-                  menuTitle: '',
-                  menuItems: [
-                    {
-                      actionKey  : 'profile',
-                      actionTitle: 'Mon profil',
-                      actionSubtitle: user.loading ? 'Chargement...' : user.data.name,
-                      icon: {
-                        type: 'IMAGE_SYSTEM',
-                        imageValue: {
-                          systemName: 'person.crop.circle',
-                        },
-                      },
-                    },
-                    {
-                      menuTitle: 'Personnalisation',
-                      icon: {
-                        type: 'IMAGE_SYSTEM',
-                        imageValue: {
-                          systemName: 'paintbrush',
-                        },
-                      },
-                      menuItems: [
-                        {
-                          actionKey  : 'theme',
-                          actionTitle: 'Bandeau',
-                          icon: {
-                            type: 'IMAGE_SYSTEM',
-                            imageValue: {
-                              systemName: 'swatchpalette',
-                            },
+              { Platform.OS === 'ios' ? (
+                <ContextMenuButton
+                  isMenuPrimaryAction={true}
+                  menuConfig={{
+                    menuTitle: '',
+                    menuItems: [
+                      {
+                        actionKey  : 'profile',
+                        actionTitle: 'Mon profil',
+                        actionSubtitle: user.loading ? 'Chargement...' : user.data.name,
+                        icon: {
+                          type: 'IMAGE_SYSTEM',
+                          imageValue: {
+                            systemName: 'person.crop.circle',
                           },
                         },
-                        {
-                          actionKey  : 'cours',
-                          actionTitle: 'Matières',
-                          icon: {
-                            type: 'IMAGE_SYSTEM',
-                            imageValue: {
-                              systemName: 'paintpalette',
-                            },
+                      },
+                      {
+                        menuTitle: 'Personnalisation',
+                        icon: {
+                          type: 'IMAGE_SYSTEM',
+                          imageValue: {
+                            systemName: 'paintbrush',
                           },
                         },
-                      ],
-                    },
-                    {
-                      actionKey  : 'preferences',
-                      actionTitle: 'Préférences',
-                      icon: {
-                        type: 'IMAGE_SYSTEM',
-                        imageValue: {
-                          systemName: 'gear',
-                        },
+                        menuItems: [
+                          {
+                            actionKey  : 'theme',
+                            actionTitle: 'Bandeau',
+                            icon: {
+                              type: 'IMAGE_SYSTEM',
+                              imageValue: {
+                                systemName: 'swatchpalette',
+                              },
+                            },
+                          },
+                          {
+                            actionKey  : 'cours',
+                            actionTitle: 'Matières',
+                            icon: {
+                              type: 'IMAGE_SYSTEM',
+                              imageValue: {
+                                systemName: 'paintpalette',
+                              },
+                            },
+                          },
+                        ],
                       },
+                      {
+                        actionKey  : 'preferences',
+                        actionTitle: 'Préférences',
+                        icon: {
+                          type: 'IMAGE_SYSTEM',
+                          imageValue: {
+                            systemName: 'gear',
+                          },
+                        },
+                      }
+                    ],
+                  }}
+                  onPressMenuItem={({nativeEvent}) => {
+                    if (nativeEvent.actionKey === 'preferences') {
+                      navigation.navigate('InsetSettings', { isModal: true });
                     }
-                  ],
-                }}
-                onPressMenuItem={({nativeEvent}) => {
-                  if (nativeEvent.actionKey === 'preferences') {
-                    navigation.navigate('InsetSettings', { isModal: true });
-                  }
-                  else if (nativeEvent.actionKey === 'theme') {
-                    navigation.navigate('InsetThemes', { isModal: true });
-                  }
-                  else if (nativeEvent.actionKey === 'profile') {
-                    navigation.navigate('InsetProfile', { isModal: true });
-                  }
-                  else if (nativeEvent.actionKey === 'cours') {
-                    navigation.navigate('InsetMatieres', { isModal: true });
-                  }
-                }}
-              >
-                <TouchableOpacity
-                  style={headerStyles.headerPfpContainer}
-                  onPress={() => {
-                    Platform.OS === 'android' && navigation.navigate('InsetSettings', { isModal: true });
+                    else if (nativeEvent.actionKey === 'theme') {
+                      navigation.navigate('InsetThemes', { isModal: true });
+                    }
+                    else if (nativeEvent.actionKey === 'profile') {
+                      navigation.navigate('InsetProfile', { isModal: true });
+                    }
+                    else if (nativeEvent.actionKey === 'cours') {
+                      navigation.navigate('InsetMatieres', { isModal: true });
+                    }
                   }}
                 >
-                  {!user.loading && user.data.profile_picture ? (
-                    <Image
-                      source={{ uri: user.data.profile_picture }}
-                      style={headerStyles.headerPfp}
-                    />
-                  ) : (
-                    <UserCircle2
-                      size={36}
-                      style={headerStyles.headerPfp}
-                      color="#ccc"
-                    />
-                  )}
-                </TouchableOpacity>
-              </ContextMenuButton>
+                  <TouchableOpacity
+                    style={headerStyles.headerPfpContainer}
+                    onPress={() => {
+                      setUserMenuOpen(true);
+                    }}
+                  >
+                    {!user.loading && user.data.profile_picture ? (
+                      <Image
+                        source={{ uri: user.data.profile_picture }}
+                        style={headerStyles.headerPfp}
+                      />
+                    ) : (
+                      <UserCircle2
+                        size={36}
+                        style={headerStyles.headerPfp}
+                        color="#ccc"
+                      />
+                    )}
+                  </TouchableOpacity>
+                </ContextMenuButton>
+              ) : (
+                <Menu
+                  visible={userMenuOpen}
+                  onDismiss={() => setUserMenuOpen(false)}
+                  contentStyle={{
+                    paddingVertical: 0,
+                  }}
+                  anchor={
+                    <TouchableOpacity
+                      style={headerStyles.headerPfpContainer}
+                      onPress={() => setUserMenuOpen(true)}
+                    >
+                      {!user.loading && user.data.profile_picture ? (
+                        <Image
+                          source={{ uri: user.data.profile_picture }}
+                          style={headerStyles.headerPfp}
+                        />
+                      ) : (
+                        <UserCircle2
+                          size={36}
+                          style={headerStyles.headerPfp}
+                          color="#ccc"
+                        />
+                      )}
+                    </TouchableOpacity>
+                  }
+                >
+                  <Menu.Item
+                    title={user.loading ? 'Mon profil' : user.data.name}
+                    leadingIcon="account-circle"
+                    onPress={() => {
+                      setUserMenuOpen(false);
+                      navigation.navigate('InsetProfile', { isModal: true });
+                    }}
+                  />
+                  <Divider />
+                  <Menu.Item
+                    title="Bandeau"
+                    leadingIcon="palette"
+                    onPress={() => {
+                      setUserMenuOpen(false);
+                      navigation.navigate('InsetThemes', { isModal: true });
+                    }}
+                  />
+                  <Divider />
+                  <Menu.Item
+                    title="Préférences"
+                    leadingIcon="cog"
+                    onPress={() => {
+                      setUserMenuOpen(false);
+                      navigation.navigate('InsetSettings', { isModal: true });
+                    }}
+                  />
+                </Menu>
+              )}
             </View>
             <Animated.View
               style={[
@@ -751,13 +822,21 @@ function HomeScreen({ navigation }: { navigation: any }) {
 
 const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
   const theme = useTheme();
-  const UIColors = GetUIColors();
+  const UIColors = GetUIColors(null, 'ios');
 
   return (
     <View style={styles.tabsTabsContainer}>
       <View style={styles.tabsTabRow}>
         <PressableScale
-          style={[styles.tabsTab, { backgroundColor: UIColors.element }]}
+          style={[styles.tabsTab,
+            { backgroundColor: UIColors.element },
+            Platform.OS === 'android' && {
+              borderColor: UIColors.border + 55,
+              borderWidth: 0.5,
+              shadowColor: '#00000055',
+              elevation: 3,
+            }
+          ]}
           weight="light"
           activeScale={0.9}
           onPress={() => navigation.navigate('InsetSchoollife')}
@@ -766,7 +845,15 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
           <Text style={styles.tabsTabText}>Vie scolaire</Text>
         </PressableScale>
         <PressableScale
-          style={[styles.tabsTab, { backgroundColor: UIColors.element }]}
+          style={[styles.tabsTab,
+            { backgroundColor: UIColors.element },
+            Platform.OS === 'android' && {
+              borderColor: UIColors.border + 55,
+              borderWidth: 0.5,
+              shadowColor: '#00000055',
+              elevation: 3,
+            }
+          ]}
           weight="light"
           activeScale={0.9}
           onPress={() => navigation.navigate('InsetConversations')}
@@ -775,7 +862,15 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
           <Text style={styles.tabsTabText}>Messages</Text>
         </PressableScale>
         <PressableScale
-          style={[styles.tabsTab, { backgroundColor: UIColors.element }]}
+          style={[styles.tabsTab,
+            { backgroundColor: UIColors.element },
+            Platform.OS === 'android' && {
+              borderColor: UIColors.border + 55,
+              borderWidth: 0.5,
+              shadowColor: '#00000055',
+              elevation: 3,
+            }
+          ]}
           weight="light"
           activeScale={0.9}
           onPress={() => navigation.navigate('InsetEvaluations')}
@@ -797,7 +892,7 @@ const CoursElement: React.FC<{
   showsTomorrow: boolean
 }> = ({ cours, navigation, loading, showsTomorrow }) => {
   return (
-    <PapillonList inset title={!showsTomorrow ? 'Emploi du temps' : 'Votre journée de demain'} style={styles.coursContainer}>
+    <PapillonList inset title={!showsTomorrow ? 'Emploi du temps' : 'Votre journée de demain'} style={styles.coursContainer} plain>
       {!loading ? (
         cours && cours.length > 0 ? (
           cours.map((lesson, index) => (
@@ -999,7 +1094,7 @@ function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation
   return (
     !loading ? (
       homeworks ? (
-        <PapillonList inset title="Travail à faire" style={styles.homeworksDevoirsElementContainer}>
+        <PapillonList inset title="Travail à faire" style={styles.homeworksDevoirsElementContainer} plain>
           {homeworksDays.map((day, index) => (
             <DevoirsDay
               key={day.date}
@@ -1139,7 +1234,7 @@ function DevoirsContent({ homework, navigation, index, parentIndex }: {
   parentIndex: number
   navigation: any // TODO: type from react-navigation
 }) {
-  const UIColors = GetUIColors();
+  const UIColors = GetUIColors(null, 'ios');
 
   const [checkLoading, setCheckLoading] = useState(false);
   const appContext = useAppContext();
