@@ -672,7 +672,7 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
                     </NativeText>
                   ) : (
                     <NativeText style={subjectStyles.smallGradeValue}>
-                      N/A
+                      N.not
                     </NativeText>
                   )}
                   <NativeText style={subjectStyles.smallGradeScale}>
@@ -732,7 +732,7 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation })
 
             {subject.grades.map((grade, index) => {
               const gradeEmoji = getClosestGradeEmoji(subject.subject.name);
-              const gradeValue = grade.grade.value?.value?.toFixed(2) || 'N/A';
+              const gradeValue = grade.grade.value?.value?.toFixed(2) || 'N.not';
               const gradeScale = grade.grade.out_of.value.toFixed(0);
               const gradeDescription = grade.description || 'Aucune description';
               const gradeDate = new Date(grade.date).toLocaleDateString('fr-FR', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -916,7 +916,7 @@ const GradesAveragesList = ({ isLoading, UIaverage, gradeSettings }) => {
       trailing={
         <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 2 }}>
           <NativeText heading="h2">
-            {item.value > 0 ? item.value.toFixed(2) : 'N/A'}
+            {item.value > 0 ? item.value.toFixed(2) : 'N.not'}
           </NativeText>
           <NativeText heading="p2">
             /{gradeSettings.scale.toFixed(0)}
