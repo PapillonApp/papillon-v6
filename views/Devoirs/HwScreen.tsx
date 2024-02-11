@@ -150,7 +150,7 @@ function HomeworkScreen({ route, navigation }: {
   return (
     <View
       contentContainerStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}
-      style={{ backgroundColor: UIColors.modalBackground }}
+      style={{ flex: 1, backgroundColor: UIColors.modalBackground }}
       contentInsetAdjustmentBehavior="automatic"
     >
       {Platform.OS === 'ios' ? (
