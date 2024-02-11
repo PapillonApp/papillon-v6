@@ -1,13 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
   Animated,
-  Easing,
   StatusBar,
   RefreshControl,
   Platform,
-  Dimensions,
   ScrollView,
   Modal,
   TouchableOpacity,
@@ -41,6 +39,7 @@ import NativeText from '../components/NativeText';
 
 import * as WebBrowser from 'expo-web-browser';
 import * as FileSystem from 'expo-file-system';
+import { PapillonNews } from '../fetch/types/news';
 
 const yOffset = new Animated.Value(0);
 
@@ -55,15 +54,12 @@ const scrollHandler = Animated.event(
   { useNativeDriver: false }
 );
 
-function relativeDate(date) {
+function relativeDate(date: Date) {
   return moment(date).fromNow();
 }
 
-function normalizeText(text) {
-  if (text === undefined) {
-    return '';
-  }
-
+function normalizeText(text?: string) {
+  if (!text) return '';
 
   // remove accents and render in lowercase
   return text
@@ -73,66 +69,70 @@ function normalizeText(text) {
     .toLowerCase();
 }
 
-function normalizeContent(text) {
+function normalizeContent(text: string) {
   return text.replace(/(\r\n|\n|\r)/gm, '').trim();
 }
 
-function FullNewsIcon({ title, survey }) {
-  const UIColors = GetUIColors();
+function FullNewsIcon({ title, survey }: {
+  title?: string
+  survey: any // TODO
+}) {
+  const normalizedTitle = normalizeText(title);
+  const COLOR = '#B42828';
 
   return (
     <View>
       { survey ? (
-        <PieChart color={'#B42828'} size={24} />
-      ) : normalizeText(title).includes('menu') ? (
-        <ChefHat color={'#B42828'} size={24} />
-      ) : normalizeText(title).includes('reunion') ? (
-        <Projector color={'#B42828'} size={24} />
-      ) : normalizeText(title).includes('association') ? (
-        <Users2 color={'#B42828'} size={24} />
-      ) : normalizeText(title).includes('important') ? (
-        <AlertTriangle color={'#B42828'} size={24} />
+        <PieChart color={COLOR} size={24} />
+      ) : normalizedTitle.includes('menu') ? (
+        <ChefHat color={COLOR} size={24} />
+      ) : normalizedTitle.includes('reunion') ? (
+        <Projector color={COLOR} size={24} />
+      ) : normalizedTitle.includes('association') ? (
+        <Users2 color={COLOR} size={24} />
+      ) : normalizedTitle.includes('important') ? (
+        <AlertTriangle color={COLOR} size={24} />
       ) : (
-        <Newspaper color={'#B42828'} size={24} />
+        <Newspaper color={COLOR} size={24} />
       )}
     </View>
   );
 }
 
-function NewsScreen({ navigation }) {
+function NewsScreen({ navigation }: {
+  navigation: any // TODO
+}) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
-  const openURL = async (url) => {
+  const openURL = async (url: string) => {
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
-      presentationStyle: 'currentContext',
+      presentationStyle: WebBrowser.WebBrowserPresentationStyle.CURRENT_CONTEXT,
       controlsColor: '#B42828',
     });
   };
 
   const insets = useSafeAreaInsets();
 
-  const { height } = Dimensions.get('screen');
-
-  const [news, setNews] = useState([]);
-  const [finalNews, setFinalNews] = useState([]);
+  const [news, setNews] = useState<PapillonNews[]>([]);
+  const [finalNews, setFinalNews] = useState<PapillonNews[]>([]);
   const [showNews, setShowNews] = useState(true);
   const [currentNewsType, setCurrentNewsType] = useState('Toutes');
 
-  function editNews(n) {
-    let newNews = n;
+  function editNews(n: PapillonNews[]): PapillonNews[] {
+    let newNews = [...n];
 
     // for each news, if no title, set title to "Sans titre"
     newNews.forEach((item) => {
-      if (item.title === null || item.title === undefined) {
+      if (item.title === null || typeof item.title === 'undefined') {
         item.title = 'Sans titre';
       }
     });
 
     // sort news by date
     newNews.sort((a, b) => {
-      return new Date(b.date) - new Date(a.date);
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
 
     return newNews;
@@ -141,23 +141,34 @@ function NewsScreen({ navigation }) {
   const [isHeadLoading, setIsHeadLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const appctx = useAppContext();
+  const appContext = useAppContext();
 
+  // Get the data from cache if available on first load.
   useEffect(() => {
-    appctx.dataprovider.getNews().then((n) => {
-      setNews(editNews(n));
-      setFinalNews(editNews(n));
+    (async () => {
+      if (!appContext.dataProvider) return;
+      const news = await appContext.dataProvider.getNews(false);
+      const editedNews = editNews(news);
+
+      setNews(editedNews);
+      setFinalNews(editedNews);
       setIsLoading(false);
-    });
+    })();
   }, []);
 
+  // Get the data but with a force refresh.
   const onRefresh = React.useCallback(() => {
-    setIsHeadLoading(true);
-    appctx.dataprovider.getNews(true).then((n) => {
-      setNews(editNews(n));
-      setFinalNews(editNews(n));
+    (async () => {
+      if (!appContext.dataProvider) return;
+      setIsHeadLoading(true);
+      
+      const news = await appContext.dataProvider.getNews(true);
+      const editedNews = editNews(news);
+
+      setNews(editedNews);
+      setFinalNews(editedNews);
       setIsHeadLoading(false);
-    });
+    })();
   }, []);
 
   // add search bar in the header
@@ -178,7 +189,6 @@ function NewsScreen({ navigation }) {
       headerBackground: Platform.OS === 'ios' ? () => (
         <Animated.View 
           style={[
-            styles.header,
             {
               flex: 1,
               backgroundColor: UIColors.element + '00',
@@ -201,11 +211,11 @@ function NewsScreen({ navigation }) {
         placeholder: 'Rechercher une actualité',
         cancelButtonText: 'Annuler',
         tintColor: '#B42828',
-        onChangeText: (event) => {
+        onChangeText: (event: any) => {
           const text = event.nativeEvent.text.trim();
     
           if (text.length > 2) {
-            const newNews = [];
+            const newNews: PapillonNews[] = [];
     
             finalNews.forEach((item) => {
               if (
@@ -226,10 +236,6 @@ function NewsScreen({ navigation }) {
       },
     });
   }, [navigation, finalNews, isHeadLoading, UIColors]);
-
-
-
-
 
   const [newsTypes, setNewsTypes] = useState([
     {
@@ -265,38 +271,6 @@ function NewsScreen({ navigation }) {
     });
   }, [news]);
 
-  function changeNewsType(type) {
-    setCurrentNewsType(type);
-
-    if (type === 'Toutes') {
-      setNews(finalNews);
-    }
-
-    if (type === 'Menus') {
-      const newNews = [];
-
-      finalNews.forEach((item) => {
-        if (normalizeText(item.title).includes(normalizeText('menu'))) {
-          newNews.push(item);
-        }
-      });
-
-      setNews(newNews);
-    }
-
-    if (type === 'Réunions') {
-      const newNews = [];
-
-      finalNews.forEach((item) => {
-        if (normalizeText(item.title).includes(normalizeText('reunion'))) {
-          newNews.push(item);
-        }
-      });
-
-      setNews(newNews);
-    }
-  }
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ modalURL , setModalURL ] = useState('');
 
@@ -310,7 +284,7 @@ function NewsScreen({ navigation }) {
           <RefreshControl
             refreshing={isHeadLoading}
             onRefresh={onRefresh}
-            colors={[Platform.OS === 'android' ? UIColors.primary : null]}
+            colors={[Platform.OS === 'android' ? UIColors.primary : '']}
           />
         }
         onScroll={scrollHandler}
@@ -337,7 +311,6 @@ function NewsScreen({ navigation }) {
             >
               <X
                 color='#ffffff'
-                style={styles.pdfCloseIcon}
               />
             </TouchableOpacity>
 
@@ -352,7 +325,7 @@ function NewsScreen({ navigation }) {
           <View style={{height: 16}} />
         ) : null }
 
-        <NativeList inset>
+        <NativeList>
           {!isLoading && news.length !== 0 ? (
             (news.map((item, index) => {
               return (
@@ -379,7 +352,7 @@ function NewsScreen({ navigation }) {
                           gap: 7,
                         }}
                       >
-                        {!item.read ? (
+                        {!item.read && (
                           <View
                             style={{
                               backgroundColor: '#B42828',
@@ -390,7 +363,7 @@ function NewsScreen({ navigation }) {
                               height: 9,
                             }}
                           />
-                        ) : null}
+                        )}
 
                         <NativeText heading="h4" numberOfLines={1}>
                           {item.title}
@@ -406,7 +379,7 @@ function NewsScreen({ navigation }) {
                       </NativeText>
 
                       { item.attachments.length !== 0 ? (
-                        <NativeText heading="subtitle2" numberOfLines={1} style={[styles.pj, {backgroundColor: UIColors.text + '22'}]}>
+                        <NativeText heading="subtitle2" numberOfLines={1} style={{ ...styles.pj, backgroundColor: UIColors.text + '22'}}>
                       contient {item.attachments.length} pièce(s) jointe(s)
                         </NativeText>
                       ) : null }

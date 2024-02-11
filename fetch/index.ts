@@ -2,13 +2,15 @@ import type { Pronote } from 'pawnote';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type { SkolengoDatas } from './SkolengoData/SkolengoDatas';
+import type { PapillonHomework } from './types/homework';
 import type { PapillonLesson } from './types/timetable';
 import type { PapillonGrades } from './types/grades';
 import type { PapillonUser } from './types/user';
-import type { PapillonHomework } from './types/homework';
+import type { PapillonNews } from './types/news';
 
 import { loadPronoteConnector } from './PronoteData/connector';
 import { userHandler as pronoteUserHandler } from './PronoteData/user';
+import { newsHandler as pronoteNewsHandler } from './PronoteData/news';
 import { gradesHandler as pronoteGradesHandler } from './PronoteData/grades';
 import { timetableHandler as pronoteTimetableHandler } from './PronoteData/timetable';
 import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as pronoteHomeworkHandler } from './PronoteData/homework';
@@ -160,16 +162,18 @@ export class IndexDataInstance {
     }
   }
 
-  // [Service]News.js
-  async getNews(force = false) {
+  async getNews(force = false): Promise<PapillonNews[]> {
     await this.waitInit();
-    if (this.service === 'skolengo')
-      return this.skolengoInstance.getNews(force);
-    if (this.service === 'pronote')
-      // return require('./PronoteData/PronoteNews.js')
-      //   .getNews(force)
-      //   .then((e) => (typeof e === 'string' ? JSON.parse(e) : e));
-      return [];
+
+    if (this.service === 'skolengo') {
+      // return this.skolengoInstance.getNews(force);
+    }
+    else if (this.service === 'pronote') {
+      const news = await pronoteNewsHandler(force, this.pronoteInstance);
+      return news;
+    }
+
+    return [];
   }
 
   async changeNewsState(id) {
