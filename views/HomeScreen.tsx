@@ -815,6 +815,10 @@ function HomeScreen({ navigation }: { navigation: any }) {
         navigation={navigation}
         loading={groupedHomeworks === null}
       />
+
+      {((groupedHomeworks?.length < 2) || (lessons?.data?.length < 4)) && (
+        <View style={{ height: 100 }} />
+      )}
     </ScrollView>
   );
 }
