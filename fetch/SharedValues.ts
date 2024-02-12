@@ -12,13 +12,15 @@ export default async function sendToSharedGroup(lessons: PapillonLesson[]) {
   for (const lesson of lessons) {
     if (!lesson.subject) continue;
 
+    let color = getSavedCourseColor(lesson.subject.name, lesson.background_color);
+
     sharedLessons.push({
       subject: formatCoursName(lesson.subject.name),
       teacher: lesson.teachers.join(', '),
       room: lesson.rooms.join(', '),
       start: new Date(lesson.start).getTime(),
       end: new Date(lesson.end).getTime(),
-      background_color: lesson.background_color ?? getSavedCourseColor(lesson.subject.name, lesson.background_color),
+      background_color: color,
       emoji: getClosestGradeEmoji(lesson.subject.name),
       is_cancelled: lesson.is_cancelled,
     });
