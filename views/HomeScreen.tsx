@@ -815,8 +815,6 @@ function HomeScreen({ navigation }: { navigation: any }) {
         navigation={navigation}
         loading={groupedHomeworks === null}
       />
-
-      <View style={{ height: 200 }} />
     </ScrollView>
   );
 }
