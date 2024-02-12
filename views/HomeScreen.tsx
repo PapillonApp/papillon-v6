@@ -477,7 +477,6 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   style={{
                     flex: 1,
                     height: 38,
-                    marginHorizontal: 16,
                     marginTop: -2,
                     opacity: scrolledAnim,
                     transform: [
@@ -816,6 +815,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
         navigation={navigation}
         loading={groupedHomeworks === null}
       />
+
+      <View style={{ height: 200 }} />
     </ScrollView>
   );
 }

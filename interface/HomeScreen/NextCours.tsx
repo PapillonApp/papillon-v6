@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
   },
 
   tinyContainer: {
-    width: '100%',
+    maxWidth: '100%',
     height: '100%',
     borderRadius: 12,
     borderCurve: 'continuous',
@@ -543,6 +543,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     paddingHorizontal: 14,
+    alignSelf: 'center',
   },
 
   tinyStart: {
@@ -565,7 +566,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#ffffff',
     opacity: 0.8,
-    flex: 1,
+    maxWidth: '70%',
   },
 });
 
