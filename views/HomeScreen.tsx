@@ -843,7 +843,7 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
       <View style={styles.tabsTabRow}>
         <PressableScale
           style={[styles.tabsTab,
-            { backgroundColor: UIColors.element, borderColor: UIColors.borderLight + 99 },
+            { backgroundColor: UIColors.element, borderColor: UIColors.borderLight + 77 },
             Platform.OS === 'android' && {
               borderColor: UIColors.border + 55,
               borderWidth: 0.5,
@@ -860,7 +860,7 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
         </PressableScale>
         <PressableScale
           style={[styles.tabsTab,
-            { backgroundColor: UIColors.element, borderColor: UIColors.borderLight + 99 },
+            { backgroundColor: UIColors.element, borderColor: UIColors.borderLight + 77 },
             Platform.OS === 'android' && {
               borderColor: UIColors.border + 55,
               borderWidth: 0.5,
@@ -877,7 +877,7 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
         </PressableScale>
         <PressableScale
           style={[styles.tabsTab,
-            { backgroundColor: UIColors.element, borderColor: UIColors.borderLight + 99 },
+            { backgroundColor: UIColors.element, borderColor: UIColors.borderLight + 77 },
             Platform.OS === 'android' && {
               borderColor: UIColors.border + 55,
               borderWidth: 0.5,
@@ -935,7 +935,7 @@ const CoursElement: React.FC<{
           styles.sectionContainer,
           {
             backgroundColor: UIColors.element,
-            borderColor: UIColors.borderLight + '99',
+            borderColor: UIColors.borderLight + '77',
           }
         ]}
       >
@@ -1163,7 +1163,7 @@ function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation
             styles.sectionContainer,
             {
               backgroundColor: UIColors.element,
-              borderColor: UIColors.borderLight + '99',
+              borderColor: UIColors.borderLight + '77',
             }
           ]}
         >
