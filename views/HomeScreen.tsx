@@ -843,7 +843,7 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
       <View style={styles.tabsTabRow}>
         <PressableScale
           style={[styles.tabsTab,
-            { backgroundColor: UIColors.element },
+            { backgroundColor: UIColors.element, borderColor: UIColors.borderLight },
             Platform.OS === 'android' && {
               borderColor: UIColors.border + 55,
               borderWidth: 0.5,
@@ -860,7 +860,7 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
         </PressableScale>
         <PressableScale
           style={[styles.tabsTab,
-            { backgroundColor: UIColors.element },
+            { backgroundColor: UIColors.element, borderColor: UIColors.borderLight },
             Platform.OS === 'android' && {
               borderColor: UIColors.border + 55,
               borderWidth: 0.5,
@@ -877,7 +877,7 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
         </PressableScale>
         <PressableScale
           style={[styles.tabsTab,
-            { backgroundColor: UIColors.element },
+            { backgroundColor: UIColors.element, borderColor: UIColors.borderLight },
             Platform.OS === 'android' && {
               borderColor: UIColors.border + 55,
               borderWidth: 0.5,
@@ -1775,13 +1775,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     gap: 4,
 
-    shadowColor: '#000',
+    borderWidth: 0.5,
+    shadowColor: '#00000055',
     shadowOffset: {
       width: 0,
-      height: 0.5,
+      height: 1,
     },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.2,
     shadowRadius: 1,
+    
+    elevation: 3,
+    marginBottom: 14,
 
     elevation: 0,
   },
@@ -1822,10 +1826,10 @@ const styles = StyleSheet.create({
     shadowColor: '#00000055',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 1.5,
     },
     shadowOpacity: 0.2,
-    shadowRadius: 2,
+    shadowRadius: 1,
     
     elevation: 3,
     marginBottom: 14,
