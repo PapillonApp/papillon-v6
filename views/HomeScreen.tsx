@@ -61,6 +61,12 @@ import { dateToFrenchFormat } from '../utils/dates';
 import { convert as convertHTML } from 'html-to-text';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { homeworksAtom, homeworksUntilNextWeekAtom } from '../atoms/homeworks';
+import NativeText from '../components/NativeText';
+
+import {
+  CalendarFill as PapillonIconsCalendarFill,
+  Book as PapillonIconsBook,
+} from '../interface/icons/PapillonIcons';
 
 // Functions
 const openURL = (url: string) => {
@@ -140,6 +146,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
   const [showsTomorrowLessons, setShowsTomorrowLessons] = useState(false);
   const net = useNetInfo();
   const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
   const setHomeworks = useSetAtom(homeworksAtom);
   const [groupedHomeworks] = useAtom(
@@ -340,8 +348,6 @@ function HomeScreen({ navigation }: { navigation: any }) {
       const todayLessonsDone = lessons.every(lesson => new Date(lesson.end) < now);
   
       if (todayLessonsDone) {
-        const tomorrow = new Date(now);
-        tomorrow.setDate(tomorrow.getDate() + 1);
         const tomorrowKey = dateToFrenchFormat(tomorrow);
   
         // Check if tomorrow is monday.
@@ -713,7 +719,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
 
   yOffset.addListener(({ value }) => {
     if (Platform.OS === 'ios') {
-      if (value > 80) {
+      if (value > 70) {
         setScrolled(true); 
       } else {
         setScrolled(false);
@@ -806,6 +812,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
         navigation={navigation}
         loading={lessons.loading}
         showsTomorrow={showsTomorrowLessons}
+        UIColors={UIColors}
+        date={showsTomorrowLessons ? tomorrow : now}
       />
       
       <DevoirsElement
@@ -814,6 +822,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
         homeworksDays={homeworksDays}
         navigation={navigation}
         loading={groupedHomeworks === null}
+        UIColors={UIColors}
       />
 
       {(
@@ -894,37 +903,70 @@ const CoursElement: React.FC<{
   cours: PapillonLesson[] | null
   navigation: any // TODO: type from react-navigation
   loading: boolean
-  showsTomorrow: boolean
-}> = ({ cours, navigation, loading, showsTomorrow }) => {
+  showsTomorrow: boolean,
+  UIColors: any,
+  date: Date
+}> = ({ cours, navigation, loading, showsTomorrow, UIColors, date }) => {
   return (
-    <PapillonList inset title={!showsTomorrow ? 'Emploi du temps' : 'Votre journée de demain'} style={styles.coursContainer} plain>
-      {!loading ? (
-        cours && cours.length > 0 ? (
-          cours.map((lesson, index) => (
-            <View key={index}>
-              <CoursItem
-                key={lesson.id}
-                index={index}
-                lesson={lesson}
-                cours={cours}
-                navigation={navigation}
-              />
+    <View>
+      <View style={[styles.sectionHeader]}>
+        <View style={[styles.sectionHeaderText]}>
+          <NativeText style={[styles.sectionHeaderDay]}>
+            {showsTomorrow ? 'Votre journée de demain' : 'Votre journée'}
+          </NativeText>
+          <NativeText style={[styles.sectionHeaderDate]}>
+            {new Date(date).toLocaleDateString('fr-FR', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+            })}
+          </NativeText>
+        </View>
+        <TouchableOpacity style={[styles.sectionHeaderIcon, {backgroundColor: UIColors.text + '22'}]}
+          onPress={() => {
+            navigation.navigate('CoursHandler');
+          }}
+        >
+          <PapillonIconsCalendarFill fill={UIColors.text} stroke={UIColors.text} />
+        </TouchableOpacity>
+      </View>
+      <View
+        style={[
+          styles.sectionContainer,
+          {
+            backgroundColor: UIColors.element,
+            borderColor: UIColors.borderLight + 'ff',
+          }
+        ]}
+      >
+        {!loading ? (
+          cours && cours.length > 0 ? (
+            cours.map((lesson, index) => (
+              <View key={index}>
+                <CoursItem
+                  key={lesson.id}
+                  index={index}
+                  lesson={lesson}
+                  cours={cours}
+                  navigation={navigation}
+                />
+              </View>
+            ))
+          ) : (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>Aucun cours {!showsTomorrow ? 'aujourd\'hui' : 'demain'}</Text>
             </View>
-          ))
+          )
         ) : (
           <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Aucun cours {!showsTomorrow ? 'aujourd\'hui' : 'demain'}</Text>
+            <ActivityIndicator />
+            <Text style={styles.loadingText}>
+              Chargement de l'emploi du temps...
+            </Text>
           </View>
-        )
-      ) : (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator />
-          <Text style={styles.loadingText}>
-            Chargement de l'emploi du temps...
-          </Text>
-        </View>
-      )}
-    </PapillonList>
+        )}
+      </View>
+    </View>
   );
 };
 
@@ -1089,7 +1131,7 @@ function CoursItem ({ lesson, cours, navigation, index }: {
   );
 }
 
-function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation, loading }: {
+function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation, loading, UIColors }: {
   homeworks: PapillonGroupedHomeworks[] | null
   customHomeworks: any[] // TODO
   homeworksDays: Array<{ custom: boolean, date: number }>
@@ -1098,8 +1140,33 @@ function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation
 }) {
   return (
     !loading ? (
-      homeworks ? (
-        <PapillonList inset title="Travail à faire" style={styles.homeworksDevoirsElementContainer} plain>
+      homeworks ? (<>
+        <View style={[styles.sectionHeader]}>
+          <View style={[styles.sectionHeaderText]}>
+            <NativeText style={[styles.sectionHeaderDay]}>
+              Travail à faire
+            </NativeText>
+            <NativeText style={[styles.sectionHeaderDate]}>
+              pour les prochains jours
+            </NativeText>
+          </View>
+          <TouchableOpacity style={[styles.sectionHeaderIcon, {backgroundColor: UIColors.text + '22'}]}
+            onPress={() => {
+              navigation.navigate('DevoirsHandler');
+            }}
+          >
+            <PapillonIconsBook stroke={UIColors.text} />
+          </TouchableOpacity>
+        </View>
+        <View
+          style={[
+            styles.sectionContainer,
+            {
+              backgroundColor: UIColors.element,
+              borderColor: UIColors.borderLight + 'ff',
+            }
+          ]}
+        >
           {homeworksDays.map((day, index) => (
             <DevoirsDay
               key={day.date}
@@ -1127,8 +1194,8 @@ function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation
               })}
             />
           ))}
-        </PapillonList>
-      ) : (
+        </View>
+      </>) : (
         <PapillonList inset title="Travail à faire" style={styles.homeworksDevoirsElementContainer}>
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>Aucun devoir à faire</Text>
@@ -1742,6 +1809,57 @@ const styles = StyleSheet.create({
   headerThemeImage: {
     width: '100%',
     height: 150,
+  },
+
+  sectionContainer: {
+    marginHorizontal: 16,
+    paddingVertical: 6,
+
+    borderRadius: 12,
+    borderCurve: 'continuous',
+
+    borderWidth: 0.5,
+    shadowColor: '#00000055',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    
+    elevation: 3,
+    marginBottom: 14,
+  },
+
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 6,
+    paddingBottom: 14,
+  },
+  sectionHeaderText: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    gap: 2,
+  },
+  sectionHeaderDay: {
+    fontSize: 15,
+    opacity: 0.5,
+    fontFamily: 'Papillon-Medium',
+  },
+  sectionHeaderDate: {
+    fontSize: 17,
+    fontFamily: 'Papillon-Semibold',
+  },
+  sectionHeaderIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
