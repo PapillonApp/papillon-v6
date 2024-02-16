@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Haptics from 'expo-haptics';
 
 import { LogOut, RefreshCw, RotateCw, Server, Trash2 } from 'lucide-react-native';
 import { showMessage } from 'react-native-flash-message';
@@ -35,6 +36,7 @@ function SettingsScreen({ navigation }) {
     // Force another initialisation.
     await appContext.dataProvider.init('pronote');
     setPronoteTokenActionAlert(true);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   }
 
 
@@ -220,6 +222,7 @@ function SettingsScreen({ navigation }) {
 
           // Go back to login menu !
           navigation.popToTop();
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }}
       />
     </ScrollView>

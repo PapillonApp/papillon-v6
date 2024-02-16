@@ -2,6 +2,7 @@ import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Pressable, Platform, StatusBar } from 'react-native';
 
 import { useTheme, Text } from 'react-native-paper';
+import * as Haptics from 'expo-haptics';
 import GetUIColors from '../../utils/GetUIColors';
 
 import SyncStorage, { set } from 'sync-storage';
@@ -125,6 +126,7 @@ const CoursColor = ({ navigation }) => {
     });
 
     setSavedColors(newCol);
+    Haptics.selectionAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
   useEffect(() => {
