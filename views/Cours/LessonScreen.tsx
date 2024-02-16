@@ -51,9 +51,6 @@ function LessonScreen({ route, navigation }) {
   const UIColors = GetUIColors();
   const etabRoom = getEtabRoom(lesson.rooms[0]);
 
-  console.log(lesson);
-  console.log(getEtabRoom(lesson.rooms[0]));
-
   function openURL(url) {
     WebBrowser.openBrowserAsync(url, {
       presentationStyle: 'formSheet',
@@ -295,7 +292,6 @@ function LessonScreen({ route, navigation }) {
                   );
                 }
               }}
-              chevron
             >
               <NativeText heading="h4" numberOfLines={1}>
                 {file.name}

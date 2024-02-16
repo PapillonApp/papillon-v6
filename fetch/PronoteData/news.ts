@@ -22,7 +22,24 @@ export const newsHandler = async (force = false, instance?: Pronote): Promise<Pa
     return newsHandler(true, instance);
   }
 
-  // TODO : When Pawnote will support it !
+  if (!instance) return [];
 
-  return [];
+  try {
+    const newsFromPawnote = await instance.getNews();
+    const news: PapillonNews[] = newsFromPawnote.items.map(n => ({
+      title: n.title,
+      date: n.startDate.toISOString(),
+      content: n.questions[0].content,
+      survey: n.isSurvey,
+      read: n.read,
+      author: n.author,
+      attachments: [] // TODO
+    }));
+
+    return news;
+  }
+  catch {
+    // TODO
+    return [];
+  }
 };

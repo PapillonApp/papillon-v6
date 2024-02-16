@@ -75,7 +75,7 @@ function normalizeContent(text: string) {
 
 function FullNewsIcon({ title, survey }: {
   title?: string
-  survey: any // TODO
+  survey: boolean
 }) {
   const normalizedTitle = normalizeText(title);
   const COLOR = '#B42828';
@@ -154,7 +154,7 @@ function NewsScreen({ navigation }: {
       setFinalNews(editedNews);
       setIsLoading(false);
     })();
-  }, []);
+  }, [appContext.dataProvider]);
 
   // Get the data but with a force refresh.
   const onRefresh = React.useCallback(() => {
@@ -257,7 +257,6 @@ function NewsScreen({ navigation }: {
 
   useEffect(() => {
     news.forEach((item) => {
-      console.log(item);
       if (normalizeText(item.title).includes(normalizeText('menu'))) {
         const newNewsTypes = newsTypes;
         newNewsTypes[1].enabled = true;

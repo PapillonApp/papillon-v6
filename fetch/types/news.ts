@@ -8,8 +8,9 @@ export interface PapillonNews {
   title?: string
   date: string
   content: string
-  survey: any // TODO
+  survey: boolean
   read: boolean
+  author: string
 
   attachments: any[] // TODO
 }

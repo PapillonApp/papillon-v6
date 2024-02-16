@@ -28,31 +28,22 @@ import NativeText from '../../components/NativeText';
 import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
 
-import { PieChart, Link, File, X, DownloadCloud, MoreHorizontal, MoreVertical, ChevronLeft, Check } from 'lucide-react-native';
-import { PressableScale } from 'react-native-pressable-scale';
-import ListItem from '../../components/ListItem';
+import { PieChart, Link, File, X, DownloadCloud, MoreHorizontal, ChevronLeft } from 'lucide-react-native';
 import GetUIColors from '../../utils/GetUIColors';
 import { useAppContext } from '../../utils/AppContext';
 
-import PdfRendererView from 'react-native-pdf-renderer';
 import * as FileSystem from 'expo-file-system';
-
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { PapillonNews } from '../../fetch/types/news';
 
 function NewsItem({ route, navigation }) {
-  const [news, setNews] = useState(route.params.news);
+  const [news, setNews] = useState<PapillonNews>(route.params.news);
   const theme = useTheme();
   const UIColors = GetUIColors();
   const { width } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
-
-  console.log(news);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [ modalURL , setModalURL ] = useState('');
 
-  const appctx = useAppContext();
+  const appContext = useAppContext();
 
   const [isRead, setIsRead] = useState(news.read);
   const [readChanged, setReadChanged] = useState(false);
@@ -69,9 +60,10 @@ function NewsItem({ route, navigation }) {
   };
 
   const loadNews = async (id) => {
-    if (!id) return;
-    if (appctx.dataprovider.service === 'Skolengo') {
-      const newNews = await appctx.dataprovider.getUniqueNews(id, false);
+    if (!id || !appContext.dataProvider) return;
+  
+    if (appContext.dataProvider.service === 'skolengo') {
+      const newNews = await appContext.dataProvider.getUniqueNews(id, false);
       setNews(newNews);
     }
   };
@@ -141,7 +133,7 @@ function NewsItem({ route, navigation }) {
               });
             }
             else if (nativeEvent.actionKey === 'copy') {
-              await Clipboard.setStringAsync(news.html_content[0].texte.V);
+              await Clipboard.setStringAsync(news.content);
             }
           }}
         >
@@ -154,7 +146,9 @@ function NewsItem({ route, navigation }) {
   }, [navigation, isRead, readChanged]);
 
   function markNewsAsRead(id) {
-    return appctx.dataprovider.changeNewsState(id).then((result) => {
+    if (!appContext.dataProvider) return;
+
+    return appContext.dataProvider.changeNewsState(id).then((result) => {
       return result;
     });
   }
@@ -194,7 +188,7 @@ function NewsItem({ route, navigation }) {
     return names?.at(0)?.at(0);
   }
 
-  function trimHtml(html) {
+  function trimHtml(html: string) {
     // remove &nbsp;
     html = html.replace('&nbsp;', '');
 
@@ -207,7 +201,7 @@ function NewsItem({ route, navigation }) {
   }
 
   const source = {
-    html: trimHtml(news.html_content[0].texte.V),
+    html: trimHtml(news.content),
   };
 
   const defaultTextProps = {
@@ -229,7 +223,7 @@ function NewsItem({ route, navigation }) {
       />
 
       {news.survey ? (
-        <NativeList inset>
+        <NativeList>
           <NativeItem
             leading={
               <PieChart size={20} color={theme.dark ? '#ffffff' : '#000000'} />
@@ -261,7 +255,7 @@ function NewsItem({ route, navigation }) {
       </View>
 
       {news.attachments.length > 0 ? (
-        <NativeList inset header="Pièces jointes">
+        <NativeList header="Pièces jointes">
           {news.attachments.map((file, index) => (
             <PapillonAttachment key={index} file={file} index={index} theme={theme} UIColors={UIColors} navigation={navigation} openURL={openURL} />
           ))}
@@ -269,7 +263,7 @@ function NewsItem({ route, navigation }) {
       ) : null}
 
       {news.author ? (
-        <NativeList inset header="Auteur">
+        <NativeList header="Auteur">
           <NativeItem
             leading={
               <View
@@ -322,9 +316,9 @@ function NewsItem({ route, navigation }) {
         </NativeList>
       ) : null}
 
-      {news.survey ? (
+      {/* {news.survey ? (
         news.html_content.map((survey, index) => (
-          <NativeList key={index} inset header={survey.L}>
+          <NativeList key={index} header={survey.L}>
             <NativeItem>
               <NativeText heading="p">
                 {survey.texte.V.replace( /(<([^>]+)>)/ig, '').replace(/&nbsp;/g, '').trim()}
@@ -353,7 +347,7 @@ function NewsItem({ route, navigation }) {
             ))}
           </NativeList>
         ))
-      ) : null}
+      ) : null} */}
 
       <View style={{ height: 20 }} />
     </ScrollView>
