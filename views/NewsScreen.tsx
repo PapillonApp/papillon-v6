@@ -18,6 +18,8 @@ import 'moment/locale/fr';
 moment.locale('fr');
 
 import PdfRendererView from 'react-native-pdf-renderer';
+import RenderHtml from 'react-native-render-html';
+
 
 import { SFSymbol } from 'react-native-sfsymbols';
 import PapillonInsetHeader from '../components/PapillonInsetHeader';
@@ -170,6 +172,7 @@ function NewsScreen({ navigation }: {
       setIsHeadLoading(false);
     })();
   }, []);
+
 
   // add search bar in the header
   React.useLayoutEffect(() => {
@@ -327,6 +330,19 @@ function NewsScreen({ navigation }: {
         <NativeList inset>
           {!isLoading && news.length !== 0 ? (
             (news.map((item, index) => {
+
+              function trimHtml(html: string) {
+                // remove &nbsp;
+                html = html.replace(/&nbsp;/g, ' ');
+                // remove html tags
+                html = html.replace(/<[^>]*>/g, '');
+                // remove multiple spaces
+                html = html.replace(/\s{2,}/g, ' ');
+                // remove line breaks
+                html = html.replace(/\n{1,}/g, '');
+                return html;
+              }
+
               return (
                 <View key={index}>
                   <NativeItem
@@ -370,7 +386,7 @@ function NewsScreen({ navigation }: {
                       </View>
 
                       <NativeText heading="p2" numberOfLines={2}>
-                        {normalizeContent(item.content)}
+                        {trimHtml(item.content)}
                       </NativeText>
 
                       <NativeText heading="subtitle2" numberOfLines={1} style={{ marginTop: 4 }}>
