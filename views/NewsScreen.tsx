@@ -324,7 +324,7 @@ function NewsScreen({ navigation }: {
           <View style={{height: 16}} />
         ) : null }
 
-        <NativeList>
+        <NativeList inset>
           {!isLoading && news.length !== 0 ? (
             (news.map((item, index) => {
               return (

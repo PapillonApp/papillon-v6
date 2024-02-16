@@ -6,16 +6,11 @@ import {
   StatusBar,
   useWindowDimensions,
   Platform,
-  Modal,
   TouchableOpacity,
   Alert,
-  Share,
 } from 'react-native';
 
 import { ContextMenuButton } from 'react-native-ios-context-menu';
-
-import { SFSymbol } from 'react-native-sfsymbols';
-import PapillonInsetHeader from '../../components/PapillonInsetHeader';
 
 import { Text, useTheme } from 'react-native-paper';
 
@@ -28,7 +23,7 @@ import NativeText from '../../components/NativeText';
 import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
 
-import { PieChart, Link, File, X, DownloadCloud, MoreHorizontal, ChevronLeft } from 'lucide-react-native';
+import { PieChart, Link, File, DownloadCloud, MoreHorizontal, ChevronLeft } from 'lucide-react-native';
 import GetUIColors from '../../utils/GetUIColors';
 import { useAppContext } from '../../utils/AppContext';
 
@@ -223,7 +218,7 @@ function NewsItem({ route, navigation }) {
       />
 
       {news.survey ? (
-        <NativeList>
+        <NativeList inset>
           <NativeItem
             leading={
               <PieChart size={20} color={theme.dark ? '#ffffff' : '#000000'} />
@@ -263,7 +258,7 @@ function NewsItem({ route, navigation }) {
       ) : null}
 
       {news.author ? (
-        <NativeList header="Auteur">
+        <NativeList header="Auteur" inset>
           <NativeItem
             leading={
               <View
