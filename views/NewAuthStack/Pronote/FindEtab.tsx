@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useLayoutEffect, useState } from 'react';
+import { useTheme } from 'react-native-paper';
 
 import { StatusBar, ScrollView, Platform } from 'react-native';
 import { MapPin, QrCode, Link2 } from 'lucide-react-native';
@@ -11,6 +12,7 @@ import GetUIColors from '../../../utils/GetUIColors';
 
 const FindEtab = ({ navigation }) => {
   const UIColors = GetUIColors();
+  const theme = useTheme();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -25,7 +27,7 @@ const FindEtab = ({ navigation }) => {
   return (
     <ScrollView
       contentInsetAdjustmentBehavior='automatic'
-      style={{ backgroundColor: UIColors.background }}
+      style={theme.dark ? { backgroundColor: UIColors.background }: {}}
     >
       <StatusBar
         animated
