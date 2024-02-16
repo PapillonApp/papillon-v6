@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useLayoutEffect, useState } from 'react';
 import { ScrollView, View, Image, StatusBar, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import GetUIColors from '../../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
 
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
@@ -61,6 +62,7 @@ const SelectService = ({ navigation }) => {
       }
       if (selectedService === 2) {
         setEdAlertVisible(true);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
     }
   };
