@@ -11,12 +11,13 @@ import {
   Image,
 } from 'react-native';
 
-import { UserCircle, KeyRound, AlertTriangle } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
+
+import { UserCircle, KeyRound, AlertTriangle, Link2 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import { showMessage } from 'react-native-flash-message';
 import { useTheme, Text } from 'react-native-paper';
-
 
 import PapillonButton from '../../../components/PapillonButton';
 import NativeList from '../../../components/NativeList';
@@ -27,41 +28,59 @@ import AlertBottomSheet from '../../../interface/AlertBottomSheet';
 import GetUIColors from '../../../utils/GetUIColors';
 import { useAppContext } from '../../../utils/AppContext';
 
-import { getPronoteInstanceInformation, defaultPawnoteFetcher, authenticatePronoteCredentials, PronoteApiAccountId } from 'pawnote';
+import {
+  getPronoteInstanceInformation,
+  defaultPawnoteFetcher,
+  authenticatePronoteCredentials,
+  PronoteApiAccountId,
+} from 'pawnote';
 import { AsyncStoragePronoteKeys } from '../../../fetch/PronoteData/connector';
 
-type PronoteInstanceInformation = Awaited<ReturnType<typeof getPronoteInstanceInformation>>
+type PronoteInstanceInformation = Awaited<
+  ReturnType<typeof getPronoteInstanceInformation>
+>;
 
 function NGPronoteLogin({ route, navigation }) {
   const instance = route.params.instance;
   const instanceURL = instance.url || '';
-  
+
   const theme = useTheme();
 
   const [errorAlert, setErrorAlert] = React.useState(false);
-  const [instanceDetails, setInstanceDetails] = React.useState<PronoteInstanceInformation | null>(null);
+  const [stringErrorAlert, setStringErrorAlert] = React.useState(false);
+  const [urlAlert, setURLAlert] = React.useState(false);
+  const [instanceDetails, setInstanceDetails] =
+    React.useState<PronoteInstanceInformation | null>(null);
 
   React.useEffect(() => {
     (async () => {
       try {
-        const details = await getPronoteInstanceInformation(defaultPawnoteFetcher, {
-          pronoteURL: instanceURL
-        });
-  
+        const details = await getPronoteInstanceInformation(
+          defaultPawnoteFetcher,
+          {
+            pronoteURL: instanceURL,
+          }
+        );
+
         setInstanceDetails(details);
-      }
-      catch {
+      } catch {
         try {
-          const newInstanceURL = instanceURL.replace('index-education.net', 'pronote.toutatice.fr');
-          const details2 = await getPronoteInstanceInformation(defaultPawnoteFetcher, {
-            pronoteURL: newInstanceURL
-          });
-    
+          const newInstanceURL = instanceURL.replace(
+            'index-education.net',
+            'pronote.toutatice.fr'
+          );
+          const details2 = await getPronoteInstanceInformation(
+            defaultPawnoteFetcher,
+            {
+              pronoteURL: newInstanceURL,
+            }
+          );
+
           setInstanceDetails(details2);
-        }
-        catch {
+        } catch {
           setInstanceDetails(null);
-          setErrorAlert(true);
+          setURLAlert(true);
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         }
       }
     })();
@@ -89,67 +108,55 @@ function NGPronoteLogin({ route, navigation }) {
 
   const handleLogin = async () => {
     if (username.trim() === '' || password.trim() === '') {
-      showMessage({
-        message: 'Échec de la connexion',
-        description: 'Veuillez remplir tous les champs.',
-        type: 'danger',
-        icon: 'auto',
-        floating: true,
-        duration: 5000,
-      });
-
+      setStringErrorAlert(true);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
     }
 
     try {
       setConnecting(true);
-  
+
       const pronoteURL = instanceDetails!.pronoteRootURL;
       const deviceUUID = makeUUID();
-  
+
       const pronote = await authenticatePronoteCredentials(pronoteURL, {
-        username, password,
+        username,
+        password,
         accountTypeID: PronoteApiAccountId.Eleve,
         deviceUUID,
       });
-  
+
       await AsyncStorage.multiSet([
         [AsyncStoragePronoteKeys.NEXT_TIME_TOKEN, pronote.nextTimeToken],
-        [AsyncStoragePronoteKeys.ACCOUNT_TYPE_ID, pronote.accountTypeID.toString()],
+        [
+          AsyncStoragePronoteKeys.ACCOUNT_TYPE_ID,
+          pronote.accountTypeID.toString(),
+        ],
         [AsyncStoragePronoteKeys.INSTANCE_URL, pronote.pronoteRootURL],
         [AsyncStoragePronoteKeys.USERNAME, pronote.username],
         [AsyncStoragePronoteKeys.DEVICE_UUID, deviceUUID],
       ]);
-  
+
       setConnecting(false);
-  
+
       showMessage({
         message: 'Connecté avec succès',
         type: 'success',
         icon: 'auto',
       });
-  
+
       await appContext.dataProvider!.init('pronote', pronote);
       await AsyncStorage.setItem('service', 'pronote');
-      
+
       navigation.goBack();
       navigation.goBack();
       appContext.setLoggedIn(true);
-    }
-    catch {
+    } catch {
       setConnecting(false);
-
-      showMessage({
-        message: 'Échec de la connexion',
-        description: 'Une erreur s\'est produite.',
-        type: 'danger',
-        icon: 'auto',
-        floating: true,
-        duration: 5000,
-      });
+      setErrorAlert(true);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
-
 
   return (
     <>
@@ -170,8 +177,24 @@ function NGPronoteLogin({ route, navigation }) {
           title="Échec de la connexion"
           subtitle="Vérifiez vos identifiants et réessayez."
           visible={errorAlert}
-          icon={<AlertTriangle/>}
+          icon={<AlertTriangle />}
           cancelAction={() => setErrorAlert(false)}
+        />
+
+        <AlertBottomSheet
+          title="Échec de la connexion"
+          subtitle="Veuillez remplir tous les champs."
+          visible={stringErrorAlert}
+          icon={<AlertTriangle />}
+          cancelAction={() => setStringErrorAlert(false)}
+        />
+
+        <AlertBottomSheet
+          visible={urlAlert}
+          title="Erreur de connexion"
+          subtitle="Imposible de se connecter à cette instance."
+          icon={<Link2 />}
+          cancelAction={() => setURLAlert(false)}
         />
 
         {Platform.OS === 'ios' ? (
@@ -184,13 +207,9 @@ function NGPronoteLogin({ route, navigation }) {
           />
         )}
 
-        {Platform.OS === 'android' ? (
-          <View style={{ height: 24 }} />
-        ) : null}
+        {Platform.OS === 'android' ? <View style={{ height: 24 }} /> : null}
 
-        <View
-          style={styles.loginHeader}
-        >
+        <View style={styles.loginHeader}>
           <Image
             style={styles.loginHeaderLogo}
             source={require('../../../assets/logo_pronote.png')}
@@ -204,9 +223,7 @@ function NGPronoteLogin({ route, navigation }) {
           </Text>
         </View>
 
-        {Platform.OS === 'android' ? (
-          <View style={{ height: 15 }} />
-        ) : null}
+        {Platform.OS === 'android' ? <View style={{ height: 15 }} /> : null}
 
         <NativeList inset>
           <NativeItem
@@ -220,7 +237,7 @@ function NGPronoteLogin({ route, navigation }) {
             <TextInput
               placeholder="Identifiant"
               placeholderTextColor={theme.dark ? '#ffffff55' : '#00000055'}
-              style={[styles.nginput, {color: UIColors.text}]}
+              style={[styles.nginput, { color: UIColors.text }]}
               value={username}
               onChangeText={(text) => setUsername(text)}
             />
@@ -236,7 +253,7 @@ function NGPronoteLogin({ route, navigation }) {
             <TextInput
               placeholder="Mot de passe"
               placeholderTextColor={theme.dark ? '#ffffff55' : '#00000055'}
-              style={[styles.nginput, {color: UIColors.text}]}
+              style={[styles.nginput, { color: UIColors.text }]}
               value={password}
               secureTextEntry
               onChangeText={(text) => setPassword(text)}
@@ -244,7 +261,12 @@ function NGPronoteLogin({ route, navigation }) {
           </NativeItem>
         </NativeList>
 
-        <View style={[styles.loginForm, Platform.OS !== 'ios' && styles.loginFormAndroid]}>
+        <View
+          style={[
+            styles.loginForm,
+            Platform.OS !== 'ios' && styles.loginFormAndroid,
+          ]}
+        >
           <View style={[styles.buttons]}>
             <PapillonButton
               left={null}
@@ -257,15 +279,15 @@ function NGPronoteLogin({ route, navigation }) {
             />
           </View>
 
-          {Platform.OS === 'android' ? (
-            <View style={{ height: 15 }} />
-          ) : null}
+          {Platform.OS === 'android' ? <View style={{ height: 15 }} /> : null}
 
           <View style={[styles.bottomText]}>
             <Text style={[styles.bottomTextText]}>
-            En vous connectant, vous acceptez les{' '}
-              <Text style={{ fontWeight: 'bold' }}>conditions d'utilisation</Text>{' '}
-            de Papillon.
+              En vous connectant, vous acceptez les{' '}
+              <Text style={{ fontWeight: 'bold' }}>
+                conditions d'utilisation
+              </Text>{' '}
+              de Papillon.
             </Text>
 
             <Text style={[styles.bottomTextText]}>

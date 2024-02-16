@@ -12,6 +12,7 @@ import { useTheme, Text } from 'react-native-paper';
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authenticatePronoteQRCode } from 'pawnote';
+import * as Haptics from 'expo-haptics';
 import { useAppContext } from '../../../utils/AppContext';
 
 import GetUIColors from '../../../utils/GetUIColors';
@@ -79,6 +80,7 @@ function LoginPronoteQR({ route, navigation }) {
     catch {
       setErrPin(true);
       setError('Code invalide ou expiré');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
 

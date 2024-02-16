@@ -1,5 +1,6 @@
 import React from 'react';
 import { StatusBar, StyleSheet, TextInput, Platform, ScrollView } from 'react-native';
+import * as Haptics from 'expo-haptics';
 
 import GetUIColors from '../../../utils/GetUIColors';
 
@@ -19,6 +20,7 @@ const LoginURL = ({ navigation }) => {
   const login = () => {
     if (!currentURL || !currentURL.startsWith('http')) {
       setURLAlert(true);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
     }
 
