@@ -1,10 +1,8 @@
 import React, { useEffect } from 'react';
 import {
-  StyleSheet,
   View,
   ScrollView,
   StatusBar,
-  Platform,
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
@@ -18,13 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text, useTheme } from 'react-native-paper';
 import GetUIColors from '../utils/GetUIColors';
 
-import { SFSymbol } from 'react-native-sfsymbols';
-import PapillonInsetHeader from '../components/PapillonInsetHeader';
-
 import { useAppContext } from '../utils/AppContext';
-
-import ListItem from '../components/ListItem';
-import PapillonList from '../components/PapillonList';
 
 import PapillonLoading from '../components/PapillonLoading';
 
@@ -33,28 +25,32 @@ import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
 import { Plus } from 'lucide-react-native';
+import type { PapillonDiscussion } from '../fetch/types/discussions';
 
-function ConversationsScreen({ navigation }) {
+function ConversationsScreen({ navigation }: {
+  navigation: any // TODO
+}) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
-  const [conversations, setConversations] = React.useState([]);
-  const [originalConversations, setOriginalConversations] = React.useState([]); // for search
+  const [conversations, setConversations] = React.useState<PapillonDiscussion[]>([]);
+  const [originalConversations, setOriginalConversations] = React.useState<PapillonDiscussion[]>([]); // for search
 
   const [loading, setLoading] = React.useState(true);
   const [headLoading, setHeadLoading] = React.useState(false);
 
-  const appctx = useAppContext();
+  const appContext = useAppContext();
 
   useEffect(() => {
-    appctx.dataprovider.getConversations().then((v) => {
-      if (v) {
-        setConversations(v);
-        setOriginalConversations(v);
-        setLoading(false);
-      }
-    });
-  }, []);
+    (async () => {
+      if (!appContext.dataProvider) return;
+      const value = await appContext.dataProvider.getConversations();
+
+      setConversations(value);
+      setOriginalConversations(value);
+      setLoading(false);
+    })();
+  }, [appContext.dataProvider]);
 
   // force refresh when screen is focused
   useEffect(() => {
@@ -62,7 +58,7 @@ function ConversationsScreen({ navigation }) {
       AsyncStorage.getItem('hasNewMessagesSent').then((has) => {
         if (has === 'true') {
           AsyncStorage.removeItem('hasNewMessagesSent');
-          appctx.dataprovider.getConversations(true).then((v) => {
+          appContext.dataProvider?.getConversations(true).then((v) => {
             if (v) {
               setConversations(v);
               setOriginalConversations(v);
@@ -76,7 +72,7 @@ function ConversationsScreen({ navigation }) {
     return unsubscribe;
   }, [navigation]);
 
-  function getInitials(name) {
+  function getInitials(name: string) {
     if (name == null) return '';
 
     let initials = name.match(/\b\w/g) || [];
@@ -110,7 +106,7 @@ function ConversationsScreen({ navigation }) {
       headerSearchBarOptions: {
         placeholder: 'Rechercher une conversation',
         cancelButtonText: 'Annuler',
-        onChangeText: (event) => {
+        onChangeText: (event: any) => { // TODO: Type this when `navigation` is typed.
           const text = event.nativeEvent.text.trim();
 
           if (text.length > 0) {
@@ -130,14 +126,14 @@ function ConversationsScreen({ navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
+      style={{ backgroundColor: UIColors.backgroundHigh }}
       contentInsetAdjustmentBehavior="automatic"
       refreshControl={
         <RefreshControl
           refreshing={headLoading}
           onRefresh={() => {
             setHeadLoading(true);
-            appctx.dataprovider.getConversations().then((v) => {
+            appContext.dataProvider?.getConversations().then((v) => {
               if (v) {
                 setConversations(v);
                 setOriginalConversations(v);
@@ -205,7 +201,7 @@ function ConversationsScreen({ navigation }) {
               </NativeText>
 
               <NativeText heading="subtitle2" style={{marginTop: 5}} numberOfLines={1}>
-                {conversation.messages[conversation.messages.length - 1].author || 'Vous'} | {moment(conversation.messages[conversation.messages.length - 1].date).fromNow()}
+                {conversation.messages[conversation.messages.length - 1].author || 'Vous'} | {moment(conversation.messages[conversation.messages.length - 1].timestamp).fromNow()}
               </NativeText>
             </NativeItem>
           )) }
@@ -214,7 +210,5 @@ function ConversationsScreen({ navigation }) {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({});
 
 export default ConversationsScreen;

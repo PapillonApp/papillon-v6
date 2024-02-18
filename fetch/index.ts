@@ -6,6 +6,7 @@ import type { PapillonNews } from './types/news';
 import type { PapillonGrades } from './types/grades';
 import type { PapillonLesson } from './types/timetable';
 import type { PapillonHomework } from './types/homework';
+import type { PapillonDiscussion } from './types/discussions';
 
 // Pronote related imports.
 import type { Pronote } from 'pawnote';
@@ -14,6 +15,7 @@ import { userHandler as pronoteUserHandler } from './PronoteData/user';
 import { newsHandler as pronoteNewsHandler } from './PronoteData/news';
 import { gradesHandler as pronoteGradesHandler } from './PronoteData/grades';
 import { timetableHandler as pronoteTimetableHandler } from './PronoteData/timetable';
+import { discussionsHandler as pronoteDiscussionsHandler } from './PronoteData/discussions';
 import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as pronoteHomeworkHandler } from './PronoteData/homework';
 
 // Skolengo related imports.
@@ -118,8 +120,9 @@ export class IndexDataInstance {
   async getEvaluations (force = false) {
     await this.waitInit();
     
-    // TODO: Skolengo Evaluation
-    if (this.service === 'skolengo') return [];
+    if (this.service === 'skolengo') {
+      // TODO: Skolengo Evaluation
+    }
     if (this.service === 'pronote') {
       // TODO
       // return require('./PronoteData/PronoteGrades.js')
@@ -274,12 +277,13 @@ export class IndexDataInstance {
     return [];
   }
 
-  async getConversations(force = false) {
+  public async getConversations (force = false): Promise<PapillonDiscussion[]> {
     await this.waitInit();
-    // if (this.service === 'pronote')
-    //   return require('./PronoteData/PronoteConversations.js').getConversations(
-    //     force
-    //   );
+    
+    if (this.service === 'pronote') {
+      return pronoteDiscussionsHandler(this.pronoteInstance, force);
+    }
+
     return [];
   }
 
