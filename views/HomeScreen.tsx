@@ -936,6 +936,7 @@ const CoursElement: React.FC<{
           {
             backgroundColor: UIColors.element,
             borderColor: UIColors.borderLight + '77',
+            borderWidth: Platform.OS === 'android' ? 0.5 : 0,
           }
         ]}
       >
@@ -1164,6 +1165,7 @@ function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation
             {
               backgroundColor: UIColors.element,
               borderColor: UIColors.borderLight + '77',
+              borderWidth: Platform.OS === 'android' ? 0.5 : 0,
             }
           ]}
         >
@@ -1775,14 +1777,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     gap: 4,
 
-    borderWidth: 0.5,
+    borderWidth: 0,
     shadowColor: '#00000055',
     shadowOffset: {
       width: 0,
       height: 1,
     },
     shadowOpacity: 0.2,
-    shadowRadius: 1,
+    shadowRadius: 2,
     
     elevation: 3,
     marginBottom: 14,
@@ -1822,7 +1824,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderCurve: 'continuous',
 
-    borderWidth: 0.5,
     shadowColor: '#00000055',
     shadowOffset: {
       width: 0,

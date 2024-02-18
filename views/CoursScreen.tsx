@@ -293,7 +293,7 @@ Statut : ${cours.status || 'Aucun'}
         />
       ) : undefined,
       headerTitle: Platform.OS === 'ios' ? '' : 'Emploi du temps',
-      headerShadowVisible: Platform.OS !== 'ios',
+      headerShadowVisible: false,
       headerTransparent: Platform.OS === 'ios',
       headerStyle: Platform.OS === 'android' ? {
         backgroundColor: UIColors.background,
