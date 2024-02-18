@@ -11,6 +11,7 @@ interface Props {
   cellProps?: Partial<React.ComponentProps<typeof Cell>>
   style?: ViewStyle
   innerStyle?: ViewStyle
+  backgroundColor?: string
 }
 
 const NativeItem: React.FC<Props> = ({ 
