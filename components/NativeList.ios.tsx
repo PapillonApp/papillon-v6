@@ -12,6 +12,8 @@ interface Props {
   header?: string
   footer?: string
   style?: ViewStyle
+  containerStyle?: ViewStyle
+  plain?: boolean
   tableViewProps?: Partial<React.ComponentProps<typeof TableView>>
   sectionProps?: Partial<React.ComponentProps<typeof Section>>
 }

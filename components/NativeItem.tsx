@@ -1,11 +1,14 @@
 import React from 'react';
 import { View, StyleSheet, TouchableNativeFeedback, type ViewStyle } from 'react-native';
+import type { Cell } from 'react-native-tableview-simple';
 
 interface Props {
   children: React.ReactNode
   leading?: React.ReactNode
   trailing?: React.ReactNode
   onPress?: () => unknown
+  chevron?: boolean
+  cellProps?: Partial<React.ComponentProps<typeof Cell>>
   style?: ViewStyle
   innerStyle?: ViewStyle
 }
