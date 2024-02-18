@@ -246,7 +246,8 @@ export class IndexDataInstance {
     let user: PapillonUser | undefined;
 
     if (this.service === 'skolengo') {
-      user = await this.skolengoInstance.getUser(force);
+      // TODO: Implement typings for skolengo.
+      // user = await this.skolengoInstance.getUser(force);
     }
     else if (this.service === 'pronote') {
       const userReceived = await pronoteUserHandler(this.pronoteInstance, force);
@@ -265,28 +266,6 @@ export class IndexDataInstance {
     }
 
     return runUserMiddleware(user);
-  }
-
-  async getPeriods(force = false): Promise<Array<{
-    id: string
-    name: string
-    actual: boolean
-  }>> {
-    await this.waitInit();
-    
-    if (this.service === 'skolengo') {
-      return this.skolengoInstance.getPeriods(force);
-    }
-    else if (this.service === 'pronote') {
-      if (this.pronoteInstance)
-        return this.pronoteInstance.periods.map(period => ({
-          id: period.id,
-          name: period.name,
-          actual: false // TODO: Check with dates.
-        }));
-    }
-  
-    return [];
   }
 
   // [Service]Viesco.js
