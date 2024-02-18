@@ -693,6 +693,7 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation })
 
         return (
           <NativeList
+            inset
             plain
             key={index}
             header={formattedCourseName}
@@ -919,14 +920,14 @@ const GradesAveragesList = ({ isLoading, UIaverage, gradeSettings }) => {
   );
 
   const renderNativeList = useMemo(() => (
-    <NativeList plain header="Moyennes">
+    <NativeList inset plain header="Moyennes">
       {UIaverage.map(renderNativeItem)}
     </NativeList>
   ), [UIaverage]);
 
   if (UIaverage.length === 0 && !isLoading) {
     return (
-      <NativeList plain header="Moyennes">
+      <NativeList inset plain header="Moyennes">
         <NativeItem>
           <NativeText heading="p2">
             Aucune moyenne à afficher.
