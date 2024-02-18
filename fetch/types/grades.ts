@@ -1,7 +1,7 @@
 import type { PronoteApiGradeType } from 'pawnote';
 
 export interface CachedPapillonGrades {
-  date: Date
+  timestamp: number
   grades: PapillonGrades
 }
 

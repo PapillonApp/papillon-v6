@@ -36,14 +36,12 @@ import { PressableScale } from 'react-native-pressable-scale';
 // Interfaces
 interface UIaverage {
   name: string,
-  description: string,
   value: number,
   icon: React.ReactElement,
 }
 
 export interface GradeSettings {
   scale: number,
-  mode: string,
 }
 
 interface PapillonAveragesOverTime {
@@ -54,16 +52,14 @@ interface PapillonAveragesOverTime {
 // Pawnote
 import { PapillonPeriod } from '../fetch/types/period';
 import { PapillonGrades, PapillonGradesViewAverages } from '../fetch/types/grades';
-import { PapillonSubject } from '../fetch/types/subject';
-import { PronoteApiGradeType } from 'pawnote';
-import { formatPapillonGradeValue } from '../utils/grades/format';
 
-import {calculateAverage, calculateSubjectAverage} from '../utils/grades/averages';
+import { calculateSubjectAverage } from '../utils/grades/averages';
 import PapillonLoading from '../components/PapillonLoading';
 
-const GradesScreen = ({ navigation }) => {
+const GradesScreen = ({ navigation }: {
+  navigation: any // TODO
+}) => {
   const UIColors = GetUIColors();
-  const theme = useTheme();
   const appContext = useAppContext();
   const insets = useSafeAreaInsets();
   const { showActionSheetWithOptions } = useActionSheet();
@@ -72,12 +68,11 @@ const GradesScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = React.useState<boolean>(false);
   const [periods, setPeriods] = React.useState<PapillonPeriod[]>([]);
-  const [selectedPeriod, setSelectedPeriod] = React.useState<PapillonPeriod | null>(null);
-  const [changedPeriod, setChangedPeriod] = React.useState<boolean>(false);
+  const [selectedPeriod, setSelectedPeriod] = React.useState<string | null>(null);
   const [grades, setGrades] = React.useState([]);
   const [allGrades, setAllGrades] = React.useState<PapillonGrades | null>(null);
   const [latestGrades, setLatestGrades] = React.useState<PapillonGrades | null>(null);
-  const [averages, setAverages] = React.useState<PapillonGradesViewAverages[]>({});
+  const [averages, setAverages] = React.useState<PapillonGradesViewAverages>({} as PapillonGradesViewAverages);
   const [pronoteStudentAverage, setPronoteStudentAverage] = React.useState<number|null>(null);
   const [pronoteClassAverage, setPronoteClassAverage] = React.useState<number|null>(null);
   const [averagesOverTime, setAveragesOverTime] = React.useState<PapillonAveragesOverTime[]>([]);
@@ -87,16 +82,9 @@ const GradesScreen = ({ navigation }) => {
   const [openedSettings, setOpenedSettings] = React.useState<boolean>(true);
 
   // Constants
-  const [gradeSettings, setGradeSettings] = React.useState<GradeSettings[]>({
+  const [gradeSettings, setGradeSettings] = React.useState<GradeSettings>({
     scale: 20,
-    mode: 'trimestre'
   });
-
-  const updatePeriods = async () => {
-    getPeriodsFromAPI().then((period) => {
-      getGradesFromAPI(false, period);
-    });
-  };
 
   // Update gradeSettings when focused
   React.useEffect(() => {
@@ -107,7 +95,7 @@ const GradesScreen = ({ navigation }) => {
         }
       });
 
-      if(openedSettings) setOpenedSettings(false);
+      if (openedSettings) setOpenedSettings(false);
     });
 
     return unsubscribe;
@@ -139,7 +127,7 @@ const GradesScreen = ({ navigation }) => {
 
   // Update chartLines when averagesOverTime change
   React.useEffect(() => {
-    const createLineData = (averages) => averages.map(average => ({
+    const createLineData = (averages: PapillonAveragesOverTime[]) => averages.map(average => ({
       x: new Date(average.date).getTime(),
       y: average.value,
     }));
@@ -204,43 +192,26 @@ const GradesScreen = ({ navigation }) => {
     setChartLines(lines);
   }, [averagesOverTime, classAveragesOverTime, UIColors.text, UIColors.border, UIColors.primary, UIColors.element]);
 
-  async function getPeriodsFromAPI (mode:string=gradeSettings.mode): Promise<PapillonPeriod> {
-    // const value = await AsyncStorage.getItem('gradeSettings');
-    // if (!value) return;
-
-    // const settings = JSON.parse(value);
-    // mode = settings.mode !== mode ? settings.mode : mode;
-
-    const allPeriods = await appContext.dataProvider!.getPeriods();
-    const periods: PapillonPeriod[] = allPeriods.filter((period) => period.name.toLowerCase().normalize('NFD').includes(mode));
+  async function getPeriodsFromAPI (): Promise<PapillonPeriod> {
+    const user = await appContext.dataProvider!.getUser();
+    const periods = user.periodes.grades;
 
     setPeriods(periods);
-    const firstPeriod = periods[0];
+    const currentPeriod = periods.find((period) => period.actual)!;
 
-    if (changedPeriod) {
-      const period = periods.find((period) => period.name === selectedPeriod?.name);
-      if (period) {
-        setSelectedPeriod(period);
-        return period;
-      }
-    }
-
-    setSelectedPeriod(firstPeriod);
-    return firstPeriod;
+    setSelectedPeriod(currentPeriod.name);
+    return currentPeriod;
   }
 
-  async function getGradesFromAPI (force = false, period = selectedPeriod): Promise<void> {
+  async function getGradesFromAPI (force = false, periodName = selectedPeriod): Promise<void> {
     if (!isRefreshing) {
       setIsLoading(true);
     }
 
     try {
-      if (appContext.dataProvider && period) {
-        const grades = await appContext.dataProvider.getGrades(period.name, force);
+      if (appContext.dataProvider && periodName) {
+        const grades = await appContext.dataProvider.getGrades(periodName, force);
         if (grades) await parseGrades(grades);
-        // else {
-        //   console.warn('CACHE NEEDED !');
-        // }
       }
     } catch (error) {
       console.error(error);
@@ -283,7 +254,7 @@ const GradesScreen = ({ navigation }) => {
   }
 
   // Calculate averages over time
-  async function calculateAveragesOverTime (grades: PapillonGrades, type= 'value'): Promise<Array> {
+  async function calculateAveragesOverTime (grades: PapillonGrades[], type= 'value'): Promise<Array> {
     // map grades to data with date and average value
     const data = await Promise.all(grades.map(async (grade, i) => {
       const gradesUntil = grades.slice(0, i + 1);
@@ -346,39 +317,16 @@ const GradesScreen = ({ navigation }) => {
         tintColor: UIColors.primary,
       },
       (buttonIndex) => {
-        if (buttonIndex !== cancelButtonIndex) {
-          changePeriod(periods[buttonIndex].name);
+        if (typeof buttonIndex !== 'undefined' && buttonIndex !== cancelButtonIndex) {
+          setSelectedPeriod(periods[buttonIndex].name);
         }
       }
     );
   }
 
-  // Change period
-  function changePeriod (name: string) {
-    const period = periods.find((period) => period.name === name);
-    if (period) setSelectedPeriod(period);
-    if (period) getGradesFromAPI(false, period);
-    if (period) setChangedPeriod(true);
-  }
-
-  function loadAll(mode) {
-    getPeriodsFromAPI(mode).then((period) => {
-      getGradesFromAPI(true, period);
-    });
-  }
-
   // On mount
-  React.useEffect(() => {
-    AsyncStorage.getItem('gradeSettings').then(async (value) => {
-      if (value) {
-        value = JSON.parse(value);
-        loadAll(value.mode || 'trimestre');
-      }
-      else {
-        loadAll();
-      }
-    });
-  }, []);
+  React.useEffect(() => { getPeriodsFromAPI(); }, []);
+  React.useEffect(() => { getGradesFromAPI(false, selectedPeriod); }, [selectedPeriod]);
 
   // Header animation
   const yOffset = new Animated.Value(0);
@@ -395,7 +343,7 @@ const GradesScreen = ({ navigation }) => {
   });
 
   // Change header title
-  const HeaderTitle = ({ navigation, UIColors }) => {
+  const HeaderTitle = () => {
     return Platform.OS === 'ios' ? (
       <PapillonInsetHeader
         icon={<SFSymbol name="chart.pie.fill" />}
@@ -405,13 +353,25 @@ const GradesScreen = ({ navigation }) => {
     ) : 'Notes';
   };
   
-  const HeaderRight = ({ navigation, periods, selectedPeriod, UIColors, isLoading, changePeriod, androidPeriodChangePicker, setOpenedSettings }) => {
+  const HeaderRight = ({
+    navigation,
+    periods,
+    selectedPeriod,
+    UIColors,
+    isLoading,
+    androidPeriodChangePicker,
+    setOpenedSettings
+  }: {
+    navigation: any,
+    periods: PapillonPeriod[]
+    selectedPeriod: string | null
+  }) => {
     const menuConfig = useMemo(() => ({
       menuTitle: '',
       menuItems: periods.map((period) => ({
         actionKey: period.name,
         actionTitle: period.name,
-        menuState: selectedPeriod?.name === period.name ? 'on' : 'off',
+        menuState: selectedPeriod === period.name ? 'on' : 'off',
       })),
     }), [periods, selectedPeriod]);
   
@@ -430,8 +390,8 @@ const GradesScreen = ({ navigation }) => {
           isMenuPrimaryAction={true}
           menuConfig={menuConfig}
           onPressMenuItem={({ nativeEvent }) => {
-            if (nativeEvent.actionKey === selectedPeriod?.name) return;
-            changePeriod(nativeEvent.actionKey);
+            if (nativeEvent.actionKey === selectedPeriod) return;
+            setSelectedPeriod(nativeEvent.actionKey);
           }}
         >
           <TouchableOpacity
@@ -459,7 +419,7 @@ const GradesScreen = ({ navigation }) => {
                 fontFamily: 'Papillon-Medium',
               }}
             >
-              {selectedPeriod?.name}
+              {selectedPeriod}
             </NativeText>
           </TouchableOpacity>
         </ContextMenuButton>
@@ -480,7 +440,15 @@ const GradesScreen = ({ navigation }) => {
     navigation.setOptions({
       headerLeft: Platform.OS === 'ios' ? () => <HeaderTitle navigation={navigation} UIColors={UIColors} /> : () => (<></>),
       headerTitle : Platform.OS === 'ios' ? ' ' : 'Notes',
-      headerRight: () => <HeaderRight navigation={navigation} periods={periods} selectedPeriod={selectedPeriod} UIColors={UIColors} isLoading={isLoading} changePeriod={changePeriod} androidPeriodChangePicker={androidPeriodChangePicker} setOpenedSettings={setOpenedSettings} />,
+      headerRight: () => <HeaderRight
+        navigation={navigation}
+        periods={periods}
+        selectedPeriod={selectedPeriod}
+        UIColors={UIColors}
+        isLoading={isLoading}
+        androidPeriodChangePicker={androidPeriodChangePicker}
+        setOpenedSettings={setOpenedSettings}
+      />,
       headerShadowVisible: false,
       headerTransparent: Platform.OS === 'ios' ? true : false,
       headerStyle: Platform.OS === 'android' ? {
@@ -530,7 +498,7 @@ const GradesScreen = ({ navigation }) => {
             refreshing={isRefreshing}
             onRefresh={() => {
               setIsRefreshing(true);
-              loadAll();
+              getGradesFromAPI(true);
             }}
           />
         }
@@ -617,99 +585,97 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
       <View />
     </NativeList>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={[
-          subjectStyles.latestGradesList,
-          Platform.OS === 'android' && {
-            paddingHorizontal: 16,
-            overflow: 'visible',
-            paddingBottom: 16,
-            marginBottom: -16,
-          },
-        ]}
-        style={[{
-          marginTop: Platform.OS === 'ios' ? -16 : -8,
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={[
+        subjectStyles.latestGradesList,
+        Platform.OS === 'android' && {
+          paddingHorizontal: 16,
           overflow: 'visible',
-        }]}
+          paddingBottom: 16,
+          marginBottom: -16,
+        },
+      ]}
+      style={[{
+        marginTop: Platform.OS === 'ios' ? -16 : -8,
+        overflow: 'visible',
+      }]}
+    >
+      <View
+        style={[
+          {
+            flexDirection: 'row',
+            paddingHorizontal: Platform.OS === 'ios' ? 16 : 0,
+            gap: 12,
+            overflow: 'visible',
+          }
+        ]}
       >
-        <View
-          style={[
-            {
-              flexDirection: 'row',
-              paddingHorizontal: Platform.OS === 'ios' ? 16 : 0,
-              gap: 12,
-              overflow: 'visible',
-            }
-          ]}
-        >
-          {grades.map((grade, index) => (
-            <PressableScale
-              weight="light"
-              activeScale={0.95}
-              onPress={() => showGrade(grade)}
-              key={index}
-              style={[
-                subjectStyles.smallGrade,
-                {
-                  backgroundColor: UIColors.element,
-                },
-                Platform.OS === 'android' && {
-                  borderColor: UIColors.border,
-                  borderWidth: 0.5,
-                  shadowColor: '#00000055',
-                  elevation: 3,
-                }
-              ]}
-            >
-              <View style={[subjectStyles.listItem, {
-                backgroundColor: getSavedCourseColor(grade.subject.name, grade.background_color),
+        {grades.map((grade, index) => (
+          <PressableScale
+            weight="light"
+            activeScale={0.95}
+            onPress={() => showGrade(grade)}
+            key={index}
+            style={[
+              subjectStyles.smallGrade,
+              {
+                backgroundColor: UIColors.element,
+              },
+              Platform.OS === 'android' && {
+                borderColor: UIColors.border,
+                borderWidth: 0.5,
+                shadowColor: '#00000055',
+                elevation: 3,
+              }
+            ]}
+          >
+            <View style={[subjectStyles.listItem, {
+              backgroundColor: getSavedCourseColor(grade.subject.name, grade.background_color),
+            }]}>
+              <View style={[subjectStyles.subjectInfoContainer, {
+                paddingVertical: 5,
               }]}>
-                <View style={[subjectStyles.subjectInfoContainer, {
-                  paddingVertical: 5,
-                }]}>
-                  <NativeText style={subjectStyles.subjectEmoji}>
-                    {getClosestGradeEmoji(grade.subject.name)}
-                  </NativeText>
-                  <NativeText style={subjectStyles.subjectName} numberOfLines={1} ellipsizeMode="tail">
-                    {formatCoursName(grade.subject.name)}
-                  </NativeText>
-                </View>
+                <NativeText style={subjectStyles.subjectEmoji}>
+                  {getClosestGradeEmoji(grade.subject.name)}
+                </NativeText>
+                <NativeText style={subjectStyles.subjectName} numberOfLines={1}>
+                  {formatCoursName(grade.subject.name)}
+                </NativeText>
               </View>
-              <View style={subjectStyles.smallGradeData}>
-                <NativeText heading="h4">
-                  {grade.description || 'Aucune description'}
-                </NativeText>
-                <NativeText heading="p2">
-                  {new Date(grade.date).toLocaleDateString('fr-FR', { month: 'long', day: 'numeric', year: 'numeric' })}
-                </NativeText>
+            </View>
+            <View style={subjectStyles.smallGradeData}>
+              <NativeText heading="h4">
+                {grade.description || 'Aucune description'}
+              </NativeText>
+              <NativeText heading="p2">
+                {new Date(grade.date).toLocaleDateString('fr-FR', { month: 'long', day: 'numeric', year: 'numeric' })}
+              </NativeText>
 
-                <View style={subjectStyles.smallGradeContainer}>
-                  { grade.grade.value?.value ? ( 
-                    <NativeText style={subjectStyles.smallGradeValue}>
-                      {((grade.grade.value?.value / grade.grade.out_of.value) * gradeSettings.scale).toFixed(2)}
-                    </NativeText>
-                  ) : (
-                    <NativeText style={subjectStyles.smallGradeValue}>
-                      N.not
-                    </NativeText>
-                  )}
-                  <NativeText style={subjectStyles.smallGradeScale}>
-                    /{gradeSettings.scale.toFixed(0)}
+              <View style={subjectStyles.smallGradeContainer}>
+                { grade.grade.value?.value ? ( 
+                  <NativeText style={subjectStyles.smallGradeValue}>
+                    {((grade.grade.value?.value / grade.grade.out_of.value) * gradeSettings.scale).toFixed(2)}
                   </NativeText>
-                </View>
+                ) : (
+                  <NativeText style={subjectStyles.smallGradeValue}>
+                      N.not
+                  </NativeText>
+                )}
+                <NativeText style={subjectStyles.smallGradeScale}>
+                    /{gradeSettings.scale.toFixed(0)}
+                </NativeText>
               </View>
-            </PressableScale>
-          ))}
-        </View>
-      </ScrollView>
+            </View>
+          </PressableScale>
+        ))}
+      </View>
+    </ScrollView>
   </>);
 });
 
 const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation }) => {
-  const UIColors = GetUIColors(null, 'ios');
-
   const showGrade = useCallback((grade) => {
     navigation.navigate('Grade', {
       grade,
@@ -729,15 +695,11 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation })
           <NativeList
             plain
             key={index}
-            inset
-            style={[
-              subjectStyles.listContainer,
-            ]}
             header={formattedCourseName}
           >
             <Pressable style={[subjectStyles.listItem, { backgroundColor }]}>
               <View style={subjectStyles.subjectInfoContainer}>
-                <NativeText style={subjectStyles.subjectName} numberOfLines={1} ellipsizeMode="tail">
+                <NativeText style={subjectStyles.subjectName} numberOfLines={1}>
                   {formattedCourseName}
                 </NativeText>
               </View>
@@ -769,11 +731,6 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation })
                       {gradeEmoji}
                     </NativeText>
                   }
-                  cellProps={{
-                    contentContainerStyle: {
-                      paddingVertical: 2,
-                    },
-                  }}
                   trailing={
                     <View style={subjectStyles.inGradeContainer}>
                       <View style={subjectStyles.gradeTextContainer}>
@@ -786,7 +743,7 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation })
                       </View>
 
                       { parseFloat(grade.grade.coefficient) !== 1 && (
-                        <NativeText heading="p" style={[subjectStyles.gradeCoef]}>
+                        <NativeText heading="p" style={subjectStyles.gradeCoef}>
                           Coeff. {grade.grade.coefficient}
                         </NativeText>
                       )}
@@ -904,11 +861,11 @@ const GradesAverageHistory = React.memo(({ isLoading, averages, chartLines, char
           </TouchableOpacity>
         </View>
         <View style={[styles.chart.avg.container]}>
-          <NativeText heading="h2" style={[styles.chart.avg.value]}>
+          <NativeText heading="h2" style={styles.chart.avg.value}>
             {finalAvg.toFixed(2)}
           </NativeText>
 
-          <NativeText heading="p2" style={[styles.chart.avg.out_of]}>
+          <NativeText heading="p2" style={styles.chart.avg.out_of}>
             /{gradeSettings.scale.toFixed(0)}
           </NativeText>
         </View>
@@ -962,14 +919,14 @@ const GradesAveragesList = ({ isLoading, UIaverage, gradeSettings }) => {
   );
 
   const renderNativeList = useMemo(() => (
-    <NativeList plain inset header="Moyennes">
+    <NativeList plain header="Moyennes">
       {UIaverage.map(renderNativeItem)}
     </NativeList>
   ), [UIaverage]);
 
   if (UIaverage.length === 0 && !isLoading) {
     return (
-      <NativeList plain inset header="Moyennes">
+      <NativeList plain header="Moyennes">
         <NativeItem>
           <NativeText heading="p2">
             Aucune moyenne à afficher.

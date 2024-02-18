@@ -12,6 +12,7 @@ interface Props {
   footer?: React.ReactNode
   style?: ViewStyle
   containerStyle?: ViewStyle
+  plain?: boolean
 }
 
 const NativeList: React.FC<Props> = ({ 

@@ -26,7 +26,7 @@ export const gradesHandler = async (periodName: string, instance?: Pronote, forc
   if (cache && !force) {
     const data: CachedPapillonGrades = JSON.parse(cache);
 
-    const userCacheDate = new Date(data.date);
+    const userCacheDate = new Date(data.timestamp);
     const today = new Date();
 
     userCacheDate.setHours(0, 0, 0, 0);
@@ -42,11 +42,11 @@ export const gradesHandler = async (periodName: string, instance?: Pronote, forc
 
   if (!instance) return null;
   
-  const period = instance.periods.find(period => period.name === periodName);
+  const period = instance.readPeriodsForGradesOverview().find(period => period.name === periodName);
   if (!period) return null;
 
   try {
-    const gradesOverview = await period.getGradesOverview();
+    const gradesOverview = await instance.getGradesOverview(period);
   
     const grades: PapillonGrades = {
       grades: gradesOverview.grades.map(grade => ({
@@ -90,7 +90,7 @@ export const gradesHandler = async (periodName: string, instance?: Pronote, forc
     };
   
     const newCache: CachedPapillonGrades = {
-      date: new Date(),
+      timestamp: Date.now(),
       grades
     };
   
