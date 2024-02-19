@@ -11,6 +11,8 @@ import {
   Alert
 } from 'react-native';
 
+import RenderHtml from 'react-native-render-html';
+
 import type { PapillonDiscussionMessage } from '../../fetch/types/discussions';
 import { useAppContext } from '../../utils/AppContext';
 
