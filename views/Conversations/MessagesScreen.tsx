@@ -11,7 +11,7 @@ import {
   Alert
 } from 'react-native';
 
-import type { PapillonDiscussion, PapillonDiscussionMessage } from '../../fetch/types/discussions';
+import type { PapillonDiscussionMessage } from '../../fetch/types/discussions';
 import { useAppContext } from '../../utils/AppContext';
 
 import { Text } from 'react-native-paper';
@@ -25,6 +25,9 @@ import { Send as SendLucide, X } from 'lucide-react-native';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
+
+import { useAtomValue } from 'jotai';
+import { discussionsAtom } from '../../atoms/discussions';
 
 function getInitials(name: string): string {
   if (name === undefined) {
@@ -84,21 +87,24 @@ function convertPronoteMessages(messages: PapillonDiscussionMessage[]): IMessage
 }
 
 function MessagesScreen ({ route, navigation }: {
-  route: any // TODO
   navigation: any // TODO
+  route: {
+    params: {
+      conversationID: string
+    } 
+  }
 }) {
   const UIColors = GetUIColors();
-
   const tabBarHeight = useBottomTabBarHeight(); 
-
-  const conversation = route.params.conversation as PapillonDiscussion;
-  const [msgs, setMsgs] = useState<IMessage[]>([]);
-
-  const [recipientsModalVisible, setRecipientsModalVisible] = useState(false);
-
   const appContext = useAppContext();
 
+  const { conversationID } = route.params;
+  const conversations = useAtomValue(discussionsAtom);
+  const conversation = conversations!.find((conversation) => conversation.local_id === conversationID)!;
+  
+  const [recipientsModalVisible, setRecipientsModalVisible] = useState(false);
   const [urlOpened, setUrlOpened] = useState(false);
+  const [msgs, setMsgs] = useState<IMessage[]>([]);
 
   async function openURL(url: string): Promise<void> {
     setUrlOpened(true);
@@ -332,7 +338,7 @@ function MessagesScreen ({ route, navigation }: {
               inset
               header="Participants"
             >
-              { conversation.participants.map((participant, index) => (
+              {conversation.participants.map((participant, index) => (
                 <NativeItem
                   key={index}
                 >
@@ -340,7 +346,7 @@ function MessagesScreen ({ route, navigation }: {
                     {participant}
                   </NativeText>
                 </NativeItem>
-              )) }
+              ))}
             </NativeList>
 
             <View style={{height: 20}} />

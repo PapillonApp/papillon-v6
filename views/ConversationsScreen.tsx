@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import {
   View,
   ScrollView,
@@ -11,12 +11,13 @@ import moment from 'moment/moment';
 import 'moment/locale/fr';
 moment.locale('fr');
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { Text, useTheme } from 'react-native-paper';
 import GetUIColors from '../utils/GetUIColors';
 
 import { useAppContext } from '../utils/AppContext';
+
+import { atom, useAtom } from 'jotai';
+import { discussionsAtom } from '../atoms/discussions';
 
 import PapillonLoading from '../components/PapillonLoading';
 
@@ -33,62 +34,55 @@ function ConversationsScreen({ navigation }: {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
-  const [conversations, setConversations] = React.useState<PapillonDiscussion[]>([]);
-  const [originalConversations, setOriginalConversations] = React.useState<PapillonDiscussion[]>([]); // for search
+  const [loading, setLoading] = useState(true);
+  const [headLoading, setHeadLoading] = useState(false);
+  const [searchFilter, setSearchFilter] = useState('');
 
-  const [loading, setLoading] = React.useState(true);
-  const [headLoading, setHeadLoading] = React.useState(false);
+  const [conversations, setConversations] = useAtom(discussionsAtom);
+  const [filteredConversations] = useAtom<PapillonDiscussion[] | null>(
+    useMemo(
+      () => atom((get) => {
+        const conversations = get(discussionsAtom);
+        if (conversations === null || searchFilter.length === 0) return conversations;
+
+        const filteredConversations = conversations.filter(
+          (conversation) => conversation.subject.toLowerCase().includes(searchFilter.toLowerCase())
+        );
+
+        return filteredConversations;
+      }),
+      [searchFilter]
+    )
+  );
 
   const appContext = useAppContext();
+  const refreshConversations = async () => {
+    if (!appContext.dataProvider) return;
+    const value = await appContext.dataProvider.getConversations();
 
-  useEffect(() => {
+    setConversations(value);
+  };
+
+  useEffect(() => { // refresh conversations on mount.
     (async () => {
-      if (!appContext.dataProvider) return;
-      const value = await appContext.dataProvider.getConversations();
-
-      setConversations(value);
-      setOriginalConversations(value);
+      await refreshConversations();
       setLoading(false);
     })();
   }, [appContext.dataProvider]);
 
-  // force refresh when screen is focused
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      AsyncStorage.getItem('hasNewMessagesSent').then((has) => {
-        if (has === 'true') {
-          AsyncStorage.removeItem('hasNewMessagesSent');
-          appContext.dataProvider?.getConversations(true).then((v) => {
-            if (v) {
-              setConversations(v);
-              setOriginalConversations(v);
-              setLoading(false);
-            }
-          });
-        }
-      });
-    });
-
-    return unsubscribe;
-  }, [navigation]);
-
-  function getInitials(name: string) {
-    if (name == null) return '';
+  const getInitials = (name: string) => {
+    if (!name) return '';
 
     let initials = name.match(/\b\w/g) || [];
-
-    // if first initial is M and there is a second initial, use the second initial
-
     if (initials[0] === 'M' && initials[1]) {
       initials.shift();
     }
 
     return ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
-  }
+  };
 
-  // add search functionality
-  // add new conversation button
-  React.useLayoutEffect(() => {
+  // Add search functionality and new conversation button.
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: 'Conversations',
       headerBackTitle: 'Retour',
@@ -108,17 +102,7 @@ function ConversationsScreen({ navigation }: {
         cancelButtonText: 'Annuler',
         onChangeText: (event: any) => { // TODO: Type this when `navigation` is typed.
           const text = event.nativeEvent.text.trim();
-
-          if (text.length > 0) {
-            // filter conversations
-            const filteredConversations = originalConversations.filter(
-              (conversation) => conversation.subject.toLowerCase().includes(text.toLowerCase())
-            );
-
-            setConversations(filteredConversations);
-          } else {
-            setConversations(originalConversations);
-          }
+          setSearchFilter(text);
         },
       },
     });
@@ -133,13 +117,7 @@ function ConversationsScreen({ navigation }: {
           refreshing={headLoading}
           onRefresh={async () => {
             setHeadLoading(true);
-
-            const conversations = await appContext.dataProvider?.getConversations();
-            if (typeof conversations !== 'undefined') {
-              setConversations(conversations);
-              setOriginalConversations(conversations);
-            }
-
+            await refreshConversations();
             setHeadLoading(false);
           }}
         />
@@ -151,18 +129,31 @@ function ConversationsScreen({ navigation }: {
         backgroundColor="transparent"
       />
 
-      { loading && (
+      {loading && (
         <PapillonLoading
           title="Chargement des conversations"
           subtitle="Veuillez patienter pendant que nous récupérons vos conversations."
         />
-      ) }
+      )}
 
-      { conversations.length > 0 && (
+      {!loading && (conversations && conversations.length === 0) && (
+        <PapillonLoading
+          title="Aucune conversation"
+          subtitle="Vous n'avez eu aucune conversation."
+        />
+      )}
+
+      {!loading && (conversations && conversations.length > 0) && (filteredConversations && filteredConversations.length === 0) && (
+        <PapillonLoading
+          title="Aucune conversation trouvée"
+          subtitle="Utilisez d'autres mots clés, ceux que vous avez rentrer ne donnent rien."
+        />
+      )}
+
+      {filteredConversations && filteredConversations.length > 0 && (
         <NativeList inset>
-          { conversations.map((conversation, index) => (
-            <NativeItem
-              key={index}
+          {filteredConversations.map((conversation) => (
+            <NativeItem key={conversation.local_id}
               chevron
               leading={
                 <View style={{ width: 36, height: 36, borderRadius: 38, backgroundColor: '#B18619' + '22', justifyContent: 'center', alignItems: 'center' }}>
@@ -170,7 +161,7 @@ function ConversationsScreen({ navigation }: {
                 </View>
               }
               onPress={() => {
-                navigation.navigate('InsetConversationsItem', { conversation: conversation });
+                navigation.navigate('InsetConversationsItem', { conversationID: conversation.local_id });
               }}
             >
               <View
@@ -180,7 +171,7 @@ function ConversationsScreen({ navigation }: {
                   gap: 7,
                 }}
               >
-                {conversation.unread > 0 ? (
+                {conversation.unread > 0 && (
                   <View
                     style={{
                       backgroundColor: '#B18619',
@@ -191,7 +182,8 @@ function ConversationsScreen({ navigation }: {
                       height: 9,
                     }}
                   />
-                ) : null}
+                )}
+
                 <NativeText heading="h4">
                   {conversation.subject}
                 </NativeText>
@@ -205,9 +197,9 @@ function ConversationsScreen({ navigation }: {
                 {conversation.messages[conversation.messages.length - 1].author || 'Vous'} | {moment(conversation.messages[conversation.messages.length - 1].timestamp).fromNow()}
               </NativeText>
             </NativeItem>
-          )) }
+          ))}
         </NativeList>
-      ) }
+      )}
     </ScrollView>
   );
 }
