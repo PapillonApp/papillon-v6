@@ -81,6 +81,18 @@ function ConversationsScreen({ navigation }: {
     return ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
   };
 
+  function trimHtml(html: string) {
+    // remove &nbsp;
+    html = html.replace(/&nbsp;/g, '');
+    // remove html tags and the first space if it's there
+    html = html.replace(/<[^>]*>/g, '').replace(/^ /, '');
+    // remove multiple spaces
+    html = html.replace(/\s{2,}/g, ' ');
+    // remove line breaks
+    html = html.replace(/\n{1,}/g, '');
+    return html;
+  }
+
   // Add search functionality and new conversation button.
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -190,7 +202,7 @@ function ConversationsScreen({ navigation }: {
               </View>
 
               <NativeText heading="p2" numberOfLines={1}>
-                {conversation.messages[conversation.messages.length - 1].content.replace(/(\r\n|\n|\r)/gm,' ')}
+                {trimHtml(conversation.messages[conversation.messages.length - 1].content.replace(/(\r\n|\n|\r)/gm,' '))}
               </NativeText>
 
               <NativeText heading="subtitle2" style={{marginTop: 5}} numberOfLines={1}>
