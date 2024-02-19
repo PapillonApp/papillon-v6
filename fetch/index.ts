@@ -16,10 +16,12 @@ import { newsHandler as pronoteNewsHandler } from './PronoteData/news';
 import { gradesHandler as pronoteGradesHandler } from './PronoteData/grades';
 import { timetableHandler as pronoteTimetableHandler } from './PronoteData/timetable';
 import { discussionsHandler as pronoteDiscussionsHandler } from './PronoteData/discussions';
+import { vieScolaireHandler as pronoteVieScolaireHandler } from './PronoteData/vie_scolaire';
 import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as pronoteHomeworkHandler } from './PronoteData/homework';
 
 // Skolengo related imports.
 import type { SkolengoDatas } from './SkolengoData/SkolengoDatas';
+import { PapillonVieScolaire } from './types/vie_scolaire';
 
 export type ServiceName = 'pronote' | 'skolengo'
 
@@ -265,16 +267,21 @@ export class IndexDataInstance {
     return runUserMiddleware(user);
   }
 
-  async getViesco(force = false) {
+  public async getViesco(force = false): Promise<PapillonVieScolaire> {
     await this.waitInit();
     if (this.service === 'skolengo') {
       // TODO
       // return this.skolengoInstance.getViesco(force);
     }
-    // if (this.service === 'pronote')
-    //   return require('./PronoteData/PronoteViesco.js').getViesco(force);
-    // .then((e) => thenHandler('viesco', e));
-    return [];
+    else if (this.service === 'pronote') {
+      return pronoteVieScolaireHandler(this.pronoteInstance, force);
+      // TODO
+      // if (this.service === 'pronote')
+      //   return require('./PronoteData/PronoteViesco.js').getViesco(force);
+      // .then((e) => thenHandler('viesco', e));
+    }
+
+    return { absences: [], delays: [], punishments: [] } as PapillonVieScolaire;
   }
 
   public async getConversations (force = false): Promise<PapillonDiscussion[]> {
@@ -287,20 +294,24 @@ export class IndexDataInstance {
     return [];
   }
 
-  // [Service]Conversations.js
-  async replyToConversation(id, message) {
+  async replyToConversation(localID: string, messageContent: string) {
     await this.waitInit();
-    // if (this.service === 'pronote')
-    //   return require('./PronoteData/PronoteConversations.js').replyToConversation(
-    //     id,
-    //     message
-    //   );
+
+    if (this.service === 'pronote') {
+      //   return require('./PronoteData/PronoteConversations.js').replyToConversation(
+      //     id,
+      //     message
+      //   );
+      // TODO
+    }
+
     return {};
   }
 
   public async readStateConversation (localID: string): Promise<void> {
     await this.waitInit();
     if (this.service === 'pronote') {
+      // TODO
       // return require('./PronoteData/PronoteConversations.js').readStateConversation(
       //   id
       // );
