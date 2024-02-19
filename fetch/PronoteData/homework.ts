@@ -62,7 +62,7 @@ export const homeworkHandler = async (force = false, instance?: Pronote): Promis
   try {
     // We don't pass the end of the interval, because we want every homework
     // from the given day until the end of the year.
-    const homeworks = await instance.getHomeworkForInterval(instance.startDay);
+    const homeworks = await instance.getHomeworkForInterval(instance.firstDate);
     data = [];
 
     for (const homework of homeworks) {

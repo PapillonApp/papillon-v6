@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { View, StyleSheet, Platform } from 'react-native';
+import { View, StyleSheet, Platform, type ViewStyle } from 'react-native';
 
 import { Cell } from 'react-native-tableview-simple';
 import { SFSymbol } from 'react-native-sfsymbols';
@@ -11,9 +11,11 @@ interface Props {
   children: React.ReactNode
   leading?: React.ReactNode
   trailing?: React.ReactNode
-  onPress?: () => void
+  onPress?: () => unknown
   chevron?: boolean
   cellProps?: Partial<React.ComponentProps<typeof Cell>>
+  style?: ViewStyle
+  innerStyle?: ViewStyle
   backgroundColor?: string
 }
 
@@ -57,7 +59,7 @@ const NativeItem: React.FC<Props> = ({
       }
 
       backgroundColor={!backgroundColor ? UIColors.element : backgroundColor}
-      onPress={onPress && onPress}
+      onPress={() => { onPress?.(); }}
 
       {...cellProps}
     />

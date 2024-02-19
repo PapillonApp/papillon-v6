@@ -5,13 +5,18 @@ import { List } from 'react-native-paper';
 
 import GetUIColors from '../utils/GetUIColors';
 import mapChildrenWithKeys from '../utils/mapChildrenWithKeys';
+import type { TableView, Section } from 'react-native-tableview-simple';
 
 interface Props {
   children: React.ReactNode
+  inset?: boolean
   header?: React.ReactNode
   footer?: React.ReactNode
   style?: ViewStyle
   containerStyle?: ViewStyle
+  plain?: boolean
+  tableViewProps?: Partial<React.ComponentProps<typeof TableView>>
+  sectionProps?: Partial<React.ComponentProps<typeof Section>>
 }
 
 const NativeList: React.FC<Props> = ({ 

@@ -3,10 +3,8 @@ import React, { useLayoutEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
-  ScrollView,
   StatusBar,
   Platform,
-  RefreshControl,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -29,12 +27,9 @@ import { useAppContext } from '../../utils/AppContext';
 
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
 import CheckAnimated from '../../interface/CheckAnimated';
-import type { PapillonHomework } from '../../fetch/types/homework';
 import { PronoteApiHomeworkDifficulty, PronoteApiHomeworkReturnType } from 'pawnote';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { homeworksAtom } from '../../atoms/homeworks';
-
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function HomeworkScreen({ route, navigation }: {
   navigation: any
@@ -46,14 +41,12 @@ function HomeworkScreen({ route, navigation }: {
 }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
-  const insets = useSafeAreaInsets();
 
   const { homeworkLocalID } = route.params;
-  const [homeworks] = useAtom(homeworksAtom);
-  const homework = homeworks!.find((hw) => hw.localID === homeworkLocalID) as PapillonHomework;
+  const homeworks = useAtomValue(homeworksAtom);
+  const homework = homeworks!.find((hw) => hw.localID === homeworkLocalID)!;
 
   const [homeworkStateLoading, setHomeworkStateLoading] = useState(false);
-  const [homeworkRefreshLoading, setHomeworkRefreshLoading] = useState(false);
 
   const [deleteCustomHomeworkAlert, setDeleteCustomHomeworkAlert] = useState(false);
 
@@ -136,10 +129,6 @@ function HomeworkScreen({ route, navigation }: {
     setHomeworkStateLoading(false);
   };
 
-  const onRefresh = async () => {
-    console.log('should refresh hw', homework!.localID);
-  };
-
   // add checkbox in header
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -149,6 +138,7 @@ function HomeworkScreen({ route, navigation }: {
 
   return (
     <View
+      // @ts-expect-error : Not sure if props are correct
       contentContainerStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}
       style={{ flex: 1, backgroundColor: UIColors.modalBackground }}
       contentInsetAdjustmentBehavior="automatic"

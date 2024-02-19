@@ -11,6 +11,7 @@ export interface PapillonNews {
   survey: boolean
   read: boolean
   author: string
+  category: string
 
   attachments: any[] // TODO
 }

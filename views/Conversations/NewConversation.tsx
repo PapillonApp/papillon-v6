@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions, Image, TextInput, KeyboardAvoidingView, Platform, ScrollView, Alert, ActivityIndicator, StatusBar } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, ActivityIndicator, StatusBar } from 'react-native';
 
-import { useTheme, Text } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 
 import { useAppContext } from '../../utils/AppContext';
 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GetUIColors from '../../utils/GetUIColors';
 
 import NativeList from '../../components/NativeList';
@@ -17,16 +16,16 @@ import { Check, Send } from 'lucide-react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const NewConversation = ({ navigation }) => {
-  const theme = useTheme();
-  const appctx = useAppContext();
+const NewConversation = ({ navigation }: {
+  navigation: any // TODO
+}) => {
+  const appContext = useAppContext();
   const UIColors = GetUIColors();
 
-  const [loading, setLoading] = useState(true);
   const [recipients, setRecipients] = useState([]);
-
   const [selectedRecipients, setSelectedRecipients] = useState([]);
-
+  
+  const [loading, setLoading] = useState(true);
   const [content, setContent] = useState('');
   const [subject, setSubject] = useState('');
 
@@ -50,6 +49,17 @@ const NewConversation = ({ navigation }) => {
   }, [navigation, subject, content, selectedRecipients]);
 
   const sendMessage = () => {
+    if (!appContext.dataProvider) {
+      Alert.alert(
+        'Erreur',
+        'La connexion est serveur n\'est pas encore disponible, réessayez plus tard.',
+        [{ text: 'OK' }],
+        { cancelable: false }
+      );
+
+      return;
+    }
+
     // list names of selected recipients
     let recipientsNames = [];
 
@@ -76,13 +86,11 @@ const NewConversation = ({ navigation }) => {
 
     let recipientsToSend = selectedRecipients;
 
-    appctx.dataprovider.createDiscussion(
+    appContext.dataProvider.createDiscussion(
       subjectToSend,
       messageToSend,
       recipientsToSend
     ).then((result) => {
-      console.log(result);
-
       if (result.status === 'ok') {
         AsyncStorage.setItem('hasNewMessagesSent', 'true');
         navigation.goBack();
@@ -98,14 +106,10 @@ const NewConversation = ({ navigation }) => {
   };
 
   useEffect(() => {
-    if(recipients.length == 0) {
-      appctx.dataprovider.getRecipients().then((v) => {
-        if (v) {
-          setRecipients(v);
-          setLoading(false);
-
-          console.log(v);
-        }
+    if (recipients.length === 0) {
+      appContext.dataProvider?.getRecipients().then((v) => {
+        if (v) setRecipients(v);
+        setLoading(false);
       });
     }
   }, [recipients]);
@@ -117,11 +121,8 @@ const NewConversation = ({ navigation }) => {
     >
       <StatusBar animated barStyle={'light-content'} />
 
-      <NativeList
-        header="Message"
-      >
-        <NativeItem
-        >
+      <NativeList header="Message">
+        <NativeItem>
           <NativeText heading="h4">
             Sujet
           </NativeText>
@@ -134,10 +135,9 @@ const NewConversation = ({ navigation }) => {
           />
         </NativeItem>
 
-        <NativeItem
-        >
+        <NativeItem>
           <NativeText heading="h4">
-              Message
+            Message
           </NativeText>
           <TextInput
             placeholder="Saisissez votre message"
@@ -150,18 +150,14 @@ const NewConversation = ({ navigation }) => {
         </NativeItem>
       </NativeList>
 
-      <NativeList
-        
-        header="Personnes disponibles"
-      >
+      <NativeList header="Personnes disponibles">
         {recipients.map((item, index) => (
           <NativeItem
             key={index}
             leading={
               <HwCheckbox
+                loading={false}
                 checked={selectedRecipients.includes(item.id)}
-                theme={theme}
-                UIColors={UIColors}
                 pressed={() => {
                   if (selectedRecipients.includes(item.id)) {
                     setSelectedRecipients(selectedRecipients.filter((e) => e !== item.id));
@@ -195,7 +191,14 @@ const NewConversation = ({ navigation }) => {
   );
 };
 
-function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
+function HwCheckbox({ checked, pressed, loading }: {
+  checked: boolean
+  loading: boolean
+  pressed: () => unknown
+}) {
+  const theme = useTheme();
+  const UIColors = GetUIColors();
+
   return !loading ? (
     <PressableScale
       style={[
@@ -220,7 +223,6 @@ function HwCheckbox({ checked, theme, pressed, UIColors, loading }) {
 }
 
 const styles = StyleSheet.create({
-  checkboxContainer: {},
   checkContainer: {
     width: 26,
     height: 26,

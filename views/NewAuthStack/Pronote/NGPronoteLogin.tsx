@@ -40,17 +40,21 @@ type PronoteInstanceInformation = Awaited<
   ReturnType<typeof getPronoteInstanceInformation>
 >;
 
-function NGPronoteLogin({ route, navigation }) {
-  const instance = route.params.instance;
-  const instanceURL = instance.url || '';
-
+function NGPronoteLogin({ route, navigation }: {
+  navigation: any; // TODO
+  route: {
+    params: {
+      instanceURL: string
+    }
+  }
+}) {
+  const instanceURL = route.params.instanceURL;
   const theme = useTheme();
 
   const [errorAlert, setErrorAlert] = React.useState(false);
   const [stringErrorAlert, setStringErrorAlert] = React.useState(false);
   const [urlAlert, setURLAlert] = React.useState(false);
-  const [instanceDetails, setInstanceDetails] =
-    React.useState<PronoteInstanceInformation | null>(null);
+  const [instanceDetails, setInstanceDetails] = React.useState<PronoteInstanceInformation | null>(null);
 
   React.useEffect(() => {
     (async () => {

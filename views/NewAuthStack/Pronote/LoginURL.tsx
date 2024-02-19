@@ -69,9 +69,7 @@ const LoginURL = ({ navigation }) => {
             placeholderTextColor={UIColors.text + '88'}
             style={[styles.input, {color: UIColors.text}]}
             value={currentURL}
-            onChangeText={text => {
-              setCurrentURL(text);
-            }}
+            onChangeText={text => setCurrentURL(text)}
           />
         </NativeItem>
         <NativeItem

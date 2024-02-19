@@ -57,7 +57,7 @@ const HEADING_STYLES = {
 interface Props {
   children: React.ReactNode
   heading?: keyof typeof HEADING_STYLES 
-  style?: TextStyle
+  style?: TextStyle | TextStyle[]
   numberOfLines?: number
   textProps?: Partial<React.ComponentProps<typeof Text>>
 }

@@ -1,21 +1,16 @@
+import type { PapillonVieScolaire } from '../fetch/types/vie_scolaire';
+
 import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
   ScrollView,
   StatusBar,
-  Platform,
 } from 'react-native';
 
-import { Text, useTheme } from 'react-native-paper';
-
-import { SFSymbol } from 'react-native-sfsymbols';
-import PapillonInsetHeader from '../components/PapillonInsetHeader';
-
+import { useTheme } from 'react-native-paper';
 import { Clock3, UserX } from 'lucide-react-native';
-import { PressableScale } from 'react-native-pressable-scale';
 
-import PapillonIcon from '../components/PapillonIcon';
 import GetUIColors from '../utils/GetUIColors';
 import PapillonLoading from '../components/PapillonLoading';
 import { useAppContext } from '../utils/AppContext';
@@ -24,30 +19,29 @@ import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
-function SchoolLifeScreen({ navigation }) {
-  const [viesco, setViesco] = useState(null);
+function SchoolLifeScreen({ navigation }: {
+  navigation: any // TODO
+}) {
+  const [vieScolaire, setVieScolaire] = useState<PapillonVieScolaire | null>(null);
   const theme = useTheme();
   const UIColors = GetUIColors();
+  const appContext = useAppContext();
 
-  const [isHeadLoading, setIsHeadLoading] = useState(false);
-
-  const appctx = useAppContext();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setIsHeadLoading(true);
-    appctx.dataprovider.getViesco().then((v) => {
-      setIsHeadLoading(false);
-      setViesco(v);
-    });
-  }, []);
+    (async () => {
+      if (!appContext.dataProvider) return;
 
-  const onRefresh = React.useCallback(() => {
-    setIsHeadLoading(true);
-    appctx.dataprovider.getViesco(true).then((v) => {
-      setIsHeadLoading(false);
-      setViesco(v);
-    });
-  }, []);
+      try {
+        const value = await appContext.dataProvider.getViesco();
+        setVieScolaire(value);
+      } catch { /** No-op. */ }
+      finally {
+        setLoading(false);
+      }
+    })();
+  }, [appContext.dataProvider]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -60,7 +54,7 @@ function SchoolLifeScreen({ navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
+      style={{ backgroundColor: UIColors.backgroundHigh }}
       contentInsetAdjustmentBehavior="automatic"
     >
       <StatusBar
@@ -69,28 +63,26 @@ function SchoolLifeScreen({ navigation }) {
         backgroundColor="transparent"
       />
 
-      {isHeadLoading ? (
+      {loading && (
         <PapillonLoading
-          title="Chargement des évenements"
+          title="Chargement des événements"
           subtitle="Veuillez patienter quelques instants..."
         />
-      ) : null}
+      )}
 
-      {viesco ? (
+      {vieScolaire && (
         <>
-          {viesco.absences.length === 0 &&
-          viesco.delays.length === 0 &&
-          !isHeadLoading ? (
-              <PapillonLoading
-                title="Aucun évenement"
-                subtitle="Vous n'avez aucun évenement à afficher"
-                icon={<UserX size={26} color={UIColors.primary} />}
-              />
-            ) : null}
+          {(vieScolaire.absences.length === 0 && vieScolaire.delays.length === 0 && vieScolaire.punishments.length === 0) && !loading && (
+            <PapillonLoading
+              title="Aucun événement"
+              subtitle="Vous n'avez aucun événement à afficher"
+              icon={<UserX size={26} color={UIColors.primary} />}
+            />
+          )}
 
-          {viesco.absences && viesco.absences.length > 0 ? (
+          {vieScolaire.absences && vieScolaire.absences.length > 0 && (
             <NativeList header="Absences" inset>
-              {viesco.absences?.map((absence, index) => (
+              {vieScolaire.absences?.map((absence, index) => (
                 <NativeItem
                   key={index}
                   leading={!absence.justified ? (
@@ -152,11 +144,11 @@ function SchoolLifeScreen({ navigation }) {
                 </NativeItem>
               ))}
             </NativeList>
-          ) : null}
+          )}
 
-          {viesco.delays && viesco.delays.length > 0 ? (
+          {vieScolaire.delays && vieScolaire.delays.length > 0 && (
             <NativeList header="Retards" inset>
-              {viesco?.delays?.map((delay, index) => (
+              {vieScolaire.delays.map((delay, index) => (
                 <NativeItem
                   key={index}
                   leading={!delay.justified ? (
@@ -205,9 +197,42 @@ function SchoolLifeScreen({ navigation }) {
                 </NativeItem>
               ))}
             </NativeList>
-          ) : null}
+          )}
+
+          {vieScolaire.punishments && vieScolaire.punishments.length > 0 && (
+            <NativeList header="Punitions" inset>
+              {vieScolaire.punishments.map((punition, index) => (
+                <NativeItem key={index}
+                  leading={<UserX size={24} color="#A84700" />}
+                >
+                  <NativeText heading="h4">
+                    Punition de {punition.duration} min.
+                  </NativeText>
+                  <NativeText heading="p2">
+                  le{' '}
+                    {new Date(punition.date).toLocaleDateString('fr', {
+                      weekday: 'long',
+                      day: '2-digit',
+                      month: 'short',
+                    })}
+                  </NativeText>
+
+                  {punition.reason.text ? (
+                    <NativeText
+                      heading="subtitle2"
+                      style={{
+                        marginTop: 6
+                      }}
+                    >
+                      {punition.reason.text}
+                    </NativeText>
+                  ) : null}
+                </NativeItem>
+              ))}
+            </NativeList>
+          )}
         </>
-      ) : null}
+      )}
 
       <View style={{ height: 20 }} />
     </ScrollView>

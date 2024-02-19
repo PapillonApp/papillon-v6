@@ -33,6 +33,7 @@ export const newsHandler = async (force = false, instance?: Pronote): Promise<Pa
       survey: n.isSurvey,
       read: n.read,
       author: n.author,
+      category: n.category.name,
       attachments: [] // TODO
     }));
 

@@ -1,4 +1,4 @@
-import { PapillonGrades, PapillonGradesViewAverages } from '../../fetch/types/grades';
+import { PapillonGrades } from '../../fetch/types/grades';
 
 const calculateAverage = async (grades: PapillonGrades, type: string = 'value', base: number = 20): Promise<number> => {
   const { gradel, coefs } = grades.reduce((acc, grade) => {
@@ -26,7 +26,7 @@ const calculateAverage = async (grades: PapillonGrades, type: string = 'value', 
   return (gradel > 0 && coefs > 0) ? res : -1;
 };
 
-const calculateSubjectAverage = async (grades: PapillonGrades, type: string = 'value', base: number = 20): Promise<number> => {
+const calculateSubjectAverage = async (grades: PapillonGrades[], type: string = 'value', base: number = 20): Promise<number> => {
   const subjects = new Map();
 
   grades.forEach((grade) => {
