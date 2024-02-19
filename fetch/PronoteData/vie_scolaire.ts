@@ -57,7 +57,7 @@ export const vieScolaireHandler = async (instance?: Pronote, force = false): Pro
           }))
         },
         reason: {
-          text: item.reason,
+          text: item.reasons,
           circumstances: item.circumstances,
           documents: item.circumstancesDocuments.map(doc => ({
             name: doc.name,

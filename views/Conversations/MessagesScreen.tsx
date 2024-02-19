@@ -11,7 +11,7 @@ import {
   Alert
 } from 'react-native';
 
-import RenderHtml from 'react-native-render-html';
+import { RenderHTML } from 'react-native-render-html';
 
 import type { PapillonDiscussionMessage } from '../../fetch/types/discussions';
 import { useAppContext } from '../../utils/AppContext';
@@ -213,6 +213,29 @@ function MessagesScreen ({ route, navigation }: {
           return (
             <Bubble
               {...props}
+              renderMessageText={(props) => (
+                <RenderHTML
+                  source={{ html: props.currentMessage?.text as string }}
+                  baseStyle={{
+                    paddingHorizontal: 10,
+                    paddingVertical: 6,
+                    color: props.position === 'left' ? UIColors.text : '#ffffff',
+                  }}
+                  renderersProps={{
+                    a: {
+                      onPress (_, href) {
+                        let url = href;
+                        if (!url.startsWith('http')) {
+                          url = 'https://' + url.split('://')[1];
+                        }
+                        
+                        openURL(url);
+                      },
+                    }
+                  }}
+                  contentWidth={300}
+                />
+              )}
               textStyle={{
                 right: {
                   color: '#ffffff',
@@ -242,14 +265,6 @@ function MessagesScreen ({ route, navigation }: {
             />
           );
         }}
-
-        parsePatterns={() => [
-          {
-            type: 'url',
-            style: { textDecorationLine: 'underline' },
-            onPress: (url: string) => openURL(url)
-          },
-        ]}
 
         renderInputToolbar={(props) => {
           return (

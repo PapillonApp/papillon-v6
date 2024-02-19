@@ -45,7 +45,7 @@ export interface PapillonPunishment {
     documents: PapillonHomeworkAttachment[]
   }
   reason: {
-    text: string | null
+    text: string[]
     circumstances: string
     documents: PapillonHomeworkAttachment[]
   }

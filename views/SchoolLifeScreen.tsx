@@ -235,7 +235,7 @@ function SchoolLifeScreen({ navigation }: {
                         marginTop: 6
                       }}
                     >
-                      {punition.reason.text}
+                      {punition.reason.text.join(', ')}
                     </NativeText>
                   ) : null}
                 </NativeItem>
