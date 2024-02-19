@@ -26,6 +26,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
 
   const [nxid, setNxid] = useState(0);
   const [lenText, setLenText] = useState('À venir');
+  const [timeCount, setTimeCount] = useState('00:00');
   const [barPercent, setBarPercent] = useState(0);
 
   // TODO: @Vexcited to contributors : is this implemented ?
@@ -87,6 +88,18 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
 
       // calculate the progression
       setBarPercent(0);
+    }
+
+    // set the time count to the time left before the cours
+    let hours = Math.floor(Math.abs(st.getTime() - new Date(now).getTime()) / 1000 / 60 / 60);
+    let minutes = Math.floor(Math.abs(st.getTime() - new Date(now).getTime()) / 1000 / 60 % 60);
+    let seconds = Math.floor(Math.abs(st.getTime() - new Date(now).getTime()) / 1000 % 60);
+
+    if (hours > 0) {
+      setTimeCount(lz(hours) + ' : ' + lz(minutes) + ' : ' + lz(seconds));
+    }
+    else {
+      setTimeCount(lz(minutes) + ' : ' + lz(seconds));
     }
   }
 
@@ -241,7 +254,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
         }}
       >
         <Text style={styles.tinyStart} numberOfLines={1}>
-          { new Date(cours[nxid].start).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
+          {timeCount}
         </Text>
 
         <View style={styles.tinyBar} />
@@ -292,8 +305,11 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
         ]}
       >
         <View style={styles.time.container}>
-          <Text style={styles.time.text}>
+          <Text style={styles.time.start}>
             { new Date(cours[nxid].start).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
+          </Text>
+          <Text style={styles.time.end}>
+            { new Date(cours[nxid].end).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
           </Text>
         </View>
         <Animated.View
@@ -343,21 +359,26 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
               }) : 1,
             }
           ]}>
-            { cours[nxid].rooms && cours[nxid].rooms.length > 0 && (
-              <View style={[styles.details.item]}>
+            
+              <View style={[styles.details.item, styles.details.room]}>
                 <MapPin size={20} color={'#ffffff'} style={[styles.details.icon]} />
-                <Text style={[styles.details.text]} numberOfLines={1}>
-                  { cours[nxid].rooms[0] }
-                </Text>
+                { cours[nxid].rooms && cours[nxid].rooms.length > 0 ? (
+                  <Text style={[styles.details.text]} numberOfLines={1}>
+                    { cours[nxid].rooms[0] }
+                  </Text>
+                ) : (
+                  <Text style={[styles.details.text]} numberOfLines={1}>
+                    inconnue
+                  </Text>
+                )}
               </View>
-            )}
 
             { (cours[nxid].teachers && cours[nxid].teachers.length > 0) && (cours[nxid].rooms && cours[nxid].rooms.length > 0) && (
               <View style={[styles.details.separator]} />
             )}
 
             { cours[nxid].teachers && cours[nxid].teachers.length > 0 && (
-              <View style={[styles.details.item]}>
+              <View style={[styles.details.item, styles.details.teacher]}>
                 <UserCircle2 size={20} color={'#ffffff'} style={[styles.details.icon]} />
                 <Text style={[styles.details.text]} numberOfLines={1}>
                   { cours[nxid].teachers[0] }
@@ -395,28 +416,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-
-    gap: 16,
     flex: 1,
   },
 
   time: {
     container: {
-      height: 26,
+      height: '100%',
+      width: 70,
+      paddingLeft: 2.5,
       alignItems: 'center',
       justifyContent: 'center',
-      paddingHorizontal: 8,
-      borderRadius: 8,
-      borderCurve: 'continuous',
-      backgroundColor: '#ffffff22'
+      borderRightWidth: 1,
+      borderRightColor: '#ffffff20',
+      gap: 2,
+      backgroundColor: '#ffffff10',
     },
-    text: {
-      fontSize: 16,
+    start: {
+      fontSize: 17,
       fontFamily: 'Papillon-Semibold',
       opacity: 1,
+      color: '#ffffff',
+    },
+    end: {
+      fontSize: 15,
+      fontFamily: 'Papillon-Medium',
+      opacity: 0.6,
       color: '#ffffff',
     }
   },
@@ -425,8 +449,12 @@ const styles = StyleSheet.create({
     container: {
       gap: 0,
       flex: 1,
-      height: 64,
-      overflow: 'hidden',
+      overflow: 'visible',
+      paddingHorizontal: 16,
+      paddingVertical: 0,
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+      gap: 2,
     }
   },
 
@@ -436,14 +464,23 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       gap: 10,
       marginTop: 0,
-      flex: 1,
-      paddingTop: 4,
-      overflow: 'hidden',
+      overflow: 'visible',
+      marginTop: 4,
+      marginRight: 22,
     },
     item: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 7,
+    },
+    room: {
+      backgroundColor: '#ffffff20',
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderRadius: 300,
+    },
+    teacher: {
+      flex: 1,
     },
     icon: {
       opacity: 0.8,
@@ -483,7 +520,6 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'justify-content',
       gap: 10,
-      paddingTop: 4,
     },
     startText: {
       fontFamily: 'Papillon-Medium',
@@ -547,8 +583,10 @@ const styles = StyleSheet.create({
   },
 
   tinyStart: {
-    fontFamily: 'Papillon-Semibold',
-    fontSize: 16,
+    fontVariant: ['tabular-nums'],
+    fontWeight: '600',
+    letterSpacing: -0.5,
+    fontSize: 15,
     color: '#ffffff',
     opacity: 1,
   },
@@ -562,8 +600,8 @@ const styles = StyleSheet.create({
   },
 
   tinyCourse: {
-    fontFamily: 'Papillon-Medium',
-    fontSize: 16,
+    fontSize: 15,
+    fontWeight: '500',
     color: '#ffffff',
     opacity: 0.8,
     maxWidth: '70%',
