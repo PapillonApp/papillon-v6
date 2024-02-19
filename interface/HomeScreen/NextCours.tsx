@@ -254,7 +254,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
         }}
       >
         <Text style={styles.tinyStart} numberOfLines={1}>
-          {timeCount}
+          { new Date(cours[nxid].start).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
         </Text>
 
         <View style={styles.tinyBar} />
@@ -583,10 +583,8 @@ const styles = StyleSheet.create({
   },
 
   tinyStart: {
-    fontVariant: ['tabular-nums'],
-    fontWeight: '600',
-    letterSpacing: -0.5,
-    fontSize: 15,
+    fontFamily: 'Papillon-Semibold',
+    fontSize: 16,
     color: '#ffffff',
     opacity: 1,
   },
