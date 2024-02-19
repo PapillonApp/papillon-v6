@@ -474,7 +474,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                       fontSize: 18,
                       marginVertical: 9,
                     }
-                ]}
+                  ]}
                 >
                   Vue d'ensemble
                 </Text>
@@ -678,7 +678,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                       extrapolate: 'clamp',
                       useNativeDriver: false,
                     })
-                  : 106,
+                    : 106,
                 }
               ]}
             >
@@ -789,7 +789,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
         <StatusBar
           barStyle={
             !scrolled ? 'light-content' :
-            theme.dark ? 'light-content' : 'dark-content'
+              theme.dark ? 'light-content' : 'dark-content'
           }
           translucent={true}
           backgroundColor={'transparent'}
@@ -812,7 +812,6 @@ function HomeScreen({ navigation }: { navigation: any }) {
         navigation={navigation}
         loading={lessons.loading}
         showsTomorrow={showsTomorrowLessons}
-        UIColors={UIColors}
         date={showsTomorrowLessons ? tomorrow : now}
       />
       
@@ -822,7 +821,6 @@ function HomeScreen({ navigation }: { navigation: any }) {
         homeworksDays={homeworksDays}
         navigation={navigation}
         loading={groupedHomeworks === null}
-        UIColors={UIColors}
       />
 
       {(
@@ -904,9 +902,10 @@ const CoursElement: React.FC<{
   navigation: any // TODO: type from react-navigation
   loading: boolean
   showsTomorrow: boolean,
-  UIColors: any,
   date: Date
-}> = ({ cours, navigation, loading, showsTomorrow, UIColors, date }) => {
+}> = ({ cours, navigation, loading, showsTomorrow, date }) => {
+  const UIColors = GetUIColors();
+  
   return (
     <View>
       <View style={[styles.sectionHeader]}>
@@ -1132,13 +1131,15 @@ function CoursItem ({ lesson, cours, navigation, index }: {
   );
 }
 
-function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation, loading, UIColors }: {
+function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation, loading }: {
   homeworks: PapillonGroupedHomeworks[] | null
   customHomeworks: any[] // TODO
   homeworksDays: Array<{ custom: boolean, date: number }>
   navigation: any // TODO: type from react-navigation
   loading: boolean
 }) {
+  const UIColors = GetUIColors();
+
   return (
     !loading ? (
       homeworks ? (<>

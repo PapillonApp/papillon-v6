@@ -1,43 +1,32 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
+
 import {
   View,
-  KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
-  TextInput,
-  Alert,
   StatusBar,
   TouchableOpacity,
   Modal,
-  Platform
+  Platform,
+  Alert
 } from 'react-native';
-import { useState, useCallback, useEffect } from 'react';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import fr from 'dayjs/locale/fr';
-
-import GetUIColors from '../../utils/GetUIColors';
-import { Text } from 'react-native-paper';
-
-import { GiftedChat, Bubble, InputToolbar, Send } from 'react-native-gifted-chat';
-
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { PapillonDiscussion, PapillonDiscussionMessage } from '../../fetch/types/discussions';
 import { useAppContext } from '../../utils/AppContext';
 
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-
-import { Send as SendLucide, X } from 'lucide-react-native';
-
-import { Linking } from 'react-native';
-
+import { Text } from 'react-native-paper';
 import * as WebBrowser from 'expo-web-browser';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { GiftedChat, Bubble, InputToolbar, Send, IMessage } from 'react-native-gifted-chat';
+
+import GetUIColors from '../../utils/GetUIColors';
+import { Send as SendLucide, X } from 'lucide-react-native';
 
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
-function getInitials(name) {
+function getInitials(name: string): string {
   if (name === undefined) {
     return 'M';
   }
@@ -58,97 +47,85 @@ function getInitials(name) {
   return initials;
 }
 
-function convertPronoteMessages(messages, userData) {
-  let msgs = [];
+function convertPronoteMessages(messages: PapillonDiscussionMessage[]): IMessage[] {
+  const outputMessages: IMessage[] = [];
 
-  console.log(messages);
+  for (const message of messages) {
+    let id: number | undefined;
 
-  for (let i = messages.length - 1; i >= 0; i--) {
-    let msg = JSON.parse(JSON.stringify(messages[i]));
-
-    let avatar = undefined;
-    let id = null;
-
-    if (msg.author === null || msg.author === 'Inconnu') {
-      msg.author = undefined;
+    if (!message.author || message.author === 'Inconnu') {
+      message.author = undefined;
       id = 1;
     }
 
-    msgs.push({
-      _id: msg.id,
-      text: msg.content,
-      createdAt: new Date(msg.date),
+    outputMessages.push({
+      _id: message.id,
+      text: message.content,
+      createdAt: new Date(message.timestamp),
       user: {
-        _id: id || getInitials(msg.author),
-        name: msg.author,
-        avatar: avatar,
-        initials: getInitials(msg.author),
+        _id: id || getInitials(message.author ?? '?'),
+        name: message.author,
+        avatar: getInitials(message.author ?? '?'),
       },
       sent: true,
-      received: msg.seen,
+      received: true // message.seen,
     });
   }
 
-  msgs.push({
+  outputMessages.push({
     _id: 1,
     text: 'Vous avez rejoint la conversation',
-    createdAt: new Date(messages[0].date),
+    createdAt: new Date(messages[0].timestamp),
     system: true,
+    user: { _id: -1 }
   });
 
-  return msgs;
+  return outputMessages;
 }
 
-function MessagesScreen ({ route, navigation }) {
+function MessagesScreen ({ route, navigation }: {
+  route: any // TODO
+  navigation: any // TODO
+}) {
   const UIColors = GetUIColors();
-  const insets = useSafeAreaInsets();
 
   const tabBarHeight = useBottomTabBarHeight(); 
 
-  const conversation = route.params.conversation;
-  const [msgs, setMsgs] = useState([]);
+  const conversation = route.params.conversation as PapillonDiscussion;
+  const [msgs, setMsgs] = useState<IMessage[]>([]);
 
   const [recipientsModalVisible, setRecipientsModalVisible] = useState(false);
 
-  // User data
-  const [userData, setUserData] = useState({});
-  const [profilePicture, setProfilePicture] = useState('');
-
-  const appctx = useAppContext();
+  const appContext = useAppContext();
 
   const [urlOpened, setUrlOpened] = useState(false);
 
-  function openURL(url) {
+  async function openURL(url: string): Promise<void> {
     setUrlOpened(true);
 
-    WebBrowser.openBrowserAsync(url, {
-      dismissButtonStyle: 'done',
-      presentationStyle: 'pageSheet',
-      controlsColor: UIColors.primary,
-    }).then(() => {
+    try {
+      await WebBrowser.openBrowserAsync(url, {
+        dismissButtonStyle: 'done',
+        presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
+        controlsColor: UIColors.primary,
+      });
+    } catch { /** No-op. */ }
+    finally {
       setUrlOpened(false);
-    });
+    }
   }
 
-  useEffect(() => {
-    if (conversation.unread > 0) {
-      appctx.dataprovider.readStateConversation(conversation.local_id).then((result) => {
-        if (result.status === 'ok') {
-          AsyncStorage.setItem('hasNewMessagesSent', 'true');
-        }
-      });
-    }
-  }, []);
+  useEffect(() => { // Set the conversation as read when the user opens it.
+    (async () => {
+      setMsgs(convertPronoteMessages(conversation.messages));
 
-  useEffect(() => {
-    appctx.dataprovider.getUser(false).then((result) => {
-      setUserData(result);
-      setProfilePicture(result.profile_picture);
+      if (conversation.unread > 0) {
+        await appContext.dataProvider?.readStateConversation(conversation.local_id);
+        // TODO: mark as read in atom
+      }
+    })();
+  }, [conversation]);
 
-      setMsgs(convertPronoteMessages(conversation.messages, result));
-    });
-  }, []);
-    
   // set header title
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -173,28 +150,22 @@ function MessagesScreen ({ route, navigation }) {
     setUrlOpened(true);
   };
 
-  const sendMessage = (msg) => {
-    let newMessage = {
-      ...msg,
-      _id: msgs.length + 1,
-      date: new Date().toISOString(),
-      user: {
-        _id: 1,
-      },
-    };
-   
+  const sendMessage = async (msg: IMessage[]) => {
+    if (!appContext.dataProvider) {
+      Alert.alert(
+        'Erreur',
+        'La connexion est serveur n\'est pas encore disponible, réessayez plus tard.',
+        [{ text: 'OK' }],
+        { cancelable: false }
+      );
+      
+      return;
+    }
     
     let content = msg[0].text;
 
-    appctx.dataprovider.replyToConversation(conversation.local_id, content).then((result) => {
-      console.log(result);
-      if (result.status === 'ok') {
-        setMsgs(GiftedChat.append(msgs, msg));
-      }
-    });
-
-    // save newMessages to AsyncStorage
-    AsyncStorage.setItem('hasNewMessagesSent', 'true');
+    await appContext.dataProvider.replyToConversation(conversation.local_id, content);
+    setMsgs(GiftedChat.append(msgs, msg));
   };
 
   return (
@@ -209,12 +180,9 @@ function MessagesScreen ({ route, navigation }) {
       />
 
       <GiftedChat
-
         messages={msgs}
         onSend={sendMessage}
-        user={{
-          _id: 1,
-        }}
+        user={{ _id: 1 }}
 
         renderUsernameOnMessage={true}
 
@@ -227,7 +195,7 @@ function MessagesScreen ({ route, navigation }) {
           return (
             <View style={{width: 40, height: 40, borderRadius: 20, overflow: 'hidden', backgroundColor: UIColors.primary + '22', alignItems: 'center', justifyContent: 'center'}}>
               <Text style={{fontFamily: 'Papillon-Medium', fontSize: 20, textAlign: 'center', color: UIColors.primary}}>
-                {props.currentMessage.user.initials}
+                {props.currentMessage?.user.avatar as string}
               </Text>
             </View>
           );
@@ -267,15 +235,11 @@ function MessagesScreen ({ route, navigation }) {
           );
         }}
 
-        parsePatterns={(linkStyle) => [
+        parsePatterns={() => [
           {
             type: 'url',
-            style: {
-              textDecorationLine: 'underline',
-            },
-            onPress: (url) => {
-              openURL(url);
-            },
+            style: { textDecorationLine: 'underline' },
+            onPress: (url: string) => openURL(url)
           },
         ]}
 
@@ -300,6 +264,8 @@ function MessagesScreen ({ route, navigation }) {
                 backgroundColor: UIColors.element + '00',
                 paddingLeft: 10,
               }}
+
+              // @ts-expect-error : Not sure if this is typed or not in the library.
               textInputStyle={{
                 color: UIColors.text,
                 fontFamily: 'Papillon-Medium',
@@ -366,7 +332,6 @@ function MessagesScreen ({ route, navigation }) {
               inset
               header="Participants"
             >
-              
               { conversation.participants.map((participant, index) => (
                 <NativeItem
                   key={index}
@@ -387,7 +352,7 @@ function MessagesScreen ({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  input : {
+  input: {
     borderRadius: 10,
     padding: 10,
     margin: 10,

@@ -298,13 +298,13 @@ export class IndexDataInstance {
     return {};
   }
 
-  async readStateConversation(id) {
+  public async readStateConversation (localID: string): Promise<void> {
     await this.waitInit();
-    // if (this.service === 'pronote')
-    //   return require('./PronoteData/PronoteConversations.js').readStateConversation(
-    //     id
-    //   );
-    return {};
+    if (this.service === 'pronote') {
+      // return require('./PronoteData/PronoteConversations.js').readStateConversation(
+      //   id
+      // );
+    }
   }
 
   async createDiscussion(subject, content, participants) {
