@@ -19,6 +19,8 @@ import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
+const lz = (n: number) => (n < 10 ? `0${n}` : n);
+
 function SchoolLifeScreen({ navigation }: {
   navigation: any // TODO
 }) {
@@ -35,6 +37,16 @@ function SchoolLifeScreen({ navigation }: {
 
       try {
         const value = await appContext.dataProvider.getViesco();
+
+        value.absences = value.absences.sort((a, b) => new Date(b.from).getTime() - new Date(a.from).getTime());
+
+        // put the justified absences at the end of the list
+        value.absences = value.absences.sort((a, b) => {
+          if (a.justified === b.justified) return 0;
+          if (a.justified) return 1;
+          return -1;
+        });
+
         setVieScolaire(value);
       } catch { /** No-op. */ }
       finally {
@@ -106,13 +118,18 @@ function SchoolLifeScreen({ navigation }: {
                     </NativeText>
                   )}
                 >
-                  <NativeText heading="h4">
-                    {absence.hours} manquées
+                  {absence.reasons.length > 0 ? (
+                    <NativeText heading="h4">
+                      {absence.reasons[0]}
+                    </NativeText>
+                  ) : null}
+                  <NativeText heading="p2">
+                    {absence.hours.split('h')[0]}h{lz(absence.hours.split('h')[1])} manquées
                   </NativeText>
                   {
                     // if from and to is same day :
                     (!absence.to || (new Date(absence.from).getDate() === new Date(absence.to).getDate())) ? (
-                      <NativeText heading="p2">
+                      <NativeText heading="subtitle2" style={{marginTop: 6}}>
                         le{' '}
                         {new Date(absence.from).toLocaleDateString('fr', {
                           weekday: 'long',
@@ -121,7 +138,7 @@ function SchoolLifeScreen({ navigation }: {
                         })}
                       </NativeText>
                     ) : (
-                      <NativeText heading="p2">
+                      <NativeText heading="subtitle2" style={{marginTop: 6}}>
                         du{' '}
                         {new Date(absence.from).toLocaleDateString('fr', {
                           weekday: 'long',
@@ -135,12 +152,6 @@ function SchoolLifeScreen({ navigation }: {
                       </NativeText>
                     )
                   }
-
-                  {absence.reasons.length > 0 ? (
-                    <NativeText heading="subtitle2" style={{marginTop: 6}}>
-                      {absence.reasons[0]}
-                    </NativeText>
-                  ) : null}
                 </NativeItem>
               ))}
             </NativeList>
