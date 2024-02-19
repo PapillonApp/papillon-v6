@@ -118,13 +118,15 @@ function SchoolLifeScreen({ navigation }: {
                     </NativeText>
                   )}
                 >
-                  {absence.reasons.length > 0 ? (
-                    <NativeText heading="h4">
-                      {absence.reasons[0]}
-                    </NativeText>
-                  ) : null}
+                  <NativeText heading="h4">
+                    {absence.reasons[0] ?? new Date(absence.from).toLocaleDateString('fr', {
+                      weekday: 'long',
+                      day: '2-digit',
+                      month: 'short',
+                    })}
+                  </NativeText>
                   <NativeText heading="p2">
-                    {absence.hours.split('h')[0]}h{lz(absence.hours.split('h')[1])} manquées
+                    {absence.hours.split('h')[0]}h{lz(parseInt(absence.hours.split('h')[1]))} manquées
                   </NativeText>
                   {
                     // if from and to is same day :
@@ -195,7 +197,7 @@ function SchoolLifeScreen({ navigation }: {
                     })}
                   </NativeText>
 
-                  {delay.reasons.length > 0 ? (
+                  {delay.reasons[0] && (
                     <NativeText
                       heading="subtitle2"
                       style={{
@@ -204,7 +206,7 @@ function SchoolLifeScreen({ navigation }: {
                     >
                       {delay.reasons[0]}
                     </NativeText>
-                  ) : null}
+                  )}
                 </NativeItem>
               ))}
             </NativeList>
@@ -228,16 +230,17 @@ function SchoolLifeScreen({ navigation }: {
                     })}
                   </NativeText>
 
-                  {punition.reason.text ? (
-                    <NativeText
-                      heading="subtitle2"
-                      style={{
-                        marginTop: 6
-                      }}
-                    >
-                      {punition.reason.text.join(', ')}
-                    </NativeText>
-                  ) : null}
+                  <NativeText
+                    heading="subtitle2"
+                    style={{
+                      marginTop: 6
+                    }}
+                  >
+                    {punition.reason.text.length > 0
+                      ? punition.reason.text.join(', ')
+                      : 'Aucun motif donné'
+                    }
+                  </NativeText>
                 </NativeItem>
               ))}
             </NativeList>
