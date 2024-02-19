@@ -67,6 +67,8 @@ import {
   CalendarFill as PapillonIconsCalendarFill,
   Book as PapillonIconsBook,
 } from '../interface/icons/PapillonIcons';
+import NativeList from '../components/NativeList';
+import NativeItem from '../components/NativeItem';
 
 // Functions
 const openURL = (url: string) => {
@@ -1145,7 +1147,7 @@ function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation
 
   return (
     !loading ? (
-      homeworks ? (<>
+      homeworks?.length != 0 ? (<>
         <View style={[styles.sectionHeader]}>
           <View style={[styles.sectionHeaderText]}>
             <NativeText style={[styles.sectionHeaderDay]}>
@@ -1202,11 +1204,38 @@ function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation
           ))}
         </View>
       </>) : (
-        <PapillonList inset title="Travail à faire" style={styles.homeworksDevoirsElementContainer}>
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Aucun devoir à faire</Text>
+        <View>
+          <View style={[styles.sectionHeader]}>
+            <View style={[styles.sectionHeaderText]}>
+              <NativeText style={[styles.sectionHeaderDay]}>
+                Travail à faire
+              </NativeText>
+              <NativeText style={[styles.sectionHeaderDate]}>
+                pour les prochains jours
+              </NativeText>
+            </View>
+            <TouchableOpacity style={[styles.sectionHeaderIcon, {backgroundColor: UIColors.text + '22'}]}
+              onPress={() => {
+                navigation.navigate('DevoirsHandler');
+              }}
+            >
+              <PapillonIconsBook stroke={UIColors.text} />
+            </TouchableOpacity>
           </View>
-        </PapillonList>
+          <NativeList
+            inset
+            style={[Platform.OS === 'ios' && { marginTop: -16 }]}
+          >
+            <NativeItem
+              style={{ backgroundColor: UIColors.element, borderColor: UIColors.borderLight + '77' }}
+            >
+              <NativeText heading='p2' style={{ textAlign: 'center', marginVertical: 10 }}>
+                Aucun travail à faire.
+              </NativeText>
+            </NativeItem>
+          </NativeList>
+
+        </View>
       )
     ) : (
       <PapillonList inset title="Travail à faire" style={styles.homeworksDevoirsElementContainer}>
