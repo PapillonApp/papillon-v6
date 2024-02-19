@@ -49,7 +49,7 @@ export interface PapillonPunishment {
     circumstances: string
     documents: PapillonHomeworkAttachment[]
   }
-  nature: any // TODO
+  nature: string
   /** In minutes. */
   duration: number
 }

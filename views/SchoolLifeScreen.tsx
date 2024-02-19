@@ -219,7 +219,7 @@ function SchoolLifeScreen({ navigation }: {
                   leading={<UserX size={24} color="#A84700" />}
                 >
                   <NativeText heading="h4">
-                    Punition de {punition.duration} min.
+                    {punition.nature}
                   </NativeText>
                   <NativeText heading="p2">
                   le{' '}

@@ -65,7 +65,7 @@ export const vieScolaireHandler = async (instance?: Pronote, force = false): Pro
             url: doc.url
           }))
         },
-        nature: null, // TODO
+        nature: item.title,
         duration: item.durationMinutes
       };
 
