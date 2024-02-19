@@ -22,7 +22,7 @@ const LocateEtabList = ({ route, navigation }) => {
   const openInstance = (instance: PronoteInstance) => {
     console.log(instance);
 
-    navigation.navigate('NGPronoteLogin', { instance: instance });
+    navigation.navigate('NGPronoteLogin', { instanceURL: instance.url });
   };
 
   React.useLayoutEffect(() => {
