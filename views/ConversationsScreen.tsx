@@ -131,15 +131,16 @@ function ConversationsScreen({ navigation }: {
       refreshControl={
         <RefreshControl
           refreshing={headLoading}
-          onRefresh={() => {
+          onRefresh={async () => {
             setHeadLoading(true);
-            appContext.dataProvider?.getConversations().then((v) => {
-              if (v) {
-                setConversations(v);
-                setOriginalConversations(v);
-                setHeadLoading(false);
-              }
-            });
+
+            const conversations = await appContext.dataProvider?.getConversations();
+            if (typeof conversations !== 'undefined') {
+              setConversations(conversations);
+              setOriginalConversations(conversations);
+            }
+
+            setHeadLoading(false);
           }}
         />
       }
