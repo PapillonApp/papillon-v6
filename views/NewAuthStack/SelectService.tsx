@@ -18,6 +18,7 @@ const SelectService = ({ navigation }) => {
   const insets = useSafeAreaInsets();
 
   const [edAlertVisible, setEdAlertVisible] = useState(false);
+  const [pronoteAlertVisible, setPronoteAlertVisible] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -55,7 +56,7 @@ const SelectService = ({ navigation }) => {
   const continueToLogin = () => {
     if (selectedService !== null) {
       if (selectedService === 0) {
-        navigation.navigate('FindEtab');
+        setPronoteAlertVisible(true);
       }
       if (selectedService === 1) {
         navigation.navigate('LoginSkolengoSelectSchool');
@@ -80,6 +81,16 @@ const SelectService = ({ navigation }) => {
       <NativeText style={styles.instructionsText}>
         Sélectionnez l’application de vie scolaire que vous utilisez dans votre établissement.
       </NativeText>
+
+      <AlertBottomSheet
+        visible={pronoteAlertVisible}
+        icon={<AlertTriangle />}
+        title="Important"
+        subtitle="PRONOTE n’est pas affilié à Index Education. Des bugs peuvent survenir lors de l’utilisation de PRONOTE sur Papillon."
+        cancelAction={() => setPronoteAlertVisible(false)}
+        primaryAction={() => {navigation.navigate('FindEtab'), setPronoteAlertVisible(false);}}
+      />
+
 
       {Platform.OS !== 'ios' && (
         <View style={{ height: 16 }} />
