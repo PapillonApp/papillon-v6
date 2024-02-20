@@ -23,7 +23,7 @@ import NativeText from '../../components/NativeText';
 import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
 
-import { PieChart, Link, File, DownloadCloud, MoreHorizontal, ChevronLeft } from 'lucide-react-native';
+import { PieChart, Link, File, DownloadCloud, MoreHorizontal, ChevronLeft, FileCheck2 } from 'lucide-react-native';
 import GetUIColors from '../../utils/GetUIColors';
 import { useAppContext } from '../../utils/AppContext';
 
@@ -454,7 +454,7 @@ function PapillonAttachment({ file: attachment, index, navigation, openURL }: {
             );
           }}
         >
-          <DownloadCloud
+          <FileCheck2
             size={22}
             color={UIColors.text}
             style={{ opacity: 0.7, margin:5 }}
