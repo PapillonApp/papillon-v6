@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -40,10 +40,11 @@ import {
   Palette,
   ShieldCheck,
   PenLine,
-  TentTree,
+  Tent,
   Dumbbell,
   Users,
   UserCheck2,
+  LucideIcon,
 } from 'lucide-react-native';
 
 import PapillonLoading from '../components/PapillonLoading';
@@ -55,7 +56,6 @@ import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
-import * as WebBrowser from 'expo-web-browser';
 import * as FileSystem from 'expo-file-system';
 import { PapillonNews } from '../fetch/types/news';
 
@@ -87,9 +87,39 @@ function normalizeText(text?: string) {
     .toLowerCase();
 }
 
-function normalizeContent(text: string) {
-  return text.replace(/(\r\n|\n|\r)/gm, '').trim();
-}
+const ICONS_CATEGORIES: Array<{
+  name: string
+  icon: LucideIcon
+}> = [
+  {
+    name: 'administration',
+    icon: ShieldCheck,
+  },
+  {
+    name: 'arts',
+    icon: Palette,
+  },
+  {
+    name: 'autorisation de sortie',
+    icon: PenLine,
+  },
+  {
+    name: 'sorties',
+    icon: Tent,
+  },
+  {
+    name: 'sports',
+    icon: Dumbbell,
+  },
+  {
+    name: 'stage',
+    icon: Users,
+  },
+  {
+    name: 'vie scolaire',
+    icon: UserCheck2,
+  }
+];
 
 function FullNewsIcon({
   survey,
@@ -101,76 +131,33 @@ function FullNewsIcon({
   const normalizedCategory = normalizeText(category);
   const COLOR = '#B42828';
 
-  interface iconCategory {
-    name: string;
-    icon: JSX.Element;
-  }
+  
 
-  const iconsCategories: iconCategory[] = [
-    {
-      name: 'administration',
-      icon: <ShieldCheck color={COLOR} size={24} />,
-    },
-    {
-      name: 'arts',
-      icon: <Palette color={COLOR} size={24} />,
-    },
-    {
-      name: 'autorisation de sortie',
-      icon: <PenLine color={COLOR} size={24} />,
-    },
-    {
-      name: 'sorties',
-      icon: <TentTree color={COLOR} size={24} />,
-    },
-    {
-      name: 'sports',
-      icon: <Dumbbell color={COLOR} size={24} />,
-    },
-    {
-      name: 'stage',
-      icon: <Users color={COLOR} size={24} />,
-    },
-    {
-      name: 'vie scolaire',
-      icon: <UserCheck2 color={COLOR} size={24} />,
-    }
-  ];
+  let CategoryIcon: LucideIcon;
+  if (survey) CategoryIcon = PieChart;
+  else {
+    const category = ICONS_CATEGORIES.find((item) => item.name === normalizedCategory);
+    if (category) CategoryIcon = category.icon;
+    else CategoryIcon = Newspaper;
+  }
 
   return (
     <View>
-      {survey ? (
-        <PieChart color={COLOR} size={24} />
-      ) : iconsCategories.find((item) => item.name === normalizedCategory) ? (
-        iconsCategories.find((item) => item?.name === normalizedCategory).icon
-      ) : (
-        <Newspaper color={COLOR} size={24} />
-      )}
+      <CategoryIcon color={COLOR} size={24} />
     </View>
   );
 }
 
-function NewsScreen({
-  navigation,
-}: {
+function NewsScreen({ navigation }: {
   navigation: any; // TODO
 }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
-  const openURL = async (url: string) => {
-    await WebBrowser.openBrowserAsync(url, {
-      dismissButtonStyle: 'done',
-      presentationStyle: WebBrowser.WebBrowserPresentationStyle.CURRENT_CONTEXT,
-      controlsColor: '#B42828',
-    });
-  };
-
   const insets = useSafeAreaInsets();
 
   const [news, setNews] = useState<PapillonNews[]>([]);
   const [finalNews, setFinalNews] = useState<PapillonNews[]>([]);
-  const [showNews, setShowNews] = useState(true);
   const [currentNewsType, setCurrentNewsType] = useState('Toutes');
 
   function editNews(n: PapillonNews[]): PapillonNews[] {
@@ -225,7 +212,7 @@ function NewsScreen({
   }, []);
 
   // add search bar in the header
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle:
         Platform.OS === 'ios'
