@@ -243,7 +243,10 @@ function NewsItem({ route, navigation }: {
       </View>
 
       {news.attachments.length > 0 && (
-        <NativeList header="Pièces jointes">
+        <NativeList 
+          inset
+          header="Pièces jointes"
+        >
           {news.attachments.map((file, index) => (
             <PapillonAttachment
               key={index}
