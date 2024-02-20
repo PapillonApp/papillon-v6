@@ -19,8 +19,12 @@ function lz(num: number): string {
 const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, navigation, color, tiny, mainAction = () => {} }: {
   cours: PapillonLesson[] | null
   style?: ViewStyle
-  color?: string,
-  navigation: any
+  color?: string
+  yOffset: Animated.Value
+  setNextColor?: (color: string) => unknown
+  mainAction?: () => unknown
+  tiny?: boolean
+  navigation: any // TODO
 }) => {
   const UIColors = GetUIColors();
 
@@ -28,9 +32,6 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
   const [lenText, setLenText] = useState('À venir');
   const [timeCount, setTimeCount] = useState('00:00');
   const [barPercent, setBarPercent] = useState(0);
-
-  // TODO: @Vexcited to contributors : is this implemented ?
-  // I don't see any usage of `setCoursEnded` but `coursEnded` is used...
   const [coursEnded, setCoursEnded] = useState(false);
 
   function updateNext() {
@@ -171,12 +172,12 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
     setNextColor(getSavedCourseColor(cours[nxid].subject?.name ?? '', cours[nxid].background_color));
   }, [cours, nxid]);
 
-  if (tiny & coursEnded || tiny && !cours || tiny && !cours[nxid]) {
+  if (tiny && coursEnded || tiny && !cours || tiny && !cours?.[nxid]) {
     return (
       <PressableScale
         style={[
           styles.tinyContainer,
-          { backgroundColor: UIColors.text + "12" },
+          { backgroundColor: UIColors.text + '12' },
           style
         ]}
         onPress={() => {
@@ -360,18 +361,18 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
             }
           ]}>
             
-              <View style={[styles.details.item, styles.details.room]}>
-                <MapPin size={20} color={'#ffffff'} style={[styles.details.icon]} />
-                { cours[nxid].rooms && cours[nxid].rooms.length > 0 ? (
-                  <Text style={[styles.details.text]} numberOfLines={1}>
-                    { cours[nxid].rooms[0] }
-                  </Text>
-                ) : (
-                  <Text style={[styles.details.text]} numberOfLines={1}>
+            <View style={[styles.details.item, styles.details.room]}>
+              <MapPin size={20} color={'#ffffff'} style={[styles.details.icon]} />
+              { cours[nxid].rooms && cours[nxid].rooms.length > 0 ? (
+                <Text style={[styles.details.text]} numberOfLines={1}>
+                  { cours[nxid].rooms[0] }
+                </Text>
+              ) : (
+                <Text style={[styles.details.text]} numberOfLines={1}>
                     inconnue
-                  </Text>
-                )}
-              </View>
+                </Text>
+              )}
+            </View>
 
             { (cours[nxid].teachers && cours[nxid].teachers.length > 0) && (cours[nxid].rooms && cours[nxid].rooms.length > 0) && (
               <View style={[styles.details.separator]} />

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState, useRef } from 'react';
 
 import {
   View,
@@ -17,7 +17,6 @@ import {
   TouchableOpacity,
   type ImageSourcePropType
 } from 'react-native';
-import { useEffect, useState, useRef } from 'react';
 
 // Components & Styles
 import { useTheme, Text, Menu, Divider } from 'react-native-paper';
@@ -142,7 +141,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
   const expoLinkedURL = ExpoLinking.useURL();
 
   const [refreshing, setRefreshing] = useState(false);
-  const [customHomeworks, setCustomHomeworks] = useState([]);
+  const [customHomeworks] = useState([]); // TODO ?
   const [homeworksDays, setHomeworksDays] = useState<Array<{ custom: boolean, date: number }>>([]);
 
   const [showsTomorrowLessons, setShowsTomorrowLessons] = useState(false);
@@ -678,6 +677,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                       inputRange: [0, 1],
                       outputRange: [106, 0],
                       extrapolate: 'clamp',
+                      // @ts-expect-error : Not sure if it's typed correctly.
                       useNativeDriver: false,
                     })
                     : 106,
@@ -781,13 +781,9 @@ function HomeScreen({ navigation }: { navigation: any }) {
       onScroll={scrollHandler}
       scrollEventThrottle={16}
     >
-      {Platform.OS === 'android' ? (
-        <View style={{ height: 10 }} />
-      ) : (
-        <View style={{ height: 10 }} />
-      )}
+      <View style={{ height: 10 }} />
 
-      {isFocused ? (
+      {isFocused && (
         <StatusBar
           barStyle={
             !scrolled ? 'light-content' :
@@ -796,7 +792,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
           translucent={true}
           backgroundColor={'transparent'}
         />
-      ) : null }
+      )}
 
       <TabsElement navigation={navigation} />
 
@@ -825,9 +821,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
         loading={groupedHomeworks === null}
       />
 
-      {(
-        (groupedHomeworks?.length < 2) && (lessons?.data?.length < 4)
-      ) && (
+      {(groupedHomeworks && groupedHomeworks.length < 2) && (lessons.data && lessons.data.length < 4) && (
         <View style={{ height: 100 }} />
       )}
     </ScrollView>
@@ -1178,7 +1172,7 @@ function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation
               index={index}
               homeworks={
                 !day.custom ?
-                  homeworks.find((hw) => hw.time === day.date)
+                  homeworks?.find((hw) => hw.time === day.date)
                   : {
                     formattedDate: new Date(day.date).toLocaleDateString('fr-FR', {
                       weekday: 'long',
@@ -1221,7 +1215,7 @@ function DevoirsElement ({ homeworks, customHomeworks, homeworksDays, navigation
           </View>
           <NativeList
             inset
-            style={[Platform.OS === 'ios' && { marginTop: -16 }]}
+            style={Platform.OS === 'ios' ? { marginTop: -16 } : void 0}
           >
             <NativeItem
               style={{ backgroundColor: UIColors.element, borderColor: UIColors.borderLight + '77' }}
@@ -1816,9 +1810,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 2,
     
-    elevation: 3,
     marginBottom: 14,
-
     elevation: 0,
   },
 
