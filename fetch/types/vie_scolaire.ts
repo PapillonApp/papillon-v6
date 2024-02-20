@@ -1,4 +1,4 @@
-import type { PapillonHomeworkAttachment } from './homework';
+import type { PapillonAttachment } from './homework';
 
 export interface PapillonVieScolaire {
   delays: PapillonDelay[]
@@ -42,12 +42,12 @@ export interface PapillonPunishment {
   during_lesson: boolean
   homework: {
     text: string
-    documents: PapillonHomeworkAttachment[]
+    documents: PapillonAttachment[]
   }
   reason: {
     text: string[]
     circumstances: string
-    documents: PapillonHomeworkAttachment[]
+    documents: PapillonAttachment[]
   }
   nature: string
   /** In minutes. */

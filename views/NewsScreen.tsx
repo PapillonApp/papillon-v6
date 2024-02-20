@@ -131,8 +131,6 @@ function FullNewsIcon({
   const normalizedCategory = normalizeText(category);
   const COLOR = '#B42828';
 
-  
-
   let CategoryIcon: LucideIcon;
   if (survey) CategoryIcon = PieChart;
   else {

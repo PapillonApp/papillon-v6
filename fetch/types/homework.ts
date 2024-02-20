@@ -1,8 +1,14 @@
-import type { PronoteApiAttachmentType, PronoteApiHomeworkDifficulty, PronoteApiHomeworkReturnType } from 'pawnote';
+import type { PronoteApiHomeworkDifficulty, PronoteApiHomeworkReturnType } from 'pawnote';
 
-export interface PapillonHomeworkAttachment {
+
+export enum PapillonAttachmentType {
+  Link = 0,
+  File = 1
+}
+
+export interface PapillonAttachment {
   name: string
-  type: PronoteApiAttachmentType
+  type: PapillonAttachmentType
   /**
    * URL that only works as long
    * as the session that fetched
@@ -20,7 +26,7 @@ export interface PapillonHomework {
   pronoteCachedSessionID: number
   cacheDateTimestamp: number
 
-  attachments: PapillonHomeworkAttachment[];
+  attachments: PapillonAttachment[];
   themes: string[]
   subject: {
     id: string

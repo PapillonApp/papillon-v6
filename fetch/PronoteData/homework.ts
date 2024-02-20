@@ -1,4 +1,4 @@
-import type { PapillonHomework, PapillonHomeworkAttachment } from '../types/homework';
+import type { PapillonHomework, PapillonAttachment } from '../types/homework';
 import { PronoteApiHomeworkReturnType, type Pronote } from 'pawnote';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -66,7 +66,7 @@ export const homeworkHandler = async (force = false, instance?: Pronote): Promis
     data = [];
 
     for (const homework of homeworks) {
-      const attachments: PapillonHomeworkAttachment[] = [];
+      const attachments: PapillonAttachment[] = [];
       for (const attachment of homework.attachments) {
         attachments.push({
           name: attachment.name,

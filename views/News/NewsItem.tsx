@@ -29,6 +29,7 @@ import { useAppContext } from '../../utils/AppContext';
 
 import * as FileSystem from 'expo-file-system';
 import type { PapillonNews } from '../../fetch/types/news';
+import { PapillonAttachment } from '../../fetch/types/homework';
 
 function NewsItem({ route, navigation }) {
   const [news, setNews] = useState<PapillonNews>(route.params.news);
@@ -160,15 +161,15 @@ function NewsItem({ route, navigation }) {
     }
   }, [route.params.news, isRead, readChanged]);
 
-  const openURL = async (url) => {
+  const openURL = async (url: string): Promise<void> => {
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
-      presentationStyle: 'currentContext',
+      presentationStyle: WebBrowser.WebBrowserPresentationStyle.CURRENT_CONTEXT,
       controlsColor: '#B42828',
     });
   };
 
-  function genFirstName(name) {
+  function genFirstName(name: string) {
     const names = name.split(' ');
 
     if (names?.at(0)?.at(0) === 'M') {
@@ -249,13 +250,19 @@ function NewsItem({ route, navigation }) {
         ) : null}
       </View>
 
-      {news.attachments.length > 0 ? (
+      {news.attachments.length > 0 && (
         <NativeList header="Pièces jointes">
           {news.attachments.map((file, index) => (
-            <PapillonAttachment key={index} file={file} index={index} theme={theme} UIColors={UIColors} navigation={navigation} openURL={openURL} />
+            <PapillonAttachment
+              key={index}
+              file={file} 
+              index={index}
+              navigation={navigation}
+              openURL={openURL}
+            />
           ))}
         </NativeList>
-      ) : null}
+      )}
 
       {news.author ? (
         <NativeList header="Auteur" inset>
@@ -349,19 +356,25 @@ function NewsItem({ route, navigation }) {
   );
 }
 
-function PapillonAttachment({file, index, theme, UIColors, navigation, openURL}) {
-  const attachment = file;
+function PapillonAttachment({file: attachment, index, navigation, openURL}: {
+  file: PapillonAttachment
+  index: number
+  navigation: any // TODO
+  openURL: (url: string) => Promise<void>
+}) {
+  const theme = useTheme();
+  const UIColors = GetUIColors();
 
   const [downloaded, setDownloaded] = useState(false);
   const [savedLocally, setSavedLocally] = useState(false);
 
   const formattedAttachmentName = attachment.name.replace(/ /g, '_');
-  const formattedFileExtension = attachment.url.split('.').pop().split(/#|\?/)[0];
+  const formattedFileExtension = attachment.url.split('.').pop()?.split(/#|\?/)[0];
 
   const [fileURL, setFileURL] = useState(attachment.url);
 
   useEffect(() => {
-    if (formattedFileExtension == 'pdf') {
+    if (formattedFileExtension?.toLowerCase() === 'pdf') {
       FileSystem.getInfoAsync(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
         if (e.exists) {
           setDownloaded(true);

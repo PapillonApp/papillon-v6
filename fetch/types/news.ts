@@ -1,3 +1,5 @@
+import type { PapillonAttachment } from './homework';
+
 export interface CachedPapillonNews {
   /** Timestamp */
   date: number;
@@ -12,6 +14,5 @@ export interface PapillonNews {
   read: boolean
   author: string
   category: string
-
-  attachments: any[] // TODO
+  attachments: PapillonAttachment[]
 }

@@ -1,7 +1,9 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { Pronote } from 'pawnote';
-import { AsyncStoragePronoteKeys } from './connector';
 import type { CachedPapillonNews, PapillonNews } from '../types/news';
+import type { PapillonAttachmentType } from '../types/homework';
+import type { Pronote } from 'pawnote';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AsyncStoragePronoteKeys } from './connector';
 
 export const newsHandler = async (force = false, instance?: Pronote): Promise<PapillonNews[]> => {
   const cache = await AsyncStorage.getItem(AsyncStoragePronoteKeys.CACHE_NEWS);
@@ -34,7 +36,11 @@ export const newsHandler = async (force = false, instance?: Pronote): Promise<Pa
       read: n.read,
       author: n.author,
       category: n.category.name,
-      attachments: [] // TODO
+      attachments: n.questions[0].attachments.map(a => ({
+        name: a.name,
+        type: a.type as unknown as PapillonAttachmentType,
+        url: a.url
+      }))
     }));
 
     return news;
