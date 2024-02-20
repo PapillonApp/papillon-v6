@@ -897,7 +897,7 @@ function AppStack() {
   let settings = SyncStorage.get('adjustments');
 
   // if hideTabBarTitle doesn't exist, set it to false
-  if (settings === undefined) {
+  if (typeof settings === 'undefined') {
     settings = {
       hideTabBarTitle: false,
     };
@@ -1198,7 +1198,6 @@ function App() {
   
   const [dataProvider, setDataProvider] = React.useState<IndexDataInstance | null>(null);	
   const [appIsReady, setAppIsReady] = React.useState(false);
-  const [hideSplash, setHideSplash] = React.useState(false);
   const [loggedIn, setLoggedIn] = React.useState(false);
 
   useEffect(() => {
@@ -1213,7 +1212,6 @@ function App() {
 
         if (serviceName === 'pronote' || serviceName === 'skolengo') {
           await provider.init(serviceName);
-          console.log('app.prepare:', provider.initialized, provider.initializing);
           // We consider we have some data in cache, so let's try to run...
           if (provider.isNetworkFailing) {
             console.warn('app.prepare: network failing, sign in with cache only.');
