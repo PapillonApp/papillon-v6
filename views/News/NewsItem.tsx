@@ -29,9 +29,12 @@ import { useAppContext } from '../../utils/AppContext';
 
 import * as FileSystem from 'expo-file-system';
 import type { PapillonNews } from '../../fetch/types/news';
-import { PapillonAttachment as PapillonAttachmentType } from '../../fetch/types/homework';
+import { PapillonAttachmentType, PapillonAttachment as PapillonAttachmentT } from '../../fetch/types/homework';
 
-function NewsItem({ route, navigation }) {
+function NewsItem({ route, navigation }: {
+  route: { params: { news: PapillonNews } },
+  navigation: any, // TODO
+}) {
   const [news, setNews] = useState<PapillonNews>(route.params.news);
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -43,17 +46,6 @@ function NewsItem({ route, navigation }) {
 
   const [isRead, setIsRead] = useState(news.read);
   const [readChanged, setReadChanged] = useState(false);
-
-  const alertSondage = () => {
-    Alert.alert(
-      'Sondage',
-      'Impossible de répondre au sondage depuis l\'application Papillon pour le moment.',
-      [
-        { text: 'OK', onPress: () => {} },
-      ],
-      { cancelable: true }
-    );
-  };
 
   const loadNews = async (id) => {
     if (!id || !appContext.dataProvider) return;
@@ -356,8 +348,8 @@ function NewsItem({ route, navigation }) {
   );
 }
 
-function PapillonAttachment({file: attachment, index, navigation, openURL}: {
-  file: PapillonAttachmentType
+function PapillonAttachment({ file: attachment, index, navigation, openURL }: {
+  file: PapillonAttachmentT
   index: number
   navigation: any // TODO
   openURL: (url: string) => Promise<void>
@@ -395,12 +387,11 @@ function PapillonAttachment({file: attachment, index, navigation, openURL}: {
     }
   }, []);
 
-  function redownloadFile() {
-    FileSystem.downloadAsync(attachment.url, FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension).then((e) => {
-      setDownloaded(true);
-      setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
-      setSavedLocally(true);
-    });
+  async function redownloadFile() {
+    await FileSystem.downloadAsync(attachment.url, FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
+    setDownloaded(true);
+    setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
+    setSavedLocally(true);
   }
 
   return (
@@ -415,9 +406,9 @@ function PapillonAttachment({file: attachment, index, navigation, openURL}: {
         else {
           openURL(fileURL);
         }
-      } : null}
+      } : () => void 0}
       leading={ 
-        file.type === 0 ? (
+        attachment.type === PapillonAttachmentType.Link ? (
           <Link size={20} color={theme.dark ? '#ffffff' : '#000000'} />
         ) : (
           <File size={20} color={theme.dark ? '#ffffff' : '#000000'} />
@@ -470,13 +461,13 @@ function PapillonAttachment({file: attachment, index, navigation, openURL}: {
     >
 
       <View style={[styles.homeworkFileData]}>
-        <Text style={[styles.homeworkFileText]}>{file.name}</Text>
+        <Text style={[styles.homeworkFileText]}>{attachment.name}</Text>
         <Text
           numberOfLines={1}
           ellipsizeMode="tail"
           style={[styles.homeworkFileUrl]}
         >
-          {file.url}
+          {attachment.url}
         </Text>
       </View>
     </NativeItem>
@@ -513,7 +504,7 @@ const styles = StyleSheet.create({
   },
   newsTitle: {
     fontSize: 16,
-    fontWeight: 700,
+    fontWeight: '700',
     fontFamily: 'Papillon-Semibold',
   },
   newsDate: {
@@ -549,12 +540,12 @@ const styles = StyleSheet.create({
 
   homeworkFileText: {
     fontSize: 17,
-    fontWeight: 400,
+    fontWeight: '400',
     fontFamily: 'Papillon-Semibold',
   },
   homeworkFileUrl: {
     fontSize: 15,
-    fontWeight: 400,
+    fontWeight: '400',
     fontFamily: 'Papillon-Medium',
     opacity: 0.5,
   },
