@@ -884,13 +884,10 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
               shadowColor: '#00000055',
               elevation: 3,
             },
-            {
-              opacity: 0.4,
-            }
           ]}
           weight="light"
           activeScale={0.9}
-          onPress={() => /* navigation.navigate('InsetEvaluations') */ {}}
+          onPress={() => navigation.navigate('InsetEvaluations')}
         >
           <Competences stroke={theme.dark ? '#ffffff' : '#000000'} />
           <Text style={styles.tabsTabText}>

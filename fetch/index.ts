@@ -15,6 +15,7 @@ import { userHandler as pronoteUserHandler } from './PronoteData/user';
 import { newsHandler as pronoteNewsHandler } from './PronoteData/news';
 import { gradesHandler as pronoteGradesHandler } from './PronoteData/grades';
 import { timetableHandler as pronoteTimetableHandler } from './PronoteData/timetable';
+import { evaluationsHandler as pronoteEvaluationsHandler } from './PronoteData/evaluations';
 import { discussionsHandler as pronoteDiscussionsHandler } from './PronoteData/discussions';
 import { vieScolaireHandler as pronoteVieScolaireHandler } from './PronoteData/vie_scolaire';
 import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as pronoteHomeworkHandler } from './PronoteData/homework';
@@ -22,6 +23,7 @@ import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as
 // Skolengo related imports.
 import type { SkolengoDatas } from './SkolengoData/SkolengoDatas';
 import { PapillonVieScolaire } from './types/vie_scolaire';
+import { PapillonEvaluation } from './types/evaluations';
 
 export type ServiceName = 'pronote' | 'skolengo'
 
@@ -119,17 +121,14 @@ export class IndexDataInstance {
     return grades;
   }
 
-  async getEvaluations (force = false) {
+  public async getEvaluations (selectedPeriodName: string, force = false): Promise<PapillonEvaluation[] | null>{
     await this.waitInit();
     
     if (this.service === 'skolengo') {
       // TODO: Skolengo Evaluation
     }
-    if (this.service === 'pronote') {
-      // TODO
-      // return require('./PronoteData/PronoteGrades.js')
-      //   .getEvaluations(force)
-      //   .then((e) => (typeof e === 'string' ? JSON.parse(e) : e));
+    else if (this.service === 'pronote') {
+      return pronoteEvaluationsHandler(selectedPeriodName, this.pronoteInstance, force);
     }
 
     return [];

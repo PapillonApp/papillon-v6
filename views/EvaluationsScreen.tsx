@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -6,7 +6,6 @@ import {
   StatusBar,
   Pressable,
   TouchableOpacity,
-  Platform,
 } from 'react-native';
 
 import Fade from 'react-native-fade';
@@ -25,24 +24,41 @@ import { useAppContext } from '../utils/AppContext';
 import { WillBeSoon } from './Global/Soon';
 
 import { getSavedCourseColor } from '../utils/ColorCoursName';
+import type { PapillonPeriod } from '../fetch/types/period';
+import type { PapillonEvaluation } from '../fetch/types/evaluations';
 
-function EvaluationsScreen({ navigation }) {
+type SortedEvaluations = {
+  subject: PapillonEvaluation['subject']
+  evaluations: PapillonEvaluation[]
+};
+
+function EvaluationsScreen({ navigation }: {
+  navigation: any;
+}) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const UIColors = GetUIColors();
   const { showActionSheetWithOptions } = useActionSheet();
 
-  const [evaluations, setEvaluations] = useState([]);
+  const ABBREVIATION_COLORS = {
+    'A': '#1C7B64',
+    'A+': '#1C7B64',
+    'B': UIColors.primary,
+    'C': '#A84700',
+    'D': '#B42828',
+    '1': '#1C7B64',
+    '2': UIColors.primary,
+    '3': '#A84700',
+    '4': '#B42828',
+  };
 
-  const [selectedPeriod, setSelectedPeriod] = useState(null);
-  const [periodsList, setPeriodsList] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
+  const [evaluations, setEvaluations] = useState<SortedEvaluations[]>([]);
+  const [periods, setPeriods] = useState<PapillonPeriod[]>([]);
 
-  const [refreshCount, setRefreshCount] = useState(0);
+  const appContext = useAppContext();
 
-  const appctx = useAppContext();
-
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: 'Compétences',
       headerBackTitle: 'Retour',
@@ -57,16 +73,16 @@ function EvaluationsScreen({ navigation }) {
             <Text
               style={[styles.periodButtonText, { color: UIColors.text, fontFamily: 'Papillon-Medium', opacity: 0.5 }]}
             >
-              {selectedPeriod?.name || ''}
+              {selectedPeriod ?? 'Chargement...'}
             </Text>
           </TouchableOpacity>
         </Fade>
       ),
     });
-  }, [navigation, selectedPeriod, isLoading]);
+  }, [navigation, selectedPeriod]);
 
   function newPeriod() {
-    const options = periodsList.map((period) => period.name);
+    const options = periods.map((period) => period.name);
     options.push('Annuler');
 
     showActionSheetWithOptions(
@@ -91,94 +107,64 @@ function EvaluationsScreen({ navigation }) {
         },
       },
       (selectedIndex) => {
-        if (selectedIndex === options.length - 1) return;
-        const selectedPeri = periodsList[selectedIndex];
-        setSelectedPeriod(selectedPeri);
-        changePeriodPronote(selectedPeri);
+        if (typeof selectedIndex === 'undefined' || selectedIndex === options.length - 1) return;
+        const selectedPeriod = periods[selectedIndex];
+        setSelectedPeriod(selectedPeriod.name);
       }
     );
   }
 
-  async function changePeriodPronote(period) {
-    setIsLoading(true);
-    await appctx.dataprovider.changePeriod(period.name);
-    appctx.dataprovider.getUser(true);
-    setRefreshCount(refreshCount + 1);
-    setIsLoading(false);
-  }
-
   async function getPeriods() {
-    const allPeriods = await appctx.dataprovider.getPeriods(false);
+    if (!appContext.dataProvider) return;
+    const user = await appContext.dataProvider.getUser(false);
+    const periods = user.periodes.evaluations;
+    
+    setPeriods(periods);
+    const currentPeriod = periods.find((period) => period.actual)!;
 
-    const actualPeriod = allPeriods?.find((period) => period.actual === true);
-    let periods = [];
-
-    if (actualPeriod?.name.toLowerCase().includes('trimestre')) {
-      periods = allPeriods.filter((period) =>
-        period.name.toLowerCase().includes('trimestre')
-      );
-    } else if (actualPeriod?.name.toLowerCase().includes('semestre')) {
-      periods = allPeriods.filter((period) =>
-        period.name.toLowerCase().includes('semestre')
-      );
-    }
-
-    setPeriodsList(periods);
-    setSelectedPeriod(actualPeriod);
-
-    return actualPeriod;
+    setSelectedPeriod(currentPeriod.name);
+    return currentPeriod;
   }
 
-  React.useEffect(() => {
-    if (periodsList.length === 0) {
-      getPeriods();
-    }
-  }, []);
+  React.useEffect(() => { getPeriods(); }, []);
 
   useEffect(() => {
-    setIsHeadLoading(true);
-
-    let isForced = false;
-    if (refreshCount > 0) isForced = true;
-
-    appctx.dataprovider.getEvaluations(isForced).then((_evals) => {
-      setIsLoading(false);
-      const evals = _evals;
-
-      const finalEvals = [];
-
+    (async () => {
+      if (!appContext.dataProvider || !selectedPeriod) return;
+      setIsHeadLoading(true);
+  
+      const evaluations = await appContext.dataProvider.getEvaluations(selectedPeriod, false);
+      const finalEvaluations: SortedEvaluations[] = [];
+  
       // for each eval, sort by subject
-      evals.forEach((item) => {
+      for (const item of evaluations ?? []) {
         const { subject } = item;
-        const subjectEvals = finalEvals.find(
-          (subjectEval) => subjectEval.subject.name === subject.name
-        );
-
-        if (subjectEvals) {
-          subjectEvals.evals.push(item);
-        } else {
-          finalEvals.push({
+        // Find the subject by its name
+        const currentSubject = finalEvaluations.find((item) => item.subject.name === subject.name);
+  
+        if (typeof currentSubject !== 'undefined') {
+          currentSubject.evaluations.push(item);
+        }
+        else {
+          finalEvaluations.push({
             subject,
-            evals: [item],
+            evaluations: [item],
           });
         }
-      });
-
-      setEvaluations(finalEvals);
+      }
+  
+      setEvaluations(finalEvaluations);
       setIsHeadLoading(false);
-    });
-  }, [refreshCount]);
+
+    })();
+  }, [appContext.dataProvider, selectedPeriod]);
 
   const [isHeadLoading, setIsHeadLoading] = useState(false);
 
-  const onRefresh = React.useCallback(() => {
-    setRefreshCount(refreshCount + 1);
-  }, []);
-
-  if (appctx.dataprovider.service === 'Skolengo') {
+  if (appContext.dataProvider?.service === 'skolengo') {
     return (
       <ScrollView
-        style={[styles.container, { backgroundColor: UIColors.background }]}
+        style={{ backgroundColor: UIColors.background }}
         contentInsetAdjustmentBehavior="automatic"
       >
         <StatusBar
@@ -194,7 +180,7 @@ function EvaluationsScreen({ navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
+      style={{ backgroundColor: UIColors.backgroundHigh }}
       contentInsetAdjustmentBehavior="automatic"
     >
       <StatusBar
@@ -210,13 +196,13 @@ function EvaluationsScreen({ navigation }) {
         />
       ) : null}
 
-      {evaluations.length === 0 && !isHeadLoading ? (
+      {evaluations.length === 0 && !isHeadLoading && (
         <PapillonLoading
           title="Aucune évaluation"
           subtitle="Vous n'avez aucune évaluation pour le moment"
           icon={<Newspaper size={24} color={UIColors.text} />}
         />
-      ) : null}
+      )}
 
       {evaluations.length > 0
         ? evaluations.map((subject, index) => (
@@ -238,7 +224,7 @@ function EvaluationsScreen({ navigation }) {
               </Text>
             </Pressable>
             <View style={[styles.competencesList]}>
-              {subject.evals.map((evaluation, id) => (
+              {subject.evaluations.map((evaluation, id) => (
                 <View
                   key={id}
                   style={[
@@ -246,7 +232,7 @@ function EvaluationsScreen({ navigation }) {
                     {
                       borderColor: theme.dark ? '#ffffff20' : '#00000015',
                       borderBottomWidth:
-                          id !== subject.evals.length - 1 ? 1 : 0,
+                          id !== subject.evaluations.length - 1 ? 1 : 0,
                     },
                   ]}
                 >
@@ -271,43 +257,21 @@ function EvaluationsScreen({ navigation }) {
                     <View style={styles.competenceGradeContainer}>
                       {evaluation.acquisitions
                         .slice(0, 3)
-                        .map((acquisition, i) => {
-                          const abbreviationColors = {
-                            A: '#1C7B64',
-                            'A+': '#1C7B64',
-                            B: UIColors.primary,
-                            C: '#A84700',
-                            D: '#B42828',
-                            1: '#1C7B64',
-                            2: UIColors.primary,
-                            3: '#A84700',
-                            4: '#B42828',
-                          };
-
-                          let text = acquisition.abbreviation;
-                          if (acquisition.abbreviation === 'A+') text = '+';
-
-                          return (
-                            <View
-                              style={[
-                                styles.competenceGrade,
-                                {
-                                  backgroundColor:
-                                      abbreviationColors[
-                                        acquisition.abbreviation
-                                      ],
-                                },
-                              ]}
-                              key={i}
-                            >
-                              <Text style={styles.competenceGradeText}>
-                                {text}
-                              </Text>
-                            </View>
-                          );
-                        })}
-
-                      {evaluation.acquisitions.length > 3 ? (
+                        .map((acquisition) => (
+                          <View
+                            key={acquisition.id}
+                            style={[
+                              styles.competenceGrade,
+                              { backgroundColor: ABBREVIATION_COLORS[acquisition.abbreviation as keyof typeof ABBREVIATION_COLORS] }
+                            ]}
+                          >
+                            <Text style={styles.competenceGradeText}>
+                              {acquisition.abbreviation === 'A+' ? '+' : acquisition.abbreviation}
+                            </Text>
+                          </View>
+                        ))
+                      }
+                      {evaluation.acquisitions.length > 3 && (
                         <View
                           style={[
                             styles.competenceGrade,
@@ -316,7 +280,7 @@ function EvaluationsScreen({ navigation }) {
                         >
                           <Text style={styles.competenceGradeText}>...</Text>
                         </View>
-                      ) : null}
+                      )}
                     </View>
                   </PressableScale>
                 </View>
