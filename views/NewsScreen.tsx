@@ -431,7 +431,7 @@ function NewsScreen({ navigation }: {
                         )}
 
                         <NativeText heading="h4" numberOfLines={1}>
-                          {item.title}, {normalizeText(item.category)}
+                          {item.title}
                         </NativeText>
                       </View>
 
