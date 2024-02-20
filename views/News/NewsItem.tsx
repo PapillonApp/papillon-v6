@@ -29,7 +29,7 @@ import { useAppContext } from '../../utils/AppContext';
 
 import * as FileSystem from 'expo-file-system';
 import type { PapillonNews } from '../../fetch/types/news';
-import { PapillonAttachment } from '../../fetch/types/homework';
+import { PapillonAttachment as PapillonAttachmentType } from '../../fetch/types/homework';
 
 function NewsItem({ route, navigation }) {
   const [news, setNews] = useState<PapillonNews>(route.params.news);
@@ -357,7 +357,7 @@ function NewsItem({ route, navigation }) {
 }
 
 function PapillonAttachment({file: attachment, index, navigation, openURL}: {
-  file: PapillonAttachment
+  file: PapillonAttachmentType
   index: number
   navigation: any // TODO
   openURL: (url: string) => Promise<void>
