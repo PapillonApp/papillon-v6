@@ -86,7 +86,7 @@ const SelectService = ({ navigation }) => {
         visible={pronoteAlertVisible}
         icon={<AlertTriangle />}
         title="Important"
-        subtitle="PRONOTE n’est pas affilié à Index Education. Des bugs peuvent survenir lors de l’utilisation de PRONOTE sur Papillon."
+        subtitle="Papillon n’est pas affilié à Index Education. Des bugs peuvent survenir lors de l’utilisation de PRONOTE sur Papillon."
         cancelAction={() => setPronoteAlertVisible(false)}
         primaryButton='Compris !'
         primaryAction={() => {navigation.navigate('FindEtab'), setPronoteAlertVisible(false);}}
