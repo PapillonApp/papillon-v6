@@ -1,2 +1,0 @@
-json_key_file("play_store.json")
-package_name("plus.pronote.app")

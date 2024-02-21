@@ -27,12 +27,12 @@ const FindEtab = ({ navigation }) => {
   return (
     <ScrollView
       contentInsetAdjustmentBehavior='automatic'
-      style={theme.dark ? { backgroundColor: UIColors.background }: {}}
+      style={{ backgroundColor: UIColors.background }}
     >
       <StatusBar
         animated
         barStyle={UIColors.dark ? 'light-content' : 'dark-content'}
-        backgroundColor={UIColors.background}
+        backgroundColor={'transparent'}
       />
 
       <NativeList

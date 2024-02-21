@@ -145,25 +145,6 @@ const AdjustmentsScreen = ({ navigation }) => {
         }}
       />
 
-      <NativeList header="Thèmes" inset>
-        <NativeItem 
-          leading={
-            <Palette color={UIColors.text} />
-          }
-          onPress={() => {
-            navigation.navigate('HeaderSelect');
-          }}
-          chevron
-        >
-          <NativeText heading="h4">
-            Thème de l'écran d'accueil
-          </NativeText>
-          <NativeText heading="p2">
-            Applique un arrière-plan et un bandeau personnalisé
-          </NativeText>
-        </NativeItem>
-      </NativeList>
-
       <NativeList header="Navigation" inset>
         { Platform.OS === 'ios' ? (
           <NativeItem

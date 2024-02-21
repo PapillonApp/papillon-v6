@@ -16,13 +16,14 @@ function lz(num: number): string {
   return (num < 10 ? '0' : '') + num;
 }
 
-const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, navigation, color, tiny, mainAction = () => {} }: {
+const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, navigation, color, tiny, mainAction = () => {}, longPressAction = () => {} }: {
   cours: PapillonLesson[] | null
   style?: ViewStyle
   color?: string
   yOffset: Animated.Value
   setNextColor?: (color: string) => unknown
-  mainAction?: () => unknown
+  mainAction?: () => unknown,
+  longPressAction?: (cours: PapillonLesson | null) => unknown,
   tiny?: boolean
   navigation: any // TODO
 }) => {
@@ -209,6 +210,9 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
           navigation.navigate('CoursHandler');
         }
       }}
+      onLongPress={() => {
+        longPressAction(null);
+      }}
     >
       <Text
         numberOfLines={1}
@@ -231,6 +235,9 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
         if(navigation) {
           navigation.navigate('CoursHandler');
         }
+      }}
+      onLongPress={() => {
+        longPressAction(null);
       }}
     >
       <Text
@@ -281,6 +288,9 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
         if (navigation) {
           navigation.navigate('Lesson', { event: cours[nxid] });
         }
+      }}
+      onLongPress={() => {
+        longPressAction(cours[nxid]);
       }}
     >
       <Animated.View

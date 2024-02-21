@@ -99,7 +99,10 @@ function ConversationsScreen({ navigation }: {
       headerTitle: 'Conversations',
       headerBackTitle: 'Retour',
       headerTintColor: UIColors.text,
-      headerShadowVisible: true,
+      headerShadowVisible: Platform.OS == 'ios',
+      headerStyle: {
+        backgroundColor: Platform.OS == 'android' && UIColors.background,
+      },
       headerRight: () => (
         <TouchableOpacity
           onPress={() => {
