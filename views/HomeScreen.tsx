@@ -833,6 +833,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                     loop
                     width={Dimensions.get('window').width}
                     height={110}
+                    defaultIndex={currentThemeIndex}
                     data={THEMES_IMAGES_LIST}
                     scrollAnimationDuration={100}
                     onSnapToItem={(index) => {

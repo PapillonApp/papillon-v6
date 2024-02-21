@@ -211,8 +211,9 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
         }
       }}
       onLongPress={() => {
-        longPressAction(null);
+        longPressAction(cours[nxid]);
       }}
+      delayLongPress={150}
     >
       <Text
         numberOfLines={1}
@@ -237,8 +238,9 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
         }
       }}
       onLongPress={() => {
-        longPressAction(null);
+        longPressAction(cours[nxid]);
       }}
+      delayLongPress={150}
     >
       <Text
         numberOfLines={1}
@@ -292,6 +294,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
       onLongPress={() => {
         longPressAction(cours[nxid]);
       }}
+      delayLongPress={150}
     >
       <Animated.View
         style={[
