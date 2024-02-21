@@ -15,7 +15,8 @@ import {
   Platform,
   StatusBar,
   TouchableOpacity,
-  type ImageSourcePropType
+  type ImageSourcePropType,
+  Dimensions
 } from 'react-native';
 
 // Components & Styles
@@ -102,7 +103,8 @@ const openURL = (url: string) => {
   });
 };
 
-import ScrollPicker from "react-native-wheel-scrollview-picker";
+import Carousel from 'react-native-reanimated-carousel';
+
 
 // create list of dict from THEMES_IMAGES
 const THEMES_IMAGES_LIST = [
@@ -134,6 +136,9 @@ const THEMES_IMAGES_LIST = [
   { key: 'artdeco/sparks', name: 'Sparkling Artistry', image: require('../assets/themes/artdeco/sparks.png') },
   { key: 'artdeco/stripes', name: 'Striped Illusion', image: require('../assets/themes/artdeco/stripes.png') },
 ];
+
+// make an array of images
+const THEMES_IMAGES = THEMES_IMAGES_LIST.map((theme) => theme.image);
 
 function HomeScreen({ navigation }: { navigation: any }) {
   const appContext = useAppContext();
@@ -254,8 +259,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
   const [nextColor, setNextColor] = useState('#32AB8E');
 
 
-  useEffect(() => {
-    // Refresh on first load.
+  React.useLayoutEffect(() => {
     AsyncStorage.getItem('hs_themeIndex').then((value) => {
       if (value) {
         console.log('Setting theme index to', value);
@@ -821,43 +825,53 @@ function HomeScreen({ navigation }: { navigation: any }) {
               <View
                 style={{
                   flex: 1,
+                  marginTop: -10,
                 }}
               >
                 { THEMES_IMAGES_LIST && THEMES_IMAGES_LIST[currentThemeIndex] && (
-                  <ScrollPicker
-                    dataSource={THEMES_IMAGES_LIST}
-                    selectedIndex={currentThemeIndex}
-                    renderItem={(data, index) => {
-                      return (
+                  <Carousel
+                    loop
+                    width={Dimensions.get('window').width}
+                    height={110}
+                    data={THEMES_IMAGES_LIST}
+                    scrollAnimationDuration={100}
+                    onSnapToItem={(index) => {
+                      setCurrentThemeIndex(index);
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      AsyncStorage.setItem('hs_themeIndex', index.toString());
+                    }}
+                    renderItem={({ index }) => (
+                      <View
+                        style={{
+                          flex: 1,
+                          opacity: currentThemeIndex === index ? 1 : 0.5,
+                        }}
+                      >
                         <View
                           style={{
-                            
+                            flex: 1,
+
+                            backgroundColor: '#ffffff22',
+                            borderColor: currentThemeIndex === index ? '#ffffff' : '#ffffff00',
+                            borderWidth: 1.5,
+
+                            borderRadius: 12,
+                            borderCurve: 'continuous',
+                            overflow: 'hidden',
                           }}
                         >
-                          <Text
+                          <Image
+                            source={THEMES_IMAGES_LIST[index].image}
                             style={{
-                              color: '#ffffff',
-                              fontSize: 16,
-                              textAlign: 'center',
-                              fontFamily: 'Papillon-Semibold',
-                              opacity: currentThemeIndex === index ? 1 : 0.5,
+                              width: '100%',
+                              height: '100%',
                             }}
-                          >
-                            {data.name}
-                          </Text>
+                            resizeMode="cover"
+                          />
                         </View>
-                      )
-                    }}
-                    onValueChange={(data, selectedIndex) => {
-                      setCurrentThemeIndex(selectedIndex);
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                      AsyncStorage.setItem('hs_themeIndex', selectedIndex.toString());
-                    }}
-                    wrapperHeight={100}
-                    wrapperBackground="#ffffff00"
-                    itemHeight={40}
-                    highlightColor="#ffffff30"
-                    highlightBorderWidth={1}
+                      </View>
+                    )}
+                    mode="parallax"
                   />
                 )}
               </View>
