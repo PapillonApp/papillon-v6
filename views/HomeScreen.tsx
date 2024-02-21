@@ -394,6 +394,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const [changeThemeOpen, setChangeThemeOpen] = useState(false);
+  const [showThemeCarousel, setShowThemeCarousel] = useState(false);
   const changeThemeAnim = useRef(new Animated.Value(0)).current;
 
   // when changeThemeOpen is true, animate the value to 1
@@ -406,7 +407,13 @@ function HomeScreen({ navigation }: { navigation: any }) {
     }).start();
 
     if (changeThemeOpen) {
+      setShowThemeCarousel(true);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    }
+    else {
+      setTimeout(() => {
+        setShowThemeCarousel(false);
+      }, 200);
     }
   }, [changeThemeOpen]);
 
@@ -752,131 +759,133 @@ function HomeScreen({ navigation }: { navigation: any }) {
               </Animated.View>
             </Animated.View>
 
-            <Animated.View
-              style={{
-                position: 'absolute',
-                paddingTop: insets.top,
-                width: '100%',
-                opacity: changeThemeAnim.interpolate({
-                  inputRange: [0.5, 1],
-                  outputRange: [0, 1],
-                }),
-                transform: [
-                  {
-                    scale: changeThemeAnim.interpolate({
-                      inputRange: [0.5, 1],
-                      outputRange: [0.9, 1],
-                    })
-                  }
-                ],
-              }}
-            >
-              <View
+            { showThemeCarousel && (
+              <Animated.View
                 style={{
+                  position: 'absolute',
+                  paddingTop: insets.top,
                   width: '100%',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  paddingHorizontal: 16,
-                  paddingBottom: 6,
-                  paddingTop: 4,
+                  opacity: changeThemeAnim.interpolate({
+                    inputRange: [0.5, 1],
+                    outputRange: [0, 1],
+                  }),
+                  transform: [
+                    {
+                      scale: changeThemeAnim.interpolate({
+                        inputRange: [0.5, 1],
+                        outputRange: [0.9, 1],
+                      })
+                    }
+                  ],
                 }}
               >
-                { Platform.OS === 'ios' && (
-                  <PapillonIcon fill={scrolled ? UIColors.text + '88' : '#ffffff00'} width={32} height={32} />
-                )}
-                <Text
-                    style={[
-                      Platform.OS === 'ios' ? {
-                        color:
-                          scrolled ? UIColors.text : '#ffffff'
-                        ,
-                        fontSize: 17,
-                        fontFamily: 'Papillon-Semibold',
-                        marginVertical: 8,
-                      } : {
-                        color: '#ffffff',
-                        fontSize: 18,
-                        marginVertical: 9,
-                      }
-                    ]}
-                >
-                  Bandeau
-                </Text>
-                <TouchableOpacity
+                <View
                   style={{
-                    width: 32,
-                    height: 32,
-
+                    width: '100%',
+                    flexDirection: 'row',
                     alignItems: 'center',
-                    justifyContent: 'center',
-
-                    borderRadius: 20,
-                    backgroundColor: '#ffffff35',
-                  }}
-                  onPress={() => {
-                    setChangeThemeOpen(false);
+                    justifyContent: 'space-between',
+                    paddingHorizontal: 16,
+                    paddingBottom: 6,
+                    paddingTop: 4,
                   }}
                 >
-                  <X color="#ffffff" size={22} strokeWidth={2.5} />
-                </TouchableOpacity>
-              </View>
+                  { Platform.OS === 'ios' && (
+                    <PapillonIcon fill={scrolled ? UIColors.text + '88' : '#ffffff00'} width={32} height={32} />
+                  )}
+                  <Text
+                      style={[
+                        Platform.OS === 'ios' ? {
+                          color:
+                            scrolled ? UIColors.text : '#ffffff'
+                          ,
+                          fontSize: 17,
+                          fontFamily: 'Papillon-Semibold',
+                          marginVertical: 8,
+                        } : {
+                          color: '#ffffff',
+                          fontSize: 18,
+                          marginVertical: 9,
+                        }
+                      ]}
+                  >
+                    Bandeau
+                  </Text>
+                  <TouchableOpacity
+                    style={{
+                      width: 32,
+                      height: 32,
 
-              <View
-                style={{
-                  flex: 1,
-                  marginTop: -10,
-                }}
-              >
-                { THEMES_IMAGES_LIST && THEMES_IMAGES_LIST[currentThemeIndex] && (
-                  <Carousel
-                    loop
-                    width={Dimensions.get('window').width}
-                    height={110}
-                    defaultIndex={currentThemeIndex}
-                    data={THEMES_IMAGES_LIST}
-                    scrollAnimationDuration={100}
-                    onSnapToItem={(index) => {
-                      setCurrentThemeIndex(index);
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                      AsyncStorage.setItem('hs_themeIndex', index.toString());
+                      alignItems: 'center',
+                      justifyContent: 'center',
+
+                      borderRadius: 20,
+                      backgroundColor: '#ffffff35',
                     }}
-                    renderItem={({ index }) => (
-                      <View
-                        style={{
-                          flex: 1,
-                          opacity: currentThemeIndex === index ? 1 : 0.5,
-                        }}
-                      >
+                    onPress={() => {
+                      setChangeThemeOpen(false);
+                    }}
+                  >
+                    <X color="#ffffff" size={22} strokeWidth={2.5} />
+                  </TouchableOpacity>
+                </View>
+
+                <View
+                  style={{
+                    flex: 1,
+                    marginTop: -10,
+                  }}
+                >
+                  { THEMES_IMAGES_LIST && THEMES_IMAGES_LIST[currentThemeIndex] && (
+                    <Carousel
+                      loop
+                      width={Dimensions.get('window').width}
+                      height={110}
+                      defaultIndex={currentThemeIndex}
+                      data={THEMES_IMAGES_LIST}
+                      scrollAnimationDuration={100}
+                      onSnapToItem={(index) => {
+                        setCurrentThemeIndex(index);
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        AsyncStorage.setItem('hs_themeIndex', index.toString());
+                      }}
+                      renderItem={({ index }) => (
                         <View
                           style={{
                             flex: 1,
-
-                            backgroundColor: '#ffffff22',
-                            borderColor: currentThemeIndex === index ? '#ffffff' : '#ffffff00',
-                            borderWidth: 1.5,
-
-                            borderRadius: 12,
-                            borderCurve: 'continuous',
-                            overflow: 'hidden',
+                            opacity: currentThemeIndex === index ? 1 : 0.5,
                           }}
                         >
-                          <Image
-                            source={THEMES_IMAGES_LIST[index].image}
+                          <View
                             style={{
-                              width: '100%',
-                              height: '100%',
+                              flex: 1,
+
+                              backgroundColor: '#ffffff22',
+                              borderColor: currentThemeIndex === index ? '#ffffff' : '#ffffff00',
+                              borderWidth: 1.5,
+
+                              borderRadius: 12,
+                              borderCurve: 'continuous',
+                              overflow: 'hidden',
                             }}
-                            resizeMode="cover"
-                          />
+                          >
+                            <Image
+                              source={THEMES_IMAGES_LIST[index].image}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                              }}
+                              resizeMode="cover"
+                            />
+                          </View>
                         </View>
-                      </View>
-                    )}
-                    mode="parallax"
-                  />
-                )}
-              </View>
-            </Animated.View>
+                      )}
+                      mode="parallax"
+                    />
+                  )}
+                </View>
+              </Animated.View>
+            )}
           </View>
         </Animated.View>
       )
