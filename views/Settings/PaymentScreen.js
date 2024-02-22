@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Alert, Animated, ScrollView, ActivityIndicator, Modal, StatusBar, Platform, View, TouchableOpacity, StyleSheet, Button } from 'react-native';
 
 import { Text } from 'react-native-paper';
-import * as InAppPurchases from 'expo-in-app-purchases';
+import * as InAppPurchases from '@legeek01/expo-in-app-purchases';
 import GetUIColors from '../../utils/GetUIColors';
 
 import NativeList from '../../components/NativeList';
