@@ -22,4 +22,5 @@ web-build/
 .metro-health-check*
 
 %ProgramData%/
-android/app/release/app-release.aab
+android/app/release/*
+android/app/debug/*
