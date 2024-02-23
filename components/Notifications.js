@@ -6,6 +6,8 @@ import packageJson from '../package.json';
 import { showMessage } from 'react-native-flash-message';
 import notifee, {AndroidImportance, AuthorizationStatus} from '@notifee/react-native';
 
+import setBackgroundFetch from '../fetch/BackgroundFetch';
+
 let vars = {};
 
 async function setVars() {
@@ -122,11 +124,7 @@ async function askNotifPerm() {
                 text: 'Continuer',
                 style: 'cancel',
                 onPress: () => {
-                  showMessage({
-                    message: 'Notifications désactivées',
-                    type: 'danger',
-                    icon: 'auto',
-                  });
+                  resolve({ authorized: false, neverAskAgain: true})
                 }
               },
               {
@@ -212,6 +210,7 @@ export async function init() {
       });
       updateVars();
     }
+    setBackgroundFetch()
   }
   else {
     if(vars.permStatus === 'neverAskAgain') return;
@@ -226,6 +225,7 @@ export async function init() {
       vars.permStatus = 'granted';
       updateVars();
       checkRegisteredChannels();
+      setBackgroundFetch()
     }
     else {
       showMessage({

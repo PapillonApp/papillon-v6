@@ -21,8 +21,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 SplashScreen.preventAutoHideAsync();
 
-import setBackgroundFetch from './fetch/BackgroundFetch';
-setBackgroundFetch()
+import * as notifs from './components/Notifications';
+notifs.init();
 
 import {
   ChevronLeft,
