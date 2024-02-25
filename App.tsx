@@ -9,6 +9,8 @@ import FlashMessage from 'react-native-flash-message';
 
 import SyncStorage from 'sync-storage';
 
+import { useAppContext } from './utils/AppContext';
+
 import { getHeaderTitle } from '@react-navigation/elements';
 import { useMemo, useEffect } from 'react';
 import { Easing, Platform, StyleSheet, useColorScheme, View, TouchableOpacity, Animated } from 'react-native';
@@ -894,6 +896,20 @@ function AppStack() {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
+  const [notifications, setNotifications] = React.useState(0);
+
+  const reloadNotifications = async function (setNotifications: Function) {
+    const appContext = useAppContext();
+    if (appContext.dataProvider) {
+      let news = await (appContext.dataProvider.getNews(false));
+      let notifications = news.filter((information) => !information.read);
+      setNotifications(notifications.length);
+      console.log(notifications.length);
+    }
+  };
+
+  reloadNotifications(setNotifications);
+
   let settings = SyncStorage.get('adjustments');
 
   // if hideTabBarTitle doesn't exist, set it to false
@@ -1071,9 +1087,9 @@ function AppStack() {
           tabBarLabel: 'Actualités',
           tabBarIcon: ({ color, size, focused }) => (
             !focused ? (
-              <PapillonIconsNews fill={color} stroke={color} width={size+2} height={size+2} />
+              <PapillonIconsNews fill={color} stroke={color} width={size+2} height={size+2} badge={notifications} />
             ) : (
-              <PapillonIconsNewsFill fill={color} stroke={color} width={size+2} height={size+2} />
+              <PapillonIconsNewsFill fill={color} stroke={color} width={size+2} height={size+2} badge={notifications}/>
             )
           ),
           headerShown: false,
