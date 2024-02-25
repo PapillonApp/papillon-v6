@@ -25,3 +25,4 @@ Pour que votre pull-request soit fusionnée, vous devez obtenir l'approbation de
 Soyez donc patient :)
 
 ### Informations supplémentaires
+[Insérez ici vos informations supplémentaires si besoin]
