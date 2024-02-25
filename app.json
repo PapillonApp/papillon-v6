@@ -10,6 +10,9 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "notification": {
+      "icon": "./assets/icon-small-notif.png"
+    },
     "intentFilters": [
       {
         "action": "VIEW",
