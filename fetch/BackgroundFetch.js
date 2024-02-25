@@ -78,7 +78,7 @@ async function newsFetch() {
           });
       }
 
-      return dataInstance.getNews().then((news) => {
+      else return dataInstance.getNews().then((news) => {
         AsyncStorage.setItem('oldNews', JSON.stringify(news));
       });
     });
@@ -135,6 +135,7 @@ async function checkUndoneHomeworks() {
       });
 
       await AsyncStorage.setItem('notifHasAlreadyBeenSent', fireDate.getTime().toString());
+      resolve()
     }
   })
 }
