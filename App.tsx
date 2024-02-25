@@ -21,7 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 SplashScreen.preventAutoHideAsync();
 
-import * as notifs from './components/Notifications';
+import * as notifs from './utils/Notifications';
 notifs.init();
 
 import {
