@@ -1,35 +1,27 @@
-<!-- Please refer to our contributing documentation for any questions on submitting a pull request -->
+<!-- Merci de vous référer à la documentation sur la contribution si vous avez des questions à propos des pull request (http://docs.getpapillon.xyz/contribute/intro/) -->
+## Checklist d'avant pull request
+<!-- Tout d'abord merci pour votre pull request ! Il vous reste quelques étapes avant de pouvoir nous proposer vos modifications : -->
+<!-- La première étape consiste à remplir la checklist suivante. Pour cocher une case, il suffit de rajouter un "x" entre les crochets ([x] = coché, [ ] = pas coché) -->
 
-## Pull request checklist
+- [ ] Vous avez testé de build le projet avec vos modifications et ce build **a réussi**
+- [ ] Vous respectez les conventions de codage et de nomage du projet
+- [ ] Vous utilisez la **tabulation** pour l'indentation afin de maintenir un code lisible
+- [ ] Cette pull request **n'est pas un duplicata** d'une autre
+- [ ] Cette pull request est prête à être **revue** (review) et **fusionnée** (merge)
+- [ ] Cette pull request doit être fusionnée dans la branche `development` (le cas contraire préciser laquelle)
+- [ ] Il n'y a pas de **`TODO`** (aka des annotations pour du code manquant) dans vos modifications
+- [ ] Il n'y a pas **d'erreurs de langue** dans votre code (grammaire, vocabulaire, conjugaison, orthographe)
+- [ ] Les détails des changements ont été décris ci-dessous
+- [ ] Cette pull-request n'est pas une **"breaking-change"** (par exemple des modifications qui vont entraîner la modification du fonctionnement de certaines fonctionnalités déjà existantes)
 
-Please check if your PR fulfills the following requirements:
+## Explications des changements
+<!-- La deuxième étape consiste à décrire les modifications que vous avez effectué. Soyez clair et précis afin que votre pull request puisse être review rapidement ! -->
 
-- [ ] You can **build successfully** the whole project with your changes locally
-- [ ] You use the coding conventions and the **naming conventions** of the project
-- [ ] You use **tabs** for indentation
-- [ ] You make sure that your PR is **not a duplicate**
-- [ ] This PR is **ready** to be reviewed and merged
-- [ ] This PR merges into the **`development`** branch or in the specific branch of the feature you want to merge into
-- [ ] There is no **`TODO`** in the code
-- [ ] There is no spelling or grammatical errors in the code
-- [ ] Details of the issue or feature are documented below
-- [ ] This PR is **not** a **breaking change** (e.g. changes that would cause existing functionality to change)
+### Changelogs proposés
+[Insérez ici vos notes de modification]
 
-## Explain changes
-
-## Proposed changelog
-
-| Français `fr`                            |
-| ---------------------------------------- |
-| Proposez un changelog en français ici... |
-
-### Note
-
-Before merging this PR, you will need the approval of at least one of the following people:
-
-- @ecnivtwelve
-- @lucas-luchack
-
-So be patient ;)
+## Note
+Pour que votre pull-request soit fusionnée, vous devez obtenir l'approbation de au moins deux membres de l'équipe dont un coordinateur.
+Soyez donc patient :)
 
 ### Informations supplémentaires
