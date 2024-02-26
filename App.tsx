@@ -10,6 +10,8 @@ import FlashMessage from 'react-native-flash-message';
 import SyncStorage from 'sync-storage';
 
 import { useAppContext } from './utils/AppContext';
+import { getDefaultStore } from 'jotai';
+import { newsAtom } from './atoms/news';
 
 import { getHeaderTitle } from '@react-navigation/elements';
 import { useMemo, useEffect } from 'react';
@@ -108,6 +110,8 @@ import {
   NewsFill as PapillonIconsNewsFill,
 } from './interface/icons/PapillonIcons';
 import InputPronoteQRPin from './views/NewAuthStack/Pronote/LoginPronoteQRToken';
+
+const defaultStore = getDefaultStore();
 
 // stack
 const Stack = createNativeStackNavigator();
@@ -896,19 +900,24 @@ function AppStack() {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
-  const [notifications, setNotifications] = React.useState(0);
+  // Used to force news reloading after loading (required when cache is expired)
+  const [newsKey, setNewsKey] = React.useState(0);
 
-  const reloadNotifications = async function (setNotifications: Function) {
+  const reloadNotifications = async function () {
     const appContext = useAppContext();
     if (appContext.dataProvider) {
       let news = await (appContext.dataProvider.getNews(false));
       let notifications = news.filter((information) => !information.read);
-      setNotifications(notifications.length);
-      console.log(notifications.length);
+      defaultStore.set(newsAtom, notifications.length);
+
+      // If it's the first load, force rerendering
+      if (newsKey === 0) {
+        setNewsKey(1);
+      }
     }
   };
 
-  reloadNotifications(setNotifications);
+  reloadNotifications();
 
   let settings = SyncStorage.get('adjustments');
 
@@ -1087,9 +1096,9 @@ function AppStack() {
           tabBarLabel: 'Actualités',
           tabBarIcon: ({ color, size, focused }) => (
             !focused ? (
-              <PapillonIconsNews fill={color} stroke={color} width={size+2} height={size+2} badge={notifications} />
+              <PapillonIconsNews fill={color} stroke={color} width={size+2} height={size+2} badge={defaultStore.get(newsAtom)} key={newsKey} />
             ) : (
-              <PapillonIconsNewsFill fill={color} stroke={color} width={size+2} height={size+2} badge={notifications}/>
+              <PapillonIconsNewsFill fill={color} stroke={color} width={size+2} height={size+2} />
             )
           ),
           headerShown: false,
