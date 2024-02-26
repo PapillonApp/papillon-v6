@@ -17,14 +17,18 @@ export const newsHandler = async (force = false, instance?: Pronote): Promise<Pa
     today.setHours(0, 0, 0, 0);
 
     if (userCacheDate.getTime() === today.getTime()) {
+      console.info('news: cache is up to date, using it.');
       return data.news;
     }
 
+    // Is this line really useful ? It may degrade user experience in case of
+    // network failure with cache fallback when cache is expired
     await AsyncStorage.removeItem(AsyncStoragePronoteKeys.CACHE_NEWS);
     return newsHandler(true, instance);
   }
 
   if (!instance) return [];
+  console.info('news: fetching new data.');
 
   try {
     const newsFromPawnote = await instance.getNews();
@@ -43,10 +47,21 @@ export const newsHandler = async (force = false, instance?: Pronote): Promise<Pa
       }))
     }));
 
+    await AsyncStorage.setItem(AsyncStoragePronoteKeys.CACHE_NEWS, JSON.stringify({
+      news: news,
+      date: new Date()
+    }));
+
     return news;
   }
-  catch {
-    // TODO
+  catch (error) {
+    console.info('pronote/newsHandler: network failed, recovering with possible cache');
+    console.error(error);
+    if (cache) {
+      return newsHandler(false, instance);
+    } else {
+      console.info('pronote/newsHandler: No cache found, returning empty array');
+    }
     return [];
   }
 };
