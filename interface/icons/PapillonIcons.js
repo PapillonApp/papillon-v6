@@ -141,7 +141,7 @@ function Stats(props) {
 function Badge({ content }) {
   if (content) {
     return (
-      <View style={{ position: 'absolute', right: 10, top: 0, backgroundColor: 'red', borderRadius: 9, width: 18, height: 18, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ position: 'absolute', right: -5, top: -5, backgroundColor: 'red', borderRadius: 9, width: 18, height: 18, justifyContent: 'center', alignItems: 'center' }}>
         <Text style={{ color: 'white' }}>{ content }</Text>
       </View>
     );
