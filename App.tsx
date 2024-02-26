@@ -904,6 +904,14 @@ function AppStack() {
   const [newsKey, setNewsKey] = React.useState(0);
 
   const reloadNotifications = async function () {
+    let notificationsCounter = SyncStorage.get('notificationsCounter');
+
+    if (notificationsCounter.enabled === undefined) {
+      notificationsCounter.enabled = true;
+    } else if (!notificationsCounter.enabled) {
+      return;
+    }
+
     const appContext = useAppContext();
     if (appContext.dataProvider) {
       let news = await (appContext.dataProvider.getNews(false));
@@ -920,6 +928,7 @@ function AppStack() {
   reloadNotifications();
 
   let settings = SyncStorage.get('adjustments');
+  let notificationsCounter = SyncStorage.get('notificationsCounter');
 
   // if hideTabBarTitle doesn't exist, set it to false
   if (typeof settings === 'undefined') {
@@ -1096,7 +1105,7 @@ function AppStack() {
           tabBarLabel: 'Actualités',
           tabBarIcon: ({ color, size, focused }) => (
             !focused ? (
-              <PapillonIconsNews fill={color} stroke={color} width={size+2} height={size+2} badge={defaultStore.get(newsAtom)} key={newsKey} />
+              <PapillonIconsNews fill={color} stroke={color} width={size+2} height={size+2} badge={notificationsCounter?.enabled ? defaultStore.get(newsAtom) : 0} key={newsKey} />
             ) : (
               <PapillonIconsNewsFill fill={color} stroke={color} width={size+2} height={size+2} />
             )

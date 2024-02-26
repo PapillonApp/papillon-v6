@@ -15,8 +15,13 @@ import * as Notifications from 'expo-notifications';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SyncStorage from 'sync-storage';
 import ListItem from '../../components/ListItem';
 import GetUIColors from '../../utils/GetUIColors';
+
+import { AlertTriangle } from 'lucide-react-native';
+import AlertAnimated from '../../interface/AlertAnimated';
+
 
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
@@ -26,6 +31,9 @@ function NotificationsScreen() {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
+  const [willNeedRestart, setWillNeedRestart] = useState(false);
+
+  const [notificationCounterEnabled, setNotificationCounterEnabled] = useState(false);
   const [devoirsReminderEnabled, setDevoirsReminderEnabled] = useState(false);
   const [devoirsReminderTime, setDevoirsReminderTime] = useState(new Date());
 
@@ -45,10 +53,26 @@ function NotificationsScreen() {
       }
     });
 
+    setNotificationCounterEnabled(SyncStorage.get('notificationsCounter').enabled);
+
     Notifications.getAllScheduledNotificationsAsync().then((value) => {
       return;
     });
   }, []);
+
+  async function enableNotificationCounter(val) {
+    setNotificationCounterEnabled(val);
+
+    SyncStorage.set('notificationsCounter', {
+      enabled: val,
+    });
+
+    // SyncStorage doesn't support auto-reloading, so if we want to keep the
+    // code clean and simple, we can't reload (it would be possible with an Atom)
+    setTimeout(() => {
+      setWillNeedRestart(true);
+    }, 350);
+  }
 
   async function enableDevoirsReminder(val) {
     setDevoirsReminderEnabled(val);
@@ -129,6 +153,21 @@ function NotificationsScreen() {
         />
       )}
 
+      <AlertAnimated
+        visible={willNeedRestart}
+        left={
+          <AlertTriangle color={UIColors.primary} />
+        }
+        title="Redémarrage requis"
+        subtitle="Redémarrage requis pour appliquer certains changements."
+        height={76}
+        marginVertical={16}
+        style={{
+          marginHorizontal: 16,
+          backgroundColor: UIColors.primary + '22',
+        }}
+      />
+
       <NativeList
         header="Notifications"
         inset
@@ -177,6 +216,24 @@ function NotificationsScreen() {
             </NativeText>
           </NativeItem>
         ) : null}
+
+        <NativeItem
+          trailing={
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Switch
+                value={notificationCounterEnabled}
+                onValueChange={(val) => enableNotificationCounter(val)}
+              />
+            </View>
+          }
+        >
+          <NativeText heading="h4">
+            Notifications dans la barre de navigation
+          </NativeText>
+          <NativeText heading="p2">
+            Affiche un compteur de notifications dans la barre de navigation
+          </NativeText>
+        </NativeItem>
       </NativeList>
     </ScrollView>
   );
