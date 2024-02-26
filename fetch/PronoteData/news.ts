@@ -21,9 +21,6 @@ export const newsHandler = async (force = false, instance?: Pronote): Promise<Pa
       return data.news;
     }
 
-    // Is this line really useful ? It may degrade user experience in case of
-    // network failure with cache fallback when cache is expired
-    await AsyncStorage.removeItem(AsyncStoragePronoteKeys.CACHE_NEWS);
     return newsHandler(true, instance);
   }
 
