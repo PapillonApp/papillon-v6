@@ -15,7 +15,6 @@ import {
   Platform,
   StatusBar,
   TouchableOpacity,
-  type ImageSourcePropType,
   Dimensions,
 } from 'react-native';
 
@@ -34,7 +33,6 @@ import {
   MenuElementConfig,
 } from 'react-native-ios-context-menu';
 import NextCoursElem from '../interface/HomeScreen/NextCours';
-import SyncStorage, { set } from 'sync-storage';
 import * as ExpoLinking from 'expo-linking';
 import * as Haptics from 'expo-haptics';
 
@@ -59,7 +57,6 @@ import { getSavedCourseColor } from '../utils/ColorCoursName';
 import formatCoursName from '../utils/FormatCoursName';
 
 // Custom components
-import PapillonList from '../components/PapillonList';
 import CheckAnimated from '../interface/CheckAnimated';
 
 import { useAppContext } from '../utils/AppContext';
@@ -82,10 +79,7 @@ import NativeText from '../components/NativeText';
 
 import {
   CalendarFill as PapillonIconsCalendarFill,
-  Book as PapillonIconsBook,
 } from '../interface/icons/PapillonIcons';
-import NativeList from '../components/NativeList';
-import NativeItem from '../components/NativeItem';
 
 // Functions
 const openURL = (url: string) => {
