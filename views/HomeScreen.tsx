@@ -1656,7 +1656,7 @@ function DevoirsElement({
           <View style={styles.loadingContainer}>
             <ActivityIndicator />
             <Text style={styles.loadingText}>
-              Chargement de l'emploi du temps...
+              Chargement des travaux à faire...
             </Text>
           </View>
         )}
