@@ -1,12 +1,9 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Animated, View, StatusBar, StyleSheet, TouchableOpacity, Image, Dimensions, PanResponder, Easing, Text } from 'react-native';
-import GetUIColors from '../../utils/GetUIColors';
+import React, { useRef, useEffect } from 'react';
+import { Animated, View, StatusBar, StyleSheet, TouchableOpacity, Image, PanResponder, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { PressableScale } from 'react-native-pressable-scale';
 import packageJson from '../../package.json';
 
 const LoginView = ({ navigation }) => {
-  const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
 
   const createPanResponder = (pan) => {
