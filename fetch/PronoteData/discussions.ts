@@ -1,9 +1,9 @@
 import type { Pronote } from 'pawnote';
 import type { PapillonDiscussion, PapillonDiscussionMessage } from '../types/discussions';
 
-export const discussionsHandler = async (instance?: Pronote, force = false): Promise<PapillonDiscussion[]> => {
-  // TODO: Caching ?
+const makeLocalID = (subject: string, date: string) => `${subject.substring(0, 3)}${date}`;
 
+export const discussionsHandler = async (instance?: Pronote): Promise<PapillonDiscussion[]> => {
   try {
     const discussionsOverview = await instance?.getDiscussionsOverview();
     if (!discussionsOverview) return [];
@@ -23,7 +23,7 @@ export const discussionsHandler = async (instance?: Pronote, force = false): Pro
       }
 
       discussions.push({
-        local_id: `${discussion.subject.substring(0, 3)}${discussion.dateAsFrenchText}`,
+        local_id: makeLocalID(discussion.subject, discussion.dateAsFrenchText),
         subject: discussion.subject,
         creator: discussion.creator ?? '',
         timestamp: messages[0].created.getTime(),
@@ -37,6 +37,23 @@ export const discussionsHandler = async (instance?: Pronote, force = false): Pro
     return discussions;
   }
   catch {
+    return [];
+  }
+};
+
+export const discussionsRecipientsHandler = async (localDiscussionID: string, instance?: Pronote): Promise<string[]> => {
+  try {
+    const overview = await instance?.getDiscussionsOverview();
+    if (!overview) return [];
+
+    const discussion = overview.discussions.find(discussion => makeLocalID(discussion.subject, discussion.dateAsFrenchText) === localDiscussionID);
+    if (!discussion) return [];
+
+    const recipients = await discussion.fetchRecipients();
+    return recipients.map(recipient => recipient.name);
+  }
+  catch {
+    console.warn('[pronote:discussionsRecipientsHandler]: error occurred, returning empty array.');
     return [];
   }
 };

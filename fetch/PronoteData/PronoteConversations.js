@@ -3,27 +3,6 @@ import getConsts from '../consts';
 
 import { refreshToken } from '../AuthStack/LoginFlow';
 
-function getConversations(force = false) {
-  return getConsts().then((consts) =>
-    AsyncStorage.getItem('token')
-      .then((token) =>
-        // fetch le discussions
-        fetch(`${consts.API}/discussions?token=${token}`, {
-          method: 'GET',
-        })
-          .then((response) => response.json())
-          .then(async (result) => {
-            if (result === 'expired' || result === 'notfound') {
-              return refreshToken().then(() => getConversations());
-            }
-            return result;
-          })
-          .catch(() => {})
-      )
-      .catch(() => {})
-  );
-}
-
 function replyToConversation(id, message) {
   message = encodeURIComponent(message);
 
@@ -78,27 +57,6 @@ function readStateConversation(id) {
   );
 }
 
-function getRecipients() {
-  return getConsts().then((consts) =>
-    AsyncStorage.getItem('token')
-      .then((token) =>
-        // fetch le discussions
-        fetch(`${consts.API}/recipients?token=${token}`, {
-          method: 'GET',
-        })
-          .then((response) => response.json())
-          .then(async (result) => {
-            if (result === 'expired' || result === 'notfound') {
-              return refreshToken().then(() => getRecipients());
-            }
-            return result;
-          })
-          .catch(() => {})
-      )
-      .catch(() => {})
-  );
-}
-
 function createDiscussion(subject, message, recipientsId) {
   message = encodeURIComponent(message);
   subject = encodeURIComponent(subject);
@@ -128,4 +86,4 @@ function createDiscussion(subject, message, recipientsId) {
   );
 }
 
-export { getConversations, replyToConversation, readStateConversation, getRecipients, createDiscussion };
+export { replyToConversation, readStateConversation, createDiscussion };

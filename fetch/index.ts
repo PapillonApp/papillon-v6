@@ -16,9 +16,9 @@ import { newsHandler as pronoteNewsHandler } from './PronoteData/news';
 import { gradesHandler as pronoteGradesHandler } from './PronoteData/grades';
 import { timetableHandler as pronoteTimetableHandler } from './PronoteData/timetable';
 import { evaluationsHandler as pronoteEvaluationsHandler } from './PronoteData/evaluations';
-import { discussionsHandler as pronoteDiscussionsHandler } from './PronoteData/discussions';
 import { vieScolaireHandler as pronoteVieScolaireHandler } from './PronoteData/vie_scolaire';
 import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as pronoteHomeworkHandler } from './PronoteData/homework';
+import { discussionsHandler as pronoteDiscussionsHandler, discussionsRecipientsHandler as pronoteDiscussionsRecipientsHandler } from './PronoteData/discussions';
 
 // Skolengo related imports.
 import type { SkolengoDatas } from './SkolengoData/SkolengoDatas';
@@ -264,11 +264,11 @@ export class IndexDataInstance {
     return { absences: [], delays: [], punishments: [] } as PapillonVieScolaire;
   }
 
-  public async getConversations (force = false): Promise<PapillonDiscussion[]> {
+  public async getConversations (): Promise<PapillonDiscussion[]> {
     await this.waitInit();
     
     if (this.service === 'pronote') {
-      return pronoteDiscussionsHandler(this.pronoteInstance, force);
+      return pronoteDiscussionsHandler(this.pronoteInstance);
     }
 
     return [];
@@ -309,10 +309,13 @@ export class IndexDataInstance {
     return {};
   }
 
-  async getRecipients() {
-    // await this.waitInit();
-    // if (this.service === 'pronote')
-    //   return require('./PronoteData/PronoteConversations.js').getRecipients();
+  public async getRecipients (localDiscussionID: string): Promise<string[]> {
+    await this.waitInit();
+
+    if (this.service === 'pronote') {
+      return pronoteDiscussionsRecipientsHandler(localDiscussionID, this.pronoteInstance);
+    }
+
     return [];
   }
 }
