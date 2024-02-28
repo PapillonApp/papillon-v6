@@ -196,21 +196,6 @@ export class IndexDataInstance {
     throw new Error('Method only works for Skolengo');
   }
 
-  // [Service]Recap.js
-  async getRecap(day, force = false) {
-    await this.waitInit();
-    const storeShared = (e) => {
-      return e;
-    };
-    if (this.service === 'skolengo')
-      return this.skolengoInstance.getRecap(day, force).then(storeShared);
-    // if (this.service === 'pronote')
-    //   return require('./PronoteData/PronoteRecap.js')
-    //     .getRecap(day, force)
-    //     .then(storeShared);
-    return [[], [], {}];
-  }
-
   /**
    * Get a list of user's lessons for a week.
    * The week is calculated from the given day.
@@ -274,10 +259,6 @@ export class IndexDataInstance {
     }
     else if (this.service === 'pronote') {
       return pronoteVieScolaireHandler(this.pronoteInstance, force);
-      // TODO
-      // if (this.service === 'pronote')
-      //   return require('./PronoteData/PronoteViesco.js').getViesco(force);
-      // .then((e) => thenHandler('viesco', e));
     }
 
     return { absences: [], delays: [], punishments: [] } as PapillonVieScolaire;
