@@ -1,4 +1,4 @@
-import type { PapillonAttachment } from './homework';
+import type { PapillonAttachment } from './attachment';
 
 export interface PapillonVieScolaire {
   delays: PapillonDelay[]

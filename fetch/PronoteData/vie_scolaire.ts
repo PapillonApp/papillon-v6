@@ -1,5 +1,6 @@
 import { type Pronote, StudentAbsence, StudentDelay, StudentPunishment } from 'pawnote';
 import type { PapillonVieScolaire, PapillonAbsence, PapillonDelay, PapillonPunishment } from '../types/vie_scolaire';
+import type { PapillonAttachmentType } from '../types/attachment';
 
 export const vieScolaireHandler = async (instance?: Pronote, force = false): Promise<PapillonVieScolaire> => {
   // TODO: Implement caching and `force` parameter.
@@ -52,7 +53,7 @@ export const vieScolaireHandler = async (instance?: Pronote, force = false): Pro
           text: item.workToDo,
           documents: item.workToDoDocuments.map(doc => ({
             name: doc.name,
-            type: doc.type,
+            type: doc.type as unknown as PapillonAttachmentType,
             url: doc.url
           }))
         },
@@ -61,7 +62,7 @@ export const vieScolaireHandler = async (instance?: Pronote, force = false): Pro
           circumstances: item.circumstances,
           documents: item.circumstancesDocuments.map(doc => ({
             name: doc.name,
-            type: doc.type,
+            type: doc.type as unknown as PapillonAttachmentType,
             url: doc.url
           }))
         },
