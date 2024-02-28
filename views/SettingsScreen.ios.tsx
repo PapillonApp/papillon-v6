@@ -1,8 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Image, StyleSheet, StatusBar, ScrollView, Platform } from 'react-native';
 import { useTheme } from 'react-native-paper';
-
-import { useEffect, useState } from 'react';
 
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
@@ -16,23 +14,27 @@ import packageJson from '../package.json';
 import { useAppContext } from '../utils/AppContext';
 import type { PapillonUser } from '../fetch/types/user';
 
-function NewSettings({navigation}) {
+function NewSettings({ navigation }: {
+  navigation: any // TODO
+}) {
   const UIColors = GetUIColors();
 
   // User data
   const theme = useTheme();
   const [userData, setUserData] = useState<PapillonUser | null>(null);
-  const [profilePicture, setProfilePicture] = useState('');
+  const [profilePicture, setProfilePicture] = useState<string | undefined>('');
 
   const appContext = useAppContext();
 
   useEffect(() => {
     (async () => {
+      if (!appContext.dataProvider) return;
       const user = await appContext.dataProvider.getUser();
+
       setUserData(user);
       setProfilePicture(user.profile_picture);
     })();
-  }, []);
+  }, [appContext.dataProvider]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
