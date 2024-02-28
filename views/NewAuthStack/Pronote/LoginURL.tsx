@@ -11,7 +11,9 @@ import NativeText from '../../../components/NativeText';
 import { Link2 } from 'lucide-react-native';
 import AlertBottomSheet from '../../../interface/AlertBottomSheet';
 
-const LoginURL = ({ navigation }) => {
+const LoginURL = ({ navigation }: {
+  navigation: any // TODO
+}) => {
   const UIColors = GetUIColors();
 
   const [currentURL, setCurrentURL] = React.useState('');
