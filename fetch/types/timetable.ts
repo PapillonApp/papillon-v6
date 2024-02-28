@@ -15,17 +15,6 @@ export interface PapillonLesson {
   rooms: string[]
   group_names: string[]
   memo?: string
-  // content: Array<{
-  //   title: string
-  //   description: string
-  //   category: string
-  //   files: Array<{
-  //     id: string
-  //     name: string
-  //     url: string
-  //     type: number
-  //   }>
-  // }>
   virtual: string[]
   start: string
   end: string
