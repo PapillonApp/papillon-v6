@@ -139,7 +139,7 @@ function AboutScreen({ navigation }) {
                 Donner 1€ (2 cafés) à l'équipe
               </NativeText>
               <NativeText heading="p2">
-                Votre don permet de financer les serveurs et le développement.
+                Votre don permet de financer les charges engendrées par le projet (comme par exemple les noms de domaines), ainsi que le développement.
               </NativeText>
               <NativeText heading="subtitle2">
                 Papillon est 100% libre et indépendant & créé par des élèves.
