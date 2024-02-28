@@ -10,26 +10,26 @@ export const discussionsHandler = async (instance?: Pronote, force = false): Pro
 
     const discussions: PapillonDiscussion[] = [];
     for (const discussion of discussionsOverview.discussions) {
-      const messages: PapillonDiscussionMessage[] = [];
+      const messages = await discussion.fetchMessages();
+      const parsedMessages: PapillonDiscussionMessage[] = [];
       
-      for (const message of await discussion.fetchMessages()) {
-        messages.push({
+      for (const message of messages) {
+        parsedMessages.push({
           id: message.id,
           content: message.content,
-          author: message.author,
+          author: message.author.name,
           timestamp: message.created.getTime(),
         });
       }
 
       discussions.push({
-        local_id: `${discussion.subject.substring(0, 3)}${discussion.hourString}`,
+        local_id: `${discussion.subject.substring(0, 3)}${discussion.dateAsFrenchText}`,
         subject: discussion.subject,
         creator: discussion.creator ?? '',
-        timestamp: Date.now(), // TODO in Pawnote
+        timestamp: messages[0].created.getTime(),
         unread: discussion.numberOfMessagesUnread,
         closed: discussion.closed,
-        messages,
-        repliable: true, // TODO : discussion.repliable in Pawnote
+        messages: parsedMessages,
         participants: [] // TODO in Pawnote
       });
     }

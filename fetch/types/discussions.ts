@@ -9,11 +9,11 @@ export interface PapillonDiscussion {
   local_id: string
   subject: string
   creator: string
+  /** Timestamp of the first message ever sent. */
   timestamp: number
   /** Number of messages unread. */
   unread: number
   closed: boolean
-  repliable: boolean
   messages: PapillonDiscussionMessage[]
   participants: string[]
 }
