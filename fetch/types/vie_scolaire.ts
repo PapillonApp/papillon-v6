@@ -6,6 +6,10 @@ export interface PapillonVieScolaire {
   punishments: PapillonPunishment[]
 }
 
+export interface CachedPapillonVieScolaire extends PapillonVieScolaire {
+  timestamp: number
+}
+
 export interface PapillonAbsence {
   id: string
   from: number
