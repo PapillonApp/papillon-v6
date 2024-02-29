@@ -155,9 +155,10 @@ function NGPronoteLogin({ route, navigation }: {
       navigation.goBack();
       navigation.goBack();
       appContext.setLoggedIn(true);
-    } catch {
+    } catch(err) {
       setConnecting(false);
       setErrorAlert(true);
+      console.error(err)
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
