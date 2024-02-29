@@ -9,6 +9,9 @@ export interface CachedPapillonNews {
 export type PapillonNews = PapillonNewsInformation | PapillonNewsSurvey
 
 export interface PapillonNewsInformation {
+  /** A local ID for Papillon. */
+  id: string
+  is: 'information'
   title?: string
   date: string
   content: string
@@ -20,6 +23,9 @@ export interface PapillonNewsInformation {
 }
 
 export interface PapillonNewsSurvey {
+  /** A local ID for Papillon. */
+  id: string
+  is: 'survey'
   title?: string
   date: string
   read: boolean

@@ -1,10 +1,15 @@
 import type { CachedPapillonNews, PapillonNewsInformation, PapillonNewsSurvey, PapillonNews } from '../types/news';
 import type { PapillonAttachmentType } from '../types/attachment';
+import { AsyncStoragePronoteKeys } from './connector';
 
 import { type Pronote, StudentNewsInformation, StudentNewsSurvey, PronoteApiNewsQuestionType } from 'pawnote';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AsyncStoragePronoteKeys } from './connector';
+import { btoa } from 'js-base64';
+
+const makeLocalID = (news: StudentNewsInformation | StudentNewsSurvey): string => {
+  const localID = `${news.category.name.substring(0, 3)};${news instanceof StudentNewsInformation ? 'info' : 'survey'};${news.author};${news.title};${news.creationDate.getTime()}`;
+  return btoa(localID);
+};
 
 export const newsHandler = async (force = false, instance?: Pronote): Promise<PapillonNews[]> => {
   const cache = await AsyncStorage.getItem(AsyncStoragePronoteKeys.CACHE_NEWS);
@@ -32,6 +37,8 @@ export const newsHandler = async (force = false, instance?: Pronote): Promise<Pa
     const news: PapillonNews[] = newsFromPawnote.items.map(n => {
       if (n instanceof StudentNewsInformation) {
         const info: PapillonNewsInformation = {
+          id: makeLocalID(n),
+          is: 'information',
           title: n.title,
           date: n.startDate.toISOString(),
           acknowledged: n.acknowledged,
@@ -43,13 +50,15 @@ export const newsHandler = async (force = false, instance?: Pronote): Promise<Pa
           content: n.content,
           author: n.author,
           category: n.category.name,
-          read: n.read
+          read: n.read,
         };
 
         return info;
       }
       else if (n instanceof StudentNewsSurvey) {
         const survey: PapillonNewsSurvey = {
+          id: makeLocalID(n),
+          is: 'survey',
           title: n.title,
           date: n.startDate.toISOString(),
           read: n.read,
@@ -87,8 +96,34 @@ export const newsHandler = async (force = false, instance?: Pronote): Promise<Pa
       
     return news;
   }
-  catch {
+  catch (e) {
     // TODO: return cache
+    console.warn('no cache', e);
     return [];
+  }
+};
+
+const _newsStateHandlerPrefix = '[pronote:newsStateHandler]';
+export const newsStateHandler = async (localID: string, read = true, instance?: Pronote): Promise<boolean> => {
+  try {
+    if (!instance) {
+      console.warn(_newsStateHandlerPrefix, 'no instance established.');
+      return false;
+    }
+
+    const news = await instance.getNews();
+    const newsItem = news.items.find(n => makeLocalID(n) === localID);
+    if (!newsItem) {
+      console.warn(_newsStateHandlerPrefix, 'news item not found.');
+      return false;
+    }
+
+    await newsItem.markAsRead(read);
+    return true;
+  }
+  catch (error) {
+    console.warn(_newsStateHandlerPrefix, 'an error thrown, hopefully, it shouldn\'t affect the app.');
+    console.error(_newsStateHandlerPrefix, error);
+    return false;
   }
 };

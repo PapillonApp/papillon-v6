@@ -12,11 +12,11 @@ import type { PapillonDiscussion } from './types/discussions';
 import type { Pronote } from 'pawnote';
 import { loadPronoteConnector } from './PronoteData/connector';
 import { userHandler as pronoteUserHandler } from './PronoteData/user';
-import { newsHandler as pronoteNewsHandler } from './PronoteData/news';
 import { gradesHandler as pronoteGradesHandler } from './PronoteData/grades';
 import { timetableHandler as pronoteTimetableHandler } from './PronoteData/timetable';
 import { evaluationsHandler as pronoteEvaluationsHandler } from './PronoteData/evaluations';
 import { vieScolaireHandler as pronoteVieScolaireHandler } from './PronoteData/vie_scolaire';
+import { newsHandler as pronoteNewsHandler, newsStateHandler as pronoteNewsStateHandler } from './PronoteData/news';
 import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as pronoteHomeworkHandler } from './PronoteData/homework';
 import { discussionsHandler as pronoteDiscussionsHandler, discussionsRecipientsHandler as pronoteDiscussionsRecipientsHandler } from './PronoteData/discussions';
 
@@ -164,35 +164,44 @@ export class IndexDataInstance {
     return false;
   }
 
-  public async getNews(force = false): Promise<PapillonNews[]> {
+  public async getNews (force = false): Promise<PapillonNews[]> {
     await this.waitInit();
 
     if (this.service === 'skolengo') {
       // return this.skolengoInstance.getNews(force);
     }
     else if (this.service === 'pronote') {
-      const news = await pronoteNewsHandler(force, this.pronoteInstance);
-      return news;
+      return pronoteNewsHandler(force, this.pronoteInstance);
     }
 
     return [];
   }
 
-  public async changeNewsState (id: string) {
+  /**
+   * Change the `read` state of a news.
+   * Applies to information and surveys.
+   * 
+   * @returns `true` when operation is successful.
+   */
+  public async changeNewsState (localID: string): Promise<boolean> {
     await this.waitInit();
-    if (this.service === 'skolengo')
-      return {status:'', error:'Not implemented'};
-    if (this.service === 'pronote')
-      // return require('./PronoteData/PronoteNews.js').changeNewsState(id);
-      return {};
+    if (this.service === 'skolengo') {
+      // TODO
+    }
+    else if (this.service === 'pronote') {
+      return pronoteNewsStateHandler(localID, true, this.pronoteInstance);
+    }
+
+    return false;
   }
 
-  public async getUniqueNews (id: string, force = false) {
+  public async getUniqueNews (id: string, force = false): Promise<PapillonNews> {
     await this.waitInit();
     if (this.service === 'skolengo') {
       // TODO
       // return this.skolengoInstance.getUniqueNews(id, force);
     }
+
     throw new Error('Method only works for Skolengo');
   }
 
