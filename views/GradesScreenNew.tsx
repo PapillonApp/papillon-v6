@@ -112,12 +112,12 @@ const GradesScreen = ({ navigation }: {
       {
         name: 'Moyenne max',
         value: averages.max || 0,
-        icon: <TrendingDown color={UIColors.text} />,
+        icon: <TrendingUp color={UIColors.text} />,
       },
       {
         name: 'Moyenne min',
         value: averages.min || 0,
-        icon: <TrendingUp color={UIColors.text} />,
+        icon: <TrendingDown color={UIColors.text} />,
       },
     ]);
   }, [averages, UIColors.text, pronoteClassAverage]);

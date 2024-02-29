@@ -35,6 +35,58 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
   const [barPercent, setBarPercent] = useState(0);
   const [coursEnded, setCoursEnded] = useState(false);
 
+  const [hideDetail, setHideDetail] = useState(false);
+  const detailAnim = useRef(new Animated.Value(0)).current;
+
+  const [hideAll, setHideAll] = useState(false);
+  const hideAnim = useRef(new Animated.Value(0)).current;
+
+  yOffset.addListener(({ value }) => {
+    if (value > -40) {
+      setHideDetail(true);
+    }
+    else {
+      setHideDetail(false);
+    }
+
+    if (value > -10) {
+      setHideAll(true);
+    }
+    else {
+      setHideAll(false);
+    }
+  });
+
+  useEffect(() => {
+    if (hideDetail) {
+      Animated.spring(detailAnim, {
+        toValue: 1,
+        useNativeDriver: false,
+      }).start();
+    }
+    else {
+      Animated.spring(detailAnim, {
+        toValue: 0,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [hideDetail]);
+
+  useEffect(() => {
+    if (hideAll) {
+      Animated.spring(hideAnim, {
+        toValue: 1,
+        useNativeDriver: false,
+      }).start();
+    }
+    else {
+      Animated.spring(hideAnim, {
+        toValue: 0,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [hideAll]);
+
   function updateNext() {
     if(!cours || !cours[nxid]) return;
 
@@ -197,12 +249,14 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
     );
   }
 
-  if(!cours || !cours[nxid]) return (
+  if(!cours || !cours[nxid] || coursEnded) return (
     <PressableScale
       style={[
         styles.container,
         styles.end.container,
-        { backgroundColor: '#ffffff30' },
+        {
+          backgroundColor: '#ffffff30',
+        },
         style
       ]}
       onPress={() => {
@@ -215,39 +269,19 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
       }}
       delayLongPress={150}
     >
-      <Text
+      <Animated.Text
         numberOfLines={1}
-        style={[styles.end.text, { color: '#ffffff' }]}
+        style={[styles.end.text, {
+          color: '#ffffff',
+          opacity: yOffset.interpolate({
+            inputRange: [0, 20],
+            outputRange: [0.6, 0],
+            extrapolate: 'clamp',
+          })
+        }]}
       >
         Aucun cours aujourd'hui
-      </Text>
-    </PressableScale>
-  );
-
-  if(coursEnded) return (
-    <PressableScale
-      style={[
-        styles.container,
-        styles.end.container,
-        { backgroundColor: '#ffffff30' },
-        style
-      ]}
-      onPress={() => {
-        if(navigation) {
-          navigation.navigate('CoursHandler');
-        }
-      }}
-      onLongPress={() => {
-        longPressAction(cours[nxid]);
-      }}
-      delayLongPress={150}
-    >
-      <Text
-        numberOfLines={1}
-        style={[styles.end.text, { color: '#ffffff' }]}
-      >
-        Pas de prochain cours
-      </Text>
+      </Animated.Text>
     </PressableScale>
   );
 
@@ -301,15 +335,15 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
           styles.inContainer,
           tiny && styles.tinyInContainer,
           {
-            opacity: Platform.OS === 'ios' ? yOffset.interpolate({
-              inputRange: [40, 70],
+            opacity: Platform.OS === 'ios' ? hideAnim.interpolate({
+              inputRange: [0, 1],
               outputRange: [1, 0],
               extrapolate: 'clamp',
             }) : 1,
             transform: [
               {
-                scale: Platform.OS === 'ios' ? yOffset.interpolate({
-                  inputRange: [30, 70],
+                scale: Platform.OS === 'ios' ? hideAnim.interpolate({
+                  inputRange: [0, 1],
                   outputRange: [1, 0.95],
                   extrapolate: 'clamp',
                 }) : 1,
@@ -328,14 +362,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
         </View>
         <Animated.View
           style={[
-            styles.data.container,
-            {
-              marginTop: Platform.OS === 'ios' ? yOffset.interpolate({
-                inputRange: [1, 25],
-                outputRange: [0, 24],
-                extrapolate: 'clamp',
-              }) : 0,
-            }
+            styles.data.container
           ]}
         >
           <View style={styles.subject.container}>
@@ -366,11 +393,16 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
           <Animated.View style={[
             styles.details.container,
             {
-              opacity: Platform.OS === 'ios' ? yOffset.interpolate({
-                inputRange: [1, 25],
+              opacity: Platform.OS === 'ios' ? detailAnim.interpolate({
+                inputRange: [0, 1],
                 outputRange: [1, 0],
                 extrapolate: 'clamp',
               }) : 1,
+              marginBottom: detailAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, -30],
+                extrapolate: 'clamp',
+              }),
             }
           ]}>
             
@@ -573,7 +605,6 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       gap: 10,
       shadowOpacity: 0.1,
-      paddingVertical: 24,
     },
     text: {
       fontFamily: 'Papillon-Medium',
@@ -612,11 +643,12 @@ const styles = StyleSheet.create({
   },
 
   tinyCourse: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '500',
     color: '#ffffff',
     opacity: 0.8,
     maxWidth: '70%',
+    fontFamily: 'Papillon-Medium',
   },
 });
 

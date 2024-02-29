@@ -562,12 +562,85 @@ function HomeScreen({ navigation }: { navigation: any }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       header: () => (
-        <Animated.View
+        <View/>
+      ),
+    });
+  }, [
+    navigation,
+    user,
+    themeAdjustments,
+    currentThemeIndex,
+    setCurrentThemeIndex,
+    insets,
+    UIColors,
+    theme,
+    nextColor,
+    setNextColor,
+    changeThemeOpen,
+    changeThemeAnim,
+  ]);
+
+  const [scrolled, setScrolled] = useState(false);
+  const scrolledAnim = useRef(new Animated.Value(0)).current;
+
+  yOffset.addListener(({ value }) => {
+    if (Platform.OS === 'ios') {
+      if (value > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    }
+  });
+
+  const scrollRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    Animated.timing(scrolledAnim, {
+      toValue: scrolled ? 1 : 0,
+      duration: 400,
+      easing: Easing.in(Easing.bezier(0.5, 0, 0, 1)),
+      useNativeDriver: false,
+    }).start();
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, [scrolled]);
+
+  // Animations
+  const scrollHandler = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: yOffset } } }],
+    { useNativeDriver: false }
+  );
+
+  const themeImageOpacity = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [0, 100] : [0, 1],
+    outputRange: [0.8, 0],
+    extrapolate: 'clamp',
+  });
+
+  const themeImageTransform = yOffset.interpolate({
+    inputRange: Platform.OS === 'ios' ? [0, 100] : [0, 1],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+
+  return (<View
+    style={{
+      backgroundColor: UIColors.backgroundHigh,
+      flex: 1,
+    }}
+  >
+    <Animated.View
           style={[
             {
               backgroundColor: nextColor,
               overflow: 'hidden',
               elevation: 4,
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              width: '100%',
+              zIndex: 2000,
             },
           ]}
         >
@@ -869,8 +942,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
                     marginTop: 0,
                     height:
                       Platform.OS === 'ios'
-                        ? scrolledAnim.interpolate({
-                          inputRange: [0, 1],
+                        ? yOffset.interpolate({
+                          inputRange: [0 - insets.top, 106 - insets.top],
                           outputRange: [106, 0],
                           extrapolate: 'clamp',
                           // @ts-expect-error : Not sure if it's typed correctly.
@@ -894,7 +967,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                     setNextColor={(color) => {
                       setNextColor(color);
                     }}
-                    yOffset={new Animated.Value(0)}
+                    yOffset={yOffset}
                     color={themeAdjustments.enabled ? nextColor : void 0}
                     style={{
                       marginHorizontal: 16,
@@ -1053,74 +1126,18 @@ function HomeScreen({ navigation }: { navigation: any }) {
             )}
           </View>
         </Animated.View>
-      ),
-    });
-  }, [
-    navigation,
-    user,
-    themeAdjustments,
-    currentThemeIndex,
-    setCurrentThemeIndex,
-    insets,
-    UIColors,
-    theme,
-    nextColor,
-    setNextColor,
-    changeThemeOpen,
-    changeThemeAnim,
-  ]);
-
-  const [scrolled, setScrolled] = useState(false);
-  const scrolledAnim = useRef(new Animated.Value(0)).current;
-
-  yOffset.addListener(({ value }) => {
-    if (Platform.OS === 'ios') {
-      if (value > 70) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    }
-  });
-
-  const scrollRef = useRef<ScrollView>(null);
-
-  useEffect(() => {
-    Animated.timing(scrolledAnim, {
-      toValue: scrolled ? 1 : 0,
-      duration: 400,
-      easing: Easing.in(Easing.bezier(0.5, 0, 0, 1)),
-      useNativeDriver: false,
-    }).start();
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  }, [scrolled]);
-
-  // Animations
-  const scrollHandler = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: yOffset } } }],
-    { useNativeDriver: false }
-  );
-
-  const themeImageOpacity = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [0, 100] : [0, 1],
-    outputRange: [0.8, 0],
-    extrapolate: 'clamp',
-  });
-
-  const themeImageTransform = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [0, 100] : [0, 1],
-    outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
-
-  return (
     <ScrollView
       ref={scrollRef}
-      style={{ backgroundColor: UIColors.backgroundHigh }}
+      style={{
+        flex: 1,
+        paddingTop: 150,
+      }}
+      scrollIndicatorInsets={{top: 150}}
       contentInsetAdjustmentBehavior="automatic"
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
+          progressViewOffset={205}
           colors={[Platform.OS === 'android' ? UIColors.primary : '']}
           onRefresh={async () => {
             // Refresh data
@@ -1183,6 +1200,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
         lessons.data &&
         lessons.data.length < 4 && <View style={{ height: 100 }} />}
     </ScrollView>
+  </View>
   );
 }
 
@@ -1643,7 +1661,7 @@ function DevoirsElement({
             ))
           ) : (
             <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Pas de travail</Text>
+              <Text style={styles.loadingText}>Pas de travail à faire</Text>
             </View>
           )
         ) : (
