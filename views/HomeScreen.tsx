@@ -1661,7 +1661,7 @@ function DevoirsElement({
             ))
           ) : (
             <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Pas de travail</Text>
+              <Text style={styles.loadingText}>Pas de travail à faire</Text>
             </View>
           )
         ) : (
