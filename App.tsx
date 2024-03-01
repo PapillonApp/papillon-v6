@@ -906,8 +906,11 @@ function AppStack() {
   const reloadNotifications = async function () {
     let notificationsCounter = SyncStorage.get('notificationsCounter');
 
-    if (notificationsCounter.enabled === undefined) {
+    if (notificationsCounter === undefined ) {
+      notificationsCounter = {};
+    } if (notificationsCounter.enabled === undefined) {
       notificationsCounter.enabled = true;
+      SyncStorage.set('notificationsCounter', notificationsCounter);
     } else if (!notificationsCounter.enabled) {
       return;
     }
