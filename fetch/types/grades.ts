@@ -7,7 +7,7 @@ export interface CachedPapillonGrades {
 
 export type PapillonGradeValue = {
   significant: true
-  type: PronoteApiGradeType
+  type: PronoteApiGradeType // TODO: Make our own ?
 } | {
   significant: false
   value: number

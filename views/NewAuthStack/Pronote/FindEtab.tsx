@@ -1,7 +1,6 @@
-import React, { useRef, useEffect, useLayoutEffect, useState } from 'react';
-import { useTheme } from 'react-native-paper';
+import React, { useLayoutEffect } from 'react';
 
-import { StatusBar, ScrollView, Platform } from 'react-native';
+import { StatusBar, ScrollView } from 'react-native';
 import { MapPin, QrCode, Link2 } from 'lucide-react-native';
 
 import NativeList from '../../../components/NativeList';
@@ -10,9 +9,10 @@ import NativeText from '../../../components/NativeText';
 
 import GetUIColors from '../../../utils/GetUIColors';
 
-const FindEtab = ({ navigation }) => {
+const FindEtab = ({ navigation }: {
+  navigation: any // TODO
+}) => {
   const UIColors = GetUIColors();
-  const theme = useTheme();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -83,16 +83,6 @@ const FindEtab = ({ navigation }) => {
       </NativeList>
     </ScrollView>
   );
-};
-
-const styles = {
-  instructionsText: {
-    fontSize: 16,
-    fontFamily: 'Papillon-Medium',
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    opacity: 0.5,
-  },
 };
 
 export default FindEtab;

@@ -126,7 +126,7 @@ function NGPronoteLogin({ route, navigation }: {
       const pronote = await authenticatePronoteCredentials(pronoteURL, {
         username,
         password,
-        accountTypeID: PronoteApiAccountId.Eleve,
+        accountTypeID: PronoteApiAccountId.Student,
         deviceUUID,
       });
 
@@ -273,13 +273,14 @@ function NGPronoteLogin({ route, navigation }: {
         >
           <View style={[styles.buttons]}>
             <PapillonButton
-              left={null}
-              light={null}
-              title="Se connecter"
               color="#159C5E"
+              title="Se connecter"
+              style={styles.button}
               onPress={() => handleLogin()}
-              style={[styles.button]}
-              right={connecting && <ActivityIndicator color="#ffffff" />}
+              
+              left={void 0}
+              light={void 0}
+              right={connecting ? <ActivityIndicator color="#ffffff" /> : void 0}
             />
           </View>
 
@@ -295,7 +296,7 @@ function NGPronoteLogin({ route, navigation }: {
             </Text>
 
             <Text style={[styles.bottomTextText]}>
-              Pronote Espace Élèves version {instanceDetails?.version}
+              Pronote version {instanceDetails?.version ?? 'inconnue'}
             </Text>
           </View>
         </View>

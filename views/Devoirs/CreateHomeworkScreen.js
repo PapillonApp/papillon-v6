@@ -167,6 +167,17 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
               actionKey: item.systemCourseName,
               actionTitle: formatCoursName(item.originalCourseName),
               menuAttributes: ['default'],
+              icon: {
+                type: 'IMAGE_SYSTEM',
+                imageValue: {
+                  systemName: 'circle.fill',
+                },
+                // blue icon
+                imageOptions: {
+                  tint: item.color,
+                  renderingMode: 'alwaysOriginal',
+                },
+              },
             }
           ]);
         }
@@ -174,13 +185,20 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
         setNativeSubjects ((prev) => [
           ...prev,
           {
-            actionKey: 'new',
-            actionTitle: 'Ajouter une matière',
-            menuAttributes: ['destructive'],
-            icon: {
-              iconType: 'SYSTEM',
-              iconValue: 'plus',
-            },
+            type: 'menu',
+            menuTitle: '',
+            menuOptions: ['displayInline'],
+            menuPreferredElementSize: 'large',
+            menuItems: [
+              {
+                actionKey: 'new',
+                actionTitle: 'Ajouter une matière',
+                icon: {
+                  iconType: 'SYSTEM',
+                  iconValue: 'plus',
+                },
+              },
+            ],
           }
         ]);
 

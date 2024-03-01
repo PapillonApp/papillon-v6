@@ -12,7 +12,9 @@ import NativeText from '../../../components/NativeText';
 import PapillonLoading from '../../../components/PapillonLoading';
 import { getGeographicMunicipalities, type GeographicMunicipality } from '../../../fetch/geolocation/geo-gouv';
 
-const LocateEtab = ({ navigation }) => {
+const LocateEtab = ({ navigation }: {
+  navigation: any // TODO
+}) => {
   const UIColors = GetUIColors();
 
   const [results, setResults] = React.useState<GeographicMunicipality[]>([]);
@@ -128,9 +130,7 @@ const LocateEtab = ({ navigation }) => {
       {results.length > 0 ? (
         <NativeList
           inset
-          style={
-            Platform.OS === 'ios' && { marginTop: -14 }
-          }
+          style={Platform.OS === 'ios' ? { marginTop: -14 } : void 0}
         >
           {results.map((municipality, index) => {
             return (
