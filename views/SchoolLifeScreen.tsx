@@ -6,6 +6,7 @@ import {
   View,
   ScrollView,
   StatusBar,
+  RefreshControl,
 } from 'react-native';
 
 import { useTheme } from 'react-native-paper';
@@ -30,6 +31,8 @@ function SchoolLifeScreen({ navigation }: {
   const appContext = useAppContext();
 
   const [loading, setLoading] = useState(true);
+  const [refresh, setRefresh] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -51,9 +54,14 @@ function SchoolLifeScreen({ navigation }: {
       } catch { /** No-op. */ }
       finally {
         setLoading(false);
+        setRefreshing(false);
       }
     })();
-  }, [appContext.dataProvider]);
+  }, [appContext.dataProvider, refresh]);
+
+  const refreshData = () => {
+    setRefresh(!refresh);
+  }
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -69,6 +77,15 @@ function SchoolLifeScreen({ navigation }: {
     <ScrollView
       style={{ backgroundColor: UIColors.backgroundHigh }}
       contentInsetAdjustmentBehavior="automatic"
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={() => {
+            setRefreshing(true);
+            refreshData();
+          }}
+        />
+      }
     >
       <StatusBar
         animated
