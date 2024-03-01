@@ -31,6 +31,8 @@ import * as FileSystem from 'expo-file-system';
 import type { PapillonNews } from '../../fetch/types/news';
 import { PapillonAttachmentType, type PapillonAttachment as PapillonAttachmentT } from '../../fetch/types/attachment';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 function NewsItem({ route, navigation }: {
   route: { params: { news: PapillonNews } },
   navigation: any, // TODO
@@ -38,6 +40,7 @@ function NewsItem({ route, navigation }: {
   const [news, setNews] = useState<PapillonNews>(route.params.news);
   const theme = useTheme();
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
 
   const [isModalOpen] = useState(false);
@@ -206,7 +209,10 @@ function NewsItem({ route, navigation }: {
       />
 
       {news.is === 'survey' ? (
-        <NativeList inset>
+        <NativeList 
+          inset
+          style={[Platform.OS === 'android' ? { marginTop: insets.top } : null]}
+        >
           <NativeItem
             leading={
               <PieChart size={20} color={theme.dark ? '#ffffff' : '#000000'} />

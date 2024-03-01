@@ -12,10 +12,13 @@ import NativeText from '../../../components/NativeText';
 import PapillonLoading from '../../../components/PapillonLoading';
 import { getGeographicMunicipalities, type GeographicMunicipality } from '../../../fetch/geolocation/geo-gouv';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 const LocateEtab = ({ navigation }: {
   navigation: any // TODO
 }) => {
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
 
   const [results, setResults] = React.useState<GeographicMunicipality[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -78,6 +81,7 @@ const LocateEtab = ({ navigation }: {
 
       <NativeList
         inset
+        style={[Platform.OS === 'android' ? { marginTop: insets.top } : null]}
       >
         <NativeItem
           leading={

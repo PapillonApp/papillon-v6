@@ -12,6 +12,8 @@ import GetUIColors from '../../../utils/GetUIColors';
 import type { GeographicMunicipality } from '../../../fetch/geolocation/geo-gouv';
 import { findPronoteInstances, defaultPawnoteFetcher, type PronoteInstance } from 'pawnote';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 const LocateEtabList = ({ route, navigation }: {
   navigation: any // TODO
   route: {
@@ -21,6 +23,7 @@ const LocateEtabList = ({ route, navigation }: {
   }
 }) => {
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
   const location = route.params.location;
 
   const [isInstancesLoading, setInstancesLoading] = useState(false);
@@ -95,7 +98,10 @@ const LocateEtabList = ({ route, navigation }: {
       )}
 
       {!isInstancesLoading && instances?.length && (
-        <NativeList inset>
+        <NativeList
+          inset
+          style={[Platform.OS === 'android' ? { marginTop: insets.top } : null]}
+        >
           <NativeItem
             leading={<Search color={UIColors.text + '88'} />}
             trailing={ 
