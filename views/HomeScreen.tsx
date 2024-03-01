@@ -49,6 +49,8 @@ import {
   Messages,
   Papillon as PapillonIcon,
   UserCheck,
+  CalendarFill as PapillonIconsCalendarFill,
+  Book as PapillonIconsBook,
 } from '../interface/icons/PapillonIcons';
 
 // Formatting
@@ -76,10 +78,6 @@ import { convert as convertHTML } from 'html-to-text';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { homeworksAtom, homeworksUntilNextWeekAtom } from '../atoms/homeworks';
 import NativeText from '../components/NativeText';
-
-import {
-  CalendarFill as PapillonIconsCalendarFill,
-} from '../interface/icons/PapillonIcons';
 
 // Functions
 const openURL = (url: string) => {
@@ -630,317 +628,317 @@ function HomeScreen({ navigation }: { navigation: any }) {
     }}
   >
     <Animated.View
+      style={[
+        {
+          backgroundColor: nextColor,
+          overflow: 'hidden',
+          elevation: 4,
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          width: '100%',
+          zIndex: 2000,
+        },
+      ]}
+    >
+      {THEMES_IMAGES_LIST && THEMES_IMAGES_LIST[currentThemeIndex] && (
+        <Animated.Image
+          source={THEMES_IMAGES_LIST[currentThemeIndex].image}
           style={[
             {
-              backgroundColor: nextColor,
-              overflow: 'hidden',
-              elevation: 4,
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              width: '100%',
-              zIndex: 2000,
-            },
-          ]}
-        >
-          {THEMES_IMAGES_LIST && THEMES_IMAGES_LIST[currentThemeIndex] && (
-            <Animated.Image
-              source={THEMES_IMAGES_LIST[currentThemeIndex].image}
-              style={[
-                {
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: 150,
-                },
-                Platform.OS === 'ios' && {
-                  opacity: themeImageOpacity,
-                  transform: [
-                    {
-                      scale: themeImageTransform.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [1, 0.9],
-                      }),
-                    },
-                  ],
-                },
-              ]}
-            />
-          )}
-          <LinearGradient
-            colors={[nextColor + '00', nextColor + 'FF']}
-            locations={[0, 0.8]}
-            style={{
               position: 'absolute',
               top: 0,
               left: 0,
               width: '100%',
               height: 150,
-            }}
-          />
-          <View
-            style={[
+            },
+            Platform.OS === 'ios' && {
+              opacity: themeImageOpacity,
+              transform: [
+                {
+                  scale: themeImageTransform.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 0.9],
+                  }),
+                },
+              ],
+            },
+          ]}
+        />
+      )}
+      <LinearGradient
+        colors={[nextColor + '00', nextColor + 'FF']}
+        locations={[0, 0.8]}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: 150,
+        }}
+      />
+      <View
+        style={[
+          {
+            backgroundColor: scrolled ? UIColors.element : '#00000032',
+            paddingTop: insets.top,
+            paddingBottom: 0,
+            flexDirection: 'column',
+            zIndex: 3,
+            borderBottomWidth: scrolled ? 0.5 : 0,
+            borderBottomColor: UIColors.borderLight,
+          },
+        ]}
+      >
+        <Animated.View
+          pointerEvents={changeThemeOpen ? 'none' : 'auto'}
+          style={{
+            opacity: changeThemeAnim.interpolate({
+              inputRange: [0, 0.5],
+              outputRange: [1, 0],
+            }),
+            transform: [
               {
-                backgroundColor: scrolled ? UIColors.element : '#00000032',
-                paddingTop: insets.top,
-                paddingBottom: 0,
-                flexDirection: 'column',
-                zIndex: 3,
-                borderBottomWidth: scrolled ? 0.5 : 0,
-                borderBottomColor: UIColors.borderLight,
-              },
-            ]}
-          >
-            <Animated.View
-              pointerEvents={changeThemeOpen ? 'none' : 'auto'}
-              style={{
-                opacity: changeThemeAnim.interpolate({
+                scale: changeThemeAnim.interpolate({
                   inputRange: [0, 0.5],
-                  outputRange: [1, 0],
+                  outputRange: [1, 0.9],
                 }),
-                transform: [
-                  {
-                    scale: changeThemeAnim.interpolate({
-                      inputRange: [0, 0.5],
-                      outputRange: [1, 0.9],
-                    }),
-                  },
-                ],
-                zIndex: 4000,
-              }}
-            >
-              <View
+              },
+            ],
+            zIndex: 4000,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingHorizontal: 16,
+              paddingBottom: 6,
+              paddingTop: 4,
+            }}
+          >
+            {Platform.OS === 'ios' && (
+              <PapillonIcon
+                fill={scrolled ? UIColors.text + '88' : '#ffffff'}
+                width={32}
+                height={32}
+              />
+            )}
+
+            {!scrolled ? (
+              <Text
+                style={[
+                  Platform.OS === 'ios'
+                    ? {
+                      color: scrolled ? UIColors.text : '#ffffff',
+                      fontSize: 17,
+                      fontFamily: 'Papillon-Semibold',
+                      marginVertical: 8,
+                    }
+                    : {
+                      color: '#ffffff',
+                      fontSize: 18,
+                      marginVertical: 9,
+                    },
+                ]}
+              >
+                    Vue d'ensemble
+              </Text>
+            ) : (
+              <Animated.View
                 style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  paddingHorizontal: 16,
-                  paddingBottom: 6,
-                  paddingTop: 4,
+                  flex: 1,
+                  height: 38,
+                  marginTop: -2,
+                  opacity: scrolledAnim,
+                  transform: [
+                    {
+                      scale: scrolledAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.8, 1],
+                        extrapolate: 'clamp',
+                      }),
+                    },
+                    {
+                      translateY: scrolledAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [100, 0],
+                        extrapolate: 'clamp',
+                      }),
+                    },
+                  ],
                 }}
               >
-                {Platform.OS === 'ios' && (
-                  <PapillonIcon
-                    fill={scrolled ? UIColors.text + '88' : '#ffffff'}
-                    width={32}
-                    height={32}
-                  />
-                )}
+                <NextCoursElem
+                  tiny
+                  cours={lessons.data}
+                  navigation={navigation}
+                  yOffset={new Animated.Value(0)}
+                  mainAction={() => {
+                    // scroll up
+                    scrollRef.current?.scrollTo({ y: 0, animated: true });
+                  }}
+                />
+              </Animated.View>
+            )}
 
-                {!scrolled ? (
-                  <Text
-                    style={[
-                      Platform.OS === 'ios'
-                        ? {
-                          color: scrolled ? UIColors.text : '#ffffff',
-                          fontSize: 17,
-                          fontFamily: 'Papillon-Semibold',
-                          marginVertical: 8,
-                        }
-                        : {
-                          color: '#ffffff',
-                          fontSize: 18,
-                          marginVertical: 9,
+            {Platform.OS === 'ios' ? (
+              <ContextMenuButton
+                isMenuPrimaryAction={true}
+                menuConfig={{
+                  menuTitle: '',
+                  menuItems: [
+                    {
+                      actionKey: 'profile',
+                      actionTitle: 'Mon profil',
+                      actionSubtitle: user.loading
+                        ? 'Chargement...'
+                        : user.data.name,
+                      icon: {
+                        type: 'IMAGE_SYSTEM',
+                        imageValue: {
+                          systemName: 'person.crop.circle',
                         },
-                    ]}
-                  >
-                    Vue d'ensemble
-                  </Text>
-                ) : (
-                  <Animated.View
-                    style={{
-                      flex: 1,
-                      height: 38,
-                      marginTop: -2,
-                      opacity: scrolledAnim,
-                      transform: [
-                        {
-                          scale: scrolledAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0.8, 1],
-                            extrapolate: 'clamp',
-                          }),
+                      },
+                    },
+                    {
+                      menuTitle: 'Personnalisation',
+                      icon: {
+                        type: 'IMAGE_SYSTEM',
+                        imageValue: {
+                          systemName: 'paintbrush',
                         },
-                        {
-                          translateY: scrolledAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [100, 0],
-                            extrapolate: 'clamp',
-                          }),
-                        },
-                      ],
-                    }}
-                  >
-                    <NextCoursElem
-                      tiny
-                      cours={lessons.data}
-                      navigation={navigation}
-                      yOffset={new Animated.Value(0)}
-                      mainAction={() => {
-                        // scroll up
-                        scrollRef.current?.scrollTo({ y: 0, animated: true });
-                      }}
-                    />
-                  </Animated.View>
-                )}
-
-                {Platform.OS === 'ios' ? (
-                  <ContextMenuButton
-                    isMenuPrimaryAction={true}
-                    menuConfig={{
-                      menuTitle: '',
+                      },
                       menuItems: [
                         {
-                          actionKey: 'profile',
-                          actionTitle: 'Mon profil',
-                          actionSubtitle: user.loading
-                            ? 'Chargement...'
-                            : user.data.name,
+                          actionKey: 'theme',
+                          actionTitle: 'Bandeau',
                           icon: {
                             type: 'IMAGE_SYSTEM',
                             imageValue: {
-                              systemName: 'person.crop.circle',
+                              systemName: 'swatchpalette',
                             },
                           },
                         },
                         {
-                          menuTitle: 'Personnalisation',
+                          actionKey: 'cours',
+                          actionTitle: 'Matières',
                           icon: {
                             type: 'IMAGE_SYSTEM',
                             imageValue: {
-                              systemName: 'paintbrush',
-                            },
-                          },
-                          menuItems: [
-                            {
-                              actionKey: 'theme',
-                              actionTitle: 'Bandeau',
-                              icon: {
-                                type: 'IMAGE_SYSTEM',
-                                imageValue: {
-                                  systemName: 'swatchpalette',
-                                },
-                              },
-                            },
-                            {
-                              actionKey: 'cours',
-                              actionTitle: 'Matières',
-                              icon: {
-                                type: 'IMAGE_SYSTEM',
-                                imageValue: {
-                                  systemName: 'paintpalette',
-                                },
-                              },
-                            },
-                          ],
-                        },
-                        {
-                          actionKey: 'preferences',
-                          actionTitle: 'Préférences',
-                          icon: {
-                            type: 'IMAGE_SYSTEM',
-                            imageValue: {
-                              systemName: 'gear',
+                              systemName: 'paintpalette',
                             },
                           },
                         },
                       ],
-                    }}
-                    onPressMenuItem={({ nativeEvent }) => {
-                      if (nativeEvent.actionKey === 'preferences') {
-                        navigation.navigate('InsetSettings', { isModal: true });
-                      } else if (nativeEvent.actionKey === 'theme') {
-                        setChangeThemeOpen(true);
-                      } else if (nativeEvent.actionKey === 'profile') {
-                        navigation.navigate('InsetProfile', { isModal: true });
-                      } else if (nativeEvent.actionKey === 'cours') {
-                        navigation.navigate('InsetMatieres', { isModal: true });
-                      }
-                    }}
+                    },
+                    {
+                      actionKey: 'preferences',
+                      actionTitle: 'Préférences',
+                      icon: {
+                        type: 'IMAGE_SYSTEM',
+                        imageValue: {
+                          systemName: 'gear',
+                        },
+                      },
+                    },
+                  ],
+                }}
+                onPressMenuItem={({ nativeEvent }) => {
+                  if (nativeEvent.actionKey === 'preferences') {
+                    navigation.navigate('InsetSettings', { isModal: true });
+                  } else if (nativeEvent.actionKey === 'theme') {
+                    setChangeThemeOpen(true);
+                  } else if (nativeEvent.actionKey === 'profile') {
+                    navigation.navigate('InsetProfile', { isModal: true });
+                  } else if (nativeEvent.actionKey === 'cours') {
+                    navigation.navigate('InsetMatieres', { isModal: true });
+                  }
+                }}
+              >
+                <TouchableOpacity
+                  style={headerStyles.headerPfpContainer}
+                  onPress={() => {
+                    setUserMenuOpen(true);
+                  }}
+                >
+                  {!user.loading && user.data.profile_picture ? (
+                    <Image
+                      source={{ uri: user.data.profile_picture }}
+                      style={headerStyles.headerPfp}
+                    />
+                  ) : (
+                    <UserCircle2
+                      size={36}
+                      style={headerStyles.headerPfp}
+                      color="#ccc"
+                    />
+                  )}
+                </TouchableOpacity>
+              </ContextMenuButton>
+            ) : (
+              <Menu
+                visible={userMenuOpen}
+                onDismiss={() => setUserMenuOpen(false)}
+                contentStyle={{
+                  paddingVertical: 0,
+                }}
+                anchor={
+                  <TouchableOpacity
+                    style={headerStyles.headerPfpContainer}
+                    onPress={() => setUserMenuOpen(true)}
                   >
-                    <TouchableOpacity
-                      style={headerStyles.headerPfpContainer}
-                      onPress={() => {
-                        setUserMenuOpen(true);
-                      }}
-                    >
-                      {!user.loading && user.data.profile_picture ? (
-                        <Image
-                          source={{ uri: user.data.profile_picture }}
-                          style={headerStyles.headerPfp}
-                        />
-                      ) : (
-                        <UserCircle2
-                          size={36}
-                          style={headerStyles.headerPfp}
-                          color="#ccc"
-                        />
-                      )}
-                    </TouchableOpacity>
-                  </ContextMenuButton>
-                ) : (
-                  <Menu
-                    visible={userMenuOpen}
-                    onDismiss={() => setUserMenuOpen(false)}
-                    contentStyle={{
-                      paddingVertical: 0,
-                    }}
-                    anchor={
-                      <TouchableOpacity
-                        style={headerStyles.headerPfpContainer}
-                        onPress={() => setUserMenuOpen(true)}
-                      >
-                        {!user.loading && user.data.profile_picture ? (
-                          <Image
-                            source={{ uri: user.data.profile_picture }}
-                            style={headerStyles.headerPfp}
-                          />
-                        ) : (
-                          <UserCircle2
-                            size={36}
-                            style={headerStyles.headerPfp}
-                            color="#ccc"
-                          />
-                        )}
-                      </TouchableOpacity>
-                    }
-                  >
-                    <Menu.Item
-                      title={user.loading ? 'Mon profil' : user.data.name}
-                      leadingIcon="account-circle"
-                      onPress={() => {
-                        setUserMenuOpen(false);
-                        navigation.navigate('InsetProfile', { isModal: true });
-                      }}
-                    />
-                    <Divider />
-                    <Menu.Item
-                      title="Bandeau"
-                      leadingIcon="palette"
-                      onPress={() => {
-                        setUserMenuOpen(false);
-                        setChangeThemeOpen(true);
-                      }}
-                    />
-                    <Divider />
-                    <Menu.Item
-                      title="Préférences"
-                      leadingIcon="cog"
-                      onPress={() => {
-                        setUserMenuOpen(false);
-                        navigation.navigate('InsetSettings', { isModal: true });
-                      }}
-                    />
-                  </Menu>
-                )}
-              </View>
-              <Animated.View
-                style={[
-                  {
-                    marginTop: 0,
-                    height:
+                    {!user.loading && user.data.profile_picture ? (
+                      <Image
+                        source={{ uri: user.data.profile_picture }}
+                        style={headerStyles.headerPfp}
+                      />
+                    ) : (
+                      <UserCircle2
+                        size={36}
+                        style={headerStyles.headerPfp}
+                        color="#ccc"
+                      />
+                    )}
+                  </TouchableOpacity>
+                }
+              >
+                <Menu.Item
+                  title={user.loading ? 'Mon profil' : user.data.name}
+                  leadingIcon="account-circle"
+                  onPress={() => {
+                    setUserMenuOpen(false);
+                    navigation.navigate('InsetProfile', { isModal: true });
+                  }}
+                />
+                <Divider />
+                <Menu.Item
+                  title="Bandeau"
+                  leadingIcon="palette"
+                  onPress={() => {
+                    setUserMenuOpen(false);
+                    setChangeThemeOpen(true);
+                  }}
+                />
+                <Divider />
+                <Menu.Item
+                  title="Préférences"
+                  leadingIcon="cog"
+                  onPress={() => {
+                    setUserMenuOpen(false);
+                    navigation.navigate('InsetSettings', { isModal: true });
+                  }}
+                />
+              </Menu>
+            )}
+          </View>
+          <Animated.View
+            style={[
+              {
+                marginTop: 0,
+                height:
                       Platform.OS === 'ios'
                         ? yOffset.interpolate({
                           inputRange: [0 - insets.top, 106 - insets.top],
@@ -950,182 +948,182 @@ function HomeScreen({ navigation }: { navigation: any }) {
                           useNativeDriver: false,
                         })
                         : 106,
-                  },
-                ]}
-              >
-                <Animated.View
-                  style={{
-                    flex: 1,
-                  }}
-                >
-                  <NextCoursElem
-                    longPressAction={() => {
-                      setChangeThemeOpen(true);
-                    }}
-                    cours={lessons.data}
-                    navigation={navigation}
-                    setNextColor={(color) => {
-                      setNextColor(color);
-                    }}
-                    yOffset={yOffset}
-                    color={themeAdjustments.enabled ? nextColor : void 0}
-                    style={{
-                      marginHorizontal: 16,
-                      marginVertical: 0,
-                      marginTop: 2,
-                    }}
-                  />
-                  <Animated.View
-                    style={{
-                      height: 16,
-                    }}
-                  />
-                </Animated.View>
-              </Animated.View>
-            </Animated.View>
-
-            {showThemeCarousel && (
+              },
+            ]}
+          >
+            <Animated.View
+              style={{
+                flex: 1,
+              }}
+            >
+              <NextCoursElem
+                longPressAction={() => {
+                  setChangeThemeOpen(true);
+                }}
+                cours={lessons.data}
+                navigation={navigation}
+                setNextColor={(color) => {
+                  setNextColor(color);
+                }}
+                yOffset={yOffset}
+                color={themeAdjustments.enabled ? nextColor : void 0}
+                style={{
+                  marginHorizontal: 16,
+                  marginVertical: 0,
+                  marginTop: 2,
+                }}
+              />
               <Animated.View
                 style={{
-                  position: 'absolute',
-                  paddingTop: insets.top,
-                  width: '100%',
-                  opacity: changeThemeAnim.interpolate({
+                  height: 16,
+                }}
+              />
+            </Animated.View>
+          </Animated.View>
+        </Animated.View>
+
+        {showThemeCarousel && (
+          <Animated.View
+            style={{
+              position: 'absolute',
+              paddingTop: insets.top,
+              width: '100%',
+              opacity: changeThemeAnim.interpolate({
+                inputRange: [0.5, 1],
+                outputRange: [0, 1],
+              }),
+              transform: [
+                {
+                  scale: changeThemeAnim.interpolate({
                     inputRange: [0.5, 1],
-                    outputRange: [0, 1],
+                    outputRange: [0.9, 1],
                   }),
-                  transform: [
-                    {
-                      scale: changeThemeAnim.interpolate({
-                        inputRange: [0.5, 1],
-                        outputRange: [0.9, 1],
-                      }),
+                },
+              ],
+            }}
+          >
+            <View
+              style={{
+                width: '100%',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingHorizontal: 16,
+                paddingBottom: 6,
+                paddingTop: 4,
+              }}
+            >
+              {Platform.OS === 'ios' && (
+                <PapillonIcon
+                  fill={scrolled ? UIColors.text + '88' : '#ffffff00'}
+                  width={32}
+                  height={32}
+                />
+              )}
+              <Text
+                style={[
+                  Platform.OS === 'ios'
+                    ? {
+                      color: scrolled ? UIColors.text : '#ffffff',
+                      fontSize: 17,
+                      fontFamily: 'Papillon-Semibold',
+                      marginVertical: 8,
+                    }
+                    : {
+                      color: '#ffffff',
+                      fontSize: 18,
+                      marginVertical: 9,
                     },
-                  ],
+                ]}
+              >
+                    Bandeau
+              </Text>
+              <TouchableOpacity
+                style={{
+                  width: 32,
+                  height: 32,
+
+                  alignItems: 'center',
+                  justifyContent: 'center',
+
+                  borderRadius: 20,
+                  backgroundColor: '#ffffff35',
+                }}
+                onPress={() => {
+                  setChangeThemeOpen(false);
                 }}
               >
-                <View
-                  style={{
-                    width: '100%',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    paddingHorizontal: 16,
-                    paddingBottom: 6,
-                    paddingTop: 4,
-                  }}
-                >
-                  {Platform.OS === 'ios' && (
-                    <PapillonIcon
-                      fill={scrolled ? UIColors.text + '88' : '#ffffff00'}
-                      width={32}
-                      height={32}
-                    />
-                  )}
-                  <Text
-                    style={[
-                      Platform.OS === 'ios'
-                        ? {
-                          color: scrolled ? UIColors.text : '#ffffff',
-                          fontSize: 17,
-                          fontFamily: 'Papillon-Semibold',
-                          marginVertical: 8,
-                        }
-                        : {
-                          color: '#ffffff',
-                          fontSize: 18,
-                          marginVertical: 9,
-                        },
-                    ]}
-                  >
-                    Bandeau
-                  </Text>
-                  <TouchableOpacity
-                    style={{
-                      width: 32,
-                      height: 32,
+                <X color="#ffffff" size={22} strokeWidth={2.5} />
+              </TouchableOpacity>
+            </View>
 
-                      alignItems: 'center',
-                      justifyContent: 'center',
-
-                      borderRadius: 20,
-                      backgroundColor: '#ffffff35',
-                    }}
-                    onPress={() => {
-                      setChangeThemeOpen(false);
-                    }}
-                  >
-                    <X color="#ffffff" size={22} strokeWidth={2.5} />
-                  </TouchableOpacity>
-                </View>
-
-                <View
-                  style={{
-                    flex: 1,
-                    marginTop: -10,
-                  }}
-                >
-                  {THEMES_IMAGES_LIST &&
+            <View
+              style={{
+                flex: 1,
+                marginTop: -10,
+              }}
+            >
+              {THEMES_IMAGES_LIST &&
                     THEMES_IMAGES_LIST[currentThemeIndex] && (
-                    <Carousel
-                      loop
-                      width={Dimensions.get('window').width}
-                      height={110}
-                      defaultIndex={currentThemeIndex}
-                      data={THEMES_IMAGES_LIST}
-                      scrollAnimationDuration={100}
-                      onSnapToItem={(index) => {
-                        setCurrentThemeIndex(index);
-                        Haptics.impactAsync(
-                          Haptics.ImpactFeedbackStyle.Light
-                        );
-                        AsyncStorage.setItem(
-                          'hs_themeIndex',
-                          index.toString()
-                        );
+                <Carousel
+                  loop
+                  width={Dimensions.get('window').width}
+                  height={110}
+                  defaultIndex={currentThemeIndex}
+                  data={THEMES_IMAGES_LIST}
+                  scrollAnimationDuration={100}
+                  onSnapToItem={(index) => {
+                    setCurrentThemeIndex(index);
+                    Haptics.impactAsync(
+                      Haptics.ImpactFeedbackStyle.Light
+                    );
+                    AsyncStorage.setItem(
+                      'hs_themeIndex',
+                      index.toString()
+                    );
+                  }}
+                  renderItem={({ index }) => (
+                    <View
+                      style={{
+                        flex: 1,
+                        opacity: currentThemeIndex === index ? 1 : 0.5,
                       }}
-                      renderItem={({ index }) => (
-                        <View
-                          style={{
-                            flex: 1,
-                            opacity: currentThemeIndex === index ? 1 : 0.5,
-                          }}
-                        >
-                          <View
-                            style={{
-                              flex: 1,
+                    >
+                      <View
+                        style={{
+                          flex: 1,
 
-                              backgroundColor: '#ffffff22',
-                              borderColor:
+                          backgroundColor: '#ffffff22',
+                          borderColor:
                                   currentThemeIndex === index
                                     ? '#ffffff'
                                     : '#ffffff00',
-                              borderWidth: 1.5,
+                          borderWidth: 1.5,
 
-                              borderRadius: 12,
-                              borderCurve: 'continuous',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            <Image
-                              source={THEMES_IMAGES_LIST[index].image}
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                              }}
-                              resizeMode="cover"
-                            />
-                          </View>
-                        </View>
-                      )}
-                      mode="parallax"
-                    />
+                          borderRadius: 12,
+                          borderCurve: 'continuous',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <Image
+                          source={THEMES_IMAGES_LIST[index].image}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                          }}
+                          resizeMode="cover"
+                        />
+                      </View>
+                    </View>
                   )}
-                </View>
-              </Animated.View>
-            )}
-          </View>
-        </Animated.View>
+                  mode="parallax"
+                />
+              )}
+            </View>
+          </Animated.View>
+        )}
+      </View>
+    </Animated.View>
     <ScrollView
       ref={scrollRef}
       style={{
@@ -1611,8 +1609,7 @@ function DevoirsElement({
             navigation.navigate('CoursHandler');
           }}
         >
-          <PapillonIconsCalendarFill
-            fill={UIColors.text}
+          <PapillonIconsBook
             stroke={UIColors.text}
           />
         </TouchableOpacity>
