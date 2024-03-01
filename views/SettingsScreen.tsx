@@ -11,7 +11,9 @@ import PapillonIcon from '../components/PapillonIcon';
 
 import GetUIColors from '../utils/GetUIColors';
 
-function SettingsScreen({ navigation }) {
+function SettingsScreen({ navigation }: {
+  navigation: any // TODO
+}) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
@@ -42,7 +44,6 @@ function SettingsScreen({ navigation }) {
             <PapillonIcon
               icon={<User2 size={24} color="#fff" />}
               color="#32AB8E"
-              size={24}
               fill
               small
             />
