@@ -10,7 +10,7 @@ import type { GradeSettings } from '../GradesScreenNew';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const GradesSettings = ({ navigation }: {
   navigation: any; // TODO

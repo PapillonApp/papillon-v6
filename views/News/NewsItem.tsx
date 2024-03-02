@@ -69,7 +69,7 @@ function NewsItem({ route, navigation }: {
         color: UIColors.text,
         fontFamily: 'Papillon-Semibold',
       },
-      headerLeft : () => (
+      headerLeft : () => ( Platform.OS === 'ios' ? (
         <TouchableOpacity
           style={{
             backgroundColor: '#B4282800',
@@ -86,6 +86,7 @@ function NewsItem({ route, navigation }: {
         >
           <ChevronLeft size={32} color={'#B42828'} />
         </TouchableOpacity>
+      ) : null
       ),
       headerRight: () => (
         <ContextMenuButton
