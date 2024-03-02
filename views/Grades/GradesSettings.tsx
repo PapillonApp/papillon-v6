@@ -10,10 +10,13 @@ import type { GradeSettings } from '../GradesScreenNew';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 const GradesSettings = ({ navigation }: {
   navigation: any; // TODO
 }) => {
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
 
   const [gradeSettings, setGradeSettings] = useState<GradeSettings>({
     scale: 20,
@@ -41,7 +44,10 @@ const GradesSettings = ({ navigation }: {
     >
       <StatusBar animated barStyle={Platform.OS === 'ios' ? 'light-content' : undefined} />
 
-      <NativeList inset>
+      <NativeList 
+        inset
+        style={[Platform.OS === 'android' ? { marginTop: insets.top } : null]}
+      >
         <NativeItem
           trailing={
             <TextInput

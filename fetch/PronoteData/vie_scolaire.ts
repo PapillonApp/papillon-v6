@@ -11,10 +11,10 @@ export const vieScolaireHandler = async (instance?: Pronote, force = false): Pro
   if (cache && !force) {
     const cached = JSON.parse(cache) as CachedPapillonVieScolaire;
     const now = Date.now();
-    
+
     // Within 12 hours.
     if (now - cached.timestamp < 12 * 60 * 60 * 1000) {
-      return data;
+      return cached;
     }
 
     // Otherwise, let's fetch !
