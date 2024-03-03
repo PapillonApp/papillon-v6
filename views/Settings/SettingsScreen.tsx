@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
+import { unsetBackgroundFetch } from '../../fetch/BackgroundFetch';
 
 import { LogOut, RefreshCw, RotateCw, Server, Trash2 } from 'lucide-react-native';
 import { showMessage } from 'react-native-flash-message';
@@ -219,7 +220,13 @@ function SettingsScreen({ navigation }) {
           // Create a new provider since we're resetting everything.
           appContext.setDataProvider(new IndexDataInstance());
           appContext.setLoggedIn(false);
-
+          unsetBackgroundFetch()
+          showMessage({
+            message: 'Déconnecté avec succès',
+            type: 'success',
+            icon: 'auto',
+            floating: true,
+          });
           // Go back to login menu !
           navigation.popToTop();
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
