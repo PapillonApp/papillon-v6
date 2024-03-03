@@ -787,6 +787,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
             {Platform.OS === 'ios' ? (
               <ContextMenuButton
                 isMenuPrimaryAction={true}
+                accessible={true}
+                  accessibilityLabel="Votre profil"
                 menuConfig={{
                   menuTitle: '',
                   menuItems: [
@@ -863,6 +865,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   onPress={() => {
                     setUserMenuOpen(true);
                   }}
+                  accessible={true}
+                  accessibilityLabel="Votre profil"
                 >
                   {!user.loading && user.data.profile_picture ? (
                     <Image
@@ -1266,6 +1270,7 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
           weight="light"
           activeScale={0.9}
           onPress={() => navigation.navigate('InsetEvaluations')}
+          accessibilityLabel="Compétences"
         >
           <Competences stroke={theme.dark ? '#ffffff' : '#000000'} />
           <Text style={styles.tabsTabText}>Compét.</Text>
@@ -1287,7 +1292,14 @@ const CoursElement: React.FC<{
   return (
     <View>
       <View style={[styles.sectionHeader]}>
-        <View style={[styles.sectionHeaderText]}>
+        <View style={[styles.sectionHeaderText]}
+          accessible={true}
+          accessibilityLabel={'Journée du' + new Date(date).toLocaleDateString('fr-FR', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+          })}
+        >
           <NativeText style={[styles.sectionHeaderDay]}>
             {showsTomorrow ? 'Votre journée de demain' : 'Votre journée'}
           </NativeText>
@@ -1307,6 +1319,8 @@ const CoursElement: React.FC<{
           onPress={() => {
             navigation.navigate('CoursHandler');
           }}
+          accessible={true}
+          accessibilityLabel="Voir l'emploi du temps"
         >
           <PapillonIconsCalendarFill
             fill={UIColors.text}
@@ -1586,7 +1600,10 @@ function DevoirsElement({
   return (
     <View>
       <View style={[styles.sectionHeader]}>
-        <View style={[styles.sectionHeaderText]}>
+        <View style={[styles.sectionHeaderText]}
+          accessible={true}
+          accessibilityLabel="Travail à faire pour les prochains jours"
+        >
           <NativeText style={[styles.sectionHeaderDay]}>
             Travail à faire
           </NativeText>
@@ -1602,6 +1619,8 @@ function DevoirsElement({
           onPress={() => {
             navigation.navigate('CoursHandler');
           }}
+          accessible={true}
+          accessibilityLabel="Voir les devoirs"
         >
           <PapillonIconsBook
             stroke={UIColors.text}
