@@ -610,13 +610,13 @@ function HomeScreen({ navigation }: { navigation: any }) {
   );
 
   const themeImageOpacity = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [0, 100] : [0, 1],
+    inputRange: Platform.OS === 'ios' ? [-20, 50] : [0, 100],
     outputRange: [0.8, 0],
     extrapolate: 'clamp',
   });
 
   const themeImageTransform = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [0, 100] : [0, 1],
+    inputRange: Platform.OS === 'ios' ? [-20, 50] : [0, 100],
     outputRange: [0, 1],
     extrapolate: 'clamp',
   });
@@ -653,7 +653,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
               width: '100%',
               height: 150,
             },
-            Platform.OS === 'ios' && {
+            {
               opacity: themeImageOpacity,
               transform: [
                 {
@@ -938,16 +938,13 @@ function HomeScreen({ navigation }: { navigation: any }) {
             style={[
               {
                 marginTop: 0,
-                height:
-                      Platform.OS === 'ios'
-                        ? yOffset.interpolate({
-                          inputRange: [0 - insets.top, 106 - insets.top],
-                          outputRange: [106, 0],
-                          extrapolate: 'clamp',
-                          // @ts-expect-error : Not sure if it's typed correctly.
-                          useNativeDriver: false,
-                        })
-                        : 106,
+                height: yOffset.interpolate({
+                  inputRange: [Platform.OS == 'ios' ? 0 - insets.top : 0, Platform.OS == 'ios' ? 106 - insets.top : 106],
+                  outputRange: [106, 0],
+                  extrapolate: 'clamp',
+                  // @ts-expect-error : Not sure if it's typed correctly.
+                  useNativeDriver: false,
+                })
               },
             ]}
           >
@@ -1128,7 +1125,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
       ref={scrollRef}
       style={{
         flex: 1,
-        paddingTop: 150,
+        paddingTop: Platform.OS === 'ios' ? 150 : 185,
       }}
       scrollIndicatorInsets={{top: 150}}
       contentInsetAdjustmentBehavior="automatic"
