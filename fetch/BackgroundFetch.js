@@ -215,8 +215,8 @@ async function backgroundFetch() {
   }
   parallel([
     newsFetch,
-    checkUndoneHomeworks,
-    fetchGrades
+    checkUndoneHomeworks
+    //fetchGrades
   ], function(err, results) {
     console.log("OK pour async", err, results)
     delNotif()
