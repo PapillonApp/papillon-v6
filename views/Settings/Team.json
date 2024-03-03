@@ -1,44 +1,44 @@
 {
-  "lastupdated": "2023-09-03",
+  "lastupdated": "2024-03-02",
   "team": [
     {
-      "name": "Organisation Papillon",
+      "name": "Coordination Papillon",
       "member": [
         {
           "name": "Vince (ecnivtwelve)",
-          "role": "Développeur",
+          "role": "Mainteneur principal",
           "avatar": "https://avatars.githubusercontent.com/u/32978709?v=4&s=100",
           "link": "https://github.com/ecnivtwelve"
         },
         {
           "name": "Lucas (Tryon)",
-          "role": "Administrateur système",
+          "role": "Coordinateur",
           "avatar": "https://avatars.githubusercontent.com/u/68423470?v=4&s=100",
           "link": "https://tryon-lab.fr/"
         },
         {
           "name": "Lucas (Luc'Hack)",
-          "role": "Développeur",
+          "role": "Coordinateur",
           "avatar": "https://avatars.githubusercontent.com/u/39491773?v=4&s=100",
           "link": "https://luchack.valbion.com/"
         },
         {
           "name": "Yann (Astrow)",
-          "role": "Développeur",
+          "role": "Coordinateur",
           "avatar": "https://avatars.githubusercontent.com/u/76118368?v=4&s=100",
           "link": "https://astrow25.github.io/Portolio/"
         },
         {
           "name": "Nicolas (andronedev)",
-          "role": "Développeur",
+          "role": "Coordinateur",
           "avatar": "https://avatars.githubusercontent.com/u/31452517?v=4&s=100",
           "link": "https://androne.dev/"
         },
         {
-          "name": "Mizu",
-          "role": "Développeur",
-          "avatar": "https://avatars.githubusercontent.com/u/40831463?v=4&s=100",
-          "link": "https://rexxt.github.io/"
+          "name": "Tom Theret (Crash System)",
+          "role": "Coordinateur",
+          "avatar": "https://avatars.githubusercontent.com/u/33373907?v=4",
+          "link": "https://github.com/tom-theret"
         }
       ]
     },
@@ -67,6 +67,12 @@
           "role": "Créateur de l'intégration Skolengo - Développeur",
           "avatar": "https://avatars.githubusercontent.com/u/38505087?v=4",
           "link": "https://github.com/NonozgYtb"
+        },
+        {
+          "name": "Maël Gangloff",
+          "role": "Intégration Skolengo - Développeur",
+          "avatar": "https://avatars.githubusercontent.com/u/51171251?v=4",
+          "link": "https://maelgangloff.fr/"
         }
       ]
     },
@@ -112,6 +118,12 @@
           "role": "Créateur du core ED - Développeur",
           "avatar": "https://avatars.githubusercontent.com/u/79224590?v=4",
           "link": "https://github.com/LeMaitre4523"
+        },
+        {
+          "name": "Armand (Camarm)",
+          "role": "Equipe intégration ED - Développeur",
+          "avatar": "https://avatars.githubusercontent.com/u/77529508?v=4",
+          "link": "https://www.camarm.dev/"
         }
       ]
     },
@@ -131,8 +143,40 @@
           "link": "https://github.com/tom-theret"
         }
       ]
+    },
+    {
+      "name": "Équipe communication",
+      "member": [
+        {
+          "name": "Orion",
+          "avatar": "https://avatars.githubusercontent.com/u/38093786?v=4",
+          "role": "Responsable communication",
+          "link": "https://github.com/oriionn"
+        }
+      ]
+    },
+    {
+      "name": "Équipe design et accessibilité",
+      "member": [
+        {
+          "name": "Anaël (Shidoss)",
+          "role": "Responsable design et accessibilité",
+          "avatar": "https://avatars.githubusercontent.com/u/143846034?v=4",
+          "link": "https://anaelchevillard.com/"
+        }
+      ]
+    },
+    {
+      "name": "Équipe administration systèmes",
+      "member": [
+        {
+          "name": "Olivier (Vilerio)",
+          "role": "Responsable systèmes",
+          "avatar": "https://avatars.githubusercontent.com/u/69359417?v=4",
+          "link": "https://github.com/Vilerio"
+        }
+      ]
     }
-
 
   ]
 }

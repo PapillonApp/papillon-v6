@@ -76,13 +76,14 @@ function DevoirsScreen({ navigation }: {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: Platform.OS === 'ios' ? () => (
+      headerTitle: Platform.OS === 'ios' ? ' ' : 'Devoirs',
+      headerLeft: () => Platform.OS === 'ios' && (
         <PapillonInsetHeader
           icon={<SFSymbol name="checkmark.rectangle.stack.fill" />}
           title="Devoirs"
           color="#32AB8E"
         />
-      ) : 'Devoirs',
+      ),
     });
   }, [navigation, UIColors]);
 
