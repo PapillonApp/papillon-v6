@@ -23,7 +23,7 @@ PODS:
   - EXImageLoader (4.3.0):
     - ExpoModulesCore
     - React-Core
-  - EXInAppPurchases (14.3.0):
+  - EXInAppPurchases (1.0.0):
     - ExpoModulesCore
   - EXJSONUtils (0.7.1)
   - EXLocation (16.1.0):
@@ -621,16 +621,8 @@ PODS:
   - RNScreens (3.22.1):
     - React-Core
     - React-RCTImage
-  - RNSentry (5.18.0):
-    - hermes-engine
-    - React-Core
-    - React-hermes
-    - Sentry/HybridSDK (= 8.17.1)
   - RNSVG (13.9.0):
     - React-Core
-  - Sentry/HybridSDK (8.17.1):
-    - SentryPrivate (= 8.17.1)
-  - SentryPrivate (8.17.1)
   - SocketRocket (0.6.1)
   - UMAppLoader (4.2.0)
   - Yoga (1.14.0)
@@ -652,7 +644,7 @@ DEPENDENCIES:
   - EXFileSystem (from `../node_modules/expo-file-system/ios`)
   - EXFont (from `../node_modules/expo-font/ios`)
   - EXImageLoader (from `../node_modules/expo-image-loader/ios`)
-  - EXInAppPurchases (from `../node_modules/expo-in-app-purchases/ios`)
+  - "EXInAppPurchases (from `../node_modules/@legeek01/expo-in-app-purchases/ios`)"
   - EXJSONUtils (from `../node_modules/expo-json-utils/ios`)
   - EXLocation (from `../node_modules/expo-location/ios`)
   - EXManifests (from `../node_modules/expo-manifests/ios`)
@@ -733,7 +725,6 @@ DEPENDENCIES:
   - RNReactNativeSharedGroupPreferences (from `../node_modules/react-native-shared-group-preferences`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
-  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNSVG (from `../node_modules/react-native-svg`)
   - UMAppLoader (from `../node_modules/unimodules-app-loader/ios`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -742,8 +733,6 @@ SPEC REPOS:
   trunk:
     - fmt
     - libevent
-    - Sentry
-    - SentryPrivate
     - SocketRocket
     - ZXingObjC
 
@@ -771,7 +760,7 @@ EXTERNAL SOURCES:
   EXImageLoader:
     :path: "../node_modules/expo-image-loader/ios"
   EXInAppPurchases:
-    :path: "../node_modules/expo-in-app-purchases/ios"
+    :path: "../node_modules/@legeek01/expo-in-app-purchases/ios"
   EXJSONUtils:
     :path: "../node_modules/expo-json-utils/ios"
   EXLocation:
@@ -929,8 +918,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
-  RNSentry:
-    :path: "../node_modules/@sentry/react-native"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   UMAppLoader:
@@ -950,7 +937,7 @@ SPEC CHECKSUMS:
   EXFileSystem: 2b826a3bf1071a4b80a8457e97124783d1ac860e
   EXFont: 738c44c390953ebcbab075a4848bfbef025fd9ee
   EXImageLoader: 34b214f9387e98f3c73989f15d8d5b399c9ab3f7
-  EXInAppPurchases: e55f38bce3cb6b70f57d361458c897b17196448d
+  EXInAppPurchases: ae18fd2160bb0f5338520abcea4b023db4f4d331
   EXJSONUtils: 6802be4282d42b97c51682468ddc1026a06f8276
   EXLocation: a425ace19c0445e7ea9702982fc6b9a402791510
   EXManifests: cf66451b11b2c2f6464917528d792759f7fd6ce0
@@ -1031,10 +1018,7 @@ SPEC CHECKSUMS:
   RNReactNativeSharedGroupPreferences: 29092869fc2e40d5baca5e15d82fa5c24a668977
   RNReanimated: 726395a2fa2f04cea340274ba57a4e659bc0d9c1
   RNScreens: 50ffe2fa2342eabb2d0afbe19f7c1af286bc7fb3
-  RNSentry: eefa12fa65b37dd71f54371720f9fcddcd17be2f
   RNSVG: 53c661b76829783cdaf9b7a57258f3d3b4c28315
-  Sentry: d9f99f9cc13777c5d938650c1e1c85047bb4f0d1
-  SentryPrivate: 839b1e58addf58624087a80b2628e543193fa8ef
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   UMAppLoader: e83f024f75f07802fce99739f04b4537d188caaf
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603

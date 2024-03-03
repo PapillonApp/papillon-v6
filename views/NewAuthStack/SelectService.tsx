@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useLayoutEffect, useState } from 'react';
-import { ScrollView, View, Image, StatusBar, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useLayoutEffect, useState } from 'react';
+import { View, Image, Platform, StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import GetUIColors from '../../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -11,14 +11,14 @@ import NativeText from '../../components/NativeText';
 import CheckAnimated from '../../interface/CheckAnimated';
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
-import { AlertTriangle } from 'lucide-react-native';
+import { AlertTriangle, Scale } from 'lucide-react-native';
 
 const SelectService = ({ navigation }) => {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
 
   const [edAlertVisible, setEdAlertVisible] = useState(false);
-  const [pronoteAlertVisible, setPronoteAlertVisible] = useState(false);
+  const [serviceAlertVisible, setServiceAlertVisible] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -34,16 +34,21 @@ const SelectService = ({ navigation }) => {
   const [serviceOptions, setServiceOptions] = useState([
     {
       name: 'PRONOTE',
+      company: 'Index Education',
       description: 'Identifiants PRONOTE ou ENT',
       icon: require('../../assets/logo_modern_pronote.png'),
+      view: 'FindEtab',
     },
     {
       name: 'Skolengo',
+      company: 'Kosmos',
       description: 'Comptes régionnaux',
       icon: require('../../assets/logo_modern_skolengo.png'),
+      view: 'LoginSkolengoSelectSchool',
     },
     {
       name: 'EcoleDirecte',
+      company: 'Aplim',
       description: 'Identifiants EcoleDirecte',
       icon: require('../../assets/logo_modern_ed.png'),
     }
@@ -55,15 +60,12 @@ const SelectService = ({ navigation }) => {
 
   const continueToLogin = () => {
     if (selectedService !== null) {
-      if (selectedService === 0) {
-        setPronoteAlertVisible(true);
-      }
-      if (selectedService === 1) {
-        navigation.navigate('LoginSkolengoSelectSchool');
-      }
       if (selectedService === 2) {
         setEdAlertVisible(true);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      } else {
+        setServiceAlertVisible(true);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       }
     }
   };
@@ -79,17 +81,17 @@ const SelectService = ({ navigation }) => {
       />
 
       <NativeText style={styles.instructionsText}>
-        Sélectionnez l’application de vie scolaire que vous utilisez dans votre établissement.
+        Sélectionnez le service de vie scolaire que vous utilisez dans votre établissement.
       </NativeText>
 
       <AlertBottomSheet
-        visible={pronoteAlertVisible}
-        icon={<AlertTriangle />}
+        visible={serviceAlertVisible}
+        icon={<Scale />}
         title="Important"
-        subtitle="Papillon n’est pas affilié à Index Education. Des bugs peuvent survenir lors de l’utilisation de PRONOTE sur Papillon."
-        cancelAction={() => setPronoteAlertVisible(false)}
+        subtitle={`Papillon n’est pas affilié à ${serviceOptions[selectedService]?.company}. Des bugs peuvent survenir lors de l’utilisation de ${serviceOptions[selectedService]?.name} sur Papillon.`}
+        cancelAction={() => setServiceAlertVisible(false)}
         primaryButton='Compris !'
-        primaryAction={() => {navigation.navigate('FindEtab'), setPronoteAlertVisible(false);}}
+        primaryAction={() => {navigation.navigate(serviceOptions[selectedService]?.view); setServiceAlertVisible(false);}}
       />
 
 

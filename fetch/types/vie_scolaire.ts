@@ -1,9 +1,13 @@
-import type { PapillonAttachment } from './homework';
+import type { PapillonAttachment } from './attachment';
 
 export interface PapillonVieScolaire {
   delays: PapillonDelay[]
   absences: PapillonAbsence[]
   punishments: PapillonPunishment[]
+}
+
+export interface CachedPapillonVieScolaire extends PapillonVieScolaire {
+  timestamp: number
 }
 
 export interface PapillonAbsence {

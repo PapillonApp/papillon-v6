@@ -11,8 +11,13 @@ import NativeText from '../../../components/NativeText';
 import { Link2 } from 'lucide-react-native';
 import AlertBottomSheet from '../../../interface/AlertBottomSheet';
 
-const LoginURL = ({ navigation }) => {
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const LoginURL = ({ navigation }: {
+  navigation: any // TODO
+}) => {
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
 
   const [currentURL, setCurrentURL] = React.useState('');
   const [urlAlert, setURLAlert] = React.useState(false);
@@ -58,6 +63,7 @@ const LoginURL = ({ navigation }) => {
 
       <NativeList
         inset
+        style={[Platform.OS === 'android' ? { marginTop: insets.top } : null]}
       >
         <NativeItem
           leading={

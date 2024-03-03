@@ -1,4 +1,5 @@
-import type { PapillonHomework, PapillonAttachment } from '../types/homework';
+import type { PapillonHomework } from '../types/homework';
+import type { PapillonAttachment, PapillonAttachmentType } from '../types/attachment';
 import { PronoteApiHomeworkReturnType, type Pronote } from 'pawnote';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -70,7 +71,7 @@ export const homeworkHandler = async (force = false, instance?: Pronote): Promis
       for (const attachment of homework.attachments) {
         attachments.push({
           name: attachment.name,
-          type: attachment.type,
+          type: attachment.type as unknown as PapillonAttachmentType,
           url: attachment.url,
         });
       }

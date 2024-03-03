@@ -86,31 +86,6 @@ function DevoirsScreen({ navigation }: {
     });
   }, [navigation, UIColors]);
 
-  // const loadCustomHomeworks = async () => {
-  //   return; // TODO
-  //   AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
-  //     let hw = [];
-  //     if (customHomeworks) {
-  //       hw = JSON.parse(customHomeworks);
-  //     }
-
-  //     let newCustomHomeworks = {};
-
-  //     for (let i = 0; i < hw.length; i++) {
-  //       const hwPageDate = calcDate(new Date(hw[i].date), 0);
-  //       const usedDate = hwPageDate.toLocaleDateString();
-
-  //       // if (!newCustomHomeworks[usedDate]) {
-  //       //   newCustomHomeworks[usedDate] = [];
-  //       // }
-
-  //       // newCustomHomeworks[usedDate].push(hw[i]);
-  //     }
-
-  //     setCustomHomeworks(newCustomHomeworks);
-  //   });
-  // };
-
   const appContext = useAppContext();
   
   type HomeworkItem = { title: string, data: PapillonHomework[] }
@@ -300,31 +275,6 @@ function Hwitem({ homework, openURL, navigation }: {
 
   const handleStateChange = async () => {
     setCheckStateLoading(true);
-
-    // if (homework.custom) {
-    //   AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
-    //     let hw = [];
-    //     if (customHomeworks) {
-    //       hw = JSON.parse(customHomeworks);
-    //     }
-
-    //     // find the homework
-    //     for (let i = 0; i < hw.length; i++) {
-    //       if (hw[i].local_id === homework.local_id) {
-    //         hw[i].done = !thisHwChecked;
-    //       }
-    //     }
-
-    //     setThisHwChecked(!thisHwChecked);
-    //     AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
-
-    //     setTimeout(() => {
-    //       setThisHwLoading(false);
-    //     }, 100);
-    //   });
-
-    //   return;
-    // }
     
     await appContext.dataProvider?.changeHomeworkState(homework, !homework.done);
     setCheckStateLoading(false);

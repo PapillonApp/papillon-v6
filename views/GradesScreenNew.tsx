@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Animated, ActivityIndicator, StatusBar, View, Dimensions, StyleSheet, Button, ScrollView, TouchableOpacity, RefreshControl, Easing, Platform, Pressable } from 'react-native';
+import { Animated, ActivityIndicator, StatusBar, View, Dimensions, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Easing, Platform, Pressable } from 'react-native';
 
 // Custom imports
 import GetUIColors from '../utils/GetUIColors';
@@ -16,9 +16,6 @@ import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import formatCoursName from '../utils/FormatCoursName';
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
-
-// Components & Styles
-import { useTheme } from 'react-native-paper';
 
 // Icons
 import { Users2, TrendingDown, TrendingUp, AlertTriangle, MoreVertical } from 'lucide-react-native';
@@ -115,12 +112,12 @@ const GradesScreen = ({ navigation }: {
       {
         name: 'Moyenne max',
         value: averages.max || 0,
-        icon: <TrendingDown color={UIColors.text} />,
+        icon: <TrendingUp color={UIColors.text} />,
       },
       {
         name: 'Moyenne min',
         value: averages.min || 0,
-        icon: <TrendingUp color={UIColors.text} />,
+        icon: <TrendingDown color={UIColors.text} />,
       },
     ]);
   }, [averages, UIColors.text, pronoteClassAverage]);
@@ -222,7 +219,7 @@ const GradesScreen = ({ navigation }: {
   }
 
   async function addGradesToSubject(grades: PapillonGrades): Promise<void> {
-    const data = grades.averages.map(average => ({...average, grades: []}));
+    const data = grades.averages.map(average => ({ ...average, grades: [] as PapillonGrades['grades'] }));
 
     grades.grades.forEach((grade) => {
       const subject = data.find((subject) => subject.subject.id === grade.subject.id);
@@ -579,7 +576,7 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
         },
       }}
       containerStyle={
-        Platform.OS !== 'ios' && { backgroundColor: 'transparent' }
+        Platform.OS !== 'ios' ? { backgroundColor: 'transparent' } : void 0
       }
     >
       <View />

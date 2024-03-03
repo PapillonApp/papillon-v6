@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { View, StatusBar, StyleSheet, TouchableOpacity, Platform, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import { School, Search, X } from 'lucide-react-native';
 
@@ -12,12 +12,22 @@ import GetUIColors from '../../../utils/GetUIColors';
 import type { GeographicMunicipality } from '../../../fetch/geolocation/geo-gouv';
 import { findPronoteInstances, defaultPawnoteFetcher, type PronoteInstance } from 'pawnote';
 
-const LocateEtabList = ({ route, navigation }) => {
-  const UIColors = GetUIColors();
-  const location: GeographicMunicipality = route.params.location;
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-  const [isInstancesLoading, setInstancesLoading] = React.useState(false);
-  const [instances, setInstances] = React.useState<PronoteInstance[] | null>(null);
+const LocateEtabList = ({ route, navigation }: {
+  navigation: any // TODO
+  route: {
+    params: {
+      location: GeographicMunicipality
+    }
+  }
+}) => {
+  const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
+  const location = route.params.location;
+
+  const [isInstancesLoading, setInstancesLoading] = useState(false);
+  const [instances, setInstances] = useState<PronoteInstance[] | null>(null);
 
   const openInstance = (instance: PronoteInstance) => {
     console.log(instance);
@@ -25,7 +35,7 @@ const LocateEtabList = ({ route, navigation }) => {
     navigation.navigate('NGPronoteLogin', { instanceURL: instance.url });
   };
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerBackTitle: location.properties.name,
       headerRight: () => (
@@ -36,7 +46,7 @@ const LocateEtabList = ({ route, navigation }) => {
     });
   }, [isInstancesLoading]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const [longitude, latitude] = location.geometry.coordinates;
     (async () => {
       try {
@@ -56,12 +66,12 @@ const LocateEtabList = ({ route, navigation }) => {
     })();
   }, [location]);
 
-  const [currentSearch, setCurrentSearch] = React.useState('');
-  const textInputRef = React.createRef<TextInput | null>();
+  const [currentSearch, setCurrentSearch] = useState('');
+  const textInputRef = createRef<TextInput | null>();
 
   const normalize = (text: string) => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const filteredInstances = currentSearch.length > 2
-    ? instances.filter((instance) => normalize(instance.name).includes(normalize(currentSearch)))
+    ? (instances ?? []).filter((instance) => normalize(instance.name).includes(normalize(currentSearch)))
     : instances;
 
   return (
@@ -87,8 +97,11 @@ const LocateEtabList = ({ route, navigation }) => {
         />
       )}
 
-      {!isInstancesLoading && instances?.length > 0 && (
-        <NativeList inset>
+      {!isInstancesLoading && instances?.length && (
+        <NativeList
+          inset
+          style={[Platform.OS === 'android' ? { marginTop: insets.top } : null]}
+        >
           <NativeItem
             leading={<Search color={UIColors.text + '88'} />}
             trailing={ 
@@ -120,7 +133,7 @@ const LocateEtabList = ({ route, navigation }) => {
         />
       )}
 
-      {!isInstancesLoading && instances?.length > 0 && filteredInstances.length === 0 && (
+      {!isInstancesLoading && instances?.length && filteredInstances?.length === 0 && (
         <PapillonLoading 
           icon={<School color={UIColors.text} size={26} style={{ margin: 8 }} />}
           title="Aucun résultat"
@@ -128,7 +141,7 @@ const LocateEtabList = ({ route, navigation }) => {
         />
       )}
 
-      {!isInstancesLoading && instances?.length > 0 && filteredInstances.length > 0 && (
+      {!isInstancesLoading && instances?.length && filteredInstances?.length && (
         <NativeList
           inset
           style={{

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -23,13 +23,15 @@ import NativeText from '../../components/NativeText';
 import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
 
-import { PieChart, Link, File, DownloadCloud, MoreHorizontal, ChevronLeft, FileCheck2 } from 'lucide-react-native';
+import { PieChart, Link, File, MoreHorizontal, ChevronLeft, FileCheck2 } from 'lucide-react-native';
 import GetUIColors from '../../utils/GetUIColors';
 import { useAppContext } from '../../utils/AppContext';
 
 import * as FileSystem from 'expo-file-system';
 import type { PapillonNews } from '../../fetch/types/news';
-import { PapillonAttachmentType, PapillonAttachment as PapillonAttachmentT } from '../../fetch/types/homework';
+import { PapillonAttachmentType, type PapillonAttachment as PapillonAttachmentT } from '../../fetch/types/attachment';
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function NewsItem({ route, navigation }: {
   route: { params: { news: PapillonNews } },
@@ -38,16 +40,17 @@ function NewsItem({ route, navigation }: {
   const [news, setNews] = useState<PapillonNews>(route.params.news);
   const theme = useTheme();
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen] = useState(false);
 
   const appContext = useAppContext();
 
   const [isRead, setIsRead] = useState(news.read);
   const [readChanged, setReadChanged] = useState(false);
 
-  const loadNews = async (id) => {
+  const loadNews = async (id?: string) => {
     if (!id || !appContext.dataProvider) return;
   
     if (appContext.dataProvider.service === 'skolengo') {
@@ -57,7 +60,7 @@ function NewsItem({ route, navigation }: {
   };
 
   // add mark as read/not read button in the header
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerTintColor: Platform.OS === 'ios' && '#B42828',
       headerBackTitleVisible: false,
@@ -66,7 +69,7 @@ function NewsItem({ route, navigation }: {
         color: UIColors.text,
         fontFamily: 'Papillon-Semibold',
       },
-      headerLeft : () => (
+      headerLeft : () => ( Platform.OS === 'ios' ? (
         <TouchableOpacity
           style={{
             backgroundColor: '#B4282800',
@@ -83,6 +86,7 @@ function NewsItem({ route, navigation }: {
         >
           <ChevronLeft size={32} color={'#B42828'} />
         </TouchableOpacity>
+      ) : null
       ),
       headerRight: () => (
         <ContextMenuButton
@@ -101,7 +105,10 @@ function NewsItem({ route, navigation }: {
                 },
                 menuState: isRead ? 'on' : 'off',
               },
-              {
+              // We only display the `copy` action if the news is an information.
+              // We can't just copy the content of a survey, there's content
+              // on each questions, so it's just non-sense.
+              ...(news.is === 'information' ? [{
                 actionKey  : 'copy',
                 actionTitle: 'Copier le contenu',
                 icon: {
@@ -110,17 +117,23 @@ function NewsItem({ route, navigation }: {
                     systemName: 'doc.on.doc',
                   },
                 },
-              }
+              } as const] : [])
             ],
           }}
-          onPressMenuItem={async ({nativeEvent}) => {
+          onPressMenuItem={async ({ nativeEvent }) => {
             if (nativeEvent.actionKey === 'read') {
-              markNewsAsRead(news.local_id).then((e) => {
-                setIsRead(e.current_state);
-                setReadChanged(true);
-              });
+              const ok = await markNewsAsRead(news.id);
+              if (!ok) {
+                Alert.alert('Erreur', 'Impossible de marquer cette actualité comme lue.');
+                return;
+              }
+              
+              setIsRead(curr => !curr);
+              setReadChanged(true);
             }
             else if (nativeEvent.actionKey === 'copy') {
+              // Only allow on information type.
+              if (news.is !== 'information') return;
               await Clipboard.setStringAsync(news.content);
             }
           }}
@@ -133,24 +146,27 @@ function NewsItem({ route, navigation }: {
     });
   }, [navigation, isRead, readChanged]);
 
-  function markNewsAsRead(id) {
-    if (!appContext.dataProvider) return;
+  const markNewsAsRead = async (localID: string): Promise<boolean> => {
+    if (!appContext.dataProvider) return false;
+    return appContext.dataProvider.changeNewsState(localID);
+  };
 
-    return appContext.dataProvider.changeNewsState(id).then((result) => {
-      return result;
-    });
-  }
+  useEffect(() => {
+    (async () => {
+      setNews(route.params.news);
+      loadNews(route.params.news.id);
+  
+      if (!route.params.news.read && !readChanged) {
+        const ok = await markNewsAsRead(route.params.news.id);
+        if (!ok) {
+          Alert.alert('Erreur', 'Impossible de marquer cette actualité comme lue.');
+          return;
+        }
 
-  React.useEffect(() => {
-    setNews(route.params.news);
-    loadNews(route.params.news.id);
-
-    if (!route.params.news.read && !readChanged) {
-      markNewsAsRead(route.params.news.local_id).then((e) => {
-        setIsRead(e.current_state);
+        setIsRead(current => !current);
         setReadChanged(true);
-      });
-    }
+      }
+    })();
   }, [route.params.news, isRead, readChanged]);
 
   const openURL = async (url: string): Promise<void> => {
@@ -161,7 +177,7 @@ function NewsItem({ route, navigation }: {
     });
   };
 
-  function genFirstName(name: string) {
+  function genFirstName (name: string): string | undefined {
     const names = name.split(' ');
 
     if (names?.at(0)?.at(0) === 'M') {
@@ -176,25 +192,8 @@ function NewsItem({ route, navigation }: {
     return names?.at(0)?.at(0);
   }
 
-  function trimHtml(html: string) {
-    // remove &nbsp;
-    html = html.replace('&nbsp;', '');
-
-    // remove empty <p> tags even if they have attributes
-    html = html.replace(/<p[^>]*>\s*<\/p>/g, '');
-    // remove empty <div> tags even if they have attributes
-    html = html.replace(/<div[^>]*>\s*<\/div>/g, '');
-
-    return html;
-  }
-
-  const source = {
-    html: trimHtml(news.content),
-  };
-
-  const defaultTextProps = {
-    selectable: true,
-  };
+  const defaultHTMLTextProps = { selectable: true };
+  const defaultHTMLBaseStyle = theme.dark ? styles.baseStyleDark : styles.baseStyle;
 
   return (
     <ScrollView
@@ -210,8 +209,11 @@ function NewsItem({ route, navigation }: {
         backgroundColor="transparent"
       />
 
-      {news.survey ? (
-        <NativeList inset>
+      {news.is === 'survey' ? (
+        <NativeList 
+          inset
+          style={[Platform.OS === 'android' ? { marginTop: insets.top } : null]}
+        >
           <NativeItem
             leading={
               <PieChart size={20} color={theme.dark ? '#ffffff' : '#000000'} />
@@ -229,34 +231,34 @@ function NewsItem({ route, navigation }: {
             </NativeText>
           </NativeItem>
         </NativeList>
-      ) : null}
-
-      <View style={styles.newsTextContainer}>
-        {source.html ? (
-          <RenderHtml
-            contentWidth={width}
-            defaultTextProps={defaultTextProps}
-            source={source}
-            baseStyle={theme.dark ? styles.baseStyleDark : styles.baseStyle}
-          />
-        ) : null}
-      </View>
-
-      {news.attachments.length > 0 && (
-        <NativeList 
-          inset
-          header="Pièces jointes"
-        >
-          {news.attachments.map((file, index) => (
-            <PapillonAttachment
-              key={index}
-              file={file} 
-              index={index}
-              navigation={navigation}
-              openURL={openURL}
+      ) : (
+        <>
+          <View style={styles.newsTextContainer}>
+            <RenderHtml
+              contentWidth={width}
+              defaultTextProps={defaultHTMLTextProps}
+              source={{ html: news.content }}
+              baseStyle={defaultHTMLBaseStyle}
             />
-          ))}
-        </NativeList>
+          </View>
+    
+          {news.attachments.length > 0 && (
+            <NativeList 
+              inset
+              header="Pièces jointes"
+            >
+              {news.attachments.map((file, index) => (
+                <PapillonAttachment
+                  key={index}
+                  file={file} 
+                  index={index}
+                  navigation={navigation}
+                  openURL={openURL}
+                />
+              ))}
+            </NativeList>
+          )}
+        </>
       )}
 
       {news.author ? (
@@ -351,7 +353,7 @@ function NewsItem({ route, navigation }: {
   );
 }
 
-function PapillonAttachment({ file: attachment, index, navigation, openURL }: {
+function PapillonAttachment ({ file: attachment, index, navigation, openURL }: {
   file: PapillonAttachmentT
   index: number
   navigation: any // TODO
@@ -390,7 +392,7 @@ function PapillonAttachment({ file: attachment, index, navigation, openURL }: {
     }
   }, []);
 
-  async function redownloadFile() {
+  async function reDownloadFile() {
     await FileSystem.downloadAsync(attachment.url, FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
     setDownloaded(true);
     setFileURL(FileSystem.documentDirectory + formattedAttachmentName + '.' + formattedFileExtension);
@@ -398,8 +400,7 @@ function PapillonAttachment({ file: attachment, index, navigation, openURL }: {
   }
 
   return (
-    <NativeItem
-      key={index}
+    <NativeItem key={index}
       onPress={downloaded ? () => {
         if (formattedFileExtension === 'pdf') {
           navigation.navigate('PdfViewer', {
@@ -410,6 +411,7 @@ function PapillonAttachment({ file: attachment, index, navigation, openURL }: {
           openURL(fileURL);
         }
       } : () => void 0}
+
       leading={ 
         attachment.type === PapillonAttachmentType.Link ? (
           <Link size={20} color={theme.dark ? '#ffffff' : '#000000'} />
@@ -417,7 +419,8 @@ function PapillonAttachment({ file: attachment, index, navigation, openURL }: {
           <File size={20} color={theme.dark ? '#ffffff' : '#000000'} />
         )
       }
-      trailing={ savedLocally ? (
+
+      trailing={savedLocally && (
         <TouchableOpacity
           onPress={() => {
             Alert.alert(
@@ -439,7 +442,7 @@ function PapillonAttachment({ file: attachment, index, navigation, openURL }: {
                         FileSystem.deleteAsync(fileURL).then(() => {
                           setDownloaded(false);
                           setSavedLocally(false);
-                          redownloadFile();
+                          reDownloadFile();
                         });
                       } },
                       { text: 'Annuler', onPress: () => {} },
@@ -460,7 +463,7 @@ function PapillonAttachment({ file: attachment, index, navigation, openURL }: {
             style={{ opacity: 0.7, margin:5 }}
           />
         </TouchableOpacity>
-      ) : null }
+      )}
     >
 
       <View style={[styles.homeworkFileData]}>
