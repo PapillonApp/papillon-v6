@@ -1254,6 +1254,7 @@ function App() {
     setDataProvider
   }),	[loggedIn, dataProvider]);
   appContext.setContextValues(ctxValue)
+
   return appIsReady ? (
     <View style={{
       flex: 1,
