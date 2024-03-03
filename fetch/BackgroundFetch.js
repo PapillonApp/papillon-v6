@@ -228,7 +228,7 @@ async function backgroundFetch() {
   })
 }
 
-async function setBackgroundFetch() {
+export async function setBackgroundFetch() {
   console.log("Registered background fetch")
   TaskManager.defineTask("background-fetch", () => {
     backgroundFetch()
@@ -241,4 +241,6 @@ async function setBackgroundFetch() {
   backgroundFetch()
 }
 
-export default setBackgroundFetch;
+export async function unsetBackgroundFetch() {
+  BackgroundFetch.unregisterTaskAsync("background-fetch")
+}
