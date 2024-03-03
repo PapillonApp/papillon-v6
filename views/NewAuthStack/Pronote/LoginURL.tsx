@@ -29,7 +29,7 @@ const LoginURL = ({ navigation }: {
       return;
     }
 
-    navigation.navigate('NGPronoteLogin', {
+    navigation.navigate('NGPronoteWebviewLogin', {
       instanceURL: currentURL
     });
   };

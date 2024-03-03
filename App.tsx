@@ -86,6 +86,7 @@ import LocateEtabList from './views/NewAuthStack/Pronote/LocateEtabList';
 import LoginURL from './views/NewAuthStack/Pronote/LoginURL';
 import ScanPronoteQR from './views/NewAuthStack/Pronote/NewPronoteQR';
 import NGPronoteLogin from './views/NewAuthStack/Pronote/NGPronoteLogin';
+import NGPronoteWebviewLogin from './views/NewAuthStack/Pronote/NGPronoteWebviewLogin';
 import GradesSimulatorMenu from './views/Grades/GradesSimulatorMenu';
 import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
 // import * as notifs from './components/Notifications';
@@ -1177,6 +1178,14 @@ function AuthStack() {
         options={{
           headerTitle: 'Se connecter',
           headerTransparent: true,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="NGPronoteWebviewLogin"
+        component={NGPronoteWebviewLogin}
+        options={{
+          headerTitle: 'NGPronoteWebviewLogin',
           presentation: 'modal',
         }}
       />
