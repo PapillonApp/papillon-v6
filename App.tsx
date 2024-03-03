@@ -21,6 +21,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 SplashScreen.preventAutoHideAsync();
 
+import * as appContext from './utils/AppContext'
+
+import * as notifs from './utils/Notifications';
+
 import {
   ChevronLeft,
 } from 'lucide-react-native';
@@ -88,8 +92,7 @@ import ScanPronoteQR from './views/NewAuthStack/Pronote/NewPronoteQR';
 import NGPronoteLogin from './views/NewAuthStack/Pronote/NGPronoteLogin';
 import GradesSimulatorMenu from './views/Grades/GradesSimulatorMenu';
 import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
-// import * as notifs from './components/Notifications';
-// notifs.init();
+
 const Tab = createBottomTabNavigator();
 
 import { startNetworkLogging } from 'react-native-network-logger';
@@ -891,6 +894,7 @@ function Header(props) {
 }
 
 function AppStack() {
+  notifs.init();
   const theme = useTheme();
   const UIColors = GetUIColors();
 
@@ -1249,6 +1253,7 @@ function App() {
     dataProvider,
     setDataProvider
   }),	[loggedIn, dataProvider]);
+  appContext.setContextValues(ctxValue)
 
   return appIsReady ? (
     <View style={{

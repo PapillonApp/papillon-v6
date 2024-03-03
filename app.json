@@ -7,9 +7,13 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
+    "primaryColor": "#32AB8E",
     "assetBundlePatterns": [
       "**/*"
     ],
+    "notification": {
+      "icon": "./assets/icon-small-notif.png"
+    },
     "intentFilters": [
       {
         "action": "VIEW",

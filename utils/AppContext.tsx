@@ -28,6 +28,28 @@ export const DefaultValuesAppContext: AppContextType = {
 };
 
 const AppContext = React.createContext<AppContextType>(DefaultValuesAppContext);
+
+let contextValues: Object = {
+  loggedIn: false,
+  setLoggedIn: () => void 0,
+  dataProvider: null,
+  setDataProvider: () => void 0
+}
+
+/**
+ * Set context values manually. Can be get with getContextValues.
+ * Those functions are made for modules that can't access context values with React context (e.q. a non-React module such as the Background Fetch)
+ */
+export const setContextValues = (values: Object) => {
+  contextValues = values
+}
+
+/**
+ * Get context values manually. Can be set with setContextValues. Will return default values if not set.
+ * Those functions are made for modules that can't access context values with React context (e.q. a non-React module such as the Background Fetch)
+ */
+export const getContextValues = () => { return contextValues }
+
 export const useAppContext = () => React.useContext(AppContext);
 
 export const baseColor = '#32AB8E';
