@@ -15,6 +15,8 @@ import notifee from '@notifee/react-native';
 
 import { Platform } from 'react-native';
 
+import { getContextValues } from '../utils/AppContext';
+
 async function sleep(time) {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -24,7 +26,6 @@ async function sleep(time) {
 }
 
 async function delNotif() {
-  await sleep(10000) 
   notifee.displayNotification({
     title: 'Récupération des données en arrière-plan',
     id: 'background-fetch',
@@ -45,11 +46,9 @@ async function delNotif() {
 // Actualités
 
 async function newsFetch(callback) {
+  let dataInstance = getContextValues().dataProvider
   return new Promise(async(resolve, reject) => {
     console.log("Récupération des news")
-    const dataInstance = new IndexDataInstance();
-    const serviceName = await AsyncStorage.getItem('service');
-    await dataInstance.init(serviceName)
     AsyncStorage.getItem('oldNews').then((oldNews) => {
       if (oldNews) {
         console.log("oldNews présent")
@@ -102,16 +101,13 @@ async function newsFetch(callback) {
 
 // Devoirs
 async function checkUndoneHomeworks(callback) {
+  let dataInstance = getContextValues().dataProvider
   return new Promise(async (resolve, reject) => {
     console.log("Récupération des devoirs")
     let tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const dataInstance = new IndexDataInstance();
-    const serviceName = await AsyncStorage.getItem('service');
-    await dataInstance.init(serviceName)
     const homeworks = await dataInstance.getHomeworks(tomorrow, true);
-    console.log(homeworks) 
     const undone = homeworks.filter((homework) => !homework.done);
 
     const fireDate = new Date();
@@ -169,11 +165,10 @@ async function checkUndoneHomeworks(callback) {
 
 //Notes
 async function fetchGrades(callback) {
+  const appContext = useAppContext();
+  let dataInstance = appContext.dataProvider
   return new Promise(async (resolve, reject) => {
     console.log("Récupération des notes")
-    const dataInstance = new IndexDataInstance();
-    const serviceName = await AsyncStorage.getItem('service');
-    await dataInstance.init(serviceName)
     let user = await dataInstance.getUser(true)
     let periods = user.periodes.grades
     let actualPeriod = periods.filter(p => p.actual === true)[0]
