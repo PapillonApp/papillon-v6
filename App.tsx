@@ -24,7 +24,6 @@ SplashScreen.preventAutoHideAsync();
 import * as appContext from './utils/AppContext'
 
 import * as notifs from './utils/Notifications';
-notifs.init();
 
 import {
   ChevronLeft,
@@ -93,8 +92,7 @@ import ScanPronoteQR from './views/NewAuthStack/Pronote/NewPronoteQR';
 import NGPronoteLogin from './views/NewAuthStack/Pronote/NGPronoteLogin';
 import GradesSimulatorMenu from './views/Grades/GradesSimulatorMenu';
 import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
-// import * as notifs from './components/Notifications';
-// notifs.init();
+
 const Tab = createBottomTabNavigator();
 
 import { startNetworkLogging } from 'react-native-network-logger';
@@ -896,6 +894,7 @@ function Header(props) {
 }
 
 function AppStack() {
+  notifs.init();
   const theme = useTheme();
   const UIColors = GetUIColors();
 
