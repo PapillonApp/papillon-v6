@@ -25,6 +25,10 @@ async function sleep(time) {
 }
 
 async function delNotif() {
+  if (Platform.OS === 'ios') {
+    return false;
+  }
+
   notifee.displayNotification({
     title: 'Récupération des données en arrière-plan',
     id: 'background-fetch',
