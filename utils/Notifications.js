@@ -6,7 +6,7 @@ import packageJson from '../package.json';
 import { showMessage } from 'react-native-flash-message';
 import notifee, {AndroidImportance, AuthorizationStatus} from '@notifee/react-native';
 
-import setBackgroundFetch from '../fetch/BackgroundFetch';
+import { setBackgroundFetch } from '../fetch/BackgroundFetch';
 
 let vars = {};
 
