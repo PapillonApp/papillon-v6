@@ -147,6 +147,7 @@ function NGPronoteLogin({ route, navigation }: {
         message: 'Connecté avec succès',
         type: 'success',
         icon: 'auto',
+        floating: true
       });
 
       await appContext.dataProvider!.init('pronote', pronote);
@@ -155,9 +156,10 @@ function NGPronoteLogin({ route, navigation }: {
       navigation.goBack();
       navigation.goBack();
       appContext.setLoggedIn(true);
-    } catch {
+    } catch(err) {
       setConnecting(false);
       setErrorAlert(true);
+      console.error(err)
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
