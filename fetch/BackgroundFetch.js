@@ -238,7 +238,6 @@ async function setBackgroundFetch() {
   TaskManager.defineTask("background-fetch", () => {
     backgroundFetch()
   })
-  await BackgroundFetch.unregisterTaskAsync('background-fetch')
   BackgroundFetch?.registerTaskAsync('background-fetch', {
     minimumInterval: 60 * 15, // 15 minutes
     stopOnTerminate: false, // android only,
