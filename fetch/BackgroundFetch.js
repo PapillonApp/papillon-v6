@@ -2,9 +2,8 @@ import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
 
 //import {Notifications} from 'react-native-notifications';
-
-import { useAppContext } from '../utils/AppContext';
-import { useEffect } from 'react';
+// import { useAppContext } from '../utils/AppContext';
+// import { useEffect } from 'react';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IndexDataInstance } from '.';
