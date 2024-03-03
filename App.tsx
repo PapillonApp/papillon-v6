@@ -21,6 +21,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 SplashScreen.preventAutoHideAsync();
 
+import * as appContext from './utils/AppContext'
+
 import * as notifs from './utils/Notifications';
 notifs.init();
 
@@ -1252,7 +1254,7 @@ function App() {
     dataProvider,
     setDataProvider
   }),	[loggedIn, dataProvider]);
-
+  appContext.setContextValues(ctxValue)
   return appIsReady ? (
     <View style={{
       flex: 1,
