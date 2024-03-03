@@ -1,50 +1,41 @@
-import React, { useMemo, useEffect, useState, useRef } from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 
 import {
-  View,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Image,
-  Animated,
-  Easing,
-  TouchableHighlight,
   ActivityIndicator,
-  RefreshControl,
+  Alert,
+  Animated,
+  Dimensions,
+  Easing,
+  Image,
   Linking,
   Platform,
+  RefreshControl,
+  ScrollView,
   StatusBar,
+  StyleSheet,
+  TouchableHighlight,
   TouchableOpacity,
-  Dimensions,
+  View,
 } from 'react-native';
 
 // Components & Styles
-import { useTheme, Text, Menu, Divider } from 'react-native-paper';
-import { PressableScale } from 'react-native-pressable-scale';
-import { ContextMenuButton } from 'react-native-ios-context-menu';
+import {Divider, Menu, Text, useTheme} from 'react-native-paper';
+import {PressableScale} from 'react-native-pressable-scale';
+import {ContextMenuButton, ContextMenuView, MenuElementConfig} from 'react-native-ios-context-menu';
 
 // Modules
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
-import { useIsFocused } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  ContextMenuView,
-  MenuElementConfig,
-} from 'react-native-ios-context-menu';
+import {useIsFocused} from '@react-navigation/native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import NextCoursElem from '../interface/HomeScreen/NextCours';
 import * as ExpoLinking from 'expo-linking';
 import * as Haptics from 'expo-haptics';
 
 // Icons
+import {AlertCircle, DownloadCloud, Globe2, UserCircle2, X} from 'lucide-react-native';
 import {
-  DownloadCloud,
-  AlertCircle,
-  UserCircle2,
-  Globe2,
-  X,
-} from 'lucide-react-native';
-import {
+  CalendarFill as PapillonIconsCalendarFill,
   Competences,
   Messages,
   Papillon as PapillonIcon,
@@ -53,33 +44,27 @@ import {
 
 // Formatting
 import GetUIColors from '../utils/GetUIColors';
-import { getSavedCourseColor } from '../utils/ColorCoursName';
+import {getSavedCourseColor} from '../utils/ColorCoursName';
 import formatCoursName from '../utils/FormatCoursName';
 
 // Custom components
 import CheckAnimated from '../interface/CheckAnimated';
 
-import { useAppContext } from '../utils/AppContext';
+import {useAppContext} from '../utils/AppContext';
 import sendToSharedGroup from '../fetch/SharedValues';
-import { LinearGradient } from 'expo-linear-gradient';
+import {LinearGradient} from 'expo-linear-gradient';
 
-import { useNetInfo } from '@react-native-community/netinfo';
+import {useNetInfo} from '@react-native-community/netinfo';
 import AlertAnimated from '../interface/AlertAnimated';
-import type { PapillonUser } from '../fetch/types/user';
-import type { PapillonLesson } from '../fetch/types/timetable';
-import type {
-  PapillonGroupedHomeworks,
-  PapillonHomework,
-} from '../fetch/types/homework';
-import { dateToFrenchFormat } from '../utils/dates';
-import { convert as convertHTML } from 'html-to-text';
-import { atom, useAtom, useSetAtom } from 'jotai';
-import { homeworksAtom, homeworksUntilNextWeekAtom } from '../atoms/homeworks';
+import type {PapillonUser} from '../fetch/types/user';
+import type {PapillonLesson} from '../fetch/types/timetable';
+import type {PapillonGroupedHomeworks, PapillonHomework} from '../fetch/types/homework';
+import {dateToFrenchFormat} from '../utils/dates';
+import {convert as convertHTML} from 'html-to-text';
+import {atom, useAtom, useSetAtom} from 'jotai';
+import {homeworksAtom, homeworksUntilNextWeekAtom} from '../atoms/homeworks';
 import NativeText from '../components/NativeText';
-
-import {
-  CalendarFill as PapillonIconsCalendarFill,
-} from '../interface/icons/PapillonIcons';
+import Carousel from 'react-native-reanimated-carousel';
 
 // Functions
 const openURL = (url: string) => {
@@ -100,7 +85,7 @@ const openURL = (url: string) => {
             Linking.openURL(`https://${url}`);
           },
         },
-      ]
+      ],
     );
     return;
   }
@@ -113,8 +98,6 @@ const openURL = (url: string) => {
     createTask: false,
   });
 };
-
-import Carousel from 'react-native-reanimated-carousel';
 
 // create list of dict from THEMES_IMAGES
 const THEMES_IMAGES_LIST = [
@@ -258,7 +241,7 @@ const THEMES_IMAGES_LIST = [
 // make an array of images
 const THEMES_IMAGES = THEMES_IMAGES_LIST.map((theme) => theme.image);
 
-function HomeScreen({ navigation }: { navigation: any }) {
+function HomeScreen({navigation}: { navigation: any }) {
   const appContext = useAppContext();
   const theme = useTheme();
   const UIColors = GetUIColors();
@@ -298,7 +281,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
               let days = [...prevDays]; // Copy of the old value.
 
               const existingDay = days.find(
-                (day) => day.date === homeworkDate.getTime()
+                (day) => day.date === homeworkDate.getTime(),
               );
               if (!existingDay) {
                 days.push({
@@ -336,11 +319,11 @@ function HomeScreen({ navigation }: { navigation: any }) {
           }, {} as Record<string, PapillonGroupedHomeworks>);
 
           return Object.values(groupedHomeworks).sort(
-            (a, b) => a.time - b.time
+            (a, b) => a.time - b.time,
           );
         }),
-      []
-    )
+      [],
+    ),
   );
 
   // url handling
@@ -350,7 +333,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
     }, 1000);
 
     // subscribe to url changes
-    ExpoLinking.addEventListener('url', ({ url }) => {
+    ExpoLinking.addEventListener('url', ({url}) => {
       handleURL(url);
     });
   }, [expoLinkedURL]);
@@ -432,9 +415,9 @@ function HomeScreen({ navigation }: { navigation: any }) {
    * we need to process them before displaying.
    */
   const applyHomeworksAndLessonsData = async (
-    lessons: PapillonLesson[]
+    lessons: PapillonLesson[],
   ): Promise<void> => {
-    setLessons({ loading: false, data: lessons });
+    setLessons({loading: false, data: lessons});
 
     await loadCustomHomeworks();
     await sendToSharedGroup(lessons);
@@ -446,13 +429,13 @@ function HomeScreen({ navigation }: { navigation: any }) {
    */
   type LazyLoadedValue<T> =
     | {
-        loading: true;
-        data: null;
-      }
+    loading: true;
+    data: null;
+  }
     | {
-        loading: false;
-        data: T;
-      };
+    loading: false;
+    data: T;
+  };
 
   const [user, setUser] = useState<LazyLoadedValue<PapillonUser>>({
     loading: true,
@@ -478,12 +461,12 @@ function HomeScreen({ navigation }: { navigation: any }) {
       let timetable = await appContext.dataProvider.getTimetable(now, force);
       // Take only the lessons that are for today.
       let lessons = timetable.filter(
-        (lesson) => dateToFrenchFormat(new Date(lesson.start)) === todayKey
+        (lesson) => dateToFrenchFormat(new Date(lesson.start)) === todayKey,
       );
 
       // Check if all lessons for today are done.
       const todayLessonsDone = lessons.every(
-        (lesson) => new Date(lesson.end) < now
+        (lesson) => new Date(lesson.end) < now,
       );
 
       if (todayLessonsDone) {
@@ -496,12 +479,12 @@ function HomeScreen({ navigation }: { navigation: any }) {
         if (isTomorrowMonday) {
           timetable = await appContext.dataProvider.getTimetable(
             tomorrow,
-            force
+            force,
           );
         } // else, we just keep our current timetable array.
 
         lessons = timetable.filter(
-          (lesson) => dateToFrenchFormat(new Date(lesson.start)) === tomorrowKey
+          (lesson) => dateToFrenchFormat(new Date(lesson.start)) === tomorrowKey,
         );
         setShowsTomorrowLessons(true);
       }
@@ -525,7 +508,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
       if (!appContext.dataProvider) return;
 
       const userData = await appContext.dataProvider.getUser();
-      setUser({ loading: false, data: userData });
+      setUser({loading: false, data: userData});
 
       await refreshScreenData(false);
     })();
@@ -583,7 +566,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
   const [scrolled, setScrolled] = useState(false);
   const scrolledAnim = useRef(new Animated.Value(0)).current;
 
-  yOffset.addListener(({ value }) => {
+  yOffset.addListener(({value}) => {
     if (Platform.OS === 'ios') {
       if (value > 50) {
         setScrolled(true);
@@ -607,8 +590,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
 
   // Animations
   const scrollHandler = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: yOffset } } }],
-    { useNativeDriver: false }
+    [{nativeEvent: {contentOffset: {y: yOffset}}}],
+    {useNativeDriver: false},
   );
 
   const themeImageOpacity = yOffset.interpolate({
@@ -630,502 +613,523 @@ function HomeScreen({ navigation }: { navigation: any }) {
     }}
   >
     <Animated.View
+      style={[
+        {
+          backgroundColor: nextColor,
+          overflow: 'hidden',
+          elevation: 4,
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          width: '100%',
+          zIndex: 2000,
+        },
+      ]}
+    >
+      {THEMES_IMAGES_LIST && THEMES_IMAGES_LIST[currentThemeIndex] && (
+        <Animated.Image
+          source={THEMES_IMAGES_LIST[currentThemeIndex].image}
           style={[
             {
-              backgroundColor: nextColor,
-              overflow: 'hidden',
-              elevation: 4,
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              width: '100%',
-              zIndex: 2000,
-            },
-          ]}
-        >
-          {THEMES_IMAGES_LIST && THEMES_IMAGES_LIST[currentThemeIndex] && (
-            <Animated.Image
-              source={THEMES_IMAGES_LIST[currentThemeIndex].image}
-              style={[
-                {
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: 150,
-                },
-                Platform.OS === 'ios' && {
-                  opacity: themeImageOpacity,
-                  transform: [
-                    {
-                      scale: themeImageTransform.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [1, 0.9],
-                      }),
-                    },
-                  ],
-                },
-              ]}
-            />
-          )}
-          <LinearGradient
-            colors={[nextColor + '00', nextColor + 'FF']}
-            locations={[0, 0.8]}
-            style={{
               position: 'absolute',
               top: 0,
               left: 0,
               width: '100%',
               height: 150,
-            }}
-          />
-          <View
-            style={[
+            },
+            Platform.OS === 'ios' && {
+              opacity: themeImageOpacity,
+              transform: [
+                {
+                  scale: themeImageTransform.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 0.9],
+                  }),
+                },
+              ],
+            },
+          ]}
+        />
+      )}
+      <LinearGradient
+        colors={[nextColor + '00', nextColor + 'FF']}
+        locations={[0, 0.8]}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: 150,
+        }}
+      />
+      <View
+        style={[
+          {
+            backgroundColor: scrolled ? UIColors.element : '#00000032',
+            paddingTop: insets.top,
+            paddingBottom: 0,
+            flexDirection: 'column',
+            zIndex: 3,
+            borderBottomWidth: scrolled ? 0.5 : 0,
+            borderBottomColor: UIColors.borderLight,
+          },
+        ]}
+      >
+        <Animated.View
+          pointerEvents={changeThemeOpen ? 'none' : 'auto'}
+          style={{
+            opacity: changeThemeAnim.interpolate({
+              inputRange: [0, 0.5],
+              outputRange: [1, 0],
+            }),
+            transform: [
               {
-                backgroundColor: scrolled ? UIColors.element : '#00000032',
-                paddingTop: insets.top,
-                paddingBottom: 0,
-                flexDirection: 'column',
-                zIndex: 3,
-                borderBottomWidth: scrolled ? 0.5 : 0,
-                borderBottomColor: UIColors.borderLight,
-              },
-            ]}
-          >
-            <Animated.View
-              pointerEvents={changeThemeOpen ? 'none' : 'auto'}
-              style={{
-                opacity: changeThemeAnim.interpolate({
+                scale: changeThemeAnim.interpolate({
                   inputRange: [0, 0.5],
-                  outputRange: [1, 0],
+                  outputRange: [1, 0.9],
                 }),
-                transform: [
-                  {
-                    scale: changeThemeAnim.interpolate({
-                      inputRange: [0, 0.5],
-                      outputRange: [1, 0.9],
-                    }),
-                  },
-                ],
-                zIndex: 4000,
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  paddingHorizontal: 16,
-                  paddingBottom: 6,
-                  paddingTop: 4,
-                }}
-              >
-                {Platform.OS === 'ios' && (
-                  <PapillonIcon
-                    fill={scrolled ? UIColors.text + '88' : '#ffffff'}
-                    width={32}
-                    height={32}
-                  />
-                )}
+              },
+            ],
+            zIndex: 4000,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingHorizontal: 16,
+              paddingBottom: 6,
+              paddingTop: 4,
+            }}
+          >
+            {Platform.OS === 'ios' && (
+              <PapillonIcon
+                fill={scrolled ? UIColors.text + '88' : '#ffffff'}
+                width={32}
+                height={32}
+              />
+            )}
 
-                {!scrolled ? (
-                  <Text
-                    style={[
-                      Platform.OS === 'ios'
-                        ? {
-                          color: scrolled ? UIColors.text : '#ffffff',
-                          fontSize: 17,
-                          fontFamily: 'Papillon-Semibold',
-                          marginVertical: 8,
-                        }
-                        : {
-                          color: '#ffffff',
-                          fontSize: 18,
-                          marginVertical: 9,
-                        },
-                    ]}
-                  >
-                    Vue d'ensemble
-                  </Text>
-                ) : (
-                  <Animated.View
-                    style={{
-                      flex: 1,
-                      height: 38,
-                      marginTop: -2,
-                      opacity: scrolledAnim,
-                      transform: [
-                        {
-                          scale: scrolledAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0.8, 1],
-                            extrapolate: 'clamp',
-                          }),
-                        },
-                        {
-                          translateY: scrolledAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [100, 0],
-                            extrapolate: 'clamp',
-                          }),
-                        },
-                      ],
-                    }}
-                  >
-                    <NextCoursElem
-                      tiny
-                      cours={lessons.data}
-                      navigation={navigation}
-                      yOffset={new Animated.Value(0)}
-                      mainAction={() => {
-                        // scroll up
-                        scrollRef.current?.scrollTo({ y: 0, animated: true });
-                      }}
-                    />
-                  </Animated.View>
-                )}
-
-                {Platform.OS === 'ios' ? (
-                  <ContextMenuButton
-                    isMenuPrimaryAction={true}
-                    menuConfig={{
-                      menuTitle: '',
-                      menuItems: [
-                        {
-                          actionKey: 'profile',
-                          actionTitle: 'Mon profil',
-                          actionSubtitle: user.loading
-                            ? 'Chargement...'
-                            : user.data.name,
-                          icon: {
-                            type: 'IMAGE_SYSTEM',
-                            imageValue: {
-                              systemName: 'person.crop.circle',
-                            },
-                          },
-                        },
-                        {
-                          menuTitle: 'Personnalisation',
-                          icon: {
-                            type: 'IMAGE_SYSTEM',
-                            imageValue: {
-                              systemName: 'paintbrush',
-                            },
-                          },
-                          menuItems: [
-                            {
-                              actionKey: 'theme',
-                              actionTitle: 'Bandeau',
-                              icon: {
-                                type: 'IMAGE_SYSTEM',
-                                imageValue: {
-                                  systemName: 'swatchpalette',
-                                },
-                              },
-                            },
-                            {
-                              actionKey: 'cours',
-                              actionTitle: 'Matières',
-                              icon: {
-                                type: 'IMAGE_SYSTEM',
-                                imageValue: {
-                                  systemName: 'paintpalette',
-                                },
-                              },
-                            },
-                          ],
-                        },
-                        {
-                          actionKey: 'preferences',
-                          actionTitle: 'Préférences',
-                          icon: {
-                            type: 'IMAGE_SYSTEM',
-                            imageValue: {
-                              systemName: 'gear',
-                            },
-                          },
-                        },
-                      ],
-                    }}
-                    onPressMenuItem={({ nativeEvent }) => {
-                      if (nativeEvent.actionKey === 'preferences') {
-                        navigation.navigate('InsetSettings', { isModal: true });
-                      } else if (nativeEvent.actionKey === 'theme') {
-                        setChangeThemeOpen(true);
-                      } else if (nativeEvent.actionKey === 'profile') {
-                        navigation.navigate('InsetProfile', { isModal: true });
-                      } else if (nativeEvent.actionKey === 'cours') {
-                        navigation.navigate('InsetMatieres', { isModal: true });
-                      }
-                    }}
-                  >
-                    <TouchableOpacity
-                      style={headerStyles.headerPfpContainer}
-                      onPress={() => {
-                        setUserMenuOpen(true);
-                      }}
-                    >
-                      {!user.loading && user.data.profile_picture ? (
-                        <Image
-                          source={{ uri: user.data.profile_picture }}
-                          style={headerStyles.headerPfp}
-                        />
-                      ) : (
-                        <UserCircle2
-                          size={36}
-                          style={headerStyles.headerPfp}
-                          color="#ccc"
-                        />
-                      )}
-                    </TouchableOpacity>
-                  </ContextMenuButton>
-                ) : (
-                  <Menu
-                    visible={userMenuOpen}
-                    onDismiss={() => setUserMenuOpen(false)}
-                    contentStyle={{
-                      paddingVertical: 0,
-                    }}
-                    anchor={
-                      <TouchableOpacity
-                        style={headerStyles.headerPfpContainer}
-                        onPress={() => setUserMenuOpen(true)}
-                      >
-                        {!user.loading && user.data.profile_picture ? (
-                          <Image
-                            source={{ uri: user.data.profile_picture }}
-                            style={headerStyles.headerPfp}
-                          />
-                        ) : (
-                          <UserCircle2
-                            size={36}
-                            style={headerStyles.headerPfp}
-                            color="#ccc"
-                          />
-                        )}
-                      </TouchableOpacity>
-                    }
-                  >
-                    <Menu.Item
-                      title={user.loading ? 'Mon profil' : user.data.name}
-                      leadingIcon="account-circle"
-                      onPress={() => {
-                        setUserMenuOpen(false);
-                        navigation.navigate('InsetProfile', { isModal: true });
-                      }}
-                    />
-                    <Divider />
-                    <Menu.Item
-                      title="Bandeau"
-                      leadingIcon="palette"
-                      onPress={() => {
-                        setUserMenuOpen(false);
-                        setChangeThemeOpen(true);
-                      }}
-                    />
-                    <Divider />
-                    <Menu.Item
-                      title="Préférences"
-                      leadingIcon="cog"
-                      onPress={() => {
-                        setUserMenuOpen(false);
-                        navigation.navigate('InsetSettings', { isModal: true });
-                      }}
-                    />
-                  </Menu>
-                )}
-              </View>
-              <Animated.View
+            {!scrolled ? (
+              <Text
                 style={[
-                  {
-                    marginTop: 0,
-                    height:
-                      Platform.OS === 'ios'
-                        ? yOffset.interpolate({
-                          inputRange: [0 - insets.top, 106 - insets.top],
-                          outputRange: [106, 0],
-                          extrapolate: 'clamp',
-                          // @ts-expect-error : Not sure if it's typed correctly.
-                          useNativeDriver: false,
-                        })
-                        : 106,
-                  },
+                  Platform.OS === 'ios'
+                    ? {
+                      color: scrolled ? UIColors.text : '#ffffff',
+                      fontSize: 17,
+                      fontFamily: 'Papillon-Semibold',
+                      marginVertical: 8,
+                    }
+                    : {
+                      color: '#ffffff',
+                      fontSize: 18,
+                      marginVertical: 9,
+                    },
                 ]}
               >
-                <Animated.View
-                  style={{
-                    flex: 1,
-                  }}
-                >
-                  <NextCoursElem
-                    longPressAction={() => {
-                      setChangeThemeOpen(true);
-                    }}
-                    cours={lessons.data}
-                    navigation={navigation}
-                    setNextColor={(color) => {
-                      setNextColor(color);
-                    }}
-                    yOffset={yOffset}
-                    color={themeAdjustments.enabled ? nextColor : void 0}
-                    style={{
-                      marginHorizontal: 16,
-                      marginVertical: 0,
-                      marginTop: 2,
-                    }}
-                  />
-                  <Animated.View
-                    style={{
-                      height: 16,
-                    }}
-                  />
-                </Animated.View>
-              </Animated.View>
-            </Animated.View>
-
-            {showThemeCarousel && (
+                  Vue d'ensemble
+              </Text>
+            ) : (
               <Animated.View
                 style={{
-                  position: 'absolute',
-                  paddingTop: insets.top,
-                  width: '100%',
-                  opacity: changeThemeAnim.interpolate({
-                    inputRange: [0.5, 1],
-                    outputRange: [0, 1],
-                  }),
+                  flex: 1,
+                  height: 38,
+                  marginTop: -2,
+                  opacity: scrolledAnim,
                   transform: [
                     {
-                      scale: changeThemeAnim.interpolate({
-                        inputRange: [0.5, 1],
-                        outputRange: [0.9, 1],
+                      scale: scrolledAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.8, 1],
+                        extrapolate: 'clamp',
+                      }),
+                    },
+                    {
+                      translateY: scrolledAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [100, 0],
+                        extrapolate: 'clamp',
                       }),
                     },
                   ],
                 }}
               >
-                <View
-                  style={{
-                    width: '100%',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    paddingHorizontal: 16,
-                    paddingBottom: 6,
-                    paddingTop: 4,
+                <NextCoursElem
+                  tiny
+                  cours={lessons.data}
+                  navigation={navigation}
+                  yOffset={new Animated.Value(0)}
+                  mainAction={() => {
+                    // scroll up
+                    scrollRef.current?.scrollTo({y: 0, animated: true});
                   }}
-                >
-                  {Platform.OS === 'ios' && (
-                    <PapillonIcon
-                      fill={scrolled ? UIColors.text + '88' : '#ffffff00'}
-                      width={32}
-                      height={32}
-                    />
-                  )}
-                  <Text
-                    style={[
-                      Platform.OS === 'ios'
-                        ? {
-                          color: scrolled ? UIColors.text : '#ffffff',
-                          fontSize: 17,
-                          fontFamily: 'Papillon-Semibold',
-                          marginVertical: 8,
-                        }
-                        : {
-                          color: '#ffffff',
-                          fontSize: 18,
-                          marginVertical: 9,
-                        },
-                    ]}
-                  >
-                    Bandeau
-                  </Text>
-                  <TouchableOpacity
-                    style={{
-                      width: 32,
-                      height: 32,
-
-                      alignItems: 'center',
-                      justifyContent: 'center',
-
-                      borderRadius: 20,
-                      backgroundColor: '#ffffff35',
-                    }}
-                    onPress={() => {
-                      setChangeThemeOpen(false);
-                    }}
-                  >
-                    <X color="#ffffff" size={22} strokeWidth={2.5} />
-                  </TouchableOpacity>
-                </View>
-
-                <View
-                  style={{
-                    flex: 1,
-                    marginTop: -10,
-                  }}
-                >
-                  {THEMES_IMAGES_LIST &&
-                    THEMES_IMAGES_LIST[currentThemeIndex] && (
-                    <Carousel
-                      loop
-                      width={Dimensions.get('window').width}
-                      height={110}
-                      defaultIndex={currentThemeIndex}
-                      data={THEMES_IMAGES_LIST}
-                      scrollAnimationDuration={100}
-                      onSnapToItem={(index) => {
-                        setCurrentThemeIndex(index);
-                        Haptics.impactAsync(
-                          Haptics.ImpactFeedbackStyle.Light
-                        );
-                        AsyncStorage.setItem(
-                          'hs_themeIndex',
-                          index.toString()
-                        );
-                      }}
-                      renderItem={({ index }) => (
-                        <View
-                          style={{
-                            flex: 1,
-                            opacity: currentThemeIndex === index ? 1 : 0.5,
-                          }}
-                        >
-                          <View
-                            style={{
-                              flex: 1,
-
-                              backgroundColor: '#ffffff22',
-                              borderColor:
-                                  currentThemeIndex === index
-                                    ? '#ffffff'
-                                    : '#ffffff00',
-                              borderWidth: 1.5,
-
-                              borderRadius: 12,
-                              borderCurve: 'continuous',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            <Image
-                              source={THEMES_IMAGES_LIST[index].image}
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                              }}
-                              resizeMode="cover"
-                            />
-                          </View>
-                        </View>
-                      )}
-                      mode="parallax"
-                    />
-                  )}
-                </View>
+                />
               </Animated.View>
             )}
+
+            {Platform.OS === 'ios' ? (
+              <ContextMenuButton
+                isMenuPrimaryAction={true}
+                menuConfig={{
+                  menuTitle: '',
+                  menuItems: [
+                    {
+                      actionKey: 'profile',
+                      actionTitle: 'Mon profil',
+                      actionSubtitle: user.loading
+                        ? 'Chargement...'
+                        : user.data.name,
+                      icon: {
+                        type: 'IMAGE_SYSTEM',
+                        imageValue: {
+                          systemName: 'person.crop.circle',
+                        },
+                      },
+                    },
+                    {
+                      menuTitle: 'Personnalisation',
+                      icon: {
+                        type: 'IMAGE_SYSTEM',
+                        imageValue: {
+                          systemName: 'paintbrush',
+                        },
+                      },
+                      menuItems: [
+                        {
+                          actionKey: 'theme',
+                          actionTitle: 'Bandeau',
+                          icon: {
+                            type: 'IMAGE_SYSTEM',
+                            imageValue: {
+                              systemName: 'swatchpalette',
+                            },
+                          },
+                        },
+                        {
+                          actionKey: 'cours',
+                          actionTitle: 'Matières',
+                          icon: {
+                            type: 'IMAGE_SYSTEM',
+                            imageValue: {
+                              systemName: 'paintpalette',
+                            },
+                          },
+                        },
+                      ],
+                    },
+                    {
+                      actionKey: 'linkedAccount',
+                      actionTitle: 'Comptes liés',
+                      icon: {
+                        type: 'IMAGE_SYSTEM',
+                        imageValue: {
+                          systemName: 'link',
+                        },
+                      },
+                    },
+                    {
+                      actionKey: 'preferences',
+                      actionTitle: 'Préférences',
+                      icon: {
+                        type: 'IMAGE_SYSTEM',
+                        imageValue: {
+                          systemName: 'gear',
+                        },
+                      },
+                    },
+                  ],
+                }}
+                onPressMenuItem={({nativeEvent}) => {
+                  if (nativeEvent.actionKey === 'preferences') {
+                    navigation.navigate('InsetSettings', {isModal: true});
+                  } else if (nativeEvent.actionKey === 'theme') {
+                    setChangeThemeOpen(true);
+                  } else if (nativeEvent.actionKey === 'profile') {
+                    navigation.navigate('InsetProfile', {isModal: true});
+                  } else if (nativeEvent.actionKey === 'cours') {
+                    navigation.navigate('InsetMatieres', {isModal: true});
+                  } else if (nativeEvent.actionKey === 'linkedAccount') {
+                    navigation.navigate('LinkedAccount', {isModal: true});
+                  }
+                }}
+              >
+                <TouchableOpacity
+                  style={headerStyles.headerPfpContainer}
+                  onPress={() => {
+                    setUserMenuOpen(true);
+                  }}
+                >
+                  {!user.loading && user.data.profile_picture ? (
+                    <Image
+                      source={{uri: user.data.profile_picture}}
+                      style={headerStyles.headerPfp}
+                    />
+                  ) : (
+                    <UserCircle2
+                      size={32}
+                      style={headerStyles.headerPfp}
+                      color={scrolled ? UIColors.text + '88' : '#ffffff'}
+                    />
+                  )}
+                </TouchableOpacity>
+              </ContextMenuButton>
+            ) : (
+              <Menu
+                visible={userMenuOpen}
+                onDismiss={() => setUserMenuOpen(false)}
+                contentStyle={{
+                  paddingVertical: 0,
+                }}
+                anchor={
+                  <TouchableOpacity
+                    style={headerStyles.headerPfpContainer}
+                    onPress={() => setUserMenuOpen(true)}
+                  >
+                    {!user.loading && user.data.profile_picture ? (
+                      <Image
+                        source={{uri: user.data.profile_picture}}
+                        style={headerStyles.headerPfp}
+                      />
+                    ) : (
+                      <UserCircle2
+                        size={32}
+                        style={headerStyles.headerPfp}
+                        color={scrolled ? UIColors.text + '88' : '#ffffff'}
+                      />
+                    )}
+                  </TouchableOpacity>
+                }
+              >
+                <Menu.Item
+                  title={user.loading ? 'Mon profil' : user.data.name}
+                  leadingIcon="account-circle"
+                  onPress={() => {
+                    setUserMenuOpen(false);
+                    navigation.navigate('InsetProfile', {isModal: true});
+                  }}
+                />
+                <Divider/>
+                <Menu.Item
+                  title="Bandeau"
+                  leadingIcon="palette"
+                  onPress={() => {
+                    setUserMenuOpen(false);
+                    setChangeThemeOpen(true);
+                  }}
+                />
+                <Divider/>
+                <Menu.Item
+                  title="Comptes liés"
+                  leadingIcon="link"
+                  onPress={() => {
+                    setUserMenuOpen(false);
+                    navigation.navigate('InsetSettings', {isModal: true});
+                  }}
+                />
+                <Divider/>
+                <Menu.Item
+                  title="Préférences"
+                  leadingIcon="cog"
+                  onPress={() => {
+                    setUserMenuOpen(false);
+                    navigation.navigate('InsetSettings', {isModal: true});
+                  }}
+                />
+              </Menu>
+            )}
           </View>
+          <Animated.View
+            style={[
+              {
+                marginTop: 0,
+                height:
+                    Platform.OS === 'ios'
+                      ? yOffset.interpolate({
+                        inputRange: [0 - insets.top, 106 - insets.top],
+                        outputRange: [106, 0],
+                        extrapolate: 'clamp',
+                        // @ts-expect-error : Not sure if it's typed correctly.
+                        useNativeDriver: false,
+                      })
+                      : 106,
+              },
+            ]}
+          >
+            <Animated.View
+              style={{
+                flex: 1,
+              }}
+            >
+              <NextCoursElem
+                longPressAction={() => {
+                  setChangeThemeOpen(true);
+                }}
+                cours={lessons.data}
+                navigation={navigation}
+                setNextColor={(color) => {
+                  setNextColor(color);
+                }}
+                yOffset={yOffset}
+                color={themeAdjustments.enabled ? nextColor : void 0}
+                style={{
+                  marginHorizontal: 16,
+                  marginVertical: 0,
+                  marginTop: 2,
+                }}
+              />
+              <Animated.View
+                style={{
+                  height: 16,
+                }}
+              />
+            </Animated.View>
+          </Animated.View>
         </Animated.View>
+
+        {showThemeCarousel && (
+          <Animated.View
+            style={{
+              position: 'absolute',
+              paddingTop: insets.top,
+              width: '100%',
+              opacity: changeThemeAnim.interpolate({
+                inputRange: [0.5, 1],
+                outputRange: [0, 1],
+              }),
+              transform: [
+                {
+                  scale: changeThemeAnim.interpolate({
+                    inputRange: [0.5, 1],
+                    outputRange: [0.9, 1],
+                  }),
+                },
+              ],
+            }}
+          >
+            <View
+              style={{
+                width: '100%',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingHorizontal: 16,
+                paddingBottom: 6,
+                paddingTop: 4,
+              }}
+            >
+              {Platform.OS === 'ios' && (
+                <PapillonIcon
+                  fill={scrolled ? UIColors.text + '88' : '#ffffff00'}
+                  width={32}
+                  height={32}
+                />
+              )}
+              <Text
+                style={[
+                  Platform.OS === 'ios'
+                    ? {
+                      color: scrolled ? UIColors.text : '#ffffff',
+                      fontSize: 17,
+                      fontFamily: 'Papillon-Semibold',
+                      marginVertical: 8,
+                    }
+                    : {
+                      color: '#ffffff',
+                      fontSize: 18,
+                      marginVertical: 9,
+                    },
+                ]}
+              >
+                  Bandeau
+              </Text>
+              <TouchableOpacity
+                style={{
+                  width: 32,
+                  height: 32,
+
+                  alignItems: 'center',
+                  justifyContent: 'center',
+
+                  borderRadius: 20,
+                  backgroundColor: '#ffffff35',
+                }}
+                onPress={() => {
+                  setChangeThemeOpen(false);
+                }}
+              >
+                <X color="#ffffff" size={22} strokeWidth={2.5}/>
+              </TouchableOpacity>
+            </View>
+
+            <View
+              style={{
+                flex: 1,
+                marginTop: -10,
+              }}
+            >
+              {THEMES_IMAGES_LIST &&
+                  THEMES_IMAGES_LIST[currentThemeIndex] && (
+                <Carousel
+                  loop
+                  width={Dimensions.get('window').width}
+                  height={110}
+                  defaultIndex={currentThemeIndex}
+                  data={THEMES_IMAGES_LIST}
+                  scrollAnimationDuration={100}
+                  onSnapToItem={(index) => {
+                    setCurrentThemeIndex(index);
+                    Haptics.impactAsync(
+                      Haptics.ImpactFeedbackStyle.Light,
+                    );
+                    AsyncStorage.setItem(
+                      'hs_themeIndex',
+                      index.toString(),
+                    );
+                  }}
+                  renderItem={({index}) => (
+                    <View
+                      style={{
+                        flex: 1,
+                        opacity: currentThemeIndex === index ? 1 : 0.5,
+                      }}
+                    >
+                      <View
+                        style={{
+                          flex: 1,
+
+                          backgroundColor: '#ffffff22',
+                          borderColor:
+                                currentThemeIndex === index
+                                  ? '#ffffff'
+                                  : '#ffffff00',
+                          borderWidth: 1.5,
+
+                          borderRadius: 12,
+                          borderCurve: 'continuous',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <Image
+                          source={THEMES_IMAGES_LIST[index].image}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                          }}
+                          resizeMode="cover"
+                        />
+                      </View>
+                    </View>
+                  )}
+                  mode="parallax"
+                />
+              )}
+            </View>
+          </Animated.View>
+        )}
+      </View>
+    </Animated.View>
     <ScrollView
       ref={scrollRef}
       style={{
@@ -1142,7 +1146,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
           onRefresh={async () => {
             // Refresh data
             setRefreshing(true);
-            setLessons({ loading: true, data: null });
+            setLessons({loading: true, data: null});
 
             await refreshScreenData(true);
             setRefreshing(false);
@@ -1152,7 +1156,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
       onScroll={scrollHandler}
       scrollEventThrottle={16}
     >
-      <View style={{ height: 10 }} />
+      <View style={{height: 10}}/>
 
       {isFocused && (
         <StatusBar
@@ -1168,15 +1172,15 @@ function HomeScreen({ navigation }: { navigation: any }) {
         />
       )}
 
-      <TabsElement navigation={navigation} />
+      <TabsElement navigation={navigation}/>
 
       <AlertAnimated
         visible={!net.isConnected}
         title="Vous êtes hors-ligne"
         subtitle="Les informations affichées peuvent être obsolètes."
-        left={<Globe2 color={UIColors.text} />}
+        left={<Globe2 color={UIColors.text}/>}
         height={80}
-        style={{ marginHorizontal: 16 }}
+        style={{marginHorizontal: 16}}
       />
 
       <CoursElement
@@ -1196,15 +1200,15 @@ function HomeScreen({ navigation }: { navigation: any }) {
       />
 
       {groupedHomeworks &&
-        groupedHomeworks.length < 2 &&
-        lessons.data &&
-        lessons.data.length < 4 && <View style={{ height: 100 }} />}
+          groupedHomeworks.length < 2 &&
+          lessons.data &&
+          lessons.data.length < 4 && <View style={{height: 100}}/>}
     </ScrollView>
   </View>
   );
 }
 
-const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
+const TabsElement: React.FC<{ navigation: any }> = ({navigation}) => {
   const theme = useTheme();
   const UIColors = GetUIColors(null, 'ios');
 
@@ -1254,7 +1258,7 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
           activeScale={0.9}
           onPress={() => navigation.navigate('InsetConversations')}
         >
-          <Messages stroke={theme.dark ? '#ffffff' : '#000000'} />
+          <Messages stroke={theme.dark ? '#ffffff' : '#000000'}/>
           <Text style={styles.tabsTabText}>Messages</Text>
         </PressableScale>
         <PressableScale
@@ -1275,7 +1279,7 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
           activeScale={0.9}
           onPress={() => navigation.navigate('InsetEvaluations')}
         >
-          <Competences stroke={theme.dark ? '#ffffff' : '#000000'} />
+          <Competences stroke={theme.dark ? '#ffffff' : '#000000'}/>
           <Text style={styles.tabsTabText}>Compét.</Text>
         </PressableScale>
       </View>
@@ -1289,7 +1293,7 @@ const CoursElement: React.FC<{
   loading: boolean;
   showsTomorrow: boolean;
   date: Date;
-}> = ({ cours, navigation, loading, showsTomorrow, date }) => {
+}> = ({cours, navigation, loading, showsTomorrow, date}) => {
   const UIColors = GetUIColors(null, 'ios');
 
   return (
@@ -1310,7 +1314,7 @@ const CoursElement: React.FC<{
         <TouchableOpacity
           style={[
             styles.sectionHeaderIcon,
-            { backgroundColor: UIColors.text + '22' },
+            {backgroundColor: UIColors.text + '22'},
           ]}
           onPress={() => {
             navigation.navigate('CoursHandler');
@@ -1354,7 +1358,7 @@ const CoursElement: React.FC<{
           )
         ) : (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator />
+            <ActivityIndicator/>
             <Text style={styles.loadingText}>
               Chargement de l'emploi du temps...
             </Text>
@@ -1397,8 +1401,8 @@ function CoursItem({
     <>
       {cours[index - 1] &&
         new Date(lesson.start).getTime() -
-          new Date(cours[index - 1].end).getTime() >
-          1800000 && (
+        new Date(cours[index - 1].end).getTime() >
+        1800000 && (
         <Animated.View
           style={[
             styles.coursSeparator,
@@ -1424,36 +1428,36 @@ function CoursItem({
           <View
             style={[
               styles.coursSeparatorLine,
-              { backgroundColor: UIColors.text + '15' },
+              {backgroundColor: UIColors.text + '15'},
             ]}
           />
 
-          <Text style={{ color: UIColors.text + '30' }}>
+          <Text style={{color: UIColors.text + '30'}}>
             {`${Math.floor(
               (new Date(lesson.start).getTime() -
                   new Date(cours[index - 1].end).getTime()) /
-                  3600000
+                3600000,
             )} h ${lz(
               Math.floor(
                 ((new Date(lesson.start).getTime() -
-                    new Date(cours[index - 1].end).getTime()) %
+                      new Date(cours[index - 1].end).getTime()) %
                     3600000) /
-                    60000
-              )
+                  60000,
+              ),
             )} min`}
           </Text>
 
           <View
             style={[
               styles.coursSeparatorLine,
-              { backgroundColor: UIColors.text + '15' },
+              {backgroundColor: UIColors.text + '15'},
             ]}
           />
         </Animated.View>
       )}
 
       <ContextMenuView
-        style={{ flex: 1 }}
+        style={{flex: 1}}
         previewConfig={{
           borderRadius: 12,
           backgroundColor: UIColors.element,
@@ -1473,13 +1477,13 @@ function CoursItem({
             },
           ],
         }}
-        onPressMenuItem={({ nativeEvent }) => {
+        onPressMenuItem={({nativeEvent}) => {
           if (nativeEvent.actionKey === 'open') {
-            navigation.navigate('Lesson', { event: lesson });
+            navigation.navigate('Lesson', {event: lesson});
           }
         }}
         onPressMenuPreview={() => {
-          navigation.navigate('Lesson', { event: lesson });
+          navigation.navigate('Lesson', {event: lesson});
         }}
       >
         <Animated.View
@@ -1508,7 +1512,7 @@ function CoursItem({
           <TouchableHighlight
             style={styles.coursItemContainer}
             underlayColor={UIColors.text + '12'}
-            onPress={() => navigation.navigate('Lesson', { event: lesson })}
+            onPress={() => navigation.navigate('Lesson', {event: lesson})}
           >
             <>
               <View style={styles.coursItemTimeContainer}>
@@ -1531,7 +1535,7 @@ function CoursItem({
                   {
                     backgroundColor: getSavedCourseColor(
                       lesson.subject?.name ?? '',
-                      lesson.background_color
+                      lesson.background_color,
                     ),
                   },
                 ]}
@@ -1555,11 +1559,11 @@ function CoursItem({
                         backgroundColor:
                           getSavedCourseColor(
                             lesson.subject?.name ?? '',
-                            lesson.background_color
+                            lesson.background_color,
                           ) + '22',
                         color: getSavedCourseColor(
                           lesson.subject?.name ?? '',
-                          lesson.background_color
+                          lesson.background_color,
                         ),
                       },
                     ]}
@@ -1605,7 +1609,7 @@ function DevoirsElement({
         <TouchableOpacity
           style={[
             styles.sectionHeaderIcon,
-            { backgroundColor: UIColors.text + '22' },
+            {backgroundColor: UIColors.text + '22'},
           ]}
           onPress={() => {
             navigation.navigate('CoursHandler');
@@ -1643,7 +1647,7 @@ function DevoirsElement({
                           weekday: 'long',
                           day: 'numeric',
                           month: 'long',
-                        }
+                        },
                       ),
                       time: day.date,
                       date: new Date(day.date),
@@ -1666,7 +1670,7 @@ function DevoirsElement({
           )
         ) : (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator />
+            <ActivityIndicator/>
             <Text style={styles.loadingText}>
               Chargement des travaux à faire...
             </Text>
@@ -1734,16 +1738,16 @@ const DevoirsDay = ({
             style={[
               styles.homeworksDevoirsDayHeaderContainer,
               UIColors.theme == 'dark' && Platform.OS !== 'ios'
-                ? { backgroundColor: UIColors.text + '22' }
-                : { backgroundColor: UIColors.primary + '22' },
+                ? {backgroundColor: UIColors.text + '22'}
+                : {backgroundColor: UIColors.primary + '22'},
             ]}
           >
             <Text
               style={[
                 styles.homeworksDevoirsDayHeaderTitle,
                 UIColors.theme == 'dark' && Platform.OS !== 'ios'
-                  ? { color: UIColors.text }
-                  : { color: UIColors.primary },
+                  ? {color: UIColors.text}
+                  : {color: UIColors.primary},
               ]}
             >
               pour {homeworks?.formattedDate}
@@ -1825,7 +1829,7 @@ function DevoirsContent({
 
     await appContext.dataProvider?.changeHomeworkState(
       homework,
-      !homework.done
+      !homework.done,
     );
     setCheckLoading(false);
   };
@@ -1897,7 +1901,7 @@ function DevoirsContent({
 
   return (
     <ContextMenuView
-      style={{ flex: 1 }}
+      style={{flex: 1}}
       previewConfig={{
         borderRadius: 12,
         backgroundColor: UIColors.element,
@@ -1943,9 +1947,9 @@ function DevoirsContent({
           ] as MenuElementConfig[]),
         ],
       }}
-      onPressMenuItem={({ nativeEvent }) => {
+      onPressMenuItem={({nativeEvent}) => {
         if (nativeEvent.actionKey === 'open') {
-          navigation.navigate('Devoir', { homeworkLocalID: homework.localID });
+          navigation.navigate('Devoir', {homeworkLocalID: homework.localID});
         } else if (nativeEvent.actionKey === 'check') {
           handleCheckChange();
         } else if (nativeEvent.actionKey === 'files') {
@@ -1953,7 +1957,7 @@ function DevoirsContent({
         }
       }}
       onPressMenuPreview={() => {
-        navigation.navigate('Devoir', { homeworkLocalID: homework.localID });
+        navigation.navigate('Devoir', {homeworkLocalID: homework.localID});
       }}
     >
       <Animated.View
@@ -1982,7 +1986,7 @@ function DevoirsContent({
           style={[styles.homeworksDevoirsContentContainer]}
           underlayColor={UIColors.text + '12'}
           onPress={() =>
-            navigation.navigate('Devoir', { homeworkLocalID: homework.localID })
+            navigation.navigate('Devoir', {homeworkLocalID: homework.localID})
           }
         >
           <View style={styles.homeworksDevoirsContentInner}>
@@ -2011,7 +2015,7 @@ function DevoirsContent({
                   <Text
                     style={[
                       styles.homeworksDevoirsContentHeaderSubjectTitle,
-                      { color: UIColors.text },
+                      {color: UIColors.text},
                     ]}
                     numberOfLines={1}
                     ellipsizeMode="tail"
@@ -2053,14 +2057,14 @@ function DevoirsContent({
                         key={index}
                         style={[
                           styles.homeworksDevoirsContentFooterFilesFileContainer,
-                          { backgroundColor: UIColors.text + '12' },
+                          {backgroundColor: UIColors.text + '12'},
                         ]}
                         onPress={() => openURL(file.url)}
                       >
                         {file.url ? (
-                          <DownloadCloud size={22} color={UIColors.text} />
+                          <DownloadCloud size={22} color={UIColors.text}/>
                         ) : (
-                          <AlertCircle size={22} color={'#ff0000'} />
+                          <AlertCircle size={22} color={'#ff0000'}/>
                         )}
                         <Text
                           style={
@@ -2074,7 +2078,7 @@ function DevoirsContent({
                     ))}
                   </View>
 
-                  <View style={{}} />
+                  <View style={{}}/>
                 </View>
               )}
             </View>

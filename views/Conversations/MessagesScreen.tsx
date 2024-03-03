@@ -11,8 +11,6 @@ import {
   Alert
 } from 'react-native';
 
-import { RenderHTML } from 'react-native-render-html';
-
 import type { PapillonDiscussionMessage } from '../../fetch/types/discussions';
 import { useAppContext } from '../../utils/AppContext';
 
@@ -30,6 +28,7 @@ import NativeText from '../../components/NativeText';
 
 import { useAtomValue } from 'jotai';
 import { discussionsAtom } from '../../atoms/discussions';
+import PapillonHTMLRender from '../../components/PapillonHTMLRender';
 
 function getInitials(name: string): string {
   if (name === undefined) {
@@ -107,21 +106,6 @@ function MessagesScreen ({ route, navigation }: {
   const [recipientsModalVisible, setRecipientsModalVisible] = useState(false);
   const [urlOpened, setUrlOpened] = useState(false);
   const [msgs, setMsgs] = useState<IMessage[]>([]);
-
-  async function openURL(url: string): Promise<void> {
-    setUrlOpened(true);
-
-    try {
-      await WebBrowser.openBrowserAsync(url, {
-        dismissButtonStyle: 'done',
-        presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
-        controlsColor: UIColors.primary,
-      });
-    } catch { /** No-op. */ }
-    finally {
-      setUrlOpened(false);
-    }
-  }
 
   useEffect(() => { // Set the conversation as read when the user opens it.
     (async () => {
@@ -214,27 +198,7 @@ function MessagesScreen ({ route, navigation }: {
             <Bubble
               {...props}
               renderMessageText={(props) => (
-                <RenderHTML
-                  source={{ html: props.currentMessage?.text as string }}
-                  baseStyle={{
-                    paddingHorizontal: 10,
-                    paddingVertical: 6,
-                    color: props.position === 'left' ? UIColors.text : '#ffffff',
-                  }}
-                  renderersProps={{
-                    a: {
-                      onPress (_, href) {
-                        let url = href;
-                        if (!url.startsWith('http')) {
-                          url = 'https://' + url.split('://')[1];
-                        }
-                        
-                        openURL(url);
-                      },
-                    }
-                  }}
-                  contentWidth={300}
-                />
+                <PapillonHTMLRender html={props.currentMessage?.text as string} width={300} linkColor={''} style={{padding: 10}}/>
               )}
               textStyle={{
                 right: {

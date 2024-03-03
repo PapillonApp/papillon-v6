@@ -8,12 +8,12 @@ import {
   TextInput,
   StatusBar,
   ActivityIndicator,
-  Image,
+  Image, TouchableOpacity,
 } from 'react-native';
 
 import * as Haptics from 'expo-haptics';
 
-import { UserCircle, KeyRound, AlertTriangle, Link2 } from 'lucide-react-native';
+import {UserCircle, KeyRound, AlertTriangle, Link2, EyeOff, Eye} from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import { showMessage } from 'react-native-flash-message';
@@ -93,6 +93,7 @@ function NGPronoteLogin({ route, navigation }: {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [connecting, setConnecting] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(true);
 
   const appContext = useAppContext();
   const UIColors = GetUIColors();
@@ -253,13 +254,22 @@ function NGPronoteLogin({ route, navigation }: {
                 style={{ opacity: 0.5 }}
               />
             }
+            trailing={
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                {showPassword ? (
+                  <Eye color={theme.dark ? '#fff' : '#000'} style={{ opacity: 0.5 }} />
+                ):(
+                  <EyeOff color={theme.dark ? '#fff' : '#000'} style={{ opacity: 0.5 }}/>
+                )}
+              </TouchableOpacity>
+            }
           >
             <TextInput
               placeholder="Mot de passe"
               placeholderTextColor={theme.dark ? '#ffffff55' : '#00000055'}
               style={[styles.nginput, { color: UIColors.text }]}
               value={password}
-              secureTextEntry
+              secureTextEntry={showPassword}
               onChangeText={(text) => setPassword(text)}
             />
           </NativeItem>

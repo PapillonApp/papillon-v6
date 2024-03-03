@@ -14,13 +14,10 @@ import { ContextMenuButton } from 'react-native-ios-context-menu';
 
 import { Text, useTheme } from 'react-native-paper';
 
-import RenderHtml from 'react-native-render-html';
-
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
-import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
 
 import { PieChart, Link, File, MoreHorizontal, ChevronLeft, FileCheck2 } from 'lucide-react-native';
@@ -30,6 +27,7 @@ import { useAppContext } from '../../utils/AppContext';
 import * as FileSystem from 'expo-file-system';
 import type { PapillonNews } from '../../fetch/types/news';
 import { PapillonAttachmentType, type PapillonAttachment as PapillonAttachmentT } from '../../fetch/types/attachment';
+import PapillonHTMLRender from '../../components/PapillonHTMLRender';
 
 function NewsItem({ route, navigation }: {
   route: { params: { news: PapillonNews } },
@@ -151,7 +149,6 @@ function NewsItem({ route, navigation }: {
     (async () => {
       setNews(route.params.news);
       loadNews(route.params.news.id);
-  
       if (!route.params.news.read && !readChanged) {
         const ok = await markNewsAsRead(route.params.news.id);
         if (!ok) {
@@ -164,14 +161,6 @@ function NewsItem({ route, navigation }: {
       }
     })();
   }, [route.params.news, isRead, readChanged]);
-
-  const openURL = async (url: string): Promise<void> => {
-    await WebBrowser.openBrowserAsync(url, {
-      dismissButtonStyle: 'done',
-      presentationStyle: WebBrowser.WebBrowserPresentationStyle.CURRENT_CONTEXT,
-      controlsColor: '#B42828',
-    });
-  };
 
   function genFirstName (name: string): string | undefined {
     const names = name.split(' ');
@@ -187,9 +176,6 @@ function NewsItem({ route, navigation }: {
 
     return names?.at(0)?.at(0);
   }
-
-  const defaultHTMLTextProps = { selectable: true };
-  const defaultHTMLBaseStyle = theme.dark ? styles.baseStyleDark : styles.baseStyle;
 
   return (
     <ScrollView
@@ -227,12 +213,10 @@ function NewsItem({ route, navigation }: {
       ) : (
         <>
           <View style={styles.newsTextContainer}>
-            <RenderHtml
-              contentWidth={width}
-              defaultTextProps={defaultHTMLTextProps}
-              source={{ html: news.content }}
-              baseStyle={defaultHTMLBaseStyle}
-            />
+            <PapillonHTMLRender html={news.content}  width={width} linkColor={'#B42828'}></PapillonHTMLRender>
+            {
+              //<RenderHtml contentWidth={width} defaultTextProps={defaultHTMLTextProps} source={{ html: news.content }} baseStyle={defaultHTMLBaseStyle}/>
+            }
           </View>
     
           {news.attachments.length > 0 && (

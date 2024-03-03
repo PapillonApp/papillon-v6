@@ -1,29 +1,22 @@
-import React from 'react';
+import React, {useCallback, useEffect, useMemo} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BottomNavigation, Appbar, useTheme, PaperProvider, Text } from 'react-native-paper';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {Appbar, BottomNavigation, PaperProvider, Text, useTheme} from 'react-native-paper';
 
 import FlashMessage from 'react-native-flash-message';
 
 import SyncStorage from 'sync-storage';
 
-import { getHeaderTitle } from '@react-navigation/elements';
-import { useMemo, useEffect } from 'react';
-import { Easing, Platform, StyleSheet, useColorScheme, View, TouchableOpacity, Animated } from 'react-native';
-import { PressableScale } from 'react-native-pressable-scale';
+import {getHeaderTitle} from '@react-navigation/elements';
+import {Platform, StyleSheet, TouchableOpacity, useColorScheme, View} from 'react-native';
+import {PressableScale} from 'react-native-pressable-scale';
 
-import { useCallback } from 'react';
-
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import * as SplashScreen from 'expo-splash-screen';
-SplashScreen.preventAutoHideAsync();
-
-import {
-  ChevronLeft,
-} from 'lucide-react-native';
+import {ChevronLeft} from 'lucide-react-native';
 import loadFonts from './utils/Fonts';
 
 import HomeScreen from './views/HomeScreen';
@@ -63,7 +56,7 @@ import MessagesScreen from './views/Conversations/MessagesScreen';
 import NewConversation from './views/Conversations/NewConversation';
 
 import EvaluationsScreen from './views/EvaluationsScreen';
-import { AppContextProvider } from './utils/AppContext';
+import {AppContextProvider} from './utils/AppContext';
 
 import NotificationsScreen from './views/Settings/NotificationsScreen';
 
@@ -76,10 +69,8 @@ import NetworkLoggerScreen from './views/Settings/NetworkLogger';
 
 import PdfViewer from './views/Modals/PdfViewer';
 
-import LottieView from 'lottie-react-native';
-
-import { LoginSkolengoSelectSchool } from './views/NewAuthStack/Skolengo/LoginSkolengoSelectSchool';
-import { IndexDataInstance } from './fetch';
+import {LoginSkolengoSelectSchool} from './views/NewAuthStack/Skolengo/LoginSkolengoSelectSchool';
+import {IndexDataInstance} from './fetch';
 import GetUIColors from './utils/GetUIColors';
 
 import LocateEtabList from './views/NewAuthStack/Pronote/LocateEtabList';
@@ -88,29 +79,34 @@ import ScanPronoteQR from './views/NewAuthStack/Pronote/NewPronoteQR';
 import NGPronoteLogin from './views/NewAuthStack/Pronote/NGPronoteLogin';
 import GradesSimulatorMenu from './views/Grades/GradesSimulatorMenu';
 import GradesSimulatorAdd from './views/Grades/GradesSimulatorAdd';
+import {startNetworkLogging} from 'react-native-network-logger';
+import {
+  Book as PapillonIconsBook,
+  Calendar as PapillonIconsCalendar,
+  CalendarFill as PapillonIconsCalendarFill,
+  Home as PapillonIconsHome,
+  HomeFill as PapillonIconsHomeFill,
+  News as PapillonIconsNews,
+  NewsFill as PapillonIconsNewsFill,
+  Stats as PapillonIconsStats,
+} from './interface/icons/PapillonIcons';
+import InputPronoteQRPin from './views/NewAuthStack/Pronote/LoginPronoteQRToken';
+import LinkedAccount from './views/LinkedAccount/LinkedAccount';
+import AddLinkedAccount from './views/LinkedAccount/AddLinkedAccount';
+import AuthUsernamePassword from './views/LinkedAccount/Auth/AuthUsernamePassword';
+
+SplashScreen.preventAutoHideAsync();
+
 // import * as notifs from './components/Notifications';
 // notifs.init();
 const Tab = createBottomTabNavigator();
 
-import { startNetworkLogging } from 'react-native-network-logger';
 startNetworkLogging();
-
-import {
-  Home as PapillonIconsHome,
-  HomeFill as PapillonIconsHomeFill,
-  Calendar as PapillonIconsCalendar,
-  CalendarFill as PapillonIconsCalendarFill,
-  Book as PapillonIconsBook,
-  Stats as PapillonIconsStats,
-  News as PapillonIconsNews,
-  NewsFill as PapillonIconsNewsFill,
-} from './interface/icons/PapillonIcons';
-import InputPronoteQRPin from './views/NewAuthStack/Pronote/LoginPronoteQRToken';
 
 // stack
 const Stack = createNativeStackNavigator();
 
-function CustomNavigationBar({ navigation, route, options, back }) {
+function CustomNavigationBar({navigation, route, options, back}) {
   const title = getHeaderTitle(options, route.name);
 
   let titleMode = 'small';
@@ -132,16 +128,16 @@ function CustomNavigationBar({ navigation, route, options, back }) {
       }}
     >
       {back ? (
-        <Appbar.BackAction color={titleColor} onPress={navigation.goBack} />
+        <Appbar.BackAction color={titleColor} onPress={navigation.goBack}/>
       ) : null}
       <Appbar.Content
         title={title}
-        titleStyle={{ fontFamily: 'Papillon-Medium' }}
+        titleStyle={{fontFamily: 'Papillon-Medium'}}
         color={titleColor}
       />
 
       {options.headerRight ? (
-        <View style={{ paddingEnd: 16 }}>
+        <View style={{paddingEnd: 16}}>
           {options.headerRight ? options.headerRight() : null}
         </View>
       ) : null}
@@ -259,7 +255,7 @@ function InsetEvaluationsScreen() {
 
 function InsetSettings() {
   const UIColors = GetUIColors();
-  
+
   return (
     <Stack.Navigator
       screenOptions={
@@ -515,6 +511,31 @@ function WrappedHomeScreen() {
         options={{
           headerTitle: 'Gestion des matières',
           headerBackTitle: 'Retour',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="LinkedAccount"
+        component={LinkedAccount}
+        options={{
+          headerTitle: 'Comptes liés',
+          headerBackTitle: 'Retour',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="AddLinkedAccount"
+        component={AddLinkedAccount}
+        options={{
+          headerTitle: 'Lier un nouveau compte',
+          headerBackTitle: 'Retour',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="LinkedAccountAuth1"
+        component={AuthUsernamePassword}
+        options={{
           presentation: 'modal',
         }}
       />
@@ -829,13 +850,12 @@ function Header(props) {
 
   let isModal = false;
 
-  if(props.options.presentation === 'modal') {
+  if (props.options.presentation === 'modal') {
     isModal = true;
   }
-  if(props.options.modalStatus === true) {
+  if (props.options.modalStatus === true) {
     isModal = true;
-  }
-  else if(props.options.modalStatus === false) {
+  } else if (props.options.modalStatus === false) {
     isModal = false;
   }
 
@@ -859,7 +879,7 @@ function Header(props) {
         {
           paddingTop: finalInsets,
           height: 56 + finalInsets,
-          backgroundColor: !translucent ? 
+          backgroundColor: !translucent ?
             isModal ?
               UIColors.modalBackground
               : UIColors.background
@@ -869,14 +889,14 @@ function Header(props) {
       ]}
     >
       <View style={[styles.headerSide, styles.hsL]}>
-        { props.options.headerLeft ? props.options.headerLeft() : showBack ?
+        {props.options.headerLeft ? props.options.headerLeft() : showBack ?
           <TouchableOpacity
             onPress={() => props.navigation.goBack()}
             style={[styles.headerSideButton, {backgroundColor: UIColors.text + '18'}]}
           >
-            <ChevronLeft size={28} color={UIColors.text + 'e5'} />
+            <ChevronLeft size={28} color={UIColors.text + 'e5'}/>
           </TouchableOpacity>
-          : null }
+          : null}
       </View>
       <View style={styles.headerContent}>
         <Text style={[styles.headerText, {color: UIColors.text}]} numberOfLines={1} ellipsizeMode="tail">
@@ -905,7 +925,7 @@ function AppStack() {
 
   const tabBar = useMemo(() => {
     if (Platform.OS !== 'ios') {
-      return ({ navigation, state, descriptors, insets }) => (
+      return ({navigation, state, descriptors, insets}) => (
         <BottomNavigation.Bar
           navigationState={state}
           compact={false}
@@ -915,7 +935,7 @@ function AppStack() {
             right: 12,
             left: 12,
           }}
-          onTabPress={({ route, preventDefault }) => {
+          onTabPress={({route, preventDefault}) => {
             const event = navigation.emit({
               type: 'tabPress',
               target: route.key,
@@ -928,15 +948,15 @@ function AppStack() {
               preventDefault();
             }
           }}
-          renderIcon={({ route, focused, color }) => {
-            const { options } = descriptors[route.key];
+          renderIcon={({route, focused, color}) => {
+            const {options} = descriptors[route.key];
             if (options.tabBarIcon) {
-              return options.tabBarIcon({ focused, color, size: 24 });
+              return options.tabBarIcon({focused, color, size: 24});
             }
             return null;
           }}
-          getLabelText={({ route }) => {
-            const { options } = descriptors[route.key];
+          getLabelText={({route}) => {
+            const {options} = descriptors[route.key];
             const label =
               options.tabBarLabel !== undefined
                 ? options.tabBarLabel
@@ -952,7 +972,7 @@ function AppStack() {
     return undefined;
   }, []);
 
-  
+
   return (
     <Tab.Navigator
       tabBar={tabBar}
@@ -978,7 +998,7 @@ function AppStack() {
         tabBarActiveTintColor:
           !settings?.hideTabBarTitle ? UIColors.primary :
             theme.dark ? '#ffffff' : '#000000',
-        tabBarInactiveTintColor: 
+        tabBarInactiveTintColor:
           settings?.hideTabBarTitle ?
             theme.dark ? '#ffffff' : '#000000' :
             theme.dark ? '#ffffff77' : '#00000077',
@@ -992,7 +1012,7 @@ function AppStack() {
             <PressableScale
               {...props}
               activeScale={settings?.hideTabBarTitle ? 1.2 : 0.9}
-              weight='light'
+              weight="light"
               style={[
                 {
                   ...props.style,
@@ -1010,11 +1030,11 @@ function AppStack() {
         component={WrappedHomeScreen}
         options={{
           tabBarLabel: 'Accueil',
-          tabBarIcon: ({ color, size, focused }) =>
+          tabBarIcon: ({color, size, focused}) =>
             !focused ? (
-              <PapillonIconsHome stroke={color} width={size+2} height={size+2} />
+              <PapillonIconsHome stroke={color} width={size + 2} height={size + 2}/>
             ) : (
-              <PapillonIconsHomeFill fill={color} stroke={color} width={size+2} height={size+2} />
+              <PapillonIconsHomeFill fill={color} stroke={color} width={size + 2} height={size + 2}/>
             ),
           headerShown: false,
         }}
@@ -1024,11 +1044,11 @@ function AppStack() {
         component={WrappedCoursScreen}
         options={{
           tabBarLabel: 'Cours',
-          tabBarIcon: ({ color, size, focused }) => (
+          tabBarIcon: ({color, size, focused}) => (
             !focused ? (
-              <PapillonIconsCalendar stroke={color} width={size+2} height={size+2} />
+              <PapillonIconsCalendar stroke={color} width={size + 2} height={size + 2}/>
             ) : (
-              <PapillonIconsCalendarFill fill={color} stroke={color} width={size+2} height={size+2} />
+              <PapillonIconsCalendarFill fill={color} stroke={color} width={size + 2} height={size + 2}/>
             )
           ),
           headerShown: false,
@@ -1039,11 +1059,11 @@ function AppStack() {
         component={WrappedDevoirsScreen}
         options={{
           tabBarLabel: 'Devoirs',
-          tabBarIcon: ({ color, size, focused }) => (
+          tabBarIcon: ({color, size, focused}) => (
             !focused ? (
-              <PapillonIconsBook stroke={color} width={size+2} height={size+2} />
+              <PapillonIconsBook stroke={color} width={size + 2} height={size + 2}/>
             ) : (
-              <PapillonIconsBook stroke={color} width={size+2} height={size+2} />
+              <PapillonIconsBook stroke={color} width={size + 2} height={size + 2}/>
             )
           ),
           headerShown: false,
@@ -1054,11 +1074,11 @@ function AppStack() {
         component={WrappedGradesScreen}
         options={{
           tabBarLabel: 'Notes',
-          tabBarIcon: ({ color, size, focused }) => (
+          tabBarIcon: ({color, size, focused}) => (
             !focused ? (
-              <PapillonIconsStats stroke={color} width={size+2} height={size+2} />
+              <PapillonIconsStats stroke={color} width={size + 2} height={size + 2}/>
             ) : (
-              <PapillonIconsStats stroke={color} width={size+2} height={size+2} />
+              <PapillonIconsStats stroke={color} width={size + 2} height={size + 2}/>
             )
           ),
           headerShown: false,
@@ -1069,11 +1089,11 @@ function AppStack() {
         component={WrappedNewsScreen}
         options={{
           tabBarLabel: 'Actualités',
-          tabBarIcon: ({ color, size, focused }) => (
+          tabBarIcon: ({color, size, focused}) => (
             !focused ? (
-              <PapillonIconsNews fill={color} stroke={color} width={size+2} height={size+2} />
+              <PapillonIconsNews fill={color} stroke={color} width={size + 2} height={size + 2}/>
             ) : (
-              <PapillonIconsNewsFill fill={color} stroke={color} width={size+2} height={size+2} />
+              <PapillonIconsNewsFill fill={color} stroke={color} width={size + 2} height={size + 2}/>
             )
           ),
           headerShown: false,
@@ -1107,8 +1127,7 @@ function AuthStack() {
       <Stack.Screen
         name="SelectService"
         component={SelectService}
-        options={{
-        }}
+        options={{}}
       />
 
       <Stack.Screen
@@ -1195,8 +1214,8 @@ function AuthStack() {
 
 function App() {
   const scheme = useColorScheme();
-  
-  const [dataProvider, setDataProvider] = React.useState<IndexDataInstance | null>(null);	
+
+  const [dataProvider, setDataProvider] = React.useState<IndexDataInstance | null>(null);
   const [appIsReady, setAppIsReady] = React.useState(false);
   const [loggedIn, setLoggedIn] = React.useState(false);
 
@@ -1207,7 +1226,7 @@ function App() {
         await loadFonts();
 
         const serviceName = await AsyncStorage.getItem('service');
-        const provider = new IndexDataInstance();	
+        const provider = new IndexDataInstance();
         setDataProvider(provider);
 
         if (serviceName === 'pronote' || serviceName === 'skolengo') {
@@ -1243,12 +1262,12 @@ function App() {
     }
   }, [appIsReady]);
 
-  const ctxValue = React.useMemo(() => ({	
-    loggedIn,	
-    setLoggedIn,	
+  const ctxValue = React.useMemo(() => ({
+    loggedIn,
+    setLoggedIn,
     dataProvider,
-    setDataProvider
-  }),	[loggedIn, dataProvider]);
+    setDataProvider,
+  }), [loggedIn, dataProvider]);
 
   return appIsReady ? (
     <View style={{
@@ -1257,12 +1276,12 @@ function App() {
     }}>
       <PaperProvider>
         <AppContextProvider state={ctxValue}>
-          <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-            {loggedIn ? <AppStack /> : <AuthStack />}
+          <View style={{flex: 1}} onLayout={onLayoutRootView}>
+            {loggedIn ? <AppStack/> : <AuthStack/>}
           </View>
         </AppContextProvider>
       </PaperProvider>
-      <FlashMessage position="top" />
+      <FlashMessage position="top"/>
     </View>
   ) : null;
 }
