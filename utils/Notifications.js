@@ -196,6 +196,14 @@ async function checkRegisteredChannels() {
   }
 }
 export async function init() {
+  let preventNotifInit = await AsyncStorage.getItem("preventNotifInit")
+  if(preventNotifInit) {
+    console.warn("Notif init prevented, prevention will be disabled in 10 seconds")
+    setTimeout(() => {
+      AsyncStorage.removeItem("preventNotifInit")
+    }, 10000)
+    return;
+  }
   await setVars();
   let perm = await checkNotifPerm();
   if(perm.authorized) {

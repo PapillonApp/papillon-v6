@@ -216,7 +216,7 @@ function SettingsScreen({ navigation }) {
   
           // Remove every data from storage.
           await AsyncStorage.clear();
-  
+          AsyncStorage.setItem("preventNotifInit", "true") //to prevent notif to re-init after logout (app stack still displayed for a few second before re-rendering)
           // Create a new provider since we're resetting everything.
           appContext.setDataProvider(new IndexDataInstance());
           appContext.setLoggedIn(false);
