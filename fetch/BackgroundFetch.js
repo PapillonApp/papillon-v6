@@ -243,4 +243,5 @@ export async function setBackgroundFetch() {
 
 export async function unsetBackgroundFetch() {
   BackgroundFetch.unregisterTaskAsync("background-fetch")
+  console.log("Unregistered background fetch")
 }
