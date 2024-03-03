@@ -217,16 +217,14 @@ function NewsScreen ({ navigation }: {
   // add search bar in the header
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle:
-        Platform.OS === 'ios'
-          ? () => (
-            <PapillonInsetHeader
-              icon={<SFSymbol name="newspaper.fill" />}
-              title="Actualités"
-              color="#B42828"
-            />
-          )
-          : 'Actualités',
+      headerTitle: Platform.OS === 'ios' ? ' ' : 'Actualités',
+      headerLeft: () => Platform.OS === 'ios' && (
+        <PapillonInsetHeader
+          icon={<SFSymbol name="newspaper.fill" />}
+          title="Actualités"
+          color="#B42828"
+        />
+      ),
       headerTransparent: Platform.OS === 'ios' ? true : false,
       headerStyle:
         Platform.OS === 'android'
