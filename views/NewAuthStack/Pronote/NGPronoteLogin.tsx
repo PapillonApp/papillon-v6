@@ -147,6 +147,7 @@ function NGPronoteLogin({ route, navigation }: {
         message: 'Connecté avec succès',
         type: 'success',
         icon: 'auto',
+        floating: true
       });
 
       await appContext.dataProvider!.init('pronote', pronote);
