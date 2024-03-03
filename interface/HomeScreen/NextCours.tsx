@@ -255,7 +255,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
         styles.container,
         styles.end.container,
         {
-          backgroundColor: '#ffffff30',
+          backgroundColor: '#ffffff20',
         },
         style
       ]}
@@ -605,6 +605,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       gap: 10,
       shadowOpacity: 0.1,
+      elevation: 0,
     },
     text: {
       fontFamily: 'Papillon-Medium',
