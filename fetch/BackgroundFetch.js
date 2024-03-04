@@ -49,12 +49,12 @@ async function delNotif() {
 // Actualités
 
 async function newsFetch(callback) {
-  let dataInstance = getContextValues().dataProvider
+  let dataInstance = getContextValues().dataProvider;
   return new Promise(async(resolve, reject) => {
-    console.log("Récupération des news")
+    console.log('Récupération des news');
     AsyncStorage.getItem('oldNews').then((oldNews) => {
       if (oldNews) {
-        console.log("oldNews présent")
+        console.log('oldNews présent');
         oldNews = JSON.parse(oldNews);
         dataInstance.getNews().then((news) => {
           if (news.length !== oldNews.length) {
@@ -75,38 +75,38 @@ async function newsFetch(callback) {
               });
             }
             // Be sure to return the successful result type!
-            console.log("News OK notif affiché")
-            resolve("News OK notif affiché")
-            if(typeof callback === "function") callback(null, "News OK notif affiché")
+            console.log('News OK notif affiché');
+            resolve('News OK notif affiché');
+            if(typeof callback === 'function') callback(null, 'News OK notif affiché');
             return;
           }
           else {
-            console.log("News OK pas de nouvelles news")
-            resolve("News OK pas de nouvelles news")
-            if(typeof callback === "function") callback(null, "News OK pas de nouvelles news")
+            console.log('News OK pas de nouvelles news');
+            resolve('News OK pas de nouvelles news');
+            if(typeof callback === 'function') callback(null, 'News OK pas de nouvelles news');
           }
         })
           .catch(err => {
             console.error('[Background Fetch/News] Unable to fetch news,', err);
-            reject("[News]", err)
+            reject('[News]', err);
           });
       }
 
       else dataInstance.getNews().then((news) => {
         AsyncStorage.setItem('oldNews', JSON.stringify(news));
-        console.log("News OK pas de oldNews")
-        resolve("News OK pas de oldNews")
-        if(typeof callback === "function") callback(null, "News OK pas de oldNews")
+        console.log('News OK pas de oldNews');
+        resolve('News OK pas de oldNews');
+        if(typeof callback === 'function') callback(null, 'News OK pas de oldNews');
       });
     });
-  })
+  });
 }
 
 // Devoirs
 async function checkUndoneHomeworks(callback) {
-  let dataInstance = getContextValues().dataProvider
+  let dataInstance = getContextValues().dataProvider;
   return new Promise(async (resolve, reject) => {
-    console.log("Récupération des devoirs")
+    console.log('Récupération des devoirs');
     let tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 
@@ -126,16 +126,16 @@ async function checkUndoneHomeworks(callback) {
     limitDate.setMilliseconds(0);
     const notifHasAlreadyBeenSent = await AsyncStorage.getItem('notifHasAlreadyBeenSent');
     if (notifHasAlreadyBeenSent == (fireDate.getTime()).toString()) {
-      console.log("Devoirs OK notif déjà envoyée")
-      resolve("Devoirs OK notif déjà envoyée")
-      if(typeof callback === "function") callback(null, "Devoirs OK notif déjà envoyée")
+      console.log('Devoirs OK notif déjà envoyée');
+      resolve('Devoirs OK notif déjà envoyée');
+      if(typeof callback === 'function') callback(null, 'Devoirs OK notif déjà envoyée');
       return;
     }
     if (undone.length > 0 && new Date() > fireDate) {
       if (new Date() > limitDate) {
-        console.log("Devoirs OK heure limite dépassée")
-        resolve("Devoirs OK heure limite dépassée")
-        if(typeof callback === "function") callback(null, "Devoirs OK heure limite dépassée")
+        console.log('Devoirs OK heure limite dépassée');
+        resolve('Devoirs OK heure limite dépassée');
+        if(typeof callback === 'function') callback(null, 'Devoirs OK heure limite dépassée');
         return;
       }
       let plural = '';
@@ -155,42 +155,42 @@ async function checkUndoneHomeworks(callback) {
       });
 
       await AsyncStorage.setItem('notifHasAlreadyBeenSent', fireDate.getTime().toString());
-      console.log("Devoirs OK notif envoyée")
-      resolve("Devoirs OK notif envoyée")
-      if(typeof callback === "function") callback(null, "Devoirs OK notif envoyée")
+      console.log('Devoirs OK notif envoyée');
+      resolve('Devoirs OK notif envoyée');
+      if(typeof callback === 'function') callback(null, 'Devoirs OK notif envoyée');
       return;
     }
-    console.log("Devoirs OK aucun devoir non fait")
-    resolve("Devoirs OK aucun devoir non fait")
-    if(typeof callback === "function") callback(null, "Devoirs OK aucun devoir non fait")
-  }) 
+    console.log('Devoirs OK aucun devoir non fait');
+    resolve('Devoirs OK aucun devoir non fait');
+    if(typeof callback === 'function') callback(null, 'Devoirs OK aucun devoir non fait');
+  }); 
 }
 
 //Notes
 async function fetchGrades(callback) {
   const appContext = useAppContext();
-  let dataInstance = appContext.dataProvider
+  let dataInstance = appContext.dataProvider;
   return new Promise(async (resolve, reject) => {
-    console.log("Récupération des notes")
-    let user = await dataInstance.getUser(true)
-    let periods = user.periodes.grades
-    let actualPeriod = periods.filter(p => p.actual === true)[0]
-    let grades = await dataInstance.getGrades(actualPeriod.name, true)
-    console.log(grades)
-    let oldGrades = await AsyncStorage.getItem("oldGrades")
+    console.log('Récupération des notes');
+    let user = await dataInstance.getUser(true);
+    let periods = user.periodes.grades;
+    let actualPeriod = periods.filter(p => p.actual === true)[0];
+    let grades = await dataInstance.getGrades(actualPeriod.name, true);
+    console.log(grades);
+    let oldGrades = await AsyncStorage.getItem('oldGrades');
 
     if(!oldGrades) {
-      await AsyncStorage.setItem("oldGrades", JSON.stringify(grades))
-      console.log("Notes OK pas de oldGrades")
-      resolve("Notes OK pas de oldGrades")
-      callback(null, "Notes OK pas de oldGrades")
+      await AsyncStorage.setItem('oldGrades', JSON.stringify(grades));
+      console.log('Notes OK pas de oldGrades');
+      resolve('Notes OK pas de oldGrades');
+      callback(null, 'Notes OK pas de oldGrades');
       return;
     }
 
     if(oldGrades) {
-      oldGrades = JSON.parse(oldGrades) 
+      oldGrades = JSON.parse(oldGrades); 
     }
-  })
+  });
 }
 
 async function backgroundFetch() {
@@ -206,8 +206,8 @@ async function backgroundFetch() {
           indeterminate: true
         },
         ongoing: true,
-        smallIcon: "notification_icon",
-        color: "red",
+        smallIcon: 'notification_icon',
+        color: 'red',
       },
     });
   }
@@ -216,8 +216,8 @@ async function backgroundFetch() {
     checkUndoneHomeworks
     //fetchGrades
   ], function(err, results) {
-    console.log("OK pour async", err, results)
-    delNotif()
+    console.log('OK pour async', err, results);
+    delNotif();
     if (err) {
       notifee.displayNotification({
         title: 'Erreur lors du background fetch',
@@ -228,23 +228,23 @@ async function backgroundFetch() {
         },
       });
     }
-  })
+  });
 }
 
 export async function setBackgroundFetch() {
-  console.log("Registered background fetch")
-  TaskManager.defineTask("background-fetch", () => {
-    backgroundFetch()
-  })
+  console.log('Registered background fetch');
+  TaskManager.defineTask('background-fetch', () => {
+    backgroundFetch();
+  });
   BackgroundFetch?.registerTaskAsync('background-fetch', {
     minimumInterval: 60 * 15, // 15 minutes
     stopOnTerminate: false, // android only,
     startOnBoot: true, // android only
   });
-  backgroundFetch()
+  backgroundFetch();
 }
 
 export async function unsetBackgroundFetch() {
-  BackgroundFetch.unregisterTaskAsync("background-fetch")
-  console.log("Unregistered background fetch")
+  BackgroundFetch.unregisterTaskAsync('background-fetch');
+  console.log('Unregistered background fetch');
 }
