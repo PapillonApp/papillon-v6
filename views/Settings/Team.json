@@ -1,5 +1,5 @@
 {
-  "lastupdated": "2024-03-02",
+  "lastupdated": "2024-03-04",
   "team": [
     {
       "name": "Coordination Papillon",
@@ -33,6 +33,12 @@
           "role": "Coordinateur",
           "avatar": "https://avatars.githubusercontent.com/u/31452517?v=4&s=100",
           "link": "https://androne.dev/"
+        },
+        {
+          "name": "Maël Gangloff",
+          "role": "Coordinateur",
+          "avatar": "https://avatars.githubusercontent.com/u/51171251?v=4",
+          "link": "https://maelgangloff.fr/"
         },
         {
           "name": "Tom Theret (Crash System)",
