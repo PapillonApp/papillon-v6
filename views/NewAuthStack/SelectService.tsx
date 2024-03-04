@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useState, useEffect } from 'react';
 import { View, Image, Platform, StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import GetUIColors from '../../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,6 +13,8 @@ import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
 import { AlertTriangle, Scale } from 'lucide-react-native';
 
+import { fetchPapiAPI } from '../../utils/api';
+
 const SelectService = ({ navigation }) => {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
@@ -20,6 +22,22 @@ const SelectService = ({ navigation }) => {
   const [edAlertVisible, setEdAlertVisible] = useState(false);
   const [serviceAlertVisible, setServiceAlertVisible] = useState(false);
 
+  const [apiResponse, setApiResponse] = useState(false);
+
+  useEffect(() => {
+    callFetchPapiAPI('messages')
+      .then(response => setApiResponse(response))
+      .catch(error => console.error(error));
+  }, []);
+
+  function callFetchPapiAPI(path: string) {
+    return fetchPapiAPI(path)
+        .then(data => {
+            console.log(data);
+            return data;
+        })
+  }
+  
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: 'Service scolaire',
@@ -69,6 +87,7 @@ const SelectService = ({ navigation }) => {
       }
     }
   };
+  
 
   return (
     <View
@@ -83,17 +102,15 @@ const SelectService = ({ navigation }) => {
       <NativeText style={styles.instructionsText}>
         Sélectionnez le service de vie scolaire que vous utilisez dans votre établissement.
       </NativeText>
-
       <AlertBottomSheet
         visible={serviceAlertVisible}
         icon={<Scale />}
-        title="Important"
-        subtitle={`Papillon n’est pas affilié à ${serviceOptions[selectedService]?.company}. Des bugs peuvent survenir lors de l’utilisation de ${serviceOptions[selectedService]?.name} sur Papillon.`}
+        title={apiResponse[serviceOptions[selectedService]?.company]?.title}
+        subtitle={apiResponse[serviceOptions[selectedService]?.company]?.content}
         cancelAction={() => setServiceAlertVisible(false)}
         primaryButton='Compris !'
         primaryAction={() => {navigation.navigate(serviceOptions[selectedService]?.view); setServiceAlertVisible(false);}}
       />
-
 
       {Platform.OS !== 'ios' && (
         <View style={{ height: 16 }} />
