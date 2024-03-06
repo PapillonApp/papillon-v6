@@ -500,7 +500,7 @@ const GradesScreen = ({ navigation }: {
           />
         }
       >
-        <StatusBar animated barStyle={UIColors.dark ? 'light-content' : 'dark-content'} translucent={true} backgroundColor={UIColors.backgroundHigh} />
+        <StatusBar translucent animated barStyle={UIColors.dark ? 'light-content' : 'dark-content'} backgroundColor={UIColors.backgroundHigh} />
 
         {grades.length === 0 && (
           <PapillonLoading

@@ -344,6 +344,7 @@ function NewsScreen ({ navigation }: {
       >
         <StatusBar
           animated
+          translucent
           barStyle={
             isModalOpen
               ? 'light-content'

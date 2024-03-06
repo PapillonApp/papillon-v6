@@ -160,6 +160,7 @@ function DevoirsScreen({ navigation }: {
     >
       <StatusBar
         animated
+        translucent
         barStyle={theme.dark ? 'light-content' : 'dark-content'}
         backgroundColor={'transparent'}
       />

@@ -556,28 +556,6 @@ function HomeScreen({ navigation }: { navigation: any }) {
     }
   }, [changeThemeOpen]);
 
-  // Load navigation bar data.
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      header: () => (
-        <View/>
-      ),
-    });
-  }, [
-    navigation,
-    user,
-    themeAdjustments,
-    currentThemeIndex,
-    setCurrentThemeIndex,
-    insets,
-    UIColors,
-    theme,
-    nextColor,
-    setNextColor,
-    changeThemeOpen,
-    changeThemeAnim,
-  ]);
-
   const [scrolled, setScrolled] = useState(false);
   const scrolledAnim = useRef(new Animated.Value(0)).current;
 
@@ -1162,7 +1140,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 ? 'light-content'
                 : 'dark-content'
           }
-          translucent={true}
+          translucent
           backgroundColor={'transparent'}
         />
       )}

@@ -596,6 +596,7 @@ Statut : ${cours.status || 'Aucun'}
 
       <StatusBar
         animated
+        translucent
         barStyle={theme.dark ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
       />

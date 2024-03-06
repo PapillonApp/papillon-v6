@@ -16,6 +16,14 @@ startNetworkLogging();
 
 const provider = new IndexDataInstance();
 
+function LoadingScreen() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <ActivityIndicator size={'large'} />
+    </View>
+  );
+}
+
 function App() {
   const [dataProvider, setDataProvider] = useState(provider);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -57,14 +65,6 @@ function App() {
 
   appContext.setContextValues(ctxValue);
 
-  if(loading && Platform.OS === 'android') {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#29947a" />
-      </View>
-    );
-  }
-
   const AltScreens = [
     {
       name: 'NetworkLoggerScreen',
@@ -81,7 +81,9 @@ function App() {
       <AppContextProvider state={ctxValue}>
         <View style={{ flex: 1 }}>
           <Stack.Navigator>
-            {
+            {loading ? (
+              <Stack.Screen name="Loading" component={LoadingScreen} options={{ headerShown: false }} />
+            ) :
               loggedIn ? (
                 <Stack.Screen name="AppStack" component={AppStack} options={{ headerShown: false }} />
               ) : (

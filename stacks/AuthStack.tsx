@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { View, Text } from 'react-native';
+import React from 'react';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 const Stack = createNativeStackNavigator();
