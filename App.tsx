@@ -1,25 +1,25 @@
-import React, { useEffect, useCallback, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Platform, Text, ActivityIndicator, View } from 'react-native';
 import { AppContextProvider } from './utils/AppContext';
 import * as appContext from './utils/AppContext';
 import { IndexDataInstance } from './fetch';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import loadFonts from './utils/Fonts';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 const Stack = createNativeStackNavigator();
 import AppStack from './stacks/AppStack';
 import AuthStack from './stacks/AuthStack';
 import LoadingScreen from './stacks/LoadingScreen';
-import NetworkLoggerScreen from './views/Settings/NetworkLogger'; // Direct import
-
-import loadFonts from './utils/Fonts';
-
 import { startNetworkLogging } from 'react-native-network-logger';
+
 startNetworkLogging();
 
+const provider = new IndexDataInstance();
+
 function App() {
-  const [dataProvider] = useState(new IndexDataInstance()); // Use state directly for initialization
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const dataProvider = useMemo(() => provider, [provider]); // Use memo for dataProvider
 
   useEffect(() => {
     const prepare = async () => {
@@ -34,10 +34,10 @@ function App() {
 
       if (serviceName === 'pronote') {
         setLoggedIn(true);
-        await dataProvider.init(serviceName);
+        await provider.init(serviceName);
       } else if (serviceName === 'skolengo') {
-        await dataProvider.init(serviceName);
-        setLoggedIn(Boolean(dataProvider.pronoteInstance || dataProvider.skolengoInstance || dataProvider.isNetworkFailing));
+        await provider.init(serviceName);
+        setLoggedIn(Boolean(provider.pronoteInstance || provider.skolengoInstance || provider.isNetworkFailing));
       }
 
       setLoading(false);
@@ -50,14 +50,14 @@ function App() {
     loggedIn,
     setLoggedIn,
     dataProvider,
-  }), [loggedIn, dataProvider]);
+  }), [loggedIn, dataProvider]); // Use memo for ctxValue
 
   appContext.setContextValues(ctxValue);
 
   const AltScreens = [
     {
       name: 'NetworkLoggerScreen',
-      component: NetworkLoggerScreen, // Direct component reference
+      component: require('./views/Settings/NetworkLogger').default,
       options: {
         presentation: 'modal',
         headerTitle: 'Historique réseau',
@@ -66,32 +66,22 @@ function App() {
   ];
 
   return (
-    <AppContextProvider state={ctxValue}>
-      <Stack.Navigator>
-        {loading ? (
-          <Stack.Screen
-            name="Loading"
-            component={LoadingScreen}
-            options={{ headerShown: false }}
-          />
-        ) : loggedIn ? (
-          <Stack.Screen
-            name="AppStack"
-            component={AppStack}
-            options={{ headerShown: false }}
-          />
-        ) : (
-          <Stack.Screen
-            name="AuthStack"
-            component={AuthStack}
-            options={{ headerShown: false }}
-          />
-        )}
-        {AltScreens.map((screen, index) => (
-          <Stack.Screen key={index} {...screen} /> // Destructure and use spread operator
-        ))}
-      </Stack.Navigator>
-    </AppContextProvider>
+    <View style={{ flex: 1 }}>
+      <AppContextProvider state={ctxValue}>
+        <Stack.Navigator>
+          {loading ? (
+            <Stack.Screen name="Loading" component={LoadingScreen} options={{ headerShown: false }} />
+          ) : loggedIn ? (
+            <Stack.Screen name="AppStack" component={AppStack} options={{ headerShown: false }} />
+          ) : (
+            <Stack.Screen name="AuthStack" component={AuthStack} options={{ headerShown: false }} />
+          )}
+          {AltScreens.map((screen, index) => (
+            <Stack.Screen key={index} name={screen.name} component={screen.component} options={screen.options} />
+          ))}
+        </Stack.Navigator>
+      </AppContextProvider>
+    </View>
   );
 }
 
