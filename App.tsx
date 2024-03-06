@@ -4,22 +4,20 @@ import { AppContextProvider } from './utils/AppContext';
 import * as appContext from './utils/AppContext';
 import { IndexDataInstance } from './fetch';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Font from 'expo-font';
-import loadFonts from './utils/Fonts';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 const Stack = createNativeStackNavigator();
 import AppStack from './stacks/AppStack';
 import AuthStack from './stacks/AuthStack';
+import LoadingScreen from './stacks/LoadingScreen';
+import NetworkLoggerScreen from './views/Settings/NetworkLogger'; // Direct import
+
+import loadFonts from './utils/Fonts';
 
 import { startNetworkLogging } from 'react-native-network-logger';
 startNetworkLogging();
 
-const provider = new IndexDataInstance();
-
-import LoadingScreen from './stacks/LoadingScreen';
-
 function App() {
-  const [dataProvider, setDataProvider] = useState(provider);
+  const [dataProvider] = useState(new IndexDataInstance()); // Use state directly for initialization
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -29,22 +27,20 @@ function App() {
 
       const serviceName = await AsyncStorage.getItem('service');
 
-      if(serviceName === null || serviceName === 'undefined') {
+      if (!serviceName) {
         setLoading(false);
         return;
       }
 
-      if(serviceName === 'pronote') {
+      if (serviceName === 'pronote') {
         setLoggedIn(true);
-        await provider.init(serviceName);
-        setLoading(false);
+        await dataProvider.init(serviceName);
+      } else if (serviceName === 'skolengo') {
+        await dataProvider.init(serviceName);
+        setLoggedIn(Boolean(dataProvider.pronoteInstance || dataProvider.skolengoInstance || dataProvider.isNetworkFailing));
       }
 
-      if (serviceName === 'skolengo') {
-        await provider.init(serviceName);
-        setLoggedIn(Boolean(provider.pronoteInstance || provider.skolengoInstance || provider.isNetworkFailing));
-        setLoading(false);
-      }
+      setLoading(false);
     };
 
     prepare();
@@ -54,7 +50,6 @@ function App() {
     loggedIn,
     setLoggedIn,
     dataProvider,
-    setDataProvider
   }), [loggedIn, dataProvider]);
 
   appContext.setContextValues(ctxValue);
@@ -62,38 +57,41 @@ function App() {
   const AltScreens = [
     {
       name: 'NetworkLoggerScreen',
-      component: require('./views/Settings/NetworkLogger').default,
+      component: NetworkLoggerScreen, // Direct component reference
       options: {
         presentation: 'modal',
         headerTitle: 'Historique réseau',
-      }
-    }
+      },
+    },
   ];
 
   return (
-    <View style={{ flex: 1 }}>
-      <AppContextProvider state={ctxValue}>
-        <View style={{ flex: 1 }}>
-          <Stack.Navigator>
-            {loading ? (
-              <Stack.Screen name="Loading" component={LoadingScreen} options={{ headerShown: false }} />
-            ) :
-              loggedIn ? (
-                <Stack.Screen name="AppStack" component={AppStack} options={{ headerShown: false }} />
-              ) : (
-                <Stack.Screen name="AuthStack" component={AuthStack} options={{ headerShown: false }} />
-              )
-            }
-
-            {
-              AltScreens.map((screen, index) => (
-                <Stack.Screen key={index} name={screen.name} component={screen.component} options={screen.options} />
-              ))
-            }
-          </Stack.Navigator>
-        </View>
-      </AppContextProvider>
-    </View>
+    <AppContextProvider state={ctxValue}>
+      <Stack.Navigator>
+        {loading ? (
+          <Stack.Screen
+            name="Loading"
+            component={LoadingScreen}
+            options={{ headerShown: false }}
+          />
+        ) : loggedIn ? (
+          <Stack.Screen
+            name="AppStack"
+            component={AppStack}
+            options={{ headerShown: false }}
+          />
+        ) : (
+          <Stack.Screen
+            name="AuthStack"
+            component={AuthStack}
+            options={{ headerShown: false }}
+          />
+        )}
+        {AltScreens.map((screen, index) => (
+          <Stack.Screen key={index} {...screen} /> // Destructure and use spread operator
+        ))}
+      </Stack.Navigator>
+    </AppContextProvider>
   );
 }
 
