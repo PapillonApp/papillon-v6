@@ -12,31 +12,11 @@ import AppStack from './stacks/AppStack';
 import AuthStack from './stacks/AuthStack';
 
 import { startNetworkLogging } from 'react-native-network-logger';
-import GetUIColors from './utils/GetUIColors';
 startNetworkLogging();
 
 const provider = new IndexDataInstance();
 
-function LoadingScreen() {
-  const UIColors = GetUIColors();
-
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: UIColors.background }}>
-      <ActivityIndicator size={'large'} />
-      <Text
-        style={{
-          fontSize: 15,
-          color: UIColors.text,
-          marginTop: 13,
-          color: UIColors.text,
-          opacity: 0.5,
-        }}
-      >
-        Obtention des données...
-      </Text>
-    </View>
-  );
-}
+import LoadingScreen from './stacks/LoadingScreen';
 
 function App() {
   const [dataProvider, setDataProvider] = useState(provider);
@@ -99,7 +79,7 @@ function App() {
               <Stack.Screen name="Loading" component={LoadingScreen} options={{ headerShown: false }} />
             ) :
               loggedIn ? (
-                <Stack.Screen name="AppStack" component={AppStack} options={{ headerShown: false, animation : 'none' }} />
+                <Stack.Screen name="AppStack" component={AppStack} options={{ headerShown: false }} />
               ) : (
                 <Stack.Screen name="AuthStack" component={AuthStack} options={{ headerShown: false }} />
               )
