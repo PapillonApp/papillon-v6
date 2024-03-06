@@ -117,6 +117,7 @@ const LoginView = ({ navigation }) => {
     <View style={[styles.container]}>
       <StatusBar
         animated
+        translucent
         barStyle={'light-content'}
         backgroundColor={'transparent'}
       />
