@@ -99,6 +99,7 @@ const AppStack = ({ navigation }) => {
       component: require('../views/Grades/GradeView').default,
       options: {
         presentation: 'modal',
+        headerTintColor: '#fff',
       }
     },
     {
