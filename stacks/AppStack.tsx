@@ -102,6 +102,13 @@ const AppStack = ({ navigation }) => {
       }
     },
     {
+      name: 'GradesSettings',
+      component: require('../views/Grades/GradesSettings').default,
+      options: {
+        presentation: 'modal',
+      }
+    },
+    {
       name: 'CreateHomework',
       component: require('../views/Devoirs/CreateHomeworkScreen').default,
       options: {

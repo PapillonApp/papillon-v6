@@ -3,8 +3,6 @@ import { View, Platform, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 const Tab = createBottomTabNavigator();
 
-import { BlurView } from 'expo-blur';
-
 import {
   Home as PapillonIconsHome,
   HomeFill as PapillonIconsHomeFill,
@@ -113,14 +111,8 @@ const TabsStack = ({ navigation }) => {
               UIColors.dark ? '#ffffff' : '#000000',
           tabBarStyle: {
             paddingHorizontal: 8,
-            position: 'absolute',
-            backgroundColor: Platform.OS === 'ios' ? 'transparent' : UIColors.background,
-            borderTopColor: Platform.OS === 'ios' ? UIColors.borderLight : 'transparent',
-            height: Platform.OS === 'android' ? 72 : 80,
+            height: Platform.OS === 'android' ? 68 : 80,
           },
-          tabBarBackground: Platform.OS === 'ios' ? () => (
-            <BlurView tint={UIColors.dark ? 'dark' : 'light'} intensity={100} style={StyleSheet.absoluteFill} />
-          ) : undefined,
         }}
       >
         {views.map((view, index) => (

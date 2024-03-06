@@ -301,6 +301,7 @@ Statut : ${cours.status || 'Aucun'}
       } : undefined,
       headerRight: () =>
         <ContextMenuView
+          style={{ marginRight: 16 }}
           previewConfig={{
             borderRadius: 10,
           }}

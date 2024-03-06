@@ -334,7 +334,7 @@ const GradesScreen = ({ navigation }: {
   );
 
   const headerOpacity = yOffset.interpolate({
-    inputRange: [-75, -60],
+    inputRange: [-40, 0],
     outputRange: [0, 1],
     extrapolate: 'clamp',
   });
@@ -378,7 +378,7 @@ const GradesScreen = ({ navigation }: {
         alignItems: 'center',
         justifyContent: 'center',
         gap: 12,
-        marginRight: 6,
+        marginRight: 16,
       }}>
         { isLoading && (
           <ActivityIndicator />
@@ -487,7 +487,7 @@ const GradesScreen = ({ navigation }: {
       )}
       <ScrollView
         contentInsetAdjustmentBehavior='automatic'
-        style={{ backgroundColor: UIColors.backgroundHigh, flex: 1 }}
+        style={{ backgroundColor: UIColors.backgroundHigh, flex: 1, paddingTop: Platform.OS === 'ios' && insets.top }}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         refreshControl={

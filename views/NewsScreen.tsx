@@ -60,7 +60,7 @@ import NativeText from '../components/NativeText';
 const yOffset = new Animated.Value(0);
 
 const headerOpacity = yOffset.interpolate({
-  inputRange: [-75, -60],
+  inputRange: [-40, 0],
   outputRange: [0, 1],
   extrapolate: 'clamp',
 });
@@ -330,7 +330,7 @@ function NewsScreen ({ navigation }: {
   return (
     <>
       <ScrollView
-        style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
+        style={[styles.container, { backgroundColor: UIColors.backgroundHigh, paddingTop: Platform.OS === 'ios' && insets.top }]}
         contentInsetAdjustmentBehavior="automatic"
         refreshControl={
           <RefreshControl
