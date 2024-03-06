@@ -217,7 +217,7 @@ const LoginView = ({ navigation }) => {
       </View>
 
       <Text
-        style={[styles.mainVersion, {top: insets.top}]}
+        style={[styles.mainVersion, {top: insets.top, zIndex: 9999}]}
         onLongPress={() => {
           navigation.navigate('NetworkLoggerScreen');
         }}
