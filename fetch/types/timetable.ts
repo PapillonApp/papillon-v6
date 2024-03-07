@@ -1,6 +1,7 @@
 export interface CachedPapillonTimetable {
   interval: { from: string, to?: string }
   timetable: PapillonLesson[]
+  cacheTimestamp: number
 }
 
 export interface PapillonLesson {
