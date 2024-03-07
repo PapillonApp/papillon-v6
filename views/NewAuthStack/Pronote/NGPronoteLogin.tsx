@@ -99,6 +99,7 @@ function NGPronoteLogin({
         } catch {
           setInstanceDetails(null);
           setURLAlert(true);
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         }
       }
     })();
@@ -135,7 +136,7 @@ function NGPronoteLogin({
       const pronote = await authenticatePronoteCredentials(pronoteURL, {
         username,
         password,
-        accountTypeID: PronoteApiAccountId.Eleve,
+        accountTypeID: PronoteApiAccountId.Student,
         deviceUUID,
       });
 
@@ -164,9 +165,11 @@ function NGPronoteLogin({
       navigation.goBack();
       navigation.goBack();
       appContext.setLoggedIn(true);
-    } catch {
+    } catch(err) {
       setConnecting(false);
       setErrorAlert(true);
+      console.error(err)
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
 
@@ -315,7 +318,7 @@ function NGPronoteLogin({
             </Text>
 
             <Text style={[styles.bottomTextText]}>
-              Pronote Espace Élèves version {instanceDetails?.version}
+              Pronote Espace Élèves version {instanceDetails?.version ?? 'inconnue'}
             </Text>
           </View>
         </View>
