@@ -677,7 +677,7 @@ function GradesScreen({ navigation }) {
     <>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
+        style={[styles.container, { backgroundColor: UIColors.backgroundHigh, paddingTop: useSafeAreaInsets.top + 70 }]}
         refreshControl={
           <RefreshControl
             refreshing={isHeadLoading}

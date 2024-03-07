@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import { View, StyleSheet, Platform, type ViewStyle } from 'react-native';
 
@@ -19,52 +19,54 @@ interface Props {
   backgroundColor?: string
 }
 
-const NativeItem: React.FC<Props> = ({ 
+const NativeItem = memo(({
   children,
   leading,
   trailing,
   onPress,
   chevron,
-  cellProps,
   backgroundColor,
 }) => {
   const UIColors = GetUIColors();
 
+  const cellImageView = leading && (
+    <View style={styles.cellImageView}>
+      {leading}
+    </View>
+  );
+
+  const cellContentView = children && (
+    <View style={styles.cellContentView}>
+      {children}
+    </View>
+  );
+
+  const cellAccessoryView = (trailing || chevron) && (
+    <View style={styles.cellAccessoryView}>
+      {trailing}
+
+      {chevron && Platform.OS === 'ios' && (
+        <SFSymbol
+          name="chevron.right"
+          weight="semibold"
+          size={16}
+          color={UIColors.text + '40'}
+          style={{marginRight: 4}}
+        />
+      )}
+    </View>
+  );
+
   return (
     <Cell
-      cellImageView={leading &&
-        <View style={styles.cellImageView}>
-          {leading}
-        </View>
-      }
-      cellContentView={children &&
-        <View style={styles.cellContentView}>
-          {children}
-        </View>
-      }
-      cellAccessoryView={(trailing || chevron) &&
-        <View style={styles.cellAccessoryView}>
-          {trailing}
-
-          {chevron && Platform.OS === 'ios' &&
-            <SFSymbol
-              name="chevron.right"
-              weight="semibold"
-              size={16}
-              color={UIColors.text + '40'}
-              style={{marginRight: 4}}
-            />
-          }
-        </View>
-      }
-
+      cellImageView={cellImageView}
+      cellContentView={cellContentView}
+      cellAccessoryView={cellAccessoryView}
       backgroundColor={!backgroundColor ? UIColors.element : backgroundColor}
-      onPress={() => { onPress?.(); }}
-
-      {...cellProps}
+      onPress={onPress}
     />
   );
-};
+});
 
 const styles = StyleSheet.create({
   cellImageView: {

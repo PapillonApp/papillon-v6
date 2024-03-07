@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, StyleSheet, TouchableNativeFeedback, type ViewStyle } from 'react-native';
 import type { Cell } from 'react-native-tableview-simple';
 
@@ -14,7 +14,7 @@ interface Props {
   backgroundColor?: string
 }
 
-const NativeItem: React.FC<Props> = ({ 
+const NativeItem: React.FC<Props> = React.memo(({
   children,
   leading,
   trailing,
@@ -22,31 +22,25 @@ const NativeItem: React.FC<Props> = ({
   style,
   innerStyle,
 }) => {
+  const handlePress = useCallback(() => onPress?.(), [onPress]);
+
   return (
     <TouchableNativeFeedback
       style={style}
-      onPress={() => onPress?.()}
+      onPress={handlePress}
     >
       <View style={[styles.content, innerStyle]}>
-        {leading && (
-          <View>
-            {leading}
-          </View>
-        )}
+        {leading && leading}
 
         <View style={styles.children}>
           {children}
         </View>
 
-        {trailing && (
-          <View>
-            {trailing}
-          </View>
-        )}
+        {trailing && trailing}
       </View>
     </TouchableNativeFeedback>
   );
-};
+});
 
 const styles = StyleSheet.create({
   content: {

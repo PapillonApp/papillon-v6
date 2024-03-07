@@ -52,6 +52,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems:'center',
     marginHorizontal: 14,
+    paddingLeft: 16,
+    width: '100%',
   },
   headerInset: {
     marginHorizontal: 0,

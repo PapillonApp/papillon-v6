@@ -22,7 +22,11 @@ const colors = [
   '#920205',
 ];
 
+const rgbCache = {};
+
 function hexToRGB(_hex) {
+  if (rgbCache[_hex]) return rgbCache[_hex];
+
   // Remove '#' if present
   const hex = _hex.replace('#', '');
 
@@ -31,15 +35,12 @@ function hexToRGB(_hex) {
   const g = parseInt(hex.substring(2, 4), 16);
   const b = parseInt(hex.substring(4, 6), 16);
 
+  rgbCache[_hex] = { r, g, b };
   return { r, g, b };
 }
 
 function calculateDistance(color1, color2) {
-  const dr = color1.r - color2.r;
-  const dg = color1.g - color2.g;
-  const db = color1.b - color2.b;
-
-  return Math.sqrt(dr * dr + dg * dg + db * db);
+  return Math.abs(color1.r - color2.r) + Math.abs(color1.g - color2.g) + Math.abs(color1.b - color2.b);
 }
 
 function findClosestColor(hexColor, colorList) {
@@ -109,8 +110,6 @@ function normalizeCoursName(courseName = '') {
 }
 
 function getSavedCourseColor(courseName, courseColor) {
-  courseColor = getClosestColor(courseColor);
-  
   let originalCourseName = courseName;
   courseName = normalizeCoursName(courseName);
   let savedColors = SyncStorage.get('savedColors');
@@ -124,7 +123,7 @@ function getSavedCourseColor(courseName, courseColor) {
     return savedColors[courseName].color;
   }
   // find a color that is not used
-  const color = courseColor;
+  const color = getClosestColor(courseColor || getClosestCourseColor(courseName));
   savedColors[courseName] = {
     color: color,
     originalCourseName: originalCourseName,
