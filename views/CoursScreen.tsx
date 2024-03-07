@@ -389,37 +389,38 @@ Statut : ${cours.status || 'Aucun'}
 
     console.info('timetable: fetching from scratch for state.');
     
-    const lessons = await appContext.dataProvider.getTimetable(date, force);
-    if (!lessons) return; // No-op, not sure if that's good here.
-    
-    // We fill undefined objects.
-    const mondayIndex = date.getDate() - date.getDay() + 1;
-    for (let i = 0; i <= 6; i++) {
-      const day = new Date(date);
-      day.setDate(mondayIndex + i);
+    appContext.dataProvider.getTimetable(date, force).then((lessons) => {
+      if (!lessons) return; // No-op, not sure if that's good here.
+      
+      // We fill undefined objects.
+      const mondayIndex = date.getDate() - date.getDay() + 1;
+      for (let i = 0; i <= 6; i++) {
+        const day = new Date(date);
+        day.setDate(mondayIndex + i);
 
-      const dayKey = dateToFrenchFormat(day);
+        const dayKey = dateToFrenchFormat(day);
 
-      // Create the object if not done.
-      if (!(dayKey in lessonsViewCache)) {
+        // Create the object if not done.
+        if (!(dayKey in lessonsViewCache)) {
+          lessonsViewCache[dayKey] = {};
+        }
+      }
+
+      // Empty every lessons of the week inside our state cache.
+      for (let dayKey in lessonsViewCache) {
         lessonsViewCache[dayKey] = {};
       }
-    }
 
-    // Empty every lessons of the week inside our state cache.
-    for (let dayKey in lessonsViewCache) {
-      lessonsViewCache[dayKey] = {};
-    }
+      // Register every lessons of the week inside our state cache.
+      for (const lesson of lessons) {
+        const dayKey = dateToFrenchFormat(new Date(lesson.start));
 
-    // Register every lessons of the week inside our state cache.
-    for (const lesson of lessons) {
-      const dayKey = dateToFrenchFormat(new Date(lesson.start));
+        // Insert the lesson in the day object.
+        lessonsViewCache[dayKey][lesson.id] = lesson;
+      }
 
-      // Insert the lesson in the day object.
-      lessonsViewCache[dayKey][lesson.id] = lesson;
-    }
-
-    setCours(lessonsViewCache);
+      setCours(lessonsViewCache);
+    });
   };
 
   const handlePageChange = async (page: number) => {

@@ -130,8 +130,10 @@ function DevoirsScreen({ navigation }: {
     setFromDate(date);
     
     if (totalHomeworks === null || force) {
-      const homeworks = await appContext.dataProvider?.getHomeworks(force);
-      setTotalHomeworks(homeworks ?? []);
+      appContext.dataProvider?.getHomeworks(force).then((hws) => {
+        const homeworks = hws ?? [];
+        setTotalHomeworks(homeworks ?? []);
+      });
     }
   };
 

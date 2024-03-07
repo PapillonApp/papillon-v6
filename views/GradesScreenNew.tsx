@@ -190,25 +190,32 @@ const GradesScreen = ({ navigation }: {
   }, [averagesOverTime, classAveragesOverTime, UIColors.text, UIColors.border, UIColors.primary, UIColors.element]);
 
   async function getPeriodsFromAPI (): Promise<PapillonPeriod> {
-    const user = await appContext.dataProvider!.getUser();
-    const periods = user.periodes.grades;
+    return appContext.dataProvider!.getUser().then((user) => {
+      const periods = user.periodes.grades;
 
-    setPeriods(periods);
-    const currentPeriod = periods.find((period) => period.actual)!;
+      setPeriods(periods);
+      const currentPeriod = periods.find((period) => period.actual)!;
 
-    setSelectedPeriod(currentPeriod.name);
-    return currentPeriod;
+      setSelectedPeriod(currentPeriod.name);
+      return currentPeriod;
+    });
   }
 
-  async function getGradesFromAPI (force = false, periodName = selectedPeriod): Promise<void> {
+  function getGradesFromAPI (force = false, periodName = selectedPeriod): Promise<void> {
     if (!isRefreshing) {
       setIsLoading(true);
     }
 
     try {
       if (appContext.dataProvider && periodName) {
-        const grades = await appContext.dataProvider.getGrades(periodName, force);
-        if (grades) await parseGrades(grades);
+        return appContext.dataProvider.getGrades(periodName, force).then((grades) => {
+          if (grades) {
+            return parseGrades(grades);
+          }
+          else {
+            return Promise.reject('No grades');
+          }
+        });
       }
     } catch (error) {
       console.error(error);
@@ -218,7 +225,7 @@ const GradesScreen = ({ navigation }: {
     }
   }
 
-  async function addGradesToSubject(grades: PapillonGrades): Promise<void> {
+  function addGradesToSubject(grades: PapillonGrades): Promise<void> {
     const data = grades.averages.map(average => ({ ...average, grades: [] as PapillonGrades['grades'] }));
 
     grades.grades.forEach((grade) => {
