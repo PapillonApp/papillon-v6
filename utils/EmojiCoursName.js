@@ -43,10 +43,11 @@ function getClosestGradeEmoji(subjectName) {
     ?.normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
 
+  // sort keys by length in descending order
+  const sortedKeys = Object.keys(gradeEmojiList).sort((a, b) => b.length - a.length);
+
   // get emoji with key in subject name
-  const closest = Object.keys(gradeEmojiList).reduce((a, b) =>
-    subjectNameFormatted.includes(a) ? a : b
-  );
+  const closest = sortedKeys.find(key => subjectNameFormatted.includes(key)) || 'default';
 
   return gradeEmojiList[closest];
 }
