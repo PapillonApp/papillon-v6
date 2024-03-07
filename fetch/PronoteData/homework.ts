@@ -23,7 +23,7 @@ const makeLocalID = (homework: {
   localID += homework.date.getTime();
   // whole description
   localID += homework.description;
-
+  localID = encodeURIComponent(localID)
   return btoa(localID);
 };
 
@@ -108,7 +108,6 @@ export const homeworkHandler = async (force = false, instance?: Pronote): Promis
         lengthInMinutes: homework.lengthInMinutes,
       });
     }
-
     await AsyncStorage.setItem(AsyncStoragePronoteKeys.CACHE_HOMEWORK, JSON.stringify(data));
   }
   catch (error) {
