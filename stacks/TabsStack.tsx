@@ -109,9 +109,11 @@ const TabsStack = ({ navigation }) => {
           tabBarActiveTintColor:
             !settings?.hideTabBarTitle ? UIColors.primary :
               UIColors.dark ? '#ffffff' : '#000000',
-          tabBarStyle: {
+          tabBarStyle: Platform.OS === 'ios' ? {
             paddingHorizontal: 8,
-            height: Platform.OS === 'android' ? 68 : 80,
+            height: 80,
+          } : {
+            paddingHorizontal: 8,
           },
         }}
       >

@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Platform } from 'react-native';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 const Stack = createNativeStackNavigator();
+
+import { setBackgroundFetch } from '../fetch/BackgroundFetch';
 
 export const headerTitleStyles = {
   headerLargeTitleStyle: {
@@ -131,6 +133,10 @@ const AppStack = ({ navigation }) => {
       }
     },
   ];
+
+  useEffect(() => {
+    setBackgroundFetch();
+  }, []);
 
   return (
     <View style={{ flex: 1 }}>
