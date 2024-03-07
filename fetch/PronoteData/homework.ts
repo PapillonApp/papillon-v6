@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AsyncStoragePronoteKeys } from './connector';
 import { getDefaultStore } from 'jotai';
 import { homeworksAtom } from '../../atoms/homeworks';
+import { btoa } from 'js-base64';
 
 const defaultStore = getDefaultStore();
 
@@ -14,23 +15,16 @@ const makeLocalID = (homework: {
   subjectName: string | undefined
   date: Date
 }): string => {
-  let localID: string;
-
-  // return a combination of the 20 first letters of description
-  if (homework.description.length > 20) {
-    localID = homework.description.substring(0, 20);
-  }
-  else {
-    localID = homework.description;
-  }
+  let localID = '';
 
   // 2 first letters of subject name
-  localID += homework.subjectName?.substring(0, 2) ?? '??';
-
+  localID += homework.subjectName ?? '??';
   // date in ISO
-  localID += homework.date.toISOString();
+  localID += homework.date.getTime();
+  // whole description
+  localID += homework.description;
 
-  return localID;
+  return btoa(localID);
 };
 
 export const homeworkHandler = async (force = false, instance?: Pronote): Promise<PapillonHomework[]> => {
