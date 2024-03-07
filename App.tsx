@@ -81,7 +81,7 @@ function App() {
           {loading ? (
             <Stack.Screen name="Loading" component={LoadingScreen} options={{ headerShown: false }} />
           ) : loggedIn ? (
-            <Stack.Screen name="AppStack" component={AppStack} options={{ headerShown: false }} />
+            <Stack.Screen name="AppStack" component={AppStack} options={{ headerShown: false, animation: 'fade', animationDuration: 150 }} />
           ) : (
             <Stack.Screen name="AuthStack" component={AuthStack} options={{ headerShown: false }} />
           )}
