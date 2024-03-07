@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Platform, Text, ActivityIndicator, View } from 'react-native';
+import { Platform, Text, ActivityIndicator, View, StatusBar } from 'react-native';
 import { AppContextProvider } from './utils/AppContext';
 import * as appContext from './utils/AppContext';
 import { IndexDataInstance } from './fetch';
@@ -61,6 +61,15 @@ function App() {
       options: {
         presentation: 'modal',
         headerTitle: 'Historique réseau',
+      },
+    },
+    {
+      name: 'ConsentScreen',
+      component: require('./views/NewAuthStack/ConsentScreen').default,
+      options: {
+        presentation: 'modal',
+        headerTitle: 'Termes & conditions',
+        headerBackVisible: false,
       },
     },
   ];
