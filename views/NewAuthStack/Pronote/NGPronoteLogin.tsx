@@ -1,5 +1,4 @@
 import React from 'react';
-
 import {
   ScrollView,
   View,
@@ -9,11 +8,18 @@ import {
   StatusBar,
   ActivityIndicator,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 
-import * as Haptics from 'expo-haptics';
+import {
+  UserCircle,
+  KeyRound,
+  AlertTriangle,
+  Link2,
+  Eye,
+  EyeOff,
+} from 'lucide-react-native';
 
-import { UserCircle, KeyRound, AlertTriangle, Link2 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import { showMessage } from 'react-native-flash-message';
@@ -40,13 +46,16 @@ type PronoteInstanceInformation = Awaited<
   ReturnType<typeof getPronoteInstanceInformation>
 >;
 
-function NGPronoteLogin({ route, navigation }: {
-  navigation: any; // TODO
+function NGPronoteLogin({
+  route,
+  navigation,
+}: {
+  navigation: any;
   route: {
     params: {
-      instanceURL: string
-    }
-  }
+      instanceURL: string;
+    };
+  };
 }) {
   const instanceURL = route.params.instanceURL;
   const theme = useTheme();
@@ -54,7 +63,13 @@ function NGPronoteLogin({ route, navigation }: {
   const [errorAlert, setErrorAlert] = React.useState(false);
   const [stringErrorAlert, setStringErrorAlert] = React.useState(false);
   const [urlAlert, setURLAlert] = React.useState(false);
-  const [instanceDetails, setInstanceDetails] = React.useState<PronoteInstanceInformation | null>(null);
+  const [instanceDetails, setInstanceDetails] = React.useState<
+    PronoteInstanceInformation | null
+  >(null);
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [connecting, setConnecting] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
 
   React.useEffect(() => {
     (async () => {
@@ -84,15 +99,10 @@ function NGPronoteLogin({ route, navigation }: {
         } catch {
           setInstanceDetails(null);
           setURLAlert(true);
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         }
       }
     })();
   }, [instanceURL]);
-
-  const [username, setUsername] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [connecting, setConnecting] = React.useState(false);
 
   const appContext = useAppContext();
   const UIColors = GetUIColors();
@@ -113,7 +123,6 @@ function NGPronoteLogin({ route, navigation }: {
   const handleLogin = async () => {
     if (username.trim() === '' || password.trim() === '') {
       setStringErrorAlert(true);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
     }
 
@@ -126,7 +135,7 @@ function NGPronoteLogin({ route, navigation }: {
       const pronote = await authenticatePronoteCredentials(pronoteURL, {
         username,
         password,
-        accountTypeID: PronoteApiAccountId.Student,
+        accountTypeID: PronoteApiAccountId.Eleve,
         deviceUUID,
       });
 
@@ -147,7 +156,6 @@ function NGPronoteLogin({ route, navigation }: {
         message: 'Connecté avec succès',
         type: 'success',
         icon: 'auto',
-        floating: true
       });
 
       await appContext.dataProvider!.init('pronote', pronote);
@@ -156,11 +164,9 @@ function NGPronoteLogin({ route, navigation }: {
       navigation.goBack();
       navigation.goBack();
       appContext.setLoggedIn(true);
-    } catch(err) {
+    } catch {
       setConnecting(false);
       setErrorAlert(true);
-      console.error(err)
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
 
@@ -198,7 +204,7 @@ function NGPronoteLogin({ route, navigation }: {
         <AlertBottomSheet
           visible={urlAlert}
           title="Erreur de connexion"
-          subtitle="Imposible de se connecter à cette instance."
+          subtitle="Impossible de se connecter à cette instance."
           icon={<Link2 />}
           cancelAction={() => setURLAlert(false)}
         />
@@ -255,13 +261,25 @@ function NGPronoteLogin({ route, navigation }: {
                 style={{ opacity: 0.5 }}
               />
             }
+            trailing={
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={{ padding: 10 }}
+              >
+                {showPassword ? (
+                  <Eye color={UIColors.text + '55'} />
+                ) : (
+                  <EyeOff color={UIColors.text+ '55'} />
+                )}
+              </TouchableOpacity>
+            }
           >
             <TextInput
               placeholder="Mot de passe"
               placeholderTextColor={theme.dark ? '#ffffff55' : '#00000055'}
               style={[styles.nginput, { color: UIColors.text }]}
               value={password}
-              secureTextEntry
+              secureTextEntry={!showPassword}
               onChangeText={(text) => setPassword(text)}
             />
           </NativeItem>
@@ -275,14 +293,13 @@ function NGPronoteLogin({ route, navigation }: {
         >
           <View style={[styles.buttons]}>
             <PapillonButton
-              color="#159C5E"
+              left={null}
+              light={null}
               title="Se connecter"
-              style={styles.button}
+              color="#159C5E"
               onPress={() => handleLogin()}
-              
-              left={void 0}
-              light={void 0}
-              right={connecting ? <ActivityIndicator color="#ffffff" /> : void 0}
+              style={[styles.button]}
+              right={connecting && <ActivityIndicator color="#ffffff" />}
             />
           </View>
 
@@ -298,7 +315,7 @@ function NGPronoteLogin({ route, navigation }: {
             </Text>
 
             <Text style={[styles.bottomTextText]}>
-              Pronote version {instanceDetails?.version ?? 'inconnue'}
+              Pronote Espace Élèves version {instanceDetails?.version}
             </Text>
           </View>
         </View>
