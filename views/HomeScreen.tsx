@@ -278,6 +278,21 @@ function HomeScreen({ navigation }: { navigation: any }) {
 
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
 
+  function checkTerms() {
+    AsyncStorage.getItem('ppln_terms').then((value) => {
+      if (!value) {
+        navigation.navigate('ConsentScreen');
+      }
+    });
+  }
+
+  // check terms on focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      checkTerms();
+    });
+  }, [navigation]);
+
   const setHomeworks = useSetAtom(homeworksAtom);
   const [groupedHomeworks] = useAtom(
     useMemo(
