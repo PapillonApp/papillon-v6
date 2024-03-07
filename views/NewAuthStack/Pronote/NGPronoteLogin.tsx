@@ -267,12 +267,12 @@ function NGPronoteLogin({
             trailing={
               <TouchableOpacity
                 onPress={() => setShowPassword(!showPassword)}
-                style={{ padding: 10 }}
+                style={{ padding: 10, marginRight: -10 }}
               >
                 {showPassword ? (
-                  <Eye color={UIColors.text + '55'} />
+                  <EyeOff color={UIColors.text} style={{ opacity: 0.5 }} />
                 ) : (
-                  <EyeOff color={UIColors.text+ '55'} />
+                  <Eye color={UIColors.text} style={{ opacity: 0.5 }} />
                 )}
               </TouchableOpacity>
             }
