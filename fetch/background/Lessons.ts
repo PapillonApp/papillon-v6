@@ -16,6 +16,12 @@ const fetchLessons = async () => {
   return dataInstance.getTimetable(now, true).then(async (lessons) => {
     console.info('[background fetch] fetched lessons');
     try {
+      // filter lessons to only keep those that are today
+      lessons = lessons.filter(lesson => {
+        const start = new Date(lesson.start);
+        return start.getDate() === now.getDate() && start.getMonth() === now.getMonth() && start.getFullYear() === now.getFullYear();
+      });
+
       if (Platform.OS === 'ios') {
         await sendLessonsToSharedGroup(lessons);
       }
