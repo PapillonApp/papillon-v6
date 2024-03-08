@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Alert,
   StyleSheet,
   View,
   ScrollView,
   StatusBar,
   Platform,
+  Linking,
   Switch,
 } from 'react-native';
 
@@ -13,20 +15,42 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import GetUIColors from '../../utils/GetUIColors';
 
+import notifee, { AuthorizationStatus } from '@notifee/react-native';
+
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import { Calendar, CalendarClock, CheckCircle, TrendingUp } from 'lucide-react-native';
 
-function NotificationsScreen() {
+function NotificationsScreen({ navigation }) {
   const UIColors = GetUIColors();
 
+  const [notificationsGranted, setNotificationsGranted] = useState(true);
   const [notificationSettings, setNotificationSettings] = useState({
     'notificationsEnabled': true,
     'notifications_CoursEnabled': true,
     'notifications_DevoirsEnabled': true,
     'notifications_NotesEnabled': true,
   });
+
+  const checkPermissions = async () => {
+    const settings = await notifee.requestPermission();
+    if (settings.authorizationStatus === AuthorizationStatus.DENIED) {
+      setNotificationsGranted(false);
+    }
+    else {
+      setNotificationsGranted(true);
+    }
+  };
+
+  useEffect(() => {
+    // check on focus
+    const unsubscribe = navigation.addListener('focus', () => {
+      checkPermissions();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   useEffect(() => {
     (async () => {
@@ -64,8 +88,14 @@ function NotificationsScreen() {
         <NativeItem
           trailing={
             <Switch
-              onValueChange={() => toggleNotification('notificationsEnabled')}
-              value={notificationSettings.notificationsEnabled}
+              onValueChange={() => {
+                checkPermissions().then(() => {
+                  if (notificationsGranted) {
+                    toggleNotification('notificationsEnabled');
+                  }
+                });
+              }}
+              value={notificationSettings.notificationsEnabled && notificationsGranted}
             />
           }
         >
@@ -75,7 +105,32 @@ function NotificationsScreen() {
         </NativeItem>
       </NativeList>
 
-      {notificationSettings.notificationsEnabled ? (<>
+      {!notificationsGranted && (
+        <NativeList
+          inset
+        >
+          <NativeItem
+            backgroundColor={'#d45f2c'}
+          >
+            <NativeText heading='p2' style={{ color: '#ffffff' }}>
+              Les notifications sont désactivées pour Papillon. Activez-les dans les paramètres de l'application.
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            backgroundColor={'#d45f2c'}
+            onPress={() => {
+              Linking.openSettings();
+            }}
+            chevron
+          >
+            <NativeText heading='h4' style={{ color: '#ffffff' }}>
+              Paramètres de l'application
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+      )}
+
+      {notificationSettings.notificationsEnabled && notificationsGranted ? (<>
         <NativeList inset header="Cours">
           <NativeItem
             leading={
