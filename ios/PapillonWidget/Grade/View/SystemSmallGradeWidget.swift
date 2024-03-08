@@ -29,7 +29,7 @@ struct SystemSmallGradeWidget: View {
                   .bold()
                 Text("/" + String(format: "%.0f", firstGrade.grade.outOf.value))
                   .font(.system(.subheadline, design: .rounded))
-                  .baselineOffset(1)
+                  .baselineOffset(2)
                   .foregroundStyle(Color.primary.opacity(0.5))
               }
             }
