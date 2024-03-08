@@ -336,7 +336,6 @@
 		BD74E2032ACF4D9200DBCB2F /* Course */ = {
 			isa = PBXGroup;
 			children = (
-				BDF0E6B92B9A9BF000A77575 /* Grade */,
 				BDA68BA72ABF40920034EC6A /* CourseWidget.swift */,
 				BDA68BF62AC04B210034EC6A /* View */,
 			);
@@ -346,6 +345,7 @@
 		BDA68BA42ABF40920034EC6A /* PapillonWidget */ = {
 			isa = PBXGroup;
 			children = (
+				BDF0E6B92B9A9BF000A77575 /* Grade */,
 				BD74E2032ACF4D9200DBCB2F /* Course */,
 				BDA68BA52ABF40920034EC6A /* PapillonWidgetBundle.swift */,
 				BDA68BAB2ABF40930034EC6A /* Assets.xcassets */,
