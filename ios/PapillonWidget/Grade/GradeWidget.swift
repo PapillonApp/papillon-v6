@@ -3,7 +3,8 @@ import SwiftUI
 import Foundation
 
 // MARK: - Grades List
-struct Grades: Codable {
+struct Grades: Identifiable {
+    let id = UUID()
     let subject, emoji, description, color: String
     let date: TimeInterval
     let grade: Grade
@@ -160,7 +161,7 @@ struct GradeWidgetView: View {
     var body: some View {
       switch family {
         case .systemSmall: SystemSmallGradeWidget(entry: entry)
-        //case .systemMedium: systemMediumCourseWidget(entry: entry)
+        case .systemMedium: SystemMediumGradeWidget(entry: entry)
         //case .accessoryInline: AccessoryInlineCourseWidget(entry: entry)
         //case .accessoryRectangular: AccessoryRectangularCourseWidget(entry: entry)
         default:
@@ -168,11 +169,6 @@ struct GradeWidgetView: View {
         }
     }
 
-    public func formattedTime(_ timestamp: TimeInterval) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm"
-        return dateFormatter.string(from: Date(timeIntervalSince1970: timestamp / 1000))
-    }
 }
 
 struct GradeWidget: Widget {
