@@ -8,7 +8,7 @@ import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';
 import { checkCanNotify, DidNotified, SetNotified } from './Helper';
 import { PapillonHomework } from '../types/homework';
 
-const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon';
+const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon.ios';
 const now = new Date();
 
 const fetchHomeworks = async () => {

@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PapillonGrades } from '../types/grades';
 import { calculateSubjectAverage } from '../../utils/grades/averages';
 
-const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon';
+const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon.ios';
 const now = new Date();
 
 const fetchGrades = async () => {
