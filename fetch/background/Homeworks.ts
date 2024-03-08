@@ -45,7 +45,7 @@ const notifyHomeworks = async (homeworks: PapillonHomework[]) => {
     notifee.cancelNotification('hw_' + tomorrow.getTime());
   }
   else {
-    const canNotify : boolean = await checkCanNotify();
+    const canNotify : boolean = await checkCanNotify('notifications_DevoirsEnabled');
     const didNotify : boolean = await DidNotified('hw_' + tomorrow.getTime());
     if (!canNotify || didNotify) return;
 

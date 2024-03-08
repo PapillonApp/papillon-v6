@@ -1,10 +1,22 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import notifee, { AuthorizationStatus } from '@notifee/react-native';
 
-const checkCanNotify = async () => {
+const checkCanNotify = async (type = 'notificationsEnabled') => {
   const settings = await notifee.requestPermission();
+  const authorized = settings.authorizationStatus === AuthorizationStatus.AUTHORIZED;
 
-  return settings.authorizationStatus === AuthorizationStatus.AUTHORIZED;
+  const notifs = await AsyncStorage.getItem('notificationSettings');
+  let canNotify = true;
+  let enabled = true;
+  if (notifs) {
+    const notifsSettings = JSON.parse(notifs);
+    enabled = notifsSettings['notificationsEnabled'];
+    canNotify = notifsSettings[type];
+  }
+
+  console.log('[background fetch] authorized:', authorized, 'canNotify:', canNotify, 'enabled:', enabled);
+
+  return authorized && canNotify && enabled;
 };
 
 const DidNotified = async (id: string) => {

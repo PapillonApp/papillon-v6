@@ -53,7 +53,7 @@ const sendLessonsToSharedGroup = async (lessons: PapillonLesson[]) => {
 };
 
 const notifyLessons = async (lessons: PapillonLesson[]) => {
-  const canNotify : boolean = await checkCanNotify();
+  const canNotify : boolean = await checkCanNotify('notifications_CoursEnabled');
   if (!canNotify) return;
 
   // get all lessons with status set

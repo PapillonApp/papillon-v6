@@ -8,192 +8,164 @@ import {
   Switch,
 } from 'react-native';
 
-import { Text, useTheme } from 'react-native-paper';
-
-import * as Notifications from 'expo-notifications';
-
 import DateTimePicker from '@react-native-community/datetimepicker';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ListItem from '../../components/ListItem';
+
 import GetUIColors from '../../utils/GetUIColors';
 
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
+import { Calendar, CalendarClock, CheckCircle, TrendingUp } from 'lucide-react-native';
 
 function NotificationsScreen() {
-  const theme = useTheme();
   const UIColors = GetUIColors();
 
-  const [devoirsReminderEnabled, setDevoirsReminderEnabled] = useState(false);
-  const [devoirsReminderTime, setDevoirsReminderTime] = useState(new Date());
-
-  const [timePickerEnabled, setTimePickerEnabled] = useState(false);
+  const [notificationSettings, setNotificationSettings] = useState({
+    'notificationsEnabled': true,
+    'notifications_CoursEnabled': true,
+    'notifications_DevoirsEnabled': true,
+    'notifications_NotesEnabled': true,
+  });
 
   useEffect(() => {
-    if (Platform.OS === 'ios') {
-      setTimePickerEnabled(true);
-    }
-
-    AsyncStorage.getItem('devoirsReminder').then((value) => {
-      if (value !== null) {
-        const data = JSON.parse(value);
-
-        setDevoirsReminderEnabled(data.enabled);
-        setDevoirsReminderTime(new Date(data.time));
+    (async () => {
+      try {
+        const settings = await AsyncStorage.getItem('notificationSettings');
+        if (settings !== null) {
+          setNotificationSettings(JSON.parse(settings));
+        }
+      } catch (e) {
+        console.error(e);
       }
-    });
-
-    Notifications.getAllScheduledNotificationsAsync().then((value) => {
-      return;
-    });
+    })();
   }, []);
 
-  async function enableDevoirsReminder(val) {
-    setDevoirsReminderEnabled(val);
-
-    if (val) {
-      updateReminderTime(devoirsReminderTime);
-      await AsyncStorage.setItem(
-        'devoirsReminder',
-        JSON.stringify({
-          enabled: true,
-          time: devoirsReminderTime,
-        })
-      );
-    } else {
-      Notifications.cancelScheduledNotificationAsync('devoirsReminder');
-      await AsyncStorage.setItem(
-        'devoirsReminder',
-        JSON.stringify({
-          enabled: false,
-          time: devoirsReminderTime,
-        })
-      );
+  const toggleNotification = async (key) => {
+    try {
+      setNotificationSettings({ ...notificationSettings, [key]: !notificationSettings[key] });
+      AsyncStorage.setItem('notificationSettings', JSON.stringify({ ...notificationSettings, [key]: !notificationSettings[key] }));
+    } catch (e) {
+      console.error(e);
     }
-  }
-
-  async function updateReminderTime(time) {
-    setDevoirsReminderTime(time);
-    closeTimePicker();
-
-    await AsyncStorage.setItem(
-      'devoirsReminder',
-      JSON.stringify({
-        enabled: devoirsReminderEnabled,
-        time,
-      })
-    );
-
-    // edit notification
-    Notifications.requestPermissionsAsync();
-    Notifications.cancelScheduledNotificationAsync('devoirsReminder');
-
-    Notifications.scheduleNotificationAsync({
-      content: {
-        title: '📚 Il est temps de faire tes devoirs !',
-        body: 'Ouvre l\'app Papillon pour voir ce que tu as à faire.',
-        sound: 'papillon_ding.wav',
-      },
-      trigger: {
-        channelId: 'devoirsReminder',
-        hour: devoirsReminderTime.getHours(),
-        minute: devoirsReminderTime.getMinutes(),
-        repeats: true,
-      },
-      identifier: 'devoirsReminder',
-    });
-  }
-
-  function openTimePicker() {
-    setTimePickerEnabled(true);
-  }
-
-  function closeTimePicker() {
-    setTimePickerEnabled(false);
-  }
+  };
 
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
       contentInsetAdjustmentBehavior="automatic"
     >
-      {Platform.OS === 'ios' ? (
-        <StatusBar animated barStyle="light-content" />
-      ) : (
-        <StatusBar
-          animated
-          barStyle={theme.dark ? 'light-content' : 'dark-content'}
-          backgroundColor="transparent"
-        />
-      )}
-
-      <NativeList
-        header="Notifications"
-        inset
-      >
-        <NativeItem
-          trailing={
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Switch
-                value={devoirsReminderEnabled}
-                onValueChange={(val) => enableDevoirsReminder(val)}
-              />
-            </View>
-          }
-        >
-          <NativeText heading="h4">
-            Activer le rappel des devoirs
-          </NativeText>
-          <NativeText heading="p2">
-            Envoie une notification le soir pour te rappeler de faire tes devoirs
+      <NativeList inset>
+        <NativeItem>
+          <NativeText heading='p2'>
+            Papillon viendra s'actualiser en arrière-plan pour mettre à jour vos données et vous notifier en temps réel.
           </NativeText>
         </NativeItem>
+        <NativeItem
+          trailing={
+            <Switch
+              onValueChange={() => toggleNotification('notificationsEnabled')}
+              value={notificationSettings.notificationsEnabled}
+            />
+          }
+        >
+          <NativeText heading='h4'>
+            Activer les notifications
+          </NativeText>
+        </NativeItem>
+      </NativeList>
 
-        {devoirsReminderEnabled ? (
+      {notificationSettings.notificationsEnabled ? (<>
+        <NativeList inset header="Cours">
           <NativeItem
-            trailing={
-              timePickerEnabled || Platform.OS === 'ios' ? (
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <DateTimePicker
-                    value={devoirsReminderTime}
-                    mode="time"
-                    is24Hour
-                    display="default"
-                    onChange={(event, time) => {
-                      updateReminderTime(time);
-                    }}
-                  />
-                </View>
-              ) : null
+            leading={
+              <CalendarClock
+                size={24}
+                color={UIColors.text}
+              />
             }
-            onPress={Platform.OS !== 'ios' ? () => {
-              openTimePicker();
-            } : null}
+            trailing={
+              <Switch
+                onValueChange={() => toggleNotification('notifications_CoursEnabled')}
+                value={notificationSettings.notifications_CoursEnabled}
+              />
+            }
           >
-            <NativeText heading="p">
-              Sélectionner l'heure du rappel des devoirs
+            <NativeText heading='h4'>
+              Modification des cours
+            </NativeText>
+            <NativeText heading='p2'>
+              Vous notifie quelques minutes avant lorsqu'un cours est annulé ou modifié.
             </NativeText>
           </NativeItem>
-        ) : null}
-      </NativeList>
+        </NativeList>
+
+        <NativeList inset header="Devoirs">
+          <NativeItem
+            leading={
+              <CheckCircle
+                size={24}
+                color={UIColors.text}
+              />
+            }
+            trailing={
+              <Switch
+                onValueChange={() => toggleNotification('notifications_DevoirsEnabled')}
+                value={notificationSettings.notifications_DevoirsEnabled}
+              />
+            }
+          >
+            <NativeText heading='h4'>
+              Travail à faire pour demain
+            </NativeText>
+            <NativeText heading='p2'>
+              Vous notifie en soirée lorsqu'un devoir est non-fait pour le lendemain.
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+
+        <NativeList inset header="Notes">
+          <NativeItem
+            leading={
+              <TrendingUp
+                size={24}
+                color={UIColors.text}
+              />
+            }
+            trailing={
+              <Switch
+                onValueChange={() => toggleNotification('notifications_NotesEnabled')}
+                value={notificationSettings.notifications_NotesEnabled}
+              />
+            }
+          >
+            <NativeText heading='h4'>
+              Nouvelle note
+            </NativeText>
+            <NativeText heading='p2'>
+              Vous envoie une notification lorsque Papillon récupère une nouvelle note.
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+      </>) : (
+        <NativeList inset>
+          <NativeItem>
+            <NativeText heading='p2' style={{ textAlign: 'center' }}>
+              Les notifications sont désactivées.
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+      )}
+
+      <NativeText heading='subtitle2' style={{marginHorizontal: 26, marginVertical: 9, opacity: 0.4}}>
+        Les notifications peuvent consommer de la batterie et engendrer des frais de données mobiles si celles-ci sont activées.
+      </NativeText>
+      
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  ListTitle: {
-    paddingLeft: 29,
-    fontSize: 15,
-    fontFamily: 'Papillon-Medium',
-    opacity: 0.5,
-  },
-
-  timeText: {
-    fontSize: 17,
-    fontWeight: 500,
-  },
 });
 
 export default NotificationsScreen;

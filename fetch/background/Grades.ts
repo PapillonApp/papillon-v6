@@ -66,7 +66,6 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
   try {
     await SharedGroupPreferences.setItem('getGradesF', JSON.stringify(sharedLessons), APP_GROUP_IDENTIFIER);
     console.info('[background fetch] Stored grades in shared group (getGradesF)');
-    console.info('[background fetch] Stored grades in shared group', sharedLessons);
   } catch (error) {
     console.error('[background fetch] Error while storing grades in shared group', error);
   }
@@ -115,7 +114,7 @@ const notifyGrades = async (grades: PapillonGrades[]) => {
     let lastGradeId = lastGrade.subject.name + lastGrade.date;
     notifee.cancelNotification(lastGradeId);
 
-    const canNotify = await checkCanNotify();
+    const canNotify = await checkCanNotify('notifications_NotesEnabled');
     const didNotified = await DidNotified(lastGradeId);
     if (!canNotify || didNotified) {
       return false;
