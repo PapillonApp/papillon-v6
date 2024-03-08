@@ -220,6 +220,16 @@ function AboutScreen({ navigation }) {
               Dépendances
             </NativeText>
           </NativeItem>
+          <NativeItem
+            onPress={() => {
+              navigation.navigate('ConsentScreen');
+            }}
+            chevron
+          >
+            <NativeText heading="p2">
+              Termes & conditions
+            </NativeText>
+          </NativeItem>
         </NativeList>
       </ScrollView>
     </View>

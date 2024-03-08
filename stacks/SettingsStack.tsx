@@ -19,6 +19,7 @@ import AdjustmentsScreen from '../views/Settings/AdjustmentsScreen';
 import HeaderSelectScreen from '../views/Settings/HeaderSelectScreen';
 import PaymentScreen from '../views/Settings/PaymentScreen';
 import NotificationsScreen from '../views/Settings/NotificationsScreen';
+import ConsentScreen from '../views/NewAuthStack/ConsentScreen';
 
 function InsetSettings() {
   const UIColors = GetUIColors();
@@ -120,6 +121,16 @@ function InsetSettings() {
         options={{
           headerTitle: 'Notifications',
           headerBackTitle: 'Préférences',
+        }}
+      />
+      <Stack.Screen
+        name="ConsentScreen"
+        component={ConsentScreen}
+        options={{
+          headerTitle: 'Termes & conditions',
+          headerBackTitle: 'Préférences',
+          headerBackVisible: true,
+          headerBackTitleVisible: false,
         }}
       />
       <Stack.Screen
