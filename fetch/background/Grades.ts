@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PapillonGrades } from '../types/grades';
 import { calculateSubjectAverage } from '../../utils/grades/averages';
 import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';
+import { Platform } from 'react-native';
 
 const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon';
 const now = new Date();
@@ -20,7 +21,9 @@ const fetchGrades = async () => {
 
     return dataInstance.getGrades(currentPeriod.name).then(async (grades) => {
       try {
-        await sendGradesToSharedGroup(grades);
+        if (Platform.OS === 'ios') {
+          await sendGradesToSharedGroup(grades);
+        }
         await notifyGrades(grades);
         console.info('[background fetch] fetched grades');
         return true;

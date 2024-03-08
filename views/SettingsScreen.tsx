@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, ScrollView, StyleSheet, StatusBar, Platform } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import { Settings, User2, Info, Sparkles } from 'lucide-react-native';
+import { Settings, User2, Info, Sparkles, Bell } from 'lucide-react-native';
 
 import packageJson from '../package.json';
 
@@ -68,6 +68,21 @@ function SettingsScreen({ navigation }: {
             />
           }
           onPress={() => navigation.navigate('Settings')}
+        />
+
+        <ListItem
+          title="Notifications"
+          subtitle="Gérer les notifications de l'application"
+          color="#A84700"
+          left={
+            <PapillonIcon
+              icon={<Bell size={24} color="#fff" />}
+              color="#A84700"
+              fill
+              small
+            />
+          }
+          onPress={() => navigation.navigate('Notifications')}
         />
 
         <ListItem

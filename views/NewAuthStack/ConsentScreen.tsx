@@ -4,6 +4,8 @@ import { Alert, View, StatusBar, ScrollView, useWindowDimensions, Text, Button, 
 import GetUIColors from '../../utils/GetUIColors';
 import { licenceFile } from './LicenceFile';
 
+import * as Haptics from 'expo-haptics';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import RenderHtml from 'react-native-render-html';
@@ -75,6 +77,13 @@ const ConsentScreen = ({ navigation }: { navigation: any }) => {
         </TouchableOpacity>
       ),
     });
+  }, [canAccept]);
+
+  // haptic when can accept
+  useEffect(() => {
+    if (canAccept) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
   }, [canAccept]);
 
   return (

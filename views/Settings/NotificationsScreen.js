@@ -79,6 +79,8 @@ function NotificationsScreen({ navigation }) {
       style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
       contentInsetAdjustmentBehavior="automatic"
     >
+      { Platform.OS === 'android' && <View style={{ height: 24 }} /> }
+
       <NativeList inset>
         <NativeItem>
           <NativeText heading='p2'>

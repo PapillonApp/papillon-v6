@@ -6,6 +6,7 @@ import type { PapillonLesson } from '../types/timetable';
 import { getContextValues } from '../../utils/AppContext';
 import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';
 import { checkCanNotify } from './Helper';
+import { Platform } from 'react-native';
 
 const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon';
 const now = new Date();
@@ -15,7 +16,9 @@ const fetchLessons = async () => {
   return dataInstance.getTimetable(now, true).then(async (lessons) => {
     console.info('[background fetch] fetched lessons');
     try {
-      await sendLessonsToSharedGroup(lessons);
+      if (Platform.OS === 'ios') {
+        await sendLessonsToSharedGroup(lessons);
+      }
       await notifyLessons(lessons);
       return true;
     }
