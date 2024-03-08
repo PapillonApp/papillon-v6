@@ -38,7 +38,7 @@ struct Average: Codable {
 
 //MARK: - Retrieve shared data from UserDefaults shared between your app and widget
 func retrieveSharedGrades() -> [Grades]? {
-    let sharedDefaults = UserDefaults(suiteName: "group.xyz.getpapillon")
+    let sharedDefaults = UserDefaults(suiteName: "group.xyz.getpapillon.ios")
     
     if let jsonString = sharedDefaults?.string(forKey: "getGradesF"),
        let jsonData = jsonString.data(using: .utf8) {
