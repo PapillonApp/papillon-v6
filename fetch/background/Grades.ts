@@ -7,6 +7,7 @@ import { checkCanNotify, DidNotified } from './Helper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PapillonGrades } from '../types/grades';
 import { calculateSubjectAverage } from '../../utils/grades/averages';
+import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';
 
 const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon';
 const now = new Date();
