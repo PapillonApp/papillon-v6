@@ -5,7 +5,7 @@ import { getSavedCourseColor } from '../../utils/ColorCoursName';
 import type { PapillonLesson } from '../types/timetable';
 import { getContextValues } from '../../utils/AppContext';
 import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';
-import { checkCanNotify } from '../BackgroundFetch';
+import { checkCanNotify } from './Helper';
 
 const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon';
 const now = new Date();

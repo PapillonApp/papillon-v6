@@ -4,7 +4,7 @@ import getClosestGradeEmoji from '../../utils/EmojiCoursName';
 import { getSavedCourseColor } from '../../utils/ColorCoursName';
 import { getContextValues } from '../../utils/AppContext';
 import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';
-import { checkCanNotify, DidNotified, SetNotified } from '../BackgroundFetch';
+import { checkCanNotify, DidNotified, SetNotified } from './Helper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PapillonGrades } from '../types/grades';
 import { calculateSubjectAverage } from '../../utils/grades/averages';

@@ -16,12 +16,6 @@ const backgroundFetch = async () => {
   return BackgroundFetchResult.NewData;
 };
 
-const checkCanNotify = async () => {
-  const settings = await notifee.requestPermission();
-
-  return settings.authorizationStatus === AuthorizationStatus.AUTHORIZED;
-};
-
 const getAllNotifs = async () => {
   try {
     const value = await AsyncStorage.getItem("allNotifs");
@@ -29,21 +23,6 @@ const getAllNotifs = async () => {
   } catch (error) {
     console.error('Error retrieving allNotifs: ', error);
     return [];
-  }
-};
-
-const DidNotified = async (id: string) => {
-  const allNotifs = await getAllNotifs();
-  return allNotifs.includes(id);
-};
-
-const SetNotified = async (id: string) => {
-  let allNotifs = await getAllNotifs();
-  allNotifs.push(id);
-  try {
-    await AsyncStorage.setItem("allNotifs", JSON.stringify(allNotifs));
-  } catch (error) {
-    console.error('Error storing allNotifs: ', error);
   }
 };
 
@@ -69,7 +48,4 @@ const unsetBackgroundFetch = async () => {
 export {
   setBackgroundFetch,
   unsetBackgroundFetch,
-  checkCanNotify,
-  DidNotified,
-  SetNotified,
 };

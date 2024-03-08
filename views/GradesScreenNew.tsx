@@ -557,6 +557,8 @@ const GradesScreen = ({ navigation }: {
           gradeSettings={gradeSettings}
           navigation={navigation}
         />
+
+        <View style={{ height: 56 }} />
       
       </ScrollView>
     </>
