@@ -22,18 +22,19 @@ struct SystemSmallGradeWidget: View {
                 .font(.system(.subheadline, design: .rounded))
                 .foregroundStyle(Color.primary.opacity(0.5))
               Spacer()
+              Spacer()
               HStack(alignment: .bottom, spacing: 0) {
                 Text(String(format: "%.2f", firstGrade.grade.value.value))
                   .font(.system(.title2, design: .rounded))
                   .bold()
                 Text("/" + String(format: "%.0f", firstGrade.grade.outOf.value))
                   .font(.system(.subheadline, design: .rounded))
-                  .baselineOffset(4)
+                  .baselineOffset(1)
                   .foregroundStyle(Color.primary.opacity(0.5))
               }
             }
             .padding(.horizontal)
-            .padding(.bottom, 10)
+            .padding(.bottom, 14)
             }
             .widgetBackground(Color(.clear))
         } else {
