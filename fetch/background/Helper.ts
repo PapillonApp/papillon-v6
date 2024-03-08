@@ -16,7 +16,7 @@ const SetNotified = async (id: string) => {
   let allNotifs = await getAllNotifs();
   allNotifs.push(id);
   try {
-    await AsyncStorage.setItem("allNotifs", JSON.stringify(allNotifs));
+    await AsyncStorage.setItem('allNotifs', JSON.stringify(allNotifs));
   } catch (error) {
     console.error('Error storing allNotifs: ', error);
   }

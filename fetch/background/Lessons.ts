@@ -7,7 +7,7 @@ import { getContextValues } from '../../utils/AppContext';
 import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';
 import { checkCanNotify } from './Helper';
 
-const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon.ios';
+const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon';
 const now = new Date();
 
 const fetchLessons = async () => {

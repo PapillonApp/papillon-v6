@@ -3,13 +3,12 @@ import formatCoursName from '../../utils/FormatCoursName';
 import getClosestGradeEmoji from '../../utils/EmojiCoursName';
 import { getSavedCourseColor } from '../../utils/ColorCoursName';
 import { getContextValues } from '../../utils/AppContext';
-import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';
-import { checkCanNotify, DidNotified, SetNotified } from './Helper';
+import { checkCanNotify, DidNotified } from './Helper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PapillonGrades } from '../types/grades';
 import { calculateSubjectAverage } from '../../utils/grades/averages';
 
-const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon.ios';
+const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon';
 const now = new Date();
 
 const fetchGrades = async () => {
@@ -41,15 +40,16 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
 
     sharedLessons.push({
       subject: formatCoursName(grade.subject.name),
+      emoji: getClosestGradeEmoji(grade.subject.name),
       description: grade.description ? grade.description : '',
       color: color,
       date: new Date(grade.date).getTime(),
       grade: {
-        value: grade.grade.value.value,
-        out_of: grade.grade.out_of.value,
-        average: grade.grade.average.value,
-        max: grade.grade.max.value,
-        min: grade.grade.min.value,
+        value: grade.grade.value,
+        out_of: grade.grade.out_of,
+        average: grade.grade.average,
+        max: grade.grade.max,
+        min: grade.grade.min,
       },
       is_bonus: grade.is_bonus,
       is_optional: grade.is_optional,
@@ -57,9 +57,16 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
     });
   }
 
-  await SharedGroupPreferences.setItem('getGradesF', JSON.stringify(sharedLessons), APP_GROUP_IDENTIFIER);
-  console.info('[background fetch] stored grades in shared group (getGradesF)');
+  //faire en sorte que d'afficher console.info await SharedGroupPreferences.setItem('getGradesF', JSON.stringify(sharedLessons), APP_GROUP_IDENTIFIER); ne retourne pas d'erreur
 
+  try {
+    await SharedGroupPreferences.setItem('getGradesF', JSON.stringify(sharedLessons), APP_GROUP_IDENTIFIER);
+    console.info('[background fetch] Stored grades in shared group (getGradesF)');
+    console.info('[background fetch] Stored grades in shared group', sharedLessons);
+  } catch (error) {
+    console.error('[background fetch] Error while storing grades in shared group', error);
+  }
+  
   // create an history of grades by calculating calculateSubjectAverage with all grades gradually added
   const history = [];
   const gradesHistoryList = [];
@@ -75,7 +82,7 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
   };
 
   await SharedGroupPreferences.setItem('getAveragesF', JSON.stringify(hst), APP_GROUP_IDENTIFIER);
-  console.info('[background fetch] stored averages in shared group (getAveragesF)');
+  console.info('[background fetch] Stored averages in shared group (getAveragesF)');
   
   return true;
 };

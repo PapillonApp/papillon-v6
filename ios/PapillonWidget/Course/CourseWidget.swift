@@ -17,7 +17,7 @@ struct Course: Identifiable {
 
 // Retrieve shared data from UserDefaults shared between your app and widget
 func retrieveSharedData() -> [Course]? {
-  let sharedDefaults = UserDefaults(suiteName: "group.xyz.getpapillon.ios")
+  let sharedDefaults = UserDefaults(suiteName: "group.xyz.getpapillon")
   if let jsonString = sharedDefaults?.string(forKey: "getEdtF"),
    let jsonData = jsonString.data(using: .utf8) {
     do {
@@ -36,6 +36,7 @@ func retrieveSharedData() -> [Course]? {
             courses.append(course)
           }
         }
+        print("[getEdtF] :", courses)
         return courses
       }
     } catch {

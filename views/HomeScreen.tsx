@@ -62,7 +62,6 @@ import formatCoursName from '../utils/FormatCoursName';
 import CheckAnimated from '../interface/CheckAnimated';
 
 import { useAppContext } from '../utils/AppContext';
-import sendToSharedGroup from '../fetch/SharedValues';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { useNetInfo } from '@react-native-community/netinfo';
@@ -450,7 +449,6 @@ function HomeScreen({ navigation }: { navigation: any }) {
     setLessons({ loading: false, data: lessons });
 
     await loadCustomHomeworks();
-    await sendToSharedGroup(lessons);
   };
 
   /**
