@@ -57,6 +57,10 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
     });
   }
 
+  // sort by date (most recent first)
+
+  sharedLessons.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
   //faire en sorte que d'afficher console.info await SharedGroupPreferences.setItem('getGradesF', JSON.stringify(sharedLessons), APP_GROUP_IDENTIFIER); ne retourne pas d'erreur
 
   try {
