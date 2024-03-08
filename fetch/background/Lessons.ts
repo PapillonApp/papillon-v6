@@ -62,26 +62,39 @@ const notifyLessons = async (lessons: PapillonLesson[]) => {
   // for each lesson, notify if status is set
   for (const lesson of lessonsWithStatus) {
     const lessonStart = new Date(lesson.start);
-    lessonStart.setMinutes(lessonStart.getMinutes() - 10);
+    lessonStart.setMinutes(lessonStart.getMinutes() - 30);
     
-    const lessonID = (lesson.subject?.name ? lesson.subject.name : '') + lessonStart.getTime();
+    const lessonID = (lesson.subject?.name ? lesson.subject.name : '') + new Date(lesson.start).getTime();
 
     const trigger: TimestampTrigger = {
       type: TriggerType.TIMESTAMP,
       timestamp: lessonStart.getTime(),
     };
 
+    console.info('[background fetch] notifying lesson', lessonID, 'at', lessonStart, 'with status', lesson.status);
+
+    let body = '';
+
+    if(lesson.is_cancelled) {
+      body = 'Le cours est annulé.';
+    }
+    else {
+      body = `Vous serez en salle ${lesson.rooms.join(', ')}`;
+    }
+
     // notify at most 10 minutes before the lesson
     notifee.cancelNotification(lessonID);
     notifee.createTriggerNotification({
       id: lessonID,
-      title: lesson.status,
-      body: `Votre cours ${lesson.subject?.name ? 'de' + lesson.subject.name : ''} sera en ${lesson.rooms.join(', ')}`,
+      title: getClosestGradeEmoji(lesson.subject?.name) + ' ' + lesson.status,
+      subtitle: formatCoursName(lesson.subject?.name),
+      body: body,
       android: {
         channelId: 'getpapillon',
       },
       ios: {
         sound: 'papillon_ding.wav',
+        threadId: 'notifications_CoursEnabled',
       }
     }, trigger);
   }

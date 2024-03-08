@@ -1,6 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import notifee, { AuthorizationStatus } from '@notifee/react-native';
 
+const getAllNotifs = async () => {
+  try {
+    const value = await AsyncStorage.getItem("allNotifs");
+    return value ? JSON.parse(value) : [];
+  } catch (error) {
+    console.error('Error retrieving allNotifs: ', error);
+    return [];
+  }
+};
+
 const checkCanNotify = async (type = 'notificationsEnabled') => {
   const settings = await notifee.requestPermission();
   const authorized = settings.authorizationStatus === AuthorizationStatus.AUTHORIZED;

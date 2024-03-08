@@ -16,16 +16,6 @@ const backgroundFetch = async () => {
   return BackgroundFetchResult.NewData;
 };
 
-const getAllNotifs = async () => {
-  try {
-    const value = await AsyncStorage.getItem("allNotifs");
-    return value ? JSON.parse(value) : [];
-  } catch (error) {
-    console.error('Error retrieving allNotifs: ', error);
-    return [];
-  }
-};
-
 const setBackgroundFetch = async () => {
   TaskManager.defineTask('background-fetch', () => backgroundFetch());
 

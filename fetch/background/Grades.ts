@@ -135,6 +135,7 @@ const notifyGrades = async (grades: PapillonGrades[]) => {
       },
       ios: {
         sound: 'papillon_ding.wav',
+        threadId: 'notifications_NotesEnabled',
       },
     });
   };

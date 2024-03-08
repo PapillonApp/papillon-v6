@@ -16,6 +16,7 @@ const fetchHomeworks = async () => {
   return dataInstance.getHomeworks(true).then(async (homeworks) => {
     try {
       await notifyHomeworks(homeworks);
+
       console.info('[background fetch] fetched homeworks');
       return true;
     }
@@ -56,10 +57,14 @@ const notifyHomeworks = async (homeworks: PapillonHomework[]) => {
 
     await notifee.displayNotification({
       id: 'hw_' + tomorrow.getTime(),
-      title: 'Devoirs pour demain',
-      body: `Vous avez ${countUndoneHomeworks} devoirs à faire pour demain.`,
+      title: '📝 Travail à faire pour demain',
+      body: `Il vous reste ${countUndoneHomeworks} devoirs à faire pour demain.`,
       android: {
         channelId: 'homeworks',
+      },
+      ios: {
+        sound: 'papillon_ding.wav',
+        threadId: 'notifications_DevoirsEnabled',
       },
     });
 
