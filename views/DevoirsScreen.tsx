@@ -8,6 +8,7 @@ import {
   Platform,
   RefreshControl,
   SectionList,
+  ActivityIndicator,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -43,6 +44,8 @@ import { BlurView } from 'expo-blur';
 import { atom, useAtom } from 'jotai';
 import { homeworksAtom } from '../atoms/homeworks';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const dateFromAtom = atom(new Date());
 const homeworksUntilDateAtom = atom((get) => {
   const date = get(dateFromAtom);
@@ -74,17 +77,23 @@ function DevoirsScreen({ navigation }: {
     });
   };
 
+  const [loading, setLoading] = useState(false);
+  const [isHeadLoading, setHeadLoading] = useState(false);
+
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: 'Devoirs',
+      headerTitle: 'Tâches',
+      headerRight: () => (loading &&
+        <ActivityIndicator
+          style={{marginRight: 16}}
+        />
+      ),
     });
-  }, [navigation, UIColors]);
+  }, [navigation, UIColors, loading]);
 
   const appContext = useAppContext();
   
   type HomeworkItem = { title: string, data: PapillonHomework[] }
-  
-  const [isHeadLoading, setHeadLoading] = useState(false);
   
   const [fromDate, setFromDate] = useAtom(dateFromAtom);
   const [totalHomeworks, setTotalHomeworks] = useAtom(homeworksAtom);
@@ -121,11 +130,12 @@ function DevoirsScreen({ navigation }: {
 
   const fetchHomeworks = async (date: Date, force = false): Promise<void> => {
     setFromDate(date);
-    
     if (totalHomeworks === null || force) {
       appContext.dataProvider?.getHomeworks(force).then((hws) => {
         const homeworks = hws ?? [];
         setTotalHomeworks(homeworks ?? []);
+        setLoading(false);
+        setHeadLoading(false);
       });
     }
   };
@@ -135,13 +145,13 @@ function DevoirsScreen({ navigation }: {
 
     (async () => {
       await fetchHomeworks(new Date(), true);
-      setHeadLoading(false);
     })();
   }, []);
 
   // Load initial homeworks on first render.
   useEffect(() => {
     (async () => {
+      // setLoading(true);
       await fetchHomeworks(new Date());
     })();
   }, []);
@@ -243,9 +253,7 @@ function DevoirsScreen({ navigation }: {
               weight="light"
               activeScale={0.87}
               onPress={() => {
-                navigation.navigate('CreateHomework', {
-                  date: fromDate,
-                });
+                navigation.navigate('CreateHomework');
               }}
             >
               <Plus color='#ffffff' />

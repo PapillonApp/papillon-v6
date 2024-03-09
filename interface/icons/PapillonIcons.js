@@ -118,6 +118,31 @@ function Book(props) {
   );
 }
 
+function Check(props) {
+  return (
+    <Svg
+      width={24}
+      height={24}
+      viewBox="-2 -2 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <Path
+        strokeLinecap="round"
+        strokeWidth={2}
+        d="M19 9v2c0 3.771 0 5.657-1.172 6.828S14.771 19 11 19H9c-3.771 0-5.657 0-6.828-1.172S1 14.771 1 11V9c0-1.17 0-2.158.035-3 .078-1.872.328-3.02 1.137-3.828C3.343 1 5.229 1 9 1h2c.736 0 1.4 0 2 .009"
+      />
+      <Path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="m5 10 3.667 4L18 3"
+      />
+    </Svg>
+  );
+}
+
 function Stats(props) {
   return (
     <Svg
@@ -330,6 +355,7 @@ export {
   Calendar,
   CalendarFill,
   Book,
+  Check,
   Stats,
   News,
   NewsFill,

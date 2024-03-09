@@ -52,7 +52,8 @@ export const getContextValues = () => { return contextValues }
 
 export const useAppContext = () => React.useContext(AppContext);
 
-export const baseColor = '#32AB8E';
+export const baseColor = '#2A937A';
+export const baseColorDark = '#32AB8E';
 
 export function AppContextProvider({ children, state }) {
   const scheme = useColorScheme();
@@ -69,7 +70,7 @@ export function AppContextProvider({ children, state }) {
     ...(scheme === 'dark' ? DarkTheme : DefaultTheme),
     colors: {
       ...(scheme === 'dark' ? DarkTheme.colors : DefaultTheme.colors),
-      primary: baseColor,
+      primary: (scheme === 'dark' ? baseColorDark : baseColor),
     },
   };
 

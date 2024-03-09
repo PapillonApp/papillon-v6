@@ -5,6 +5,7 @@ import {
   View,
   StatusBar,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -62,7 +63,7 @@ function HomeworkScreen({ route, navigation }: {
 
   // TODO
   const deleteCustomHomework = () => {
-    AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+    AsyncStorage.getItem('pap_homeworksCustom').then((customHomeworks) => {
       let hw = [];
       if (customHomeworks) {
         hw = JSON.parse(customHomeworks);
@@ -70,12 +71,12 @@ function HomeworkScreen({ route, navigation }: {
 
       // find the homework
       for (let i = 0; i < hw.length; i++) {
-        if (hw[i].localID === homework.localID) {
+        if (hw[i].id === homework.id) {
           hw.splice(i, 1);
         }
       }
 
-      AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
+      AsyncStorage.setItem('pap_homeworksCustom', JSON.stringify(hw));
       navigation.goBack();
     });
   };
@@ -83,18 +84,18 @@ function HomeworkScreen({ route, navigation }: {
   // add delete button in header
   useLayoutEffect(() => {
     navigation.setOptions({
-      // TODO
-      // headerRight: () => (
-      //   homework.custom &&
-      //   <TouchableOpacity
-      //     style={[styles.deleteHw]}
-      //     onPress={() => {
-      //       setDeleteCustomHomeworkAlert(true);
-      //     }}
-      //   >
-      //     <Trash size={20} color={'#eb4034'} />
-      //   </TouchableOpacity>
-      // ),
+      headerRight: () => (
+        homework.custom && (
+          <TouchableOpacity
+            style={[styles.deleteHw]}
+            onPress={() => {
+              setDeleteCustomHomeworkAlert(true);
+            }}
+          >
+            <Trash size={20} color={'#eb4034'} />
+          </TouchableOpacity>
+        )
+      ),
     });
   }, [navigation]);
 

@@ -442,14 +442,6 @@ const styles = StyleSheet.create({
   container : {
     borderRadius: 12,
     borderCurve: 'continuous',
-
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 0.5,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 1,
   
     elevation: 2,
 
@@ -604,7 +596,6 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'center',
       gap: 10,
-      shadowOpacity: 0.1,
       elevation: 0,
     },
     text: {

@@ -108,6 +108,13 @@ export const homeworkHandler = async (force = false, instance?: Pronote): Promis
         lengthInMinutes: homework.lengthInMinutes,
       });
     }
+
+    const custom = await AsyncStorage.getItem('pap_homeworksCustom');
+    if (custom) {
+      const customHomeworks = JSON.parse(custom) as PapillonHomework[];
+      data = data.concat(customHomeworks);
+    }
+
     await AsyncStorage.setItem(AsyncStoragePronoteKeys.CACHE_HOMEWORK, JSON.stringify(data));
   }
   catch (error) {
@@ -123,20 +130,41 @@ export const homeworkPatchHandler = async (homework: PapillonHomework, newDoneSt
 
   let homeworks = defaultStore.get(homeworksAtom);
 
+  if (homework.custom) {
+    const customHomeworks = await AsyncStorage.getItem('pap_homeworksCustom');
+    const parsed = JSON.parse(customHomeworks || '[]');
+    const newCustomHomeworks: PapillonHomework[] = parsed;
+    const index = newCustomHomeworks.findIndex(currentHomework => currentHomework.id === homework.id);
+    if (index === -1) return false;
+    newCustomHomeworks[index].done = newDoneState;
+    await AsyncStorage.setItem('pap_homeworksCustom', JSON.stringify(newCustomHomeworks));
+  }
+
   // Not on same session, we fetch again.
-  if (homework.pronoteCachedSessionID !== instance.sessionID) {
-    homeworks = await homeworkHandler(true, instance);
+  if (!homework.custom) {
+    if (homework.pronoteCachedSessionID !== instance.sessionID) {
+      homeworks = await homeworkHandler(true, instance);
+    }
   }
   
   if (!homeworks) return false;
 
   // We search for the homework with the same localID.
-  const homeworkIndex = homeworks.findIndex(currentHomework => currentHomework.localID === homework.localID);
+  
+  let homeworkIndex = homeworks.findIndex(currentHomework => currentHomework.localID === homework.localID);
+
+  if (homework.custom) {
+    homeworkIndex = homeworks.findIndex(currentHomework => currentHomework.id === homework.id);
+  }
+
   if (homeworkIndex === -1) return false;
   const homeworkID = homeworks[homeworkIndex].id;
 
   // We patch the homework.
-  await instance.patchHomeworkStatus(homeworkID, newDoneState);
+  if (!homework.custom) {
+    await instance.patchHomeworkStatus(homeworkID, newDoneState);
+  }
+  
   homeworks[homeworkIndex].done = newDoneState;
   defaultStore.set(homeworksAtom, homeworks);
 

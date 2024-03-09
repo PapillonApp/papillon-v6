@@ -8,7 +8,7 @@ import {
   HomeFill as PapillonIconsHomeFill,
   Calendar as PapillonIconsCalendar,
   CalendarFill as PapillonIconsCalendarFill,
-  Book as PapillonIconsBook,
+  Check as PapillonIconsCheck,
   Stats as PapillonIconsStats,
   News as PapillonIconsNews,
   NewsFill as PapillonIconsNewsFill,
@@ -56,9 +56,9 @@ const views = [
     name: 'DevoirsHandler',
     component: require('../views/DevoirsScreen').default,
     options: {
-      tabBarLabel: 'Devoirs',
+      tabBarLabel: 'Tâches',
       tabBarIcon: ({ color, size, focused }) =>
-        getIcon(PapillonIconsBook, PapillonIconsBook, color, size, focused),
+        getIcon(PapillonIconsCheck, PapillonIconsCheck, color, size, focused),
       color: '#2A937A',
     },
   },
