@@ -56,7 +56,7 @@ const views = [
     name: 'DevoirsHandler',
     component: require('../views/DevoirsScreen').default,
     options: {
-      tabBarLabel: 'Tâches',
+      tabBarLabel: 'Devoirs',
       tabBarIcon: ({ color, size, focused }) =>
         getIcon(PapillonIconsCheck, PapillonIconsCheck, color, size, focused),
       color: '#2A937A',

@@ -82,7 +82,7 @@ function DevoirsScreen({ navigation }: {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: 'Tâches',
+      headerTitle: 'Travail à faire',
       headerRight: () => (loading &&
         <ActivityIndicator
           style={{marginRight: 16}}
