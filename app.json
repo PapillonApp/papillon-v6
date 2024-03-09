@@ -190,6 +190,10 @@
             "image": "./assets/customicons/sparkles.png",
             "prerendered": true
           },
+          "lightgreen": {
+            "image": "./assets/customicons/lightgreen.png",
+            "prerendered": true
+          },
           "backtoschool": {
             "image": "./assets/customicons/backtoschool.png",
             "prerendered": true
