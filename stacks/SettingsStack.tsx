@@ -34,6 +34,7 @@ function InsetSettings() {
           }
           : {
             ...headerTitleStyles,
+            headerBackTitle: 'Retour',
           }
       }
     >
@@ -57,7 +58,6 @@ function InsetSettings() {
         component={ProfileScreen}
         options={{
           headerTitle: 'Mon profil',
-          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -65,7 +65,6 @@ function InsetSettings() {
         component={CoursColor}
         options={{
           headerTitle: 'Gestion des matières',
-          headerBackTitle: 'Retour',
         }}
       />
       <Stack.Screen
@@ -73,7 +72,6 @@ function InsetSettings() {
         component={AdjustmentsScreen}
         options={{
           headerTitle: 'Ajustements',
-          headerBackTitle: 'Retour',
         }}
       />
       <Stack.Screen
@@ -88,7 +86,6 @@ function InsetSettings() {
         component={PaymentScreen}
         options={{
           headerTitle: 'Soutenir Papillon',
-          headerBackTitle: 'Retour',
         }}
       />
       <Stack.Screen
@@ -96,7 +93,6 @@ function InsetSettings() {
         component={AboutScreen}
         options={{
           headerTitle: 'A propos de Papillon',
-          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -112,7 +108,6 @@ function InsetSettings() {
         component={AppearanceScreen}
         options={{
           headerTitle: 'Fonctionnalités',
-          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -120,7 +115,6 @@ function InsetSettings() {
         component={NotificationsScreen}
         options={{
           headerTitle: 'Notifications',
-          headerBackTitle: 'Préférences',
         }}
       />
       <Stack.Screen
@@ -128,9 +122,9 @@ function InsetSettings() {
         component={ConsentScreen}
         options={{
           headerTitle: 'Termes & conditions',
-          headerBackTitle: 'Préférences',
           headerBackVisible: true,
           headerBackTitleVisible: false,
+          headerTintColor: UIColors.text,
         }}
       />
       <Stack.Screen
@@ -146,7 +140,6 @@ function InsetSettings() {
         component={SettingsScreen2}
         options={{
           headerTitle: 'Réglages',
-          headerBackTitle: 'Préférences',
         }}
       />
     </Stack.Navigator>
