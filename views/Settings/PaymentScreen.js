@@ -10,6 +10,7 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const PaymentScreen = ({ navigation }) => {
   const UIColors = GetUIColors();
@@ -71,7 +72,10 @@ const PaymentScreen = ({ navigation }) => {
   useEffect(() => {
     const getProducts = async () => {
       setLoading(true);
-      await InAppPurchases.connectAsync();
+      try {
+        await InAppPurchases.connectAsync();
+      } catch (error) {
+      }
       const { responseCode, results } = await InAppPurchases.getProductsAsync([
         'chenille2',
         'cocon2',
@@ -124,175 +128,146 @@ const PaymentScreen = ({ navigation }) => {
     );
   }, []);
 
-  // words title animation
-  const words = ['indépendante', 'open-source', '100% gratuite', 'sans publicité', 'qui vous respecte'];
-  const [wordIndex, setWordIndex] = useState(0);
-
-  const wordAnim = new Animated.Value(0);
-
-  useEffect(() => {
-    Animated.timing(
-      wordAnim,
-      {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }
-    ).start(() => {
-      Animated.timing(
-        wordAnim,
-        {
-          toValue: 0,
-          duration: 1000,
-          useNativeDriver: true,
-        }
-      ).start(() => {
-        setWordIndex((wordIndex + 1) % words.length);
-      });
-    });
-  }, [wordIndex]);
-
   return (
-    <ScrollView
-      contentInsetAdjustmentBehavior='automatic'
-      style={{
-        backgroundColor: UIColors.modalBackground,
-      }}
-    >
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={currentlyBuying}
-      >
-        <View style={{
+    <View style={{
+      flex: 1,
+      backgroundColor: UIColors.modalBackground,
+    }}>
+      <LinearGradient
+        colors={['#29947a88', '#29947a00']}
+        locations={[0, 0.3]}
+        style={{
           flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: '#000000a5',
-          gap: 10,
-        }}>
-          <ActivityIndicator color="#ffffff" />
-          <NativeText heading="p" style={{color: '#ffffff'}}>
-            Communication avec l'App Store...
-          </NativeText>
-        </View>
-      </Modal>
-
-      <NativeText style={[styles.donateEmoji]}>
-        💸
-      </NativeText>
-
-      <View
-        style={[styles.donateTitle]}
+        }}
       >
-        <NativeText style={[styles.donateTitleText]}>
-          Soutenez une application
-        </NativeText>
-        <Animated.View
-          style={[
-            styles.donateTitleEmphase,
-            {
-              opacity: wordAnim,
-            }
-          ]}
+        <ScrollView
+          contentInsetAdjustmentBehavior='automatic'
         >
-          <NativeText style={[styles.donateTitleText, styles.donateTitleEmphaseText]}>
-            {words[wordIndex]}
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={currentlyBuying}
+          >
+            <View style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: '#000000a5',
+              gap: 10,
+            }}>
+              <ActivityIndicator color="#ffffff" />
+              <NativeText heading="p" style={{color: '#ffffff'}}>
+                Communication avec l'App Store...
+              </NativeText>
+            </View>
+          </Modal>
+
+          <NativeText style={[styles.donateEmoji]}>
+            💸🦋💚
           </NativeText>
-        </Animated.View>
-      </View>
 
-      {hasAlreadyBought && (
-        <NativeList inset style={{
-          shadowColor: '#000000',
-          shadowOpacity: 0.15,
-          shadowRadius: 4,
-          shadowOffset: {
-            width: 0,
-            height: 0,
-          },
-        }}>
-          <NativeItem
-            leading={
-              <NativeText heading="h1">
-                🎉
-              </NativeText>
-            }
+          <View
+            style={[styles.donateTitle]}
           >
-            <NativeText heading="h4">
-              Merci pour votre soutien !
+            <NativeText style={[styles.donateTitleText]}>
+              Soutenez une application créée pour vous.
             </NativeText>
-            <NativeText heading="p2" style={{fontSize: 15}}>
-              Vos dons permettent de financer les coûts de développement et aident les développeurs à continuer à travailler sur l'application.
-            </NativeText>
-          </NativeItem>
-        </NativeList>
-      )}
+          </View>
 
-      <NativeText style={[styles.donateDescription]}>
-        Papillon est une application libre développée majoritairement par des lycéens sur leur temps libre. Elle est gratuite et sans publicité. Si vous souhaitez soutenir le projet, vous pouvez faire un don à notre équipe pour financer les coûts de développement et faire perdurer l'application.
-      </NativeText>
+          {hasAlreadyBought && (
+            <NativeList inset style={{
+              shadowColor: '#000000',
+              shadowOpacity: 0.15,
+              shadowRadius: 4,
+              shadowOffset: {
+                width: 0,
+                height: 0,
+              },
+            }}>
+              <NativeItem
+                leading={
+                  <NativeText heading="h1">
+                    🎉
+                  </NativeText>
+                }
+              >
+                <NativeText heading="h4">
+                  Merci pour votre soutien !
+                </NativeText>
+                <NativeText heading="p2" style={{fontSize: 15}}>
+                  Vos dons permettent de financer les coûts de développement et aident les développeurs à continuer à travailler sur l'application.
+                </NativeText>
+              </NativeItem>
+            </NativeList>
+          )}
 
-      { !loading ? (
-        <NativeList 
-          inset
-          header="Pourboire unique">
-          {products.map((product) => (
-            <NativeItem
-              key={product.productId}
-              onPress={() => subGrade(product.productId)}
+          <NativeText style={[styles.donateDescription]}>
+            Papillon est une application libre développée majoritairement par des lycéens sur leur temps libre. Elle est gratuite et sans publicité. Si vous souhaitez soutenir le projet, vous pouvez faire un don à notre équipe pour financer les coûts de développement et faire perdurer l'application.
+          </NativeText>
 
-              leading={
-                <NativeText heading="h1" style={{fontSize: 30}}>
-                  {
-                    product.productId === 'chenille2' ? '🐛' :
-                      product.productId === 'cocon2' ? '🪺' :
-                        '🦋'
+          { !loading ? (
+            <NativeList 
+              inset
+              header="Pourboire unique">
+              {products.map((product) => (
+                <NativeItem
+                  key={product.productId}
+                  onPress={() => subGrade(product.productId)}
+
+                  leading={
+                    <NativeText heading="h1" style={{fontSize: 30}}>
+                      {
+                        product.productId === 'chenille2' ? '🐛' :
+                          product.productId === 'cocon2' ? '🪺' :
+                            '🦋'
+                      }
+                    </NativeText>
                   }
-                </NativeText>
-              }
-              trailing={
-                <NativeText heading="p" style={{marginLeft: 5}}>
-                  {product.price}
-                </NativeText>
-              }
+                  trailing={
+                    <NativeText heading="p" style={{marginLeft: 5}}>
+                      {product.price}
+                    </NativeText>
+                  }
+                >
+                  <NativeText heading="h4">
+                    {product.title}
+                  </NativeText>
+                  <NativeText heading="p2">
+                    {product.description}
+                  </NativeText>
+                </NativeItem>
+              ))}
+            </NativeList>
+          ) : (
+            <NativeList 
+              inset
+              header="Pourboire unique"
             >
-              <NativeText heading="h4">
-                {product.title}
-              </NativeText>
-              <NativeText heading="p2">
-                {product.description}
-              </NativeText>
-            </NativeItem>
-          ))}
-        </NativeList>
-      ) : (
-        <NativeList 
-          inset
-          header="Pourboire unique"
-        >
-          <NativeItem
-            leading={
-              <ActivityIndicator />
-            }
-          >
-            <NativeText heading="p2">
-              Chargement des options disponibles...
-            </NativeText>
-          </NativeItem>
-        </NativeList>
-      )}
-    </ScrollView>
+              <NativeItem
+                leading={
+                  <ActivityIndicator />
+                }
+              >
+                <NativeText heading="p2">
+                  Chargement des options disponibles...
+                </NativeText>
+              </NativeItem>
+            </NativeList>
+          )}
+        </ScrollView>
+      </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   donateTitle: {
     flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingBottom: 16,
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    paddingBottom: 8,
     paddingTop: 8,
+    paddingHorizontal: 20,
   },
   donateTitleText: {
     fontSize: 24,
@@ -308,14 +283,15 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     fontSize: 15,
     lineHeight: 20,
-    textAlign: 'center',
     opacity: 0.6,
   },
 
   donateEmoji: {
-    fontSize: 50,
-    textAlign: 'center',
+    fontSize: 42,
+    textAlign: 'left',
     paddingTop: 20,
+    paddingLeft: 20,
+    letterSpacing: 10,
   },
 });
 
