@@ -40,14 +40,7 @@ function NewSettings({ navigation }: {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: '',
-      headerLeft: () => (
-        <PapillonInsetHeader  
-          icon={<SFSymbol name="gear" />}   
-          title="Préférences"
-          color='#888888'
-        />
-      ),
+      headerTitle: 'Préférences',
       headerRight: () => (
         <PapillonCloseButton
           onPress={() => navigation.goBack()}

@@ -172,7 +172,7 @@ function NewsItem({ route, navigation }: {
   const openURL = async (url: string): Promise<void> => {
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
-      presentationStyle: WebBrowser.WebBrowserPresentationStyle.CURRENT_CONTEXT,
+      presentationStyle: WebBrowser.WebBrowserPresentationStyle.FORM_SHEET,
       controlsColor: '#B42828',
     });
   };
@@ -203,7 +203,7 @@ function NewsItem({ route, navigation }: {
       <StatusBar
         animated
         barStyle={
-          isModalOpen ? 'light-content' :
+          isModalOpen || Platform.OS === 'ios' ? 'light-content' :
             theme.dark ? 'light-content' : 'dark-content'
         }
         backgroundColor="transparent"

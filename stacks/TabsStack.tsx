@@ -39,6 +39,7 @@ const views = [
       tabBarIcon: ({ color, size, focused }) =>
         getIcon(PapillonIconsHome, PapillonIconsHomeFill, color, size, focused),
       headerShown: false,
+      color: 'red',
     },
   },
   {
@@ -48,6 +49,7 @@ const views = [
       tabBarLabel: 'Cours',
       tabBarIcon: ({ color, size, focused }) =>
         getIcon(PapillonIconsCalendar, PapillonIconsCalendarFill, color, size, focused),
+      color: '#0065A8',
     },
   },
   {
@@ -57,6 +59,7 @@ const views = [
       tabBarLabel: 'Devoirs',
       tabBarIcon: ({ color, size, focused }) =>
         getIcon(PapillonIconsBook, PapillonIconsBook, color, size, focused),
+      color: '#2A937A',
     },
   },
   {
@@ -66,6 +69,7 @@ const views = [
       tabBarLabel: 'Notes',
       tabBarIcon: ({ color, size, focused }) =>
         getIcon(PapillonIconsStats, PapillonIconsStats, color, size, focused),
+      color: '#A84700',
     },
   },
   {
@@ -75,6 +79,7 @@ const views = [
       tabBarLabel: 'Actualités',
       tabBarIcon: ({ color, size, focused }) =>
         getIcon(PapillonIconsNews, PapillonIconsNewsFill, color, size, focused, true),
+      color: '#B42828',
     },
   },
 ];
@@ -156,6 +161,7 @@ const TabsStack = ({ navigation }) => {
           },
           headerTitleStyle: {
             fontFamily: 'Papillon-Semibold',
+            fontSize: 17.5,
           },
           tabBarShowLabel: settings?.hideTabBarTitle ? false : true,
           tabBarActiveTintColor:
@@ -167,6 +173,8 @@ const TabsStack = ({ navigation }) => {
           } : {
             paddingHorizontal: 8,
           },
+          headerSearchBarOptions: {},
+          headerTitleAlign: 'left',
         }}
       >
         {views.map((view, index) => (
@@ -174,7 +182,14 @@ const TabsStack = ({ navigation }) => {
             key={index}
             name={view.name}
             component={view.component}
-            options={view.options}
+            options={{
+              ...view.options,
+              headerLeft: () => (
+                <View style={{ marginLeft: 16, marginRight: -4 }}>
+                  {view.options.tabBarIcon({ color: view.options.color, size: 26, focused: true })}
+                </View>
+              ),
+            }}
           />
         ))}
       </Tab.Navigator>
