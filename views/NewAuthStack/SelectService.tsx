@@ -33,7 +33,6 @@ const SelectService = ({ navigation }) => {
   function callFetchPapiAPI(path: string) {
     return fetchPapiAPI(path)
         .then(data => {
-            console.log(data);
             return data;
         })
   }
