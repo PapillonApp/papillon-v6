@@ -933,8 +933,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
             style={[
               {
                 marginTop: 0,
-                height: yOffset.interpolate({
-                  inputRange: [Platform.OS == 'ios' ? 0 - insets.top : 0, Platform.OS == 'ios' ? 106 - insets.top : 106],
+                height: scrolledAnim.interpolate({
+                  inputRange: [0, 1],
                   outputRange: [106, 0],
                   extrapolate: 'clamp',
                   // @ts-expect-error : Not sure if it's typed correctly.
@@ -957,7 +957,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 setNextColor={(color) => {
                   setNextColor(color);
                 }}
-                yOffset={yOffset}
+                yOffset={new Animated.Value(0)}
                 color={themeAdjustments.enabled ? nextColor : void 0}
                 style={{
                   marginHorizontal: 16,
