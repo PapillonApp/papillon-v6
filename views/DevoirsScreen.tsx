@@ -176,7 +176,7 @@ function DevoirsScreen({ navigation }: {
             sections={groupedHomeworks}
             getItem={(data, index) => data[index]}
             getItemCount={data => data.length}
-            keyExtractor={(item: PapillonHomework) => item.id}
+            keyExtractor={(item: PapillonHomework) => item.localID}
             contentInsetAdjustmentBehavior='automatic'
             initialNumToRender={15}
             refreshing={isHeadLoading}

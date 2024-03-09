@@ -1755,7 +1755,7 @@ const DevoirsDay = ({
             {homeworks &&
               homeworks.homeworks.map((homework, index) => (
                 <DevoirsContent
-                  key={homework.localID}
+                  key={homework.id}
                   index={index}
                   parentIndex={parentIndex}
                   homework={homework}
