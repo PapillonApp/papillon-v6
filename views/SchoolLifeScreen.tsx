@@ -34,6 +34,8 @@ function SchoolLifeScreen({ navigation }: {
   const [refresh, setRefresh] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
+  const [totalHoursMissed, setTotalHoursMissed] = useState<number>(0);
+
   useEffect(() => {
     (async () => {
       if (!appContext.dataProvider) return;
@@ -51,6 +53,13 @@ function SchoolLifeScreen({ navigation }: {
         });
 
         setVieScolaire(value);
+        const total = value.absences.reduce((total, absence) => {
+          const hours = parseInt(absence.hours.split('h')[0]);
+          const minutes = parseInt(absence.hours.split('h')[1]);
+          return total + hours + minutes / 60;
+        }, 0);
+        setTotalHoursMissed(total);
+
       } catch { /** No-op. */ }
       finally {
         setLoading(false);
@@ -72,8 +81,9 @@ function SchoolLifeScreen({ navigation }: {
       headerLargeTitle: true,
     });
   });
-
+  
   return (
+    
     <ScrollView
       style={{ backgroundColor: UIColors.backgroundHigh }}
       contentInsetAdjustmentBehavior="automatic"
@@ -112,7 +122,7 @@ function SchoolLifeScreen({ navigation }: {
           )}
 
           {vieScolaire.absences && vieScolaire.absences.length > 0 && (
-            <NativeList header="Absences" inset>
+            <NativeList header={`Absences - ${totalHoursMissed.toFixed(1)} heures manquées`} inset>
               {vieScolaire.absences?.map((absence, index) => (
                 <NativeItem
                   key={index}
