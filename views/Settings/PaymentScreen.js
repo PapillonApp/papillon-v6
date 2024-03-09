@@ -73,9 +73,9 @@ const PaymentScreen = ({ navigation }) => {
       setLoading(true);
       await InAppPurchases.connectAsync();
       const { responseCode, results } = await InAppPurchases.getProductsAsync([
-        'chenille',
-        'cocon',
-        'papillon',
+        'chenille2',
+        'cocon2',
+        'papillon2',
       ]);
       if (responseCode === InAppPurchases.IAPResponseCode.OK) {
         console.log('Products', results);
@@ -245,8 +245,8 @@ const PaymentScreen = ({ navigation }) => {
               leading={
                 <NativeText heading="h1" style={{fontSize: 30}}>
                   {
-                    product.productId === 'chenille' ? '🐛' :
-                      product.productId === 'cocon' ? '🪺' :
+                    product.productId === 'chenille2' ? '🐛' :
+                      product.productId === 'cocon2' ? '🪺' :
                         '🦋'
                   }
                 </NativeText>

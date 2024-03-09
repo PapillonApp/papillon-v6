@@ -500,6 +500,7 @@ const GradesScreen = ({ navigation }: {
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
+            progressViewOffset={Platform.OS === 'ios' ? 100 : 0}
             onRefresh={() => {
               setIsRefreshing(true);
               getGradesFromAPI(true);
@@ -582,6 +583,7 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
         hideSurroundingSeparators: true,
         headerTextStyle: {
           marginLeft: 15,
+          marginBottom: 4,
         },
       }}
       containerStyle={

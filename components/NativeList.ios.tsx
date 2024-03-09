@@ -46,7 +46,7 @@ const NativeList: React.FC<Props> = ({
       {...(tableViewProps && tableViewProps)}
     >
       <Section
-        header={header}
+        header={header ? header.toUpperCase() : null}
         footer={footer}
         roundedCorners={sectionProps?.roundedCorners ? sectionProps.roundedCorners : inset}
         hideSurroundingSeparators={sectionProps?.hideSurroundingSeparators ? sectionProps.hideSurroundingSeparators : inset}

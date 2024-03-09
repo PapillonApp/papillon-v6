@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Platform, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 const Tab = createBottomTabNavigator();
@@ -14,6 +14,8 @@ import {
   NewsFill as PapillonIconsNewsFill,
 } from '../interface/icons/PapillonIcons';
 import GetUIColors from '../utils/GetUIColors';
+
+import { BottomNavigation, Appbar, useTheme, PaperProvider, Text } from 'react-native-paper';
 
 const getIcon = (Icon, IconFill, color, size, focused, force) => {
   const width = size + 2;
@@ -84,9 +86,59 @@ const TabsStack = ({ navigation }) => {
     hideTabBarTitle: true,
   };
 
+  const tabBar = useMemo(() => {
+    if (Platform.OS !== 'ios') {
+      return ({ navigation, state, descriptors, insets }) => (
+        <BottomNavigation.Bar
+          navigationState={state}
+          compact={false}
+          shifting={false}
+          safeAreaInsets={{
+            ...insets,
+            right: 12,
+            left: 12,
+          }}
+          onTabPress={({ route, preventDefault }) => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!event.defaultPrevented) {
+              navigation.navigate(route.name);
+            } else {
+              preventDefault();
+            }
+          }}
+          renderIcon={({ route, focused, color }) => {
+            const { options } = descriptors[route.key];
+            if (options.tabBarIcon) {
+              return options.tabBarIcon({ focused, color, size: 24 });
+            }
+            return null;
+          }}
+          getLabelText={({ route }) => {
+            const { options } = descriptors[route.key];
+            const label =
+              options.tabBarLabel !== undefined
+                ? options.tabBarLabel
+                : options.title !== undefined
+                  ? options.title
+                  : route.title;
+
+            return label;
+          }}
+        />
+      );
+    }
+    return undefined;
+  }, []);
+
   return (
     <View style={{ flex: 1 }}>
       <Tab.Navigator
+        tabBar={tabBar}
         screenOptions={{
           headerTruncatedBackTitle: 'Retour',
           elevated: false,
