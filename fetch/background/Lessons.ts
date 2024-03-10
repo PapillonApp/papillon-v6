@@ -10,7 +10,7 @@ import { Platform } from 'react-native';
 
 const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon';
 const now = new Date();
-NALE
+
 const fetchLessons = async () => {
   let dataInstance = await getContextValues().dataProvider;
   return dataInstance.getTimetable(now, true).then(async (lessons) => {
