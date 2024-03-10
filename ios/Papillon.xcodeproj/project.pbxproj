@@ -363,8 +363,8 @@
 			children = (
 				BD99EFDF2ADD9CE70000DAEF /* AccessoryInlineCourseWidget.swift */,
 				BD99EFE12ADD9EEC0000DAEF /* AccessoryRectangularCourseWidget.swift */,
-				BD99EFE32ADDA2580000DAEF /* systemMediumCourseWidget.swift */,
 				BD99EFE52ADDB7580000DAEF /* SystemSmallCourseWidget.swift */,
+				BD99EFE32ADDA2580000DAEF /* systemMediumCourseWidget.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
