@@ -156,6 +156,15 @@
           <key>UIPrerenderedIcon</key>
           <true/>
         </dict>
+        <key>lightgreen</key>
+        <dict>
+          <key>CFBundleIconFiles</key>
+          <array>
+            <string>lightgreen-Icon-60x60</string>
+          </array>
+          <key>UIPrerenderedIcon</key>
+          <true/>
+        </dict>
         <key>backtoschool</key>
         <dict>
           <key>CFBundleIconFiles</key>
@@ -363,6 +372,15 @@
           <key>CFBundleIconFiles</key>
           <array>
             <string>sparkles-Icon-60x60</string>
+          </array>
+          <key>UIPrerenderedIcon</key>
+          <true/>
+        </dict>
+        <key>lightgreen</key>
+        <dict>
+          <key>CFBundleIconFiles</key>
+          <array>
+            <string>lightgreen-Icon-60x60</string>
           </array>
           <key>UIPrerenderedIcon</key>
           <true/>
