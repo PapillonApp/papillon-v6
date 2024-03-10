@@ -55,6 +55,7 @@ const sendLessonsToSharedGroup = async (lessons: PapillonLesson[]) => {
     });
   }
 
+  console.info('[background fetch] sending lessons to shared group (getEdtF)', sharedLessons);
   await SharedGroupPreferences.setItem('getEdtF', JSON.stringify(sharedLessons), APP_GROUP_IDENTIFIER);
   console.info('[background fetch] stored lessons in shared group (getEdtF)');
 

@@ -16,6 +16,7 @@ import {
   StatusBar,
   TouchableOpacity,
   Dimensions,
+  DeviceEventEmitter,
 } from 'react-native';
 
 // Components & Styles
@@ -35,6 +36,8 @@ import {
 import NextCoursElem from '../interface/HomeScreen/NextCours';
 import * as ExpoLinking from 'expo-linking';
 import * as Haptics from 'expo-haptics';
+
+import QuickActions, { ShortcutItem } from 'react-native-quick-actions';
 
 // Icons
 import {
@@ -366,6 +369,72 @@ function HomeScreen({ navigation }: { navigation: any }) {
       handleURL(url);
     });
   }, [expoLinkedURL]);
+
+  // quick actions
+  useEffect(() => {
+
+    const processShortcut = (item: ShortcutItem) => {
+      if (item.type === 'Navigation') {
+        console.log('Processing shortcut', item.title);
+        navigation.navigate(item.userInfo.url);
+      }
+    };
+
+    QuickActions.setShortcutItems([
+      {
+        type: 'Navigation', // Required
+        title: 'Emploi du temps',
+        icon: 'cal', // Icons instructions below
+        userInfo: {
+          url: 'CoursHandler' // Provide any custom data like deep linking URL
+        }
+      },
+      {
+        type: 'Navigation', // Required
+        title: 'Travail à faire',
+        icon: 'check_custom', // Icons instructions below
+        userInfo: {
+          url: 'DevoirsHandler' // Provide any custom data like deep linking URL
+        }
+      },
+      {
+        type: 'Navigation', // Required
+        title: 'Notes',
+        icon: 'chart_pie_custom', // Icons instructions below
+        userInfo: {
+          url: 'NotesHandler' // Provide any custom data like deep linking URL
+        }
+      },
+      {
+        type: 'Navigation', // Required
+        title: 'Actualités',
+        icon: 'news_custom', // Icons instructions below
+        userInfo: {
+          url: 'NewsHandler' // Provide any custom data like deep linking URL
+        }
+      },
+    ]);
+
+    // if app was opened from a quick action
+    QuickActions.popInitialAction().then(item => {
+      processShortcut(item);
+    }).catch(() => {
+      // There was no shortcut item
+      console.log('No initial action');
+    });
+
+    // if app was opened from a quick action while it was in background
+    DeviceEventEmitter.addListener('quickActionShortcut', (item: ShortcutItem) => {
+      console.log(item.title);
+      processShortcut(item);
+    });
+
+    // cleanup
+    return () => {
+      QuickActions.clearShortcutItems();
+      DeviceEventEmitter.removeAllListeners('quickActionShortcut');
+    };
+  }, []);
 
   /**
    * For now, it only handles papillon://grade?=... URLs.
@@ -1608,7 +1677,7 @@ function DevoirsElement({
             { backgroundColor: UIColors.text + '22' },
           ]}
           onPress={() => {
-            navigation.navigate('CoursHandler');
+            navigation.navigate('DevoirsHandler');
           }}
           accessible={true}
           accessibilityLabel="Voir les devoirs"
