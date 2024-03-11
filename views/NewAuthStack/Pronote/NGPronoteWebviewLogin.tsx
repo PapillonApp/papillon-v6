@@ -1,10 +1,48 @@
-import React, { createRef, useRef, useState, useEffect } from 'react';
-import { View, Alert, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import React, { createRef, useRef, useState } from 'react';
+import { View } from 'react-native';
 import GetUIColors from '../../../utils/GetUIColors';
 
 import { WebView } from 'react-native-webview';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AsyncStoragePronoteKeys } from '../../../fetch/PronoteData/connector';
+import { useAppContext } from '../../../utils/AppContext';
+import { PronoteApiAccountId } from 'pawnote';
 
-import { authenticateToken, getPronoteInstanceInformation, defaultPawnoteFetcher, type PronoteInstanceInformation, PronoteApiAccountId } from 'pawnote';
+// Stolen from Pawnote
+// TODO: Export this function in Pawnote, to reuse it here.
+const cleanPronoteUrl = (url: string): string => {
+  let pronote_url = new URL(url);
+  // Clean any unwanted data from URL.
+  pronote_url = new URL(`${pronote_url.protocol}//${pronote_url.host}${pronote_url.pathname}`);
+
+  // Clear the last path if we're not main selection menu.
+  const paths = pronote_url.pathname.split('/');
+  if (paths[paths.length - 1].includes('.html')) {
+    paths.pop();
+  }
+
+  // Rebuild URL with cleaned paths.
+  pronote_url.pathname = paths.join('/');
+
+  // Return rebuilt URL without trailing slash.
+  return pronote_url.href.endsWith('/')
+    ? pronote_url.href.slice(0, -1)
+    : pronote_url.href;
+};
+
+
+const makeUUID = (): string => {
+  let dt = new Date().getTime();
+  const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+    /[xy]/g,
+    (c) => {
+      const r = (dt + Math.random() * 16) % 16 | 0;
+      dt = Math.floor(dt / 16);
+      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+    }
+  );
+  return uuid;
+};
 
 const NGPronoteWebviewLogin = ({ route, navigation }: {
   navigation: any; // TODO
@@ -14,95 +52,66 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
     }
   }
 }) => {
-  const instanceURL = route.params.instanceURL;
+  const instanceURL = cleanPronoteUrl(route.params.instanceURL);
+  const appContext = useAppContext();
   const UIColors = GetUIColors();
 
-  const infoMobileURL = instanceURL.split('/pronote/')[0] + '/pronote/InfoMobileApp.json?id=0D264427-EEFC-4810-A9E9-346942A862A4';
-
-  const [fetchDone, setFetchDone] = useState(false);
-  const [infoInfo, setInfoInfo] = useState<PronoteInstanceInformation | null>(null);
-
   let webViewRef = createRef<WebView>();
+  let currentLoginStateIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  
+  const infoMobileURL = instanceURL + '/InfoMobileApp.json?id=0D264427-EEFC-4810-A9E9-346942A862A4';
+  const [deviceUUID] = useState(makeUUID());
 
-  const uuid = '0D264427-EEFC-4810-A9E9-346942A862A4';
+  const PRONOTE_COOKIE_EXPIRED = new Date(0).toUTCString();
+  const PRONOTE_COOKIE_VALIDATION_EXPIRES = new Date(new Date().getTime() + (5 * 60 * 1000)).toUTCString();
+  const PRONOTE_COOKIE_LANGUAGE_EXPIRES = new Date(new Date().getTime() + (365 * 24 * 60 * 60 * 1000)).toUTCString();
+  const INJECT_PRONOTE_JSON = `
+    (function () {
+      try {
+        const json = JSON.parse(document.body.innerText);
+        const lJetonCas = !!json && !!json.CAS && json.CAS.jetonCAS;
+        
+        document.cookie = "appliMobile=; expires=${PRONOTE_COOKIE_EXPIRED}"
 
-  const INJECT_PRONOTE: string = `
-  (function(){try{
-                        var lJetonCas = "", lJson = JSON.parse(document.body.innerText);
-                        lJetonCas = !!lJson && !!lJson.CAS && lJson.CAS.jetonCAS;
-                        document.cookie = "appliMobile=;expires=" + new Date(0).toUTCString();
-                        if(!!lJetonCas) {
-                        document.cookie = "validationAppliMobile="+lJetonCas+";expires=" + new Date(new Date().getTime() + (5*60*1000)).toUTCString();
-                        document.cookie = "uuidAppliMobile=${uuid};expires=" + new Date(new Date().getTime() + (5*60*1000)).toUTCString();
-                        document.cookie = "ielang=1036;expires=" + new Date(new Date().getTime() + (365*24*60*60*1000)).toUTCString();
-                        window.ReactNativeWebView.postMessage('nextStep:1');
-                        return true;
-                        } else return false;
-                        } catch(e){return false;}})();
-  `;
+        if (!!lJetonCas) {
+          document.cookie = "validationAppliMobile=" + lJetonCas + "; expires=${PRONOTE_COOKIE_VALIDATION_EXPIRES}";
+          document.cookie = "uuidAppliMobile=${deviceUUID}; expires=${PRONOTE_COOKIE_VALIDATION_EXPIRES}";
+          // 1036 = French
+          document.cookie = "ielang=1036; expires=${PRONOTE_COOKIE_LANGUAGE_EXPIRES}";
+        }
 
-  const INJECT_LOGIN = `
-    (function(){
-      if (window && window.loginState) {
-        window.ReactNativeWebView.postMessage('loginstate:' + JSON.stringify(window.loginState));
+        window.location.assign("${instanceURL}/mobile.eleve.html?fd=1");
       }
-      return window && window.loginState ? JSON.stringify(window.loginState) : '';
+      catch {
+        // TODO: Handle error
+      }
     })();
-  `;
+  `.trim();
 
-  let injected = 0;
+  /**
+   * Creates the hook inside the webview when logging in.
+   * Also hides the "Download PRONOTE app" button.
+   */
+  const INJECT_PRONOTE_INITIAL_LOGIN_HOOK = `
+    (function () {
+      window.hookAccesDepuisAppli = function() {
+        this.passerEnModeValidationAppliMobile('', '${deviceUUID}');
+      };
+      
+      return '';
+    })();
+  `.trim();
 
-  let url = infoMobileURL;
+  const INJECT_PRONOTE_CURRENT_LOGIN_STATE = `
+    (function () {
+      const state = window && window.loginState ? window.loginState : void 0;
 
-  const onNavigationStateChange = async (navigationState: WebViewNavigation) => {
-    url = navigationState.url;
-    console.log('[NGPWVL] Redirected to :', url);
-    
-    if (injected < 2) {
-      console.log('[NGPWVL] Injecting pronote...');
-      await webViewRef.current.injectJavaScript(INJECT_PRONOTE);
-      injected += 1;
-    }
-  };
-
-  useEffect(() => {
-    let interval = setInterval(async () => {
-      if (webViewRef.current) {
-        webViewRef.current.injectJavaScript(INJECT_LOGIN);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const [loggedPronote, setLoggedPronote] = useState(null);
-
-  const onMessage = (event: any) => {
-    const { data } = event.nativeEvent;
-
-    if (data.trim() == 'nextStep:1') {
-      console.log('[NGPWVL] Next step...');
-      webViewRef.current.injectJavaScript(`
-        window.location.assign("${instanceURL}?fd=1");
-      `);
-    }
-
-    if (data.startsWith('loginstate:')) {
-      const json = JSON.parse(data.split('loginstate:')[1]);
-      console.log(json)
-      setLoggedPronote(json);
-    }
-  };
-
-  useEffect(() => {
-    async function fetchInfo(loggedPronote) {
-      console.log(loggedPronote);
-    }
-
-    if (loggedPronote && loggedPronote.status == 0) {
-      fetchInfo(loggedPronote);
-    }
-  }, [loggedPronote]);
+      window.ReactNativeWebView.postMessage(JSON.stringify({
+        type: 'pronote.loginState',
+        data: state
+      }));
+    })();
+  `.trim();
 
   return (
     <View style={[{
@@ -112,13 +121,54 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
       <WebView
         ref={webViewRef}
         source={{ uri: infoMobileURL }}
-        onNavigationStateChange={onNavigationStateChange}
-        onMessage={onMessage}
-        incognito={false}
-        userAgent='Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0'
+
+        onMessage={async ({ nativeEvent }) => {
+          const message = JSON.parse(nativeEvent.data);
+
+          if (message.type === 'pronote.loginState') {
+            if (!message.data) return;
+            if (message.data.status !== 0) return;
+            if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
+
+            await AsyncStorage.multiSet([
+              [AsyncStoragePronoteKeys.NEXT_TIME_TOKEN, message.data.mdp],
+              [AsyncStoragePronoteKeys.ACCOUNT_TYPE_ID, PronoteApiAccountId.Student.toString()],
+              [AsyncStoragePronoteKeys.INSTANCE_URL, instanceURL],
+              [AsyncStoragePronoteKeys.USERNAME, message.data.login],
+              [AsyncStoragePronoteKeys.DEVICE_UUID, deviceUUID],
+            ]);
+      
+            await appContext.dataProvider?.init('pronote');
+            await AsyncStorage.setItem('service', 'pronote');
+      
+            navigation.goBack();
+            navigation.goBack();
+            navigation.goBack();
+            appContext.setLoggedIn(true);
+          }
+        }}
+
+        onLoadEnd={(e) => {
+          const { url } = e.nativeEvent;
+
+          if (url.includes('InfoMobileApp.json?id=0D264427-EEFC-4810-A9E9-346942A862A4')) {
+            webViewRef.current?.injectJavaScript(INJECT_PRONOTE_JSON);
+          }
+          else if (url.includes('mobile.eleve.html')) {
+            webViewRef.current?.injectJavaScript(INJECT_PRONOTE_INITIAL_LOGIN_HOOK);
+            
+            if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
+            currentLoginStateIntervalRef.current = setInterval(() => {
+              webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
+            }, 250);
+          }
+        }}
+
+        incognito={true} // prevent to keep cookies on webview load
+        userAgent='Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36'
       />
     </View>
-  )
+  );
 };
 
 export default NGPronoteWebviewLogin;
