@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatusBar, StyleSheet, TextInput, Platform, ScrollView } from 'react-native';
+import { View, StatusBar, StyleSheet, TextInput, Platform, ScrollView } from 'react-native';
 import * as Haptics from 'expo-haptics';
 
 import GetUIColors from '../../../utils/GetUIColors';
@@ -12,6 +12,7 @@ import { Link2 } from 'lucide-react-native';
 import AlertBottomSheet from '../../../interface/AlertBottomSheet';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const LoginURL = ({ navigation }: {
   navigation: any // TODO
@@ -61,31 +62,27 @@ const LoginURL = ({ navigation }: {
         }
       />
 
-      <NativeList
-        inset
-        style={[Platform.OS === 'android' ? { marginTop: insets.top } : null]}
-      >
-        <NativeItem
-          leading={
-            <Link2 color={UIColors.text + '88'} />
-          }
-        >
+      <View style={[styles.inputContainer]}>
+        <View style={[styles.inputBar, {backgroundColor: UIColors.element}]}>
+          <Link2 size={24} color={UIColors.text + '77'} />
           <TextInput 
             placeholder="Entrer une URL Pronote"
-            placeholderTextColor={UIColors.text + '88'}
+            placeholderTextColor={UIColors.text + '77'}
             style={[styles.input, {color: UIColors.text}]}
             value={currentURL}
             onChangeText={text => setCurrentURL(text)}
           />
-        </NativeItem>
-        <NativeItem
+        </View>
+
+        <TouchableOpacity
           onPress={() => login()}
+          style={[styles.btn, {backgroundColor: UIColors.primary}]}
         >
-          <NativeText heading="h4" style={{color: UIColors.primary}}>
+          <NativeText heading="h4" style={{color: '#ffffff', textAlign: 'center'}}>
             Se connecter
           </NativeText>
-        </NativeItem>
-      </NativeList>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };
@@ -94,11 +91,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1
   },
-  input: {
-    fontSize: 16,
-    fontFamily: 'Papillon-Medium',
-    paddingVertical: 4,
+  
+  inputContainer: {
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    gap: 12,
   },
+
+  inputBar: {
+    borderRadius: 10,
+    borderCurve: 'continuous',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 16,
+  },
+
+  input: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontFamily: 'Papillon-Medium',
+    fontSize: 16,
+  },
+
+  btn: {
+    paddingVertical: 14,
+    borderRadius: 10,
+    borderCurve: 'continuous',
+  }
 });
 
 export default LoginURL;

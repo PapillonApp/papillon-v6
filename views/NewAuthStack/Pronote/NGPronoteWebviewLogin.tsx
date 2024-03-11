@@ -58,6 +58,7 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   const UIColors = GetUIColors();
 
   const [loading, setLoading] = useState(true);
+  const [showWebView, setShowWebView] = useState(false);
 
   let webViewRef = createRef<WebView>();
   let currentLoginStateIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -148,6 +149,10 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
         ref={webViewRef}
         source={{ uri: infoMobileURL }}
 
+        style={{
+          opacity: showWebView ? 1 : 0,
+        }}
+
         onMessage={async ({ nativeEvent }) => {
           const message = JSON.parse(nativeEvent.data);
 
@@ -188,6 +193,7 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
           }
           else {
             setLoading(false);
+            setShowWebView(true);
             if (url.includes('mobile.eleve.html')) {
               webViewRef.current?.injectJavaScript(INJECT_PRONOTE_INITIAL_LOGIN_HOOK);
               
