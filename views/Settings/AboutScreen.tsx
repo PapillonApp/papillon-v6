@@ -126,7 +126,7 @@ function AboutScreen({ navigation }) {
               />
             }
             chevron
-            onPress={() => Linking.openURL('https://discord.getpapillon.xyz/')}
+            onPress={() => Linking.openURL('https://discord.gg/ywkBZx2jFB')}
           >
             <NativeText heading="h4">
               Serveur Discord
