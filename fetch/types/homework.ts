@@ -26,7 +26,8 @@ export interface PapillonHomework {
     type: PronoteApiHomeworkReturnType
     uploaded?: boolean
   }
-  lengthInMinutes?: number
+  lengthInMinutes?: number,
+  custom?: boolean
 }
 
 export interface PapillonGroupedHomeworks {

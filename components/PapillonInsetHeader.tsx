@@ -49,11 +49,11 @@ const PapillonInsetHeader: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   header: {
-    flex: 1,
     flexDirection: 'row',
     alignItems:'center',
     marginHorizontal: 14,
-    
+    paddingLeft: 16,
+    width: '100%',
   },
   headerInset: {
     marginHorizontal: 0,
@@ -67,7 +67,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     fontFamily: 'Papillon-Semibold',
-    flex: 1,
   }
 });
 

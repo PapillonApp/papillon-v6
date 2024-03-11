@@ -104,32 +104,21 @@ struct SystemSmallCourseWidget: View {
           .foregroundColor(.white)
           .widgetBackground(Color(hex: upcomingCourses.first!.backgroundColor))
           } else {
-              VStack {
-                HStack(alignment: .top){
-                  Circle()
-                    .strokeBorder(Color.white.opacity(0.5), lineWidth: 2)
-                    .background(Circle().fill(Color.white.opacity(0.2)))
-                    .frame(width: 50, height: 50, alignment: .center)
-                    .overlay(
-                      Text("😴")
-                    )
-                  Spacer()
-                  Image("logo")
-                    .resizable()
-                    .frame(width: 30, height: 30)
-                }
-                Spacer()
-                HStack {
-                  VStack(alignment: .leading) {
-                    Text("Plus de cours pour aujourd'hui")
-                      .font(.system(.headline, design: .rounded))
-                  }
-                Spacer()
-                }
+            VStack(alignment: .center) {
+              Color("WidgetBackground")
+                  .frame(height: 14)
+              Spacer()
+              VStack(spacing: 0) {
+                Image("cal")
+                  .font(.system(size: 24, design: .rounded))
+                Text("Aucun cours")
+                  .font(.system(.subheadline, design: .rounded))
               }
-              .padding()
-              .foregroundColor(.white)
-              .widgetBackground(Color("WidgetBackground"))
+              .foregroundStyle(Color.primary.opacity(0.5))
+              .multilineTextAlignment(.center)
+              Spacer()
+            }
+            .widgetBackground(Color("Background"))
             }
           }
     }

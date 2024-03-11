@@ -16,6 +16,7 @@ import {
   StatusBar,
   TouchableOpacity,
   Dimensions,
+  DeviceEventEmitter,
 } from 'react-native';
 
 // Components & Styles
@@ -35,6 +36,8 @@ import {
 import NextCoursElem from '../interface/HomeScreen/NextCours';
 import * as ExpoLinking from 'expo-linking';
 import * as Haptics from 'expo-haptics';
+
+import QuickActions, { ShortcutItem } from 'react-native-quick-actions';
 
 // Icons
 import {
@@ -62,7 +65,6 @@ import formatCoursName from '../utils/FormatCoursName';
 import CheckAnimated from '../interface/CheckAnimated';
 
 import { useAppContext } from '../utils/AppContext';
-import sendToSharedGroup from '../fetch/SharedValues';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { useNetInfo } from '@react-native-community/netinfo';
@@ -278,6 +280,21 @@ function HomeScreen({ navigation }: { navigation: any }) {
 
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
 
+  function checkTerms() {
+    AsyncStorage.getItem('ppln_terms').then((value) => {
+      if (!value) {
+        navigation.navigate('ConsentScreen');
+      }
+    });
+  }
+
+  // check terms on focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      checkTerms();
+    });
+  }, [navigation]);
+
   const setHomeworks = useSetAtom(homeworksAtom);
   const [groupedHomeworks] = useAtom(
     useMemo(
@@ -352,6 +369,72 @@ function HomeScreen({ navigation }: { navigation: any }) {
       handleURL(url);
     });
   }, [expoLinkedURL]);
+
+  // quick actions
+  useEffect(() => {
+
+    const processShortcut = (item: ShortcutItem) => {
+      if (item.type === 'Navigation') {
+        console.log('Processing shortcut', item.title);
+        navigation.navigate(item.userInfo.url);
+      }
+    };
+
+    QuickActions.setShortcutItems([
+      {
+        type: 'Navigation', // Required
+        title: 'Emploi du temps',
+        icon: 'cal', // Icons instructions below
+        userInfo: {
+          url: 'CoursHandler' // Provide any custom data like deep linking URL
+        }
+      },
+      {
+        type: 'Navigation', // Required
+        title: 'Travail à faire',
+        icon: 'check_custom', // Icons instructions below
+        userInfo: {
+          url: 'DevoirsHandler' // Provide any custom data like deep linking URL
+        }
+      },
+      {
+        type: 'Navigation', // Required
+        title: 'Notes',
+        icon: 'chart_pie_custom', // Icons instructions below
+        userInfo: {
+          url: 'NotesHandler' // Provide any custom data like deep linking URL
+        }
+      },
+      {
+        type: 'Navigation', // Required
+        title: 'Actualités',
+        icon: 'news_custom', // Icons instructions below
+        userInfo: {
+          url: 'NewsHandler' // Provide any custom data like deep linking URL
+        }
+      },
+    ]);
+
+    // if app was opened from a quick action
+    QuickActions.popInitialAction().then(item => {
+      processShortcut(item);
+    }).catch(() => {
+      // There was no shortcut item
+      console.log('No initial action');
+    });
+
+    // if app was opened from a quick action while it was in background
+    DeviceEventEmitter.addListener('quickActionShortcut', (item: ShortcutItem) => {
+      console.log(item.title);
+      processShortcut(item);
+    });
+
+    // cleanup
+    return () => {
+      QuickActions.clearShortcutItems();
+      DeviceEventEmitter.removeAllListeners('quickActionShortcut');
+    };
+  }, []);
 
   /**
    * For now, it only handles papillon://grade?=... URLs.
@@ -435,7 +518,6 @@ function HomeScreen({ navigation }: { navigation: any }) {
     setLessons({ loading: false, data: lessons });
 
     await loadCustomHomeworks();
-    await sendToSharedGroup(lessons);
   };
 
   /**
@@ -556,28 +638,6 @@ function HomeScreen({ navigation }: { navigation: any }) {
     }
   }, [changeThemeOpen]);
 
-  // Load navigation bar data.
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      header: () => (
-        <View/>
-      ),
-    });
-  }, [
-    navigation,
-    user,
-    themeAdjustments,
-    currentThemeIndex,
-    setCurrentThemeIndex,
-    insets,
-    UIColors,
-    theme,
-    nextColor,
-    setNextColor,
-    changeThemeOpen,
-    changeThemeAnim,
-  ]);
-
   const [scrolled, setScrolled] = useState(false);
   const scrolledAnim = useRef(new Animated.Value(0)).current;
 
@@ -610,13 +670,13 @@ function HomeScreen({ navigation }: { navigation: any }) {
   );
 
   const themeImageOpacity = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [0, 100] : [0, 1],
+    inputRange: Platform.OS === 'ios' ? [-20, 50] : [0, 100],
     outputRange: [0.8, 0],
     extrapolate: 'clamp',
   });
 
   const themeImageTransform = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [0, 100] : [0, 1],
+    inputRange: Platform.OS === 'ios' ? [-20, 50] : [0, 100],
     outputRange: [0, 1],
     extrapolate: 'clamp',
   });
@@ -653,7 +713,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
               width: '100%',
               height: 150,
             },
-            Platform.OS === 'ios' && {
+            {
               opacity: themeImageOpacity,
               transform: [
                 {
@@ -787,6 +847,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
             {Platform.OS === 'ios' ? (
               <ContextMenuButton
                 isMenuPrimaryAction={true}
+                accessible={true}
+                  accessibilityLabel="Votre profil"
                 menuConfig={{
                   menuTitle: '',
                   menuItems: [
@@ -863,6 +925,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   onPress={() => {
                     setUserMenuOpen(true);
                   }}
+                  accessible={true}
+                  accessibilityLabel="Votre profil"
                 >
                   {!user.loading && user.data.profile_picture ? (
                     <Image
@@ -938,16 +1002,13 @@ function HomeScreen({ navigation }: { navigation: any }) {
             style={[
               {
                 marginTop: 0,
-                height:
-                      Platform.OS === 'ios'
-                        ? yOffset.interpolate({
-                          inputRange: [0 - insets.top, 106 - insets.top],
-                          outputRange: [106, 0],
-                          extrapolate: 'clamp',
-                          // @ts-expect-error : Not sure if it's typed correctly.
-                          useNativeDriver: false,
-                        })
-                        : 106,
+                height: scrolledAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [106, 0],
+                  extrapolate: 'clamp',
+                  // @ts-expect-error : Not sure if it's typed correctly.
+                  useNativeDriver: false,
+                })
               },
             ]}
           >
@@ -965,7 +1026,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 setNextColor={(color) => {
                   setNextColor(color);
                 }}
-                yOffset={yOffset}
+                yOffset={new Animated.Value(0)}
                 color={themeAdjustments.enabled ? nextColor : void 0}
                 style={{
                   marginHorizontal: 16,
@@ -1128,7 +1189,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
       ref={scrollRef}
       style={{
         flex: 1,
-        paddingTop: 150,
+        paddingTop: Platform.OS === 'ios' ? 150 : 185,
       }}
       scrollIndicatorInsets={{top: 150}}
       contentInsetAdjustmentBehavior="automatic"
@@ -1161,7 +1222,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 ? 'light-content'
                 : 'dark-content'
           }
-          translucent={true}
+          translucent
           backgroundColor={'transparent'}
         />
       )}
@@ -1193,10 +1254,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
         loading={groupedHomeworks === null}
       />
 
-      {groupedHomeworks &&
-        groupedHomeworks.length < 2 &&
-        lessons.data &&
-        lessons.data.length < 4 && <View style={{ height: 100 }} />}
+      <View style={{ height: Platform.OS === 'android' ? 180 : 150 }} />
     </ScrollView>
   </View>
   );
@@ -1272,6 +1330,7 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
           weight="light"
           activeScale={0.9}
           onPress={() => navigation.navigate('InsetEvaluations')}
+          accessibilityLabel="Compétences"
         >
           <Competences stroke={theme.dark ? '#ffffff' : '#000000'} />
           <Text style={styles.tabsTabText}>Compét.</Text>
@@ -1293,7 +1352,14 @@ const CoursElement: React.FC<{
   return (
     <View>
       <View style={[styles.sectionHeader]}>
-        <View style={[styles.sectionHeaderText]}>
+        <View style={[styles.sectionHeaderText]}
+          accessible={true}
+          accessibilityLabel={'Journée du' + new Date(date).toLocaleDateString('fr-FR', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+          })}
+        >
           <NativeText style={[styles.sectionHeaderDay]}>
             {showsTomorrow ? 'Votre journée de demain' : 'Votre journée'}
           </NativeText>
@@ -1313,6 +1379,8 @@ const CoursElement: React.FC<{
           onPress={() => {
             navigation.navigate('CoursHandler');
           }}
+          accessible={true}
+          accessibilityLabel="Voir l'emploi du temps"
         >
           <PapillonIconsCalendarFill
             fill={UIColors.text}
@@ -1592,7 +1660,10 @@ function DevoirsElement({
   return (
     <View>
       <View style={[styles.sectionHeader]}>
-        <View style={[styles.sectionHeaderText]}>
+        <View style={[styles.sectionHeaderText]}
+          accessible={true}
+          accessibilityLabel="Travail à faire pour les prochains jours"
+        >
           <NativeText style={[styles.sectionHeaderDay]}>
             Travail à faire
           </NativeText>
@@ -1606,8 +1677,10 @@ function DevoirsElement({
             { backgroundColor: UIColors.text + '22' },
           ]}
           onPress={() => {
-            navigation.navigate('CoursHandler');
+            navigation.navigate('DevoirsHandler');
           }}
+          accessible={true}
+          accessibilityLabel="Voir les devoirs"
         >
           <PapillonIconsBook
             stroke={UIColors.text}
@@ -1751,7 +1824,7 @@ const DevoirsDay = ({
             {homeworks &&
               homeworks.homeworks.map((homework, index) => (
                 <DevoirsContent
-                  key={homework.localID}
+                  key={homework.id}
                   index={index}
                   parentIndex={parentIndex}
                   homework={homework}

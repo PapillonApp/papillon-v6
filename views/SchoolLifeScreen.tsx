@@ -34,6 +34,9 @@ function SchoolLifeScreen({ navigation }: {
   const [refresh, setRefresh] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
+  const [totalHoursMissed, setTotalHoursMissed] = useState<number>(0);
+  const [totalDelayMinutes, setTotalDelayMinutes] = useState<number>(0);
+
   useEffect(() => {
     (async () => {
       if (!appContext.dataProvider) return;
@@ -51,6 +54,18 @@ function SchoolLifeScreen({ navigation }: {
         });
 
         setVieScolaire(value);
+        const total = value.absences.reduce((total, absence) => {
+          const hours = parseInt(absence.hours.split('h')[0]);
+          const minutes = parseInt(absence.hours.split('h')[1]);
+          return total + hours + minutes / 60;
+        }, 0);
+        setTotalHoursMissed(total);
+        const totalDelay = value.delays.reduce((total, delay) => {
+          return total + delay.duration;
+        }, 0);
+        setTotalDelayMinutes(totalDelay);
+        
+
       } catch { /** No-op. */ }
       finally {
         setLoading(false);
@@ -72,8 +87,9 @@ function SchoolLifeScreen({ navigation }: {
       headerLargeTitle: true,
     });
   });
-
+  
   return (
+    
     <ScrollView
       style={{ backgroundColor: UIColors.backgroundHigh }}
       contentInsetAdjustmentBehavior="automatic"
@@ -89,6 +105,7 @@ function SchoolLifeScreen({ navigation }: {
     >
       <StatusBar
         animated
+        translucent
         barStyle={theme.dark ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
       />
@@ -111,7 +128,7 @@ function SchoolLifeScreen({ navigation }: {
           )}
 
           {vieScolaire.absences && vieScolaire.absences.length > 0 && (
-            <NativeList header="Absences" inset>
+            <NativeList header={`Absences - ${totalHoursMissed.toFixed(1)} heures manquées`} inset>
               {vieScolaire.absences?.map((absence, index) => (
                 <NativeItem
                   key={index}
@@ -136,7 +153,7 @@ function SchoolLifeScreen({ navigation }: {
                     </NativeText>
                   )}
                 >
-                  <NativeText heading="h4">
+                  <NativeText heading="h4" style={{ color: absence.administrativelyFixed ? 'gray' : (theme.dark ? 'white' : 'black') }}>
                     {absence.reasons[0] ?? new Date(absence.from).toLocaleDateString('fr', {
                       weekday: 'long',
                       day: '2-digit',
@@ -178,7 +195,7 @@ function SchoolLifeScreen({ navigation }: {
           )}
 
           {vieScolaire.delays && vieScolaire.delays.length > 0 && (
-            <NativeList header="Retards" inset>
+            <NativeList header={`Retards - ${totalDelayMinutes} minutes cumulées`} inset>
               {vieScolaire.delays.map((delay, index) => (
                 <NativeItem
                   key={index}
@@ -186,8 +203,7 @@ function SchoolLifeScreen({ navigation }: {
                     <Clock3 size={24} color="#A84700" />
                   ) : (
                     <Clock3 size={24} color="#565EA3" />
-                  )
-                  }
+                  )}
                   trailing={!delay.justified ? (
                     <NativeText
                       style={[
@@ -229,6 +245,7 @@ function SchoolLifeScreen({ navigation }: {
               ))}
             </NativeList>
           )}
+
 
           {vieScolaire.punishments && vieScolaire.punishments.length > 0 && (
             <NativeList header="Punitions" inset>

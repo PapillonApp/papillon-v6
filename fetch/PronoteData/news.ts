@@ -1,14 +1,21 @@
 import type { CachedPapillonNews, PapillonNewsInformation, PapillonNewsSurvey, PapillonNews } from '../types/news';
 import type { PapillonAttachmentType } from '../types/attachment';
 import { AsyncStoragePronoteKeys } from './connector';
+import { btoa } from 'js-base64';
 
 import { type Pronote, StudentNewsInformation, StudentNewsSurvey, PronoteApiNewsQuestionType } from 'pawnote';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { btoa } from 'js-base64';
 
 const makeLocalID = (news: StudentNewsInformation | StudentNewsSurvey): string => {
   const localID = `${news.category.name.substring(0, 3)};${news instanceof StudentNewsInformation ? 'info' : 'survey'};${news.author};${news.title};${news.creationDate.getTime()}`;
-  return btoa(localID);
+
+  let decode = localID;
+  try {
+    decode = btoa(localID);
+  }
+  catch {}
+
+  return decode;
 };
 
 export const newsHandler = async (force = false, instance?: Pronote): Promise<PapillonNews[]> => {

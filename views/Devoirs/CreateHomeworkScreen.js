@@ -6,6 +6,11 @@ import GetUIColors from '../../utils/GetUIColors';
 import PapillonInsetHeader from '../../components/PapillonInsetHeader';
 import { SFSymbol } from 'react-native-sfsymbols';
 
+import { getDefaultStore } from 'jotai';
+const defaultStore = getDefaultStore();
+
+import { homeworksAtom } from '../../atoms/homeworks';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { ContextMenuButton } from 'react-native-ios-context-menu';
@@ -113,17 +118,24 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
     }
 
     // add homework to the database
-    AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+    AsyncStorage.getItem('pap_homeworksCustom').then((customHomeworks) => {
       let hw = [];
       if (customHomeworks) {
         hw = JSON.parse(customHomeworks);
       }
 
-      console.log(hw);
+      // console.log(hw);
+
+      let hwDate = new Date(date);
+      let lid = Math.random().toString(36).substring(7);
 
       let newHw = {
         id: Math.random().toString(36).substring(7),
-        local_id: Math.random().toString(36).substring(7),
+        localId: lid,
+        pronoteCachedSessionID: Math.random().toString(7),
+        cacheDateTimestamp: hwDate.getTime(),
+        themes: [],
+        attachments: [],
         subject: {
           id: Math.random().toString(36).substring(7),
           name: nativeSubjects[selectedSubject]?.actionTitle,
@@ -132,14 +144,17 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
         description: homeworkTitle,
         background_color: getSavedCourseColor(nativeSubjects[selectedSubject]?.actionTitle, UIColors.primary),
         done: false,
-        date: new Date(date).toISOString(),
-        files: [],
+        date: hwDate.toISOString(),
+        difficulty: 0,
+        lengthInMinutes: 0,
         custom: true,
       };
 
       hw.push(newHw);
 
-      AsyncStorage.setItem('customHomeworks', JSON.stringify(hw)).then(() => {
+      AsyncStorage.setItem('pap_homeworksCustom', JSON.stringify(hw)).then(() => {
+        console.log('Homework added');
+        console.log(hw);
         navigation.goBack();
       });
     });
@@ -152,8 +167,6 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
       if (savedColors) {
         savedColors = JSON.parse(JSON.parse(savedColors));
         let savedColorsKeys = Object.keys(savedColors);
-
-        console.log(savedColors);
 
         for (let i = 0; i < savedColorsKeys.length; i++) {
           let item = savedColors[savedColorsKeys[i]];

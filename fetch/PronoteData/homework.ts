@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AsyncStoragePronoteKeys } from './connector';
 import { getDefaultStore } from 'jotai';
 import { homeworksAtom } from '../../atoms/homeworks';
+import { btoa } from 'js-base64';
 
 const defaultStore = getDefaultStore();
 
@@ -14,23 +15,16 @@ const makeLocalID = (homework: {
   subjectName: string | undefined
   date: Date
 }): string => {
-  let localID: string;
-
-  // return a combination of the 20 first letters of description
-  if (homework.description.length > 20) {
-    localID = homework.description.substring(0, 20);
-  }
-  else {
-    localID = homework.description;
-  }
+  let localID = '';
 
   // 2 first letters of subject name
-  localID += homework.subjectName?.substring(0, 2) ?? '??';
-
+  localID += homework.subjectName ?? '??';
   // date in ISO
-  localID += homework.date.toISOString();
-
-  return localID;
+  localID += homework.date.getTime();
+  // whole description
+  localID += homework.description;
+  localID = encodeURIComponent(localID)
+  return btoa(localID);
 };
 
 export const homeworkHandler = async (force = false, instance?: Pronote): Promise<PapillonHomework[]> => {
@@ -115,6 +109,12 @@ export const homeworkHandler = async (force = false, instance?: Pronote): Promis
       });
     }
 
+    const custom = await AsyncStorage.getItem('pap_homeworksCustom');
+    if (custom) {
+      const customHomeworks = JSON.parse(custom) as PapillonHomework[];
+      data = data.concat(customHomeworks);
+    }
+
     await AsyncStorage.setItem(AsyncStoragePronoteKeys.CACHE_HOMEWORK, JSON.stringify(data));
   }
   catch (error) {
@@ -130,20 +130,41 @@ export const homeworkPatchHandler = async (homework: PapillonHomework, newDoneSt
 
   let homeworks = defaultStore.get(homeworksAtom);
 
+  if (homework.custom) {
+    const customHomeworks = await AsyncStorage.getItem('pap_homeworksCustom');
+    const parsed = JSON.parse(customHomeworks || '[]');
+    const newCustomHomeworks: PapillonHomework[] = parsed;
+    const index = newCustomHomeworks.findIndex(currentHomework => currentHomework.id === homework.id);
+    if (index === -1) return false;
+    newCustomHomeworks[index].done = newDoneState;
+    await AsyncStorage.setItem('pap_homeworksCustom', JSON.stringify(newCustomHomeworks));
+  }
+
   // Not on same session, we fetch again.
-  if (homework.pronoteCachedSessionID !== instance.sessionID) {
-    homeworks = await homeworkHandler(true, instance);
+  if (!homework.custom) {
+    if (homework.pronoteCachedSessionID !== instance.sessionID) {
+      homeworks = await homeworkHandler(true, instance);
+    }
   }
   
   if (!homeworks) return false;
 
   // We search for the homework with the same localID.
-  const homeworkIndex = homeworks.findIndex(currentHomework => currentHomework.localID === homework.localID);
+  
+  let homeworkIndex = homeworks.findIndex(currentHomework => currentHomework.localID === homework.localID);
+
+  if (homework.custom) {
+    homeworkIndex = homeworks.findIndex(currentHomework => currentHomework.id === homework.id);
+  }
+
   if (homeworkIndex === -1) return false;
   const homeworkID = homeworks[homeworkIndex].id;
 
   // We patch the homework.
-  await instance.patchHomeworkStatus(homeworkID, newDoneState);
+  if (!homework.custom) {
+    await instance.patchHomeworkStatus(homeworkID, newDoneState);
+  }
+  
   homeworks[homeworkIndex].done = newDoneState;
   defaultStore.set(homeworksAtom, homeworks);
 

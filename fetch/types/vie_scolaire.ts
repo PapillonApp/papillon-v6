@@ -16,6 +16,7 @@ export interface PapillonAbsence {
   to: number
   justified: boolean
   hours: string
+  administrativelyFixed: boolean
   reasons: [string | null]
 }
 

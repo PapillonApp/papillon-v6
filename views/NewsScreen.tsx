@@ -60,7 +60,7 @@ import NativeText from '../components/NativeText';
 const yOffset = new Animated.Value(0);
 
 const headerOpacity = yOffset.interpolate({
-  inputRange: [-75, -60],
+  inputRange: [-40, 0],
   outputRange: [0, 1],
   extrapolate: 'clamp',
 });
@@ -217,79 +217,7 @@ function NewsScreen ({ navigation }: {
   // add search bar in the header
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle:
-        Platform.OS === 'ios'
-          ? () => (
-            <PapillonInsetHeader
-              icon={<SFSymbol name="newspaper.fill" />}
-              title="Actualités"
-              color="#B42828"
-            />
-          )
-          : 'Actualités',
-      headerTransparent: Platform.OS === 'ios' ? true : false,
-      headerStyle:
-        Platform.OS === 'android'
-          ? {
-            backgroundColor: UIColors.background,
-            elevation: 0,
-          }
-          : undefined,
-      headerBackground:
-        Platform.OS === 'ios'
-          ? () => (
-            <Animated.View
-              style={[
-                {
-                  flex: 1,
-                  backgroundColor: UIColors.element + '00',
-                  opacity: headerOpacity,
-                  borderBottomColor: theme.dark
-                    ? UIColors.text + '22'
-                    : UIColors.text + '55',
-                  borderBottomWidth: 0.5,
-                },
-              ]}
-            >
-              <BlurView
-                tint={theme.dark ? 'dark' : 'light'}
-                intensity={120}
-                style={{
-                  flex: 1,
-                }}
-              />
-            </Animated.View>
-          )
-          : undefined,
-      headerSearchBarOptions: {
-        placeholder: 'Rechercher une actualité',
-        cancelButtonText: 'Annuler',
-        tintColor: '#B42828',
-        onChangeText: (event: any) => {
-          const text = event.nativeEvent.text.trim();
-
-          if (text.length > 2) {
-            const newNews: PapillonNews[] = [];
-
-            finalNews.forEach((item) => {
-              const content = item.is === 'information' ? item.content : `Sondage de ${item.questions.length} questions.`;
-
-              if (
-                normalizeText(item.title).includes(normalizeText(text)) ||
-                normalizeText(content).includes(normalizeText(text))
-              ) {
-                newNews.push(item);
-              }
-            });
-
-            setCurrentNewsType('Toutes');
-            setNews(newNews);
-          } else {
-            setCurrentNewsType('Toutes');
-            setNews(finalNews);
-          }
-        },
-      },
+      headerTitle: 'Actualités',
     });
   }, [navigation, finalNews, isHeadLoading, UIColors]);
 
@@ -332,7 +260,9 @@ function NewsScreen ({ navigation }: {
   return (
     <>
       <ScrollView
-        style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
+        style={[styles.container, {
+          backgroundColor: UIColors.modalBackground
+        }]}
         contentInsetAdjustmentBehavior="automatic"
         refreshControl={
           <RefreshControl
@@ -346,6 +276,7 @@ function NewsScreen ({ navigation }: {
       >
         <StatusBar
           animated
+          translucent
           barStyle={
             isModalOpen
               ? 'light-content'
@@ -355,34 +286,6 @@ function NewsScreen ({ navigation }: {
           }
           backgroundColor="transparent"
         />
-
-        <Modal
-          animationType="slide"
-          presentationStyle="pageSheet"
-          visible={isModalOpen}
-          onRequestClose={() => setIsModalOpen(false)}
-        >
-          <SafeAreaView
-            style={{
-              flex: 1,
-              backgroundColor: theme.dark ? '#000000' : '#ffffff',
-            }}
-          >
-            <TouchableOpacity
-              style={[
-                styles.pdfClose,
-                Platform.OS === 'android' ? { top: insets.top } : null,
-              ]}
-              onPress={() => setIsModalOpen(false)}
-            >
-              <X color="#ffffff" />
-            </TouchableOpacity>
-
-            <PdfRendererView style={{ flex: 1 }} source={modalURL} />
-          </SafeAreaView>
-        </Modal>
-
-        {Platform.OS !== 'ios' ? <View style={{ height: 16 }} /> : null}
 
         <NativeList inset>
           {!isLoading && news.length !== 0 ? (

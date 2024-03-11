@@ -25,19 +25,19 @@ function removeDuplicateCourses(courses: PapillonLesson[]): PapillonLesson[] {
 }
 
 export const timetableHandler = async (interval: [from: Date, to?: Date], instance?: Pronote, force = false): Promise<PapillonLesson[] | null> => {
-  let weekCacheString = dateToFrenchFormat(interval[0]);
-  if (interval[1]) weekCacheString += '-' + dateToFrenchFormat(interval[1]);
+  const from = dateToFrenchFormat(interval[0]);
+  const to = interval[1] ? dateToFrenchFormat(interval[1]) : void 0;
 
-  const cache = await AsyncStorage.getItem(AsyncStoragePronoteKeys.CACHE_TIMETABLE + '-' + weekCacheString);
+  const cache = await AsyncStorage.getItem(AsyncStoragePronoteKeys.CACHE_TIMETABLE);
+  const now = Date.now();
+
   if (cache && !force) {
     const data: Array<CachedPapillonTimetable> = JSON.parse(cache);
-
-    for (const cachedTimetable of data) {
-      const cacheInterval = cachedTimetable.interval;
-      if (cacheInterval.from === dateToFrenchFormat(interval[0])) {
-        if (interval[1] && cacheInterval.to !== dateToFrenchFormat(interval[1])) continue;
-        return cachedTimetable.timetable;
-      }
+    const cached = data.find(cached => cached.interval.from === from && cached.interval.to === to);
+    
+    // Within 12 hours.
+    if (cached && now - cached.cacheTimestamp < 12 * 60 * 60 * 1000) {
+      return cached.timetable;
     }
   }
 
@@ -46,7 +46,7 @@ export const timetableHandler = async (interval: [from: Date, to?: Date], instan
   try {
     const timetableFromPawnote = await instance.getLessonsForInterval(...interval);
     
-    const timetable: PapillonLesson[] = timetableFromPawnote.map(lesson => ({
+    const timetable: PapillonLesson[] = removeDuplicateCourses(timetableFromPawnote.map(lesson => ({
       id: lesson.id,
       num: lesson.num,
       subject: lesson.subject,
@@ -64,28 +64,33 @@ export const timetableHandler = async (interval: [from: Date, to?: Date], instan
       is_detention: lesson.detention,
       is_exempted: lesson.exempted,
       is_test: lesson.test
-    })).sort((a, b) => a.start.localeCompare(b.start));
+    })).sort((a, b) => a.start.localeCompare(b.start)));
+    
+    // Build up the new timetables cache inside storage.
+    let cachedTimetables: Array<CachedPapillonTimetable> = [];
+    if (cache) cachedTimetables = JSON.parse(cache);
 
-    const cleanedUpTimetable = removeDuplicateCourses(timetable);
-    let cachedTimetable: Array<CachedPapillonTimetable> = [];
+    // Make sure to delete any duplicates.
+    cachedTimetables = cachedTimetables.filter(cached => cached.interval.from !== from || cached.interval.to !== to);
 
-    if (cache) {
-      cachedTimetable = JSON.parse(cache);
-    }
-
-    cachedTimetable.push({
-      interval: {
-        from: dateToFrenchFormat(interval[0]),
-        to: interval[1] ? dateToFrenchFormat(interval[1]) : void 0
-      },
-
-      timetable: cleanedUpTimetable,
+    // Add the new cache.
+    cachedTimetables.push({
+      cacheTimestamp: now,
+      interval: { from, to },
+      timetable: timetable,
     });
 
-    await AsyncStorage.setItem(AsyncStoragePronoteKeys.CACHE_TIMETABLE + '-' + weekCacheString, JSON.stringify(cachedTimetable));
-    return cleanedUpTimetable;
-  } catch (error) {
-    console.info('pronote/timetableHandler: network failed, no cache', error);
-    return null;
+    await AsyncStorage.setItem(AsyncStoragePronoteKeys.CACHE_TIMETABLE, JSON.stringify(cachedTimetables));
+    return timetable;
+  }
+  catch (error) {
+    if (!cache) return null;
+    const data: Array<CachedPapillonTimetable> = JSON.parse(cache);
+
+    const cached = data.find(cached => cached.interval.from === from && cached.interval.to === to);
+    if (!cached) return null;
+
+    console.info('[pronote/timetableHandler]: network failed, recover with cache');
+    return cached.timetable;
   }
 };

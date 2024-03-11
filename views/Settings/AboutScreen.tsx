@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   View,
@@ -20,7 +20,7 @@ import {
 } from 'lucide-react-native';
 
 import packageJson from '../../package.json';
-import team from './Team.json';
+import { fetchPapiAPI } from '../../utils/api';
 
 import GetUIColors from '../../utils/GetUIColors';
 
@@ -30,6 +30,21 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
 function AboutScreen({ navigation }) {
+  const [team, setTeam] = useState(false);
+
+  useEffect(() => {
+    callFetchPapiAPI('team')
+      .then(response => setTeam(response))
+      .catch(error => console.error(error));
+  }, []);
+
+  function callFetchPapiAPI(path: string) {
+    return fetchPapiAPI(path)
+      .then(data => {
+        return data;
+      });
+  }
+
   const UIColors = GetUIColors();
   const theme = useTheme();
 
@@ -148,7 +163,7 @@ function AboutScreen({ navigation }) {
           </NativeList>
         ) : <View /> }
 
-        {team.team.map((team, index) => (
+        {team && team.team.map((team, index) => (
           <NativeList
             key={index}
             inset
@@ -218,6 +233,16 @@ function AboutScreen({ navigation }) {
           >
             <NativeText heading="h4">
               Dépendances
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            onPress={() => {
+              navigation.navigate('ConsentScreen');
+            }}
+            chevron
+          >
+            <NativeText heading="p2">
+              Termes & conditions
             </NativeText>
           </NativeItem>
         </NativeList>

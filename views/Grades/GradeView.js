@@ -421,6 +421,8 @@ function GradeView({ route, navigation }) {
             </NativeText>
           </NativeItem>
         </NativeList>
+
+        <View style={{ height: 44 }} />
       </ScrollView>
     </>
   );

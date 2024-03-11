@@ -36,6 +36,7 @@ func retrieveSharedData() -> [Course]? {
             courses.append(course)
           }
         }
+        print("[getEdtF] :", courses)
         return courses
       }
     } catch {

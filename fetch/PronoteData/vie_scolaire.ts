@@ -38,6 +38,7 @@ export const vieScolaireHandler = async (instance?: Pronote, force = false): Pro
           to: item.to.getTime(),
           justified: item.justified,
           hours: item.hoursMissed + 'h' + item.minutesMissed,
+          administrativelyFixed: item.administrativelyFixed,
           reasons: [item.reason]
         });
       }

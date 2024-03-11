@@ -153,6 +153,7 @@ export class IndexDataInstance {
 
   public async changeHomeworkState (homework: PapillonHomework, isDone: boolean): Promise<boolean> {
     await this.waitInit();
+
     if (this.service === 'skolengo') {
       // TODO
       // return this.skolengoInstance.patchHomeworkAssignment(id, isDone);

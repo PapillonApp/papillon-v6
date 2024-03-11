@@ -1,12 +1,13 @@
 export interface CachedPapillonTimetable {
   interval: { from: string, to?: string }
   timetable: PapillonLesson[]
+  cacheTimestamp: number
 }
 
 export interface PapillonLesson {
   id: string
   num: number
-  subject?: { // TODO: Export the type in Pawnote of `StudentSubject` : we're reusing it here.
+  subject?: {
     id: string
     name: string
     groups: boolean
