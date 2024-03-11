@@ -1,6 +1,8 @@
 import React, { createRef, useRef, useState } from 'react';
-import { View, Modal, Text, ActivityIndicator } from 'react-native';
+import { View, Platform, Modal, Text, ActivityIndicator, StatusBar } from 'react-native';
 import GetUIColors from '../../../utils/GetUIColors';
+
+import PapillonCloseButton from '../../../interface/PapillonCloseButton';
 
 import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,6 +26,7 @@ const cleanPronoteUrl = (url: string): string => {
 
   // Rebuild URL with cleaned paths.
   pronote_url.pathname = paths.join('/');
+  pronote_url.pathname = pronote_url.pathname.toLowerCase();
 
   // Return rebuilt URL without trailing slash.
   return pronote_url.href.endsWith('/')
@@ -65,6 +68,15 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   
   const infoMobileURL = instanceURL + '/InfoMobileApp.json?id=0D264427-EEFC-4810-A9E9-346942A862A4';
   const [deviceUUID] = useState(makeUUID());
+
+  // PapillonCloseButton in header
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: Platform.OS === 'ios' ? () => (
+        <PapillonCloseButton onPress={() => navigation.goBack()} />
+      ) : null
+    });
+  }, [navigation]);
 
   const PRONOTE_COOKIE_EXPIRED = new Date(0).toUTCString();
   const PRONOTE_COOKIE_VALIDATION_EXPIRES = new Date(new Date().getTime() + (5 * 60 * 1000)).toUTCString();
@@ -122,6 +134,15 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
       flex: 1,
       backgroundColor: UIColors.modalBackground
     }]}>
+      <StatusBar
+        animated
+        barStyle={
+          UIColors.dark ? 'light-content' : 'dark-content'
+        }
+        backgroundColor={'transparent'}
+        translucent
+      />
+
       <Modal
         animationType="fade"
         transparent={true}
@@ -178,6 +199,10 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
             navigation.goBack();
             navigation.goBack();
             navigation.goBack();
+            navigation.goBack();
+            navigation.goBack();
+            navigation.getParent()?.goBack();
+            navigation.getParent()?.goBack();
             navigation.getParent()?.goBack();
             navigation.getParent()?.goBack();
             navigation.getParent()?.goBack();
