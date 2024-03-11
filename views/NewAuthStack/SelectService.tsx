@@ -125,7 +125,7 @@ const SelectService = ({ navigation }) => {
           <NativeItem
             key={index}
             onPress={() => selectOption(index)}
-
+            backgroundColor={UIColors.background}
             cellProps={{
               contentContainerStyle: {
                 paddingVertical: 3,

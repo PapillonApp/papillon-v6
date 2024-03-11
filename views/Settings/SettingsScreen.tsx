@@ -218,7 +218,12 @@ function SettingsScreen({ navigation }) {
           await AsyncStorage.clear();
           AsyncStorage.setItem("preventNotifInit", "true") //to prevent notif to re-init after logout (app stack still displayed for a few second before re-rendering)
           // Create a new provider since we're resetting everything.
-          appContext.setDataProvider(new IndexDataInstance());
+          try {
+            appContext.setDataProvider(new IndexDataInstance());
+          }
+          catch (e) {
+            console.error('Error while creating new data provider', e);
+          }
           appContext.setLoggedIn(false);
           unsetBackgroundFetch()
           showMessage({
@@ -229,6 +234,7 @@ function SettingsScreen({ navigation }) {
           });
           // Go back to login menu !
           navigation.popToTop();
+          navigation.getParent()?.popToTop();
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }}
       />

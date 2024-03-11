@@ -1,5 +1,5 @@
 import React, { createRef, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { View, Modal, Text, ActivityIndicator } from 'react-native';
 import GetUIColors from '../../../utils/GetUIColors';
 
 import { WebView } from 'react-native-webview';
@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AsyncStoragePronoteKeys } from '../../../fetch/PronoteData/connector';
 import { useAppContext } from '../../../utils/AppContext';
 import { PronoteApiAccountId } from 'pawnote';
+import { set } from 'sync-storage';
 
 // Stolen from Pawnote
 // TODO: Export this function in Pawnote, to reuse it here.
@@ -55,6 +56,8 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   const instanceURL = cleanPronoteUrl(route.params.instanceURL);
   const appContext = useAppContext();
   const UIColors = GetUIColors();
+
+  const [loading, setLoading] = useState(true);
 
   let webViewRef = createRef<WebView>();
   let currentLoginStateIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -118,6 +121,29 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
       flex: 1,
       backgroundColor: UIColors.modalBackground
     }]}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={loading}
+      >
+        <View style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.8)'
+        }}>
+          <ActivityIndicator color={'#ffffff'} />
+          <Text style={{
+            color: '#ffffff',
+            marginTop: 10,
+            fontFamily: 'Papillon-Medium',
+            fontSize: 16,
+          }}>
+            Chargement...
+          </Text>
+        </View>
+      </Modal>
+
       <WebView
         ref={webViewRef}
         source={{ uri: infoMobileURL }}
@@ -126,6 +152,7 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
           const message = JSON.parse(nativeEvent.data);
 
           if (message.type === 'pronote.loginState') {
+            setLoading(true);
             if (!message.data) return;
             if (message.data.status !== 0) return;
             if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
@@ -140,10 +167,15 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
       
             await appContext.dataProvider?.init('pronote');
             await AsyncStorage.setItem('service', 'pronote');
+
+            setLoading(false);
       
             navigation.goBack();
             navigation.goBack();
             navigation.goBack();
+            navigation.getParent()?.goBack();
+            navigation.getParent()?.goBack();
+            navigation.getParent()?.goBack();
             appContext.setLoggedIn(true);
           }
         }}
@@ -154,13 +186,16 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
           if (url.includes('InfoMobileApp.json?id=0D264427-EEFC-4810-A9E9-346942A862A4')) {
             webViewRef.current?.injectJavaScript(INJECT_PRONOTE_JSON);
           }
-          else if (url.includes('mobile.eleve.html')) {
-            webViewRef.current?.injectJavaScript(INJECT_PRONOTE_INITIAL_LOGIN_HOOK);
-            
-            if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
-            currentLoginStateIntervalRef.current = setInterval(() => {
-              webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
-            }, 250);
+          else {
+            setLoading(false);
+            if (url.includes('mobile.eleve.html')) {
+              webViewRef.current?.injectJavaScript(INJECT_PRONOTE_INITIAL_LOGIN_HOOK);
+              
+              if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
+              currentLoginStateIntervalRef.current = setInterval(() => {
+                webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
+              }, 250);
+            }
           }
         }}
 
