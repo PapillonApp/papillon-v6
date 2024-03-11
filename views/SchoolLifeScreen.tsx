@@ -153,7 +153,7 @@ function SchoolLifeScreen({ navigation }: {
                     </NativeText>
                   )}
                 >
-                  <NativeText heading="h4" style={{ color: absence.administrativelyFixed ? 'gray' : 'black' }}>
+                  <NativeText heading="h4" style={{ color: absence.administrativelyFixed ? 'gray' : (theme.dark ? 'white' : 'black') }}>
                     {absence.reasons[0] ?? new Date(absence.from).toLocaleDateString('fr', {
                       weekday: 'long',
                       day: '2-digit',
