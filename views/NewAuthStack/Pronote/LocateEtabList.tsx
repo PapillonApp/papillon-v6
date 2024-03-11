@@ -37,14 +37,11 @@ const LocateEtabList = ({ route, navigation }: {
     await fetch(instanceURL)
       .then((response) => {
         if (response.status === 200) {
-          console.log('instance is up');
         } else {
-          console.log('instance is down');
           instanceURL = instanceURL.replace('index-education.net', 'pronote.toutatice.fr');
         }
       })
       .catch((error) => {
-        console.error('Error:', error);
         instanceURL = instanceURL.replace('index-education.net', 'pronote.toutatice.fr');
       });
 
