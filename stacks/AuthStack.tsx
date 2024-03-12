@@ -59,6 +59,14 @@ const AuthStack = ({ navigation }) => {
         presentation: 'modal',
       }
     },
+    { 
+      name: 'NGPronoteWebviewLogin',
+      component: require('../views/NewAuthStack/Pronote/NGPronoteWebviewLogin').default,
+      options: {
+        headerTitle: 'Portail de l\'établissement',
+        presentation: 'modal',
+      }
+    },
     {
       name: 'LoginURL',
       component: require('../views/NewAuthStack/Pronote/LoginURL').default,
@@ -71,7 +79,7 @@ const AuthStack = ({ navigation }) => {
       name: 'LocateEtab',
       component: require('../views/NewAuthStack/Pronote/LocateEtab').default,
       options: {
-        headerTitle: 'Ville de l\'établissement',
+        headerTitle: 'Localiser mon établissement',
         headerBackTitle: 'Retour',
         presentation: 'modal',
       }
