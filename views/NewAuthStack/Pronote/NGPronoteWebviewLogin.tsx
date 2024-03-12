@@ -134,15 +134,6 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
       flex: 1,
       backgroundColor: UIColors.modalBackground
     }]}>
-      <StatusBar
-        animated
-        barStyle={
-          UIColors.dark ? 'light-content' : 'dark-content'
-        }
-        backgroundColor={'transparent'}
-        translucent
-      />
-
       <Modal
         animationType="fade"
         transparent={true}

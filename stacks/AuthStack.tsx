@@ -64,7 +64,7 @@ const AuthStack = ({ navigation }) => {
       component: require('../views/NewAuthStack/Pronote/NGPronoteWebviewLogin').default,
       options: {
         headerTitle: 'Portail de l\'établissement',
-        presentation: 'fullScreenModal',
+        presentation: 'modal',
       }
     },
     {
