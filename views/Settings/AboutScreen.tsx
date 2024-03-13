@@ -6,6 +6,7 @@ import {
   Image,
   StatusBar,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 
 import { useTheme } from 'react-native-paper';
@@ -31,10 +32,15 @@ import NativeText from '../../components/NativeText';
 
 function AboutScreen({ navigation }) {
   const [team, setTeam] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     callFetchPapiAPI('team')
-      .then(response => setTeam(response))
+      .then(response => {
+        setTeam(response);
+        setLoading(false);
+      })
       .catch(error => console.error(error));
   }, []);
 
@@ -162,6 +168,20 @@ function AboutScreen({ navigation }) {
             </NativeItem>
           </NativeList>
         ) : <View /> }
+
+        {loading && (
+          <NativeList inset>
+            <NativeItem
+              leading={
+                <ActivityIndicator size="small" color={UIColors.text} />
+              }
+            >
+              <NativeText heading="p2">
+                Chargement des membres de l'équipe...
+              </NativeText>
+            </NativeItem>
+          </NativeList>
+        )}
 
         {team && team.team.map((team, index) => (
           <NativeList
