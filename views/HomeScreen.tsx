@@ -1373,7 +1373,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
         loading={groupedHomeworks === null}
       />
 
-      <View style={{ height: Platform.OS === 'android' ? 180 : 150 }} />
+      <View style={{ height: Platform.OS === 'android' ? 180 : 50 }} />
     </ScrollView>
   </View>
   );

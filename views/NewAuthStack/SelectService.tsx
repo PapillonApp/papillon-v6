@@ -20,6 +20,7 @@ const SelectService = ({ navigation }) => {
   const insets = useSafeAreaInsets();
 
   const [edAlertVisible, setEdAlertVisible] = useState(false);
+  const [skolengoAlertVisible, setSkolengoAlertVisible] = useState(false);
   const [serviceAlertVisible, setServiceAlertVisible] = useState(false);
 
   const [apiResponse, setApiResponse] = useState(false);
@@ -55,6 +56,7 @@ const SelectService = ({ navigation }) => {
       description: 'Identifiants PRONOTE ou ENT',
       icon: require('../../assets/logo_modern_pronote.png'),
       view: 'FindEtab',
+      soon: false,
     },
     {
       name: 'Skolengo',
@@ -62,12 +64,14 @@ const SelectService = ({ navigation }) => {
       description: 'Comptes régionnaux',
       icon: require('../../assets/logo_modern_skolengo.png'),
       view: 'LoginSkolengoSelectSchool',
+      soon: true,
     },
     {
       name: 'EcoleDirecte',
       company: 'Aplim',
       description: 'Identifiants EcoleDirecte',
       icon: require('../../assets/logo_modern_ed.png'),
+      soon: true,
     }
   ]);
 
@@ -77,10 +81,15 @@ const SelectService = ({ navigation }) => {
 
   const continueToLogin = () => {
     if (selectedService !== null) {
-      if (selectedService === 2) {
+      if (selectedService === 1) {
+        setSkolengoAlertVisible(true);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
+      else if (selectedService === 2) {
         setEdAlertVisible(true);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      } else {
+      }
+      else {
         setServiceAlertVisible(true);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       }
@@ -153,6 +162,12 @@ const SelectService = ({ navigation }) => {
             <NativeText heading="p2" style={[styles.fontPm]}>
               {serviceOption.description}
             </NativeText>
+
+            {serviceOption.soon && (
+              <NativeText heading="subtitle2" style={[styles.fontPm, { color: UIColors.text + '80' }]}>
+                Bientôt disponible
+              </NativeText>
+            )}
           </NativeItem>
         ))}
       </NativeList>
@@ -181,12 +196,23 @@ const SelectService = ({ navigation }) => {
       </View>
 
       <AlertBottomSheet
+        color='#A84700'
         visible={edAlertVisible}
         setVisible={setEdAlertVisible}
         icon={<AlertTriangle />}
         title="EcoleDirecte"
         subtitle="EcoleDirecte n’est pas encore disponible sur Papillon. Veuillez réessayer plus tard."
         cancelAction={() => setEdAlertVisible(false)}
+      />
+
+      <AlertBottomSheet
+        color='#A84700'
+        visible={skolengoAlertVisible}
+        setVisible={setSkolengoAlertVisible}
+        icon={<AlertTriangle />}
+        title="Skolengo"
+        subtitle="Skolengo n’est pas encore disponible sur Papillon. Veuillez réessayer plus tard."
+        cancelAction={() => setSkolengoAlertVisible(false)}
       />
       
     </View>
