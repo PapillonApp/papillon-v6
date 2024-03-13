@@ -235,7 +235,7 @@ function NGPronoteLogin({
         <View style={styles.loginHeader}>
           <Image
             style={styles.loginHeaderLogo}
-            source={require('../../../assets/logo_pronote.png')}
+            source={require('../../../assets/logo_modern_pronote.png')}
           />
           <Text style={styles.loginHeaderText}>
             {instanceDetails?.schoolName}
