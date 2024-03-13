@@ -1,8 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Image, StyleSheet, StatusBar, ScrollView, Platform } from 'react-native';
 import { useTheme } from 'react-native-paper';
-
-import { useEffect, useState } from 'react';
 
 import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
@@ -15,28 +13,39 @@ import GetUIColors from '../utils/GetUIColors';
 import packageJson from '../package.json';
 import { useAppContext } from '../utils/AppContext';
 import type { PapillonUser } from '../fetch/types/user';
+import PapillonInsetHeader from '../components/PapillonInsetHeader';
+import PapillonCloseButton from '../interface/PapillonCloseButton';
 
-function NewSettings({navigation}) {
+function NewSettings({ navigation }: {
+  navigation: any // TODO
+}) {
   const UIColors = GetUIColors();
 
   // User data
   const theme = useTheme();
   const [userData, setUserData] = useState<PapillonUser | null>(null);
-  const [profilePicture, setProfilePicture] = useState('');
+  const [profilePicture, setProfilePicture] = useState<string | undefined>('');
 
   const appContext = useAppContext();
 
   useEffect(() => {
     (async () => {
+      if (!appContext.dataProvider) return;
       const user = await appContext.dataProvider.getUser();
+
       setUserData(user);
       setProfilePicture(user.profile_picture);
     })();
-  }, []);
+  }, [appContext.dataProvider]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: 'Préférences',
+      headerRight: () => (
+        <PapillonCloseButton
+          onPress={() => navigation.goBack()}
+        />
+      ),
       headerTransparent: false,
     });
   });
@@ -126,6 +135,35 @@ function NewSettings({navigation}) {
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
             Personnalisation de l'interface, bandeaux et navigation
+          </NativeText>
+        </NativeItem>
+        <NativeItem
+          leading={
+            <View
+              style={[
+                styles.item.leadingContainer,
+                {
+                  backgroundColor: '#c73620',
+                }
+              ]}
+            >
+              <SFSymbol
+                name="bell.fill"
+                weight="semibold"
+                size={18}
+                color="#ffffff"
+                style={styles.item.symbol}
+              />
+            </View>
+          }
+          chevron
+          onPress={() => navigation.navigate('Notifications')}
+        >
+          <NativeText heading="h4">
+            Notifications
+          </NativeText>
+          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+            Personnalisation des notifications
           </NativeText>
         </NativeItem>
         <NativeItem

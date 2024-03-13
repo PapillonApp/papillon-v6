@@ -1,4 +1,4 @@
-import React, {useLayoutEffect} from 'react';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
 import * as Haptics from 'expo-haptics';
 
 import { View, StatusBar, StyleSheet, Platform } from 'react-native';
@@ -17,10 +17,10 @@ const NewPronoteQR = ({ navigation }) => {
 
   // TODO: When should we use this ?
   // eslint-disable-next-line no-unused-vars
-  const [hasPermission, setHasPermission] = React.useState(false);
-  const [scanned, setScanned] = React.useState(false);
+  const [hasPermission, setHasPermission] = useState(false);
+  const [scanned, setScanned] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
       setHasPermission(status === 'granted');

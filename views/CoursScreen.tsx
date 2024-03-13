@@ -285,14 +285,7 @@ Statut : ${cours.status || 'Aucun'}
    */
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: Platform.OS === 'ios' ? () => (
-        <PapillonInsetHeader
-          icon={<SFSymbol name="calendar" />}
-          title="Emploi du temps"
-          color="#0065A8"
-        />
-      ) : undefined,
-      headerTitle: Platform.OS === 'ios' ? '' : 'Emploi du temps',
+      headerTitle: 'Emploi du temps',
       headerShadowVisible: false,
       headerTransparent: Platform.OS === 'ios',
       headerStyle: Platform.OS === 'android' ? {
@@ -301,6 +294,7 @@ Statut : ${cours.status || 'Aucun'}
       } : undefined,
       headerRight: () =>
         <ContextMenuView
+          style={{ marginRight: 16 }}
           previewConfig={{
             borderRadius: 10,
           }}
@@ -388,37 +382,38 @@ Statut : ${cours.status || 'Aucun'}
 
     console.info('timetable: fetching from scratch for state.');
     
-    const lessons = await appContext.dataProvider.getTimetable(date, force);
-    if (!lessons) return; // No-op, not sure if that's good here.
-    
-    // We fill undefined objects.
-    const mondayIndex = date.getDate() - date.getDay() + 1;
-    for (let i = 0; i <= 6; i++) {
-      const day = new Date(date);
-      day.setDate(mondayIndex + i);
+    appContext.dataProvider.getTimetable(date, force).then((lessons) => {
+      if (!lessons) return; // No-op, not sure if that's good here.
+      
+      // We fill undefined objects.
+      const mondayIndex = date.getDate() - date.getDay() + 1;
+      for (let i = 0; i <= 6; i++) {
+        const day = new Date(date);
+        day.setDate(mondayIndex + i);
 
-      const dayKey = dateToFrenchFormat(day);
+        const dayKey = dateToFrenchFormat(day);
 
-      // Create the object if not done.
-      if (!(dayKey in lessonsViewCache)) {
+        // Create the object if not done.
+        if (!(dayKey in lessonsViewCache)) {
+          lessonsViewCache[dayKey] = {};
+        }
+      }
+
+      // Empty every lessons of the week inside our state cache.
+      for (let dayKey in lessonsViewCache) {
         lessonsViewCache[dayKey] = {};
       }
-    }
 
-    // Empty every lessons of the week inside our state cache.
-    for (let dayKey in lessonsViewCache) {
-      lessonsViewCache[dayKey] = {};
-    }
+      // Register every lessons of the week inside our state cache.
+      for (const lesson of lessons) {
+        const dayKey = dateToFrenchFormat(new Date(lesson.start));
 
-    // Register every lessons of the week inside our state cache.
-    for (const lesson of lessons) {
-      const dayKey = dateToFrenchFormat(new Date(lesson.start));
+        // Insert the lesson in the day object.
+        lessonsViewCache[dayKey][lesson.id] = lesson;
+      }
 
-      // Insert the lesson in the day object.
-      lessonsViewCache[dayKey][lesson.id] = lesson;
-    }
-
-    setCours(lessonsViewCache);
+      setCours(lessonsViewCache);
+    });
   };
 
   const handlePageChange = async (page: number) => {
@@ -596,6 +591,7 @@ Statut : ${cours.status || 'Aucun'}
 
       <StatusBar
         animated
+        translucent
         barStyle={theme.dark ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
       />

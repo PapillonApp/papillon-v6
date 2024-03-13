@@ -100,6 +100,7 @@ function ConversationsScreen({ navigation }: {
       headerBackTitle: 'Retour',
       headerTintColor: UIColors.text,
       headerShadowVisible: Platform.OS == 'ios',
+      headerLargeTitle: true,
       headerStyle: {
         backgroundColor: Platform.OS == 'android' && UIColors.background,
       },
@@ -140,6 +141,7 @@ function ConversationsScreen({ navigation }: {
     >
       <StatusBar
         animated
+        translucent
         barStyle={theme.dark ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
       />

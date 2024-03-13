@@ -86,8 +86,8 @@ android {
         applicationId 'xyz.getpapillon.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 6600
-        versionName "6.6.0"
+        versionCode 1
+        versionName "6.6.1"
 
         buildConfigField("boolean", "REACT_NATIVE_UNSTABLE_USE_RUNTIME_SCHEDULER_ALWAYS", (findProperty("reactNative.unstable_useRuntimeSchedulerAlways") ?: true).toString())
     }

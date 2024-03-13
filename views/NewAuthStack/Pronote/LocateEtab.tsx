@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { StatusBar, StyleSheet, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, Platform } from 'react-native';
-import { MapPin, Search, X } from 'lucide-react-native';
+import { Locate, MapPin, Search, X } from 'lucide-react-native';
 
 import GetUIColors from '../../../utils/GetUIColors';
 import useDebounce from '../../../hooks/useDebounce';
@@ -12,8 +12,15 @@ import NativeText from '../../../components/NativeText';
 import PapillonLoading from '../../../components/PapillonLoading';
 import { getGeographicMunicipalities, type GeographicMunicipality } from '../../../fetch/geolocation/geo-gouv';
 
-const LocateEtab = ({ navigation }) => {
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import * as Location from 'expo-location';
+
+const LocateEtab = ({ navigation }: {
+  navigation: any // TODO
+}) => {
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
 
   const [results, setResults] = React.useState<GeographicMunicipality[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -56,6 +63,41 @@ const LocateEtab = ({ navigation }) => {
     })();
   }, [debouncedCurrentSearch]);
 
+  const LocateMe = async () => {
+    setIsLoading(true);
+
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== 'granted') {
+        setIsLoading(false);
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+
+      if (location.coords.latitude && location.coords.longitude) {
+        navigation.navigate('LocateEtabList', {
+          location: {
+            properties: {
+              name : 'votre position',
+              score : 0,
+              postcode : '',
+              population : 0,
+              context : '',
+            },
+            geometry: {
+              coordinates: [location.coords.longitude, location.coords.latitude]
+            }
+          }
+        });
+      }
+    }
+    finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <ScrollView
       contentInsetAdjustmentBehavior='automatic'
@@ -63,19 +105,13 @@ const LocateEtab = ({ navigation }) => {
     >
       <StatusBar
         animated
-        barStyle={
-          Platform.OS === 'ios' ?
-            'light-content'
-            :
-            UIColors.theme == 'light' ?
-              'dark-content'
-              :
-              'light-content'
-        }
+        barStyle={UIColors.dark ? 'light-content' : 'dark-content'}
+        backgroundColor={'transparent'}
       />
 
       <NativeList
         inset
+        style={[Platform.OS === 'android' ? { marginTop: insets.top } : null]}
       >
         <NativeItem
           leading={
@@ -97,7 +133,7 @@ const LocateEtab = ({ navigation }) => {
         >
           <TextInput 
             ref={textInputRef}
-            placeholder="Indiquer le nom d'une ville"
+            placeholder="Ville de l'établissement"
             placeholderTextColor={UIColors.text + '88'}
             style={[styles.input, { color: UIColors.text }]}
             value={currentSearch}
@@ -109,9 +145,30 @@ const LocateEtab = ({ navigation }) => {
         </NativeItem>
       </NativeList>
 
+      { !isLoading && currentSearch.length < 2 ? (
+        <NativeList inset>
+          <NativeItem
+            leading={
+              <Locate color={UIColors.primary} />
+            }
+            onPress={() => {
+              LocateMe();
+            }}
+          >
+            <NativeText heading="h4">
+              Me localiser
+            </NativeText>
+            <NativeText heading="p2">
+              Trouve automatiquement les établissements proches de vous
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+      ) : null}
+
+
       {!isLoading && currentSearch.length < 2 ? (
         <PapillonLoading
-          icon={<Search color={UIColors.text} size={26} style={{ margin: 8 }} />}
+          icon={<MapPin color={UIColors.text} size={26} style={{ margin: 8 }} />}
           title="Rechercher une ville"
           subtitle="Veuillez indiquer le nom d'une ville afin d'y rechercher un établissement"
         />
@@ -128,9 +185,7 @@ const LocateEtab = ({ navigation }) => {
       {results.length > 0 ? (
         <NativeList
           inset
-          style={
-            Platform.OS === 'ios' && { marginTop: -14 }
-          }
+          style={Platform.OS === 'ios' ? { marginTop: -14 } : void 0}
         >
           {results.map((municipality, index) => {
             return (

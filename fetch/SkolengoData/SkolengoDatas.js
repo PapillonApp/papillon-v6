@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { deserialize } from 'jsonapi-fractal';
 import jwtDecode from 'jwt-decode';
 import { Alert } from 'react-native';
-import { encode as btoa } from 'base-64';
+import { btoa } from 'js-base64';
 import { coolDownAsync, warmUpAsync } from 'expo-web-browser';
 import { showMessage } from 'react-native-flash-message';
 import { SkolengoBase } from './SkolengoBase';

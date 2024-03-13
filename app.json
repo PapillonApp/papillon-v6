@@ -3,13 +3,17 @@
     "name": "Papillon",
     "slug": "papillonvex",
     "scheme": "papillon",
-    "version": "6.6.0",
+    "version": "6.6.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
+    "primaryColor": "#32AB8E",
     "assetBundlePatterns": [
       "**/*"
     ],
+    "notification": {
+      "icon": "./assets/icon-small-notif.png"
+    },
     "intentFilters": [
       {
         "action": "VIEW",
@@ -32,7 +36,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "appStoreUrl": "https://apps.apple.com/fr/app/",
+      "appStoreUrl": "https://apps.apple.com/us/app/papillon-lappli-scolaire/id6477761165",
       "bundleIdentifier": "xyz.getpapillon.ios",
       "associatedDomains": ["applinks:getpapillon.xyz"],
       "splash": {
@@ -49,7 +53,7 @@
     "android": {
       "playStoreUrl": "https://play.google.com/store/apps/details?id=xyz.getpapillon.app",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon-foreground.png",
+        "foregroundImage": "./assets/adaptive-icon-foreground-rezised.png",
         "backgroundImage": "./assets/adaptive-icon-background.png",
         "monochromeImage": "./assets/adaptive-icon-monochrome.png",
         "backgroundColor": "#32AB8E"
@@ -184,6 +188,10 @@
           },
           "sparkles": {
             "image": "./assets/customicons/sparkles.png",
+            "prerendered": true
+          },
+          "lightgreen": {
+            "image": "./assets/customicons/lightgreen.png",
             "prerendered": true
           },
           "backtoschool": {

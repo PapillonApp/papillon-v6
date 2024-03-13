@@ -101,32 +101,4 @@ function getEvaluations(force = false) {
   );
 }
 
-function changePeriod(selectedPeriod) {
-  return getConsts().then((consts) =>
-    AsyncStorage.getItem('token').then((token) => {
-      const { API } = consts;
-
-      const myHeaders = new Headers();
-      myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
-
-      const urlencoded = new URLSearchParams();
-      urlencoded.append('token', token);
-      urlencoded.append('periodName', selectedPeriod);
-
-      const requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        body: urlencoded,
-        redirect: 'follow',
-      };
-
-      // get token from API
-      return fetch(
-        `${API}/changePeriod?token=${token}&periodName=${selectedPeriod}`,
-        requestOptions
-      ).then((response) => response.json());
-    })
-  );
-}
-
-export { getGrades, getEvaluations, changePeriod };
+export { getGrades, getEvaluations };

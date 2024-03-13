@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import { useTheme, Text } from 'react-native-paper';
+// @ts-expect-error : no type definitions for this package
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authenticatePronoteQRCode } from 'pawnote';
@@ -18,7 +19,18 @@ import { useAppContext } from '../../../utils/AppContext';
 import GetUIColors from '../../../utils/GetUIColors';
 import { AsyncStoragePronoteKeys } from '../../../fetch/PronoteData/connector';
 
-function LoginPronoteQR({ route, navigation }) {
+function LoginPronoteQR({ route, navigation }: {
+  navigation: any // TODO
+  route: {
+    params: {
+      qrData: {
+        jeton: string;
+        login: string;
+        url: string;
+      }
+    }
+  }
+}) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
@@ -69,7 +81,7 @@ function LoginPronoteQR({ route, navigation }) {
         [AsyncStoragePronoteKeys.DEVICE_UUID, deviceUUID],
       ]);
 
-      await appContext.dataProvider.init('pronote', pronote);
+      await appContext.dataProvider?.init('pronote', pronote);
       await AsyncStorage.setItem('service', 'pronote');
 
       navigation.goBack();

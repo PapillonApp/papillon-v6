@@ -168,6 +168,7 @@ function EvaluationsScreen({ navigation }: {
         contentInsetAdjustmentBehavior="automatic"
       >
         <StatusBar
+          translucent
           animated
           barStyle={theme.dark ? 'light-content' : 'dark-content'}
           backgroundColor="transparent"
@@ -184,6 +185,7 @@ function EvaluationsScreen({ navigation }: {
       contentInsetAdjustmentBehavior="automatic"
     >
       <StatusBar
+        translucent
         animated
         barStyle={theme.dark ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"

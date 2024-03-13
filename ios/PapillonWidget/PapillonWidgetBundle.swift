@@ -12,5 +12,6 @@ import SwiftUI
 struct PapillonWidgetBundle: WidgetBundle {
     var body: some Widget {
       CourseWidget()
+      GradeWidget()
     }
 }

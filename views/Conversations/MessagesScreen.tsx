@@ -13,12 +13,13 @@ import {
 
 import { RenderHTML } from 'react-native-render-html';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import type { PapillonDiscussionMessage } from '../../fetch/types/discussions';
 import { useAppContext } from '../../utils/AppContext';
 
 import { Text } from 'react-native-paper';
 import * as WebBrowser from 'expo-web-browser';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { GiftedChat, Bubble, InputToolbar, Send, IMessage } from 'react-native-gifted-chat';
 
 import GetUIColors from '../../utils/GetUIColors';
@@ -97,8 +98,8 @@ function MessagesScreen ({ route, navigation }: {
   }
 }) {
   const UIColors = GetUIColors();
-  const tabBarHeight = useBottomTabBarHeight(); 
   const appContext = useAppContext();
+  const insets = useSafeAreaInsets();
 
   const { conversationID } = route.params;
   const conversations = useAtomValue(discussionsAtom);
@@ -180,6 +181,7 @@ function MessagesScreen ({ route, navigation }: {
     <View style={{backgroundColor: UIColors.backgroundHigh, flex: 1}}>
       <StatusBar
         animated
+        translucent
         barStyle={
           !urlOpened ?
             UIColors.theme === 'dark' ? 'light-content' : 'dark-content'
@@ -316,7 +318,7 @@ function MessagesScreen ({ route, navigation }: {
         placeholder="Écrire un message..."
 
         minInputToolbarHeight={50}
-        bottomOffset={tabBarHeight}
+        bottomOffset={insets.bottom}
       />
 
       <Modal

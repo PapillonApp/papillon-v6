@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Animated, ActivityIndicator, StatusBar, View, Dimensions, StyleSheet, Button, ScrollView, TouchableOpacity, RefreshControl, Easing, Platform, Pressable } from 'react-native';
+import { Animated, ActivityIndicator, StatusBar, View, Dimensions, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Easing, Platform, Pressable } from 'react-native';
 
 // Custom imports
 import GetUIColors from '../utils/GetUIColors';
@@ -16,9 +16,6 @@ import getClosestGradeEmoji from '../utils/EmojiCoursName';
 import formatCoursName from '../utils/FormatCoursName';
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
-
-// Components & Styles
-import { useTheme } from 'react-native-paper';
 
 // Icons
 import { Users2, TrendingDown, TrendingUp, AlertTriangle, MoreVertical } from 'lucide-react-native';
@@ -115,12 +112,12 @@ const GradesScreen = ({ navigation }: {
       {
         name: 'Moyenne max',
         value: averages.max || 0,
-        icon: <TrendingDown color={UIColors.text} />,
+        icon: <TrendingUp color={UIColors.text} />,
       },
       {
         name: 'Moyenne min',
         value: averages.min || 0,
-        icon: <TrendingUp color={UIColors.text} />,
+        icon: <TrendingDown color={UIColors.text} />,
       },
     ]);
   }, [averages, UIColors.text, pronoteClassAverage]);
@@ -193,25 +190,32 @@ const GradesScreen = ({ navigation }: {
   }, [averagesOverTime, classAveragesOverTime, UIColors.text, UIColors.border, UIColors.primary, UIColors.element]);
 
   async function getPeriodsFromAPI (): Promise<PapillonPeriod> {
-    const user = await appContext.dataProvider!.getUser();
-    const periods = user.periodes.grades;
+    return appContext.dataProvider!.getUser().then((user) => {
+      const periods = user.periodes.grades;
 
-    setPeriods(periods);
-    const currentPeriod = periods.find((period) => period.actual)!;
+      setPeriods(periods);
+      const currentPeriod = periods.find((period) => period.actual)!;
 
-    setSelectedPeriod(currentPeriod.name);
-    return currentPeriod;
+      setSelectedPeriod(currentPeriod.name);
+      return currentPeriod;
+    });
   }
 
-  async function getGradesFromAPI (force = false, periodName = selectedPeriod): Promise<void> {
+  function getGradesFromAPI (force = false, periodName = selectedPeriod): Promise<void> {
     if (!isRefreshing) {
       setIsLoading(true);
     }
 
     try {
       if (appContext.dataProvider && periodName) {
-        const grades = await appContext.dataProvider.getGrades(periodName, force);
-        if (grades) await parseGrades(grades);
+        return appContext.dataProvider.getGrades(periodName, force).then((grades) => {
+          if (grades) {
+            return parseGrades(grades);
+          }
+          else {
+            return Promise.reject('No grades');
+          }
+        });
       }
     } catch (error) {
       console.error(error);
@@ -221,8 +225,8 @@ const GradesScreen = ({ navigation }: {
     }
   }
 
-  async function addGradesToSubject(grades: PapillonGrades): Promise<void> {
-    const data = grades.averages.map(average => ({...average, grades: []}));
+  function addGradesToSubject(grades: PapillonGrades): Promise<void> {
+    const data = grades.averages.map(average => ({ ...average, grades: [] as PapillonGrades['grades'] }));
 
     grades.grades.forEach((grade) => {
       const subject = data.find((subject) => subject.subject.id === grade.subject.id);
@@ -337,21 +341,10 @@ const GradesScreen = ({ navigation }: {
   );
 
   const headerOpacity = yOffset.interpolate({
-    inputRange: [-75, -60],
+    inputRange: [-40, 0],
     outputRange: [0, 1],
     extrapolate: 'clamp',
   });
-
-  // Change header title
-  const HeaderTitle = () => {
-    return Platform.OS === 'ios' ? (
-      <PapillonInsetHeader
-        icon={<SFSymbol name="chart.pie.fill" />}
-        title="Notes"
-        color="#A84700"
-      />
-    ) : 'Notes';
-  };
   
   const HeaderRight = ({
     navigation,
@@ -381,7 +374,7 @@ const GradesScreen = ({ navigation }: {
         alignItems: 'center',
         justifyContent: 'center',
         gap: 12,
-        marginRight: 6,
+        marginRight: 16,
       }}>
         { isLoading && (
           <ActivityIndicator />
@@ -438,8 +431,7 @@ const GradesScreen = ({ navigation }: {
   // Change header title
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: Platform.OS === 'ios' ? () => <HeaderTitle navigation={navigation} UIColors={UIColors} /> : () => (<></>),
-      headerTitle : Platform.OS === 'ios' ? ' ' : 'Notes',
+      headerTitle : 'Notes',
       headerRight: () => <HeaderRight
         navigation={navigation}
         periods={periods}
@@ -490,12 +482,13 @@ const GradesScreen = ({ navigation }: {
       )}
       <ScrollView
         contentInsetAdjustmentBehavior='automatic'
-        style={{ backgroundColor: UIColors.backgroundHigh, flex: 1 }}
+        style={{ backgroundColor: UIColors.backgroundHigh, flex: 1, paddingTop: Platform.OS === 'ios' && insets.top }}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
+            progressViewOffset={Platform.OS === 'ios' ? 100 : 0}
             onRefresh={() => {
               setIsRefreshing(true);
               getGradesFromAPI(true);
@@ -503,7 +496,7 @@ const GradesScreen = ({ navigation }: {
           />
         }
       >
-        <StatusBar animated barStyle={UIColors.dark ? 'light-content' : 'dark-content'} translucent={true} backgroundColor={UIColors.backgroundHigh} />
+        <StatusBar translucent animated barStyle={UIColors.dark ? 'light-content' : 'dark-content'} backgroundColor={UIColors.backgroundHigh} />
 
         {grades.length === 0 && (
           <PapillonLoading
@@ -553,6 +546,8 @@ const GradesScreen = ({ navigation }: {
           gradeSettings={gradeSettings}
           navigation={navigation}
         />
+
+        <View style={{ height: 56 }} />
       
       </ScrollView>
     </>
@@ -576,10 +571,11 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
         hideSurroundingSeparators: true,
         headerTextStyle: {
           marginLeft: 15,
+          marginBottom: 4,
         },
       }}
       containerStyle={
-        Platform.OS !== 'ios' && { backgroundColor: 'transparent' }
+        Platform.OS !== 'ios' ? { backgroundColor: 'transparent' } : void 0
       }
     >
       <View />

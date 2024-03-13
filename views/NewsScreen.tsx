@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -10,6 +10,8 @@ import {
   Modal,
   TouchableOpacity,
 } from 'react-native';
+
+import type { PapillonNews } from '../fetch/types/news';
 
 import { BlurView } from 'expo-blur';
 
@@ -35,8 +37,6 @@ import {
   Projector,
   X,
   PieChart,
-  Link,
-  File,
   Palette,
   ShieldCheck,
   PenLine,
@@ -56,13 +56,11 @@ import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
-import * as FileSystem from 'expo-file-system';
-import { PapillonNews } from '../fetch/types/news';
 
 const yOffset = new Animated.Value(0);
 
 const headerOpacity = yOffset.interpolate({
-  inputRange: [-75, -60],
+  inputRange: [-40, 0],
   outputRange: [0, 1],
   extrapolate: 'clamp',
 });
@@ -81,7 +79,7 @@ function normalizeText(text?: string) {
 
   // remove accents and render in lowercase
   return text
-    ?.normalize('NFD')
+    .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .toLowerCase();
@@ -121,18 +119,15 @@ const ICONS_CATEGORIES: Array<{
   }
 ];
 
-function FullNewsIcon({
-  survey,
-  category,
-}: {
-  survey: boolean;
+const FullNewsIcon = ({ isSurvey, category }: {
+  isSurvey: boolean;
   category?: string;
-}) {
+}) => {
   const normalizedCategory = normalizeText(category);
   const COLOR = '#B42828';
 
   let CategoryIcon: LucideIcon;
-  if (survey) CategoryIcon = PieChart;
+  if (isSurvey) CategoryIcon = PieChart;
   else {
     const category = ICONS_CATEGORIES.find((item) => item.name === normalizedCategory);
     if (category) CategoryIcon = category.icon;
@@ -144,9 +139,19 @@ function FullNewsIcon({
       <CategoryIcon color={COLOR} size={24} />
     </View>
   );
-}
+};
 
-function NewsScreen({ navigation }: {
+const trimHtml = (html: string) => html 
+  // remove &nbsp;
+  .replace(/&nbsp;/g, ' ')
+  // remove html tags
+  .replace(/<[^>]*>/g, '')
+  // remove multiple spaces
+  .replace(/\s{2,}/g, ' ')
+  // remove line breaks
+  .replace(/\n{1,}/g, '');
+
+function NewsScreen ({ navigation }: {
   navigation: any; // TODO
 }) {
   const theme = useTheme();
@@ -195,7 +200,7 @@ function NewsScreen({ navigation }: {
   }, [appContext.dataProvider]);
 
   // Get the data but with a force refresh.
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = useCallback(() => {
     (async () => {
       if (!appContext.dataProvider) return;
       setIsHeadLoading(true);
@@ -207,82 +212,12 @@ function NewsScreen({ navigation }: {
       setFinalNews(editedNews);
       setIsHeadLoading(false);
     })();
-  }, []);
+  }, [appContext.dataProvider]);
 
   // add search bar in the header
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle:
-        Platform.OS === 'ios'
-          ? () => (
-            <PapillonInsetHeader
-              icon={<SFSymbol name="newspaper.fill" />}
-              title="Actualités"
-              color="#B42828"
-            />
-          )
-          : 'Actualités',
-      headerTransparent: Platform.OS === 'ios' ? true : false,
-      headerStyle:
-        Platform.OS === 'android'
-          ? {
-            backgroundColor: UIColors.background,
-            elevation: 0,
-          }
-          : undefined,
-      headerBackground:
-        Platform.OS === 'ios'
-          ? () => (
-            <Animated.View
-              style={[
-                {
-                  flex: 1,
-                  backgroundColor: UIColors.element + '00',
-                  opacity: headerOpacity,
-                  borderBottomColor: theme.dark
-                    ? UIColors.text + '22'
-                    : UIColors.text + '55',
-                  borderBottomWidth: 0.5,
-                },
-              ]}
-            >
-              <BlurView
-                tint={theme.dark ? 'dark' : 'light'}
-                intensity={120}
-                style={{
-                  flex: 1,
-                }}
-              />
-            </Animated.View>
-          )
-          : undefined,
-      headerSearchBarOptions: {
-        placeholder: 'Rechercher une actualité',
-        cancelButtonText: 'Annuler',
-        tintColor: '#B42828',
-        onChangeText: (event: any) => {
-          const text = event.nativeEvent.text.trim();
-
-          if (text.length > 2) {
-            const newNews: PapillonNews[] = [];
-
-            finalNews.forEach((item) => {
-              if (
-                normalizeText(item.title).includes(normalizeText(text)) ||
-                normalizeText(item.content).includes(normalizeText(text))
-              ) {
-                newNews.push(item);
-              }
-            });
-
-            setCurrentNewsType('Toutes');
-            setNews(newNews);
-          } else {
-            setCurrentNewsType('Toutes');
-            setNews(finalNews);
-          }
-        },
-      },
+      headerTitle: 'Actualités',
     });
   }, [navigation, finalNews, isHeadLoading, UIColors]);
 
@@ -320,12 +255,14 @@ function NewsScreen({ navigation }: {
   }, [news]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalURL, setModalURL] = useState('');
+  const [modalURL] = useState('');
 
   return (
     <>
       <ScrollView
-        style={[styles.container, { backgroundColor: UIColors.backgroundHigh }]}
+        style={[styles.container, {
+          backgroundColor: UIColors.modalBackground
+        }]}
         contentInsetAdjustmentBehavior="automatic"
         refreshControl={
           <RefreshControl
@@ -339,6 +276,7 @@ function NewsScreen({ navigation }: {
       >
         <StatusBar
           animated
+          translucent
           barStyle={
             isModalOpen
               ? 'light-content'
@@ -349,119 +287,77 @@ function NewsScreen({ navigation }: {
           backgroundColor="transparent"
         />
 
-        <Modal
-          animationType="slide"
-          presentationStyle="pageSheet"
-          visible={isModalOpen}
-          onRequestClose={() => setIsModalOpen(false)}
-        >
-          <SafeAreaView
-            style={{
-              flex: 1,
-              backgroundColor: theme.dark ? '#000000' : '#ffffff',
-            }}
-          >
-            <TouchableOpacity
-              style={[
-                styles.pdfClose,
-                Platform.OS === 'android' ? { top: insets.top } : null,
-              ]}
-              onPress={() => setIsModalOpen(false)}
-            >
-              <X color="#ffffff" />
-            </TouchableOpacity>
-
-            <PdfRendererView style={{ flex: 1 }} source={modalURL} />
-          </SafeAreaView>
-        </Modal>
-
-        {Platform.OS !== 'ios' ? <View style={{ height: 16 }} /> : null}
-
         <NativeList inset>
           {!isLoading && news.length !== 0 ? (
-            news.map((item, index) => {
-              function trimHtml(html: string) {
-                // remove &nbsp;
-                html = html.replace(/&nbsp;/g, ' ');
-                // remove html tags
-                html = html.replace(/<[^>]*>/g, '');
-                // remove multiple spaces
-                html = html.replace(/\s{2,}/g, ' ');
-                // remove line breaks
-                html = html.replace(/\n{1,}/g, '');
-                return html;
-              }
-
-              return (
-                <View key={index}>
-                  <NativeItem
-                    leading={
-                      <View style={{ paddingHorizontal: 2 }}>
-                        <FullNewsIcon
-                          survey={item.survey}
-                          category={item.category}
+            news.map((item, index) => (
+              <View key={index}>
+                <NativeItem
+                  leading={
+                    <View style={{ paddingHorizontal: 2 }}>
+                      <FullNewsIcon
+                        isSurvey={item.is === 'survey'}
+                        category={item.category}
+                      />
+                    </View>
+                  }
+                  onPress={() => {
+                    navigation.navigate('NewsDetails', { news: item });
+                  }}
+                >
+                  <View style={[{ gap: 2 }]}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 7,
+                      }}
+                    >
+                      {!item.read && (
+                        <View
+                          style={{
+                            backgroundColor: '#B42828',
+                            borderRadius: 300,
+                            padding: 4,
+                            marginRight: 2,
+                            width: 9,
+                            height: 9,
+                          }}
                         />
-                      </View>
-                    }
-                    onPress={() => {
-                      navigation.navigate('NewsDetails', { news: item });
-                    }}
-                  >
-                    <View style={[{ gap: 2 }]}>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          gap: 7,
-                        }}
-                      >
-                        {!item.read && (
-                          <View
-                            style={{
-                              backgroundColor: '#B42828',
-                              borderRadius: 300,
-                              padding: 4,
-                              marginRight: 2,
-                              width: 9,
-                              height: 9,
-                            }}
-                          />
-                        )}
+                      )}
 
-                        <NativeText heading="h4" numberOfLines={1}>
-                          {item.title}
-                        </NativeText>
-                      </View>
-
-                      <NativeText heading="p2" numberOfLines={2}>
-                        {trimHtml(item.content)}
+                      <NativeText heading="h4" numberOfLines={1}>
+                        {item.title}
                       </NativeText>
+                    </View>
 
+                    <NativeText heading="p2" numberOfLines={2}>
+                      {item.is === 'information' ? trimHtml(item.content) : `${item.questions.length} question(s)`}
+                    </NativeText>
+
+                    <NativeText
+                      heading="subtitle2"
+                      numberOfLines={1}
+                      style={{ marginTop: 4 }}
+                    >
+                      {relativeDate(new Date(item.date))}
+                    </NativeText>
+
+                    {(item.is === 'information' && item.attachments.length !== 0) && (
                       <NativeText
                         heading="subtitle2"
                         numberOfLines={1}
-                        style={{ marginTop: 4 }}
+                        style={{
+                          ...styles.pj,
+                          backgroundColor: UIColors.text + '22',
+                        }}
                       >
-                        {relativeDate(new Date(item.date))}
-                      </NativeText>
-
-                      {item.attachments.length !== 0 ? (
-                        <NativeText
-                          heading="subtitle2"
-                          numberOfLines={1}
-                          style={{
-                            ...styles.pj,
-                            backgroundColor: UIColors.text + '22',
-                          }}
-                        >
                           contient {item.attachments.length} pièce(s) jointe(s)
-                        </NativeText>
-                      ) : null}
-                    </View>
-                  </NativeItem>
-                </View>
-              );
-            })
+                      </NativeText>
+                    )}
+                  </View>
+                </NativeItem>
+              </View>
+            ))
           ) : !isLoading && news.length === 0 ? (
             <PapillonLoading
               icon={<Newspaper color={UIColors.text} />}
@@ -477,94 +373,6 @@ function NewsScreen({ navigation }: {
         </NativeList>
       </ScrollView>
     </>
-  );
-}
-
-function PapillonAttachment({
-  attachment,
-  index,
-  theme,
-  openURL,
-  setIsModalOpen,
-  setModalURL,
-}) {
-  const [downloaded, setDownloaded] = useState(false);
-  const [savedLocally, setSavedLocally] = useState(false);
-
-  const formattedAttachmentName = attachment.name.replace(/ /g, '_');
-  const formattedFileExtension = attachment.url
-    .split('.')
-    .pop()
-    .split(/#|\?/)[0];
-
-  const [fileURL, setFileURL] = useState(attachment.url);
-
-  useEffect(() => {
-    if (formattedFileExtension == 'pdf') {
-      FileSystem.getInfoAsync(
-        FileSystem.documentDirectory +
-          formattedAttachmentName +
-          '.' +
-          formattedFileExtension
-      ).then((e) => {
-        if (e.exists) {
-          setDownloaded(true);
-          setFileURL(
-            FileSystem.documentDirectory +
-              formattedAttachmentName +
-              '.' +
-              formattedFileExtension
-          );
-          setSavedLocally(true);
-        } else {
-          FileSystem.downloadAsync(
-            attachment.url,
-            FileSystem.documentDirectory +
-              formattedAttachmentName +
-              '.' +
-              formattedFileExtension
-          ).then((e) => {
-            setDownloaded(true);
-            setFileURL(
-              FileSystem.documentDirectory +
-                formattedAttachmentName +
-                '.' +
-                formattedFileExtension
-            );
-            setSavedLocally(true);
-          });
-        }
-      });
-    } else {
-      setDownloaded(true);
-    }
-  }, []);
-
-  return (
-    <NativeItem
-      leading={
-        <View style={{ paddingHorizontal: 3.5 }}>
-          {attachment.type === 0 ? (
-            <Link size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
-          ) : (
-            <File size={20} color={theme.dark ? '#ffffff99' : '#00000099'} />
-          )}
-        </View>
-      }
-      chevron={true}
-      onPress={() => {
-        if (formattedFileExtension === 'pdf') {
-          setModalURL(fileURL);
-          setIsModalOpen(true);
-        } else {
-          openURL(fileURL);
-        }
-      }}
-    >
-      <NativeText heading="p2" numberOfLines={1}>
-        {attachment.name}
-      </NativeText>
-    </NativeItem>
   );
 }
 

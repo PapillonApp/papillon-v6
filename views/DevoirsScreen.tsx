@@ -8,6 +8,7 @@ import {
   Platform,
   RefreshControl,
   SectionList,
+  ActivityIndicator,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -43,6 +44,8 @@ import { BlurView } from 'expo-blur';
 import { atom, useAtom } from 'jotai';
 import { homeworksAtom } from '../atoms/homeworks';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const dateFromAtom = atom(new Date());
 const homeworksUntilDateAtom = atom((get) => {
   const date = get(dateFromAtom);
@@ -74,48 +77,23 @@ function DevoirsScreen({ navigation }: {
     });
   };
 
+  const [loading, setLoading] = useState(false);
+  const [isHeadLoading, setHeadLoading] = useState(false);
+
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: Platform.OS === 'ios' ? () => (
-        <PapillonInsetHeader
-          icon={<SFSymbol name="checkmark.rectangle.stack.fill" />}
-          title="Devoirs"
-          color="#32AB8E"
+      headerTitle: 'Travail à faire',
+      headerRight: () => (loading &&
+        <ActivityIndicator
+          style={{marginRight: 16}}
         />
-      ) : 'Devoirs',
+      ),
     });
-  }, [navigation, UIColors]);
-
-  // const loadCustomHomeworks = async () => {
-  //   return; // TODO
-  //   AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
-  //     let hw = [];
-  //     if (customHomeworks) {
-  //       hw = JSON.parse(customHomeworks);
-  //     }
-
-  //     let newCustomHomeworks = {};
-
-  //     for (let i = 0; i < hw.length; i++) {
-  //       const hwPageDate = calcDate(new Date(hw[i].date), 0);
-  //       const usedDate = hwPageDate.toLocaleDateString();
-
-  //       // if (!newCustomHomeworks[usedDate]) {
-  //       //   newCustomHomeworks[usedDate] = [];
-  //       // }
-
-  //       // newCustomHomeworks[usedDate].push(hw[i]);
-  //     }
-
-  //     setCustomHomeworks(newCustomHomeworks);
-  //   });
-  // };
+  }, [navigation, UIColors, loading]);
 
   const appContext = useAppContext();
   
   type HomeworkItem = { title: string, data: PapillonHomework[] }
-  
-  const [isHeadLoading, setHeadLoading] = useState(false);
   
   const [fromDate, setFromDate] = useAtom(dateFromAtom);
   const [totalHomeworks, setTotalHomeworks] = useAtom(homeworksAtom);
@@ -152,10 +130,13 @@ function DevoirsScreen({ navigation }: {
 
   const fetchHomeworks = async (date: Date, force = false): Promise<void> => {
     setFromDate(date);
-    
     if (totalHomeworks === null || force) {
-      const homeworks = await appContext.dataProvider?.getHomeworks(force);
-      setTotalHomeworks(homeworks ?? []);
+      appContext.dataProvider?.getHomeworks(force).then((hws) => {
+        const homeworks = hws ?? [];
+        setTotalHomeworks(homeworks ?? []);
+        setLoading(false);
+        setHeadLoading(false);
+      });
     }
   };
 
@@ -164,13 +145,13 @@ function DevoirsScreen({ navigation }: {
 
     (async () => {
       await fetchHomeworks(new Date(), true);
-      setHeadLoading(false);
     })();
   }, []);
 
   // Load initial homeworks on first render.
   useEffect(() => {
     (async () => {
+      // setLoading(true);
       await fetchHomeworks(new Date());
     })();
   }, []);
@@ -184,6 +165,7 @@ function DevoirsScreen({ navigation }: {
     >
       <StatusBar
         animated
+        translucent
         barStyle={theme.dark ? 'light-content' : 'dark-content'}
         backgroundColor={'transparent'}
       />
@@ -194,7 +176,7 @@ function DevoirsScreen({ navigation }: {
             sections={groupedHomeworks}
             getItem={(data, index) => data[index]}
             getItemCount={data => data.length}
-            keyExtractor={(item: PapillonHomework) => item.id}
+            keyExtractor={(item: PapillonHomework) => item.localID}
             contentInsetAdjustmentBehavior='automatic'
             initialNumToRender={15}
             refreshing={isHeadLoading}
@@ -271,9 +253,7 @@ function DevoirsScreen({ navigation }: {
               weight="light"
               activeScale={0.87}
               onPress={() => {
-                navigation.navigate('CreateHomework', {
-                  date: fromDate,
-                });
+                navigation.navigate('CreateHomework');
               }}
             >
               <Plus color='#ffffff' />
@@ -300,31 +280,6 @@ function Hwitem({ homework, openURL, navigation }: {
 
   const handleStateChange = async () => {
     setCheckStateLoading(true);
-
-    // if (homework.custom) {
-    //   AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
-    //     let hw = [];
-    //     if (customHomeworks) {
-    //       hw = JSON.parse(customHomeworks);
-    //     }
-
-    //     // find the homework
-    //     for (let i = 0; i < hw.length; i++) {
-    //       if (hw[i].local_id === homework.local_id) {
-    //         hw[i].done = !thisHwChecked;
-    //       }
-    //     }
-
-    //     setThisHwChecked(!thisHwChecked);
-    //     AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
-
-    //     setTimeout(() => {
-    //       setThisHwLoading(false);
-    //     }, 100);
-    //   });
-
-    //   return;
-    // }
     
     await appContext.dataProvider?.changeHomeworkState(homework, !homework.done);
     setCheckStateLoading(false);

@@ -96,21 +96,25 @@ function LessonScreen({ route, navigation }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
-        <View
-          style={{
-            flexDirection: 'column',
-            alignItems: Platform.OS === 'ios' ? 'center' : 'flex-start',
-            maxWidth: Platform.OS === 'ios' ? '92%' : null,
-          }}
-        >
-          <Text numberOfLines={1} style={{fontFamily: 'Papillon-Semibold', fontSize: 17}}>
-            {formatCoursName(lesson.subject.name)}
-          </Text>
-          <Text numberOfLines={1} style={{fontFamily: 'Papillon-Medium', fontSize: 15, opacity:0.5}}>
-            {'salle ' + (lesson.rooms.length > 0 ? lesson.rooms.join(', ') : 'inconnue') + ' - '}
-            {lesson.status?.toLowerCase() || lengthString + ' de cours'}
-          </Text>
-        </View>
+      <View
+        style={{
+          flexDirection: 'column',
+          alignItems: Platform.OS === 'ios' ? 'center' : 'flex-start',
+          maxWidth: Platform.OS === 'ios' ? '92%' : null,
+        }}
+      >
+        <Text numberOfLines={1} style={{fontFamily: 'Papillon-Semibold', fontSize: 17}}>
+          {formatCoursName(lesson.subject.name)}
+        </Text>
+        <View style={{flexDirection: 'row'}}>
+        <Text numberOfLines={1} style={{fontFamily: 'Papillon-Medium', fontSize: 15, opacity:0.5}}>
+          {(lesson.rooms.length > 0 && !lesson.rooms[0].toLowerCase().includes('salle') ? 'salle ' : '') + (lesson.rooms.length > 0 ? lesson.rooms.join(', ') : 'inconnue') + ' - '}
+        </Text>
+        <Text numberOfLines={1} style={{fontFamily: 'Papillon-Medium', fontSize: 15, opacity:0.5, minWidth: 50}}>
+          {lesson.status?.toLowerCase() || lengthString + ' de cours'}
+        </Text>
+      </View>
+      </View>
       ),
     });
   }, [navigation, theme, lesson.subject.name, UIColors]);

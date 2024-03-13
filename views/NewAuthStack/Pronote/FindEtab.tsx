@@ -1,7 +1,6 @@
-import React, { useRef, useEffect, useLayoutEffect, useState } from 'react';
-import { useTheme } from 'react-native-paper';
+import React, { useLayoutEffect } from 'react';
 
-import { StatusBar, ScrollView, Platform } from 'react-native';
+import { View, StatusBar, StyleSheet, ScrollView } from 'react-native';
 import { MapPin, QrCode, Link2 } from 'lucide-react-native';
 
 import NativeList from '../../../components/NativeList';
@@ -10,9 +9,10 @@ import NativeText from '../../../components/NativeText';
 
 import GetUIColors from '../../../utils/GetUIColors';
 
-const FindEtab = ({ navigation }) => {
+const FindEtab = ({ navigation }: {
+  navigation: any // TODO
+}) => {
   const UIColors = GetUIColors();
-  const theme = useTheme();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -37,7 +37,6 @@ const FindEtab = ({ navigation }) => {
 
       <NativeList
         header="Recommandations Papillon"
-        inset
       >
         <NativeItem
           leading={
@@ -56,18 +55,22 @@ const FindEtab = ({ navigation }) => {
           leading={<MapPin color={UIColors.primary} />}
           onPress={() => navigation.navigate('LocateEtab')}
         >
+          <View style={[styles.recommended, {backgroundColor: UIColors.primary}]}>
+            <NativeText style={{ color: '#ffffff' }}>
+              Le plus rapide
+            </NativeText>
+          </View>
           <NativeText heading="h4" style={{ flex: 1 }}>
-            Rechercher votre ville
+            Me localiser ou rechercher une ville
           </NativeText>
           <NativeText heading="p2">
-            À partir d'une recherche
+            Trouver les établissements à proximité
           </NativeText>
         </NativeItem>
       </NativeList>
 
       <NativeList
         header="Options avancées"
-        inset
       >
         <NativeItem
           leading={
@@ -85,7 +88,7 @@ const FindEtab = ({ navigation }) => {
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
   instructionsText: {
     fontSize: 16,
     fontFamily: 'Papillon-Medium',
@@ -93,6 +96,15 @@ const styles = {
     paddingVertical: 6,
     opacity: 0.5,
   },
-};
+
+  recommended: {
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    borderCurve: 'continuous',
+    alignSelf: 'flex-start',
+    marginBottom: 4,
+  },
+});
 
 export default FindEtab;

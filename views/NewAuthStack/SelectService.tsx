@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useLayoutEffect, useState } from 'react';
-import { ScrollView, View, Image, StatusBar, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useLayoutEffect, useState, useEffect } from 'react';
+import { View, Image, Platform, StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import GetUIColors from '../../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -11,15 +11,33 @@ import NativeText from '../../components/NativeText';
 import CheckAnimated from '../../interface/CheckAnimated';
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
-import { AlertTriangle } from 'lucide-react-native';
+import { AlertTriangle, Scale } from 'lucide-react-native';
+
+import { fetchPapiAPI } from '../../utils/api';
 
 const SelectService = ({ navigation }) => {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
 
   const [edAlertVisible, setEdAlertVisible] = useState(false);
-  const [pronoteAlertVisible, setPronoteAlertVisible] = useState(false);
+  const [skolengoAlertVisible, setSkolengoAlertVisible] = useState(false);
+  const [serviceAlertVisible, setServiceAlertVisible] = useState(false);
 
+  const [apiResponse, setApiResponse] = useState(false);
+
+  useEffect(() => {
+    callFetchPapiAPI('messages')
+      .then(response => setApiResponse(response))
+      .catch(error => console.error(error));
+  }, []);
+
+  function callFetchPapiAPI(path: string) {
+    return fetchPapiAPI(path)
+        .then(data => {
+            return data;
+        })
+  }
+  
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: 'Service scolaire',
@@ -34,18 +52,26 @@ const SelectService = ({ navigation }) => {
   const [serviceOptions, setServiceOptions] = useState([
     {
       name: 'PRONOTE',
+      company: 'Index Education',
       description: 'Identifiants PRONOTE ou ENT',
       icon: require('../../assets/logo_modern_pronote.png'),
+      view: 'FindEtab',
+      soon: false,
     },
     {
       name: 'Skolengo',
+      company: 'Kosmos',
       description: 'Comptes régionnaux',
       icon: require('../../assets/logo_modern_skolengo.png'),
+      view: 'LoginSkolengoSelectSchool',
+      soon: true,
     },
     {
       name: 'EcoleDirecte',
+      company: 'Aplim',
       description: 'Identifiants EcoleDirecte',
       icon: require('../../assets/logo_modern_ed.png'),
+      soon: true,
     }
   ]);
 
@@ -55,18 +81,21 @@ const SelectService = ({ navigation }) => {
 
   const continueToLogin = () => {
     if (selectedService !== null) {
-      if (selectedService === 0) {
-        setPronoteAlertVisible(true);
-      }
       if (selectedService === 1) {
-        navigation.navigate('LoginSkolengoSelectSchool');
+        setSkolengoAlertVisible(true);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
-      if (selectedService === 2) {
+      else if (selectedService === 2) {
         setEdAlertVisible(true);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
+      else {
+        setServiceAlertVisible(true);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      }
     }
   };
+  
 
   return (
     <View
@@ -79,19 +108,17 @@ const SelectService = ({ navigation }) => {
       />
 
       <NativeText style={styles.instructionsText}>
-        Sélectionnez l’application de vie scolaire que vous utilisez dans votre établissement.
+        Sélectionnez le service de vie scolaire que vous utilisez dans votre établissement.
       </NativeText>
-
       <AlertBottomSheet
-        visible={pronoteAlertVisible}
-        icon={<AlertTriangle />}
-        title="Important"
-        subtitle="Papillon n’est pas affilié à Index Education. Des bugs peuvent survenir lors de l’utilisation de PRONOTE sur Papillon."
-        cancelAction={() => setPronoteAlertVisible(false)}
+        visible={serviceAlertVisible}
+        icon={<Scale />}
+        title={apiResponse[serviceOptions[selectedService]?.company]?.title}
+        subtitle={apiResponse[serviceOptions[selectedService]?.company]?.content}
+        cancelAction={() => setServiceAlertVisible(false)}
         primaryButton='Compris !'
-        primaryAction={() => {navigation.navigate('FindEtab'), setPronoteAlertVisible(false);}}
+        primaryAction={() => {navigation.navigate(serviceOptions[selectedService]?.view); setServiceAlertVisible(false);}}
       />
-
 
       {Platform.OS !== 'ios' && (
         <View style={{ height: 16 }} />
@@ -107,7 +134,7 @@ const SelectService = ({ navigation }) => {
           <NativeItem
             key={index}
             onPress={() => selectOption(index)}
-
+            backgroundColor={UIColors.background}
             cellProps={{
               contentContainerStyle: {
                 paddingVertical: 3,
@@ -135,6 +162,12 @@ const SelectService = ({ navigation }) => {
             <NativeText heading="p2" style={[styles.fontPm]}>
               {serviceOption.description}
             </NativeText>
+
+            {serviceOption.soon && (
+              <NativeText heading="subtitle2" style={[styles.fontPm, { color: UIColors.text + '80' }]}>
+                Bientôt disponible
+              </NativeText>
+            )}
           </NativeItem>
         ))}
       </NativeList>
@@ -163,12 +196,23 @@ const SelectService = ({ navigation }) => {
       </View>
 
       <AlertBottomSheet
+        color='#A84700'
         visible={edAlertVisible}
         setVisible={setEdAlertVisible}
         icon={<AlertTriangle />}
         title="EcoleDirecte"
         subtitle="EcoleDirecte n’est pas encore disponible sur Papillon. Veuillez réessayer plus tard."
         cancelAction={() => setEdAlertVisible(false)}
+      />
+
+      <AlertBottomSheet
+        color='#A84700'
+        visible={skolengoAlertVisible}
+        setVisible={setSkolengoAlertVisible}
+        icon={<AlertTriangle />}
+        title="Skolengo"
+        subtitle="Skolengo n’est pas encore disponible sur Papillon. Veuillez réessayer plus tard."
+        cancelAction={() => setSkolengoAlertVisible(false)}
       />
       
     </View>

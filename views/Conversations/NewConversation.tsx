@@ -119,7 +119,7 @@ const NewConversation = ({ navigation }: {
       contentInsetAdjustmentBehavior='automatic'
       style={{ backgroundColor: UIColors.modalBackground }}
     >
-      <StatusBar animated barStyle={'light-content'} />
+      <StatusBar translucent animated barStyle={'light-content'} />
 
       <NativeList header="Message">
         <NativeItem>
