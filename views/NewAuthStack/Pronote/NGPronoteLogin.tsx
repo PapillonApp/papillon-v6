@@ -164,6 +164,14 @@ function NGPronoteLogin({
 
       navigation.goBack();
       navigation.goBack();
+      navigation.goBack();
+      navigation.goBack();
+      navigation.goBack();
+      navigation.getParent()?.goBack();
+      navigation.getParent()?.goBack();
+      navigation.getParent()?.goBack();
+      navigation.getParent()?.goBack();
+      navigation.getParent()?.goBack();
       appContext.setLoggedIn(true);
     } catch(err) {
       setConnecting(false);

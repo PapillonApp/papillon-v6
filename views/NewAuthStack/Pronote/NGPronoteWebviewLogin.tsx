@@ -69,6 +69,21 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   const infoMobileURL = instanceURL + '/InfoMobileApp.json?id=0D264427-EEFC-4810-A9E9-346942A862A4';
   const [deviceUUID] = useState(makeUUID());
 
+  React.useEffect(() => {
+    fetch(infoMobileURL)
+      .then(response => response.json())
+      .then(data => {
+        if (data.CAS.actif === false) {
+          navigation.goBack();
+          navigation.goBack();
+          navigation.goBack();
+          navigation.navigate('NGPronoteLogin', {
+            instanceURL: instanceURL
+          });
+        }
+      });
+  }, []);
+
   // PapillonCloseButton in header
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -167,6 +182,8 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
 
         onMessage={async ({ nativeEvent }) => {
           const message = JSON.parse(nativeEvent.data);
+
+          console.log('Pronote webview message', message);
 
           if (message.type === 'pronote.loginState') {
             setLoading(true);
