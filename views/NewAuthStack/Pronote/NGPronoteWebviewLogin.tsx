@@ -76,7 +76,6 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
         if (data.CAS.actif === false) {
           navigation.goBack();
           navigation.goBack();
-          navigation.goBack();
           navigation.navigate('NGPronoteLogin', {
             instanceURL: instanceURL
           });
