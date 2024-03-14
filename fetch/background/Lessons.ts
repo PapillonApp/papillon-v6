@@ -100,7 +100,7 @@ const notifyLessons = async (lessons: PapillonLesson[]) => {
       subtitle: formatCoursName(lesson.subject?.name),
       body: body,
       android: {
-        channelId: 'getpapillon',
+        channelId: 'course-edit',
       },
       ios: {
         sound: 'papillon_ding.wav',

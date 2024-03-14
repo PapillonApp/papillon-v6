@@ -60,7 +60,7 @@ const notifyHomeworks = async (homeworks: PapillonHomework[]) => {
       title: '📝 Travail à faire pour demain',
       body: `Il vous reste ${countUndoneHomeworks} devoirs à faire pour demain.`,
       android: {
-        channelId: 'homeworks',
+        channelId: 'works-remind',
       },
       ios: {
         sound: 'papillon_ding.wav',
