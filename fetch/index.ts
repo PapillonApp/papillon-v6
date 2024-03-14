@@ -25,7 +25,13 @@ import type { SkolengoDatas } from './SkolengoData/SkolengoDatas';
 import { PapillonVieScolaire } from './types/vie_scolaire';
 import { PapillonEvaluation } from './types/evaluations';
 
-export type ServiceName = 'pronote' | 'skolengo'
+// EcoleDirecte related imports.
+import { EDCore } from '@papillonapp/ed-core';
+import { initEcoleDirecte } from './EcoleDirecteData/connector';
+import { userInformations as EcoleDirecteUser } from './EcoleDirecteData/user';
+import { EDtimetableHandler as EcoleDirecteTimetable } from './EcoleDirecteData/timetable';
+
+export type ServiceName = 'pronote' | 'skolengo' | 'ecoledirecte';
 
 export class IndexDataInstance {
   public initialized = false;
@@ -35,7 +41,7 @@ export class IndexDataInstance {
   public service?: ServiceName;
   public skolengoInstance?: SkolengoDatas;
   public pronoteInstance?: Pronote;
-
+  public ecoledirecteInstance?: EDCore;
   /**
    * Internal function that waits for the initialization
    * of the service to be finished so we can use it.
@@ -49,6 +55,8 @@ export class IndexDataInstance {
       }
       else if (this.service === 'pronote' && !this.pronoteInstance) {
         await this.init('pronote');
+      } else if (this.service === 'ecoledirecte' && !this.ecoledirecteInstance) {
+        await this.init('ecoledirecte');
       }
     }
 
@@ -62,7 +70,7 @@ export class IndexDataInstance {
     });
   }
 
-  public async init (service: 'pronote' | 'skolengo', instance?: Pronote): Promise<void> {
+  public async init (service: 'pronote' | 'skolengo' | 'ecoledirecte', instance?: Pronote | EDCore): Promise<void> {
     if (this.initializing) return;
     
     this.service = service;
@@ -83,6 +91,15 @@ export class IndexDataInstance {
       this.isNetworkFailing = false;
 
       this.initialized = this.skolengoInstance ? true : false;
+    } else if(this.service === 'ecoledirecte') {
+      if (instance) this.ecoledirecteInstance = instance;
+      else {
+        this.ecoledirecteInstance = await initEcoleDirecte();
+      }
+
+      this.isNetworkFailing = false;
+
+      this.initialized = this.ecoledirecteInstance ? true : false;
     }
     else if (this.service === 'pronote') {
       if (instance) this.pronoteInstance = instance;
@@ -153,6 +170,7 @@ export class IndexDataInstance {
 
   public async changeHomeworkState (homework: PapillonHomework, isDone: boolean): Promise<boolean> {
     await this.waitInit();
+    
     if (this.service === 'skolengo') {
       // TODO
       // return this.skolengoInstance.patchHomeworkAssignment(id, isDone);
@@ -231,6 +249,10 @@ export class IndexDataInstance {
     else if (this.service === 'pronote') {
       const timetable = await pronoteTimetableHandler([monday, sunday], this.pronoteInstance, force);
       if (timetable) return timetable;
+    } else if(this.service === 'ecoledirecte') {
+      await AsyncStorage.clear();
+      const timetable = await EcoleDirecteTimetable([monday, sunday], this.ecoledirecteInstance, force);
+      if(timetable) return timetable;
     }
     
     return [];
@@ -250,6 +272,8 @@ export class IndexDataInstance {
     }
     else if (this.service === 'pronote') {
       user = await pronoteUserHandler(this.pronoteInstance, force);
+    } else if(this.service === 'ecoledirecte') {
+      user = await EcoleDirecteUser(this.ecoledirecteInstance, force);
     }
     
     if (!user) {
