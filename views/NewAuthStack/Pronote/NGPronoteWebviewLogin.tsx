@@ -222,16 +222,12 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
         }}
         onLoadStart={(e) => {
           setLoading(true)
-        }}
-        onLoadEnd={(e) => {
           const { url } = e.nativeEvent;
 
           if (url.includes('InfoMobileApp.json?id=0D264427-EEFC-4810-A9E9-346942A862A4')) {
             webViewRef.current?.injectJavaScript(INJECT_PRONOTE_JSON);
           }
           else {
-            setLoading(false);
-            setShowWebView(true);
             if (url.includes('mobile.eleve.html')) {
               webViewRef.current?.injectJavaScript(INJECT_PRONOTE_INITIAL_LOGIN_HOOK);
               webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
@@ -242,6 +238,10 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
               }, 250);*/
             }
           }
+        }}
+        onLoadEnd={(e) => {
+          setLoading(false);
+          setShowWebView(true);
         }}
 
         incognito={true} // prevent to keep cookies on webview load
