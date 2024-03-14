@@ -285,14 +285,7 @@ Statut : ${cours.status || 'Aucun'}
    */
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: Platform.OS === 'ios' ? ' ' : 'Emploi du temps',
-      headerLeft: () => Platform.OS === 'ios' && (
-        <PapillonInsetHeader
-          icon={<SFSymbol name="calendar" />}
-          title="Emploi du temps"
-          color="#0065A8"
-        />
-      ),
+      headerTitle: 'Emploi du temps',
       headerShadowVisible: false,
       headerTransparent: Platform.OS === 'ios',
       headerStyle: Platform.OS === 'android' ? {

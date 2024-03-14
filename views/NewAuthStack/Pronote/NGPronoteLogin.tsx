@@ -164,6 +164,14 @@ function NGPronoteLogin({
 
       navigation.goBack();
       navigation.goBack();
+      navigation.goBack();
+      navigation.goBack();
+      navigation.goBack();
+      navigation.getParent()?.goBack();
+      navigation.getParent()?.goBack();
+      navigation.getParent()?.goBack();
+      navigation.getParent()?.goBack();
+      navigation.getParent()?.goBack();
       appContext.setLoggedIn(true);
     } catch(err) {
       setConnecting(false);
@@ -227,7 +235,7 @@ function NGPronoteLogin({
         <View style={styles.loginHeader}>
           <Image
             style={styles.loginHeaderLogo}
-            source={require('../../../assets/logo_pronote.png')}
+            source={require('../../../assets/logo_modern_pronote.png')}
           />
           <Text style={styles.loginHeaderText}>
             {instanceDetails?.schoolName}

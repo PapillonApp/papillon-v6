@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Platform, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 const Tab = createBottomTabNavigator();
@@ -8,12 +8,14 @@ import {
   HomeFill as PapillonIconsHomeFill,
   Calendar as PapillonIconsCalendar,
   CalendarFill as PapillonIconsCalendarFill,
-  Book as PapillonIconsBook,
+  Check as PapillonIconsCheck,
   Stats as PapillonIconsStats,
   News as PapillonIconsNews,
   NewsFill as PapillonIconsNewsFill,
 } from '../interface/icons/PapillonIcons';
 import GetUIColors from '../utils/GetUIColors';
+
+import { BottomNavigation, Appbar, useTheme, PaperProvider, Text } from 'react-native-paper';
 
 const getIcon = (Icon, IconFill, color, size, focused, force) => {
   const width = size + 2;
@@ -37,6 +39,7 @@ const views = [
       tabBarIcon: ({ color, size, focused }) =>
         getIcon(PapillonIconsHome, PapillonIconsHomeFill, color, size, focused),
       headerShown: false,
+      color: 'red',
     },
   },
   {
@@ -46,6 +49,7 @@ const views = [
       tabBarLabel: 'Cours',
       tabBarIcon: ({ color, size, focused }) =>
         getIcon(PapillonIconsCalendar, PapillonIconsCalendarFill, color, size, focused),
+      color: '#0065A8',
     },
   },
   {
@@ -54,7 +58,8 @@ const views = [
     options: {
       tabBarLabel: 'Devoirs',
       tabBarIcon: ({ color, size, focused }) =>
-        getIcon(PapillonIconsBook, PapillonIconsBook, color, size, focused),
+        getIcon(PapillonIconsCheck, PapillonIconsCheck, color, size, focused),
+      color: '#2A937A',
     },
   },
   {
@@ -64,6 +69,7 @@ const views = [
       tabBarLabel: 'Notes',
       tabBarIcon: ({ color, size, focused }) =>
         getIcon(PapillonIconsStats, PapillonIconsStats, color, size, focused),
+      color: '#A84700',
     },
   },
   {
@@ -73,6 +79,7 @@ const views = [
       tabBarLabel: 'Actualités',
       tabBarIcon: ({ color, size, focused }) =>
         getIcon(PapillonIconsNews, PapillonIconsNewsFill, color, size, focused, true),
+      color: '#B42828',
     },
   },
 ];
@@ -84,9 +91,59 @@ const TabsStack = ({ navigation }) => {
     hideTabBarTitle: true,
   };
 
+  const tabBar = useMemo(() => {
+    if (Platform.OS !== 'ios') {
+      return ({ navigation, state, descriptors, insets }) => (
+        <BottomNavigation.Bar
+          navigationState={state}
+          compact={false}
+          shifting={false}
+          safeAreaInsets={{
+            ...insets,
+            right: 12,
+            left: 12,
+          }}
+          onTabPress={({ route, preventDefault }) => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!event.defaultPrevented) {
+              navigation.navigate(route.name);
+            } else {
+              preventDefault();
+            }
+          }}
+          renderIcon={({ route, focused, color }) => {
+            const { options } = descriptors[route.key];
+            if (options.tabBarIcon) {
+              return options.tabBarIcon({ focused, color, size: 24 });
+            }
+            return null;
+          }}
+          getLabelText={({ route }) => {
+            const { options } = descriptors[route.key];
+            const label =
+              options.tabBarLabel !== undefined
+                ? options.tabBarLabel
+                : options.title !== undefined
+                  ? options.title
+                  : route.title;
+
+            return label;
+          }}
+        />
+      );
+    }
+    return undefined;
+  }, []);
+
   return (
     <View style={{ flex: 1 }}>
       <Tab.Navigator
+        tabBar={tabBar}
         screenOptions={{
           headerTruncatedBackTitle: 'Retour',
           elevated: false,
@@ -104,6 +161,7 @@ const TabsStack = ({ navigation }) => {
           },
           headerTitleStyle: {
             fontFamily: 'Papillon-Semibold',
+            fontSize: 17.5,
           },
           tabBarShowLabel: settings?.hideTabBarTitle ? false : true,
           tabBarActiveTintColor:
@@ -115,6 +173,8 @@ const TabsStack = ({ navigation }) => {
           } : {
             paddingHorizontal: 8,
           },
+          headerSearchBarOptions: {},
+          headerTitleAlign: 'left',
         }}
       >
         {views.map((view, index) => (
@@ -122,7 +182,14 @@ const TabsStack = ({ navigation }) => {
             key={index}
             name={view.name}
             component={view.component}
-            options={view.options}
+            options={{
+              ...view.options,
+              headerLeft: () => (
+                <View style={{ marginLeft: 16, marginRight: -4 }}>
+                  {view.options.tabBarIcon({ color: view.options.color, size: 26, focused: true })}
+                </View>
+              ),
+            }}
           />
         ))}
       </Tab.Navigator>

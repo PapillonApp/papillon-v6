@@ -36,7 +36,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "appStoreUrl": "https://apps.apple.com/fr/app/",
+      "appStoreUrl": "https://apps.apple.com/us/app/papillon-lappli-scolaire/id6477761165",
       "bundleIdentifier": "xyz.getpapillon.ios",
       "associatedDomains": ["applinks:getpapillon.xyz"],
       "splash": {
@@ -188,6 +188,10 @@
           },
           "sparkles": {
             "image": "./assets/customicons/sparkles.png",
+            "prerendered": true
+          },
+          "lightgreen": {
+            "image": "./assets/customicons/lightgreen.png",
             "prerendered": true
           },
           "backtoschool": {

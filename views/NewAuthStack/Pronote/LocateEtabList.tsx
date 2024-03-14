@@ -29,10 +29,25 @@ const LocateEtabList = ({ route, navigation }: {
   const [isInstancesLoading, setInstancesLoading] = useState(false);
   const [instances, setInstances] = useState<PronoteInstance[] | null>(null);
 
-  const openInstance = (instance: PronoteInstance) => {
+  const openInstance = async (instance: PronoteInstance) => {
     console.log(instance);
+    let instanceURL = instance.url;
 
-    navigation.navigate('NGPronoteLogin', { instanceURL: instance.url });
+    // check if instance is up
+    await fetch(instanceURL)
+      .then((response) => {
+        if (response.status === 200) {
+        } else {
+          instanceURL = instanceURL.replace('index-education.net', 'pronote.toutatice.fr');
+        }
+      })
+      .catch((error) => {
+        instanceURL = instanceURL.replace('index-education.net', 'pronote.toutatice.fr');
+      });
+
+    navigation.goBack();
+    navigation.goBack();
+    navigation.navigate('NGPronoteWebviewLogin', { instanceURL: instanceURL });
   };
 
   useLayoutEffect(() => {

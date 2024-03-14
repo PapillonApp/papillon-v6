@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   View,
@@ -6,6 +6,7 @@ import {
   Image,
   StatusBar,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 
 import { useTheme } from 'react-native-paper';
@@ -20,7 +21,7 @@ import {
 } from 'lucide-react-native';
 
 import packageJson from '../../package.json';
-import team from './Team.json';
+import { fetchPapiAPI } from '../../utils/api';
 
 import GetUIColors from '../../utils/GetUIColors';
 
@@ -30,6 +31,26 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
 function AboutScreen({ navigation }) {
+  const [team, setTeam] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    callFetchPapiAPI('team')
+      .then(response => {
+        setTeam(response);
+        setLoading(false);
+      })
+      .catch(error => console.error(error));
+  }, []);
+
+  function callFetchPapiAPI(path: string) {
+    return fetchPapiAPI(path)
+      .then(data => {
+        return data;
+      });
+  }
+
   const UIColors = GetUIColors();
   const theme = useTheme();
 
@@ -111,7 +132,7 @@ function AboutScreen({ navigation }) {
               />
             }
             chevron
-            onPress={() => Linking.openURL('https://discord.getpapillon.xyz/')}
+            onPress={() => Linking.openURL('https://discord.gg/ywkBZx2jFB')}
           >
             <NativeText heading="h4">
               Serveur Discord
@@ -148,7 +169,21 @@ function AboutScreen({ navigation }) {
           </NativeList>
         ) : <View /> }
 
-        {team.team.map((team, index) => (
+        {loading && (
+          <NativeList inset>
+            <NativeItem
+              leading={
+                <ActivityIndicator size="small" color={UIColors.text} />
+              }
+            >
+              <NativeText heading="p2">
+                Chargement des membres de l'équipe...
+              </NativeText>
+            </NativeItem>
+          </NativeList>
+        )}
+
+        {team && team.team.map((team, index) => (
           <NativeList
             key={index}
             inset

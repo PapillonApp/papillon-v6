@@ -109,6 +109,7 @@ const AppStack = ({ navigation }) => {
       component: require('../views/Grades/GradesSettings').default,
       options: {
         presentation: 'modal',
+        headerTitle: 'Paramètres des notes',
       }
     },
     {

@@ -463,7 +463,7 @@ PODS:
     - ReactCommon/turbomodule/core
   - react-native-sfsymbols (1.2.1):
     - React
-  - react-native-webview (13.6.4):
+  - react-native-webview (13.8.1):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - React-NativeModulesApple (0.72.6):
@@ -594,6 +594,8 @@ PODS:
     - RNNotifee/NotifeeCore (= 7.8.2)
   - RNNotifee/NotifeeCore (7.8.2):
     - React-Core
+  - RNQuickAction (0.3.13):
+    - React
   - RNReactNativeSharedGroupPreferences (1.1.24):
     - React
   - RNReanimated (3.4.2):
@@ -731,6 +733,7 @@ DEPENDENCIES:
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
+  - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNReactNativeSharedGroupPreferences (from `../node_modules/react-native-shared-group-preferences`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -925,6 +928,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNNotifee:
     :path: "../node_modules/@notifee/react-native"
+  RNQuickAction:
+    :path: "../node_modules/react-native-quick-actions"
   RNReactNativeSharedGroupPreferences:
     :path: "../node_modules/react-native-shared-group-preferences"
   RNReanimated:
@@ -1005,7 +1010,7 @@ SPEC CHECKSUMS:
   react-native-render-html: 984dfe2294163d04bf5fe25d7c9f122e60e05ebe
   react-native-safe-area-context: 36cc67648134e89465663b8172336a19eeda493d
   react-native-sfsymbols: bd3a0d3eab185e80b571bae60753dcf5a0d57967
-  react-native-webview: 107961c73db53d66549c867a3b64eaa20d34c41f
+  react-native-webview: bdc091de8cf7f8397653e30182efcd9f772e03b3
   React-NativeModulesApple: 02e35e9a51e10c6422f04f5e4076a7c02243fff2
   React-perflogger: e3596db7e753f51766bceadc061936ef1472edc3
   React-RCTActionSheet: 17ab132c748b4471012abbcdcf5befe860660485
@@ -1030,6 +1035,7 @@ SPEC CHECKSUMS:
   RNDateTimePicker: 3942382593f104af226ad9c56e16166960c7ae30
   RNGestureHandler: 6e46dde1f87e5f018a54fe5d40cd0e0b942b49ee
   RNNotifee: 8e2d3df3f0e9ce8f5d1fe4c967431138190b6175
+  RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNReactNativeSharedGroupPreferences: 29092869fc2e40d5baca5e15d82fa5c24a668977
   RNReanimated: 726395a2fa2f04cea340274ba57a4e659bc0d9c1
   RNScreens: 50ffe2fa2342eabb2d0afbe19f7c1af286bc7fb3

@@ -345,17 +345,6 @@ const GradesScreen = ({ navigation }: {
     outputRange: [0, 1],
     extrapolate: 'clamp',
   });
-
-  // Change header title
-  const HeaderTitle = () => {
-    return Platform.OS === 'ios' ? (
-      <PapillonInsetHeader
-        icon={<SFSymbol name="chart.pie.fill" />}
-        title="Notes"
-        color="#A84700"
-      />
-    ) : 'Notes';
-  };
   
   const HeaderRight = ({
     navigation,
@@ -442,8 +431,7 @@ const GradesScreen = ({ navigation }: {
   // Change header title
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: Platform.OS === 'ios' ? () => <HeaderTitle navigation={navigation} UIColors={UIColors} /> : () => (<></>),
-      headerTitle : Platform.OS === 'ios' ? ' ' : 'Notes',
+      headerTitle : 'Notes',
       headerRight: () => <HeaderRight
         navigation={navigation}
         periods={periods}
@@ -500,6 +488,7 @@ const GradesScreen = ({ navigation }: {
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
+            progressViewOffset={Platform.OS === 'ios' ? 100 : 0}
             onRefresh={() => {
               setIsRefreshing(true);
               getGradesFromAPI(true);
@@ -582,6 +571,7 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
         hideSurroundingSeparators: true,
         headerTextStyle: {
           marginLeft: 15,
+          marginBottom: 4,
         },
       }}
       containerStyle={

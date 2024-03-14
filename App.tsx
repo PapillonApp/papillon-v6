@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Platform, Text, ActivityIndicator, View, StatusBar } from 'react-native';
+import React, { useEffect, useState, useMemo } from 'react';
+import { View } from 'react-native';
 import { AppContextProvider } from './utils/AppContext';
 import * as appContext from './utils/AppContext';
 import { IndexDataInstance } from './fetch';
