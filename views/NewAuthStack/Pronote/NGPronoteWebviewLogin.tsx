@@ -61,6 +61,7 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   const UIColors = GetUIColors();
 
   const [loading, setLoading] = useState(true);
+  const [loadMessage, setLoadMessage] = useState("Chargement en cours...");
   const [showWebView, setShowWebView] = useState(false);
 
   let webViewRef = createRef<WebView>();
@@ -133,12 +134,15 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
 
   const INJECT_PRONOTE_CURRENT_LOGIN_STATE = `
     (function () {
-      const state = window && window.loginState ? window.loginState : void 0;
+      let interval = setInterval(() => {
+        const state = window && window.loginState ? window.loginState : void 0;
 
-      window.ReactNativeWebView.postMessage(JSON.stringify({
-        type: 'pronote.loginState',
-        data: state
-      }));
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: 'pronote.loginState',
+          data: state
+        }))
+        if(state) clearInterval(interval)
+      }, 500)
     })();
   `.trim();
 
@@ -165,7 +169,7 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
             fontFamily: 'Papillon-Medium',
             fontSize: 16,
           }}>
-            Chargement...
+            {loadMessage}
           </Text>
         </View>
       </Modal>
@@ -184,9 +188,10 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
           console.log('Pronote webview message', message);
 
           if (message.type === 'pronote.loginState') {
-            setLoading(true);
             if (!message.data) return;
             if (message.data.status !== 0) return;
+            setLoadMessage("Connexion en cours...")
+            setLoading(true);
             if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
 
             await AsyncStorage.multiSet([
@@ -215,7 +220,9 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
             appContext.setLoggedIn(true);
           }
         }}
-
+        onLoadStart={(e) => {
+          setLoading(true)
+        }}
         onLoadEnd={(e) => {
           const { url } = e.nativeEvent;
 
@@ -227,11 +234,12 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
             setShowWebView(true);
             if (url.includes('mobile.eleve.html')) {
               webViewRef.current?.injectJavaScript(INJECT_PRONOTE_INITIAL_LOGIN_HOOK);
-              
-              if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
+              webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
+              /*if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
               currentLoginStateIntervalRef.current = setInterval(() => {
                 webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
-              }, 250);
+                console.log("interval inject")
+              }, 250);*/
             }
           }
         }}
