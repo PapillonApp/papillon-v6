@@ -87,6 +87,20 @@ const RegisterNotifChannel = async () => {
       importance: AndroidImportance.HIGH
     },
     {
+      name: 'Modification de cours',
+      id: 'course-edit',
+      groupId: 'newdata-group',
+      description: 'Notifications de modification de cours (cours annulé, modifié, remplacement...)',
+      importance: AndroidImportance.HIGH
+    },
+    {
+      name: 'Nouvelles notes',
+      id: 'new-grade',
+      groupId: 'newdata-group',
+      description: 'Notifications d\'une nouvelle note',
+      importance: AndroidImportance.HIGH
+    },
+    {
       name: 'Nouvelles actualités',
       id: 'new-news',
       groupId: 'newdata-group',
