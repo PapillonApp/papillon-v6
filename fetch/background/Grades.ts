@@ -131,7 +131,7 @@ const notifyGrades = async (grades: PapillonGrades[]) => {
       title: lastGrade.description ? getClosestGradeEmoji(lastGrade.subject.name) + ' ' + lastGrade.description : getClosestGradeEmoji(lastGrade.subject.name) + ' ' + 'Nouvelle note',
       body: `Vous avez eu ${lastGrade.grade.value.value}/${lastGrade.grade.out_of.value} ${goodGrade ? '! 👏' : ''}`,
       android: {
-        channelId: 'grades',
+        channelId: 'new-grade',
         pressAction: {
           id: 'default',
         },
