@@ -239,6 +239,8 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
             if (message.data.status !== 0) return;
             if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
 
+            console.log('Pronote login state', message.data);
+
             await AsyncStorage.multiSet([
               [AsyncStoragePronoteKeys.NEXT_TIME_TOKEN, message.data.mdp],
               [AsyncStoragePronoteKeys.ACCOUNT_TYPE_ID, PronoteApiAccountId.Student.toString()],
@@ -252,16 +254,8 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
 
             setLoading(false);
       
-            navigation.goBack();
-            navigation.goBack();
-            navigation.goBack();
-            navigation.goBack();
-            navigation.goBack();
-            navigation.getParent()?.goBack();
-            navigation.getParent()?.goBack();
-            navigation.getParent()?.goBack();
-            navigation.getParent()?.goBack();
-            navigation.getParent()?.goBack();
+            navigation.popToTop();
+            navigation.getParent()?.popToTop();
             appContext.setLoggedIn(true);
           }
         }}
@@ -292,6 +286,7 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
             setShowWebView(true);
             if (url.includes('mobile.eleve.html')) {
               webViewRef.current?.injectJavaScript(INJECT_PRONOTE_INITIAL_LOGIN_HOOK);
+              webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
               
               if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
               currentLoginStateIntervalRef.current = setInterval(() => {

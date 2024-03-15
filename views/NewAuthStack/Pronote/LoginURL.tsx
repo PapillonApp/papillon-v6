@@ -66,13 +66,10 @@ const LoginURL = ({ navigation }: {
       <StatusBar
         animated
         barStyle={
-          Platform.OS === 'ios' ?
+          UIColors.dark ?
             'light-content'
             :
-            UIColors.theme == 'light' ?
-              'dark-content'
-              :
-              'light-content'
+            'dark-content'
         }
       />
 

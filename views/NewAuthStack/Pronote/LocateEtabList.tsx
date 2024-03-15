@@ -94,11 +94,10 @@ const LocateEtabList = ({ route, navigation }: {
       <StatusBar
         animated
         barStyle={
-          Platform.OS === 'ios'
-            ? 'light-content'
-            : UIColors.theme === 'light'
-              ? 'dark-content'
-              : 'light-content'
+          UIColors.dark ?
+            'light-content'
+            :
+            'dark-content'
         }
       />
 
