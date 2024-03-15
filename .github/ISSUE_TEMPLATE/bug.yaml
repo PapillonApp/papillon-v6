@@ -42,8 +42,7 @@ body:
   - type: input
     attributes:
       label: Version
-      placeholder: '5.0.17 beta'
-      value: '5.0.'
+      value: '6.6.'
     validations:
       required: true
   - type: dropdown
