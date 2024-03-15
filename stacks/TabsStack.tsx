@@ -87,10 +87,6 @@ const views = [
 const TabsStack = ({ navigation }) => {
   const UIColors = GetUIColors();
 
-  const settings = {
-    hideTabBarTitle: true,
-  };
-
   const tabBar = useMemo(() => {
     if (Platform.OS !== 'ios') {
       return ({ navigation, state, descriptors, insets }) => (
@@ -148,12 +144,14 @@ const TabsStack = ({ navigation }) => {
           headerTruncatedBackTitle: 'Retour',
           elevated: false,
           tabBarLabelStyle: {
-            fontFamily: 'Papillon-Medium',
-            fontSize: 12.5,
-            letterSpacing: 0.2,
+            fontFamily: 'Papillon-Semibold',
+            fontSize: 13,
+            letterSpacing: 0,
 
             margin: 0,
             padding: 0,
+
+            marginTop: -3,
 
             alignItems: 'center',
             justifyContent: 'center',
@@ -163,10 +161,9 @@ const TabsStack = ({ navigation }) => {
             fontFamily: 'Papillon-Semibold',
             fontSize: 17.5,
           },
-          tabBarShowLabel: settings?.hideTabBarTitle ? false : true,
+          tabBarShowLabel: true,
           tabBarActiveTintColor:
-            !settings?.hideTabBarTitle ? UIColors.primary :
-              UIColors.dark ? '#ffffff' : '#000000',
+            UIColors.dark ? '#ffffff' : '#000000',
           tabBarStyle: Platform.OS === 'ios' ? {
             paddingHorizontal: 8,
             height: 80,
