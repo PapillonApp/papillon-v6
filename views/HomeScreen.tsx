@@ -661,7 +661,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
 
   yOffset.addListener(({ value }) => {
     if (Platform.OS === 'ios') {
-      if (value > 50) {
+      if (value > 40) {
         setScrolled(true);
         shouldScroll = true;
       } else {
@@ -794,52 +794,106 @@ function HomeScreen({ navigation }: { navigation: any }) {
               paddingTop: 4,
             }}
           >
-            {Platform.OS === 'ios' && (
-              <PapillonIcon
-                fill={scrolled ? UIColors.text + '88' : '#ffffff'}
-                width={32}
-                height={32}
-              />
-            )}
+            <View style={{
+              height: 32,
+              width: 32,
+            }} />
 
-            {!scrolled ? (
-              <Text
-                style={[
-                  Platform.OS === 'ios'
-                    ? {
-                      color: scrolled ? UIColors.text : '#ffffff',
-                      fontSize: 17,
-                      fontFamily: 'Papillon-Semibold',
-                      marginVertical: 8,
-                    }
-                    : {
-                      color: '#ffffff',
-                      fontSize: 18,
-                      marginVertical: 9,
-                    },
-                ]}
+            {Platform.OS === 'ios' && (<>
+              <View
+                style={{
+                  position: 'absolute',
+                  left: 16,
+                }}
               >
-                    Vue d'ensemble
-              </Text>
-            ) : (
+                <PapillonIcon
+                  fill={'#ffffff'}
+                  width={32}
+                  height={32}
+                />
+              </View>
+
+              {!UIColors.dark && (
+                <Animated.View
+                  style={{
+                    position: 'absolute',
+                    left: 16,
+                    zIndex: 1,
+                    opacity: scrolledAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 1],
+                    }),
+                  }}
+                >
+                  <PapillonIcon
+                    fill={UIColors.text + '88'}
+                    width={32}
+                    height={32}
+                  />
+                </Animated.View>
+              )}
+            </>)}
+
+            {Platform.OS === 'ios' ? (<>
+              <Animated.View
+                pointerEvents={'none'}
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  right: 0,
+                  opacity: scrolledAnim.interpolate({
+                    inputRange: [0, 0.6],
+                    outputRange: [1, 0],
+                  }),
+                  transform: [
+                    {
+                      scale: scrolledAnim.interpolate({
+                        inputRange: [0, 0.6],
+                        outputRange: [1, 0.7],
+                        extrapolate: 'clamp',
+                      }),
+                    },
+                  ],
+                }}
+              >
+                <Text
+                  style={[
+                    {
+                      textAlign: 'center',
+                      marginTop: 3,
+                    },
+                    Platform.OS === 'ios'
+                      ? {
+                        color: '#ffffff',
+                        fontSize: 17,
+                        fontFamily: 'Papillon-Semibold',
+                        marginVertical: 8,
+                      }
+                      : {
+                        color: '#ffffff',
+                        fontSize: 18,
+                        marginVertical: 9,
+                      },
+                  ]}
+                >
+                  Vue d'ensemble
+                </Text>
+              </Animated.View>
+
               <Animated.View
                 style={{
                   flex: 1,
                   height: 38,
                   marginTop: -2,
-                  opacity: scrolledAnim,
+                  opacity: scrolledAnim.interpolate({
+                    inputRange: [0.4, 1],
+                    outputRange: [0, 1],
+                  }),
                   transform: [
                     {
                       scale: scrolledAnim.interpolate({
-                        inputRange: [0, 1],
+                        inputRange: [0.4, 1],
                         outputRange: [0.8, 1],
-                        extrapolate: 'clamp',
-                      }),
-                    },
-                    {
-                      translateY: scrolledAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, 0],
                         extrapolate: 'clamp',
                       }),
                     },
@@ -857,7 +911,20 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   }}
                 />
               </Animated.View>
-            )}
+            </>) : (<>
+              <Text
+                style={[
+                  {
+                    color: '#ffffff',
+                    fontSize: 18,
+                    marginVertical: 9,
+                  },
+                ]}
+              >
+                Vue d'ensemble
+              </Text>
+            </>)}
+            
 
             {Platform.OS === 'ios' ? (
               <ContextMenuButton
