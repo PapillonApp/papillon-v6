@@ -61,7 +61,6 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   const UIColors = GetUIColors();
 
   const [loading, setLoading] = useState(true);
-  const [loadMessage, setLoadMessage] = useState("Chargement en cours...");
   const [showWebView, setShowWebView] = useState(false);
 
   let webViewRef = createRef<WebView>();
@@ -134,15 +133,12 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
 
   const INJECT_PRONOTE_CURRENT_LOGIN_STATE = `
     (function () {
-      let interval = setInterval(() => {
-        const state = window && window.loginState ? window.loginState : void 0;
+      const state = window && window.loginState ? window.loginState : void 0;
 
-        window.ReactNativeWebView.postMessage(JSON.stringify({
-          type: 'pronote.loginState',
-          data: state
-        }))
-        if(state) clearInterval(interval)
-      }, 500)
+      window.ReactNativeWebView.postMessage(JSON.stringify({
+        type: 'pronote.loginState',
+        data: state
+      }));
     })();
   `.trim();
 
@@ -169,7 +165,7 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
             fontFamily: 'Papillon-Medium',
             fontSize: 16,
           }}>
-            {loadMessage}
+            Chargement...
           </Text>
         </View>
       </Modal>
@@ -188,10 +184,9 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
           console.log('Pronote webview message', message);
 
           if (message.type === 'pronote.loginState') {
+            setLoading(true);
             if (!message.data) return;
             if (message.data.status !== 0) return;
-            setLoadMessage("Connexion en cours...")
-            setLoading(true);
             if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
 
             await AsyncStorage.multiSet([
@@ -220,28 +215,25 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
             appContext.setLoggedIn(true);
           }
         }}
-        onLoadStart={(e) => {
-          setLoading(true)
+
+        onLoadEnd={(e) => {
           const { url } = e.nativeEvent;
 
           if (url.includes('InfoMobileApp.json?id=0D264427-EEFC-4810-A9E9-346942A862A4')) {
             webViewRef.current?.injectJavaScript(INJECT_PRONOTE_JSON);
           }
           else {
+            setLoading(false);
+            setShowWebView(true);
             if (url.includes('mobile.eleve.html')) {
               webViewRef.current?.injectJavaScript(INJECT_PRONOTE_INITIAL_LOGIN_HOOK);
-              webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
-              /*if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
+              
+              if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
               currentLoginStateIntervalRef.current = setInterval(() => {
                 webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
-                console.log("interval inject")
-              }, 250);*/
+              }, 250);
             }
           }
-        }}
-        onLoadEnd={(e) => {
-          setLoading(false);
-          setShowWebView(true);
         }}
 
         incognito={true} // prevent to keep cookies on webview load
