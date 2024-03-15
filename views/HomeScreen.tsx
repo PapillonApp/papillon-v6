@@ -63,6 +63,8 @@ import formatCoursName from '../utils/FormatCoursName';
 
 // Custom components
 import CheckAnimated from '../interface/CheckAnimated';
+import ModalBottom from '../interface/ModalBottom';
+import PapillonCloseButton from '../interface/PapillonCloseButton';
 
 import { useAppContext } from '../utils/AppContext';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -631,6 +633,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const [changeThemeOpen, setChangeThemeOpen] = useState(false);
+  const [changeThemeModal, setChangeThemeModal] = useState(false);
   const changeThemeOpenRef = useRef(changeThemeOpen);
   const [showThemeCarousel, setShowThemeCarousel] = useState(false);
   const changeThemeAnim = useRef(new Animated.Value(0)).current;
@@ -994,7 +997,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   if (nativeEvent.actionKey === 'preferences') {
                     navigation.navigate('InsetSettings', { isModal: true });
                   } else if (nativeEvent.actionKey === 'theme') {
-                    setChangeThemeOpen(true);
+                    setChangeThemeModal(true);
                   } else if (nativeEvent.actionKey === 'profile') {
                     navigation.navigate('InsetProfile', { isModal: true });
                   } else if (nativeEvent.actionKey === 'cours') {
@@ -1065,7 +1068,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   leadingIcon="palette"
                   onPress={() => {
                     setUserMenuOpen(false);
-                    setChangeThemeOpen(true);
+                    setChangeThemeModal(true);
                   }}
                 />
                 <Divider />
@@ -1151,7 +1154,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   backgroundColor: UIColors.dark ? '#ffffff35' : '#00000035',
                 }}
                 onPress={() => {
-                  setChangeThemeOpen(false);
+                  setChangeThemeModal(false);
                 }}
               >
                 <X color={UIColors.text} size={22} strokeWidth={2.5} />
@@ -1227,6 +1230,117 @@ function HomeScreen({ navigation }: { navigation: any }) {
         )}
       </View>
     </Animated.View>
+
+    <ModalBottom
+      visible={changeThemeModal}
+      onDismiss={() => {
+        setChangeThemeModal(false);
+      }}
+      align='top'
+      style={[
+        {
+          backgroundColor: '#00000070',
+          borderColor: '#ffffff32',
+          borderWidth: 1,
+        }
+      ]}
+    >
+      <View
+        style={{
+          paddingVertical: 4,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            width: '100%',
+            maxWidth: '100%',
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            paddingBottom: 8,
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 16,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: 'column',
+              flex: 1,
+            }}
+          >
+            <NativeText heading='h4' style={{ color: '#fff' }}>
+              Personnalisation du bandeau
+            </NativeText>
+            <NativeText heading='p2' style={{ color: '#fff' }}>
+              Sélectionnez un modèle
+            </NativeText>
+          </View>
+          <PapillonCloseButton
+            onPress={() => {
+              setChangeThemeModal(false);
+            }}
+            theme={'dark'}
+          />
+        </View>
+
+        <Carousel
+          loop
+          width={Dimensions.get('window').width - 24}
+          height={110}
+          defaultIndex={currentThemeIndex}
+          data={THEMES_IMAGES_LIST}
+          scrollAnimationDuration={100}
+          onSnapToItem={(index) => {
+            setCurrentThemeIndex(index);
+            Haptics.impactAsync(
+              Haptics.ImpactFeedbackStyle.Light
+            );
+            AsyncStorage.setItem(
+              'hs_themeIndex',
+              index.toString()
+            );
+          }}
+          renderItem={({ index }) => (
+            <View
+              style={{
+                flex: 1,
+                opacity: currentThemeIndex === index ? 1 : 0.5,
+              }}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  marginHorizontal: 8,
+                  
+                  backgroundColor: '#ffffff22',
+                  borderColor: 
+                  currentThemeIndex === index
+                    ? '#ffffff'
+                    : '#ffffff00',
+                  borderWidth: 1.5,
+                  
+                  borderRadius: 12,
+                  borderCurve: 'continuous',
+                  overflow: 'hidden',
+                }}
+              >
+                <Image
+                  source={THEMES_IMAGES_LIST[index].image}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                  }}
+                  resizeMode="cover"
+                />
+              </View>
+            </View>
+          )}
+          mode="parallax"
+        />
+      </View>
+    </ModalBottom>
+    
     <ScrollView
       ref={scrollRef}
       style={{
@@ -1393,7 +1507,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
             >
               <NextCoursElem
                 longPressAction={() => {
-                  setChangeThemeOpen(true);
+                  setChangeThemeModal(true);
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
                 }}
                 cours={lessons.data}
                 navigation={navigation}
