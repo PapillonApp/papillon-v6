@@ -1402,8 +1402,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 width: '100%',
                 height: 150,
                 opacity: yOffset.interpolate({
-                  inputRange: [-30, 10],
-                  outputRange: [1, 0],
+                  inputRange: [-90, -60, -30, 10],
+                  outputRange: [0, 1, 1, 0],
                 }),
               },
             ]}
@@ -1445,8 +1445,14 @@ function HomeScreen({ navigation }: { navigation: any }) {
             transform: [
               {
                 rotate: yOffset.interpolate({
-                  inputRange: [-100, -50],
-                  outputRange: ['0deg', '-50deg'],
+                  inputRange: [-500, -200, -50],
+                  outputRange: ['0deg', '0deg', '-250deg'],
+                }),
+              },
+              {
+                scale: yOffset.interpolate({
+                  inputRange: [-500, -120, -50],
+                  outputRange: [1, 1, 0],
                 }),
               }
             ],
