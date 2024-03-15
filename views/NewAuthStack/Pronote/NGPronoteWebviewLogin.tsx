@@ -1,5 +1,5 @@
 import React, { createRef, useRef, useState } from 'react';
-import { View, Platform, Modal, Text, ActivityIndicator, StatusBar } from 'react-native';
+import { Animated, View, Platform, Modal, Text, ActivityIndicator, StatusBar } from 'react-native';
 import GetUIColors from '../../../utils/GetUIColors';
 
 import PapillonCloseButton from '../../../interface/PapillonCloseButton';
@@ -61,7 +61,38 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   const UIColors = GetUIColors();
 
   const [loading, setLoading] = useState(true);
+  const [loadProgress, setLoadProgress] = useState(0);
   const [showWebView, setShowWebView] = useState(false);
+
+  const [currentURL, setCurrentURL] = useState('');
+
+  const animatedLoading = useRef(new Animated.Value(0)).current;
+  const pulseAnimation = useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    Animated.timing(animatedLoading, {
+      toValue: loadProgress,
+      duration: 100,
+      useNativeDriver: false
+    }).start();
+  }, [loadProgress]);
+
+  React.useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnimation, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: false
+        }),
+        Animated.timing(pulseAnimation, {
+          toValue: 0,
+          duration: 1500,
+          useNativeDriver: false
+        })
+      ])
+    ).start();
+  }, []);
 
   let webViewRef = createRef<WebView>();
   let currentLoginStateIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -85,11 +116,11 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   // PapillonCloseButton in header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: Platform.OS === 'ios' ? () => (
-        <PapillonCloseButton onPress={() => navigation.goBack()} />
-      ) : null
+      headerRight: loading ? () => (
+        <ActivityIndicator />
+      ) : null,
     });
-  }, [navigation]);
+  }, [navigation, loading]);
 
   const PRONOTE_COOKIE_EXPIRED = new Date(0).toUTCString();
   const PRONOTE_COOKIE_VALIDATION_EXPIRES = new Date(new Date().getTime() + (5 * 60 * 1000)).toUTCString();
@@ -147,29 +178,48 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
       flex: 1,
       backgroundColor: UIColors.modalBackground
     }]}>
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={loading}
+      <Animated.View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          zIndex: 100,
+          backgroundColor: UIColors.primary,
+          width: animatedLoading.interpolate({
+            inputRange: [0, 1],
+            outputRange: ['0%', '100%']
+          }),
+          shadowColor: UIColors.primary,
+          shadowOpacity: 1,
+          shadowRadius: 2,
+          shadowOffset: {
+            width: 0,
+            height: 0
+          },
+          overflow: 'hidden',
+          opacity: animatedLoading.interpolate({
+            inputRange: [0, 0.99, 1],
+            outputRange: [1, 1, 0]
+          })
+        }}
       >
-        <View style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: 'rgba(0, 0, 0, 0.8)'
-        }}>
-          <ActivityIndicator color={'#ffffff'} />
-          <Text style={{
-            color: '#ffffff',
-            marginTop: 10,
-            fontFamily: 'Papillon-Medium',
-            fontSize: 16,
-          }}>
-            Chargement...
-          </Text>
-        </View>
-      </Modal>
-
+        <Animated.View
+          style={{
+            width: '50%',
+            height: '100%',
+            borderRadius: 5,
+            backgroundColor: '#ffffff22',
+            position: 'absolute',
+            top: 0,
+            left: pulseAnimation.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['-50%', '100%']
+            }),
+          }}
+        />
+      </Animated.View>
       <WebView
         ref={webViewRef}
         source={{ uri: infoMobileURL }}
@@ -214,6 +264,21 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
             navigation.getParent()?.goBack();
             appContext.setLoggedIn(true);
           }
+        }}
+
+        onError={(e) => {
+          console.error('Pronote webview error', e);
+        }}
+
+        onLoadProgress={({ nativeEvent }) => {
+          setLoadProgress(nativeEvent.progress);
+        }}
+
+        onLoadStart={(e) => {
+          const { url } = e.nativeEvent;
+          setCurrentURL(url);
+
+          setLoading(true);
         }}
 
         onLoadEnd={(e) => {

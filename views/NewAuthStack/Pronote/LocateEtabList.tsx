@@ -45,14 +45,11 @@ const LocateEtabList = ({ route, navigation }: {
         instanceURL = instanceURL.replace('index-education.net', 'pronote.toutatice.fr');
       });
 
-    navigation.goBack();
-    navigation.goBack();
     navigation.navigate('NGPronoteWebviewLogin', { instanceURL: instanceURL });
   };
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerBackTitle: location.properties.name,
       headerRight: () => (
         isInstancesLoading ? (
           <ActivityIndicator />
