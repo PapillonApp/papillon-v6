@@ -845,14 +845,14 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   left: 0,
                   right: 0,
                   opacity: scrolledAnim.interpolate({
-                    inputRange: [0, 0.6],
+                    inputRange: [0, 0.8],
                     outputRange: [1, 0],
                   }),
                   transform: [
                     {
                       scale: scrolledAnim.interpolate({
-                        inputRange: [0, 0.6],
-                        outputRange: [1, 0.7],
+                        inputRange: [0, 0.8],
+                        outputRange: [1, 1.13],
                         extrapolate: 'clamp',
                       }),
                     },
