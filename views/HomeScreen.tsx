@@ -797,10 +797,12 @@ function HomeScreen({ navigation }: { navigation: any }) {
               paddingTop: 4,
             }}
           >
-            <View style={{
-              height: 32,
-              width: 32,
-            }} />
+            { Platform.OS === 'ios' && (
+              <View style={{
+                height: 32,
+                width: 32,
+              }} />
+            )}
 
             {Platform.OS === 'ios' && (<>
               <View
@@ -1242,6 +1244,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
           backgroundColor: '#00000070',
           borderColor: '#ffffff32',
           borderWidth: 1,
+          elevation : 0,
         }
       ]}
     >
@@ -1561,7 +1564,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
         loading={groupedHomeworks === null}
       />
 
-      <View style={{ height: Platform.OS === 'android' ? 180 : 50 }} />
+      <View style={{ height: Platform.OS === 'android' ? 0 : 50 }} />
     </ScrollView>
   </View>
   );

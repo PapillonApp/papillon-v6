@@ -107,7 +107,7 @@ const AlertBottomSheet = (props) => {
       animationType="fade"
       transparent={true}
     >
-      <StatusBar animated barStyle={'light-content'} translucent />
+      <StatusBar animated backgroundColor={'transparent'} barStyle={'light-content'} translucent />
 
       <View style={[styles.container]}>
         <BlurView intensity={Platform.OS === 'ios' ? 50 : 30} tint="dark" style={[StyleSheet.absoluteFill, styles.blurContainer, {justifyContent: align !== 'top' ? 'flex-end' : 'flex-start', paddingTop: insets.top}]}>
