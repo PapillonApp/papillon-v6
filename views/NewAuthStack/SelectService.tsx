@@ -159,12 +159,15 @@ const SelectService = ({ navigation }) => {
             <NativeText heading="h3">
               {serviceOption.name}
             </NativeText>
-            <NativeText heading="p2" style={[styles.fontPm]}>
-              {serviceOption.description}
-            </NativeText>
+
+            {!serviceOption.soon && (
+              <NativeText heading="p2" style={[styles.fontPm]}>
+                {serviceOption.description}
+              </NativeText>
+            )}
 
             {serviceOption.soon && (
-              <NativeText heading="subtitle2" style={[styles.fontPm, { color: UIColors.text + '80' }]}>
+              <NativeText heading="p2" style={[styles.fontPm, { color: UIColors.text + '80' }]}>
                 Bientôt disponible
               </NativeText>
             )}

@@ -61,24 +61,6 @@ function AppearanceScreen({ navigation }) {
           center
         />
       </View>
-
-      <View style={{ gap: 9, marginTop: 24 }}>
-        <Text style={styles.ListTitle}>Notifications</Text>
-        <ListItem
-          title="Notifications"
-          subtitle="Gérer les rappels et les mises à jour des données en arrière plan"
-          color="#32AB8E"
-          left={
-            <PapillonIcon
-              icon={<Bell size={24} color="#5d75de" />}
-              color="#5d75de"
-              small
-            />
-          }
-          onPress={() => navigation.navigate('Notifications')}
-          center
-        />
-      </View>
     </ScrollView>
   );
 }
