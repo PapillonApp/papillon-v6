@@ -108,7 +108,7 @@ function NewSettings({ navigation }: {
           marginTop: -14,
         }}
       >
-        <NativeItem
+        {/* <NativeItem
           leading={
             <View
               style={[
@@ -136,7 +136,7 @@ function NewSettings({ navigation }: {
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
             Personnalisation de l'interface, bandeaux et navigation
           </NativeText>
-        </NativeItem>
+        </NativeItem> */}
         <NativeItem
           leading={
             <View
