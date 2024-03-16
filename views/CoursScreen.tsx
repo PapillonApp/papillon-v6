@@ -667,11 +667,11 @@ const CoursItem = ({ cours, lessonPressed, navigation }: {
 
   // if ~5 min around 1h
   if (Math.floor(length % 60) < 9) {
-    lengthString = `${Math.floor(length / 60)} heure(s)`;
+    lengthString = `${Math.floor(length / 60)} heure${length / 60 > 1 ? 's' : ''}`;
   }
 
   if (Math.floor(length % 60) > 49) {
-    lengthString = `${Math.floor((length / 60) + 1)} heure(s)`;
+    lengthString = `${Math.floor((length / 60) + 1)} heure${length / 60 > 1 ? 's' : ''}`;
   }
 
   const theme = useTheme();
@@ -741,6 +741,9 @@ const CoursItem = ({ cours, lessonPressed, navigation }: {
           style={[
             styles.coursItemContainer,
             { backgroundColor: theme.dark ? '#111111' : '#ffffff' },
+            cours.is_cancelled && {
+              opacity: 0.5,
+            }
           ]}
           onPress={() => lessonPressed()}
         >
