@@ -1,5 +1,5 @@
 import React, { createRef, useRef, useState } from 'react';
-import { Animated, View, Platform, Modal, Text, ActivityIndicator, StatusBar } from 'react-native';
+import { Alert, Animated, View, TouchableOpacity, Platform, Modal, Text, ActivityIndicator, StatusBar, Touchable } from 'react-native';
 import GetUIColors from '../../../utils/GetUIColors';
 
 import PapillonCloseButton from '../../../interface/PapillonCloseButton';
@@ -9,7 +9,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AsyncStoragePronoteKeys } from '../../../fetch/PronoteData/connector';
 import { useAppContext } from '../../../utils/AppContext';
 import { PronoteApiAccountId } from 'pawnote';
-import { set } from 'sync-storage';
+
+import { ArrowRightToLine, KeyRound } from 'lucide-react-native';
 
 // Stolen from Pawnote
 // TODO: Export this function in Pawnote, to reuse it here.
@@ -117,9 +118,47 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   // PapillonCloseButton in header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: loading ? () => (
-        <ActivityIndicator />
-      ) : null,
+      headerRight: () => (
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginRight: 0,
+          gap: 10
+        }}>
+          { loading ? (
+            <ActivityIndicator />
+          ) : null }
+
+          <TouchableOpacity
+            style={{
+              opacity: 0.4
+            }}
+            onPress={() => {
+              Alert.alert(
+                'Souhaitez-vous vous connecter sans ENT ?',
+                'La connexion sans ENT requiert des codes PRONOTE et non vos codes ENT ou EduConnect.',
+                [
+                  {
+                    text: 'Annuler',
+                    style: 'cancel'
+                  },
+                  {
+                    text: 'Se connecter',
+                    style: 'destructive',
+                    onPress: () => {
+                      navigation.navigate('NGPronoteLogin', {
+                        instanceURL: instanceURL
+                      });
+                    }
+                  }
+                ]
+              );
+            }}
+          >
+            <KeyRound size={24} color={UIColors.text} />
+          </TouchableOpacity>
+        </View>
+      ),
     });
   }, [navigation, loading]);
 
