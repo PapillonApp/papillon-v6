@@ -5,8 +5,7 @@ const Stack = createNativeStackNavigator();
 
 import { headerTitleStyles } from './AppStack';
 import GetUIColors from '../utils/GetUIColors';
-
-import { LoginSkolengoSelectSchool } from '../views/NewAuthStack/Skolengo/LoginSkolengoSelectSchool';
+import { Platform } from 'react-native';
 
 const AuthStack = ({ navigation }) => {
   const UIColors = GetUIColors();
@@ -92,14 +91,14 @@ const AuthStack = ({ navigation }) => {
       }
     },
     {
-      name: 'LoginSkolengoSelectSchool',
-      component: LoginSkolengoSelectSchool,
+      name: 'LocateSkolengoEtab',
+      component: require('../views/NewAuthStack/Skolengo/LocateSkolengoEtab').default,
       options: {
-        title: 'Se connecter via Skolengo',
-        presentation: 'modal',
+        headerTitle: 'Connexion via Skolengo',
+        headerBackTitleVisible: false,
       }
     },
-  ]
+  ] as const;
 
   return (
     <Stack.Navigator

@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useState, useEffect } from 'react';
-import { View, Image, Platform, StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Image, StatusBar, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import GetUIColors from '../../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -62,8 +62,8 @@ const SelectService = ({ navigation }) => {
       company: 'Kosmos',
       description: 'Comptes régionnaux',
       icon: require('../../assets/logo_modern_skolengo.png'),
-      view: 'LoginSkolengoEtab',
-      soon: false,
+      view: 'LocateSkolengoEtab',
+      soon: __DEV__ || false,
     },
     {
       name: 'EcoleDirecte',
