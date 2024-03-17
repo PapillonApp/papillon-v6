@@ -10,7 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import RenderHtml from 'react-native-render-html';
 
-import { Check } from 'lucide-react-native';
+import { AlertTriangle, Check } from 'lucide-react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -77,7 +77,7 @@ const ConsentScreen = ({ navigation }: { navigation: any }) => {
         </TouchableOpacity>
       ),
     });
-  }, [canAccept]);
+  }, [canAccept, UIColors]);
 
   // haptic when can accept
   useEffect(() => {
@@ -103,6 +103,34 @@ const ConsentScreen = ({ navigation }: { navigation: any }) => {
       ) : (
         <StatusBar translucent backgroundColor="transparent" barStyle={UIColors.dark ? 'light-content' : 'dark-content'} />
       ) }
+
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          padding: 10,
+          paddingHorizontal: 16,
+          margin: 16,
+          marginTop: 20,
+          marginBottom: 0,
+          gap: 14,
+          backgroundColor: UIColors.primary + '33',
+          borderRadius: 10,
+          borderCurve: 'continuous',
+        }}
+      >
+        <AlertTriangle size={24} color={UIColors.primary} />
+        <Text
+          style={{
+            flex: 1,
+            color: UIColors.text,
+            fontSize: 16,
+            fontFamily: 'Papillon-Semibold',
+          }}
+        >
+          Vous devez lire et accepter les termes et conditions avant de continuer.
+        </Text>
+      </View>
 
       <RenderHtml
         contentWidth={width}
@@ -130,6 +158,55 @@ const ConsentScreen = ({ navigation }: { navigation: any }) => {
           },
         }}
       />
+
+      <TouchableOpacity
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 10,
+          backgroundColor: canAccept ? UIColors.primary : '#888888',
+          opacity: canAccept ? 1 : 0.5,
+          margin: 16,
+          gap: 9,
+          borderRadius: 10,
+          borderCurve: 'continuous',
+          marginTop: 0,
+        }}
+        disabled={!canAccept}
+        onPress={() => {
+          if (canAccept) {
+            // set the consent
+            AsyncStorage.setItem('ppln_terms', 'true');
+
+            navigation.goBack();
+          }
+          else {
+            Alert.alert(
+              'Termes & conditions',
+              'Vous devez lire les termes et conditions avant de continuer.'
+            );
+          }
+        }}
+      >
+        <Check size={24} color={'#ffffff'} />
+        <Text style={{ color: '#ffffff', fontSize: 17, fontFamily: 'Papillon-Semibold' }}>
+          Accepter
+        </Text>
+      </TouchableOpacity>
+
+      <Text
+        style={{
+          color: UIColors.text + '55',
+          fontSize: 14,
+          fontFamily: 'Papillon-Medium',
+          textAlign: 'center',
+          marginBottom: insets.bottom + 20,
+          marginHorizontal: 16,
+        }}
+      >
+        En acceptant, vous certifiez avoir pris connaissance des termes et conditions de l'application et vous vous engagez à les respecter.
+      </Text>
     </ScrollView>
   );
 };

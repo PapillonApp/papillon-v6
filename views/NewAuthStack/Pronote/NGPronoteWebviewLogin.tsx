@@ -1,5 +1,5 @@
 import React, { createRef, useRef, useState } from 'react';
-import { View, Platform, Modal, Text, ActivityIndicator, StatusBar } from 'react-native';
+import { Alert, Animated, View, TouchableOpacity, Platform, Modal, Text, ActivityIndicator, StatusBar, Touchable } from 'react-native';
 import GetUIColors from '../../../utils/GetUIColors';
 
 import PapillonCloseButton from '../../../interface/PapillonCloseButton';
@@ -9,7 +9,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AsyncStoragePronoteKeys } from '../../../fetch/PronoteData/connector';
 import { useAppContext } from '../../../utils/AppContext';
 import { PronoteApiAccountId } from 'pawnote';
-import { set } from 'sync-storage';
+
+import { ArrowRightToLine, KeyRound } from 'lucide-react-native';
 
 // Stolen from Pawnote
 // TODO: Export this function in Pawnote, to reuse it here.
@@ -61,7 +62,39 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   const UIColors = GetUIColors();
 
   const [loading, setLoading] = useState(true);
+  const [loadProgress, setLoadProgress] = useState(0);
   const [showWebView, setShowWebView] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
+
+  const [currentURL, setCurrentURL] = useState('');
+
+  const animatedLoading = useRef(new Animated.Value(0)).current;
+  const pulseAnimation = useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    Animated.timing(animatedLoading, {
+      toValue: loadProgress,
+      duration: 100,
+      useNativeDriver: false
+    }).start();
+  }, [loadProgress]);
+
+  React.useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnimation, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: false
+        }),
+        Animated.timing(pulseAnimation, {
+          toValue: 0,
+          duration: 1500,
+          useNativeDriver: false
+        })
+      ])
+    ).start();
+  }, []);
 
   let webViewRef = createRef<WebView>();
   let currentLoginStateIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -69,14 +102,65 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   const infoMobileURL = instanceURL + '/InfoMobileApp.json?id=0D264427-EEFC-4810-A9E9-346942A862A4';
   const [deviceUUID] = useState(makeUUID());
 
+  React.useEffect(() => {
+    fetch(infoMobileURL)
+      .then(response => response.json())
+      .then(data => {
+        if (data.CAS.actif === false) {
+          navigation.goBack();
+          navigation.navigate('NGPronoteLogin', {
+            instanceURL: instanceURL
+          });
+        }
+      });
+  }, []);
+
   // PapillonCloseButton in header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: Platform.OS === 'ios' ? () => (
-        <PapillonCloseButton onPress={() => navigation.goBack()} />
-      ) : null
+      headerRight: () => (
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginRight: 0,
+          gap: 10
+        }}>
+          { loading ? (
+            <ActivityIndicator />
+          ) : null }
+
+          <TouchableOpacity
+            style={{
+              opacity: 0.4
+            }}
+            onPress={() => {
+              Alert.alert(
+                'Souhaitez-vous vous connecter sans ENT ?',
+                'La connexion sans ENT requiert des codes PRONOTE et non vos codes ENT ou EduConnect.',
+                [
+                  {
+                    text: 'Annuler',
+                    style: 'cancel'
+                  },
+                  {
+                    text: 'Se connecter',
+                    style: 'destructive',
+                    onPress: () => {
+                      navigation.navigate('NGPronoteLogin', {
+                        instanceURL: instanceURL
+                      });
+                    }
+                  }
+                ]
+              );
+            }}
+          >
+            <KeyRound size={24} color={UIColors.text} />
+          </TouchableOpacity>
+        </View>
+      ),
     });
-  }, [navigation]);
+  }, [navigation, loading]);
 
   const PRONOTE_COOKIE_EXPIRED = new Date(0).toUTCString();
   const PRONOTE_COOKIE_VALIDATION_EXPIRES = new Date(new Date().getTime() + (5 * 60 * 1000)).toUTCString();
@@ -120,12 +204,14 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
 
   const INJECT_PRONOTE_CURRENT_LOGIN_STATE = `
     (function () {
-      const state = window && window.loginState ? window.loginState : void 0;
+      setInterval(function() {
+        const state = window && window.loginState ? window.loginState : void 0;
 
-      window.ReactNativeWebView.postMessage(JSON.stringify({
-        type: 'pronote.loginState',
-        data: state
-      }));
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: 'pronote.loginState',
+          data: state
+        }));
+      }, 500);
     })();
   `.trim();
 
@@ -134,10 +220,52 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
       flex: 1,
       backgroundColor: UIColors.modalBackground
     }]}>
+      <Animated.View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          zIndex: 100,
+          backgroundColor: UIColors.primary,
+          width: animatedLoading.interpolate({
+            inputRange: [0, 1],
+            outputRange: ['0%', '100%']
+          }),
+          shadowColor: UIColors.primary,
+          shadowOpacity: 1,
+          shadowRadius: 2,
+          shadowOffset: {
+            width: 0,
+            height: 0
+          },
+          overflow: 'hidden',
+          opacity: animatedLoading.interpolate({
+            inputRange: [0, 0.99, 1],
+            outputRange: [1, 1, 0]
+          })
+        }}
+      >
+        <Animated.View
+          style={{
+            width: '50%',
+            height: '100%',
+            borderRadius: 5,
+            backgroundColor: '#ffffff22',
+            position: 'absolute',
+            top: 0,
+            left: pulseAnimation.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['-50%', '100%']
+            }),
+          }}
+        />
+      </Animated.View>
       <Modal
         animationType="fade"
         transparent={true}
-        visible={loading}
+        visible={loggingIn}
       >
         <View style={{
           flex: 1,
@@ -152,11 +280,10 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
             fontFamily: 'Papillon-Medium',
             fontSize: 16,
           }}>
-            Chargement...
+            Connexion en cours...
           </Text>
         </View>
       </Modal>
-
       <WebView
         ref={webViewRef}
         source={{ uri: infoMobileURL }}
@@ -168,11 +295,15 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
         onMessage={async ({ nativeEvent }) => {
           const message = JSON.parse(nativeEvent.data);
 
+          console.log('Pronote webview message', message);
+
           if (message.type === 'pronote.loginState') {
-            setLoading(true);
             if (!message.data) return;
             if (message.data.status !== 0) return;
+            setLoggingIn(true);
             if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
+
+            console.log('Pronote login state', message.data);
 
             await AsyncStorage.multiSet([
               [AsyncStoragePronoteKeys.NEXT_TIME_TOKEN, message.data.mdp],
@@ -187,18 +318,25 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
 
             setLoading(false);
       
-            navigation.goBack();
-            navigation.goBack();
-            navigation.goBack();
-            navigation.goBack();
-            navigation.goBack();
-            navigation.getParent()?.goBack();
-            navigation.getParent()?.goBack();
-            navigation.getParent()?.goBack();
-            navigation.getParent()?.goBack();
-            navigation.getParent()?.goBack();
+            navigation.popToTop();
+            navigation.getParent()?.popToTop();
             appContext.setLoggedIn(true);
           }
+        }}
+
+        onError={(e) => {
+          console.error('Pronote webview error', e);
+        }}
+
+        onLoadProgress={({ nativeEvent }) => {
+          setLoadProgress(nativeEvent.progress);
+        }}
+
+        onLoadStart={(e) => {
+          const { url } = e.nativeEvent;
+          setCurrentURL(url);
+
+          setLoading(true);
         }}
 
         onLoadEnd={(e) => {
@@ -212,8 +350,9 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
             setShowWebView(true);
             if (url.includes('mobile.eleve.html')) {
               webViewRef.current?.injectJavaScript(INJECT_PRONOTE_INITIAL_LOGIN_HOOK);
+              webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
               
-              if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
+              /* if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current); */
               currentLoginStateIntervalRef.current = setInterval(() => {
                 webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
               }, 250);

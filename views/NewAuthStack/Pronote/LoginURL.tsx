@@ -14,6 +14,8 @@ import AlertBottomSheet from '../../../interface/AlertBottomSheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
+import * as Clipboard from 'expo-clipboard';
+
 const LoginURL = ({ navigation }: {
   navigation: any // TODO
 }) => {
@@ -22,6 +24,8 @@ const LoginURL = ({ navigation }: {
 
   const [currentURL, setCurrentURL] = React.useState('');
   const [urlAlert, setURLAlert] = React.useState(false);
+
+  const textInputRef = React.useRef(null);
 
   const login = () => {
     if (!currentURL || !currentURL.startsWith('http')) {
@@ -34,6 +38,16 @@ const LoginURL = ({ navigation }: {
       instanceURL: currentURL
     });
   };
+
+  // get url from clipboard if it's a pronote url
+  React.useEffect(() => {
+    (async () => {
+      const clipboard = await Clipboard.getUrlAsync();
+      if (clipboard && clipboard.includes('/pronote/')) {
+        setCurrentURL(clipboard);
+      }
+    })();
+  }, []);
 
   return (
     <ScrollView
@@ -52,13 +66,10 @@ const LoginURL = ({ navigation }: {
       <StatusBar
         animated
         barStyle={
-          Platform.OS === 'ios' ?
+          UIColors.dark ?
             'light-content'
             :
-            UIColors.theme == 'light' ?
-              'dark-content'
-              :
-              'light-content'
+            'dark-content'
         }
       />
 
@@ -71,6 +82,7 @@ const LoginURL = ({ navigation }: {
             style={[styles.input, {color: UIColors.text}]}
             value={currentURL}
             onChangeText={text => setCurrentURL(text)}
+            ref={textInputRef}
           />
         </View>
 
@@ -104,6 +116,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: 16,
+    paddingRight: 16,
   },
 
   input: {

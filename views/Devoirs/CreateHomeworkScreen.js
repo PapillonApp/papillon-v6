@@ -251,15 +251,19 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
     });
   }, [UIColors, date]);
 
+  let layoutDone = false;
+  const layouted = () => {
+    if (layoutDone) return;
+    layoutDone = true;
+    inputRef.current.focus();
+  };
+
   return (
     <KeyboardAvoidingView
-      onLayout={() => {
-        inputRef.current.focus();
-      }}
       style={{flex: 1, backgroundColor: UIColors.modalBackground}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
     >
-      <View style={{ backgroundColor: UIColors.element, borderBottomColor: UIColors.borderLight, borderBottomWidth: 0.5, gap: 9, paddingBottom: 16, zIndex: 99 }}>
+      <View onLayout={(event) => {layouted()}} style={{ backgroundColor: UIColors.element, borderBottomColor: UIColors.borderLight, borderBottomWidth: 0.5, gap: 9, paddingBottom: 16, zIndex: 99 }}>
         <View style={[styles.newHwInput, {borderColor: UIColors.text + '18'}]}>
           <SFSymbol style={[styles.newHwIcon]} size={20} color={UIColors.text + '80'} name="square.and.pencil" />
           <TextInput
@@ -317,13 +321,15 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
                 setSelectedSubject(index);
               }}
             >
-              <Text
-                style={styles.newHwSubject}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {nativeSubjects[selectedSubject]?.actionTitle || 'Aucune matière'}
-              </Text>
+              <TouchableOpacity activeOpacity={0.6}>
+                <Text
+                  style={styles.newHwSubject}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {nativeSubjects[selectedSubject]?.actionTitle || 'Aucune matière'}
+                </Text>
+              </TouchableOpacity>
             </ContextMenuButton>
           </View>
         )}

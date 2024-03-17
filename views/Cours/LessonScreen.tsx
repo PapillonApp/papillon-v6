@@ -107,13 +107,13 @@ function LessonScreen({ route, navigation }) {
           {formatCoursName(lesson.subject.name)}
         </Text>
         <View style={{flexDirection: 'row'}}>
-          <Text numberOfLines={1} style={{fontFamily: 'Papillon-Medium', fontSize: 15, opacity:0.5}}>
-            {'salle ' + (lesson.rooms.length > 0 ? lesson.rooms.join(', ') : 'inconnue') + ' - '}
-          </Text>
-          <Text numberOfLines={1} style={{fontFamily: 'Papillon-Medium', fontSize: 15, opacity:0.5, minWidth: 50}}>
-            {lesson.status?.toLowerCase() || lengthString + ' de cours'}
-          </Text>
-        </View>
+        <Text numberOfLines={1} style={{fontFamily: 'Papillon-Medium', fontSize: 15, opacity:0.5}}>
+          {(lesson.rooms.length > 0 && !lesson.rooms[0].toLowerCase().includes('salle') ? 'salle ' : '') + (lesson.rooms.length > 0 ? lesson.rooms.join(', ') : 'inconnue') + ' - '}
+        </Text>
+        <Text numberOfLines={1} style={{fontFamily: 'Papillon-Medium', fontSize: 15, opacity:0.5, minWidth: 50}}>
+          {lesson.status?.toLowerCase() || lengthString + ' de cours'}
+        </Text>
+      </View>
       </View>
       ),
     });
@@ -172,6 +172,7 @@ function LessonScreen({ route, navigation }) {
         <NativeList inset header="Statut">
           <NativeItem
             leading={<Info size={24} color={mainColor} />}
+            backgroundColor={lesson.is_cancelled ? '#990000' : null}
           >
             <NativeText heading="p2">
                   Statut du cours

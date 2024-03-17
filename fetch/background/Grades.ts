@@ -125,13 +125,19 @@ const notifyGrades = async (grades: PapillonGrades[]) => {
 
     const goodGrade = lastGrade.grade.value.value / lastGrade.grade.out_of.value >= 0.75;
 
+    let bdy = `Vous avez eu ${lastGrade.grade.value.value}/${lastGrade.grade.out_of.value} ${goodGrade ? '! 👏' : ''}`;
+
+    if(lastGrade.grade.value.value === undefined || lastGrade.grade.value.value === null || lastGrade.grade.value.value < 0) {
+      bdy = 'Vous n\'avez pas été noté(e) pour ce cours.';
+    }
+
     notifee.displayNotification({
       id: lastGradeId,
       subtitle: formatCoursName(lastGrade.subject.name),
       title: lastGrade.description ? getClosestGradeEmoji(lastGrade.subject.name) + ' ' + lastGrade.description : getClosestGradeEmoji(lastGrade.subject.name) + ' ' + 'Nouvelle note',
-      body: `Vous avez eu ${lastGrade.grade.value.value}/${lastGrade.grade.out_of.value} ${goodGrade ? '! 👏' : ''}`,
+      body: bdy,
       android: {
-        channelId: 'grades',
+        channelId: 'new-grade',
         pressAction: {
           id: 'default',
         },

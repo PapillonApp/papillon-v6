@@ -73,6 +73,9 @@ const notifyLessons = async (lessons: PapillonLesson[]) => {
   for (const lesson of lessonsWithStatus) {
     const lessonStart = new Date(lesson.start);
     lessonStart.setMinutes(lessonStart.getMinutes() - 30);
+
+    // if lessonStart is in the past
+    if (lessonStart.getTime() < Date.now()) continue;
     
     const lessonID = (lesson.subject?.name ? lesson.subject.name : '') + new Date(lesson.start).getTime();
 
@@ -100,7 +103,7 @@ const notifyLessons = async (lessons: PapillonLesson[]) => {
       subtitle: formatCoursName(lesson.subject?.name),
       body: body,
       android: {
-        channelId: 'getpapillon',
+        channelId: 'course-edit',
       },
       ios: {
         sound: 'papillon_ding.wav',
