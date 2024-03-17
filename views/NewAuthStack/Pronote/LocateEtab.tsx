@@ -167,7 +167,7 @@ const LocateEtab = ({ navigation }: {
         <PapillonLoading 
           icon={<Locate color={"red"} size={26} style={{ margin: 8 }} />}
           title="Permission de localisation refusée"
-          subtitle="Vous avez refusé la permission de localisation. Pour réessayez, sélectionnez à nouveau l'option. Sinon, vous devrez autoriser manuellement l'autorisation."
+          subtitle="Vous avez refusé la permission de localisation. Pour réessayez, sélectionnez à nouveau l'option. Vous devrez peut-être autoriser manuellement l'autorisation."
         />
       ): null}
 
