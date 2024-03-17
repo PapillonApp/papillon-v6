@@ -63,6 +63,7 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   const [loading, setLoading] = useState(true);
   const [loadProgress, setLoadProgress] = useState(0);
   const [showWebView, setShowWebView] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
 
   const [currentURL, setCurrentURL] = useState('');
 
@@ -222,6 +223,28 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
           }}
         />
       </Animated.View>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={loggingIn}
+      >
+        <View style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.8)'
+        }}>
+          <ActivityIndicator color={'#ffffff'} />
+          <Text style={{
+            color: '#ffffff',
+            marginTop: 10,
+            fontFamily: 'Papillon-Medium',
+            fontSize: 16,
+          }}>
+            Connexion en cours...
+          </Text>
+        </View>
+      </Modal>
       <WebView
         ref={webViewRef}
         source={{ uri: infoMobileURL }}
@@ -238,7 +261,7 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
           if (message.type === 'pronote.loginState') {
             if (!message.data) return;
             if (message.data.status !== 0) return;
-            setLoading(true);
+            setLoggingIn(true);
             if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
 
             console.log('Pronote login state', message.data);
