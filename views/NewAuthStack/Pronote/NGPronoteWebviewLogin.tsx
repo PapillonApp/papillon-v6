@@ -236,9 +236,9 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
           console.log('Pronote webview message', message);
 
           if (message.type === 'pronote.loginState') {
-            setLoading(true);
             if (!message.data) return;
             if (message.data.status !== 0) return;
+            setLoading(true);
             if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
 
             console.log('Pronote login state', message.data);
