@@ -183,18 +183,6 @@ function NGPronoteLogin({
 
   return (
     <>
-      <LinearGradient
-        colors={[UIColors.modalBackground, UIColors.modalBackground + '00']}
-        locations={[0, 1]}
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          height: 100,
-          zIndex: 9999,
-        }}
-      />
       <ScrollView style={{ backgroundColor: UIColors.modalBackground }}>
         <AlertBottomSheet
           title="Échec de la connexion"
@@ -220,15 +208,12 @@ function NGPronoteLogin({
           cancelAction={() => setURLAlert(false)}
         />
 
-        {Platform.OS === 'ios' ? (
-          <StatusBar animated barStyle="light-content" />
-        ) : (
-          <StatusBar
-            animated
-            barStyle={theme.dark ? 'light-content' : 'dark-content'}
-            backgroundColor="transparent"
-          />
-        )}
+        <StatusBar
+          animated
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+          translucent
+        />
 
         {Platform.OS === 'android' ? <View style={{ height: 24 }} /> : null}
 
@@ -339,7 +324,7 @@ const styles = StyleSheet.create({
   loginHeader: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 70,
+    paddingTop: 24,
     paddingHorizontal: 28,
     paddingBottom: 18,
   },
