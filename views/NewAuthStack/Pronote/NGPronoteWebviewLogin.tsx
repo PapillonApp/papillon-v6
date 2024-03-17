@@ -288,7 +288,7 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
               webViewRef.current?.injectJavaScript(INJECT_PRONOTE_INITIAL_LOGIN_HOOK);
               webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
               
-              if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
+              /* if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current); */
               currentLoginStateIntervalRef.current = setInterval(() => {
                 webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
               }, 250);
