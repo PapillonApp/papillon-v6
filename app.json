@@ -14,21 +14,6 @@
     "notification": {
       "icon": "./assets/icon-small-notif.png"
     },
-    "intentFilters": [
-      {
-        "action": "VIEW",
-        "autoVerify": true,
-        "data": [
-          {
-            "scheme": "skoapp-prod"
-          }
-        ],
-        "category": [
-          "BROWSABLE",
-          "DEFAULT"
-        ]
-      }
-    ],
     "splash": {
       "image": "./assets/launch/splash-light.png",
       "resizeMode": "cover",
@@ -38,7 +23,9 @@
       "supportsTablet": true,
       "appStoreUrl": "https://apps.apple.com/us/app/papillon-lappli-scolaire/id6477761165",
       "bundleIdentifier": "xyz.getpapillon.ios",
-      "associatedDomains": ["applinks:getpapillon.xyz"],
+      "associatedDomains": [
+        "applinks:getpapillon.xyz"
+      ],
       "splash": {
         "backgroundColor": "#32AB8E",
         "image": "./assets/launch/splash-light.png",
