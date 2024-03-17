@@ -9,18 +9,16 @@ Votre emploi du temps 📅, votre agenda 📓, vos notes 📝, vos news 📰 et 
 
 ## 🚀 Sommaire
 
-- [Papillon — Votre vie scolaire](#papillon--votre-vie-scolaire)
-  - [🚀 Sommaire](#-sommaire)
-  - [Feuille de route](#feuille-de-route)
-  - [📖 À propos du projet](#-à-propos-du-projet)
-  - [🛠 Développé avec](#-développé-avec)
-  - [🎓 Pour commencer](#-pour-commencer)
-    - [Prérequis](#prérequis)
-    - [Installation](#installation)
-    - [Développer à distance](#développer-à-distance)
-  - [👥 Contribuer](#-contribuer)
-    - [Créer une Pull Request](#créer-une-pull-request)
-  - [📄 License](#-license)
+- [À propos du projet](#-à-propos-du-projet)
+- [Développé avec](#-développé-avec)
+- [Pour commencer](#-pour-commencer)
+  - [Prérequis](#prérequis)
+  - [Installation](#installation)
+- [Développement](#-développement)
+- [Avancement](#-avancement)
+- [Contribuer](#-contribuer)
+  - [Créer une Pull Request](#créer-une-pull-request)
+- [License](#-license)
 
 ## Feuille de route
 
@@ -97,6 +95,8 @@ Nous accueillons les contributions de tous. Veuillez lire notre [guide de contri
 4. Poussez vers la branche (`git push origin feature/AmazingFeature`)
 5. Ouvrez une Pull Request
 
-## 📄 License
+## �� License
+
 
 Distribué sous la licence GPLv3. Voir [`LICENSE`](LICENSE) pour plus d'informations.
+
