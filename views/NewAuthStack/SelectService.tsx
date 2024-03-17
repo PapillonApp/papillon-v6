@@ -19,9 +19,8 @@ const SelectService = ({ navigation }) => {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
 
-  const [edAlertVisible, setEdAlertVisible] = useState(false);
-  const [skolengoAlertVisible, setSkolengoAlertVisible] = useState(false);
   const [serviceAlertVisible, setServiceAlertVisible] = useState(false);
+  const [serviceNotSuportedAlertVisible, setServiceNotSuportedAlertVisible] = useState<false|string>(false);
 
   const [apiResponse, setApiResponse] = useState(false);
 
@@ -33,9 +32,9 @@ const SelectService = ({ navigation }) => {
 
   function callFetchPapiAPI(path: string) {
     return fetchPapiAPI(path)
-        .then(data => {
-            return data;
-        })
+      .then(data => {
+        return data;
+      })
   }
   
   useLayoutEffect(() => {
@@ -48,7 +47,7 @@ const SelectService = ({ navigation }) => {
     });
   }, [UIColors]);
 
-  const [selectedService, setSelectedService] = useState(null);
+  const [selectedService, setSelectedService] = useState<null|number>(null);
   const [serviceOptions, setServiceOptions] = useState([
     {
       name: 'PRONOTE',
@@ -63,8 +62,8 @@ const SelectService = ({ navigation }) => {
       company: 'Kosmos',
       description: 'Comptes régionnaux',
       icon: require('../../assets/logo_modern_skolengo.png'),
-      view: 'LoginSkolengoSelectSchool',
-      soon: true,
+      view: 'LoginSkolengoEtab',
+      soon: false,
     },
     {
       name: 'EcoleDirecte',
@@ -81,15 +80,11 @@ const SelectService = ({ navigation }) => {
 
   const continueToLogin = () => {
     if (selectedService !== null) {
-      if (selectedService === 1) {
-        setSkolengoAlertVisible(true);
+      const service = serviceOptions[selectedService];
+      if(service.soon) {
+        setServiceNotSuportedAlertVisible(service.name);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      }
-      else if (selectedService === 2) {
-        setEdAlertVisible(true);
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      }
-      else {
+      } else {
         setServiceAlertVisible(true);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       }
@@ -200,22 +195,11 @@ const SelectService = ({ navigation }) => {
 
       <AlertBottomSheet
         color='#A84700'
-        visible={edAlertVisible}
-        setVisible={setEdAlertVisible}
+        visible={serviceNotSuportedAlertVisible !== false}
         icon={<AlertTriangle />}
-        title="EcoleDirecte"
-        subtitle="EcoleDirecte n’est pas encore disponible sur Papillon. Veuillez réessayer plus tard."
-        cancelAction={() => setEdAlertVisible(false)}
-      />
-
-      <AlertBottomSheet
-        color='#A84700'
-        visible={skolengoAlertVisible}
-        setVisible={setSkolengoAlertVisible}
-        icon={<AlertTriangle />}
-        title="Skolengo"
-        subtitle="Skolengo n’est pas encore disponible sur Papillon. Veuillez réessayer plus tard."
-        cancelAction={() => setSkolengoAlertVisible(false)}
+        title={serviceNotSuportedAlertVisible}
+        subtitle={`${serviceNotSuportedAlertVisible} n’est pas encore disponible sur Papillon. Veuillez réessayer plus tard.`}
+        cancelAction={() => setServiceNotSuportedAlertVisible(false)}
       />
       
     </View>
