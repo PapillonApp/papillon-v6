@@ -408,7 +408,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
       },
       {
         type: 'Navigation', // Required
-        title: 'Travail à faire',
+        title: 'Devoirs',
         icon: 'check_custom', // Icons instructions below
         userInfo: {
           url: 'DevoirsHandler' // Provide any custom data like deep linking URL
