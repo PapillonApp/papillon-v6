@@ -287,7 +287,7 @@ function NewsScreen ({ navigation }: {
           backgroundColor="transparent"
         />
 
-        <NativeList inset>
+        <NativeList inset style={{ marginTop: 15 }}>
           {!isLoading && news.length !== 0 ? (
             news.map((item, index) => (
               <View key={index}>
