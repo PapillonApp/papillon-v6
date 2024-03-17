@@ -95,7 +95,7 @@ Nous accueillons les contributions de tous. Veuillez lire notre [guide de contri
 4. Poussez vers la branche (`git push origin feature/AmazingFeature`)
 5. Ouvrez une Pull Request
 
-## �� License
+## 📄 License
 
 
 Distribué sous la licence GPLv3. Voir [`LICENSE`](LICENSE) pour plus d'informations.
