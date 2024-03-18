@@ -7,8 +7,19 @@ struct SystemMediumGradeWidget: View {
     var body: some View {
         Group {
             if entry.grades.isEmpty {
+              // Handle the case where entry.grades is nil or empty
+              VStack(alignment: .center) {
                 Color("WidgetBackground")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(height: 14)
+                Spacer()
+                Text("Aucune note disponible")
+                  .font(.system(.subheadline, design: .rounded))
+                  .foregroundStyle(Color.primary.opacity(0.5))
+                  .padding()
+                  .multilineTextAlignment(.center)
+                Spacer()
+              }
+              .widgetBackground(Color(.clear))
             } else {
                 VStack(alignment: .leading, spacing: 0) {
                     Color(hex: entry.grades.first!.color)

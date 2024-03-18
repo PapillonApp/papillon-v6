@@ -703,7 +703,7 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation })
 
               <View style={subjectStyles.gradeContainer}>
                 <NativeText style={subjectStyles.subjectGradeValue}>
-                  {gradeValue}
+                  {gradeValue !== 'NaN' ? gradeValue : 'N.éval'}
                 </NativeText>
                 <NativeText style={subjectStyles.subjectGradeScale}>
                   /{gradeScale}
