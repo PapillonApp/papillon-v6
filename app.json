@@ -2,7 +2,7 @@
   "expo": {
     "name": "Papillon",
     "slug": "papillonvex",
-    "scheme": "papillon",
+    "scheme": ["papillon", "skoapp-prod"],
     "version": "6.6.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
