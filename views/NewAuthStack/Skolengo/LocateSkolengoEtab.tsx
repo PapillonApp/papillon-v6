@@ -130,7 +130,7 @@ export const LocateSkolengoEtab = ({
           trailing={
             isLoading ? (
               <ActivityIndicator />
-            ) : (currentSearch.length > 0 || searchMethod==='geo') ? (
+            ) : currentSearch.length > 0 || searchMethod === 'geo' ? (
               <TouchableOpacity
                 onPress={() => {
                   setCurrentSearch('');
@@ -152,7 +152,7 @@ export const LocateSkolengoEtab = ({
             onChangeText={(text) => {
               setCurrentSearch(text);
               setIsLoading(true);
-              if(searchMethod === 'geo') setSearchMethod('text');
+              if (searchMethod === 'geo') setSearchMethod('text');
             }}
           />
         </NativeItem>
@@ -218,13 +218,17 @@ export const LocateSkolengoEtab = ({
               >
                 <NativeText heading="h4">{instance.name}</NativeText>
                 <NativeText heading="p2">
-                  {`${instance.zipCode} ${instance.city}${instance.distance ? `\n(à ${Math.round(instance.distance*10)/10} km)` : ''}`}
+                  {`${instance.zipCode} ${instance.city}${
+                    instance.distance
+                      ? `\n(à ${Math.round(instance.distance * 10) / 10} km)`
+                      : ''
+                  }`}
                 </NativeText>
               </NativeItem>
             );
           })}
         </NativeList>
-        )}
+      )}
     </ScrollView>
   );
 };
