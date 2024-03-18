@@ -63,7 +63,7 @@ const SelectService = ({ navigation }) => {
       description: 'Comptes régionnaux',
       icon: require('../../assets/logo_modern_skolengo.png'),
       view: 'LocateSkolengoEtab',
-      soon: __DEV__ || false,
+      soon: !(__DEV__),
     },
     {
       name: 'EcoleDirecte',
