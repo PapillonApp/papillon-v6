@@ -3,6 +3,8 @@ import { View, Platform, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 const Tab = createBottomTabNavigator();
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import {
   Home as PapillonIconsHome,
   HomeFill as PapillonIconsHomeFill,
@@ -86,6 +88,7 @@ const views = [
 
 const TabsStack = ({ navigation }) => {
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
 
   const tabBar = useMemo(() => {
     if (Platform.OS !== 'ios') {
@@ -151,7 +154,7 @@ const TabsStack = ({ navigation }) => {
             margin: 0,
             padding: 0,
 
-            marginTop: -3,
+            marginTop: (insets.bottom > 30) ? -3 : 0,
 
             alignItems: 'center',
             justifyContent: 'center',
@@ -164,12 +167,16 @@ const TabsStack = ({ navigation }) => {
           tabBarShowLabel: true,
           tabBarActiveTintColor:
             UIColors.dark ? '#ffffff' : '#000000',
-          tabBarStyle: Platform.OS === 'ios' ? {
-            paddingHorizontal: 8,
-            height: 80,
-          } : {
-            paddingHorizontal: 8,
-          },
+          tabBarStyle: [
+            Platform.OS === 'ios' ? {
+              paddingHorizontal: 8,
+            } : {
+              paddingHorizontal: 8,
+            },
+            (insets.bottom > 30) ? {
+              height: 80,
+            } : null,
+          ],
           headerSearchBarOptions: {},
           headerTitleAlign: 'left',
         }}
