@@ -1208,6 +1208,12 @@ export const loginSkolengoWorkflow = async (
     disco
   ).catch(errHandler);
   if (!token) return errHandler();
+  Alert.alert(
+    'Skolengo : intégration en cours',
+    'Veuillez patienter, le processus de connexion à Skolengo à fonctionné.\nMais l\'intégration de Skolengo (NG) n\'est pas encode terminé.\n\nRevenez plus tard.',
+  );
+  // TODO : Créer l'intégration via scolengo-api
+  return;
   await Promise.all([
     AsyncStorage.setItem('service', 'Skolengo'),
     AsyncStorage.setItem('token', 'skolengo'),
