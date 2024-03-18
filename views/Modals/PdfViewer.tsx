@@ -18,8 +18,17 @@ import * as FileSystem from 'expo-file-system';
 import GetUIColors from '../../utils/GetUIColors';
 import { Share as ShareLucide } from 'lucide-react-native';
 
-const PdfViewer = ({ route, navigation }) => {
-  const url = route.params.url;
+interface PdfViewerProps {
+  route: {
+    params: {
+      url: string;
+    };
+  };
+  navigation: any;
+}
+
+const PdfViewer: React.FC<PdfViewerProps> = ({ route, navigation }) => {
+  const url: string = route.params.url;
   const UIColors = GetUIColors();
   const { width } = useWindowDimensions();
 
