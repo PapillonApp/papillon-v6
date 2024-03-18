@@ -1163,13 +1163,13 @@ const errHandler = (err) => {
 };
 
 /**
- * @param {typeof import("../../../utils/AppContext").DefaultValuesAppContext} appctx
+ * @param {typeof import("../../../utils/AppContext").DefaultValuesAppContext} appContext
  * @param {any} navigation
  * @param {import("scolengo-api/types/models/School").School} school
  * @param {SkolengoDatas} [skolengoInstance=undefined]
  */
 export const loginSkolengoWorkflow = async (
-  appctx,
+  appContext,
   navigation,
   school,
   skolengoInstance = undefined
@@ -1218,11 +1218,11 @@ export const loginSkolengoWorkflow = async (
     icon: 'auto',
     floating: true,
   });
-  if (appctx) {
+  if (appContext) {
     const a = new SkolengoDatas(token, school);
     await a.saveToken(disco);
-    appctx.dataprovider.init('Skolengo').then(() => {
-      appctx.setLoggedIn(true);
+    appContextdataProvider.init('Skolengo').then(() => {
+      appContext.setLoggedIn(true);
       navigation.popToTop();
     });
     return true;

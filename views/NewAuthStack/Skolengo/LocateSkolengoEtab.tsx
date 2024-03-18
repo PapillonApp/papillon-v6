@@ -105,10 +105,10 @@ export const LocateSkolengoEtab = ({
     }
   };
 
-  const appctx = useAppContext();
+  const appContext = useAppContext();
 
   async function selectEtab(item: SkolengoSchool) {
-    loginSkolengoWorkflow(appctx, navigation, item);
+    loginSkolengoWorkflow(appContext, navigation, item);
   }
 
   return (

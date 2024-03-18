@@ -47,7 +47,7 @@ import { Buffer } from 'buffer';
 import {calculateAverage, calculateSubjectAverage} from '../../utils/grades/averages';
 
 function GradeView({ route, navigation }) {
-  const appctx = useAppContext();
+  const appContext = useAppContext();
   const theme = useTheme();
   const { grade, allGrades } = route.params;
   const UIColors = GetUIColors();
