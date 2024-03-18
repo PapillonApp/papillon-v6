@@ -400,7 +400,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
     QuickActions.setShortcutItems([
       {
         type: 'Navigation', // Required
-        title: 'Emploi du temps',
+        title: 'Cours',
         icon: 'cal', // Icons instructions below
         userInfo: {
           url: 'CoursHandler' // Provide any custom data like deep linking URL
@@ -408,7 +408,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
       },
       {
         type: 'Navigation', // Required
-        title: 'Travail à faire',
+        title: 'Devoirs',
         icon: 'check_custom', // Icons instructions below
         userInfo: {
           url: 'DevoirsHandler' // Provide any custom data like deep linking URL

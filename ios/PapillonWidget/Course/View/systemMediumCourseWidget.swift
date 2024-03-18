@@ -45,6 +45,9 @@ struct systemMediumCourseWidget: View {
                   .overlay(
                     Text(currentCourse.emoji)
                   )
+                RoundedRectangle(cornerRadius: 25)
+                  .fill(.clear)
+                  .frame(width: 4, height: 40)
                 VStack(alignment: .leading) {
                   Text(currentCourse.subject)
                     .font(.system(.headline, design: .rounded))
@@ -53,18 +56,22 @@ struct systemMediumCourseWidget: View {
                       .font(.system(.subheadline, design: .rounded))
                       .foregroundStyle(Color.white.opacity(0.5))
                   } else {
-                    Text("salle \(currentCourse.room)")
+                    Text("\(currentCourse.room)")
                       .font(.system(.subheadline, design: .rounded))
                       .foregroundStyle(Color.white.opacity(0.5))
                   }
                 }
                 Spacer()
+                
                 VStack(alignment: .trailing){
-                  Text("\(formattedTime(currentCourse.start))")
-                    .font(.system(.headline, design: .rounded))
-                  Text("Maintenant")
-                    .font(.system(.subheadline, design: .rounded))
-                    .foregroundStyle(Color.white.opacity(0.5))
+                  RoundedRectangle(cornerRadius: 8)
+                    .fill(.white.opacity(0.25))
+                    .frame(width: 57, height: 25)
+                    .overlay(
+                      Text("\(formattedTime(currentCourse.start))")
+                        .font(.system(.headline, design: .rounded))
+                        .foregroundStyle(.white)
+                    )
                 }
               }
               .padding(.horizontal)
@@ -85,30 +92,42 @@ struct systemMediumCourseWidget: View {
                     .overlay(
                       Text(course.emoji)
                     )
-                  Text(course.subject)
-                    .foregroundStyle(Color(hex: course.backgroundColor))
-                    .lineLimit(1)
-                    .font(.system(.headline, design: .rounded))
+                  RoundedRectangle(cornerRadius: 25)
+                      .fill(Color(hex: course.backgroundColor))
+                      .frame(width: 4, height: 40)
+                  VStack(alignment: .leading) {
+                    Text(course.subject)
+                      .lineLimit(1)
+                      .font(.system(.headline, design: .rounded))
+                    Text(course.room)
+                      .lineLimit(1)
+                      .foregroundStyle(Color.primary.opacity(0.5))
+                      .font(.system(.subheadline, design: .rounded))
+                  }
                   Spacer()
                   if course.isCancelled == true {
-                    Text("Annulé")
-                      .font(.system(.headline, design: .rounded))
-                      .foregroundStyle(Color.black.opacity(0.5))
+                    RoundedRectangle(cornerRadius: 25)
+                      .fill(Color(hex: course.backgroundColor).opacity(0.25))
+                      .frame(width: 68, height: 25)
+                      .overlay(
+                        Text("Annulé")
+                          .font(.system(.headline, design: .rounded))
+                          .foregroundStyle(Color(hex: course.backgroundColor))
+                      )
                   } else {
-                    Text("\(formattedTime(course.start))")
-                      .font(.system(.headline, design: .rounded))
-                      .foregroundStyle(Color.primary.opacity(0.5))
+                    RoundedRectangle(cornerRadius: 8)
+                      .fill(Color(hex: course.backgroundColor).opacity(0.25))
+                      .frame(width: 57, height: 25)
+                      .overlay(
+                        Text("\(formattedTime(course.start))")
+                          .font(.system(.headline, design: .rounded))
+                          .foregroundStyle(Color(hex: course.backgroundColor))
+                      )
                   }
                 }
                 .padding(.horizontal)
               }
               .frame(height: (reader.size.height - 60) * 0.5)
-              .overlay(
-                Rectangle()
-                  .frame(height: 0.5)
-                  .foregroundColor(.secondary),
-                alignment: .bottom
-              )
             }
           }
         } 
@@ -140,8 +159,14 @@ struct systemMediumCourseWidget: View {
                 }
                 Spacer()
                 VStack(alignment: .trailing){
-                  Text("\(formattedTime(upcomingCourses.first!.start))")
-                    .font(.system(.headline, design: .rounded))
+                  RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(hex: upcomingCourses.first!.backgroundColor).opacity(0.25))
+                    .frame(width: 57, height: 25)
+                    .overlay(
+                      Text("\(formattedTime(upcomingCourses.first!.start))")
+                        .font(.system(.headline, design: .rounded))
+                        .foregroundStyle(Color(hex: upcomingCourses.first!.backgroundColor))
+                    )
                 }
               }
               .padding(.horizontal)
@@ -152,37 +177,52 @@ struct systemMediumCourseWidget: View {
            .frame(height: 60)
             //S'il reste au moins un cours
             if !upcomingCourses.isEmpty {
-              ForEach(upcomingCourses.dropFirst(1).prefix(2), id: \.id) { course in
+              ForEach(upcomingCourses.prefix(2), id: \.id) { course in
                 VStack {
                   HStack {
                     Circle()
-                      .strokeBorder(Color.white.opacity(0), lineWidth: 2)
+                      .strokeBorder(Color.white.opacity(0), lineWidth: 3)
                       .background(Circle().fill(Color.white.opacity(0)))
                       .frame(width: 40, height: 40, alignment: .center)
                       .overlay(
                         Text(course.emoji)
                       )
-                    Text(course.subject)
-                      .lineLimit(1)
-                      .font(.system(.headline, design: .rounded))
+                    RoundedRectangle(cornerRadius: 25)
+                        .fill(Color(hex: course.backgroundColor))
+                        .frame(width: 4, height: 40)
+                    VStack(alignment: .leading) {
+                      Text(course.subject)
+                        .lineLimit(1)
+                        .font(.system(.headline, design: .rounded))
+                      Text(course.room)
+                        .lineLimit(1)
+                        .foregroundStyle(Color.primary.opacity(0.5))
+                        .font(.system(.subheadline, design: .rounded))
+                    }
                     Spacer()
                     if course.isCancelled == true {
-                      Text("Annulé")
-                        .font(.system(.headline, design: .rounded))
-                        .foregroundStyle(Color.black.opacity(0.5))
+                      RoundedRectangle(cornerRadius: 25)
+                        .fill(Color(hex: course.backgroundColor).opacity(0.25))
+                        .frame(width: 68, height: 25)
+                        .overlay(
+                          Text("Annulé")
+                            .font(.system(.headline, design: .rounded))
+                            .foregroundStyle(Color(hex: course.backgroundColor))
+                        )
                     } else {
-                      Text("\(formattedTime(course.start))")
-                        .font(.system(.headline, design: .rounded))
-                        .foregroundStyle(Color.primary.opacity(0.5))
+                      RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(hex: course.backgroundColor).opacity(0.25))
+                        .frame(width: 57, height: 25)
+                        .overlay(
+                          Text("\(formattedTime(course.start))")
+                            .font(.system(.headline, design: .rounded))
+                            .foregroundStyle(Color(hex: course.backgroundColor))
+                        )
                     }
-                  }.padding(.horizontal)
-                }.frame(height: (reader.size.height - 60) * 0.5)
-                  .overlay(
-                    Rectangle()
-                      .frame(height: 0.5)
-                      .foregroundColor(.secondary),
-                    alignment: .bottom
-                  )
+                  }
+                  .padding(.horizontal)
+                }
+                .frame(height: (reader.size.height - 60) * 0.5)
               }
             }
           }

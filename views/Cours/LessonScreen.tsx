@@ -172,7 +172,7 @@ function LessonScreen({ route, navigation }) {
         <NativeList inset header="Statut">
           <NativeItem
             leading={<Info size={24} color={mainColor} />}
-            backgroundColor={lesson.is_cancelled ? '#990000' : null}
+            backgroundColor={lesson.is_cancelled ? '#B42828' : null}
           >
             <NativeText heading="p2">
                   Statut du cours
