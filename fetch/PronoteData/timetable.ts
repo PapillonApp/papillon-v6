@@ -10,11 +10,11 @@ function removeDuplicateCourses(courses: PapillonLesson[]): PapillonLesson[] {
   for (let i = 0; i < courses.length; i += 1) {
     // if next cours starts at the same time
     if (i + 1 < courses.length && courses[i].start === courses[i + 1].start) {
-      // remove the course with the lowest num
-      if (courses[i].num < courses[i + 1].num) {
-        result.splice(i + 1, 1);
-      } else {
+      // remove the course that has is_cancelled set to true
+      if (courses[i].is_cancelled) {
         result.splice(i, 1);
+      } else if (courses[i + 1].is_cancelled) {
+        result.splice(i + 1, 1);
       }
     }
 
