@@ -84,7 +84,7 @@ function SchoolLifeScreen({ navigation }: {
       headerBackTitle: 'Retour',
       headerTintColor: UIColors.text,
       headerShadowVisible: true,
-      headerLargeTitle: true,
+      headerLargeTitle: false,
     });
   });
   
