@@ -100,7 +100,7 @@ function ConversationsScreen({ navigation }: {
       headerBackTitle: 'Retour',
       headerTintColor: UIColors.text,
       headerShadowVisible: Platform.OS == 'ios',
-      headerLargeTitle: true,
+      headerLargeTitle: false,
       headerStyle: {
         backgroundColor: Platform.OS == 'android' && UIColors.background,
       },

@@ -1,6 +1,4 @@
 import * as BackgroundFetch from 'expo-background-fetch';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import notifee, { AuthorizationStatus } from '@notifee/react-native';
 import * as TaskManager from 'expo-task-manager';
 import { BackgroundFetchResult } from 'expo-background-fetch';
 

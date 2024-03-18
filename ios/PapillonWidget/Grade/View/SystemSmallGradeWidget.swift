@@ -38,7 +38,7 @@ struct SystemSmallGradeWidget: View {
             }
             .widgetBackground(Color(.clear))
         } else {
-            // Handle the case where entry.grades is nil or empty
+          // Handle the case where entry.grades is nil or empty
           VStack(alignment: .center) {
             Color("WidgetBackground")
                 .frame(height: 14)

@@ -55,7 +55,8 @@ const AuthStack = ({ navigation }) => {
       component: require('../views/NewAuthStack/Pronote/NGPronoteLogin').default,
       options: {
         headerTitle: 'Se connecter',
-        headerTransparent: true,
+        headerTransparent: false,
+        headerBackTitle: 'Retour',
       }
     },
     { 
