@@ -2,6 +2,7 @@ import type { CachedPapillonGrades, PapillonGradeValue, PapillonGrades } from '.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { type Pronote, PronoteApiGradeType } from 'pawnote';
 import { AsyncStoragePronoteKeys } from './connector';
+import type { PapillonAttachment } from '../types/attachment';
 
 /**
  * Get the state of a grade in an integer form.
@@ -61,6 +62,8 @@ export const gradesHandler = async (periodName: string, instance?: Pronote, forc
         is_bonus: grade.isBonus,
         is_optional: grade.isOptional,
         is_out_of_20: grade.isOutOf20,
+        correctionFile: grade.correctionFile as unknown as PapillonAttachment | undefined,
+        subjectFile: grade.subjectFile as unknown as PapillonAttachment | undefined,
         grade: {
           value: getGradeState(grade.value),
           out_of: getGradeState(grade.outOf),
