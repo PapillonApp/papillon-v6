@@ -44,11 +44,10 @@ import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
-import { Buffer } from 'buffer';
+import * as WebBrowser from 'expo-web-browser';
 
 import {calculateAverage, calculateSubjectAverage} from '../../utils/grades/averages';
 import { PapillonGrades } from '../../fetch/types/grades';
-import { openURL } from 'expo-linking';
 import { PapillonAttachmentType } from '../../fetch/types/attachment';
 
 function GradeView({ route, navigation }) {
@@ -59,6 +58,14 @@ function GradeView({ route, navigation }) {
     allGrades: any; // TODO ?
   };
   const UIColors = GetUIColors();
+
+  const openURL = async (url: string) => {
+    await WebBrowser.openBrowserAsync(url, {
+      presentationStyle: 'pageSheet',
+      type: 'dismiss',
+      controlsColor: UIColors.primary,
+    });
+  };
 
   const [modalLoading, setModalLoading] = useState(false);
   const [modalLoadingText, setModalLoadingText] = useState('');
@@ -441,14 +448,12 @@ function GradeView({ route, navigation }) {
                   <File size={24} color={UIColors.text} />
                 )}
               >
-                <View style={{marginRight: 80, paddingLeft: 6}}>
-                  <NativeText heading="h4">
-                    Sujet: {grade.subjectFile.name}
-                  </NativeText>
-                  <NativeText numberOfLines={1}>
-                    {grade.subjectFile.url}
-                  </NativeText>
-                </View>
+                <NativeText heading="h4">
+                  Sujet: {grade.subjectFile.name}
+                </NativeText>
+                <NativeText numberOfLines={1}>
+                  {grade.subjectFile.url}
+                </NativeText>
               </NativeItem>
             )}
 
@@ -461,14 +466,12 @@ function GradeView({ route, navigation }) {
                   <File size={24} color={UIColors.text} />
                 )}
               >
-                <View style={{marginRight: 80, paddingLeft: 6}}>
-                  <NativeText heading="h4">
-                    Correction: {grade.correctionFile.name}
-                  </NativeText>
-                  <NativeText numberOfLines={1}>
-                    {grade.correctionFile.url}
-                  </NativeText>
-                </View>
+                <NativeText heading="h4">
+                  Correction: {grade.correctionFile.name}
+                </NativeText>
+                <NativeText numberOfLines={1}>
+                  {grade.correctionFile.url}
+                </NativeText>
               </NativeItem>
             )}
           </NativeList> 
