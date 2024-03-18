@@ -28,6 +28,8 @@ import {
   UserPlus,
   Users2,
   ChevronLeft,
+  Link,
+  File,
 } from 'lucide-react-native';
 
 import { useLayoutEffect } from 'react';
@@ -45,11 +47,17 @@ import NativeText from '../../components/NativeText';
 import { Buffer } from 'buffer';
 
 import {calculateAverage, calculateSubjectAverage} from '../../utils/grades/averages';
+import { PapillonGrades } from '../../fetch/types/grades';
+import { openURL } from 'expo-linking';
+import { PapillonAttachmentType } from '../../fetch/types/attachment';
 
 function GradeView({ route, navigation }) {
   const appctx = useAppContext();
   const theme = useTheme();
-  const { grade, allGrades } = route.params;
+  const { grade, allGrades } = route.params as {
+    grade: PapillonGrades['grades'][number];
+    allGrades: any; // TODO ?
+  };
   const UIColors = GetUIColors();
 
   const [modalLoading, setModalLoading] = useState(false);
@@ -421,6 +429,50 @@ function GradeView({ route, navigation }) {
             </NativeText>
           </NativeItem>
         </NativeList>
+
+        {(grade.subjectFile || grade.correctionFile) && (
+          <NativeList header="Fichiers" inset>
+            {grade.subjectFile && (
+              <NativeItem
+                onPress={() => openURL(grade.subjectFile!.url)}
+                leading={grade.subjectFile.type === PapillonAttachmentType.Link ? (
+                  <Link size={24} color={UIColors.text} />
+                ) : (
+                  <File size={24} color={UIColors.text} />
+                )}
+              >
+                <View style={{marginRight: 80, paddingLeft: 6}}>
+                  <NativeText heading="h4">
+                    Sujet: {grade.subjectFile.name}
+                  </NativeText>
+                  <NativeText numberOfLines={1}>
+                    {grade.subjectFile.url}
+                  </NativeText>
+                </View>
+              </NativeItem>
+            )}
+
+            {grade.correctionFile && (
+              <NativeItem
+                onPress={() => openURL(grade.correctionFile!.url)}
+                leading={grade.correctionFile.type === PapillonAttachmentType.Link ? (
+                  <Link size={24} color={UIColors.text} />
+                ) : (
+                  <File size={24} color={UIColors.text} />
+                )}
+              >
+                <View style={{marginRight: 80, paddingLeft: 6}}>
+                  <NativeText heading="h4">
+                    Correction: {grade.correctionFile.name}
+                  </NativeText>
+                  <NativeText numberOfLines={1}>
+                    {grade.correctionFile.url}
+                  </NativeText>
+                </View>
+              </NativeItem>
+            )}
+          </NativeList> 
+        )}
 
         <View style={{ height: 44 }} />
       </ScrollView>
