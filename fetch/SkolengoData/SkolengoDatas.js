@@ -1221,7 +1221,7 @@ export const loginSkolengoWorkflow = async (
   if (appContext) {
     const a = new SkolengoDatas(token, school);
     await a.saveToken(disco);
-    appContextdataProvider.init('Skolengo').then(() => {
+    appContext.dataProvider.init('Skolengo').then(() => {
       appContext.setLoggedIn(true);
       navigation.popToTop();
     });

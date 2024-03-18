@@ -44,7 +44,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
   const [fieldsAlert, setFieldsAlert] = useState(false);
 
   useEffect(() => {
-    appContextdataProvider.getGrades('', false).then((grades) => {
+    appContext.dataProvider.getGrades('', false).then((grades) => {
       let subjects = [];
       grades.grades.forEach((grade) => {
         // if subject name is not in the list
