@@ -18,7 +18,7 @@ import formatCoursName from '../utils/FormatCoursName';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
 // Icons
-import { Users2, TrendingDown, TrendingUp, AlertTriangle, MoreVertical } from 'lucide-react-native';
+import { Users2, File, TrendingDown, TrendingUp, AlertTriangle, MoreVertical } from 'lucide-react-native';
 import { Stats } from '../interface/icons/PapillonIcons';
 
 // Plugins
@@ -545,6 +545,7 @@ const GradesScreen = ({ navigation }: {
           allGrades={allGrades}
           gradeSettings={gradeSettings}
           navigation={navigation}
+          UIColors={UIColors}
         />
 
         <View style={{ height: 56 }} />
@@ -671,7 +672,7 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
   </>);
 });
 
-const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation }) => {
+const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation, UIColors }) => {
   const showGrade = useCallback((grade) => {
     navigation.navigate('Grade', {
       grade,
@@ -703,7 +704,7 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation })
 
               <View style={subjectStyles.gradeContainer}>
                 <NativeText style={subjectStyles.subjectGradeValue}>
-                  {gradeValue}
+                  {gradeValue !== 'NaN' ? gradeValue : 'N.éval'}
                 </NativeText>
                 <NativeText style={subjectStyles.subjectGradeScale}>
                   /{gradeScale}
@@ -729,21 +730,27 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation })
                     </NativeText>
                   }
                   trailing={
-                    <View style={subjectStyles.inGradeContainer}>
-                      <View style={subjectStyles.gradeTextContainer}>
-                        <NativeText heading="p" style={subjectStyles.gradeValue}>
-                          {gradeValue}
-                        </NativeText>
-                        <NativeText heading="p" style={subjectStyles.gradeScale}>
-                            /{gradeScale}
-                        </NativeText>
-                      </View>
-
-                      { parseFloat(grade.grade.coefficient) !== 1 && (
-                        <NativeText heading="p" style={subjectStyles.gradeCoef}>
-                          Coeff. {grade.grade.coefficient}
-                        </NativeText>
+                    <View style={subjectStyles.inGradeView}>
+                      {(grade.subjectFile  || grade.correctionFile) && (
+                        <File size={20} strokeWidth={2.2} color={UIColors.text} />
                       )}
+
+                      <View style={subjectStyles.inGradeContainer}>
+                        <View style={subjectStyles.gradeTextContainer}>
+                          <NativeText heading="p" style={subjectStyles.gradeValue}>
+                            {gradeValue}
+                          </NativeText>
+                          <NativeText heading="p" style={subjectStyles.gradeScale}>
+                              /{gradeScale}
+                          </NativeText>
+                        </View>
+
+                        { parseFloat(grade.grade.coefficient) !== 1 && (
+                          <NativeText heading="p" style={subjectStyles.gradeCoef}>
+                            Coeff. {grade.grade.coefficient}
+                          </NativeText>
+                        )}
+                      </View>
                     </View>
                   }
                 >
@@ -1045,6 +1052,12 @@ const subjectStyles = StyleSheet.create({
     color: '#ffffff',
     fontFamily: 'Papillon-Semibold',
     fontSize: 24,
+  },
+
+  inGradeView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
 
   inGradeContainer : {

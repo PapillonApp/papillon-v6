@@ -19,6 +19,11 @@ export const discussionsHandler = async (instance?: Pronote): Promise<PapillonDi
           content: message.content,
           author: message.author.name,
           timestamp: message.created.getTime(),
+          amountOfRecipients: message.amountOfRecipients,
+          files: message.files.map(file => ({
+            name: file.name,
+            url: file.url
+          }))
         });
       }
 

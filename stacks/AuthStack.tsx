@@ -55,8 +55,8 @@ const AuthStack = ({ navigation }) => {
       component: require('../views/NewAuthStack/Pronote/NGPronoteLogin').default,
       options: {
         headerTitle: 'Se connecter',
-        headerTransparent: true,
-        presentation: 'modal',
+        headerTransparent: false,
+        headerBackTitle: 'Retour',
       }
     },
     { 
@@ -64,15 +64,16 @@ const AuthStack = ({ navigation }) => {
       component: require('../views/NewAuthStack/Pronote/NGPronoteWebviewLogin').default,
       options: {
         headerTitle: 'Portail de l\'établissement',
-        presentation: 'modal',
+        headerBackTitle: 'Retour',
+        headerBackTitleVisible: false,
       }
     },
     {
       name: 'LoginURL',
       component: require('../views/NewAuthStack/Pronote/LoginURL').default,
       options: {
-        headerTitle: 'Connexion via PRONOTE',
-        presentation: 'modal',
+        headerTitle: 'Connexion via URL',
+        headerBackTitle: 'Retour',
       }
     },
     {
@@ -81,7 +82,6 @@ const AuthStack = ({ navigation }) => {
       options: {
         headerTitle: 'Localiser mon établissement',
         headerBackTitle: 'Retour',
-        presentation: 'modal',
       }
     },
     {
@@ -89,8 +89,7 @@ const AuthStack = ({ navigation }) => {
       component: require('../views/NewAuthStack/Pronote/LocateEtabList').default,
       options: {
         headerTitle: 'Établissements',
-        headerBackTitle: 'Ville',
-        presentation: 'modal',
+        headerBackTitle: 'Localiser',
       }
     },
     {

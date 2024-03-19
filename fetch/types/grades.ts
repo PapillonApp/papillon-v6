@@ -1,4 +1,5 @@
 import type { PronoteApiGradeType } from 'pawnote';
+import { PapillonAttachment } from './attachment';
 
 export interface CachedPapillonGrades {
   timestamp: number
@@ -21,6 +22,9 @@ export interface PapillonGrades {
       name: string
       groups: boolean
     }
+
+    subjectFile?: PapillonAttachment
+    correctionFile?: PapillonAttachment
 
     date: string
     description: string

@@ -97,4 +97,6 @@ Nous accueillons les contributions de tous. Veuillez lire notre [guide de contri
 
 ## 📄 License
 
-Distribué sous la licence MIT. Voir `LICENSE` pour plus d'informations.
+
+Distribué sous la licence GPLv3. Voir [`LICENSE`](LICENSE) pour plus d'informations.
+
