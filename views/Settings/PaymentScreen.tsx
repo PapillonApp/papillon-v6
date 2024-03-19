@@ -12,13 +12,20 @@ import NativeText from '../../components/NativeText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const PaymentScreen = ({ navigation }) => {
-  const UIColors = GetUIColors();
-  const [products, setProducts] = useState([]);
+interface Product {
+  productId: string;
+  title: string;
+  description: string;
+  price: string;
+}
 
-  const [hasAlreadyBought, setHasAlreadyBought] = useState(false);
-  const [currentlyBuying, setCurrentlyBuying] = useState(false);
-  const [loading, setLoading] = useState(false);
+const PaymentScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const UIColors = GetUIColors();
+  const [products, setProducts] = useState<Product[]>([]);
+
+  const [hasAlreadyBought, setHasAlreadyBought] = useState<boolean>(false);
+  const [currentlyBuying, setCurrentlyBuying] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   // restore purchases button in header
   React.useLayoutEffect(() => {
@@ -29,7 +36,7 @@ const PaymentScreen = ({ navigation }) => {
             setCurrentlyBuying(true);
             InAppPurchases.getPurchaseHistoryAsync().then((history) => {
               setCurrentlyBuying(false);
-              
+
               if (history.results.length > 0) {
                 setHasAlreadyBought(true);
                 AsyncStorage.setItem('hasAlreadyBought', 'true');
@@ -55,7 +62,7 @@ const PaymentScreen = ({ navigation }) => {
             });
           }}
         >
-          <NativeText heading="p" style={{color: UIColors.primary, fontFamily : 'Papillon-Medium', fontSize: 17}}>
+          <NativeText heading="p" style={{ color: UIColors.primary, fontFamily: 'Papillon-Medium', fontSize: 17 }}>
             Restaurer
           </NativeText>
         </TouchableOpacity>
@@ -98,7 +105,7 @@ const PaymentScreen = ({ navigation }) => {
     getProducts();
   }, []);
 
-  async function subGrade(productID) {
+  async function subGrade(productID: string) {
     const item = products.find((item) => item.productId === productID);
     if (item) {
       setCurrentlyBuying(true);
@@ -156,7 +163,7 @@ const PaymentScreen = ({ navigation }) => {
               gap: 10,
             }}>
               <ActivityIndicator color="#ffffff" />
-              <NativeText heading="p" style={{color: '#ffffff'}}>
+              <NativeText heading="p" style={{ color: '#ffffff' }}>
                 Communication avec l'App Store...
               </NativeText>
             </View>
@@ -194,7 +201,7 @@ const PaymentScreen = ({ navigation }) => {
                 <NativeText heading="h4">
                   Merci pour votre soutien !
                 </NativeText>
-                <NativeText heading="p2" style={{fontSize: 15}}>
+                <NativeText heading="p2" style={{ fontSize: 15 }}>
                   Vos dons permettent de financer les coûts de développement et aident les développeurs à continuer à travailler sur l'application.
                 </NativeText>
               </NativeItem>
@@ -205,8 +212,8 @@ const PaymentScreen = ({ navigation }) => {
             Papillon est une application libre développée majoritairement par des lycéens sur leur temps libre. Elle est gratuite et sans publicité. Si vous souhaitez soutenir le projet, vous pouvez faire un don à notre équipe pour financer les coûts de développement et faire perdurer l'application.
           </NativeText>
 
-          { !loading ? (
-            <NativeList 
+          {!loading ? (
+            <NativeList
               inset
               header="Pourboire unique">
               {products.map((product) => (
@@ -215,7 +222,7 @@ const PaymentScreen = ({ navigation }) => {
                   onPress={() => subGrade(product.productId)}
 
                   leading={
-                    <NativeText heading="h1" style={{fontSize: 30}}>
+                    <NativeText heading="h1" style={{ fontSize: 30 }}>
                       {
                         product.productId === 'chenille2' ? '🐛' :
                           product.productId === 'cocon2' ? '🪺' :
@@ -224,7 +231,7 @@ const PaymentScreen = ({ navigation }) => {
                     </NativeText>
                   }
                   trailing={
-                    <NativeText heading="p" style={{marginLeft: 5}}>
+                    <NativeText heading="p" style={{ marginLeft: 5 }}>
                       {product.price}
                     </NativeText>
                   }
@@ -239,7 +246,7 @@ const PaymentScreen = ({ navigation }) => {
               ))}
             </NativeList>
           ) : (
-            <NativeList 
+            <NativeList
               inset
               header="Pourboire unique"
             >
