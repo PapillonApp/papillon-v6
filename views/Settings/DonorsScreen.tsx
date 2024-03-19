@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { FC, useState } from 'react';
 import {
   View,
   ScrollView,
@@ -10,10 +10,7 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import { useState, useEffect } from 'react';
-import {
-  Euro, Heart,
-} from 'lucide-react-native';
+import { Euro, Heart } from 'lucide-react-native';
 import PapillonIcon from '../../components/PapillonIcon';
 
 import KofiSupporters from './KofiSupporters.json';
@@ -24,16 +21,20 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import PapillonLoading from '../../components/PapillonLoading';
 
-function DonorsScreen({ navigation }) {
+interface DonorsScreenProps {
+  navigation: any;
+}
+
+const DonorsScreen: FC<DonorsScreenProps> = ({ navigation }) => {
   const UIColors = GetUIColors();
 
   const theme = useTheme();
 
-  function formatDate(date) {
+  function formatDate(date: string): string {
     let s = date.split(' ');
     let d = s[0].split('-');
     let t = s[1].split(':');
-    const month = [
+    const month: string[] = [
       'janvier',
       'février',
       'mars',
@@ -73,11 +74,8 @@ function DonorsScreen({ navigation }) {
           subtitle="Vous êtes géniaux ! Grâce à vous, nous pouvons continuer à développer Papillon de manière indépendante & gratuite !"
         />
 
-        <NativeList
-          inset
-          header={'Donateurs'}
-        >
-          {KofiSupporters.map((item, index) => (
+        <NativeList inset header={'Donateurs'}>
+          {KofiSupporters.map((item: any, index: number) => (
             <NativeItem
               key={index}
               leading={
@@ -93,18 +91,16 @@ function DonorsScreen({ navigation }) {
                 )
               }
               trailing={
-                ( item.Monthly === 'True' ?
-                  <NativeText heading="p2">
-                    mensuel
-                  </NativeText>
-                  : null )
+                item.Monthly === 'True' ? (
+                  <NativeText heading="p2">mensuel</NativeText>
+                ) : null
               }
             >
-              <NativeText heading="h4">
-                {item.Name}
-              </NativeText>
+              <NativeText heading="h4">{item.Name}</NativeText>
               <NativeText heading="p2">
-                à donné {(parseFloat(item.Total.replace(',','.')) / 1).toFixed(0)} café{parseFloat(item.Total.replace(',','.')) > 1 ? 's' : ''}
+                à donné{' '}
+                {(parseFloat(item.Total.replace(',', '.')) / 1).toFixed(0)}{' '}
+                café{parseFloat(item.Total.replace(',', '.')) > 1 ? 's' : ''}
               </NativeText>
 
               <NativeText heading="subtitle2">
@@ -116,17 +112,23 @@ function DonorsScreen({ navigation }) {
       </ScrollView>
     </View>
   );
+};
+
+interface DonorsPfpProps {
+  image: string;
 }
 
-const DonorsPfp = ({ image }) => {
+const DonorsPfp: FC<DonorsPfpProps> = ({ image }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
     <View
-      style={[{
-        width: 38,
-        height: 38,
-      }]}
+      style={[
+        {
+          width: 38,
+          height: 38,
+        },
+      ]}
     >
       {!isLoaded && (
         <ActivityIndicator
@@ -140,14 +142,20 @@ const DonorsPfp = ({ image }) => {
           }}
         />
       )}
-      
-      { image && image.startsWith('https://') ? (
+
+      {image && image.startsWith('https://') ? (
         <Image
           onLoad={() => setIsLoaded(true)}
           source={{ uri: image }}
-          style={{ width: 38, height: 38, borderRadius: 12, borderWidth: 1, borderColor: '#00000022' }}
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: '#00000022',
+          }}
         />
-      ) : null }
+      ) : null}
     </View>
   );
 };
