@@ -1,97 +1,91 @@
+import { useMemo } from 'react';
 import { Platform, useColorScheme } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
-function GetUIColors(schemeForce) {
+function useUIColors(schemeForce, platformForce) {
   const theme = useTheme();
   const scheme = useColorScheme();
 
   let isDark = scheme === 'dark';
+  let platform = Platform.OS;
 
   if (schemeForce) {
-    if (schemeForce === 'dark') {
-      isDark = true;
-    } else if (schemeForce === 'light') {
-      isDark = false;
+    isDark = schemeForce === 'dark';
+  }
+
+  if (platformForce) {
+    platform = platformForce;
+  }
+
+  return useMemo(() => {
+    let background;
+    let backgroundHigh;
+    let backgroundItems;
+
+    if (platform === 'ios') {
+      background = isDark ? '#0B0B0C' : '#ffffff';
+      backgroundHigh = isDark ? '#0B0B0C' : '#f2f2f7';
+      backgroundItems = backgroundHigh;
+    } else {
+      background = theme.colors.background;
+      backgroundHigh = theme.colors.background;
+      backgroundItems = theme.colors.elevation.level1;
     }
-  }
 
-  // background
-  let background;
-  let backgroundHigh;
+    let modalBackground = background;
+    if (platform === 'ios') {
+      modalBackground = isDark ? '#0B0B0C' : '#f2f2f7';
+    }
 
-  if (Platform.OS === 'ios') {
-    background = isDark ? '#0B0B0C' : '#ffffff';
-    backgroundHigh = isDark ? '#0B0B0C' : '#f2f2f7';
-  } else {
-    background = theme.colors.background;
-    backgroundHigh = theme.colors.background;
-  }
+    let element;
+    let elementHigh;
 
-  let modalBackground = background;
-  if (Platform.OS === 'ios') {
-    modalBackground = isDark ? '#0B0B0C' : '#f2f2f7';
-  }
+    if (platform === 'ios') {
+      element = isDark ? '#161618' : '#ffffff';
+      elementHigh = isDark ? '#161618' : '#f2f2f7';
+    } else {
+      element = theme.colors.elevation.level1;
+      elementHigh = theme.colors.elevation.level2;
+    }
 
-  // element
-  let element = '';
-  let elementHigh = '';
+    const text = isDark ? '#ffffff' : '#000000';
 
-  if (Platform.OS === 'ios') {
-    element = isDark ? '#161618' : '#ffffff';
-    elementHigh = isDark ? '#161618' : '#f2f2f7';
-  } else {
-    element = theme.colors.elevation.level1;
-    elementHigh = theme.colors.elevation.level2;
-  }
+    let primaryBackground;
+    let primary = '#32AB8E';
 
-  // text
-  const text = isDark ? '#ffffff' : '#000000';
+    primaryBackground = primary;
 
-  // main
-  let primaryBackground = '';
-  let primary = '';
+    if (platform === 'android' && isDark) {
+      primaryBackground = theme.colors.primaryContainer;
+    }
 
-  if (Platform.OS === 'ios') {
-    // primary = '#29947A';
-    primary = '#29947A';
-  } else {
-    // primary = theme.colors.primary;
-    primary = isDark
-      ? theme.colors.primary
-      : theme.colors.primary;
-  }
+    let borderColor;
+    let borderColorLight;
 
-  primaryBackground = primary;
+    if (isDark) {
+      borderColor = '#444444';
+      borderColorLight = '#333333';
+    } else {
+      borderColor = '#d5d5d5';
+      borderColorLight = '#d5d5d5';
+    }
 
-  if (Platform.OS === 'android' && isDark) {
-    primaryBackground = theme.colors.primaryContainer;
-  }
-
-  // border
-  let borderColor = '';
-  let borderColorLight = '';
-
-  if (Platform.OS === 'ios') {
-    borderColor = isDark ? '#444444' : '#d5d5d5';
-    borderColorLight = isDark ? '#333333' : '#d5d5d5';
-  } else {
-    borderColor = theme.colors.border;
-  }
-
-  return {
-    theme: isDark ? 'dark' : 'light',
-    dark: isDark,
-    background,
-    backgroundHigh,
-    modalBackground,
-    element,
-    elementHigh,
-    text,
-    primary,
-    primaryBackground,
-    border: borderColor,
-    borderLight: borderColorLight,
-  };
+    return {
+      theme: isDark ? 'dark' : 'light',
+      dark: isDark,
+      background,
+      backgroundHigh,
+      backgroundItems,
+      modalBackground,
+      element,
+      elementHigh,
+      text,
+      primary,
+      primaryBackground,
+      border: borderColor,
+      borderLight: borderColorLight,
+    };
+  }, [isDark, platform, theme]);
 }
 
-export default GetUIColors;
+export default useUIColors;

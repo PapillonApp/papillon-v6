@@ -64,7 +64,7 @@ function AppearanceScreen({ navigation }) {
 
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
-  // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles
+  // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles, lightgreen
   const papillonIcons = [
     {
       coverName: 'Par défaut',
@@ -145,6 +145,11 @@ function AppearanceScreen({ navigation }) {
       coverName: 'Icône brillante',
       name: 'sparkles',
       icon: require('../../assets/customicons/sparkles.png'),
+    },
+    {
+      coverName: 'Icône vert clair',
+      name: 'lightgreen',
+      icon: require('../../assets/customicons/lightgreen.png'),
     },
   ];
 
@@ -304,7 +309,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   iconElemCurrent: {
-    borderColor: '#29947A',
+    borderColor: '#32AB8E',
     borderWidth: 2,
   },
 });

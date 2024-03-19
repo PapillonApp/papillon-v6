@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { View, StyleSheet, Modal, Animated, TouchableWithoutFeedback, ScrollView, Switch, Alert, Platform, Image } from 'react-native';
+import { View, StyleSheet, Modal, TouchableOpacity, Animated, TouchableWithoutFeedback, ScrollView, Switch, Alert, Platform, Image, StatusBar } from 'react-native';
 
 import { Text } from 'react-native-paper';
 import GetUIColors from '../../utils/GetUIColors';
@@ -9,7 +9,6 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
 import SyncStorage from 'sync-storage';
-import { TouchableOpacity } from '@gorhom/bottom-sheet';
 
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -223,6 +222,12 @@ const HeaderSelectScreen = ({ navigation }) => {
       contentInsetAdjustmentBehavior='automatic'
       style={{backgroundColor: UIColors.modalBackground}}
     >
+      { Platform.OS === 'ios' ? (
+        <StatusBar barStyle='light-content' />
+      ) : (
+        <StatusBar barStyle={UIColors.dark ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent"/>
+      )}
+
       <View
         style={[
           styles.previewList,

@@ -1,14 +1,21 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, ScrollView, Image, Alert, StatusBar, TextInput, Platform, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ScrollView, Image, Alert, StatusBar, TextInput, Platform, ActivityIndicator, KeyboardAvoidingView, InputAccessoryView } from 'react-native';
 
 import { Text } from 'react-native-paper';
 import GetUIColors from '../../utils/GetUIColors';
 import PapillonInsetHeader from '../../components/PapillonInsetHeader';
 import { SFSymbol } from 'react-native-sfsymbols';
 
+import { getDefaultStore } from 'jotai';
+const defaultStore = getDefaultStore();
+
+import { homeworksAtom } from '../../atoms/homeworks';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { ContextMenuButton } from 'react-native-ios-context-menu';
+
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
@@ -24,9 +31,12 @@ import formatCoursName from '../../utils/FormatCoursName';
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
 import { AlertTriangle } from 'lucide-react-native';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 const CreateHomeworkScreen = ({ route, navigation }) => {
   const UIColors = GetUIColors();
-  const { date } = route.params;
+  const insets = useSafeAreaInsets();
+  const [date, setDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
 
   const appctx = useAppContext();
@@ -37,6 +47,7 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
   const [titleMissingAlert, setTitleMissingAlert] = useState(false);
 
   const [homeworkTitle, setHomeworkTitle] = useState('');
+  const inputRef = React.useRef(null)
 
   function addSubject() {
     Alert.prompt(
@@ -107,17 +118,24 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
     }
 
     // add homework to the database
-    AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
+    AsyncStorage.getItem('pap_homeworksCustom').then((customHomeworks) => {
       let hw = [];
       if (customHomeworks) {
         hw = JSON.parse(customHomeworks);
       }
 
-      console.log(hw);
+      // console.log(hw);
+
+      let hwDate = new Date(date);
+      let lid = Math.random().toString(36).substring(7);
 
       let newHw = {
         id: Math.random().toString(36).substring(7),
-        local_id: Math.random().toString(36).substring(7),
+        localId: lid,
+        pronoteCachedSessionID: Math.random().toString(7),
+        cacheDateTimestamp: hwDate.getTime(),
+        themes: [],
+        attachments: [],
         subject: {
           id: Math.random().toString(36).substring(7),
           name: nativeSubjects[selectedSubject]?.actionTitle,
@@ -126,14 +144,17 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
         description: homeworkTitle,
         background_color: getSavedCourseColor(nativeSubjects[selectedSubject]?.actionTitle, UIColors.primary),
         done: false,
-        date: new Date(date).toISOString(),
-        files: [],
+        date: hwDate.toISOString(),
+        difficulty: 0,
+        lengthInMinutes: 0,
         custom: true,
       };
 
       hw.push(newHw);
 
-      AsyncStorage.setItem('customHomeworks', JSON.stringify(hw)).then(() => {
+      AsyncStorage.setItem('pap_homeworksCustom', JSON.stringify(hw)).then(() => {
+        console.log('Homework added');
+        console.log(hw);
         navigation.goBack();
       });
     });
@@ -147,8 +168,6 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
         savedColors = JSON.parse(JSON.parse(savedColors));
         let savedColorsKeys = Object.keys(savedColors);
 
-        console.log(savedColors);
-
         for (let i = 0; i < savedColorsKeys.length; i++) {
           let item = savedColors[savedColorsKeys[i]];
           if(savedColorsKeys[i].trim() == '') continue;
@@ -161,6 +180,17 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
               actionKey: item.systemCourseName,
               actionTitle: formatCoursName(item.originalCourseName),
               menuAttributes: ['default'],
+              icon: {
+                type: 'IMAGE_SYSTEM',
+                imageValue: {
+                  systemName: 'circle.fill',
+                },
+                // blue icon
+                imageOptions: {
+                  tint: item.color,
+                  renderingMode: 'alwaysOriginal',
+                },
+              },
             }
           ]);
         }
@@ -168,13 +198,20 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
         setNativeSubjects ((prev) => [
           ...prev,
           {
-            actionKey: 'new',
-            actionTitle: 'Ajouter une matière',
-            menuAttributes: ['destructive'],
-            icon: {
-              iconType: 'SYSTEM',
-              iconValue: 'plus',
-            },
+            type: 'menu',
+            menuTitle: '',
+            menuOptions: ['displayInline'],
+            menuPreferredElementSize: 'large',
+            menuItems: [
+              {
+                actionKey: 'new',
+                actionTitle: 'Ajouter une matière',
+                icon: {
+                  iconType: 'SYSTEM',
+                  iconValue: 'plus',
+                },
+              },
+            ],
           }
         ]);
 
@@ -200,51 +237,40 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
       },
       headerShadowVisible: false,
       headerRight: () => (
-        <TouchableOpacity
-          style={{ marginRight: 5 }}
-          onPress={() => {
-            addHomework();
+        <DateTimePicker
+          value={date}
+          mode="date"
+          display="compact"
+          onChange={(event, selectedDate) => {
+            if (selectedDate) {
+              setDate(selectedDate);
+            }
           }}
-        >
-          <Text style={{ color: UIColors.primary, fontSize: 17, fontWeight: '600', fontFamily: 'Papillon-Medium' }}>Ajouter</Text>
-        </TouchableOpacity>
+        />
       ),
     });
-  }, [UIColors]);
+  }, [UIColors, date]);
+
+  let layoutDone = false;
+  const layouted = () => {
+    if (layoutDone) return;
+    layoutDone = true;
+    inputRef.current.focus();
+  };
 
   return (
-    <KeyboardAvoidingView style={{flex: 1}}>
-      { loading && (
-        <View style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: UIColors.element,
-          gap: 10,
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 999,
-          paddingBottom: '10%',
-        }}>
-          <ActivityIndicator />
-          <NativeText heading="p" style={{color: UIColors.text}}>
-            Chargement des matières...
-          </NativeText>
-        </View>
-      )}
-
-      <View style={{ backgroundColor: UIColors.element, borderBottomColor: UIColors.border, borderBottomWidth: 0.5, gap: 9, paddingBottom: 16 }}>
-        <View style={[styles.newHwInput, {backgroundColor: UIColors.text + '12'}]}>
+    <KeyboardAvoidingView
+      style={{flex: 1, backgroundColor: UIColors.modalBackground}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+    >
+      <View onLayout={(event) => {layouted()}} style={{ backgroundColor: UIColors.element, borderBottomColor: UIColors.borderLight, borderBottomWidth: 0.5, gap: 9, paddingBottom: 16, zIndex: 99 }}>
+        <View style={[styles.newHwInput, {borderColor: UIColors.text + '18'}]}>
           <SFSymbol style={[styles.newHwIcon]} size={20} color={UIColors.text + '80'} name="square.and.pencil" />
           <TextInput
             placeholder="Titre du devoir"
             placeholderTextColor={UIColors.text + '80'}
             multiline
+            inputAccessoryViewID='main'
             style={[
               styles.newHwTextInput,
               {
@@ -255,51 +281,61 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
             onChangeText={(text) => {
               setHomeworkTitle(text);
             }}
+            ref={inputRef}
           />
         </View>
 
-        <View style={[styles.newHwSubjectInput, {backgroundColor: UIColors.text + '12'}]}>
-          <View
-            style={{
-              width: 15,
-              height: 15,
-              borderRadius: 12,
-              backgroundColor: getSavedCourseColor(nativeSubjects[selectedSubject]?.actionTitle, UIColors.primary),
-            }}
-          />
+        { loading ? (
+          <View style={[styles.newHwSubjectInput, {borderColor: UIColors.text + '18', paddingVertical: 11.5}]}>
+            <ActivityIndicator size="small" />
+            <NativeText heading="p2">
+              Chargement des matières...
+            </NativeText>
+          </View>
+        ) : (
+          <View style={[styles.newHwSubjectInput, {borderColor: UIColors.text + '18'}]}>
+            <View
+              style={{
+                width: 15,
+                height: 15,
+                borderRadius: 12,
+                backgroundColor: getSavedCourseColor(nativeSubjects[selectedSubject]?.actionTitle, UIColors.primary),
+              }}
+            />
 
-          <ContextMenuButton
-            menuConfig={{
-              menuTitle: 'Matières disponibles',
-              menuItems: nativeSubjects,
-            }}
-            isMenuPrimaryAction={true}
-            onPressMenuItem={({nativeEvent}) => {
-              if (nativeEvent.actionKey === 'new') {
-                addSubject();
-                return;
-              }
+            <ContextMenuButton
+              menuConfig={{
+                menuTitle: '',
+                menuItems: nativeSubjects,
+              }}
+              isMenuPrimaryAction={true}
+              onPressMenuItem={({nativeEvent}) => {
+                if (nativeEvent.actionKey === 'new') {
+                  addSubject();
+                  return;
+                }
 
-              // find id from nativeEvent.actionKey
-              let id = nativeEvent.actionKey;
-              let index = nativeSubjects.findIndex((item) => item.actionKey === id);
-              setSelectedSubject(index);
-            }}
-          >
-            <Text
-              style={styles.newHwSubject}
-              numberOfLines={1}
-              ellipsizeMode="tail"
+                // find id from nativeEvent.actionKey
+                let id = nativeEvent.actionKey;
+                let index = nativeSubjects.findIndex((item) => item.actionKey === id);
+                setSelectedSubject(index);
+              }}
             >
-              {nativeSubjects[selectedSubject]?.actionTitle || 'Aucune matière'}
-            </Text>
-          </ContextMenuButton>
-        </View>
-      
+              <TouchableOpacity activeOpacity={0.6}>
+                <Text
+                  style={styles.newHwSubject}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {nativeSubjects[selectedSubject]?.actionTitle || 'Aucune matière'}
+                </Text>
+              </TouchableOpacity>
+            </ContextMenuButton>
+          </View>
+        )}
       </View>
-      <ScrollView
-        style={{ flex: 1, backgroundColor: UIColors.modalBackground }}
-        contentContainerStyle={{ flexGrow: 1, paddingTop: '16%' }}
+      <View
+        style={{ flex: 1, alignContent: 'center', justifyContent: 'center'}}
       >
         <StatusBar animated backgroundColor="#fff" barStyle="light-content" />
 
@@ -308,16 +344,86 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
           subtitle={'Indiquez un titre et une matière pour votre devoir personnalisé le ' + new Date(date).toLocaleDateString('fr-FR', { weekday: 'short', month: 'long', day: 'numeric' }) + '.'}
           icon={<SFSymbol color={UIColors.text} name="book" size={26} style={{marginBottom:15}} />}
         />
-      </ScrollView>
-      <AlertBottomSheet
-        visible={titleMissingAlert}
-        title="Titre manquant"
-        subtitle="Veuillez entrer un titre pour votre devoir."
-        icon={<AlertTriangle />}
-        cancelAction={() => {
-          setTitleMissingAlert(false);
-        }}
-      />
+
+        <AlertBottomSheet
+          visible={titleMissingAlert}
+          title="Titre manquant"
+          subtitle="Veuillez entrer un titre pour votre devoir."
+          icon={<AlertTriangle />}
+          cancelAction={() => {
+            setTitleMissingAlert(false);
+          }}
+        />
+      </View>
+      <InputAccessoryView nativeID='main'>
+        <View style={{ backgroundColor: UIColors.element, borderTopColor: UIColors.borderLight, borderTopWidth: 0.5, gap: 9, paddingBottom: 12, paddingHorizontal: 16, paddingTop: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <TouchableOpacity
+            style={{
+              width: 32,
+              height: 20,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => {
+              inputRef.current.blur();
+            }}
+          >
+            <SFSymbol name="keyboard.chevron.compact.down" size={20} color={UIColors.text + '80'} />
+          </TouchableOpacity>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              gap: 12,
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                backgroundColor: UIColors.text + "12",
+                paddingVertical: 8,
+                paddingHorizontal: 16,
+                alignSelf: 'flex-start',
+                borderRadius: 300,
+              }}
+              onPress={() => {
+                navigation.goBack();
+              }}
+            >
+              <Text
+                style={{
+                  color: UIColors.text + "80",
+                  fontSize: 16,
+                  fontFamily: 'Papillon-Semibold',
+                }}
+              >
+                Annuler
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                backgroundColor: "#32AB8E22",
+                paddingVertical: 8,
+                paddingHorizontal: 16,
+                alignSelf: 'flex-start',
+                borderRadius: 300,
+              }}
+              onPress={() => {
+                addHomework();
+              }}
+            >
+              <Text
+                style={{
+                  color: "#32AB8E",
+                  fontSize: 16,
+                  fontFamily: 'Papillon-Semibold',
+                }}
+              >
+                Ajouter
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </InputAccessoryView>
     </KeyboardAvoidingView>
   );
 };
@@ -336,6 +442,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     gap: 13,
+
+    borderWidth: 1,
   },
   newHwIcon : {
     marginTop: 8,
@@ -365,6 +473,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     gap: 16,
+    borderWidth: 1,
   },
   newHwSubject: {
     fontSize: 16,

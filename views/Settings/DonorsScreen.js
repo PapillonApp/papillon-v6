@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   certif: {
-    backgroundColor: '#29947A',
+    backgroundColor: '#32AB8E',
 
     padding: 1,
     borderRadius: 8,

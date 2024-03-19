@@ -1,2 +1,0 @@
-"use strict";(self["webpackChunkpapillon"]=self["webpackChunkpapillon"]||[]).push([[805],{3805:(s,n,l)=>{l.r(n),l.d(n,{Browser:()=>t,BrowserWeb:()=>e});var o=l(9895);class e extends o.Uw{constructor(){super(),this._lastWindow=null}async open(s){this._lastWindow=window.open(s.url,s.windowName||"_blank")}async close(){return new Promise(((s,n)=>{null!=this._lastWindow?(this._lastWindow.close(),this._lastWindow=null,s()):n("No active window to close!")}))}}const t=new e}}]);
-//# sourceMappingURL=805.0bf6d0b5.js.map

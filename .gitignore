@@ -12,6 +12,8 @@ web-build/
 .env
 .idea
 .vscode
+*.pepk
+*.jks
 
 # macOS
 .DS_Store
@@ -20,4 +22,5 @@ web-build/
 .metro-health-check*
 
 %ProgramData%/
-android/app/release/app-release.aab
+android/app/release/*
+android/app/debug/*

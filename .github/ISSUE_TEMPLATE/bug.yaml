@@ -1,5 +1,5 @@
 name: 🐛 Signaler un bug
-description: Signalez un bug pour nous aider à améliorer Renard
+description: Signalez un bug pour nous aider à améliorer Papillon
 title: '[Bug]: '
 labels: [bug]
 body:
@@ -43,7 +43,7 @@ body:
     attributes:
       label: Version
       placeholder: '5.0.17 beta'
-      value: '5.0.'
+      value: '6.6.'
     validations:
       required: true
   - type: dropdown

@@ -3,13 +3,17 @@
     "name": "Papillon",
     "slug": "papillonvex",
     "scheme": "papillon",
-    "version": "6.5.1",
+    "version": "6.6.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
+    "primaryColor": "#32AB8E",
     "assetBundlePatterns": [
       "**/*"
     ],
+    "notification": {
+      "icon": "./assets/icon-small-notif.png"
+    },
     "intentFilters": [
       {
         "action": "VIEW",
@@ -25,39 +29,46 @@
         ]
       }
     ],
+    "splash": {
+      "image": "./assets/launch/splash-light.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#32AB8E"
+    },
     "ios": {
       "supportsTablet": true,
-      "appStoreUrl": "https://apps.apple.com/fr/app/papillon-pour-pronote-ed/id1662669707",
-      "bundleIdentifier": "plus.pronote.app",
+      "appStoreUrl": "https://apps.apple.com/us/app/papillon-lappli-scolaire/id6477761165",
+      "bundleIdentifier": "xyz.getpapillon.ios",
       "associatedDomains": ["applinks:getpapillon.xyz"],
       "splash": {
+        "backgroundColor": "#32AB8E",
         "image": "./assets/launch/splash-light.png",
         "resizeMode": "cover",
-        "backgroundColor": "#F3F2F8",
         "dark": {
+          "backgroundColor": "#001C0F",
           "image": "./assets/launch/splash-dark.png",
-          "resizeMode": "cover",
-          "backgroundColor": "#000000"
+          "resizeMode": "cover"
         }
       }
     },
     "android": {
-      "playStoreUrl": "https://play.google.com/store/apps/details?id=plus.pronote.app",
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=xyz.getpapillon.app",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#29947A"
+        "foregroundImage": "./assets/adaptive-icon-foreground-rezised.png",
+        "backgroundImage": "./assets/adaptive-icon-background.png",
+        "monochromeImage": "./assets/adaptive-icon-monochrome.png",
+        "backgroundColor": "#32AB8E"
       },
       "splash": {
-        "image": "./assets/launch/splash-light.png",
         "backgroundColor": "#32AB8E",
+        "image": "./assets/launch/splash-light.png",
         "resizeMode": "cover",
         "dark": {
+          "backgroundColor": "#001C0F",
           "image": "./assets/launch/splash-dark.png",
-          "resizeMode": "cover",
-          "backgroundColor": "#000000"
+          "resizeMode": "cover"
         }
       },
-      "package": "plus.pronote.app",
+      "package": "xyz.getpapillon.app",
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
@@ -179,6 +190,10 @@
             "image": "./assets/customicons/sparkles.png",
             "prerendered": true
           },
+          "lightgreen": {
+            "image": "./assets/customicons/lightgreen.png",
+            "prerendered": true
+          },
           "backtoschool": {
             "image": "./assets/customicons/backtoschool.png",
             "prerendered": true
@@ -204,8 +219,7 @@
             "prerendered": true
           }
         }
-      ],
-      "sentry-expo"
+      ]
     ],
     "owner": "papillonapp"
   }

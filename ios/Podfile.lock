@@ -23,7 +23,7 @@ PODS:
   - EXImageLoader (4.3.0):
     - ExpoModulesCore
     - React-Core
-  - EXInAppPurchases (14.3.0):
+  - EXInAppPurchases (1.0.0):
     - ExpoModulesCore
   - EXJSONUtils (0.7.1)
   - EXLocation (16.1.0):
@@ -463,7 +463,7 @@ PODS:
     - ReactCommon/turbomodule/core
   - react-native-sfsymbols (1.2.1):
     - React
-  - react-native-webview (13.6.4):
+  - react-native-webview (13.8.1):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - React-NativeModulesApple (0.72.6):
@@ -582,16 +582,20 @@ PODS:
     - React-Core
   - RNCClipboard (1.12.1):
     - React-Core
+  - RNCMaskedView (0.2.9):
+    - React-Core
   - RNDateTimePicker (7.2.0):
     - React-Core
   - RNGestureHandler (2.13.4):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
-  - RNNotifee (7.8.0):
+  - RNNotifee (7.8.2):
     - React-Core
-    - RNNotifee/NotifeeCore (= 7.8.0)
-  - RNNotifee/NotifeeCore (7.8.0):
+    - RNNotifee/NotifeeCore (= 7.8.2)
+  - RNNotifee/NotifeeCore (7.8.2):
     - React-Core
+  - RNQuickAction (0.3.13):
+    - React
   - RNReactNativeSharedGroupPreferences (1.1.24):
     - React
   - RNReanimated (3.4.2):
@@ -626,16 +630,8 @@ PODS:
   - RNScreens (3.22.1):
     - React-Core
     - React-RCTImage
-  - RNSentry (5.10.0):
-    - React-Core
-    - Sentry/HybridSDK (= 8.11.0)
   - RNSVG (13.9.0):
     - React-Core
-  - RNVectorIcons (9.2.0):
-    - React-Core
-  - Sentry/HybridSDK (8.11.0):
-    - SentryPrivate (= 8.11.0)
-  - SentryPrivate (8.11.0)
   - SocketRocket (0.6.1)
   - UMAppLoader (4.2.0)
   - Yoga (1.14.0)
@@ -657,7 +653,7 @@ DEPENDENCIES:
   - EXFileSystem (from `../node_modules/expo-file-system/ios`)
   - EXFont (from `../node_modules/expo-font/ios`)
   - EXImageLoader (from `../node_modules/expo-image-loader/ios`)
-  - EXInAppPurchases (from `../node_modules/expo-in-app-purchases/ios`)
+  - "EXInAppPurchases (from `../node_modules/@legeek01/expo-in-app-purchases/ios`)"
   - EXJSONUtils (from `../node_modules/expo-json-utils/ios`)
   - EXLocation (from `../node_modules/expo-location/ios`)
   - EXManifests (from `../node_modules/expo-manifests/ios`)
@@ -733,15 +729,15 @@ DEPENDENCIES:
   - ReactNativePdfRenderer (from `../node_modules/react-native-pdf-renderer`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
+  - "RNCMaskedView (from `../node_modules/@react-native-masked-view/masked-view`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
+  - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNReactNativeSharedGroupPreferences (from `../node_modules/react-native-shared-group-preferences`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
-  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNSVG (from `../node_modules/react-native-svg`)
-  - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - UMAppLoader (from `../node_modules/unimodules-app-loader/ios`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -749,8 +745,6 @@ SPEC REPOS:
   trunk:
     - fmt
     - libevent
-    - Sentry
-    - SentryPrivate
     - SocketRocket
     - ZXingObjC
 
@@ -778,7 +772,7 @@ EXTERNAL SOURCES:
   EXImageLoader:
     :path: "../node_modules/expo-image-loader/ios"
   EXInAppPurchases:
-    :path: "../node_modules/expo-in-app-purchases/ios"
+    :path: "../node_modules/@legeek01/expo-in-app-purchases/ios"
   EXJSONUtils:
     :path: "../node_modules/expo-json-utils/ios"
   EXLocation:
@@ -926,24 +920,24 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
     :path: "../node_modules/@react-native-clipboard/clipboard"
+  RNCMaskedView:
+    :path: "../node_modules/@react-native-masked-view/masked-view"
   RNDateTimePicker:
     :path: "../node_modules/@react-native-community/datetimepicker"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNNotifee:
     :path: "../node_modules/@notifee/react-native"
+  RNQuickAction:
+    :path: "../node_modules/react-native-quick-actions"
   RNReactNativeSharedGroupPreferences:
     :path: "../node_modules/react-native-shared-group-preferences"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
-  RNSentry:
-    :path: "../node_modules/@sentry/react-native"
   RNSVG:
     :path: "../node_modules/react-native-svg"
-  RNVectorIcons:
-    :path: "../node_modules/react-native-vector-icons"
   UMAppLoader:
     :path: "../node_modules/unimodules-app-loader/ios"
   Yoga:
@@ -961,7 +955,7 @@ SPEC CHECKSUMS:
   EXFileSystem: 2b826a3bf1071a4b80a8457e97124783d1ac860e
   EXFont: 738c44c390953ebcbab075a4848bfbef025fd9ee
   EXImageLoader: 34b214f9387e98f3c73989f15d8d5b399c9ab3f7
-  EXInAppPurchases: e55f38bce3cb6b70f57d361458c897b17196448d
+  EXInAppPurchases: ae18fd2160bb0f5338520abcea4b023db4f4d331
   EXJSONUtils: 6802be4282d42b97c51682468ddc1026a06f8276
   EXLocation: a425ace19c0445e7ea9702982fc6b9a402791510
   EXManifests: cf66451b11b2c2f6464917528d792759f7fd6ce0
@@ -1016,7 +1010,7 @@ SPEC CHECKSUMS:
   react-native-render-html: 984dfe2294163d04bf5fe25d7c9f122e60e05ebe
   react-native-safe-area-context: 36cc67648134e89465663b8172336a19eeda493d
   react-native-sfsymbols: bd3a0d3eab185e80b571bae60753dcf5a0d57967
-  react-native-webview: 107961c73db53d66549c867a3b64eaa20d34c41f
+  react-native-webview: bdc091de8cf7f8397653e30182efcd9f772e03b3
   React-NativeModulesApple: 02e35e9a51e10c6422f04f5e4076a7c02243fff2
   React-perflogger: e3596db7e753f51766bceadc061936ef1472edc3
   React-RCTActionSheet: 17ab132c748b4471012abbcdcf5befe860660485
@@ -1037,17 +1031,15 @@ SPEC CHECKSUMS:
   ReactNativePdfRenderer: f8150a13ba9755586b9480e5cf04483de7a3d479
   RNCAsyncStorage: ddc4ee162bfd41b0d2c68bf2d95acd81dd7f1f93
   RNCClipboard: d77213bfa269013bf4b857b7a9ca37ee062d8ef1
+  RNCMaskedView: 949696f25ec596bfc697fc88e6f95cf0c79669b6
   RNDateTimePicker: 3942382593f104af226ad9c56e16166960c7ae30
   RNGestureHandler: 6e46dde1f87e5f018a54fe5d40cd0e0b942b49ee
-  RNNotifee: f3c01b391dd8e98e67f539f9a35a9cbcd3bae744
+  RNNotifee: 8e2d3df3f0e9ce8f5d1fe4c967431138190b6175
+  RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNReactNativeSharedGroupPreferences: 29092869fc2e40d5baca5e15d82fa5c24a668977
   RNReanimated: 726395a2fa2f04cea340274ba57a4e659bc0d9c1
   RNScreens: 50ffe2fa2342eabb2d0afbe19f7c1af286bc7fb3
-  RNSentry: 11917f7bf3e28806aca4c2791c6ba7522d8f09fe
   RNSVG: 53c661b76829783cdaf9b7a57258f3d3b4c28315
-  RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
-  Sentry: 39d57e691e311bdb73bc1ab5bbebbd6bc890050d
-  SentryPrivate: 48712023cdfd523735c2edb6b06bedf26c4730a3
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   UMAppLoader: e83f024f75f07802fce99739f04b4537d188caaf
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
