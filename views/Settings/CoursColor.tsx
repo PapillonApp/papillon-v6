@@ -25,23 +25,30 @@ import formatCoursName from '../../utils/FormatCoursName';
 import { forceSavedCourseColor } from '../../utils/ColorCoursName';
 import { Dice5, Lock, MoreVertical } from 'lucide-react-native';
 
-const CoursColor = ({ navigation }) => {
+interface SavedColor {
+  originalCourseName: string;
+  color: string;
+  systemCourseName: string;
+  locked: boolean;
+}
+
+const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
-  const [savedColors, setSavedColors] = useState([]);
+  const [savedColors, setSavedColors] = useState<{ [key: string]: SavedColor }>({});
 
-  const [colorModalOpen, setColorModalOpen] = useState(false);
-  const [colorModalColor, setColorModalColor] = useState('#000000');
-  const [currentEditedSubject, setCurrentEditedSubject] = useState('');
+  const [colorModalOpen, setColorModalOpen] = useState<boolean>(false);
+  const [colorModalColor, setColorModalColor] = useState<string>('#000000');
+  const [currentEditedSubject, setCurrentEditedSubject] = useState<string>('');
 
-  const colors = [
+  const colors: string[] = [
     '#2667a9', '#76a10b', '#3498DB', '#1ABC9C', '#a01679', '#27AE60', '#156cd6', '#F39C12', '#E67E22', '#D35400', '#2C3E50', '#E74C3C', '#C0392B', '#8E44AD', '#ad4491', '#9f563b', '#920205',
     '#6a42a3', '#498821', '#2e86b3', '#17a085', '#89125f', '#2f9e49', '#1e6fcf', '#d08e15', '#b85f18', '#a33e00', '#3f515f', '#c92a1e', '#a82b1f', '#7b389f', '#a65089', '#996032', '#8c0101',
     '#6b064d', '#146c80', '#7c9f18', '#9f5610', '#b23e00', '#34495e', '#a3180f', '#891e13', '#623c85', '#b5657e', '#a6794a', '#b60000',
   ];
 
-  const moreActions = (key) => {
+  const moreActions = (key: string) => {
     Alert.alert(
       'Plus d\'actions',
       'Que voulez-vous faire avec ' + savedColors[key].originalCourseName + ' ?',
@@ -65,7 +72,7 @@ const CoursColor = ({ navigation }) => {
     );
   };
 
-  const onSelectColor = ({ hex }) => {
+  const onSelectColor = ({ hex }: { hex: string }) => {
     setColorModalColor(hex);
   };
 
@@ -85,10 +92,10 @@ const CoursColor = ({ navigation }) => {
   };
 
   const ApplyRandomColors = () => {
-    let col = {};
-    let usedColors = [];
+    let col: { [key: string]: SavedColor } = {};
+    let usedColors: string[] = [];
 
-    let lockedColors = [];
+    let lockedColors: string[] = [];
 
     const randomColor = () => {
       let color = colors[Math.floor(Math.random() * colors.length)];
@@ -328,8 +335,8 @@ const CoursColor = ({ navigation }) => {
   );
 };
 
-const LockToggle = ({ value, onValueChange, color }) => {
-  const [locked, setLocked] = useState(value);
+const LockToggle: React.FC<{ value: boolean, onValueChange: (value: boolean) => void, color: string }> = ({ value, onValueChange, color }) => {
+  const [locked, setLocked] = useState<boolean>(value);
   const UIColors = GetUIColors();
 
   return (
