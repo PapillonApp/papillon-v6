@@ -64,10 +64,11 @@ const CheckAnimated = ({ checked, pressed = () => {}, loading, backgroundColor }
   }, [check]);
 
   const rippleScale = useRef(new Animated.Value(0)).current;
-  const rippleOpacity = useRef(new Animated.Value(0.5)).current;
+  const rippleOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (check) {
+      rippleOpacity.setValue(0.5);
       Animated.parallel([
         Animated.timing(
           rippleScale,
@@ -94,14 +95,6 @@ const CheckAnimated = ({ checked, pressed = () => {}, loading, backgroundColor }
           rippleScale,
           {
             toValue: 0,
-            duration: 0,
-            useNativeDriver: true,
-          }
-        ),
-        Animated.timing(
-          rippleOpacity,
-          {
-            toValue: 0.5,
             duration: 0,
             useNativeDriver: true,
           }
@@ -140,7 +133,7 @@ const CheckAnimated = ({ checked, pressed = () => {}, loading, backgroundColor }
           styles.checkbox,
           {
             borderColor: !isLoading ? (check ? UIColors.primary : UIColors.border) : 'transparent',
-            backgroundColor: backgroundColor ? backgroundColor : UIColors.element,
+            backgroundColor: 'transparent',
           }
         ]}
       >

@@ -63,6 +63,8 @@ import formatCoursName from '../utils/FormatCoursName';
 
 // Custom components
 import CheckAnimated from '../interface/CheckAnimated';
+import ModalBottom from '../interface/ModalBottom';
+import PapillonCloseButton from '../interface/PapillonCloseButton';
 
 import { useAppContext } from '../utils/AppContext';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -398,7 +400,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
     QuickActions.setShortcutItems([
       {
         type: 'Navigation', // Required
-        title: 'Emploi du temps',
+        title: 'Cours',
         icon: 'cal', // Icons instructions below
         userInfo: {
           url: 'CoursHandler' // Provide any custom data like deep linking URL
@@ -406,7 +408,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
       },
       {
         type: 'Navigation', // Required
-        title: 'Travail à faire',
+        title: 'Devoirs',
         icon: 'check_custom', // Icons instructions below
         userInfo: {
           url: 'DevoirsHandler' // Provide any custom data like deep linking URL
@@ -631,6 +633,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const [changeThemeOpen, setChangeThemeOpen] = useState(false);
+  const [changeThemeModal, setChangeThemeModal] = useState(false);
   const changeThemeOpenRef = useRef(changeThemeOpen);
   const [showThemeCarousel, setShowThemeCarousel] = useState(false);
   const changeThemeAnim = useRef(new Animated.Value(0)).current;
@@ -661,7 +664,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
 
   yOffset.addListener(({ value }) => {
     if (Platform.OS === 'ios') {
-      if (value > 50) {
+      if (value > 40) {
         setScrolled(true);
         shouldScroll = true;
       } else {
@@ -794,52 +797,108 @@ function HomeScreen({ navigation }: { navigation: any }) {
               paddingTop: 4,
             }}
           >
-            {Platform.OS === 'ios' && (
-              <PapillonIcon
-                fill={scrolled ? UIColors.text + '88' : '#ffffff'}
-                width={32}
-                height={32}
-              />
+            { Platform.OS === 'ios' && (
+              <View style={{
+                height: 32,
+                width: 32,
+              }} />
             )}
 
-            {!scrolled ? (
-              <Text
-                style={[
-                  Platform.OS === 'ios'
-                    ? {
-                      color: scrolled ? UIColors.text : '#ffffff',
-                      fontSize: 17,
-                      fontFamily: 'Papillon-Semibold',
-                      marginVertical: 8,
-                    }
-                    : {
-                      color: '#ffffff',
-                      fontSize: 18,
-                      marginVertical: 9,
-                    },
-                ]}
+            {Platform.OS === 'ios' && (<>
+              <View
+                style={{
+                  position: 'absolute',
+                  left: 16,
+                }}
               >
-                    Vue d'ensemble
-              </Text>
-            ) : (
+                <PapillonIcon
+                  fill={'#ffffff'}
+                  width={32}
+                  height={32}
+                />
+              </View>
+
+              {!UIColors.dark && (
+                <Animated.View
+                  style={{
+                    position: 'absolute',
+                    left: 16,
+                    zIndex: 1,
+                    opacity: scrolledAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 1],
+                    }),
+                  }}
+                >
+                  <PapillonIcon
+                    fill={UIColors.text + '88'}
+                    width={32}
+                    height={32}
+                  />
+                </Animated.View>
+              )}
+            </>)}
+
+            {Platform.OS === 'ios' ? (<>
+              <Animated.View
+                pointerEvents={'none'}
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  right: 0,
+                  opacity: scrolledAnim.interpolate({
+                    inputRange: [0, 0.8],
+                    outputRange: [1, 0],
+                  }),
+                  transform: [
+                    {
+                      scale: scrolledAnim.interpolate({
+                        inputRange: [0, 0.8],
+                        outputRange: [1, 1.13],
+                        extrapolate: 'clamp',
+                      }),
+                    },
+                  ],
+                }}
+              >
+                <Text
+                  style={[
+                    {
+                      textAlign: 'center',
+                      marginTop: 3,
+                    },
+                    Platform.OS === 'ios'
+                      ? {
+                        color: '#ffffff',
+                        fontSize: 17,
+                        fontFamily: 'Papillon-Semibold',
+                        marginVertical: 8,
+                      }
+                      : {
+                        color: '#ffffff',
+                        fontSize: 18,
+                        marginVertical: 9,
+                      },
+                  ]}
+                >
+                  Vue d'ensemble
+                </Text>
+              </Animated.View>
+
               <Animated.View
                 style={{
                   flex: 1,
                   height: 38,
                   marginTop: -2,
-                  opacity: scrolledAnim,
+                  opacity: scrolledAnim.interpolate({
+                    inputRange: [0.4, 1],
+                    outputRange: [0, 1],
+                  }),
                   transform: [
                     {
                       scale: scrolledAnim.interpolate({
-                        inputRange: [0, 1],
+                        inputRange: [0.4, 1],
                         outputRange: [0.8, 1],
-                        extrapolate: 'clamp',
-                      }),
-                    },
-                    {
-                      translateY: scrolledAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, 0],
                         extrapolate: 'clamp',
                       }),
                     },
@@ -857,7 +916,20 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   }}
                 />
               </Animated.View>
-            )}
+            </>) : (<>
+              <Text
+                style={[
+                  {
+                    color: '#ffffff',
+                    fontSize: 18,
+                    marginVertical: 9,
+                  },
+                ]}
+              >
+                Vue d'ensemble
+              </Text>
+            </>)}
+            
 
             {Platform.OS === 'ios' ? (
               <ContextMenuButton
@@ -927,7 +999,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   if (nativeEvent.actionKey === 'preferences') {
                     navigation.navigate('InsetSettings', { isModal: true });
                   } else if (nativeEvent.actionKey === 'theme') {
-                    setChangeThemeOpen(true);
+                    setChangeThemeModal(true);
                   } else if (nativeEvent.actionKey === 'profile') {
                     navigation.navigate('InsetProfile', { isModal: true });
                   } else if (nativeEvent.actionKey === 'cours') {
@@ -998,7 +1070,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   leadingIcon="palette"
                   onPress={() => {
                     setUserMenuOpen(false);
-                    setChangeThemeOpen(true);
+                    setChangeThemeModal(true);
                   }}
                 />
                 <Divider />
@@ -1084,7 +1156,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   backgroundColor: UIColors.dark ? '#ffffff35' : '#00000035',
                 }}
                 onPress={() => {
-                  setChangeThemeOpen(false);
+                  setChangeThemeModal(false);
                 }}
               >
                 <X color={UIColors.text} size={22} strokeWidth={2.5} />
@@ -1160,6 +1232,118 @@ function HomeScreen({ navigation }: { navigation: any }) {
         )}
       </View>
     </Animated.View>
+
+    <ModalBottom
+      visible={changeThemeModal}
+      onDismiss={() => {
+        setChangeThemeModal(false);
+      }}
+      align='top'
+      style={[
+        {
+          backgroundColor: '#00000070',
+          borderColor: '#ffffff32',
+          borderWidth: 1,
+          elevation : 0,
+        }
+      ]}
+    >
+      <View
+        style={{
+          paddingVertical: 4,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            width: '100%',
+            maxWidth: '100%',
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            paddingBottom: 8,
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 16,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: 'column',
+              flex: 1,
+            }}
+          >
+            <NativeText heading='h4' style={{ color: '#fff' }}>
+              Personnalisation du bandeau
+            </NativeText>
+            <NativeText heading='p2' style={{ color: '#fff' }}>
+              Sélectionnez un modèle
+            </NativeText>
+          </View>
+          <PapillonCloseButton
+            onPress={() => {
+              setChangeThemeModal(false);
+            }}
+            theme={'dark'}
+          />
+        </View>
+
+        <Carousel
+          loop
+          width={Dimensions.get('window').width - 24}
+          height={110}
+          defaultIndex={currentThemeIndex}
+          data={THEMES_IMAGES_LIST}
+          scrollAnimationDuration={100}
+          onSnapToItem={(index) => {
+            setCurrentThemeIndex(index);
+            Haptics.impactAsync(
+              Haptics.ImpactFeedbackStyle.Light
+            );
+            AsyncStorage.setItem(
+              'hs_themeIndex',
+              index.toString()
+            );
+          }}
+          renderItem={({ index }) => (
+            <View
+              style={{
+                flex: 1,
+                opacity: currentThemeIndex === index ? 1 : 0.5,
+              }}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  marginHorizontal: 8,
+                  
+                  backgroundColor: '#ffffff22',
+                  borderColor: 
+                  currentThemeIndex === index
+                    ? '#ffffff'
+                    : '#ffffff00',
+                  borderWidth: 1.5,
+                  
+                  borderRadius: 12,
+                  borderCurve: 'continuous',
+                  overflow: 'hidden',
+                }}
+              >
+                <Image
+                  source={THEMES_IMAGES_LIST[index].image}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                  }}
+                  resizeMode="cover"
+                />
+              </View>
+            </View>
+          )}
+          mode="parallax"
+        />
+      </View>
+    </ModalBottom>
+    
     <ScrollView
       ref={scrollRef}
       style={{
@@ -1221,8 +1405,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 width: '100%',
                 height: 150,
                 opacity: yOffset.interpolate({
-                  inputRange: [-30, 10],
-                  outputRange: [1, 0],
+                  inputRange: [-90, -60, -30, 10],
+                  outputRange: [0, 1, 1, 0],
                 }),
               },
             ]}
@@ -1264,8 +1448,14 @@ function HomeScreen({ navigation }: { navigation: any }) {
             transform: [
               {
                 rotate: yOffset.interpolate({
-                  inputRange: [-100, -50],
-                  outputRange: ['0deg', '-50deg'],
+                  inputRange: [-500, -200, -50],
+                  outputRange: ['0deg', '0deg', '-250deg'],
+                }),
+              },
+              {
+                scale: yOffset.interpolate({
+                  inputRange: [-500, -120, -50],
+                  outputRange: [1, 1, 0],
                 }),
               }
             ],
@@ -1288,19 +1478,19 @@ function HomeScreen({ navigation }: { navigation: any }) {
             style={{
               marginBottom: 16,
               opacity: yOffset.interpolate({
-                inputRange: Platform.OS === 'ios' ? [-30, 10] : [0, 40],
+                inputRange: Platform.OS === 'ios' ? [(15 - insets.top), (35 - insets.top)] : [0, 40],
                 outputRange: [1, 0],
               }),
               transform: [
                 {
                   translateY: yOffset.interpolate({
-                    inputRange: Platform.OS === 'ios' ? [-1000, -30, 10] : [0, 0, 40],
+                    inputRange: Platform.OS === 'ios' ? [-1000, (15 - insets.top), (35 - insets.top)] : [0, 0, 40],
                     outputRange: [0, 0, -5],
                   }),
                 },
                 {
                   scale: yOffset.interpolate({
-                    inputRange: Platform.OS === 'ios' ? [-1000, -30, 10] : [0, 0, 40],
+                    inputRange: Platform.OS === 'ios' ? [-1000, (15 - insets.top), (35 - insets.top)] : [0, 0, 40],
                     outputRange: [1, 1, 0.9],
                   }),
                 }
@@ -1326,7 +1516,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
             >
               <NextCoursElem
                 longPressAction={() => {
-                  setChangeThemeOpen(true);
+                  setChangeThemeModal(true);
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
                 }}
                 cours={lessons.data}
                 navigation={navigation}
@@ -1373,7 +1564,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
         loading={groupedHomeworks === null}
       />
 
-      <View style={{ height: Platform.OS === 'android' ? 180 : 50 }} />
+      <View style={{ height: Platform.OS === 'android' ? 0 : 50 }} />
     </ScrollView>
   </View>
   );

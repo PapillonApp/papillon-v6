@@ -10,13 +10,25 @@ function removeDuplicateCourses(courses: PapillonLesson[]): PapillonLesson[] {
   for (let i = 0; i < courses.length; i += 1) {
     // if next cours starts at the same time
     if (i + 1 < courses.length && courses[i].start === courses[i + 1].start) {
-
-      if (courses[i + 1].is_cancelled) {
-        result.splice(i + 1, 1);
-      }
-
+      // remove the course that has is_cancelled set to true
       if (courses[i].is_cancelled) {
         result.splice(i, 1);
+      } else if (courses[i + 1].is_cancelled) {
+        result.splice(i + 1, 1);
+      }
+    }
+    else {
+      // celui ci est en classe absente alors que rien sur pronote
+      if (i + 1 < courses.length && courses[i].subject?.id === courses[i + 1].subject?.id && courses[i].rooms.join(',') == courses[i + 1].rooms.join(',')) {
+        // check if difference between the two courses is less than 21 minutes
+        const diff = new Date(courses[i + 1].start).getTime() - new Date(courses[i].end).getTime();
+        if (diff < 21 * 60 * 1000) {
+          // Merge the two courses.
+          result[i].end = courses[i + 1].end;
+
+          // Remove the second course.
+          result.splice(i + 1, 1);
+        }
       }
     }
   }

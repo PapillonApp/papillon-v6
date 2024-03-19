@@ -1,5 +1,5 @@
 import React, { createRef, useRef, useState } from 'react';
-import { Animated, View, Platform, Modal, Text, ActivityIndicator, StatusBar } from 'react-native';
+import { Alert, Animated, View, TouchableOpacity, Platform, Modal, Text, ActivityIndicator, StatusBar, Touchable } from 'react-native';
 import GetUIColors from '../../../utils/GetUIColors';
 
 import PapillonCloseButton from '../../../interface/PapillonCloseButton';
@@ -9,7 +9,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AsyncStoragePronoteKeys } from '../../../fetch/PronoteData/connector';
 import { useAppContext } from '../../../utils/AppContext';
 import { PronoteApiAccountId } from 'pawnote';
-import { set } from 'sync-storage';
+
+import { ArrowRightToLine, KeyRound } from 'lucide-react-native';
 
 // Stolen from Pawnote
 // TODO: Export this function in Pawnote, to reuse it here.
@@ -63,6 +64,7 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   const [loading, setLoading] = useState(true);
   const [loadProgress, setLoadProgress] = useState(0);
   const [showWebView, setShowWebView] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
 
   const [currentURL, setCurrentURL] = useState('');
 
@@ -116,9 +118,47 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   // PapillonCloseButton in header
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: loading ? () => (
-        <ActivityIndicator />
-      ) : null,
+      headerRight: () => (
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginRight: 0,
+          gap: 10
+        }}>
+          { loading ? (
+            <ActivityIndicator />
+          ) : null }
+
+          <TouchableOpacity
+            style={{
+              opacity: 0.4
+            }}
+            onPress={() => {
+              Alert.alert(
+                'Souhaitez-vous vous connecter sans ENT ?',
+                'La connexion sans ENT requiert des codes PRONOTE et non vos codes ENT ou EduConnect.',
+                [
+                  {
+                    text: 'Annuler',
+                    style: 'cancel'
+                  },
+                  {
+                    text: 'Se connecter',
+                    style: 'destructive',
+                    onPress: () => {
+                      navigation.navigate('NGPronoteLogin', {
+                        instanceURL: instanceURL
+                      });
+                    }
+                  }
+                ]
+              );
+            }}
+          >
+            <KeyRound size={24} color={UIColors.text} />
+          </TouchableOpacity>
+        </View>
+      ),
     });
   }, [navigation, loading]);
 
@@ -164,12 +204,14 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
 
   const INJECT_PRONOTE_CURRENT_LOGIN_STATE = `
     (function () {
-      const state = window && window.loginState ? window.loginState : void 0;
+      setInterval(function() {
+        const state = window && window.loginState ? window.loginState : void 0;
 
-      window.ReactNativeWebView.postMessage(JSON.stringify({
-        type: 'pronote.loginState',
-        data: state
-      }));
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: 'pronote.loginState',
+          data: state
+        }));
+      }, 500);
     })();
   `.trim();
 
@@ -220,6 +262,28 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
           }}
         />
       </Animated.View>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={loggingIn}
+      >
+        <View style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.8)'
+        }}>
+          <ActivityIndicator color={'#ffffff'} />
+          <Text style={{
+            color: '#ffffff',
+            marginTop: 10,
+            fontFamily: 'Papillon-Medium',
+            fontSize: 16,
+          }}>
+            Connexion en cours...
+          </Text>
+        </View>
+      </Modal>
       <WebView
         ref={webViewRef}
         source={{ uri: infoMobileURL }}
@@ -234,9 +298,9 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
           console.log('Pronote webview message', message);
 
           if (message.type === 'pronote.loginState') {
-            setLoading(true);
             if (!message.data) return;
             if (message.data.status !== 0) return;
+            setLoggingIn(true);
             if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
 
             console.log('Pronote login state', message.data);
@@ -288,7 +352,7 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
               webViewRef.current?.injectJavaScript(INJECT_PRONOTE_INITIAL_LOGIN_HOOK);
               webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
               
-              if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
+              /* if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current); */
               currentLoginStateIntervalRef.current = setInterval(() => {
                 webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
               }, 250);

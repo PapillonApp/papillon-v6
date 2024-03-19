@@ -4,8 +4,8 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import GetUIColors from '../utils/GetUIColors';
 import { X } from 'lucide-react-native';
 
-const PapillonCloseButton = ({ onPress }) => {
-  const UIColors = GetUIColors();
+const PapillonCloseButton = ({ onPress, theme }) => {
+  const UIColors = GetUIColors(theme);
 
   return (
     <TouchableOpacity

@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 
 import {
   View,
-  ScrollView,
+  FlatList,
   StyleSheet,
+  Text,
   StatusBar,
   TouchableOpacity,
-  Modal,
-  Platform,
-  Alert
+  Image,
+  TextInput,
+  KeyboardAvoidingView,
 } from 'react-native';
 
 import { RenderHTML } from 'react-native-render-html';
@@ -18,16 +19,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { PapillonDiscussionMessage } from '../../fetch/types/discussions';
 import { useAppContext } from '../../utils/AppContext';
 
-import { Text } from 'react-native-paper';
 import * as WebBrowser from 'expo-web-browser';
-import { GiftedChat, Bubble, InputToolbar, Send, IMessage } from 'react-native-gifted-chat';
 
 import GetUIColors from '../../utils/GetUIColors';
-import { Send as SendLucide, X } from 'lucide-react-native';
-
-import NativeList from '../../components/NativeList';
-import NativeItem from '../../components/NativeItem';
-import NativeText from '../../components/NativeText';
+import { Send as SendLucide } from 'lucide-react-native';
 
 import { useAtomValue } from 'jotai';
 import { discussionsAtom } from '../../atoms/discussions';
@@ -53,50 +48,7 @@ function getInitials(name: string): string {
   return initials;
 }
 
-function convertPronoteMessages(messages: PapillonDiscussionMessage[]): IMessage[] {
-  const outputMessages: IMessage[] = [];
-
-  for (const message of messages) {
-    let id: number | undefined;
-
-    if (!message.author || message.author === 'Inconnu') {
-      message.author = undefined;
-      id = 1;
-    }
-
-    outputMessages.push({
-      _id: message.id,
-      text: message.content,
-      createdAt: new Date(message.timestamp),
-      user: {
-        _id: id || getInitials(message.author ?? '?'),
-        name: message.author,
-        avatar: getInitials(message.author ?? '?'),
-      },
-      sent: true,
-      received: true // message.seen,
-    });
-  }
-
-  outputMessages.push({
-    _id: 1,
-    text: 'Vous avez rejoint la conversation',
-    createdAt: new Date(messages[0].timestamp),
-    system: true,
-    user: { _id: -1 }
-  });
-
-  return outputMessages;
-}
-
-function MessagesScreen ({ route, navigation }: {
-  navigation: any // TODO
-  route: {
-    params: {
-      conversationID: string
-    } 
-  }
-}) {
+const MessagesScreen = ({ route, navigation }) => {
   const UIColors = GetUIColors();
   const appContext = useAppContext();
   const insets = useSafeAreaInsets();
@@ -104,295 +56,244 @@ function MessagesScreen ({ route, navigation }: {
   const { conversationID } = route.params;
   const conversations = useAtomValue(discussionsAtom);
   const conversation = conversations!.find((conversation) => conversation.local_id === conversationID)!;
-  
-  const [recipientsModalVisible, setRecipientsModalVisible] = useState(false);
-  const [urlOpened, setUrlOpened] = useState(false);
-  const [msgs, setMsgs] = useState<IMessage[]>([]);
 
-  async function openURL(url: string): Promise<void> {
-    setUrlOpened(true);
+  const [user, setUser] = useState(null);
 
-    try {
-      await WebBrowser.openBrowserAsync(url, {
-        dismissButtonStyle: 'done',
-        presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
-        controlsColor: UIColors.primary,
-      });
-    } catch { /** No-op. */ }
-    finally {
-      setUrlOpened(false);
-    }
+  useEffect(() => {
+    (async () => {
+      if (!appContext.dataProvider) return;
+
+      const userData = await appContext.dataProvider.getUser();
+      setUser(userData);
+    })();
+  }, []);
+
+  const openURL = async (url: string) => {
+    await WebBrowser.openBrowserAsync(url, {
+      presentationStyle: 'formSheet',
+      controlsColor: UIColors.primary,
+    });
+  };
+
+  const sendMessage = (text: string) => {
+    console.log('Sending message:', text);
   }
 
-  useEffect(() => { // Set the conversation as read when the user opens it.
-    (async () => {
-      setMsgs(convertPronoteMessages(conversation.messages));
-
-      if (conversation.unread > 0) {
-        await appContext.dataProvider?.readStateConversation(conversation.local_id);
-        // TODO: mark as read in atom
-      }
-    })();
-  }, [conversation]);
-
-  // set header title
-  React.useLayoutEffect(() => {
+  // header text is the subject of the conversation
+  useLayoutEffect(() => {
     navigation.setOptions({
-      headerBackTitleVisible: false,
+      headerTitle: conversation.subject,
+      headerBackTitle: 'Retour',
       headerTintColor: UIColors.text,
-      headerShadowVisible: true,
-      headerTitle : Platform.OS === 'ios' ? () => (
-        <TouchableOpacity style={{flexDirection: 'column', alignItems: 'flex-start', overflow: 'hidden', width: '100%', paddingRight: 56}} onPress={() => openModal()}>
-          <Text style={{fontFamily: 'Papillon-Semibold', fontSize: 17, color: UIColors.text, flex: 1}} numberOfLines={1}>
-            {conversation.subject}
-          </Text>
-          <Text style={{fontFamily: 'Papillon-Medium', fontSize: 14.5, color: UIColors.text + '99', flex: 1}} numberOfLines={1}>
-            {conversation.participants.join(', ')}
-          </Text>
-        </TouchableOpacity>
-      ) : conversation.subject,
     });
-  }, [navigation, conversation]);
-
-  const openModal = () => {
-    setRecipientsModalVisible(true);
-    setUrlOpened(true);
-  };
-
-  const sendMessage = async (msg: IMessage[]) => {
-    if (!appContext.dataProvider) {
-      Alert.alert(
-        'Erreur',
-        'La connexion est serveur n\'est pas encore disponible, réessayez plus tard.',
-        [{ text: 'OK' }],
-        { cancelable: false }
-      );
-      
-      return;
-    }
-    
-    let content = msg[0].text;
-
-    await appContext.dataProvider.replyToConversation(conversation.local_id, content);
-    setMsgs(GiftedChat.append(msgs, msg));
-  };
+  }, [navigation, conversation, UIColors]);
 
   return (
-    <View style={{backgroundColor: UIColors.backgroundHigh, flex: 1}}>
-      <StatusBar
-        animated
-        translucent
-        barStyle={
-          !urlOpened ?
-            UIColors.theme === 'dark' ? 'light-content' : 'dark-content'
-            : 'light-content'
-        }
+    <KeyboardAvoidingView
+      style={[
+        {
+          flex: 1,
+          backgroundColor: UIColors.background,
+        },
+      ]}
+      behavior="padding"
+      keyboardVerticalOffset={insets.bottom + 38}
+    >
+      <FlatList
+        data={conversation.messages}
+        keyExtractor={(message) => message.id}
+        style={[
+          {
+            flex: 1,
+          },
+        ]}
+        inverted
+        renderItem={({ item }) => (
+          <PapillonMessage
+            message={item}
+            UIColors={UIColors}
+            sent={item.author === `${user?.name} (${user?.class})`}
+            user={user}
+          />
+        )}
+        ListHeaderComponent={<View style={{ height: insets.bottom + 12 }} />}
       />
+      <PapillonSend UIColors={UIColors} sendFunction={sendMessage} insets={insets} />
+    </KeyboardAvoidingView>
+  );
+};
 
-      <GiftedChat
-        messages={msgs}
-        onSend={sendMessage}
-        user={{ _id: 1 }}
-
-        renderUsernameOnMessage={true}
-
-        timeFormat="HH:mm"
-        dateFormat="dddd DD MMMM"
-
-        locale='fr'
-
-        renderAvatar={(props) => {
-          return (
-            <View style={{width: 40, height: 40, borderRadius: 20, overflow: 'hidden', backgroundColor: UIColors.primary + '22', alignItems: 'center', justifyContent: 'center'}}>
-              <Text style={{fontFamily: 'Papillon-Medium', fontSize: 20, textAlign: 'center', color: UIColors.primary}}>
-                {props.currentMessage?.user.avatar as string}
-              </Text>
-            </View>
-          );
-        }}
-
-        renderBubble={(props) => {
-          return (
-            <Bubble
-              {...props}
-              renderMessageText={(props) => (
-                <RenderHTML
-                  source={{ html: props.currentMessage?.text as string }}
-                  baseStyle={{
-                    paddingHorizontal: 10,
-                    paddingVertical: 6,
-                    color: props.position === 'left' ? UIColors.text : '#ffffff',
-                  }}
-                  renderersProps={{
-                    a: {
-                      onPress (_, href) {
-                        let url = href;
-                        if (!url.startsWith('http')) {
-                          url = 'https://' + url.split('://')[1];
-                        }
-                        
-                        openURL(url);
-                      },
-                    }
-                  }}
-                  contentWidth={300}
-                />
-              )}
-              textStyle={{
-                right: {
+const PapillonMessage = ({ message, UIColors, sent, user }) => {
+  return (
+    <View
+      style={[styles.PapillonMessageContainer, sent ? styles.PapillonMessageContainerSent : {}]}
+    >
+      { !sent ? (
+        <View
+          style={[{
+            backgroundColor: UIColors.primary,
+            width: 34,
+            height: 34,
+            borderRadius: 18,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }]}
+        >
+          { !sent ? (
+            <Text
+              style={[
+                {
                   color: '#ffffff',
+                  fontSize: 16,
                   fontFamily: 'Papillon-Medium',
                 },
-                left: {
-                  color: UIColors.text,
-                  fontFamily: 'Papillon-Medium',
-                },
-              }}
-              wrapperStyle={{
-                left: {
-                  backgroundColor: UIColors.element,
-                  borderRadius: 14,
-                  borderCurve: 'continuous',
-                  paddingHorizontal: 2,
-                  paddingVertical: 3,
-                },
-                right: {
-                  backgroundColor: UIColors.primary,
-                  borderRadius: 14,
-                  borderCurve: 'continuous',
-                  paddingHorizontal: 2,
-                  paddingVertical: 3,
-                }
-              }}
-            />
-          );
-        }}
-
-        renderInputToolbar={(props) => {
-          return (
-            <InputToolbar
-              {...props}
-              containerStyle={{
-                backgroundColor:
-                    UIColors.dark ? UIColors.background
-                      : UIColors.element + 'FF'
-                ,
-                borderTopColor:
-                    UIColors.dark ? UIColors.text + '22'
-                      : UIColors.border
-                ,
-                borderTopWidth: 1,
-                padding: 0,
-                paddingTop: 6,
-              }}
-              primaryStyle={{
-                backgroundColor: UIColors.element + '00',
-                paddingLeft: 10,
-              }}
-
-              // @ts-expect-error : Not sure if this is typed or not in the library.
-              textInputStyle={{
-                color: UIColors.text,
-                fontFamily: 'Papillon-Medium',
-              }}
-            />
-          );
-        }}
-
-        renderSend={(props) => {
-          return (
-            <Send
-              {...props}
-              containerStyle={{
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
+              ]}
             >
-              <View style={{marginRight: 18, alignSelf: 'center', marginTop:-6}}>
-                <SendLucide {...props} color={UIColors.primary} />
-              </View>
-            </Send>
-          );
-        }}
-
-        placeholder="Écrire un message..."
-
-        minInputToolbarHeight={50}
-        bottomOffset={insets.bottom}
-      />
-
-      <Modal
-        animationType="slide"
-        presentationStyle='pageSheet'
-        visible={recipientsModalVisible}
-        onRequestClose={() => {
-          setRecipientsModalVisible(false);
-          setUrlOpened(false);
-        }}
-      >
-        <View style={{flex: 1, backgroundColor: UIColors.backgroundHigh}}>
-          <View style={[styles.modalHeader, {backgroundColor: UIColors.element, borderColor: UIColors.text + '18'}]}>
-            <NativeText heading="h4">
-              Liste des participants
-            </NativeText>
-
-            <TouchableOpacity
-              onPress={() => {
-                setRecipientsModalVisible(false);
-                setUrlOpened(false);
-              }}
-              style={{
-                position: 'absolute',
-                right: 18,
-                backgroundColor: UIColors.text + '18',
-                borderRadius: 100,
-                padding: 4,
-              }}
-            >
-              <X size={24} color={UIColors.text + '99'} />
-            </TouchableOpacity>
-          </View>
-          <ScrollView>
-            <NativeList
-              inset
-              header="Participants"
-            >
-              {conversation.participants.map((participant, index) => (
-                <NativeItem
-                  key={index}
-                >
-                  <NativeText heading="p">
-                    {participant}
-                  </NativeText>
-                </NativeItem>
-              ))}
-            </NativeList>
-
-            <View style={{height: 20}} />
-          </ScrollView>
+              {getInitials(message.author)}
+            </Text>
+          ) : null}
         </View>
-      </Modal>
+      ) : null}
+      <View
+        style={[
+          {
+            flex: 1,
+          },
+        ]}
+      >
+        <View>
+          <Text
+            style={[
+              {
+                color: UIColors.text + '80',
+                fontSize: 12,
+                marginBottom: 6,
+                marginLeft: 12,
+              },
+            ]}
+          >
+            {message.author}
+          </Text>
+        </View>
+        <View
+          style={[styles.PapillonMessageBubble,
+            {
+              backgroundColor: !sent ? UIColors.text + '15' : UIColors.primary,
+            },
+          ]}
+        >
+          <RenderHTML
+            source={{ html: message.content as string }}
+            baseStyle={{
+              paddingHorizontal: 10,
+              paddingVertical: 6,
+              color: !sent ? UIColors.text : '#ffffff',
+              fontSize: 16,
+            }}
+            tagsStyles={{
+              a: {
+                color: UIColors.primary,
+              },
+            }}
+            ignoredStyles={['fontSize']}
+            renderersProps={{
+              a: {
+                onPress (_, href) {
+                  let url = href;
+                  if (!url.startsWith('http')) {
+                    url = 'https://' + url.split('://')[1];
+                  }
+                          
+                  openURL(url);
+                },
+              }
+            }}
+            contentWidth={300}
+          />
+        </View>
+      </View>
     </View>
   );
-}
+};
+
+const PapillonSend = ({ sendFunction = (text) => {}, UIColors, insets }) => {
+  const [textValue, setTextValue] = useState('');
+
+  return (
+    <View
+      style={[
+        {
+          backgroundColor: UIColors.background,
+          borderRadius: 21,
+          borderCurve: 'continuous',
+          marginHorizontal: 15,
+          borderColor: UIColors.text + '20',
+          borderWidth: 1,
+          paddingHorizontal: 16,
+          marginTop: -30,
+          marginBottom: insets.bottom,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        },
+      ]}
+    >
+      <TextInput
+        style={[
+          {
+            fontSize: 16,
+            paddingVertical: 11,
+            textAlignVertical: 'center',
+            paddingTop: 11,
+            flex: 1,
+          },
+        ]}
+        placeholder="Envoyer un message"
+        placeholderTextColor={UIColors.text + '80'}
+        multiline
+        value={textValue}
+        onChangeText={(text) => setTextValue(text)}
+      />
+      <TouchableOpacity
+        onPress={() => {
+          sendFunction(textValue);
+          setTextValue('');
+        }}
+        disabled={textValue.length === 0}
+      >
+        <SendLucide
+          size={22}
+          strokeWidth={2.4}
+          color={textValue.length > 0 ? UIColors.primary : UIColors.border}
+        />
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-  input: {
-    borderRadius: 10,
-    padding: 10,
-    margin: 10,
-    flex: 1,
-    width: '100%',
-    height: 40,
-  },
-
-  modalHeader: {
-    padding: 18,
-    borderBottomWidth: 1,
-    display: 'flex',
+  PapillonMessageContainer: {
+    maxWidth: '85%',
+    paddingHorizontal: 16,
+    paddingTop: 10,
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: 'flex-end',
+    gap: 8,
+  },
+  PapillonMessageContainerSent: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row-reverse',
+    paddingRight: 42,
+  },
+  PapillonMessageBubble: {
+    paddingVertical: 4,
+    paddingHorizontal: 4,
+
+    borderRadius: 18,
+    borderCurve: 'continuous',
+  },
+  PapillonMessageText: {
+    fontSize: 15.5,
   },
 });
 
