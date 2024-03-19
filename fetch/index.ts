@@ -20,10 +20,9 @@ import { newsHandler as pronoteNewsHandler, newsStateHandler as pronoteNewsState
 import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as pronoteHomeworkHandler } from './PronoteData/homework';
 import { discussionsHandler as pronoteDiscussionsHandler, discussionsRecipientsHandler as pronoteDiscussionsRecipientsHandler } from './PronoteData/discussions';
 
-// Skolengo related imports.
-import type { SkolengoDatas } from './SkolengoData/SkolengoDatas';
 import { PapillonVieScolaire } from './types/vie_scolaire';
 import { PapillonEvaluation } from './types/evaluations';
+import { SkolengoDataProvider } from './NewSkolengo/SkolengoDataProvider';
 
 export type ServiceName = 'pronote' | 'skolengo'
 
@@ -33,7 +32,7 @@ export class IndexDataInstance {
   public isNetworkFailing = false;
 
   public service?: ServiceName;
-  public skolengoInstance?: SkolengoDatas;
+  public skolengoInstance?: SkolengoDataProvider;
   public pronoteInstance?: Pronote;
 
   /**
@@ -77,8 +76,7 @@ export class IndexDataInstance {
     this.initializing = true;
     
     if (this.service === 'skolengo') {
-      const skolengo = await import('./SkolengoData/SkolengoDatas.js');
-      this.skolengoInstance = await skolengo.SkolengoDatas.initSkolengoDatas();
+      this.skolengoInstance = new SkolengoDataProvider();
       // TODO: Let's say for now that it never fails...
       this.isNetworkFailing = false;
 
@@ -227,7 +225,8 @@ export class IndexDataInstance {
     sunday.setDate(sundayIndex);
 
     if (this.service === 'skolengo') {
-      return this.skolengoInstance!.getTimetable(day, force);
+      // TODO
+      //return this.skolengoInstance!.getTimetable(day, force);
     }
     else if (this.service === 'pronote') {
       const timetable = await pronoteTimetableHandler([monday, sunday], this.pronoteInstance, force);
