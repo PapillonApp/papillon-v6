@@ -25,7 +25,7 @@ import * as Location from 'expo-location';
 import { School as SkolengoSchool } from 'scolengo-api/types/models/School';
 import { useAppContext } from '../../../utils/AppContext';
 import { Skolengo } from 'scolengo-api';
-import { loginSkolengoWorkflow } from '../../../fetch/NewSkolengo/SkolengoAuthWorkflow';
+import { loginSkolengoWorkflow } from '../../../fetch/Skolengo/SkolengoAuthWorkflow
 
 export const LocateSkolengoEtab = ({
   navigation,

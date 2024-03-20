@@ -22,7 +22,7 @@ import { discussionsHandler as pronoteDiscussionsHandler, discussionsRecipientsH
 
 import { PapillonVieScolaire } from './types/vie_scolaire';
 import { PapillonEvaluation } from './types/evaluations';
-import { SkolengoDataProvider } from './NewSkolengo/SkolengoDataProvider';
+import { SkolengoDataProvider } from './Skolengo/SkolengoDataProvider
 
 export type ServiceName = 'pronote' | 'skolengo'
 
