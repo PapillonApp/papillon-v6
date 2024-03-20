@@ -98,7 +98,7 @@ const DonorsScreen: FC<DonorsScreenProps> = ({ navigation }) => {
             >
               <NativeText heading="h4">{item.Name}</NativeText>
               <NativeText heading="p2">
-                à donné{' '}
+                a donné{' '}
                 {(parseFloat(item.Total.replace(',', '.')) / 1).toFixed(0)}{' '}
                 café{parseFloat(item.Total.replace(',', '.')) > 1 ? 's' : ''}
               </NativeText>
