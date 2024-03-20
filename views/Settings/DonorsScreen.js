@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import * as React from 'react';
 import {
   View,
   ScrollView,
@@ -10,7 +10,10 @@ import {
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import { Euro, Heart } from 'lucide-react-native';
+import { useState, useEffect } from 'react';
+import {
+  Euro, Heart,
+} from 'lucide-react-native';
 import PapillonIcon from '../../components/PapillonIcon';
 
 import KofiSupporters from './KofiSupporters.json';
@@ -21,20 +24,16 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import PapillonLoading from '../../components/PapillonLoading';
 
-interface DonorsScreenProps {
-  navigation: any;
-}
-
-const DonorsScreen: FC<DonorsScreenProps> = ({ navigation }) => {
+function DonorsScreen({ navigation }) {
   const UIColors = GetUIColors();
 
   const theme = useTheme();
 
-  function formatDate(date: string): string {
+  function formatDate(date) {
     let s = date.split(' ');
     let d = s[0].split('-');
     let t = s[1].split(':');
-    const month: string[] = [
+    const month = [
       'janvier',
       'février',
       'mars',
@@ -74,8 +73,11 @@ const DonorsScreen: FC<DonorsScreenProps> = ({ navigation }) => {
           subtitle="Vous êtes géniaux ! Grâce à vous, nous pouvons continuer à développer Papillon de manière indépendante & gratuite !"
         />
 
-        <NativeList inset header={'Donateurs'}>
-          {KofiSupporters.map((item: any, index: number) => (
+        <NativeList
+          inset
+          header={'Donateurs'}
+        >
+          {KofiSupporters.map((item, index) => (
             <NativeItem
               key={index}
               leading={
@@ -91,16 +93,18 @@ const DonorsScreen: FC<DonorsScreenProps> = ({ navigation }) => {
                 )
               }
               trailing={
-                item.Monthly === 'True' ? (
-                  <NativeText heading="p2">mensuel</NativeText>
-                ) : null
+                ( item.Monthly === 'True' ?
+                  <NativeText heading="p2">
+                    mensuel
+                  </NativeText>
+                  : null )
               }
             >
-              <NativeText heading="h4">{item.Name}</NativeText>
+              <NativeText heading="h4">
+                {item.Name}
+              </NativeText>
               <NativeText heading="p2">
-                a donné{' '}
-                {(parseFloat(item.Total.replace(',', '.')) / 1).toFixed(0)}{' '}
-                café{parseFloat(item.Total.replace(',', '.')) > 1 ? 's' : ''}
+                a donné {(parseFloat(item.Total.replace(',','.')) / 1).toFixed(0)} café{parseFloat(item.Total.replace(',','.')) > 1 ? 's' : ''}
               </NativeText>
 
               <NativeText heading="subtitle2">
@@ -112,23 +116,17 @@ const DonorsScreen: FC<DonorsScreenProps> = ({ navigation }) => {
       </ScrollView>
     </View>
   );
-};
-
-interface DonorsPfpProps {
-  image: string;
 }
 
-const DonorsPfp: FC<DonorsPfpProps> = ({ image }) => {
+const DonorsPfp = ({ image }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
     <View
-      style={[
-        {
-          width: 38,
-          height: 38,
-        },
-      ]}
+      style={[{
+        width: 38,
+        height: 38,
+      }]}
     >
       {!isLoaded && (
         <ActivityIndicator
@@ -142,20 +140,14 @@ const DonorsPfp: FC<DonorsPfpProps> = ({ image }) => {
           }}
         />
       )}
-
-      {image && image.startsWith('https://') ? (
+      
+      { image && image.startsWith('https://') ? (
         <Image
           onLoad={() => setIsLoaded(true)}
           source={{ uri: image }}
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: 12,
-            borderWidth: 1,
-            borderColor: '#00000022',
-          }}
+          style={{ width: 38, height: 38, borderRadius: 12, borderWidth: 1, borderColor: '#00000022' }}
         />
-      ) : null}
+      ) : null }
     </View>
   );
 };
