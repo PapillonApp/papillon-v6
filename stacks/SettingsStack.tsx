@@ -92,7 +92,7 @@ function InsetSettings() {
         name="About"
         component={AboutScreen}
         options={{
-          headerTitle: 'À propos de Papillon',
+          headerTitle: 'A propos de Papillon',
         }}
       />
       <Stack.Screen
@@ -100,7 +100,7 @@ function InsetSettings() {
         component={DonorsScreen}
         options={{
           headerTitle: 'Donateurs',
-          headerBackTitle: 'À propos',
+          headerBackTitle: 'A propos',
         }}
       />
       <Stack.Screen

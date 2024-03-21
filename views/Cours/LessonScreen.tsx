@@ -130,7 +130,7 @@ function LessonScreen({ route, navigation }) {
       
       <NativeList
         inset
-        header="À propos"
+        header="A propos"
       >
         <NativeItem
           leading={
