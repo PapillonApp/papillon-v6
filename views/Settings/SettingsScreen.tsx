@@ -23,7 +23,7 @@ import NativeText from '../../components/NativeText';
 
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
 import { IndexDataInstance } from '../../fetch';
-import { SkolengoCommonCache } from '../../fetch/Skolengo/SkolengoCommonCache
+import { SkolengoCommonCache } from '../../fetch/Skolengo/SkolengoCommonCache';
 
 function SettingsScreen({ navigation }) {
   const UIColors = GetUIColors();
