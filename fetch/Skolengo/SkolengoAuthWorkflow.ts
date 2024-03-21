@@ -60,7 +60,7 @@ export const loginSkolengoWorkflow = async (
     disco
   ).catch(skolengoErrorHandler);
   if (!token) return skolengoErrorHandler();
-  console.log({token});
+  //console.log({token});
   Alert.alert(
     'Skolengo : intégration en cours',
     'Veuillez patienter, le processus de connexion à Skolengo à fonctionné.\nMais l\'intégration de Skolengo (NG) n\'est pas encode terminé.\n\nRevenez plus tard.'
