@@ -320,7 +320,7 @@ function NewSettings({ navigation }: {
           onPress={() => navigation.navigate('About')}
         >
           <NativeText heading="h4">
-          A propos
+          À propos
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
             Papillon version {packageJson.version} {packageJson.canal}
