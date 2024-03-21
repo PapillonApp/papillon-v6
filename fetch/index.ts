@@ -22,7 +22,7 @@ import { discussionsHandler as pronoteDiscussionsHandler, discussionsRecipientsH
 
 import { PapillonVieScolaire } from './types/vie_scolaire';
 import { PapillonEvaluation } from './types/evaluations';
-import { SkolengoDataProvider } from './Skolengo/SkolengoDataProvider
+import { SkolengoDataProvider } from './Skolengo/SkolengoDataProvider';
 
 export type ServiceName = 'pronote' | 'skolengo'
 
@@ -307,7 +307,7 @@ export class IndexDataInstance {
     }
   }
 
-  async createDiscussion(subject, content, participants) {
+  async createDiscussion(subject: string, content: string, participants: any[]) {
     await this.waitInit();
     // if (this.service === 'pronote')
     //   return require('./PronoteData/PronoteConversations.js').createDiscussion(
