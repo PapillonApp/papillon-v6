@@ -19,7 +19,7 @@ import AdjustmentsScreen from '../views/Settings/AdjustmentsScreen';
 import HeaderSelectScreen from '../views/Settings/HeaderSelectScreen';
 import PaymentScreen from '../views/Settings/PaymentScreen';
 import NotificationsScreen from '../views/Settings/NotificationsScreen';
-import ConsentScreen from '../views/NewAuthStack/ConsentScreen';
+import ConsentScreenWithoutAcceptation from '../views/ConsentScreenWithoutAcceptation';
 
 function InsetSettings() {
   const UIColors = GetUIColors();
@@ -118,8 +118,8 @@ function InsetSettings() {
         }}
       />
       <Stack.Screen
-        name="ConsentScreen"
-        component={ConsentScreen}
+        name="ConsentScreenWithoutAcceptation"
+        component={ConsentScreenWithoutAcceptation}
         options={{
           headerTitle: 'Termes & conditions',
           headerBackVisible: true,

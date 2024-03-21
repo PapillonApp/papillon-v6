@@ -257,7 +257,7 @@ function AboutScreen({ navigation }) {
           </NativeItem>
           <NativeItem
             onPress={() => {
-              navigation.navigate('ConsentScreen');
+              navigation.navigate('ConsentScreenWithoutAcceptation');
             }}
             chevron
           >
