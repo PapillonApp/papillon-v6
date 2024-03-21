@@ -123,6 +123,7 @@ export const LocateSkolengoEtab = ({
       />
 
       <NativeList
+        inset
         style={[Platform.OS === 'android' ? { marginTop: insets.top } : null]}
       >
         <NativeItem
@@ -159,7 +160,7 @@ export const LocateSkolengoEtab = ({
       </NativeList>
 
       {!isLoading && currentSearch.length < 2 ? (
-        <NativeList>
+        <NativeList inset>
           <NativeItem
             leading={<Locate color={UIColors.primary} />}
             onPress={() => {
@@ -205,6 +206,7 @@ export const LocateSkolengoEtab = ({
 
       {!isLoading && instances && instances.length > 0 && (
         <NativeList
+          inset
           style={{
             marginTop: Platform.OS === 'ios' ? -14 : 0,
           }}
