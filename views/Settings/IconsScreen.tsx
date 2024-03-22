@@ -17,10 +17,23 @@ import ListItem from '../../components/ListItem';
 
 import GetUIColors from '../../utils/GetUIColors';
 
-function IconItem({ icon, applyIcon, current }) {
+interface Icon {
+  coverName: string;
+  name: string;
+  author?: string;
+  icon: any;
+}
+
+interface IconItemProps {
+  icon: Icon;
+  applyIcon: (name: string) => void;
+  current: boolean;
+}
+
+const IconItem: React.FC<IconItemProps> = ({ icon, applyIcon, current }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
-  let subt = 'par l\'équipe Papillon';
+  let subt = "par l'équipe Papillon";
   if (icon.author) {
     subt = `Concours 2023 - par ${icon.author}`;
   }
@@ -56,15 +69,14 @@ function IconItem({ icon, applyIcon, current }) {
       onPress={() => applyIcon(icon.name)}
     />
   );
-}
+};
 
-function AppearanceScreen({ navigation }) {
+const AppearanceScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
-  // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles, lightgreen
   const papillonIcons = [
     {
       coverName: 'Par défaut',
@@ -153,7 +165,7 @@ function AppearanceScreen({ navigation }) {
     },
   ];
 
-  // backtoschool, barbie, betterneon, macos, oldios, verscinq
+
   const communityIcons = [
     {
       coverName: 'Back to School 2023',
@@ -193,7 +205,7 @@ function AppearanceScreen({ navigation }) {
     },
   ];
 
-  const [currentIcon, setCurrentIcon] = useState(null);
+  const [currentIcon, setCurrentIcon] = useState<string | null>(null);
 
   useEffect(() => {
     setCurrentIcon(getAppIcon() || 'classic');
@@ -204,7 +216,7 @@ function AppearanceScreen({ navigation }) {
     }
   }, []);
 
-  function applyIcon(name) {
+  function applyIcon(name: string) {
     const icon = setAppIcon(name);
 
     if (icon === name) {
@@ -231,7 +243,7 @@ function AppearanceScreen({ navigation }) {
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
-      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
+      style={[{ backgroundColor: UIColors.modalBackground }]}
     >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
@@ -289,7 +301,7 @@ function AppearanceScreen({ navigation }) {
       </View>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   ListTitle: {

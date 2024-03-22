@@ -22,18 +22,29 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import { Calendar, CalendarClock, CheckCircle, TrendingUp } from 'lucide-react-native';
 
-function NotificationsScreen({ navigation }) {
+interface NotificationSettings {
+  notificationsEnabled: boolean;
+  notifications_CoursEnabled: boolean;
+  notifications_DevoirsEnabled: boolean;
+  notifications_NotesEnabled: boolean;
+}
+
+interface NotificationsScreenProps {
+  navigation: any;
+}
+
+const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ navigation }) => {
   const UIColors = GetUIColors();
 
-  const [notificationsGranted, setNotificationsGranted] = useState(true);
-  const [notificationSettings, setNotificationSettings] = useState({
-    'notificationsEnabled': true,
-    'notifications_CoursEnabled': true,
-    'notifications_DevoirsEnabled': true,
-    'notifications_NotesEnabled': true,
+  const [notificationsGranted, setNotificationsGranted] = useState<boolean>(true);
+  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
+    notificationsEnabled: true,
+    notifications_CoursEnabled: true,
+    notifications_DevoirsEnabled: true,
+    notifications_NotesEnabled: true,
   });
 
-  const checkPermissions = async () => {
+  const checkPermissions = async (): Promise<void> => {
     const settings = await notifee.requestPermission();
     if (settings.authorizationStatus === AuthorizationStatus.DENIED) {
       setNotificationsGranted(false);
@@ -65,7 +76,7 @@ function NotificationsScreen({ navigation }) {
     })();
   }, []);
 
-  const toggleNotification = async (key) => {
+  const toggleNotification = async (key: keyof NotificationSettings): Promise<void> => {
     try {
       setNotificationSettings({ ...notificationSettings, [key]: !notificationSettings[key] });
       AsyncStorage.setItem('notificationSettings', JSON.stringify({ ...notificationSettings, [key]: !notificationSettings[key] }));

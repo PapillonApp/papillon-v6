@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import {
   StyleSheet,
   View,
@@ -16,11 +16,19 @@ import packageJson from '../package.json';
 import ListItem from '../components/ListItem';
 import GetUIColors from '../utils/GetUIColors';
 
-function ChangelogScreen() {
+interface Feature {
+  title: string;
+  subtitle: string;
+  icon: JSX.Element;
+}
+
+interface ChangelogScreenProps {}
+
+const ChangelogScreen: FC<ChangelogScreenProps> = () => {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
-  const features = [
+  const features: Feature[] = [
     {
       title: 'Fini les bugs de connexions/serveurs',
       subtitle: 'Les connexions passent maintenant par votre téléphone et non plus par les serveurs de Papillon. \n(Merci Vexcited pour Pawnote!)',
@@ -33,7 +41,7 @@ function ChangelogScreen() {
     },
   ];
 
-  const fixes = [
+  const fixes: Feature[] = [
     {
       title: 'Affichage des notes',
       subtitle:
@@ -42,7 +50,7 @@ function ChangelogScreen() {
     },
   ];
 
-  const optimisation = [
+  const optimisation: Feature[] = [
     {
       title: 'Optimisation des chargements',
       subtitle:
@@ -57,8 +65,7 @@ function ChangelogScreen() {
     },
   ];
 
-  // Easter egg (allez voir :))
-  function monTelephoneAunTresTresTresGrosProbleme() {
+  function monTelephoneAunTresTresTresGrosProbleme(): void {
     Linking.openURL('https://www.youtube.com/watch?v=U8R2NgcRBc0');
   }
 

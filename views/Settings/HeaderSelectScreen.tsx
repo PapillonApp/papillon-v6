@@ -1,30 +1,44 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Modal, TouchableOpacity, Animated, TouchableWithoutFeedback, ScrollView, Switch, Alert, Platform, Image, StatusBar } from 'react-native';
-
 import { Text } from 'react-native-paper';
 import GetUIColors from '../../utils/GetUIColors';
-
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
-
 import SyncStorage from 'sync-storage';
-
 import { LinearGradient } from 'expo-linear-gradient';
-
 import { getRandomColor } from '../../utils/ColorCoursName';
 
-const HeaderSelectScreen = ({ navigation }) => {
+interface Background {
+  name: string;
+  description: string;
+  slug: string;
+  images: Image[];
+}
+
+interface Image {
+  name: string;
+  slug: string;
+  image: any;
+}
+
+interface CurrentSettings {
+  homeThemesEnabled: boolean;
+  homeThemeColor: string;
+  homeThemeImage: string;
+}
+
+const HeaderSelectScreen = ({ navigation }: any) => {
   const UIColors = GetUIColors();
 
-  const [selectedColor, setSelectedColor] = useState('#32AB8E');
+  const [selectedColor, setSelectedColor] = useState<string>('#32AB8E');
 
-  const backgrounds = [
+  const backgrounds: Background[] = [
     {
       name: 'Papillon',
       description: 'Bandeaux disponibles par défaut',
       slug: 'papillon',
-      images : [
+      images: [
         {
           name: 'Default',
           slug: 'default',
@@ -65,13 +79,13 @@ const HeaderSelectScreen = ({ navigation }) => {
           slug: 'formescolor',
           image: require('../../assets/themes/papillon/formescolor.png'),
         },
-      ]
+      ],
     },
     {
       name: 'Art-déco',
       description: 'Un style art-déco, avec des formes géométriques',
       slug: 'artdeco',
-      images : [
+      images: [
         // arrows, clouds, cubes, sparks, stripes
         {
           name: 'Flèches',
@@ -98,13 +112,13 @@ const HeaderSelectScreen = ({ navigation }) => {
           slug: 'stripes',
           image: require('../../assets/themes/artdeco/stripes.png'),
         },
-      ]
+      ],
     },
     {
       name: 'Hero Patterns',
       description: 'Des motifs simples inspirés de Hero Patterns',
       slug: 'hero',
-      images : [
+      images: [
         {
           name: 'Circuit',
           slug: 'circuit',
@@ -140,13 +154,13 @@ const HeaderSelectScreen = ({ navigation }) => {
           slug: 'wave',
           image: require('../../assets/themes/hero/wave.png'),
         },
-      ]
+      ],
     },
     {
       name: 'Gribouillage',
       description: 'Des griffonnages basiques et inspirants',
       slug: 'gribouillage',
-      images : [
+      images: [
         {
           name: 'Nuages',
           slug: 'clouds',
@@ -182,11 +196,11 @@ const HeaderSelectScreen = ({ navigation }) => {
           slug: 'stars',
           image: require('../../assets/themes/gribouillage/stars.png'),
         },
-      ]
+      ],
     },
   ];
 
-  const [currentSettings, setCurrentSettings] = useState({
+  const [currentSettings, setCurrentSettings] = useState<CurrentSettings>({
     homeThemesEnabled: false,
     homeThemeColor: '#32AB8E',
     homeThemeImage: 'papillon/default',
@@ -205,7 +219,7 @@ const HeaderSelectScreen = ({ navigation }) => {
     }
   }, []);
 
-  function selectImage(image) {
+  function selectImage(image: string) {
     setCurrentSettings({
       ...currentSettings,
       homeThemeImage: image,
@@ -220,12 +234,12 @@ const HeaderSelectScreen = ({ navigation }) => {
   return (
     <ScrollView
       contentInsetAdjustmentBehavior='automatic'
-      style={{backgroundColor: UIColors.modalBackground}}
+      style={{ backgroundColor: UIColors.modalBackground }}
     >
-      { Platform.OS === 'ios' ? (
+      {Platform.OS === 'ios' ? (
         <StatusBar barStyle='light-content' />
       ) : (
-        <StatusBar barStyle={UIColors.dark ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent"/>
+        <StatusBar barStyle={UIColors.dark ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent" />
       )}
 
       <View
@@ -237,7 +251,7 @@ const HeaderSelectScreen = ({ navigation }) => {
           <View
             style={[
               styles.previewCollection,
-            ]} 
+            ]}
             key={index}
           >
             <View style={[
@@ -294,7 +308,7 @@ const HeaderSelectScreen = ({ navigation }) => {
                           styles.previewItemImage,
                         ]}
                       />
-                      <View 
+                      <View
                         style={[
                           styles.previewItemOver,
                           {
@@ -302,7 +316,7 @@ const HeaderSelectScreen = ({ navigation }) => {
                           },
                         ]}
                       />
-                      <View 
+                      <View
                         style={[
                           styles.previewItemUI,
                           {
@@ -310,9 +324,9 @@ const HeaderSelectScreen = ({ navigation }) => {
                           },
                         ]}
                       />
-                      <View style={[styles.previewItemUIUser]}/>
-                      <View style={[styles.previewItemUIPapillon]}/>
-                      <View style={[styles.previewItemUITitle]}/>
+                      <View style={[styles.previewItemUIUser]} />
+                      <View style={[styles.previewItemUIPapillon]} />
+                      <View style={[styles.previewItemUITitle]} />
                       <LinearGradient
                         colors={[selectedColor + 'FF', selectedColor + '00']}
                         locations={[0.2, 1]}
@@ -329,7 +343,7 @@ const HeaderSelectScreen = ({ navigation }) => {
         ))}
       </View>
 
-      <View style={{height: 20}}/>
+      <View style={{ height: 20 }} />
     </ScrollView>
   );
 };
@@ -353,7 +367,7 @@ const styles = StyleSheet.create({
   },
 
   previewCollection: {
-    
+
   },
 
   previewTitle: {

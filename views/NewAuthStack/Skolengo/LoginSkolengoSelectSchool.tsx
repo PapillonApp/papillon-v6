@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import {
   ScrollView,
   View,
@@ -14,8 +14,7 @@ import {
   Text,
   Searchbar,
 } from 'react-native-paper';
-import { useState } from 'react';
-import * as Location from 'expo-location';
+import { LocationObject, requestForegroundPermissionsAsync, getCurrentPositionAsync } from 'expo-location';
 import { School, Map, Backpack, Locate } from 'lucide-react-native';
 import PapillonIcon from '../../../components/PapillonIcon';
 import ListItem from '../../../components/ListItem';
@@ -26,24 +25,33 @@ import { loginSkolengoWorkflow } from '../../../fetch/SkolengoData/SkolengoDatas
 
 import AlertBottomSheet from '../../../interface/AlertBottomSheet';
 
-function LoginSkolengoSelectSchool({ navigation }) {
+interface School {
+  name: string;
+  city: string;
+  zipCode: string;
+}
+
+interface LoginSkolengoSelectSchoolProps {
+  navigation: any;
+}
+
+const LoginSkolengoSelectSchool: FC<LoginSkolengoSelectSchoolProps> = ({ navigation }) => {
   const theme = useTheme();
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
-  /** @type {[import('scolengo-api/types/models/School').School[], import('react').Dispatch<import('react').SetStateAction<import('scolengo-api/types/models/School').School[]>>]} */
-  const [EtabList, setEtabList] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [localisationPermissionAlert, setLocalisationPermissionAlert] = useState(false);
+  const [EtabList, setEtabList] = useState<School[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [localisationPermissionAlert, setLocalisationPermissionAlert] = useState<boolean>(false);
 
   const appctx = useAppContext();
 
-  function setResults(schools) {
+  function setResults(schools: School[]) {
     setEtabList(schools ?? []);
     setLoading(false);
   }
 
-  function searchSchool(text) {
+  function searchSchool(text: string) {
     setLoading(true);
     setEtabList([]);
     setSearchQuery(text);
@@ -54,7 +62,7 @@ function LoginSkolengoSelectSchool({ navigation }) {
   }
 
   async function searchSchoolByCoords() {
-    const { status } = await Location.requestForegroundPermissionsAsync();
+    const { status } = await requestForegroundPermissionsAsync();
 
     if (status !== 'granted') {
       setLocalisationPermissionAlert(true);
@@ -64,7 +72,7 @@ function LoginSkolengoSelectSchool({ navigation }) {
     setLoading(true);
     setEtabList([]);
 
-    const location = await Location.getCurrentPositionAsync({});
+    const location: LocationObject = await getCurrentPositionAsync({});
 
     SkolengoStatic.getSchools({
       lat: location.coords.latitude,
@@ -72,19 +80,19 @@ function LoginSkolengoSelectSchool({ navigation }) {
     }).then(setResults);
   }
 
-  React.useLayoutEffect(() => {
+  useEffect(() => {
     navigation.setOptions({
       headerSearchBarOptions: {
         placeholder: 'Entrez le nom d\'un lycée',
         cancelButtonText: 'Annuler',
         hideWhenScrolling: false,
         hideNavigationBar: false,
-        onChangeText: (event) => searchSchool(event.nativeEvent.text),
+        onChangeText: (event: any) => searchSchool(event.nativeEvent.text),
       },
     });
   }, [navigation]);
 
-  async function selectEtab(item) {
+  async function selectEtab(item: School) {
     loginSkolengoWorkflow(appctx, navigation, item);
   }
 
