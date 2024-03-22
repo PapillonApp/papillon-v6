@@ -213,8 +213,8 @@ const SelectService = ({ navigation }) => {
         visible={skolengoAlertVisible}
         setVisible={setSkolengoAlertVisible}
         icon={<AlertTriangle />}
-        title="Skolengo"
-        subtitle="Skolengo n’est pas encore disponible sur Papillon. Veuillez réessayer plus tard."
+        title={apiResponse[serviceOptions[selectedService]?.company]?.title}
+        subtitle={apiResponse[serviceOptions[selectedService]?.company]?.content}
         cancelAction={() => setSkolengoAlertVisible(false)}
       />
       
