@@ -6,11 +6,12 @@ import fetchLessons from './background/Lessons';
 import fetchHomeworks from './background/Homeworks';
 import fetchGrades from './background/Grades';
 import fetchCours from './background/BagReminder';
+import selfReminder from './background/SelfReminder';
 
 const backgroundFetch = async () => {
   console.log('[background fetch] Running background fetch');
 
-  await Promise.all([fetchLessons(), fetchHomeworks(), fetchGrades(), fetchCours()]);
+  await Promise.all([fetchLessons(), fetchHomeworks(), fetchGrades(), fetchCours(), selfReminder()]);
 
   return BackgroundFetchResult.NewData;
 };

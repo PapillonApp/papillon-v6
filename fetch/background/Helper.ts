@@ -113,6 +113,13 @@ const RegisterNotifChannel = async () => {
       groupId: 'remind-group',
       description: 'Notification de rappel de faire son sac',
       importance: AndroidImportance.DEFAULT
+    },
+    {
+      name: 'Rappels de self',
+      id: 'remind-self',
+      groupId: 'remind-group',
+      description: 'Notification de rappel de réserver le self',
+      importance: AndroidImportance.DEFAULT
     }
   ];
   await notifee.createChannelGroups(groups);
