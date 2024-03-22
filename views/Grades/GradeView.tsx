@@ -25,6 +25,7 @@ import {
   ChevronLeft,
   Link,
   File,
+  X,
 } from 'lucide-react-native';
 
 import { useLayoutEffect } from 'react';
@@ -82,11 +83,16 @@ function GradeView({ route, navigation }) {
       },
       headerShadowVisible: false,
       headerLeft: () => (
-        Platform.OS === 'ios' ? (
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iosBack}>
-            <ChevronLeft size={26} color="#fff" style={styles.iosBackIcon} />
-          </TouchableOpacity>
-        ) : null
+        Platform.OS === 'ios' ? ( 
+          Platform.isPad ? (
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iosBack}>
+              <X size={26} color="#fff" style={styles.iosBackIcon} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iosBack}>
+              <ChevronLeft size={26} color="#fff" style={styles.iosBackIcon} />
+            </TouchableOpacity>
+          )) : null
       ),
     });
   }, [navigation, grade]);
