@@ -6,25 +6,20 @@ import {
   StyleSheet,
   StatusBar,
   TouchableOpacity,
-  Alert,
   Platform,
   Share as ShareUI,
   Modal,
   ActivityIndicator,
 } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
-
-import Config from 'react-native-config';
+import { Text } from 'react-native-paper';
 
 import {
   Diff,
   GraduationCap,
   Percent,
-  Share,
   SquareAsterisk,
   TrendingDown,
   TrendingUp,
-  UserMinus,
   UserPlus,
   Users2,
   ChevronLeft,
@@ -33,12 +28,10 @@ import {
 } from 'lucide-react-native';
 
 import { useLayoutEffect } from 'react';
-import { PressableScale } from 'react-native-pressable-scale';
 import { getSavedCourseColor } from '../../utils/ColorCoursName';
 
 import formatCoursName from '../../utils/FormatCoursName';
 import GetUIColors from '../../utils/GetUIColors';
-import { useAppContext } from '../../utils/AppContext';
 
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
@@ -46,13 +39,11 @@ import NativeText from '../../components/NativeText';
 
 import * as WebBrowser from 'expo-web-browser';
 
-import {calculateAverage, calculateSubjectAverage} from '../../utils/grades/averages';
+import { calculateSubjectAverage } from '../../utils/grades/averages';
 import { PapillonGrades } from '../../fetch/types/grades';
 import { PapillonAttachmentType } from '../../fetch/types/attachment';
 
 function GradeView({ route, navigation }) {
-  const appctx = useAppContext();
-  const theme = useTheme();
   const { grade, allGrades } = route.params as {
     grade: PapillonGrades['grades'][number];
     allGrades: any; // TODO ?
@@ -194,6 +185,9 @@ function GradeView({ route, navigation }) {
               <Text style={[styles.gradeHeaderGradeValueBottom]}>
                 .{valueBottom}
               </Text>
+              <Text style={[styles.gradeHeaderGradeScale]}>
+                /{grade.grade.out_of.value}
+              </Text>
             </>
           )}
 
@@ -209,9 +203,6 @@ function GradeView({ route, navigation }) {
             )}
           </>)}
 
-          <Text style={[styles.gradeHeaderGradeScale]}>
-            /{grade.grade.out_of.value}
-          </Text>
         </View>
       </View>
       <ScrollView
@@ -262,12 +253,27 @@ function GradeView({ route, navigation }) {
             }
             trailing= {
               <View style={[styles.gradeDetailRight]}>
-                <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(
-                    (grade.grade.value.value / grade.grade.out_of.value) * 20
-                  ).toFixed(2)}
-                </Text>
-                <Text style={[styles.gradeDetailValueSub]}>/20</Text>
+                
+                {grade.grade.value.significant === true && (<>
+                  {grade.grade.value.type[0] == '1' ? (
+                    <Text style={[styles.gradeDetailValue]}>
+                        Abs.
+                    </Text>
+                  ) : (
+                    <Text style={[styles.gradeDetailValue]}>
+                        N.not
+                    </Text>
+                  )}
+                </>)}
+
+                {grade.grade.value.significant === false && (<>
+                  <Text style={[styles.gradeDetailValue]}>
+                    {parseFloat(
+                      (grade.grade.value.value / grade.grade.out_of.value) * 20
+                    ).toFixed(2)}
+                  </Text>
+                  <Text style={[styles.gradeDetailValueSub]}>/20</Text>
+                </>)}
               </View>
             }
           >
@@ -350,7 +356,11 @@ function GradeView({ route, navigation }) {
                 <UserPlus color={UIColors.text} />
               }
               trailing={
-                avgInfluence > 0 ? (
+                avgInfluence == 0 ? (
+                  <NativeText heading="h4">
+                    {parseFloat(avgInfluence)} pts
+                  </NativeText>
+                ) : avgInfluence > 0 ? (
                   <NativeText heading="h4" style={{ color: '#1AA989' }}>
                   + {parseFloat(avgInfluence).toFixed(2)} pts
                   </NativeText>
@@ -390,7 +400,11 @@ function GradeView({ route, navigation }) {
                 <Percent color={UIColors.text} />
               }
               trailing={
-                avgPercentInfluence > 0 ? (
+                avgPercentInfluence == 0 ? (
+                  <NativeText heading="h4">
+                    {parseFloat(avgPercentInfluence)} %
+                  </NativeText>
+                ) : avgPercentInfluence > 0 ? (
                   <NativeText heading="h4" style={{ color: '#1AA989' }}>
                   + {parseFloat(avgPercentInfluence).toFixed(2)} %
                   </NativeText>
@@ -420,7 +434,11 @@ function GradeView({ route, navigation }) {
               <Diff color={UIColors.text} />
             }
             trailing={
-              (grade.grade.value.value - grade.grade.average.value).toFixed(2) > 0 ? (
+              isNaN((grade.grade.value.value - grade.grade.average.value).toFixed(2)) || (grade.grade.value.value - grade.grade.average.value).toFixed(2) == 0  ? (
+                <NativeText heading="h4">
+                  0 pts
+                </NativeText>
+              ) : (grade.grade.value.value - grade.grade.average.value).toFixed(2) > 0 ? (
                 <NativeText heading="h4" style={{ color: '#1AA989' }}>
                   + {(grade.grade.value.value - grade.grade.average.value).toFixed(2)} pts
                 </NativeText>
