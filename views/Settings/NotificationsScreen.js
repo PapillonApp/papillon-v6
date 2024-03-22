@@ -207,7 +207,7 @@ function NotificationsScreen({ navigation }) {
           </NativeItem>
         </NativeList>
 
-        <NativeList inset header="Rappels">
+        <NativeList inset header="Rappels" footer="Les notifications de rappels de faire son sac interviendront entre 18h et 20h, les rappels de self seront reçu entre 8h et 10h.">
           <NativeItem
             leading={
               <Backpack
@@ -226,7 +226,7 @@ function NotificationsScreen({ navigation }) {
               Faire son sac
             </NativeText>
             <NativeText heading='p2'>
-              Vous rappel de préparer votre sac lorsque la journée suivante contient des cours.
+              Vous rappel de préparer votre sac lorsque la journée actuel contient des cours.
             </NativeText>
           </NativeItem>
           <NativeItem
