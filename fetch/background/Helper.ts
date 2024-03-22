@@ -26,7 +26,7 @@ const checkCanNotify = async (type = 'notificationsEnabled') => {
   }
 
   console.log('[background fetch] authorized:', authorized, 'canNotify:', canNotify, 'enabled:', enabled);
-  if(authorized) RegisterNotifChannel()
+  if(authorized) RegisterNotifChannel();
   return authorized && canNotify && enabled;
 };
 
@@ -46,7 +46,7 @@ const SetNotified = async (id: string) => {
 };
 
 const RegisterNotifChannel = async () => {
-  if(Platform.OS === "ios") return;
+  if(Platform.OS === 'ios') return;
   let groups = [
     {
       name: 'Nouvelles données disponibles',
@@ -107,10 +107,17 @@ const RegisterNotifChannel = async () => {
       description: 'Indique quand une nouvelle actualité est disponible',
       importance: AndroidImportance.HIGH
     },
-  ]
-  await notifee.createChannelGroups(groups)
-  await notifee.createChannels(channels)
-}
+    {
+      name: 'Rappels de faire son sac',
+      id: 'remind-bag',
+      groupId: 'remind-group',
+      description: 'Notification de rappel de faire son sac',
+      importance: AndroidImportance.DEFAULT
+    }
+  ];
+  await notifee.createChannelGroups(groups);
+  await notifee.createChannels(channels);
+};
 
 export {
   checkCanNotify,

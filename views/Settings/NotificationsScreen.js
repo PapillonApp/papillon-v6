@@ -20,7 +20,7 @@ import notifee, { AuthorizationStatus } from '@notifee/react-native';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
-import { Calendar, CalendarClock, CheckCircle, TrendingUp } from 'lucide-react-native';
+import {Backpack, BaggageClaim, Calendar, CalendarClock, CheckCircle, TrendingUp, Utensils} from 'lucide-react-native';
 
 function NotificationsScreen({ navigation }) {
   const UIColors = GetUIColors();
@@ -31,6 +31,8 @@ function NotificationsScreen({ navigation }) {
     'notifications_CoursEnabled': true,
     'notifications_DevoirsEnabled': true,
     'notifications_NotesEnabled': true,
+    'notifications_BagReminderEnabled': false,
+    'notifications_SelfReminderEnabled': false,
   });
 
   const checkPermissions = async () => {
@@ -201,6 +203,51 @@ function NotificationsScreen({ navigation }) {
             </NativeText>
             <NativeText heading='p2'>
               Vous envoie une notification lorsque Papillon récupère une nouvelle note.
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+
+        <NativeList inset header="Rappels">
+          <NativeItem
+            leading={
+              <Backpack
+                size={24}
+                color={UIColors.text}
+              />
+            }
+            trailing={
+              <Switch
+                onValueChange={() => toggleNotification('notifications_BagReminderEnabled')}
+                value={notificationSettings.notifications_BagReminderEnabled}
+              />
+            }
+          >
+            <NativeText heading='h4'>
+              Faire son sac
+            </NativeText>
+            <NativeText heading='p2'>
+              Vous rappel de préparer votre sac lorsque la journée suivante contient des cours.
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={
+              <Utensils
+                size={24}
+                color={UIColors.text}
+              />
+            }
+            trailing={
+              <Switch
+                onValueChange={() => toggleNotification('notifications_SelfReminderEnabled')}
+                value={notificationSettings.notifications_SelfReminderEnabled}
+              />
+            }
+          >
+            <NativeText heading='h4'>
+              Réserver le self
+            </NativeText>
+            <NativeText heading='p2'>
+              Vous rappel de réserver votre repas lorsque la journée suivante contient des cours.
             </NativeText>
           </NativeItem>
         </NativeList>

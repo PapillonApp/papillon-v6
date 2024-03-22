@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { unsetBackgroundFetch } from '../../fetch/BackgroundFetch';
 
-import { LogOut, RefreshCw, RotateCw, Server, Trash2 } from 'lucide-react-native';
+import { LogOut, RefreshCw, RotateCw, Trash2 } from 'lucide-react-native';
 import { showMessage } from 'react-native-flash-message';
 import { revokeAsync } from 'expo-auth-session';
 
