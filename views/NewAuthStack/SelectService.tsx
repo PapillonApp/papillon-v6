@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useState, useEffect } from 'react';
-import { View, Image, StatusBar, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Image, Platform, StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import GetUIColors from '../../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -20,9 +20,8 @@ const SelectService = ({ navigation }) => {
   const insets = useSafeAreaInsets();
 
   const [serviceAlertVisible, setServiceAlertVisible] = useState(false);
-  const [serviceNotSuportedAlertVisible, setServiceNotSuportedAlertVisible] = useState<false|string>(false);
 
-  const [apiResponse, setApiResponse] = useState(false);
+  const [apiResponse, setApiResponse] = useState<Record<string, {title:string; content:string}>>({});
 
   useEffect(() => {
     callFetchPapiAPI('messages')
@@ -34,7 +33,7 @@ const SelectService = ({ navigation }) => {
     return fetchPapiAPI(path)
       .then(data => {
         return data;
-      })
+      });
   }
   
   useLayoutEffect(() => {
@@ -47,7 +46,7 @@ const SelectService = ({ navigation }) => {
     });
   }, [UIColors]);
 
-  const [selectedService, setSelectedService] = useState<null|number>(null);
+  const [selectedService, setSelectedService] = useState<number|null>(null);
   const [serviceOptions, setServiceOptions] = useState([
     {
       name: 'PRONOTE',
@@ -72,20 +71,19 @@ const SelectService = ({ navigation }) => {
       icon: require('../../assets/logo_modern_ed.png'),
       soon: true,
     }
-  ]);
+  ] as const);
 
-  const selectOption = (index) => {
+  const selectOption = (index:number) => {
     setSelectedService(index);
   };
 
   const continueToLogin = () => {
     if (selectedService !== null) {
-      const service = serviceOptions[selectedService];
-      if(service.soon) {
-        setServiceNotSuportedAlertVisible(service.name);
+      
+      setServiceAlertVisible(true);
+      if(serviceOptions[selectedService]?.soon) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       } else {
-        setServiceAlertVisible(true);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       }
     }
@@ -105,15 +103,20 @@ const SelectService = ({ navigation }) => {
       <NativeText style={styles.instructionsText}>
         Sélectionnez le service de vie scolaire que vous utilisez dans votre établissement.
       </NativeText>
-      <AlertBottomSheet
-        visible={serviceAlertVisible}
-        icon={<Scale />}
-        title={apiResponse[serviceOptions[selectedService]?.company]?.title}
-        subtitle={apiResponse[serviceOptions[selectedService]?.company]?.content}
-        cancelAction={() => setServiceAlertVisible(false)}
-        primaryButton='Compris !'
-        primaryAction={() => {navigation.navigate(serviceOptions[selectedService]?.view); setServiceAlertVisible(false);}}
-      />
+
+      {selectedService !== null && serviceOptions[selectedService] && (
+        <AlertBottomSheet
+          color={serviceOptions[selectedService]?.soon ? '#A84700' : undefined}
+          visible={serviceAlertVisible}
+          setVisible={setServiceAlertVisible}
+          icon={serviceOptions[selectedService]?.soon ? <AlertTriangle /> : <Scale />}
+          title={apiResponse[serviceOptions[selectedService].company]?.title}
+          subtitle={apiResponse[serviceOptions[selectedService].company]?.content}
+          cancelAction={() => setServiceAlertVisible(false)}
+          primaryButton={!serviceOptions[selectedService]?.soon && 'Compris !' || undefined}
+          primaryAction={!serviceOptions[selectedService]?.soon && (() => {navigation.navigate(serviceOptions[selectedService]?.view); setServiceAlertVisible(false);}) ||undefined}
+        />
+      )}
 
       {Platform.OS !== 'ios' && (
         <View style={{ height: 16 }} />
@@ -191,17 +194,7 @@ const SelectService = ({ navigation }) => {
             Continuer
           </NativeText>
         </TouchableOpacity>
-      </View>
-
-      <AlertBottomSheet
-        color='#A84700'
-        visible={serviceNotSuportedAlertVisible !== false}
-        icon={<AlertTriangle />}
-        title={serviceNotSuportedAlertVisible}
-        subtitle={`${serviceNotSuportedAlertVisible} n’est pas encore disponible sur Papillon. Veuillez réessayer plus tard.`}
-        cancelAction={() => setServiceNotSuportedAlertVisible(false)}
-      />
-      
+      </View>      
     </View>
   );
 };
