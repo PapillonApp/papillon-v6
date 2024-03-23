@@ -7,6 +7,7 @@ import {
   StatusBar,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 
 import { useTheme } from 'react-native-paper';
@@ -29,10 +30,13 @@ import PapillonIcon from '../../components/PapillonIcon';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { showMessage } from 'react-native-flash-message';
 
 function AboutScreen({ navigation }) {
   const [team, setTeam] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [numClickVersion, setNumClickVersion] = useState(0)
 
   useEffect(() => {
     setLoading(true);
@@ -236,7 +240,57 @@ function AboutScreen({ navigation }) {
                 {packageJson.dependencies['pawnote'].split('^')[1]}
               </NativeText>
             }
-            onPress={() => navigation.navigate('NetworkLoggerScreen')}
+            onPress={async() => {
+              //navigation.navigate('NetworkLoggerScreen')
+              console.log("Cliqué")
+              let devMode = await AsyncStorage.getItem("devMode")
+              if(devMode === "true") {
+                showMessage({
+                  message: 'Inutile, les options de développement ont déjà été activées',
+                  type: "info",
+                  icon: 'auto',
+                  floating: true,
+                  position: "bottom"
+                });
+                return;
+              }
+              setNumClickVersion(numClickVersion + 1)
+              console.log("Cliqué", numClickVersion)
+              if(numClickVersion >= 3 && numClickVersion < 10) {
+                showMessage({
+                  message: `Encore ${10 - numClickVersion} clicks`,
+                  type: "info",
+                  icon: 'auto',
+                  floating: true,
+                  position: "bottom"
+                });
+              }
+              if(numClickVersion === 10) {
+                setNumClickVersion(0)
+                Alert.alert(
+                  "Activer les options de développement ?",
+                  "Ces options sont réservées à des utilisateurs avancés, et peuvent être utilisées en cas de problème sur demande de l'équipe.",
+                  [{
+                    "text": "Oui",
+                    "isPreferred": true,
+                    "onPress": () => {
+                      AsyncStorage.setItem("devMode", "true")
+                      showMessage({
+                        message: "Options de développement activées",
+                        type: "success",
+                        icon: 'auto',
+                        floating: true,
+                        position: "bottom"
+                      });
+                    }
+                  },
+                  {
+                    "text": "Non",
+                    "style": "cancel"
+                  }]
+                )
+              }
+            }}
           >
             <NativeText heading="h4">
               Version de Pawnote
