@@ -19,7 +19,7 @@ import AdjustmentsScreen from '../views/Settings/AdjustmentsScreen';
 import HeaderSelectScreen from '../views/Settings/HeaderSelectScreen';
 import PaymentScreen from '../views/Settings/PaymentScreen';
 import NotificationsScreen from '../views/Settings/NotificationsScreen';
-import ConsentScreen from '../views/NewAuthStack/ConsentScreen';
+import ConsentScreenWithoutAcceptation from '../views/ConsentScreenWithoutAcceptation';
 
 function InsetSettings() {
   const UIColors = GetUIColors();
@@ -92,7 +92,7 @@ function InsetSettings() {
         name="About"
         component={AboutScreen}
         options={{
-          headerTitle: 'A propos de Papillon',
+          headerTitle: 'À propos de Papillon',
         }}
       />
       <Stack.Screen
@@ -100,7 +100,7 @@ function InsetSettings() {
         component={DonorsScreen}
         options={{
           headerTitle: 'Donateurs',
-          headerBackTitle: 'A propos',
+          headerBackTitle: 'À propos',
         }}
       />
       <Stack.Screen
@@ -118,8 +118,8 @@ function InsetSettings() {
         }}
       />
       <Stack.Screen
-        name="ConsentScreen"
-        component={ConsentScreen}
+        name="ConsentScreenWithoutAcceptation"
+        component={ConsentScreenWithoutAcceptation}
         options={{
           headerTitle: 'Termes & conditions',
           headerBackVisible: true,
