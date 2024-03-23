@@ -72,6 +72,15 @@ function App() {
         headerBackVisible: false,
       },
     },
+    {
+      name: 'ConsentScreenWithoutAcceptation',
+      component: require('./views/ConsentScreenWithoutAcceptation').default,
+      options: {
+        presentation: 'modal',
+        headerTitle: 'Termes & conditions',
+        headerBackVisible: false,
+      },
+    },
   ];
 
   return (

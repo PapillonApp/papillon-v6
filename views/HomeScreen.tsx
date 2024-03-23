@@ -1478,19 +1478,19 @@ function HomeScreen({ navigation }: { navigation: any }) {
             style={{
               marginBottom: 16,
               opacity: yOffset.interpolate({
-                inputRange: Platform.OS === 'ios' ? [-30, 10] : [0, 40],
+                inputRange: Platform.OS === 'ios' ? [(15 - insets.top), (35 - insets.top)] : [0, 40],
                 outputRange: [1, 0],
               }),
               transform: [
                 {
                   translateY: yOffset.interpolate({
-                    inputRange: Platform.OS === 'ios' ? [-1000, -30, 10] : [0, 0, 40],
+                    inputRange: Platform.OS === 'ios' ? [-1000, (15 - insets.top), (35 - insets.top)] : [0, 0, 40],
                     outputRange: [0, 0, -5],
                   }),
                 },
                 {
                   scale: yOffset.interpolate({
-                    inputRange: Platform.OS === 'ios' ? [-1000, -30, 10] : [0, 0, 40],
+                    inputRange: Platform.OS === 'ios' ? [-1000, (15 - insets.top), (35 - insets.top)] : [0, 0, 40],
                     outputRange: [1, 1, 0.9],
                   }),
                 }

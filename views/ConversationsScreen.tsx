@@ -96,11 +96,11 @@ function ConversationsScreen({ navigation }: {
   // Add search functionality and new conversation button.
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: 'Conversations',
+      headerTitle: 'Messages',
       headerBackTitle: 'Retour',
       headerTintColor: UIColors.text,
       headerShadowVisible: Platform.OS == 'ios',
-      headerLargeTitle: true,
+      headerLargeTitle: false,
       headerStyle: {
         backgroundColor: Platform.OS == 'android' && UIColors.background,
       },

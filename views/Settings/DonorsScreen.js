@@ -104,7 +104,7 @@ function DonorsScreen({ navigation }) {
                 {item.Name}
               </NativeText>
               <NativeText heading="p2">
-                à donné {(parseFloat(item.Total.replace(',','.')) / 1).toFixed(0)} café{parseFloat(item.Total.replace(',','.')) > 1 ? 's' : ''}
+                a donné {(parseFloat(item.Total.replace(',','.')) / 1).toFixed(0)} café{parseFloat(item.Total.replace(',','.')) > 1 ? 's' : ''}
               </NativeText>
 
               <NativeText heading="subtitle2">

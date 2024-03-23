@@ -2,7 +2,12 @@ export interface PapillonDiscussionMessage {
   id: string
   content: string
   author?: string
-  timestamp: number
+  timestamp: number,
+  amountOfRecipients: number,
+  files: {
+    name: string
+    url: string
+  }[],
 }
 
 export interface PapillonDiscussion {
