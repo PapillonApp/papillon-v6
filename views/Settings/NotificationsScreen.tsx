@@ -20,31 +20,22 @@ import notifee, { AuthorizationStatus } from '@notifee/react-native';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
-import { Calendar, CalendarClock, CheckCircle, TrendingUp } from 'lucide-react-native';
+import {Backpack, BaggageClaim, Calendar, CalendarClock, CheckCircle, TrendingUp, Utensils} from 'lucide-react-native';
 
-interface NotificationSettings {
-  notificationsEnabled: boolean;
-  notifications_CoursEnabled: boolean;
-  notifications_DevoirsEnabled: boolean;
-  notifications_NotesEnabled: boolean;
-}
-
-interface NotificationsScreenProps {
-  navigation: any;
-}
-
-const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ navigation }) => {
+function NotificationsScreen({ navigation }) {
   const UIColors = GetUIColors();
 
-  const [notificationsGranted, setNotificationsGranted] = useState<boolean>(true);
-  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
-    notificationsEnabled: true,
-    notifications_CoursEnabled: true,
-    notifications_DevoirsEnabled: true,
-    notifications_NotesEnabled: true,
+  const [notificationsGranted, setNotificationsGranted] = useState(true);
+  const [notificationSettings, setNotificationSettings] = useState({
+    'notificationsEnabled': true,
+    'notifications_CoursEnabled': true,
+    'notifications_DevoirsEnabled': true,
+    'notifications_NotesEnabled': true,
+    'notifications_BagReminderEnabled': false,
+    'notifications_SelfReminderEnabled': false,
   });
 
-  const checkPermissions = async (): Promise<void> => {
+  const checkPermissions = async () => {
     const settings = await notifee.requestPermission();
     if (settings.authorizationStatus === AuthorizationStatus.DENIED) {
       setNotificationsGranted(false);
@@ -76,7 +67,7 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ navigation })
     })();
   }, []);
 
-  const toggleNotification = async (key: keyof NotificationSettings): Promise<void> => {
+  const toggleNotification = async (key) => {
     try {
       setNotificationSettings({ ...notificationSettings, [key]: !notificationSettings[key] });
       AsyncStorage.setItem('notificationSettings', JSON.stringify({ ...notificationSettings, [key]: !notificationSettings[key] }));
@@ -212,6 +203,51 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ navigation })
             </NativeText>
             <NativeText heading='p2'>
               Vous envoie une notification lorsque Papillon récupère une nouvelle note.
+            </NativeText>
+          </NativeItem>
+        </NativeList>
+
+        <NativeList inset header="Rappels" footer="Les notifications de rappels de faire son sac interviendront entre 18h et 20h, les rappels de self seront reçu entre 8h et 10h.">
+          <NativeItem
+            leading={
+              <Backpack
+                size={24}
+                color={UIColors.text}
+              />
+            }
+            trailing={
+              <Switch
+                onValueChange={() => toggleNotification('notifications_BagReminderEnabled')}
+                value={notificationSettings.notifications_BagReminderEnabled}
+              />
+            }
+          >
+            <NativeText heading='h4'>
+              Faire son sac
+            </NativeText>
+            <NativeText heading='p2'>
+              Vous rappel de préparer votre sac lorsque la journée actuel contient des cours.
+            </NativeText>
+          </NativeItem>
+          <NativeItem
+            leading={
+              <Utensils
+                size={24}
+                color={UIColors.text}
+              />
+            }
+            trailing={
+              <Switch
+                onValueChange={() => toggleNotification('notifications_SelfReminderEnabled')}
+                value={notificationSettings.notifications_SelfReminderEnabled}
+              />
+            }
+          >
+            <NativeText heading='h4'>
+              Réserver le self
+            </NativeText>
+            <NativeText heading='p2'>
+              Vous rappel de réserver votre repas lorsque la journée suivante contient des cours.
             </NativeText>
           </NativeItem>
         </NativeList>
