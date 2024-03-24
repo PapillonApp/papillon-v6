@@ -26,7 +26,8 @@ import { convert as convertHTML } from 'html-to-text';
 import {
   File,
   Plus,
-  ExternalLink
+  ExternalLink,
+  FileUp
 } from 'lucide-react-native';
 
 import { getSavedCourseColor } from '../utils/ColorCoursName';
@@ -35,6 +36,8 @@ import GetUIColors from '../utils/GetUIColors';
 
 import { useAppContext } from '../utils/AppContext';
 import NativeText from '../components/NativeText';
+
+import {PronoteApiHomeworkReturnType } from 'pawnote';
 
 import * as WebBrowser from 'expo-web-browser';
 import type { PapillonHomework } from '../fetch/types/homework';
@@ -312,6 +315,7 @@ function Hwitem({ homework, openURL, navigation }: {
   }, []);
 
   if (!homework) return;
+  
   return (
     <Animated.View
       style={[{
@@ -342,12 +346,19 @@ function Hwitem({ homework, openURL, navigation }: {
       >
         <NativeItem
           leading={
-            <CheckAnimated
-              backgroundColor={void 0}
-              checked={homework.done && !checkStateLoading}
-              loading={checkStateLoading}
-              pressed={handleStateChange}
-            />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <CheckAnimated
+                backgroundColor={void 0}
+                checked={homework.done && !checkStateLoading}
+                loading={checkStateLoading}
+                pressed={handleStateChange}
+              />
+            </View>
+          }
+          trailing={
+            homework.return && homework.return.type == PronoteApiHomeworkReturnType.FILE_UPLOAD && (
+              <FileUp size={20} color="grey" />
+            )
           }
           onPress={() => {
             navigation.navigate('Devoir', { homeworkLocalID: homework.localID });
@@ -363,12 +374,15 @@ function Hwitem({ homework, openURL, navigation }: {
             <NativeText numberOfLines={1} heading="subtitle1" style={{fontSize: 14, paddingRight: 10}}>
               {homework.subject.name.toUpperCase()}
             </NativeText>
+            <View>
           </View>
-          <NativeText>
-            {convertHTML(homework.description.replace('\n', ' '), { wordwrap: 130 })}
-          </NativeText>
+          </View>
+          <View>
+            <NativeText>
+              {convertHTML(homework.description.replace('\n', ' '), { wordwrap: 130 })}
+            </NativeText>
+          </View>
         </NativeItem>
-
         {homework.attachments.map((file, index) => (
           <NativeItem
             key={index}
@@ -561,7 +575,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontFamily: 'Papillon-Medium',
   },
-
   homeworkFileContainer: {
     borderTopWidth: 1,
   },
