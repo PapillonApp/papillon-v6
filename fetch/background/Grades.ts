@@ -129,7 +129,7 @@ const notifyGrades = async (grades: PapillonGrades[]) => {
     let bdy = `Vous avez eu ${lastGrade.grade.value.value}/${lastGrade.grade.out_of.value} ${goodGrade ? '! 👏' : ''}`;
 
     if(lastGrade.grade.value.value === undefined || lastGrade.grade.value.value === null || lastGrade.grade.value.value < 0) {
-      bdy = 'Vous n\'avez pas été noté(e) pour ce cours.';
+      bdy = 'Vous n\'avez pas été noté(e) pour cette évaluation.';
     }
 
     notifee.displayNotification({
