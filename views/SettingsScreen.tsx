@@ -117,7 +117,7 @@ function SettingsScreen({ navigation }: {
                 small
               />
             }
-            onPress={() => navigation.navigate('Appearance')}
+            onPress={() => navigation.navigate('DevSettings')}
           />
           ) : null}
       </View>
