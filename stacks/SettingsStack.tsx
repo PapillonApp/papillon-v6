@@ -20,6 +20,7 @@ import HeaderSelectScreen from '../views/Settings/HeaderSelectScreen';
 import PaymentScreen from '../views/Settings/PaymentScreen';
 import NotificationsScreen from '../views/Settings/NotificationsScreen';
 import ConsentScreenWithoutAcceptation from '../views/ConsentScreenWithoutAcceptation';
+import DevSettings from '../views/Settings/DevSettings';
 
 function InsetSettings() {
   const UIColors = GetUIColors();
@@ -140,6 +141,13 @@ function InsetSettings() {
         component={SettingsScreen2}
         options={{
           headerTitle: 'Réglages',
+        }}
+      />
+      <Stack.Screen
+        name="DevSettings"
+        component={DevSettings}
+        options={{
+          headerTitle: 'Options de développement',
         }}
       />
     </Stack.Navigator>
