@@ -1,6 +1,6 @@
 export async function GetLocation(ressource: string) {
     try {
-        const response = await fetch('https://locations.getpapillon.xyz');
+        const response = await fetch('https://raw.githubusercontent.com/PapillonApp/PapiRessources/master/locations.json');
         if (!response.ok) {
             throw new Error('Erreur lors de la récupération des emplacements depuis le GitHub');
         }
