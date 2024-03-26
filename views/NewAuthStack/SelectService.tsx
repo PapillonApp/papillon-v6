@@ -13,7 +13,7 @@ import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
 import { AlertTriangle, Scale } from 'lucide-react-native';
 
-import { fetchPapiAPI } from '../../utils/api';
+import { GetRessource } from '../../utils/GetRessources/GetRessources';
 
 const SelectService = ({ navigation }) => {
   const UIColors = GetUIColors();
@@ -26,13 +26,13 @@ const SelectService = ({ navigation }) => {
   const [apiResponse, setApiResponse] = useState(false);
 
   useEffect(() => {
-    callFetchPapiAPI('messages')
+    callGetRessource('messages')
       .then(response => setApiResponse(response))
       .catch(error => console.error(error));
   }, []);
 
-  function callFetchPapiAPI(path: string) {
-    return fetchPapiAPI(path)
+  function callGetRessource(ressource: string) {
+    return GetRessource(ressource)
         .then(data => {
             return data;
         })
