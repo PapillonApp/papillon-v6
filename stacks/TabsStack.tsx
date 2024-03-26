@@ -66,7 +66,7 @@ const views = [
   },
   {
     name: 'NotesHandler',
-    component: require('../views/GradesScreenNew').default,
+    component: require('../views/GradesScreen').default,
     options: {
       tabBarLabel: 'Notes',
       tabBarIcon: ({ color, size, focused }) =>
