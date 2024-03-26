@@ -23,11 +23,11 @@ const SelectService = ({ navigation }) => {
   const [skolengoAlertVisible, setSkolengoAlertVisible] = useState(false);
   const [serviceAlertVisible, setServiceAlertVisible] = useState(false);
 
-  const [apiResponse, setApiResponse] = useState(false);
+  const [ressource, setRessource] = useState(false);
 
   useEffect(() => {
     callGetRessource('messages')
-      .then(response => setApiResponse(response))
+      .then(response => setRessource(response))
       .catch(error => console.error(error));
   }, []);
 
@@ -113,8 +113,8 @@ const SelectService = ({ navigation }) => {
       <AlertBottomSheet
         visible={serviceAlertVisible}
         icon={<Scale />}
-        title={apiResponse[serviceOptions[selectedService]?.company]?.title}
-        subtitle={apiResponse[serviceOptions[selectedService]?.company]?.content}
+        title={ressource[serviceOptions[selectedService]?.company]?.title}
+        subtitle={ressource[serviceOptions[selectedService]?.company]?.content}
         cancelAction={() => setServiceAlertVisible(false)}
         primaryButton='Compris !'
         primaryAction={() => {navigation.navigate(serviceOptions[selectedService]?.view); setServiceAlertVisible(false);}}
@@ -203,8 +203,8 @@ const SelectService = ({ navigation }) => {
         visible={edAlertVisible}
         setVisible={setEdAlertVisible}
         icon={<AlertTriangle />}
-        title={apiResponse[serviceOptions[selectedService]?.company]?.title}
-        subtitle={apiResponse[serviceOptions[selectedService]?.company]?.content}
+        title={ressource[serviceOptions[selectedService]?.company]?.title}
+        subtitle={ressource[serviceOptions[selectedService]?.company]?.content}
         cancelAction={() => setEdAlertVisible(false)}
       />
 
@@ -213,8 +213,8 @@ const SelectService = ({ navigation }) => {
         visible={skolengoAlertVisible}
         setVisible={setSkolengoAlertVisible}
         icon={<AlertTriangle />}
-        title={apiResponse[serviceOptions[selectedService]?.company]?.title}
-        subtitle={apiResponse[serviceOptions[selectedService]?.company]?.content}
+        title={ressource[serviceOptions[selectedService]?.company]?.title}
+        subtitle={ressource[serviceOptions[selectedService]?.company]?.content}
         cancelAction={() => setSkolengoAlertVisible(false)}
       />
       
