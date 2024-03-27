@@ -54,7 +54,6 @@ import HeaderSelectScreen from './views/Settings/HeaderSelectScreen';
 import PaymentScreen from './views/Settings/PaymentScreen';
 
 import GradesScreen from './views/GradesScreenNew';
-import GradeView from './views/Grades/GradeView';
 import GradesSettings from './views/Grades/GradesSettings';
 
 import NewsScreen from './views/NewsScreen';

@@ -97,14 +97,6 @@ const AppStack = ({ navigation }) => {
       }
     },
     {
-      name: 'Grade',
-      component: require('../views/Grades/GradeView').default,
-      options: {
-        presentation: 'modal',
-        headerTintColor: '#fff',
-      }
-    },
-    {
       name: 'GradesSettings',
       component: require('../views/Grades/GradesSettings').default,
       options: {

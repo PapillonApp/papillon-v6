@@ -38,6 +38,7 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="papillon"/>
+        <data android:scheme="skoapp-prod"/>
         <data android:scheme="xyz.getpapillon.app"/>
         <data android:scheme="exp+papillonvex"/>
       </intent-filter>

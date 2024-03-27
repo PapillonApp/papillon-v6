@@ -106,7 +106,7 @@
     "react-native-webview": "^13.8.1",
     "react-native-wheel-scrollview-picker": "^2.0.4",
     "reanimated-color-picker": "^2.3.4",
-    "scolengo-api": "^3.0.2",
+    "scolengo-api": "^3.0.3",
     "sync-storage": "^0.4.2",
     "typescript": "^5.1.3"
   },

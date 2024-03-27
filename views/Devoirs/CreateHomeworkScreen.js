@@ -39,7 +39,7 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
   const [date, setDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
 
-  const appctx = useAppContext();
+  const appContext = useAppContext();
 
   const [selectedSubject, setSelectedSubject] = useState(0);
   const [nativeSubjects, setNativeSubjects] = useState([]);

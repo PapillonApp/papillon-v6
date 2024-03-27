@@ -1,36 +1,50 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-class SkolengoPrivateCache {
+class CommonCacheUtils {
   static ASYNCSTORAGE_PREFIX = 'SkolengoCache_';
 
   static _DATE_ENCODING_CHAR = '@';
 
-  static validateDateString = (str) =>
+  static validateDateString = (str: string) =>
     typeof str === 'string' &&
     new Date(str?.toString()).toString() !== 'Invalid Date' &&
     str === new Date(str?.toString()).toISOString();
 
-  static parser = (obj) =>
+  static parser = (obj: any) =>
     JSON.stringify(
       obj,
       (_key, value) =>
         this.validateDateString(value)
-          ? `${this.DATE_ENCODING_CHAR}${value}${this.DATE_ENCODING_CHAR}`
+          ? `${this._DATE_ENCODING_CHAR}${value}${this._DATE_ENCODING_CHAR}`
           : value,
       2
     );
 
-  static deparser = (str) =>
+  static deparser = (str: string) =>
     JSON.parse(str, (_key, value) =>
       typeof value === 'string' &&
-      value.startsWith(this.DATE_ENCODING_CHAR) &&
-      value.endsWith(this.DATE_ENCODING_CHAR)
-        ? new Date(value.replaceAll(this.DATE_ENCODING_CHAR, ''))
+      value.startsWith(this._DATE_ENCODING_CHAR) &&
+      value.endsWith(this._DATE_ENCODING_CHAR)
+        ? new Date(value.replaceAll(this._DATE_ENCODING_CHAR, ''))
         : value
     );
 }
 
-export class SkolengoCache {
+type CommonCacheItem<T> =
+  | {
+      expired: true;
+      maxDate: number;
+      data: T;
+    }
+  | {
+      expired: false;
+      maxDate: number;
+      data: T;
+    };
+
+type CommonCacheSetItem<T> = Omit<CommonCacheItem<T>, 'expired'>;
+
+export class SkolengoCommonCache {
   static SECOND = 1000;
 
   static MINUTE = 60 * this.SECOND;
@@ -39,41 +53,56 @@ export class SkolengoCache {
 
   static DAY = 24 * this.HOUR;
 
+  static TIMEZONE_OFFSET = new Date().getTimezoneOffset() * this.MINUTE;
+
   static msToTomorrow() {
     const now = Date.now();
-    const timePassedToday = now % this.DAY;
+    const timePassedToday = (now % this.DAY) + this.TIMEZONE_OFFSET;
     return this.DAY - timePassedToday;
   }
 
-  static setItem(key, value, timeout) {
+  static setItem<T>(key: CacheKeys, value: T, timeout: number) {
     const storedDatas = {
       maxDate: new Date().getTime() + timeout,
       data: value,
     };
     return AsyncStorage.setItem(
-      `${SkolengoPrivateCache.ASYNCSTORAGE_PREFIX}${key}`,
-      SkolengoPrivateCache.parser(storedDatas)
+      `${CommonCacheUtils.ASYNCSTORAGE_PREFIX}${key}`,
+      CommonCacheUtils.parser(storedDatas)
     );
   }
 
-  static async setCollectionItem(key, id = '', value, timeout) {
-    const actualCache = await this.getItem(key, {});
+  static async setCollectionItem<T>(
+    key: CacheKeys,
+    id: string,
+    value: T,
+    timeout: number
+  ) {
     if (id?.toString().trim().length === 0) return;
-    actualCache.data[id] = { value, maxDate: new Date().getTime() + timeout };
+    const actualCache = await this.getItem<
+      Record<string, CommonCacheSetItem<T>>
+    >(key, {});
+    actualCache.data![id] = {
+      data: value,
+      maxDate: new Date().getTime() + timeout,
+    };
     return this.setItem(key, actualCache.data, this.DAY * 30);
   }
 
-  static async getItem(key, defaultResponse = null) {
+  static async getItem<T = null>(
+    key: CacheKeys,
+    defaultResponse?: T
+  ): Promise<CommonCacheItem<T>> {
     const cachedDatas = await AsyncStorage.getItem(
-      `${SkolengoPrivateCache.ASYNCSTORAGE_PREFIX}${key}`
+      `${CommonCacheUtils.ASYNCSTORAGE_PREFIX}${key}`
     );
     if (cachedDatas === null)
       return {
         expired: true,
         maxDate: 0,
-        data: defaultResponse,
+        data: defaultResponse || (null as T),
       };
-    const value = SkolengoPrivateCache.deparser(cachedDatas);
+    const value = CommonCacheUtils.deparser(cachedDatas);
     return {
       expired: value.maxDate < new Date().getTime(),
       maxDate: value.maxDate,
@@ -81,13 +110,19 @@ export class SkolengoCache {
     };
   }
 
-  static async getCollectionItem(key, id, defaultResponse = null) {
-    const cachedDatas = await this.getItem(key, {});
+  static async getCollectionItem<T = null>(
+    key: CacheKeys,
+    id: string,
+    defaultResponse?: T
+  ) {
+    const cachedDatas = await this.getItem<
+      Record<string, CommonCacheSetItem<T>>
+    >(key, {});
     if (!cachedDatas?.data || !cachedDatas?.data[id])
       return {
         expired: true,
         maxDate: 0,
-        data: defaultResponse,
+        data: defaultResponse || (null as T),
       };
     const value = cachedDatas.data[id];
     return {
@@ -97,9 +132,9 @@ export class SkolengoCache {
     };
   }
 
-  static removeItem(key) {
+  static removeItem(key: CacheKeys) {
     return AsyncStorage.removeItem(
-      `${SkolengoPrivateCache.ASYNCSTORAGE_PREFIX}${key}`
+      `${CommonCacheUtils.ASYNCSTORAGE_PREFIX}${key}`
     );
   }
 
@@ -120,5 +155,9 @@ export class SkolengoCache {
     homeworkList: 'homeworkList',
     timetable: 'timetable',
     recap: 'recap',
-  };
+  } as const;
 }
+
+type _CacheKeys = typeof SkolengoCommonCache.cacheKeys;
+
+export type CacheKeys = _CacheKeys[keyof _CacheKeys];

@@ -9,7 +9,7 @@ import { useMaterial3Theme } from '@pchmn/expo-material3-theme';
 
 import type { IndexDataInstance } from '../fetch';
 
-interface AppContextType {
+export interface AppContextType {
   loggedIn: boolean
   setLoggedIn: (loggedIn: boolean) => void
   dataProvider: IndexDataInstance | null

@@ -26,7 +26,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
-  const appctx = useAppContext();
+  const appContext = useAppContext();
 
   const [description, setDescription] = useState('');
   const [out_of, setOutOf] = useState('20');
@@ -44,7 +44,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
   const [fieldsAlert, setFieldsAlert] = useState(false);
 
   useEffect(() => {
-    appctx.dataprovider.getGrades('', false).then((grades) => {
+    appContext.dataProvider.getGrades('', false).then((grades) => {
       let subjects = [];
       grades.grades.forEach((grade) => {
         // if subject name is not in the list

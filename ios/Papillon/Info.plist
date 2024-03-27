@@ -466,6 +466,7 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>papillon</string>
+          <string>skoapp-prod</string>
           <string>xyz.getpapillon.ios</string>
         </array>
       </dict>
