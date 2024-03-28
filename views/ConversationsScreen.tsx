@@ -25,7 +25,7 @@ import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
-import { Plus } from 'lucide-react-native';
+import { MessageCircle, Plus, Search } from 'lucide-react-native';
 import type { PapillonDiscussion } from '../fetch/types/discussions';
 
 function ConversationsScreen({ navigation }: {
@@ -155,6 +155,7 @@ function ConversationsScreen({ navigation }: {
 
       {!loading && (conversations && conversations.length === 0) && (
         <PapillonLoading
+          icon={<MessageCircle size={28} color={UIColors.text} />}
           title="Aucune conversation"
           subtitle="Vous n'avez eu aucune conversation."
         />
@@ -162,6 +163,7 @@ function ConversationsScreen({ navigation }: {
 
       {!loading && (conversations && conversations.length > 0) && (filteredConversations && filteredConversations.length === 0) && (
         <PapillonLoading
+          icon={<Search size={28} color={UIColors.text} />}
           title="Aucune conversation trouvée"
           subtitle="Utilisez d'autres mots clés, ceux que vous avez rentrer ne donnent rien."
         />

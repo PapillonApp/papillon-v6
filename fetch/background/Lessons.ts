@@ -66,6 +66,12 @@ const notifyLessons = async (lessons: PapillonLesson[]) => {
   const canNotify : boolean = await checkCanNotify('notifications_CoursEnabled');
   if (!canNotify) return;
 
+  // remove all notifications
+  for (const lesson of lessons) {
+    const lessonID = (lesson.subject?.name ? lesson.subject.name : '') + new Date(lesson.start).getTime();
+    notifee.cancelNotification(lessonID);
+  }
+
   // get all lessons with status set
   const lessonsWithStatus = lessons.filter(lesson => lesson.status !== undefined);
   
