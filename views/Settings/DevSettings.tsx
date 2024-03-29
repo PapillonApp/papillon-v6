@@ -7,7 +7,7 @@ import NativeList from "../../components/NativeList";
 import ListItem from "../../components/ListItem";
 import PapillonIcon from "../../components/PapillonIcon";
 
-import { Settings, User2, Info, Sparkles, Bell, FlaskConical } from 'lucide-react-native';
+import { Network, ScrollText } from 'lucide-react-native';
 
 function DevSettings({ navigation }) {
     const theme = useTheme();
@@ -32,18 +32,32 @@ function DevSettings({ navigation }) {
                     header="Menus"
                 >
                     <ListItem
-                        title="Options de développement"
-                        subtitle="┬─┬ノ( º _ ºノ)"
-                        color="#FF0000"
+                        title="Déboggeur réseau"
+                        subtitle="Affiche les requêtes réseau"
+                        color="#FFAA00"
                         left={
                         <PapillonIcon
-                            icon={<FlaskConical size={24} color="#fff" />}
-                            color="#FF0000"
+                            icon={<Network size={24} color="#fff" />}
+                            color="#FFAA00"
                             fill
                             small
                         />
                         }
-                        onPress={() => navigation.navigate('Appearance')}
+                        onPress={() => navigation.navigate('NetworkLoggerScreen')}
+                    />
+                    <ListItem
+                        title="Logs"
+                        subtitle="Affiche les logs de l'application"
+                        color="#00AAFF"
+                        left={
+                        <PapillonIcon
+                            icon={<ScrollText size={24} color="#fff" />}
+                            color="#00AAFF"
+                            fill
+                            small
+                        />
+                        }
+                        onPress={() => navigation.navigate('LogsScreen')}
                     />
                 </NativeList>
             </ScrollView>
