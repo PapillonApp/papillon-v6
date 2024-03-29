@@ -21,6 +21,7 @@ import PaymentScreen from '../views/Settings/PaymentScreen';
 import NotificationsScreen from '../views/Settings/NotificationsScreen';
 import ConsentScreenWithoutAcceptation from '../views/ConsentScreenWithoutAcceptation';
 import DevSettings from '../views/Settings/DevSettings';
+import LogsScreen from '../views/Settings/LogsScreen';
 
 function InsetSettings() {
   const UIColors = GetUIColors();
@@ -148,6 +149,13 @@ function InsetSettings() {
         component={DevSettings}
         options={{
           headerTitle: 'Options de développement',
+        }}
+      />
+      <Stack.Screen
+        name="LogsScreen"
+        component={LogsScreen}
+        options={{
+          headerTitle: 'Logs',
         }}
       />
     </Stack.Navigator>
