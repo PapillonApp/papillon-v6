@@ -18,7 +18,7 @@ import formatCoursName from '../utils/FormatCoursName';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
 // Icons
-import { Users2, File, TrendingDown, TrendingUp, AlertTriangle, MoreVertical } from 'lucide-react-native';
+import {Users2, File, TrendingDown, TrendingUp, AlertTriangle, MoreVertical, EyeOff} from 'lucide-react-native';
 import { Stats } from '../interface/icons/PapillonIcons';
 
 // Plugins
@@ -62,6 +62,7 @@ const GradesScreen = ({ navigation }: {
   const { showActionSheetWithOptions } = useActionSheet();
 
   // Data
+  const [hideNotesTab, setHideNotesTab] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = React.useState<boolean>(false);
   const [periods, setPeriods] = React.useState<PapillonPeriod[]>([]);
@@ -190,6 +191,7 @@ const GradesScreen = ({ navigation }: {
   }, [averagesOverTime, classAveragesOverTime, UIColors.text, UIColors.border, UIColors.primary, UIColors.element]);
 
   async function getPeriodsFromAPI (): Promise<PapillonPeriod> {
+    if (hideNotesTab) return null;
     return appContext.dataProvider!.getUser().then((user) => {
       const periods = user.periodes.grades;
 
@@ -202,6 +204,7 @@ const GradesScreen = ({ navigation }: {
   }
 
   function getGradesFromAPI (force = false, periodName = selectedPeriod): Promise<void> {
+    if (hideNotesTab) return null;
     if (!isRefreshing) {
       setIsLoading(true);
     }
@@ -427,9 +430,15 @@ const GradesScreen = ({ navigation }: {
       </View>
     );
   };
-  
+
+  //check if notes tab is enable
+  async function checkIfTabEnable() {
+    let hideNotesTab = await AsyncStorage.getItem('hideNotesTab');
+    setHideNotesTab(hideNotesTab === 'true');
+  }
   // Change header title
   React.useLayoutEffect(() => {
+    checkIfTabEnable();
     navigation.setOptions({
       headerTitle : 'Notes',
       headerRight: () => <HeaderRight
@@ -487,7 +496,7 @@ const GradesScreen = ({ navigation }: {
         scrollEventThrottle={16}
         refreshControl={
           <RefreshControl
-            refreshing={isRefreshing}
+            refreshing={hideNotesTab ? false:isRefreshing}
             progressViewOffset={Platform.OS === 'ios' ? 100 : 0}
             onRefresh={() => {
               setIsRefreshing(true);
@@ -498,7 +507,15 @@ const GradesScreen = ({ navigation }: {
       >
         <StatusBar translucent animated barStyle={UIColors.dark ? 'light-content' : 'dark-content'} backgroundColor={UIColors.backgroundHigh} />
 
-        {grades.length === 0 && (
+        {hideNotesTab && (
+          <PapillonLoading
+            title='Onglet notes désactivé'
+            subtitle='Vos notes sont masqué.'
+            icon={<EyeOff stroke={UIColors.text}/>}
+          />
+        )}
+
+        {grades.length === 0 && !hideNotesTab && (
           <PapillonLoading
             title='Aucune note à afficher'
             subtitle='Vos notes apparaîtront ici.'
@@ -506,7 +523,7 @@ const GradesScreen = ({ navigation }: {
           />
         )}
 
-        { averages.student && averages.student > 0 && (
+        { averages.student && averages.student > 0 && !hideNotesTab && (
           <GradesAverageHistory
             isLoading={isLoading}
             averages={averages}
@@ -518,7 +535,7 @@ const GradesScreen = ({ navigation }: {
           />
         )}
 
-        { latestGrades && latestGrades.length > 0 && (
+        { latestGrades && latestGrades.length > 0 && !hideNotesTab && (
           <LatestGradesList
             isLoading={isLoading}
             grades={latestGrades}
@@ -532,22 +549,22 @@ const GradesScreen = ({ navigation }: {
           <View style={{ height: 16 }} />
         )}
 
-        { averages.student && averages.student > 0 && (
+        { averages.student && averages.student > 0 && !hideNotesTab && (
           <GradesAveragesList
             isLoading={isLoading}
             UIaverage={UIaverage}
             gradeSettings={gradeSettings}
           />
         )}
-
-        <GradesList
-          grades={grades}
-          allGrades={allGrades}
-          gradeSettings={gradeSettings}
-          navigation={navigation}
-          UIColors={UIColors}
-        />
-
+        {!hideNotesTab && (
+          <GradesList
+            grades={grades}
+            allGrades={allGrades}
+            gradeSettings={gradeSettings}
+            navigation={navigation}
+            UIColors={UIColors}
+          />
+        )}
         <View style={{ height: 56 }} />
       
       </ScrollView>
