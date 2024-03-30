@@ -929,13 +929,13 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 Vue d'ensemble
               </Text>
             </>)}
-            
+
 
             {Platform.OS === 'ios' ? (
               <ContextMenuButton
                 isMenuPrimaryAction={true}
                 accessible={true}
-                  accessibilityLabel="Votre profil"
+                accessibilityLabel="Votre profil"
                 menuConfig={{
                   menuTitle: '',
                   menuItems: [
@@ -2382,9 +2382,7 @@ function DevoirsContent({
                     style={[
                       styles.homeworksDevoirsContentHeaderSubjectColor,
                       {
-                        backgroundColor:
-                          homework.background_color ??
-                          getSavedCourseColor(homework.subject.name),
+                        backgroundColor: getSavedCourseColor(homework.subject.name) ?? homework.background_color,
                       },
                     ]}
                   />
