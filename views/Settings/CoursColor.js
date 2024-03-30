@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Pressable, Platform, StatusBar } from 'react-native';
 
-import { useTheme, Text } from 'react-native-paper';
+import {useTheme, Text, Menu, Divider} from 'react-native-paper';
 import * as Haptics from 'expo-haptics';
 import GetUIColors from '../../utils/GetUIColors';
 
@@ -23,12 +23,14 @@ import ColorPicker, {
 import formatCoursName from '../../utils/FormatCoursName';
 
 import { forceSavedCourseColor } from '../../utils/ColorCoursName';
-import { Dice5, Lock, MoreVertical } from 'lucide-react-native';
+import {CircleEllipsis, CircleEllipsisIcon, ListRestart, Lock, MoreVertical, UserCircle2} from 'lucide-react-native';
+import {getContextValues} from '../../utils/AppContext';
 
 const CoursColor = ({ navigation }) => {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
+  const [menuOpen, setMenuOpen] = useState(false);
   const [savedColors, setSavedColors] = useState([]);
 
   const [colorModalOpen, setColorModalOpen] = useState(false);
@@ -84,6 +86,23 @@ const CoursColor = ({ navigation }) => {
     setColorModalOpen(false);
   };
 
+  const ResetColors = async () => {
+    let dataInstance = await getContextValues().dataProvider;
+    var colors = savedColors;
+    let timetable = await dataInstance.getTimetable(new Date());
+    timetable.forEach(course => {
+      Object.keys(colors).forEach((key) => {
+        if (colors[key].originalCourseName == course.subject.name && !colors[key].locked) {
+          //console.log('Force', key);
+          colors[key].color = course.background_color;
+        }
+      });
+    });
+    SyncStorage.set('savedColors', JSON.stringify(colors));
+    setSavedColors(JSON.parse(SyncStorage.get('savedColors'))); //Chelou mais sinon rien ne s'actualise
+    Haptics.selectionAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
   const ApplyRandomColors = () => {
     let col = {};
     let usedColors = [];
@@ -92,7 +111,7 @@ const CoursColor = ({ navigation }) => {
 
     const randomColor = () => {
       let color = colors[Math.floor(Math.random() * colors.length)];
-      
+
       if (usedColors.includes(color)) {
         return randomColor();
       } else {
@@ -158,16 +177,153 @@ const CoursColor = ({ navigation }) => {
   // add dice button in header
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={() => {
-            ApplyRandomColors();
-          }}
-          style={{ padding: 10, marginRight: -7 }}
-        >
-          <Dice5 color={UIColors.primary} />
-        </TouchableOpacity>
-      ),
+      headerRight: () => {
+        if (Platform.OS === 'ios') {
+          return (
+            <ContextMenuButton
+              isMenuPrimaryAction={true}
+              accessible={true}
+              accessibilityLabel="Menu"
+              menuConfig={{
+                menuTitle: '',
+                menuItems: [
+                  {
+                    actionKey: 'randomColor',
+                    actionTitle: 'Appliquer des couleurs aléatoires',
+                    icon: {
+                      type: 'IMAGE_SYSTEM',
+                      imageValue: {
+                        systemName: 'dice',
+                      },
+                    },
+                  },
+                  {
+                    actionKey: 'resetColor',
+                    actionTitle: 'Réinitialiser les couleurs',
+                    icon: {
+                      type: 'IMAGE_SYSTEM',
+                      imageValue: {
+                        systemName: 'arrow.uturn.left',
+                      },
+                    },
+                  }
+                ],
+              }}
+              onPressMenuItem={({nativeEvent}) => {
+                if (nativeEvent.actionKey == 'randomColor') {
+                  Alert.alert(
+                    'Remplacer les couleurs ?',
+                    'Voulez-vous vraiment modifier les couleurs ? Cette action est irréverssible.',
+                    [
+                      {
+                        text: 'Modifier',
+                        onPress: () => {
+                          ApplyRandomColors();
+                        },
+                        style: 'destructive',
+                      },
+                      {
+                        text: 'Annuler',
+                        style: 'cancel',
+                      },
+                    ],
+                    { cancelable: true }
+                  );
+                } else if (nativeEvent.actionKey == 'resetColor') {
+                  Alert.alert(
+                    'Réinitialiser les couleurs ?',
+                    'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible.',
+                    [
+                      {
+                        text: 'Réinitialiser',
+                        onPress: () => {
+                          ResetColors();
+                        },
+                        style: 'destructive',
+                      },
+                      {
+                        text: 'Annuler',
+                        style: 'cancel',
+                      },
+                    ],
+                    { cancelable: true }
+                  );
+                }
+              }}
+            >
+              <TouchableOpacity>
+                <CircleEllipsisIcon color={UIColors.primary}></CircleEllipsisIcon>
+              </TouchableOpacity>
+            </ContextMenuButton>
+          );
+        }
+        return (
+          <Menu
+            visible={menuOpen}
+            onDismiss={() => setMenuOpen(false)}
+            contentStyle={{
+              paddingVertical: 0,
+            }}
+            anchor={
+              <TouchableOpacity onPress={() => {setMenuOpen(true);}}>
+                <CircleEllipsisIcon color={UIColors.primary}/>
+              </TouchableOpacity>
+            }
+          >
+            <Menu.Item
+              title={'Appliquer des couleurs aléatoires'}
+              leadingIcon="casino"
+              onPress={() => {
+                setUserMenuOpen(false);
+                Alert.alert(
+                  'Remplacer les couleurs ?',
+                  'Voulez-vous vraiment modifier les couleurs ? Cette action est irréverssible.',
+                  [
+                    {
+                      text: 'Modifier',
+                      onPress: () => {
+                        ApplyRandomColors();
+                      },
+                      style: 'destructive',
+                    },
+                    {
+                      text: 'Annuler',
+                      style: 'cancel',
+                    },
+                  ],
+                  { cancelable: true }
+                );
+              }}
+            />
+            <Divider />
+            <Menu.Item
+              title={'Réinitialiser les couleurs'}
+              leadingIcon="undo"
+              onPress={() => {
+                setUserMenuOpen(false);
+                Alert.alert(
+                  'Réinitialiser les couleurs ?',
+                  'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible.',
+                  [
+                    {
+                      text: 'Réinitialiser',
+                      onPress: () => {
+                        ResetColors();
+                      },
+                      style: 'destructive',
+                    },
+                    {
+                      text: 'Annuler',
+                      style: 'cancel',
+                    },
+                  ],
+                  { cancelable: true }
+                );
+              }}
+            />
+          </Menu>
+        );
+      },
     });
   });
 
@@ -194,7 +350,7 @@ const CoursColor = ({ navigation }) => {
                     onPress={() => {
                       setColorModalOpen(true);
                       setColorModalColor(savedColors[key].color);
-      
+
                       setCurrentEditedSubject(key);
                     }}
                   />
@@ -253,7 +409,7 @@ const CoursColor = ({ navigation }) => {
                     >
                       <TouchableOpacity
                         onPress={() => {
-                          Platform.OS === 'android' && moreActions(key)
+                          Platform.OS === 'android' && moreActions(key);
                         }}
                         style={{
                           padding: 15,
@@ -348,7 +504,7 @@ const LockToggle = ({ value, onValueChange, color }) => {
           marginRight: 0,
         },
         locked ? {
-          backgroundColor: 
+          backgroundColor:
             UIColors.theme === 'dark' ?
               UIColors.text
               :
@@ -356,7 +512,7 @@ const LockToggle = ({ value, onValueChange, color }) => {
         } : {},
       ]}
     >
-      <Lock 
+      <Lock
         size={19}
         color={
           locked ? UIColors.modalBackground : UIColors.text
