@@ -20,8 +20,8 @@ import HeaderSelectScreen from '../views/Settings/HeaderSelectScreen';
 import PaymentScreen from '../views/Settings/PaymentScreen';
 import NotificationsScreen from '../views/Settings/NotificationsScreen';
 import ConsentScreenWithoutAcceptation from '../views/ConsentScreenWithoutAcceptation';
-import DevSettings from '../views/Settings/DevSettings';
-import LogsScreen from '../views/Settings/LogsScreen';
+import DevSettings from '../views/Settings/DevSettings/DevSettings';
+import LogsScreen from '../views/Settings/DevSettings/LogsScreen';
 
 function InsetSettings() {
   const UIColors = GetUIColors();
