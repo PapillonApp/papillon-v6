@@ -7,6 +7,7 @@ import { AsyncStoragePronoteKeys } from './connector';
 import { getDefaultStore } from 'jotai';
 import { homeworksAtom } from '../../atoms/homeworks';
 import { btoa } from 'js-base64';
+import { RegisterTrophy } from '../../views/Settings/TrophiesScreen';
 
 const defaultStore = getDefaultStore();
 
@@ -167,6 +168,8 @@ export const homeworkPatchHandler = async (homework: PapillonHomework, newDoneSt
   
   homeworks[homeworkIndex].done = newDoneState;
   defaultStore.set(homeworksAtom, homeworks);
+
+  RegisterTrophy('trophy_hw_done');
 
   return true;
 };

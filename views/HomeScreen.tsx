@@ -117,6 +117,7 @@ const openURL = (url: string) => {
 };
 
 import Carousel from 'react-native-reanimated-carousel';
+import { RegisterTrophy } from './Settings/TrophiesScreen';
 
 // create list of dict from THEMES_IMAGES
 const THEMES_IMAGES_LIST = [
@@ -295,6 +296,9 @@ function HomeScreen({ navigation }: { navigation: any }) {
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
+  useEffect(() => {
+    RegisterTrophy('trophy_bandeau', new Date().getDate());
+  }, [currentThemeIndex]);
 
   function checkTerms() {
     AsyncStorage.getItem('ppln_terms').then((value) => {
