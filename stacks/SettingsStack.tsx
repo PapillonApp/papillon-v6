@@ -20,6 +20,7 @@ import HeaderSelectScreen from '../views/Settings/HeaderSelectScreen';
 import PaymentScreen from '../views/Settings/PaymentScreen';
 import NotificationsScreen from '../views/Settings/NotificationsScreen';
 import ConsentScreenWithoutAcceptation from '../views/ConsentScreenWithoutAcceptation';
+import TrophiesScreen from '../views/Settings/TrophiesScreen';
 
 function InsetSettings() {
   const UIColors = GetUIColors();
@@ -115,6 +116,14 @@ function InsetSettings() {
         component={NotificationsScreen}
         options={{
           headerTitle: 'Notifications',
+        }}
+      />
+      <Stack.Screen
+        name="TrophiesScreen"
+        component={TrophiesScreen}
+        options={{
+          headerTitle: 'Trophées',
+          headerTintColor: '#ffffff',
         }}
       />
       <Stack.Screen
