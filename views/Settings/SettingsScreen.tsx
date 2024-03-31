@@ -370,10 +370,10 @@ function SettingsScreen({ navigation }) {
           }
         >
           <NativeText heading="h4">
-            Désactiver l'onglet note
+            Désactiver l'onglet notes
           </NativeText>
           <NativeText heading="p2">
-            Vos notes seront masqué
+            Vos notes ne seront plus accessibles
           </NativeText>
         </NativeItem>
       </NativeList>
