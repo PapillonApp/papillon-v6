@@ -2,10 +2,10 @@ import * as React from "react"
 import { Platform, ScrollView, StatusBar, View } from "react-native";
 
 import { useTheme } from 'react-native-paper';
-import GetUIColors from '../../utils/GetUIColors';
-import NativeList from "../../components/NativeList";
-import ListItem from "../../components/ListItem";
-import PapillonIcon from "../../components/PapillonIcon";
+import GetUIColors from '../../../utils/GetUIColors';
+import NativeList from "../../../components/NativeList";
+import ListItem from "../../../components/ListItem";
+import PapillonIcon from "../../../components/PapillonIcon";
 
 import { Network, ScrollText } from 'lucide-react-native';
 

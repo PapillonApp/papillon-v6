@@ -2,14 +2,14 @@ import * as React from "react"
 import { Platform, ScrollView, StatusBar, View, Text, StyleSheet } from "react-native";
 
 import { useTheme } from 'react-native-paper';
-import GetUIColors from '../../utils/GetUIColors';
-import NativeList from "../../components/NativeList";
-import ListItem from "../../components/ListItem";
-import PapillonIcon from "../../components/PapillonIcon";
+import GetUIColors from '../../../utils/GetUIColors';
+import NativeList from "../../../components/NativeList";
+import ListItem from "../../../components/ListItem";
+import PapillonIcon from "../../../components/PapillonIcon";
 
 import { Info, CircleX, ScrollText, CircleAlert } from 'lucide-react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import PapillonLoading from "../../components/PapillonLoading";
+import PapillonLoading from "../../../components/PapillonLoading";
 import moment from "moment"
 moment.locale("fr")
 
