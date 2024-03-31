@@ -296,9 +296,6 @@ function HomeScreen({ navigation }: { navigation: any }) {
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
-  useEffect(() => {
-    RegisterTrophy('trophy_bandeau', new Date().getDate());
-  }, [currentThemeIndex]);
 
   function checkTerms() {
     AsyncStorage.getItem('ppln_terms').then((value) => {
@@ -1184,6 +1181,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   scrollAnimationDuration={100}
                   onSnapToItem={(index) => {
                     setCurrentThemeIndex(index);
+                    RegisterTrophy('trophy_bandeau', new Date().getDate());
                     Haptics.impactAsync(
                       Haptics.ImpactFeedbackStyle.Light
                     );
@@ -1300,6 +1298,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
           scrollAnimationDuration={100}
           onSnapToItem={(index) => {
             setCurrentThemeIndex(index);
+            RegisterTrophy('trophy_bandeau', new Date().getDate());
             Haptics.impactAsync(
               Haptics.ImpactFeedbackStyle.Light
             );

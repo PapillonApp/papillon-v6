@@ -169,7 +169,9 @@ export const homeworkPatchHandler = async (homework: PapillonHomework, newDoneSt
   homeworks[homeworkIndex].done = newDoneState;
   defaultStore.set(homeworksAtom, homeworks);
 
-  RegisterTrophy('trophy_hw_done');
+  if(newDoneState) {
+    RegisterTrophy('trophy_hw_done', homeworkID);
+  }
 
   return true;
 };
