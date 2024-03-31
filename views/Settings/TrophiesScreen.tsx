@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { ScrollView, TouchableOpacity, StyleSheet, View, Text, FlatList, Alert } from 'react-native';
+import { Animated, ScrollView, Modal, TouchableOpacity, StyleSheet, View, Text, FlatList, Alert } from 'react-native';
 
 import GetUIColors from '../../utils/GetUIColors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,7 +12,10 @@ import { PressableScale } from 'react-native-pressable-scale';
 
 import moment from 'moment';
 
-import { Trash2 } from 'lucide-react-native';
+import { Trash2, X } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import MaskedView from '@react-native-masked-view/masked-view';
 
 const trophiesList = [
   {
@@ -126,7 +129,80 @@ export const RegisterTrophy = async (trophyId, proof : any) => {
 
 const TrophiesScreen = ({ navigation }) => {
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
+
   const [trophies, setTrophies] = useState(trophiesList);
+  const [selectedTrophy, setSelectedTrophy] = useState(0);
+  const [trophyModalVisible, setTrophyModalVisible] = useState(false);
+
+  // floating 3d rotation animation
+  const animatedValueX = new Animated.Value(0);
+  const animatedValueY = new Animated.Value(0);
+
+  Animated.loop(
+    Animated.sequence([
+      Animated.timing(animatedValueX, {
+        toValue: 0,
+        duration: 0,
+        useNativeDriver: true,
+      }),
+      Animated.timing(animatedValueX, {
+        toValue: 1,
+        duration: 2000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(animatedValueX, {
+        toValue: 0,
+        duration: 2000,
+        useNativeDriver: true,
+      }),
+    ])
+  ).start();
+
+  Animated.loop(
+    Animated.sequence([
+      Animated.timing(animatedValueY, {
+        toValue: 0,
+        duration: 0,
+        delay: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(animatedValueY, {
+        toValue: 1,
+        duration: 2000,
+        delay: 0,
+        useNativeDriver: true,
+      }),
+      Animated.timing(animatedValueY, {
+        toValue: 0,
+        duration: 2000,
+        delay: 0,
+        useNativeDriver: true,
+      }),
+    ])
+  ).start();
+
+  // scale on open
+  const scale = new Animated.Value(0);
+
+  useEffect(() => {
+    if (trophyModalVisible) {
+      Animated.spring(scale, {
+        toValue: 1,
+        useNativeDriver: true,
+        mass: 0.7,
+        stiffness: 100,
+        damping: 10,
+      }).start();
+    }
+    else {
+      Animated.timing(scale, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [trophyModalVisible]);
 
   // header background color
   useLayoutEffect(() => {
@@ -232,6 +308,113 @@ const TrophiesScreen = ({ navigation }) => {
 
   return (
     <View style={{ backgroundColor: UIColors.modalBackground, flex: 1, }}>
+      <Modal
+        animationType='fade'
+        transparent={true}
+        visible={trophyModalVisible}
+        onRequestClose={() => {
+          setTrophyModalVisible(false);
+        }}
+      >
+        <BlurView intensity={100} style={{
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }} tint={'dark'}>
+          <TouchableOpacity
+            style={{
+              position: 'absolute',
+              top: insets.top + 10,
+              right: 16,
+              padding: 8,
+              zIndex: 100,
+              backgroundColor: '#ffffff25',
+              borderRadius: 100,
+            }}
+            onPress={() => {
+              setTrophyModalVisible(false);
+            }}
+          >
+            <X size={20} strokeWidth={2.5} color='#fff' />
+          </TouchableOpacity>
+
+          <Animated.View
+            style={[
+              {
+                zIndex: 100,
+                transform: [
+                  {
+                    scale: scale.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 1],
+                    }),
+                  },
+                  {
+                    rotateX: animatedValueX.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ['-20deg', '20deg'],
+                    }),
+                  },
+                  {
+                    rotateY: animatedValueY.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ['-20deg', '20deg'],
+                    }),
+                  },
+                  {
+                    rotate: animatedValueY.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ['-5deg', '5deg'],
+                    }),
+                  }
+                ],
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 1,
+                shadowRadius: 2,
+              }
+            ]}
+          >
+            <Text
+              style={{
+                fontSize: 172,
+              }}
+            >
+              {trophies[selectedTrophy].emoji}
+            </Text>
+          </Animated.View>
+
+          <Text
+            style={{
+              fontSize: 22,
+              fontFamily: 'Papillon-Semibold',
+              color: '#fff',
+              marginTop: 10,
+              marginHorizontal: 20,
+              textAlign: 'center',
+            }}
+          >
+            {trophies[selectedTrophy].title}
+          </Text>
+
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'Papillon-Medium',
+              color: '#fff',
+              opacity: 0.5,
+              marginTop: 5,
+              marginHorizontal: 20,
+              textAlign: 'center',
+            }}
+          >
+            {trophies[selectedTrophy].description}
+          </Text>
+        </BlurView>
+      </Modal>
+
       <View style={[styles.secondHeader, {backgroundColor: '#d16213'}]}>
         <View style={[styles.secondHeaderText]}>
           <Text style={[styles.secondHeaderTitle]}>
@@ -255,12 +438,18 @@ const TrophiesScreen = ({ navigation }) => {
         contentInsetAdjustmentBehavior='automatic'
       >
         <View style={[styles.trophyGrid]}>
-          {trophies.map((trophy) => (
+          {trophies.map((trophy, index) => (
             <PressableScale
               activeScale={0.94}
               weight='light'
               key={trophy.id}
               style={[styles.trophyContainer]}
+              onPress={() => {
+                if (trophy.done >= trophy.required) {
+                  setSelectedTrophy(index);
+                  setTrophyModalVisible(true);
+                }
+              }}
             >
               <View
                 style={[
