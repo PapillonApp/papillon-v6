@@ -22,6 +22,7 @@ import NotificationsScreen from '../views/Settings/NotificationsScreen';
 import ConsentScreenWithoutAcceptation from '../views/ConsentScreenWithoutAcceptation';
 import DevSettings from '../views/Settings/DevSettings/DevSettings';
 import LogsScreen from '../views/Settings/DevSettings/LogsScreen';
+import LocalStorageViewScreen from '../views/Settings/DevSettings/LocalStorageViewScreen';
 
 function InsetSettings() {
   const UIColors = GetUIColors();
@@ -156,6 +157,13 @@ function InsetSettings() {
         component={LogsScreen}
         options={{
           headerTitle: 'Logs',
+        }}
+      />
+      <Stack.Screen
+        name="LocalStorageViewScreen"
+        component={LocalStorageViewScreen}
+        options={{
+          headerTitle: 'Local storage',
         }}
       />
     </Stack.Navigator>

@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Platform, ScrollView, StatusBar, View } from "react-native";
+import { Alert, Platform, ScrollView, StatusBar, View } from "react-native";
 
 import { useTheme } from 'react-native-paper';
 import GetUIColors from '../../../utils/GetUIColors';
@@ -7,7 +7,7 @@ import NativeList from "../../../components/NativeList";
 import ListItem from "../../../components/ListItem";
 import PapillonIcon from "../../../components/PapillonIcon";
 
-import { Network, ScrollText } from 'lucide-react-native';
+import { Network, ScrollText, Database } from 'lucide-react-native';
 
 function DevSettings({ navigation }) {
     const theme = useTheme();
@@ -58,6 +58,33 @@ function DevSettings({ navigation }) {
                         />
                         }
                         onPress={() => navigation.navigate('LogsScreen')}
+                    />
+                    <ListItem
+                        title="Local storage"
+                        subtitle="Affiche le local storage de l'application"
+                        color="#7F00FF"
+                        left={
+                        <PapillonIcon
+                            icon={<Database size={24} color="#fff" />}
+                            color="#7F00FF"
+                            fill
+                            small
+                        />
+                        }
+                        onPress={() => {
+                            Alert.alert(
+                                "Avertissement de sécurité",
+                                "Le local storage contient vos informations d'identification sous la forme de token. Il contient également vos données personnelles. Faites donc très attention aux informations que vous fournissez en faisant une capture d'écran.\n\nLes informations sensibles sont indiqués, veillez-donc à les masquer.",
+                                [{
+                                    text: "Annuler",
+                                    style: "cancel"
+                                },
+                                {
+                                    text: "Continuer",
+                                    onPress: () => navigation.navigate('LocalStorageViewScreen')
+                                }]
+                            )
+                        }}
                     />
                 </NativeList>
             </ScrollView>
