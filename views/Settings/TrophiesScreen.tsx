@@ -154,16 +154,28 @@ const TrophiesScreen = ({ navigation }) => {
         text: 'Réinitialiser',
         style: 'destructive',
         onPress: () => {
-          // set all trophies done to 0
-          let newTrophies = [...trophiesList];
-          newTrophies = newTrophies.map((trophy) => {
-            trophy.done = 0;
-            return trophy;
-          });
+          Alert.alert('Êtes-vous vraiment sûr ?', 'Vous perdrez tout votre progrès et ne pourrez pas le récupérer.', [
+            {
+              text: 'Annuler',
+              style: 'cancel',
+            },
+            {
+              text: 'Réinitialiser',
+              style: 'destructive',
+              onPress: () => {
+                // set all trophies done to 0
+                let newTrophies = [...trophiesList];
+                newTrophies = newTrophies.map((trophy) => {
+                  trophy.done = 0;
+                  return trophy;
+                });
 
-          setTrophies(newTrophies);
+                setTrophies(newTrophies);
 
-          AsyncStorage.removeItem('trophies');
+                AsyncStorage.removeItem('trophies');
+              },
+            },
+          ]);
         },
       },
     ]);
