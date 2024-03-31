@@ -1,10 +1,10 @@
 import React from 'react';
-import { ScrollView } from 'react-native';
+import {Alert, ScrollView, Switch} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { unsetBackgroundFetch } from '../../fetch/BackgroundFetch';
 
-import { LogOut, RefreshCw, RotateCw, Trash2 } from 'lucide-react-native';
+import {EyeOff, LogOut, RefreshCw, RotateCw, Trash2} from 'lucide-react-native';
 import { showMessage } from 'react-native-flash-message';
 import { revokeAsync } from 'expo-auth-session';
 
@@ -32,7 +32,7 @@ function SettingsScreen({ navigation }) {
   const [skolengoCacheClearAlert, setSkolengoCacheClearAlert] = React.useState(false);
   const [skolengoReconnectAlert, setSkolengoReconnectAlert] = React.useState(false);
   const [deleteAccountAlert, setDeleteAccountAlert] = React.useState(false);
-
+  const [hideNotes, setHideNotes] = React.useState(false);
   async function pronoteRegenerateToken() {
     // Force another initialisation.
     await appContext.dataProvider.init('pronote');
@@ -53,8 +53,183 @@ function SettingsScreen({ navigation }) {
     }
   }
 
+  function confirmDisabling(then = ()=> {}, invalid = false) {
+    let question = [
+      {
+        question: 'Quelle est la capitale de la France ?',
+        response: [
+          {text: 'Paris', valid: true},
+          {text: 'Madrid', valid: false},
+          {text: 'Londres', valid: false},
+          {text: 'Berlin', valid: false},
+        ]
+      },
+      {
+        question: 'Quelle est la couleur du ciel ?',
+        response: [
+          {text: 'Bleu', valid: true},
+          {text: 'Vert', valid: false},
+          {text: 'Jaune', valid: false},
+          {text: 'Rouge', valid: false},
+        ]
+      },
+      {
+        question: 'Quel est le premier mois de l\'année ?',
+        response: [
+          {text: 'Janvier', valid: true},
+          {text: 'Février', valid: false},
+          {text: 'Décembre', valid: false},
+          {text: 'Avril', valid: false},
+        ]
+      },
+      {
+        question: 'Combien font 2+2 ?',
+        response: [
+          {text: '22', valid: false},
+          {text: '4', valid: true},
+          {text: '2', valid: false},
+          {text: '18', valid: false},
+        ]
+      },
+      {
+        question: 'Combien font 5*5 ?',
+        response: [
+          {text: '25', valid: true},
+          {text: '10', valid: false},
+          {text: '15', valid: false},
+          {text: '20', valid: false},
+        ]
+      },
+      {
+        question: 'Quelle est la première lettre de l\'alphabet ?',
+        response: [
+          {text: 'A', valid: true},
+          {text: 'F', valid: false},
+          {text: 'O', valid: false},
+          {text: 'B', valid: false},
+        ]
+      },
+      {
+        question: 'Quelle est la couleur du soleil ?',
+        response: [
+          {text: 'Jaune', valid: true},
+          {text: 'Bleu', valid: false},
+          {text: 'Rouge', valid: false},
+          {text: 'Vert', valid: false},
+        ]
+      },
+      {
+        question: 'Combien de jours y a-t-il dans une semaine ?',
+        response: [
+          {text: '7', valid: true},
+          {text: '6', valid: false},
+          {text: '8', valid: false},
+          {text: '5', valid: false},
+        ]
+      },
+      {
+        question: 'Combien de doigts avez-vous sur une main ?',
+        response: [
+          {text: '5', valid: true},
+          {text: '4', valid: false},
+          {text: '6', valid: false},
+          {text: '10', valid: false},
+        ]
+      },
+      {
+        question: 'Combien de saisons y a-t-il dans une année ?',
+        response: [
+          {text: '4', valid: true},
+          {text: '3', valid: false},
+          {text: '5', valid: false},
+          {text: '6', valid: false},
+        ]
+      },
+    ];
+    let randomQuestion = question[Math.floor(Math.random() * question.length)];
+    let response = randomQuestion.response
+      .map(value => ({ value, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ value }) => value);
+    var button: Array<any> = [];
+    response.forEach(res => {
+      button.push({
+        text: res.text,
+        onPress: () => {
+          if (res.valid) {
+            then();
+          } else {
+            confirmDisabling(then, true);
+          };
+        }
+      });
+    });
+    button.push({text: 'Annuler', style: 'cancel'});
+
+
+    Alert.alert(
+      invalid ? 'Réponse incorrect':'Confirmation de votre choix',
+      'Afin de confirmer votre choix, merci de répondre à la question suivante :\n' + randomQuestion.question,
+      button
+    );
+  }
+
+  function switchHideNotes() {
+    if (!hideNotes) {
+      Alert.alert(
+        'Voulez-vous vraiment désactiver l\'onglet note ?',
+        'Vos notes seront masquées. Un redémmarage peut-être requis.',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+          {
+            onPress: async () => {
+              setHideNotes(true);
+              await AsyncStorage.setItem('hideNotesTab', 'true');
+            },
+            style: 'destructive',
+            text: 'Continuer',
+          },
+        ]
+      );
+    } else {
+      Alert.alert(
+        'Voulez-vous vraiment réactiver l\'onglet note ?',
+        'Vos notes seront de nouveau visible dans l\'onglet note. Un redémmarage peut-être requis.',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+          {
+            onPress: () => {
+              confirmDisabling(() => {
+                setHideNotes(false);
+                AsyncStorage.setItem('hideNotesTab', 'false');
+              });
+            },
+            style: 'destructive',
+            text: 'Continuer',
+          },
+        ]
+      );
+    }
+  }
+
+  async function getData() {
+    let hideNotesTab = await AsyncStorage.getItem('hideNotesTab');
+    setHideNotes(hideNotesTab === 'true');
+  }
+
+  React.useEffect( () => {
+    getData();
+  }, []);
+
   return (
     <ScrollView style={{ backgroundColor: UIColors.modalBackground }}>
+
       {appContext.dataProvider.service === 'pronote' && ( 
         <NativeList
           header="Connexion à Pronote"
@@ -182,6 +357,28 @@ function SettingsScreen({ navigation }) {
       )}
 
       <NativeList
+        header="Avancé"
+        inset
+      >
+        <NativeItem
+          leading={<EyeOff size={24} color={UIColors.text}/>}
+          trailing={
+            <Switch
+              value={hideNotes}
+              onValueChange={() => switchHideNotes()}
+            />
+          }
+        >
+          <NativeText heading="h4">
+            Désactiver l'onglet note
+          </NativeText>
+          <NativeText heading="p2">
+            Vos notes seront masqué
+          </NativeText>
+        </NativeItem>
+      </NativeList>
+
+      <NativeList
         header="Mon compte"
         inset
       >
@@ -216,7 +413,7 @@ function SettingsScreen({ navigation }) {
   
           // Remove every data from storage.
           await AsyncStorage.clear();
-          AsyncStorage.setItem("preventNotifInit", "true") //to prevent notif to re-init after logout (app stack still displayed for a few second before re-rendering)
+          AsyncStorage.setItem('preventNotifInit', 'true'); //to prevent notif to re-init after logout (app stack still displayed for a few second before re-rendering)
           // Create a new provider since we're resetting everything.
           try {
             appContext.setDataProvider(new IndexDataInstance());
@@ -225,7 +422,7 @@ function SettingsScreen({ navigation }) {
             console.error('Error while creating new data provider', e);
           }
           appContext.setLoggedIn(false);
-          unsetBackgroundFetch()
+          unsetBackgroundFetch();
           showMessage({
             message: 'Déconnecté avec succès',
             type: 'success',

@@ -7,7 +7,6 @@ import {
   StatusBar,
   TouchableOpacity,
   Platform,
-  Share as ShareUI,
   Modal,
   ActivityIndicator,
 } from 'react-native';
