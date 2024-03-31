@@ -25,6 +25,7 @@ import formatCoursName from '../../utils/FormatCoursName';
 import { forceSavedCourseColor } from '../../utils/ColorCoursName';
 import {CircleEllipsis, CircleEllipsisIcon, ListRestart, Lock, MoreVertical, UserCircle2} from 'lucide-react-native';
 import {getContextValues} from '../../utils/AppContext';
+import { RegisterTrophy } from './TrophiesScreen';
 
 const CoursColor = ({ navigation }) => {
   const theme = useTheme();
@@ -81,6 +82,9 @@ const CoursColor = ({ navigation }) => {
         color: hex,
       },
     });
+
+    console.log('Registering trophy for course color');
+    RegisterTrophy('trophy_course_color', currentEditedSubject);
 
     forceSavedCourseColor(currentEditedSubject, hex);
     setColorModalOpen(false);
