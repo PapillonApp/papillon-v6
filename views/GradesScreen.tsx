@@ -510,7 +510,7 @@ const GradesScreen = ({ navigation }: {
         {hideNotesTab && (
           <PapillonLoading
             title='Onglet notes désactivé'
-            subtitle='Vos notes sont masqué.'
+            subtitle='Vos notes sont masquées.'
             icon={<EyeOff stroke={UIColors.text}/>}
           />
         )}
