@@ -49,6 +49,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
 import { PapillonUser } from '../../fetch/types/user';
+import { RegisterTrophy } from './TrophiesScreen';
 
 function ProfileScreen() {
   const theme = useTheme();
@@ -101,6 +102,8 @@ function ProfileScreen() {
       }).then((base64) => {
         AsyncStorage.setItem('custom_profile_picture', 'data:image/png;base64,' + base64);
         setProfilePicture('data:image/png;base64,' + base64);
+
+        RegisterTrophy('trophy_profile_picture');
       });
     }
   }

@@ -22,6 +22,7 @@ import { PressableScale } from 'react-native-pressable-scale';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useTheme, Text } from 'react-native-paper';
 import { SFSymbol } from 'react-native-sfsymbols';
+import TimeSeparator from '../interface/CoursScreen/TimeSeparator';
 
 import * as Notifications from 'expo-notifications';
 import * as Calendar from 'expo-calendar';
@@ -895,34 +896,38 @@ function CoursPage({ cours, navigation, forceRefresh }: {
       {cours.map((lesson, index) => (
         <View key={lesson.id}>
           {index !== 0 && new Date(lesson.start).getTime() - new Date(cours[index - 1].end).getTime() > 1800000 && (
-            <View style={styles.coursSeparator}>
-              <View
-                style={[
-                  styles.coursSeparatorLine,
-                  { backgroundColor: `${UIColors.text}15` },
-                ]}
-              />
-
-              <Text style={{ color: `${UIColors.text}30` }}>
-                {`${Math.floor(
-                  (new Date(lesson.start).getTime() - new Date(cours[index - 1].end).getTime()) /
+            <TimeSeparator
+              reason={
+                (new Date(cours[index - 1].end).getHours() < 13 &&
+                new Date(lesson.start).getHours() >= 12) ?
+                  'Pause méridienne'
+                : 'Pas de cours'
+              }
+              time={`${Math.floor(
+                (new Date(lesson.start).getTime() -
+                    new Date(cours[index - 1].end).getTime()) /
                     3600000
-                )} h ${lz(
-                  Math.floor(
-                    ((new Date(lesson.start).getTime() - new Date(cours[index - 1].end).getTime()) %
+              )} h ${lz(
+                Math.floor(
+                  ((new Date(lesson.start).getTime() -
+                      new Date(cours[index - 1].end).getTime()) %
                       3600000) /
                       60000
-                  )
-                )} min`}
-              </Text>
-
-              <View
-                style={[
-                  styles.coursSeparatorLine,
-                  { backgroundColor: `${UIColors.text}15` },
-                ]}
-              />
-            </View>
+                )
+              )} min`}
+              lunch={
+                new Date(cours[index - 1].end).getHours() < 13 &&
+                new Date(lesson.start).getHours() >= 12
+              }
+              showLine
+              style={{
+                marginHorizontal: 0,
+                marginTop: 0,
+                marginBottom: 8,
+                height: 38,
+                marginLeft: 69,
+              }}
+            />
           )}
 
           <CoursItem
