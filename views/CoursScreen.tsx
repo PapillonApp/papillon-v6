@@ -4,6 +4,7 @@ import React, { useCallback, useState, useEffect, useRef, useLayoutEffect } from
 import {
   Animated,
   View,
+  Dimensions,
   StyleSheet,
   StatusBar,
   Platform,
@@ -879,9 +880,12 @@ function CoursPage({ cours, navigation, forceRefresh }: {
         <RefreshControl
           refreshing={isHeadLoading}
           onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? '#32AB8E' : '']}
+          colors={[Platform.OS === 'android' ? '#0065A8' : '']}
         />
       }
+      contentContainerStyle={{
+        minHeight: Platform.OS === 'android' ? Dimensions.get('window').height - 150 : 0,
+      }}
     >
       {cours.length === 0 && (
         <PapillonLoading
