@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { View, StyleSheet, TouchableNativeFeedback, type ViewStyle } from 'react-native';
 import type { Cell } from 'react-native-tableview-simple';
+import GetUIColors from '../utils/GetUIColors';
 
 interface Props {
   children: React.ReactNode
@@ -21,15 +22,31 @@ const NativeItem: React.FC<Props> = React.memo(({
   onPress,
   style,
   innerStyle,
+  first,
+  last,
 }) => {
+  const UIColors = GetUIColors();
   const handlePress = useCallback(() => onPress?.(), [onPress]);
 
   return (
     <TouchableNativeFeedback
-      style={style}
+      style={[
+        style,
+        {
+          borderRadius: 12,
+        },
+      ]}
       onPress={handlePress}
     >
-      <View style={[styles.content, innerStyle]}>
+      <View style={[
+        styles.content,
+        {
+          backgroundColor: UIColors.element,
+        },
+        first && styles.conFirst,
+        last && styles.conLast,
+        innerStyle
+      ]}>
         {leading && leading}
 
         <View style={styles.children}>
@@ -49,10 +66,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
+    borderRadius: 6,
+    overflow: 'hidden',
   },
   children: {
     flex: 1,
-  }
+  },
+  conFirst: {
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  conLast: {
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+  },
 });
 
 export default NativeItem;
