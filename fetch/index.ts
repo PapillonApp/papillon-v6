@@ -184,13 +184,13 @@ export class IndexDataInstance {
    * 
    * @returns `true` when operation is successful.
    */
-  public async changeNewsState (localID: string): Promise<boolean> {
+  public async changeNewsState (localID: string, forceState: boolean = true): Promise<boolean> {
     await this.waitInit();
     if (this.service === 'skolengo') {
       // TODO
     }
     else if (this.service === 'pronote') {
-      return pronoteNewsStateHandler(localID, true, this.pronoteInstance);
+      return pronoteNewsStateHandler(localID, forceState, this.pronoteInstance);
     }
 
     return false;
