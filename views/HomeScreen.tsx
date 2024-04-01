@@ -117,6 +117,7 @@ const openURL = (url: string) => {
 };
 
 import Carousel from 'react-native-reanimated-carousel';
+import TimeSeparator from '../interface/CoursScreen/TimeSeparator';
 
 // create list of dict from THEMES_IMAGES
 const THEMES_IMAGES_LIST = [
@@ -1797,15 +1798,14 @@ function CoursItem({
             },
           ]}
         >
-          <View
-            style={[
-              styles.coursSeparatorLine,
-              { backgroundColor: UIColors.text + '15' },
-            ]}
-          />
-
-          <Text style={{ color: UIColors.text + '30' }}>
-            {`${Math.floor(
+          <TimeSeparator
+            reason={
+              (new Date(cours[index - 1].end).getHours() < 13 &&
+              new Date(lesson.start).getHours() >= 12) ?
+                'Pause méridienne'
+              : 'Pas de cours'
+            }
+            time={`${Math.floor(
               (new Date(lesson.start).getTime() -
                   new Date(cours[index - 1].end).getTime()) /
                   3600000
@@ -1817,13 +1817,10 @@ function CoursItem({
                     60000
               )
             )} min`}
-          </Text>
-
-          <View
-            style={[
-              styles.coursSeparatorLine,
-              { backgroundColor: UIColors.text + '15' },
-            ]}
+            lunch={
+              new Date(cours[index - 1].end).getHours() < 13 &&
+              new Date(lesson.start).getHours() >= 12
+            }
           />
         </Animated.View>
       )}
