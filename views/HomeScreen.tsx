@@ -117,6 +117,7 @@ const openURL = (url: string) => {
 };
 
 import Carousel from 'react-native-reanimated-carousel';
+import { RegisterTrophy } from './Settings/TrophiesScreen';
 
 // create list of dict from THEMES_IMAGES
 const THEMES_IMAGES_LIST = [
@@ -929,13 +930,13 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 Vue d'ensemble
               </Text>
             </>)}
-            
+
 
             {Platform.OS === 'ios' ? (
               <ContextMenuButton
                 isMenuPrimaryAction={true}
                 accessible={true}
-                  accessibilityLabel="Votre profil"
+                accessibilityLabel="Votre profil"
                 menuConfig={{
                   menuTitle: '',
                   menuItems: [
@@ -1180,6 +1181,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   scrollAnimationDuration={100}
                   onSnapToItem={(index) => {
                     setCurrentThemeIndex(index);
+                    RegisterTrophy('trophy_bandeau', new Date().getDate());
                     Haptics.impactAsync(
                       Haptics.ImpactFeedbackStyle.Light
                     );
@@ -1296,6 +1298,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
           scrollAnimationDuration={100}
           onSnapToItem={(index) => {
             setCurrentThemeIndex(index);
+            RegisterTrophy('trophy_bandeau', new Date().getDate());
             Haptics.impactAsync(
               Haptics.ImpactFeedbackStyle.Light
             );
@@ -2382,9 +2385,7 @@ function DevoirsContent({
                     style={[
                       styles.homeworksDevoirsContentHeaderSubjectColor,
                       {
-                        backgroundColor:
-                          homework.background_color ??
-                          getSavedCourseColor(homework.subject.name),
+                        backgroundColor: getSavedCourseColor(homework.subject.name) ?? homework.background_color,
                       },
                     ]}
                   />
