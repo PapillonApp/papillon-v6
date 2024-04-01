@@ -9,7 +9,7 @@ import {
 } from 'lucide-react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 
-const TimeSeparator = ({ reason, time, lunch }) => {
+const TimeSeparator = ({ style, showLine, reason, time, lunch }) => {
   const UIColors = GetUIColors();
 
   return (
@@ -17,8 +17,22 @@ const TimeSeparator = ({ reason, time, lunch }) => {
       styles.timeSeparator,
       {
         backgroundColor: UIColors.text + '08',
-      }
+      },
+      style
     ]}>
+      {showLine &&
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            height: '100%',
+            width:4,
+            backgroundColor: UIColors.border
+          }}
+        />
+      }
       <Image source={require('../../assets/stripes.png')} style={[styles.stripes, {tintColor: UIColors.text}]} />
       <View style={[styles.separatorData]}>
         <View style={[styles.reasonContainer]}>
