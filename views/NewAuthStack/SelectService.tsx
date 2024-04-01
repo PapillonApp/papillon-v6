@@ -13,7 +13,7 @@ import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
 import { AlertTriangle, Scale } from 'lucide-react-native';
 
-import { fetchPapiAPI } from '../../utils/api';
+import { GetRessource } from '../../utils/GetRessources/GetRessources';
 
 const SelectService = ({ navigation }) => {
   const UIColors = GetUIColors();
@@ -23,20 +23,7 @@ const SelectService = ({ navigation }) => {
   const [skolengoAlertVisible, setSkolengoAlertVisible] = useState(false);
   const [serviceAlertVisible, setServiceAlertVisible] = useState(false);
 
-  const [apiResponse, setApiResponse] = useState(false);
 
-  useEffect(() => {
-    callFetchPapiAPI('messages')
-      .then(response => setApiResponse(response))
-      .catch(error => console.error(error));
-  }, []);
-
-  function callFetchPapiAPI(path: string) {
-    return fetchPapiAPI(path)
-        .then(data => {
-            return data;
-        })
-  }
   
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -113,8 +100,8 @@ const SelectService = ({ navigation }) => {
       <AlertBottomSheet
         visible={serviceAlertVisible}
         icon={<Scale />}
-        title={apiResponse[serviceOptions[selectedService]?.company]?.title}
-        subtitle={apiResponse[serviceOptions[selectedService]?.company]?.content}
+        title="Important"
+        subtitle={`Papillon n’est pas affilié à ${serviceOptions[selectedService]?.company}. Des bugs peuvent survenir lors de l’utilisation de ${serviceOptions[selectedService]?.name} sur Papillon.`}
         cancelAction={() => setServiceAlertVisible(false)}
         primaryButton='Compris !'
         primaryAction={() => {navigation.navigate(serviceOptions[selectedService]?.view); setServiceAlertVisible(false);}}
@@ -203,8 +190,8 @@ const SelectService = ({ navigation }) => {
         visible={edAlertVisible}
         setVisible={setEdAlertVisible}
         icon={<AlertTriangle />}
-        title={apiResponse[serviceOptions[selectedService]?.company]?.title}
-        subtitle={apiResponse[serviceOptions[selectedService]?.company]?.content}
+        title={`${serviceOptions[selectedService]?.name}`}
+        subtitle={`${serviceOptions[selectedService]?.name} n’est pas encore disponible sur Papillon. Veuillez réessayer plus tard.`}
         cancelAction={() => setEdAlertVisible(false)}
       />
 
@@ -213,8 +200,8 @@ const SelectService = ({ navigation }) => {
         visible={skolengoAlertVisible}
         setVisible={setSkolengoAlertVisible}
         icon={<AlertTriangle />}
-        title={apiResponse[serviceOptions[selectedService]?.company]?.title}
-        subtitle={apiResponse[serviceOptions[selectedService]?.company]?.content}
+        title="Important"
+        subtitle={`Papillon n’est pas affilié à ${serviceOptions[selectedService]?.company}. Des bugs peuvent survenir lors de l’utilisation de ${serviceOptions[selectedService]?.name} sur Papillon.`}
         cancelAction={() => setSkolengoAlertVisible(false)}
       />
       
