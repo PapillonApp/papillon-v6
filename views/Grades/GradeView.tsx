@@ -27,6 +27,8 @@ import {
   X,
 } from 'lucide-react-native';
 
+import { RegisterTrophy } from '../Settings/TrophiesScreen';
+
 import { useLayoutEffect } from 'react';
 import { getSavedCourseColor } from '../../utils/ColorCoursName';
 
@@ -57,6 +59,10 @@ function GradeView({ route, navigation }) {
       controlsColor: UIColors.primary,
     });
   };
+
+  useEffect(() => {
+    RegisterTrophy('trophy_grades_view');
+  }, []);
 
   const [modalLoading, setModalLoading] = useState(false);
   const [modalLoadingText, setModalLoadingText] = useState('');

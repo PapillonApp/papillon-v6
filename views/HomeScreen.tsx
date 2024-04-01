@@ -118,6 +118,7 @@ const openURL = (url: string) => {
 
 import Carousel from 'react-native-reanimated-carousel';
 import TimeSeparator from '../interface/CoursScreen/TimeSeparator';
+import { RegisterTrophy } from './Settings/TrophiesScreen';
 
 // create list of dict from THEMES_IMAGES
 const THEMES_IMAGES_LIST = [
@@ -1181,6 +1182,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   scrollAnimationDuration={100}
                   onSnapToItem={(index) => {
                     setCurrentThemeIndex(index);
+                    RegisterTrophy('trophy_bandeau', new Date().getDate());
                     Haptics.impactAsync(
                       Haptics.ImpactFeedbackStyle.Light
                     );
@@ -1297,6 +1299,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
           scrollAnimationDuration={100}
           onSnapToItem={(index) => {
             setCurrentThemeIndex(index);
+            RegisterTrophy('trophy_bandeau', new Date().getDate());
             Haptics.impactAsync(
               Haptics.ImpactFeedbackStyle.Light
             );

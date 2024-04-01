@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Pressable, Platform, StatusBar } from 'react-native';
 
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
+
+const Buffer = require("buffer").Buffer;
+
 import {useTheme, Text, Menu, Divider} from 'react-native-paper';
 import * as Haptics from 'expo-haptics';
 import GetUIColors from '../../utils/GetUIColors';
@@ -10,6 +15,8 @@ import SyncStorage, { set } from 'sync-storage';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
+
+import Share from 'react-native-share';
 
 import { ContextMenuButton } from 'react-native-ios-context-menu';
 
@@ -23,8 +30,9 @@ import ColorPicker, {
 import formatCoursName from '../../utils/FormatCoursName';
 
 import { forceSavedCourseColor } from '../../utils/ColorCoursName';
-import {CircleEllipsis, CircleEllipsisIcon, ListRestart, Lock, MoreVertical, UserCircle2} from 'lucide-react-native';
+import {CircleEllipsis, Share as ShareIcon, CircleEllipsisIcon, ListRestart, Lock, MoreVertical, UserCircle2} from 'lucide-react-native';
 import {getContextValues} from '../../utils/AppContext';
+import { RegisterTrophy } from './TrophiesScreen';
 
 const CoursColor = ({ navigation }) => {
   const theme = useTheme();
@@ -81,6 +89,9 @@ const CoursColor = ({ navigation }) => {
         color: hex,
       },
     });
+
+    console.log('Registering trophy for course color');
+    RegisterTrophy('trophy_course_color', currentEditedSubject);
 
     forceSavedCourseColor(currentEditedSubject, hex);
     setColorModalOpen(false);
@@ -174,6 +185,56 @@ const CoursColor = ({ navigation }) => {
     setSavedColors(col);
   }, []);
 
+  const exportColors = () => {
+    const data = JSON.stringify(savedColors);
+    const base64 = Buffer.from(data).toString('base64');
+    
+    Share.open({
+      url: 'data:text/json;base64,' + base64,
+      filename: 'Papillon_CouleursMatieres_' + new Date().toISOString() + '.json',
+      type: 'application/json',
+    });
+  };
+
+  const ImportColors = async () => {
+    const file = await DocumentPicker.getDocumentAsync({
+      type: 'application/json',
+    });
+
+    if (file.assets.length > 0) {
+      const data = await FileSystem.readAsStringAsync(file.assets[0].uri);
+      const json = JSON.parse(data);
+
+      let newCol = JSON.parse(SyncStorage.get('savedColors'));
+
+      Object.keys(json).forEach((key) => {
+        newCol[key] = json[key];
+      });
+
+      Alert.alert(
+        'Importer des couleurs',
+        'Voulez-vous vraiment importer ces couleurs ?',
+        [
+          {
+            text: 'Importer',
+            onPress: () => {
+              setSavedColors(newCol);
+              SyncStorage.set('savedColors', JSON.stringify(newCol));
+
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            },
+            style: 'destructive',
+          },
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+        ],
+        { cancelable: true }
+      );
+    }
+  };
+
   // add dice button in header
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -198,15 +259,53 @@ const CoursColor = ({ navigation }) => {
                     },
                   },
                   {
-                    actionKey: 'resetColor',
-                    actionTitle: 'Réinitialiser les couleurs',
+                    menuTitle: 'Importer / exporter',
                     icon: {
                       type: 'IMAGE_SYSTEM',
                       imageValue: {
-                        systemName: 'arrow.uturn.left',
+                        systemName: 'square.and.arrow.up',
                       },
                     },
-                  }
+                    menuItems: [
+                      {
+                        actionKey: 'exportColors',
+                        actionTitle: 'Exporter les couleurs',
+                        icon: {
+                          type: 'IMAGE_SYSTEM',
+                          imageValue: {
+                            systemName: 'square.and.arrow.up',
+                          },
+                        },
+                      },
+                      {
+                        actionKey: 'importColors',
+                        actionTitle: 'Importer des couleurs',
+                        icon: {
+                          type: 'IMAGE_SYSTEM',
+                          imageValue: {
+                            systemName: 'square.and.arrow.down',
+                          },
+                        },
+                      }
+                    ],
+                  },
+                  {
+                    menuTitle: '',
+                    menuOptions: ['displayInline', 'destructive'],
+                    menuItems: [
+                      {
+                        actionKey: 'resetColor',
+                        actionTitle: 'Réinitialiser les couleurs',
+                        menuAttributes: ['destructive'],
+                        icon: {
+                          type: 'IMAGE_SYSTEM',
+                          imageValue: {
+                            systemName: 'arrow.uturn.left',
+                          },
+                        },
+                      }
+                    ],
+                  },
                 ],
               }}
               onPressMenuItem={({nativeEvent}) => {
@@ -248,6 +347,10 @@ const CoursColor = ({ navigation }) => {
                     ],
                     { cancelable: true }
                   );
+                } else if (nativeEvent.actionKey == 'exportColors') {
+                  exportColors();
+                } else if (nativeEvent.actionKey == 'importColors') {
+                  ImportColors();
                 }
               }}
             >
@@ -319,6 +422,24 @@ const CoursColor = ({ navigation }) => {
                   ],
                   { cancelable: true }
                 );
+              }}
+            />
+            <Divider />
+            <Menu.Item
+              title={'Exporter les couleurs'}
+              leadingIcon="upload"
+              onPress={() => {
+                setUserMenuOpen(false);
+                exportColors();
+              }}
+            />
+            <Divider />
+            <Menu.Item
+              title={'Importer des couleurs'}
+              leadingIcon="download"
+              onPress={() => {
+                setUserMenuOpen(false);
+                ImportColors();
               }}
             />
           </Menu>
