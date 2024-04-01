@@ -255,35 +255,53 @@ const CoursColor = ({ navigation }) => {
                     },
                   },
                   {
-                    actionKey: 'resetColor',
-                    actionTitle: 'Réinitialiser les couleurs',
-                    icon: {
-                      type: 'IMAGE_SYSTEM',
-                      imageValue: {
-                        systemName: 'arrow.uturn.left',
-                      },
-                    },
-                  },
-                  {
-                    actionKey: 'exportColors',
-                    actionTitle: 'Exporter les couleurs',
+                    menuTitle: 'Importer / exporter',
                     icon: {
                       type: 'IMAGE_SYSTEM',
                       imageValue: {
                         systemName: 'square.and.arrow.up',
                       },
                     },
+                    menuItems: [
+                      {
+                        actionKey: 'exportColors',
+                        actionTitle: 'Exporter les couleurs',
+                        icon: {
+                          type: 'IMAGE_SYSTEM',
+                          imageValue: {
+                            systemName: 'square.and.arrow.up',
+                          },
+                        },
+                      },
+                      {
+                        actionKey: 'importColors',
+                        actionTitle: 'Importer des couleurs',
+                        icon: {
+                          type: 'IMAGE_SYSTEM',
+                          imageValue: {
+                            systemName: 'square.and.arrow.down',
+                          },
+                        },
+                      }
+                    ],
                   },
                   {
-                    actionKey: 'importColors',
-                    actionTitle: 'Importer des couleurs',
-                    icon: {
-                      type: 'IMAGE_SYSTEM',
-                      imageValue: {
-                        systemName: 'square.and.arrow.down',
-                      },
-                    },
-                  }
+                    menuTitle: '',
+                    menuOptions: ['displayInline', 'destructive'],
+                    menuItems: [
+                      {
+                        actionKey: 'resetColor',
+                        actionTitle: 'Réinitialiser les couleurs',
+                        menuAttributes: ['destructive'],
+                        icon: {
+                          type: 'IMAGE_SYSTEM',
+                          imageValue: {
+                            systemName: 'arrow.uturn.left',
+                          },
+                        },
+                      }
+                    ],
+                  },
                 ],
               }}
               onPressMenuItem={({nativeEvent}) => {
