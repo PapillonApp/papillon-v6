@@ -111,7 +111,7 @@ const GradesScreen = ({ navigation }: {
         icon: <Users2 color={UIColors.text} />,
       },
       {
-        name: 'Médiane',
+        name: 'Moyenne médiane',
         value: averages.median || 0,
         icon: <DivideSquare color={UIColors.text} />,
       },
