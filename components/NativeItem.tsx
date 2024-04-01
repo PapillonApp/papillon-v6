@@ -43,6 +43,7 @@ const NativeItem: React.FC<Props> = React.memo(({
       <TouchableNativeFeedback
         onPress={handlePress}
         useForeground
+        background={TouchableNativeFeedback.Ripple(UIColors.text + '22', false)}
       >
         <View style={[
           styles.content,
