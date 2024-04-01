@@ -55,7 +55,7 @@ function InsetSettings() {
             }
             :
             {
-              headerTitle: 'Compte',
+              headerTitle: 'Paramètres',
             }
         }
       />
