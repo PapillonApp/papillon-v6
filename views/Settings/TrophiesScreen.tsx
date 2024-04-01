@@ -108,7 +108,7 @@ export const RegisterTrophy = async (trophyId, proof : any) => {
     const requiredCount = setTrophy ? setTrophy.required : currentCount + 1;
 
     if(currentCount == requiredCount + 1) {
-      notifee.displayNotification({
+      /* notifee.displayNotification({
         title: '🏆 Trophée obtenu !',
         body: 'Vous avez obtenu le trophée ' + (setTrophy.title ? setTrophy.title : '') + ' !',
         ios: {
@@ -120,7 +120,7 @@ export const RegisterTrophy = async (trophyId, proof : any) => {
             list: true,
           },
         },
-      });
+      }); */
     }
 
     AsyncStorage.setItem('trophies', JSON.stringify(trophies));
