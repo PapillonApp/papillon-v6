@@ -53,6 +53,10 @@ function useUIColors(schemeForce, platformForce) {
     let primaryBackground;
     let primary = '#32AB8E';
 
+    if (platform === 'android') {
+      primary = theme.colors.primary;
+    }
+
     primaryBackground = primary;
 
     if (platform === 'android' && isDark) {
