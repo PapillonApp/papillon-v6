@@ -83,7 +83,10 @@ import { atom, useAtom, useSetAtom } from 'jotai';
 import { homeworksAtom, homeworksUntilNextWeekAtom } from '../atoms/homeworks';
 import NativeText from '../components/NativeText';
 
+import { GetRessource } from '../utils/GetRessources/GetRessources';
+
 // Functions
+
 const openURL = (url: string) => {
   const isURL = url.includes('http://') || url.includes('https://');
 
@@ -1577,8 +1580,21 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
   const theme = useTheme();
   const UIColors = GetUIColors(null, 'ios');
 
+  const [message, setMessage] = useState(null);
+
+  useEffect(() => {
+    GetRessource('messages')
+      .then(data => setMessage(data.warning.content))
+      .catch(error => console.error(error));
+  }, []);
+  
   return (
     <View style={styles.tabsTabsContainer}>
+    {message && message.trim() !== "" && (
+      <View style={styles.warningMessageContainer}>
+        <Text style={styles.warningMessageText}>{message}</Text>
+      </View>
+    )}
       <View style={styles.tabsTabRow}>
         <PressableScale
           style={[
@@ -2656,6 +2672,20 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     gap: 6,
     marginBottom: 16,
+  },
+
+  warningMessageContainer: {
+    borderWidth: 2,
+    borderColor: '#B42828',
+    backgroundColor: '#E8BEBE',
+    padding: 10,
+    gap: 10,
+    borderRadius: 10,
+  },
+  warningMessageText: {
+    textAlign: 'center',
+    color: '#4D2527',
+    fontFamily: 'Papillon-Semibold',
   },
 
   tabsTabRow: {
