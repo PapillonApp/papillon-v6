@@ -29,33 +29,40 @@ const NativeItem: React.FC<Props> = React.memo(({
   const handlePress = useCallback(() => onPress?.(), [onPress]);
 
   return (
-    <TouchableNativeFeedback
+    <View
       style={[
         style,
         {
-          borderRadius: 12,
-        },
-      ]}
-      onPress={handlePress}
-    >
-      <View style={[
-        styles.content,
-        {
-          backgroundColor: UIColors.element,
+          borderRadius: 6,
+          overflow: 'hidden',
         },
         first && styles.conFirst,
         last && styles.conLast,
-        innerStyle
-      ]}>
-        {leading && leading}
+      ]}
+    >
+      <TouchableNativeFeedback
+        onPress={handlePress}
+        useForeground
+      >
+        <View style={[
+          styles.content,
+          {
+            backgroundColor: UIColors.element,
+          },
+          first && styles.conFirst,
+          last && styles.conLast,
+          innerStyle
+        ]}>
+          {leading && leading}
 
-        <View style={styles.children}>
-          {children}
+          <View style={styles.children}>
+            {children}
+          </View>
+
+          {trailing && trailing}
         </View>
-
-        {trailing && trailing}
-      </View>
-    </TouchableNativeFeedback>
+      </TouchableNativeFeedback>
+    </View>
   );
 });
 
