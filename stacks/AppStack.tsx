@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 const Stack = createNativeStackNavigator();
 
 import { setBackgroundFetch } from '../fetch/BackgroundFetch';
+import UserReview from '../utils/UserReview';
 
 export const headerTitleStyles = {
   headerLargeTitleStyle: {
@@ -137,6 +138,7 @@ const AppStack = ({ navigation }) => {
 
   useEffect(() => {
     setBackgroundFetch();
+    UserReview();
   }, []);
 
   return (
