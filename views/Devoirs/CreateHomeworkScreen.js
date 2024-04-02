@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, Image, Alert, StatusBar, TextInput, Platform, ActivityIndicator, KeyboardAvoidingView, InputAccessoryView } from 'react-native';
 
 import { Text } from 'react-native-paper';
@@ -32,6 +32,7 @@ import AlertBottomSheet from '../../interface/AlertBottomSheet';
 import { AlertTriangle } from 'lucide-react-native';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { RegisterTrophy } from '../Settings/TrophiesScreen';
 
 const CreateHomeworkScreen = ({ route, navigation }) => {
   const UIColors = GetUIColors();
@@ -47,7 +48,7 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
   const [titleMissingAlert, setTitleMissingAlert] = useState(false);
 
   const [homeworkTitle, setHomeworkTitle] = useState('');
-  const inputRef = useRef(null);
+  const inputRef = React.useRef(null)
 
   function addSubject() {
     Alert.prompt(
@@ -143,8 +144,7 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
         },
         description: homeworkTitle,
         background_color: getSavedCourseColor(nativeSubjects[selectedSubject]?.actionTitle, UIColors.primary),
-        done:
-        false,
+        done: false,
         date: hwDate.toISOString(),
         difficulty: 0,
         lengthInMinutes: 0,
@@ -156,6 +156,9 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
       AsyncStorage.setItem('pap_homeworksCustom', JSON.stringify(hw)).then(() => {
         console.log('Homework added');
         console.log(hw);
+
+        RegisterTrophy('trophy_add_hw');
+
         navigation.goBack();
       });
     });
@@ -363,7 +366,6 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
               width: 32,
               height: 20,
               alignItems: 'center',
-             
               justifyContent: 'center',
             }}
             onPress={() => {
