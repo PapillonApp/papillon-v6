@@ -102,10 +102,10 @@ function SettingsScreen({ navigation }: {
       </View>
 
       <View style={styles.optionsList}>
-        <Text style={styles.ListTitle}>À propos</Text>
+        <Text style={styles.ListTitle}>A propos</Text>
 
         <ListItem
-          title="À propos de Papillon"
+          title="A propos de Papillon"
           subtitle={`Papillon version ${packageJson.version} ${packageJson.canal}`}
           color="#888888"
           left={

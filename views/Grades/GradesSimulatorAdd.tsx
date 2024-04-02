@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, StatusBar, Platform, TextInput, Modal, Pressable } from 'react-native';
-
 import { Text, useTheme } from 'react-native-paper';
 
 import NativeList from '../../components/NativeList';
@@ -8,11 +7,9 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
 import { useAppContext } from '../../utils/AppContext';
-
 import GetUIColors from '../../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AlertTriangle } from 'lucide-react-native';
-
 import { getSavedCourseColor } from '../../utils/ColorCoursName';
 import PapillonButton from '../../components/PapillonButton';
 import { randomUUID } from 'expo-crypto';
@@ -21,7 +18,11 @@ import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const GradesSimulatorAdd = ({ navigation }) => {
+interface GradesSimulatorAddProps {
+  navigation: any;
+}
+
+const GradesSimulatorAdd: React.FC<GradesSimulatorAddProps> = ({ navigation }) => {
   const UIColors = GetUIColors();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -31,7 +32,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
   const [description, setDescription] = useState('');
   const [out_of, setOutOf] = useState('20');
 
-  const [subjectList, setSubjectList] = useState([]);
+  const [subjectList, setSubjectList] = useState<any[]>([]);
   const [selectedSubject, setSelectedSubject] = useState(0);
 
   const [student, setStudent] = useState('');
@@ -44,9 +45,9 @@ const GradesSimulatorAdd = ({ navigation }) => {
   const [fieldsAlert, setFieldsAlert] = useState(false);
 
   useEffect(() => {
-    appctx.dataprovider.getGrades('', false).then((grades) => {
-      let subjects = [];
-      grades.grades.forEach((grade) => {
+    appctx.dataprovider.getGrades('', false).then((grades: any) => {
+      let subjects: any[] = [];
+      grades.grades.forEach((grade: any) => {
         // if subject name is not in the list
         if (subjects.findIndex((subject) => subject.name === grade.subject.name) === -1) {
           subjects.push(grade.subject);
@@ -57,7 +58,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
     });
   }, []);
 
-  const changeValue = (value, funct) => {
+  const changeValue = (value: string, funct: React.Dispatch<React.SetStateAction<string>>) => {
     let originalValue = value;
 
     let nValue = value.replace(',', '.');
@@ -158,7 +159,8 @@ const GradesSimulatorAdd = ({ navigation }) => {
             <TouchableOpacity onPress={() => setSelectSubjectModal(true)} style={{width: '80%'}}>
               <NativeText heading="h4" style={{color: getSavedCourseColor(subjectList[selectedSubject].name, UIColors.primary), width: '100%', textAlign: 'right'}} numberOfLines={1}>
                 {subjectList[selectedSubject].name}
-              </NativeText>
+             
+                </NativeText>
             </TouchableOpacity>
           }
         >
@@ -358,7 +360,6 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
     width: '70%',
   },
-
 });
 
 export default GradesSimulatorAdd;

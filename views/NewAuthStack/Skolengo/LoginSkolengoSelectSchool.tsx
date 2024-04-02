@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ScrollView,
   View,
@@ -14,7 +14,6 @@ import {
   Text,
   Searchbar,
 } from 'react-native-paper';
-import { useState } from 'react';
 import * as Location from 'expo-location';
 import { School, Map, Backpack, Locate } from 'lucide-react-native';
 import PapillonIcon from '../../../components/PapillonIcon';
@@ -26,31 +25,40 @@ import { loginSkolengoWorkflow } from '../../../fetch/SkolengoData/SkolengoDatas
 
 import AlertBottomSheet from '../../../interface/AlertBottomSheet';
 
-function LoginSkolengoSelectSchool({ navigation }) {
+const LoginSkolengoSelectSchool = ({ navigation }) => {
   const theme = useTheme();
 
   const [searchQuery, setSearchQuery] = useState('');
-
-  /** @type {[import('scolengo-api/types/models/School').School[], import('react').Dispatch<import('react').SetStateAction<import('scolengo-api/types/models/School').School[]>>]} */
   const [EtabList, setEtabList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [localisationPermissionAlert, setLocalisationPermissionAlert] = useState(false);
 
   const appctx = useAppContext();
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerSearchBarOptions: {
+        placeholder: 'Entrez le nom d\'un lycée',
+        cancelButtonText: 'Annuler',
+        hideWhenScrolling: false,
+        hideNavigationBar: false,
+        onChangeText: (text) => searchSchool(text),
+      },
+    });
+  }, [navigation]);
+
   function setResults(schools) {
     setEtabList(schools ?? []);
     setLoading(false);
   }
 
-  function searchSchool(text) {
+  async function searchSchool(text) {
     setLoading(true);
     setEtabList([]);
     setSearchQuery(text);
     SkolengoStatic.getSchools({
       text,
-    })
-      .then(setResults);
+    }).then(setResults);
   }
 
   async function searchSchoolByCoords() {
@@ -71,18 +79,6 @@ function LoginSkolengoSelectSchool({ navigation }) {
       lon: location.coords.longitude,
     }).then(setResults);
   }
-
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerSearchBarOptions: {
-        placeholder: 'Entrez le nom d\'un lycée',
-        cancelButtonText: 'Annuler',
-        hideWhenScrolling: false,
-        hideNavigationBar: false,
-        onChangeText: (event) => searchSchool(event.nativeEvent.text),
-      },
-    });
-  }, [navigation]);
 
   async function selectEtab(item) {
     loginSkolengoWorkflow(appctx, navigation, item);
@@ -113,7 +109,7 @@ function LoginSkolengoSelectSchool({ navigation }) {
       {Platform.OS === 'android' ? (
         <Searchbar
           placeholder="Entrez le nom d'un lycée"
-          onChangeText={(evt) => searchSchool(evt)}
+          onChangeText={(text) => searchSchool(text)}
           style={{ marginHorizontal: 12, marginTop: 12 }}
         />
       ) : null}
@@ -244,10 +240,11 @@ function LoginSkolengoSelectSchool({ navigation }) {
       ) : null}
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  etabItem: {
+  etabItem:
+  {
     marginBottom: 5,
   },
   etabItemList: {},

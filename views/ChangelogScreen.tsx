@@ -9,9 +9,8 @@ import {
   Linking
 } from 'react-native';
 
-import { Calendar, BarChart3, Palette, Bug, ServerOff, WifiOff, Wind } from 'lucide-react-native';
-
 import { Text, useTheme } from 'react-native-paper';
+import { Calendar, BarChart3, Palette, ServerOff, WifiOff, Wind } from 'lucide-react-native';
 import packageJson from '../package.json';
 import ListItem from '../components/ListItem';
 import GetUIColors from '../utils/GetUIColors';
@@ -69,7 +68,6 @@ function ChangelogScreen() {
         style={styles.headerImage}
       />
       <ScrollView
-        style={[styles.container]}
         contentInsetAdjustmentBehavior="automatic"
       >
         {Platform.OS === 'ios' ? (
@@ -94,7 +92,7 @@ function ChangelogScreen() {
             Quoi de neuf dans Papillon ?
           </Text>
           <Text style={styles.headerTitleText}>
-          Papillon à été mis à jour à la version {packageJson.version}.
+            Papillon à été mis à jour à la version {packageJson.version}.
             Découvrons ensemble, pas-à-pas, toutes les nouvelles fonctionnalités
             !
           </Text>
@@ -242,7 +240,8 @@ const styles = StyleSheet.create({
   headerTitleText: {
     fontSize: 15,
     fontFamily: 'Papillon-Medium',
-    textAlign: 'center',
+    textAlign:
+    'center',
     color: '#FFFFFF',
     opacity: 0.6,
     marginTop: 8,

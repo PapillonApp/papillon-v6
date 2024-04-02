@@ -1,7 +1,7 @@
 {
   "name": "papillonvex",
   "version": "6.6.2",
-  "canal": "beta",
+  "canal": "stable",
   "private": true,
   "scripts": {
     "start": "expo start --dev-client",

@@ -22,11 +22,20 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import {Backpack, BaggageClaim, Calendar, CalendarClock, CheckCircle, TrendingUp, Utensils} from 'lucide-react-native';
 
-function NotificationsScreen({ navigation }) {
+interface NotificationSettings {
+  notificationsEnabled: boolean;
+  notifications_CoursEnabled: boolean;
+  notifications_DevoirsEnabled: boolean;
+  notifications_NotesEnabled: boolean;
+  notifications_BagReminderEnabled: boolean;
+  notifications_SelfReminderEnabled: boolean;
+}
+
+function NotificationsScreen({ navigation }: { navigation: any }) {
   const UIColors = GetUIColors();
 
   const [notificationsGranted, setNotificationsGranted] = useState(true);
-  const [notificationSettings, setNotificationSettings] = useState({
+  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
     'notificationsEnabled': true,
     'notifications_CoursEnabled': true,
     'notifications_DevoirsEnabled': true,
@@ -67,7 +76,7 @@ function NotificationsScreen({ navigation }) {
     })();
   }, []);
 
-  const toggleNotification = async (key) => {
+  const toggleNotification = async (key: keyof NotificationSettings) => {
     try {
       setNotificationSettings({ ...notificationSettings, [key]: !notificationSettings[key] });
       AsyncStorage.setItem('notificationSettings', JSON.stringify({ ...notificationSettings, [key]: !notificationSettings[key] }));
@@ -78,7 +87,7 @@ function NotificationsScreen({ navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
+      style={[{ backgroundColor: UIColors.modalBackground }]}
       contentInsetAdjustmentBehavior="automatic"
     >
       { Platform.OS === 'android' && <View style={{ height: 24 }} /> }
@@ -110,9 +119,7 @@ function NotificationsScreen({ navigation }) {
       </NativeList>
 
       {!notificationsGranted && (
-        <NativeList
-          inset
-        >
+        <NativeList inset>
           <NativeItem
             backgroundColor={'#d45f2c'}
           >
@@ -229,30 +236,9 @@ function NotificationsScreen({ navigation }) {
               Vous rappel de préparer votre sac lorsque la journée actuel contient des cours.
             </NativeText>
           </NativeItem>
-          <NativeItem
-            leading={
-              <Utensils
-                size={24}
-                color={UIColors.text}
-              />
-            }
-            trailing={
-              <Switch
-                onValueChange={() => toggleNotification('notifications_SelfReminderEnabled')}
-                value={notificationSettings.notifications_SelfReminderEnabled}
-              />
-            }
-          >
-            <NativeText heading='h4'>
-              Réserver le self
-            </NativeText>
-            <NativeText heading='p2'>
-              Vous rappel de réserver votre repas lorsque la journée suivante contient des cours.
-            </NativeText>
-          </NativeItem>
         </NativeList>
       </>) : (
-        <NativeList inset>
+        <NativeList>
           <NativeItem>
             <NativeText heading='p2' style={{ textAlign: 'center' }}>
               Les notifications sont désactivées.

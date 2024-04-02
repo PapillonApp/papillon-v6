@@ -17,10 +17,17 @@ import ListItem from '../../components/ListItem';
 
 import GetUIColors from '../../utils/GetUIColors';
 
-function IconItem({ icon, applyIcon, current }) {
+interface Icon {
+  coverName: string;
+  name: string;
+  author?: string;
+  icon: any;
+}
+
+function IconItem({ icon, applyIcon, current }: { icon: Icon; applyIcon: (name: string) => void; current: boolean }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
-  let subt = 'par l\'équipe Papillon';
+  let subt = "par l'équipe Papillon";
   if (icon.author) {
     subt = `Concours 2023 - par ${icon.author}`;
   }
@@ -58,101 +65,101 @@ function IconItem({ icon, applyIcon, current }) {
   );
 }
 
-function AppearanceScreen({ navigation }) {
+function AppearanceScreen({ navigation }: { navigation: any }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
-  // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles, lightgreen
-  const papillonIcons = [
-    {
-      coverName: 'Par défaut',
-      name: 'classic',
-      icon: require('../../assets/customicons/classic.png'),
-    },
-    {
-      coverName: 'Papillon en relief',
-      name: 'relief',
-      icon: require('../../assets/customicons/relief.png'),
-    },
-    {
-      coverName: 'Version bêta',
-      name: 'beta',
-      icon: require('../../assets/customicons/beta.png'),
-    },
-    {
-      coverName: 'Icône sombre',
-      name: 'black',
-      icon: require('../../assets/customicons/black.png'),
-    },
-    {
-      coverName: 'Processeur',
-      name: 'chip',
-      icon: require('../../assets/customicons/chip.png'),
-    },
-    {
-      coverName: 'Icône brodée',
-      name: 'cutted',
-      icon: require('../../assets/customicons/cutted.png'),
-    },
-    {
-      coverName: 'Icône en or',
-      name: 'gold',
-      icon: require('../../assets/customicons/gold.png'),
-    },
-    {
-      coverName: 'Icône dégradée',
-      name: 'gradient',
-      icon: require('../../assets/customicons/gradient.png'),
-    },
-    {
-      coverName: 'Icône en métal',
-      name: 'metal',
-      icon: require('../../assets/customicons/metal.png'),
-    },
-    {
-      coverName: 'Icône néon',
-      name: 'neon',
-      icon: require('../../assets/customicons/neon.png'),
-    },
-    {
-      coverName: 'Pride 2023',
-      name: 'pride',
-      icon: require('../../assets/customicons/pride.png'),
-    },
-    {
-      coverName: 'Icône violette',
-      name: 'purple',
-      icon: require('../../assets/customicons/purple.png'),
-    },
-    {
-      coverName: 'Icône violette (rayons)',
-      name: 'rayspurple',
-      icon: require('../../assets/customicons/rayspurple.png'),
-    },
-    {
-      coverName: 'Icône verte (rayons)',
-      name: 'rays',
-      icon: require('../../assets/customicons/rays.png'),
-    },
-    {
-      coverName: 'Icône rétro',
-      name: 'retro',
-      icon: require('../../assets/customicons/retro.png'),
-    },
-    {
-      coverName: 'Icône brillante',
-      name: 'sparkles',
-      icon: require('../../assets/customicons/sparkles.png'),
-    },
-    {
-      coverName: 'Icône vert clair',
-      name: 'lightgreen',
-      icon: require('../../assets/customicons/lightgreen.png'),
-    },
-  ];
-
+    // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles, lightgreen
+    const papillonIcons: Icon[] = [
+      {
+        coverName: 'Par défaut',
+        name: 'classic',
+        icon: require('../../assets/customicons/classic.png'),
+      },
+      {
+        coverName: 'Papillon en relief',
+        name: 'relief',
+        icon: require('../../assets/customicons/relief.png'),
+      },
+      {
+        coverName: 'Version bêta',
+        name: 'beta',
+        icon: require('../../assets/customicons/beta.png'),
+      },
+      {
+        coverName: 'Icône sombre',
+        name: 'black',
+        icon: require('../../assets/customicons/black.png'),
+      },
+      {
+        coverName: 'Processeur',
+        name: 'chip',
+        icon: require('../../assets/customicons/chip.png'),
+      },
+      {
+        coverName: 'Icône brodée',
+        name: 'cutted',
+        icon: require('../../assets/customicons/cutted.png'),
+      },
+      {
+        coverName: 'Icône en or',
+        name: 'gold',
+        icon: require('../../assets/customicons/gold.png'),
+      },
+      {
+        coverName: 'Icône dégradée',
+        name: 'gradient',
+        icon: require('../../assets/customicons/gradient.png'),
+      },
+      {
+        coverName: 'Icône en métal',
+        name: 'metal',
+        icon: require('../../assets/customicons/metal.png'),
+      },
+      {
+        coverName: 'Icône néon',
+        name: 'neon',
+        icon: require('../../assets/customicons/neon.png'),
+      },
+      {
+        coverName: 'Pride 2023',
+        name: 'pride',
+        icon: require('../../assets/customicons/pride.png'),
+      },
+      {
+        coverName: 'Icône violette',
+        name: 'purple',
+        icon: require('../../assets/customicons/purple.png'),
+      },
+      {
+        coverName: 'Icône violette (rayons)',
+        name: 'rayspurple',
+        icon: require('../../assets/customicons/rayspurple.png'),
+      },
+      {
+        coverName: 'Icône verte (rayons)',
+        name: 'rays',
+        icon: require('../../assets/customicons/rays.png'),
+      },
+      {
+        coverName: 'Icône rétro',
+        name: 'retro',
+        icon: require('../../assets/customicons/retro.png'),
+      },
+      {
+        coverName: 'Icône brillante',
+        name: 'sparkles',
+        icon: require('../../assets/customicons/sparkles.png'),
+      },
+      {
+        coverName: 'Icône vert clair',
+        name: 'lightgreen',
+        icon: require('../../assets/customicons/lightgreen.png'),
+      },
+    ];
+    
   // backtoschool, barbie, betterneon, macos, oldios, verscinq
   const communityIcons = [
     {
@@ -193,7 +200,7 @@ function AppearanceScreen({ navigation }) {
     },
   ];
 
-  const [currentIcon, setCurrentIcon] = useState(null);
+  const [currentIcon, setCurrentIcon] = useState<string | null>(null);
 
   useEffect(() => {
     setCurrentIcon(getAppIcon() || 'classic');
@@ -204,7 +211,7 @@ function AppearanceScreen({ navigation }) {
     }
   }, []);
 
-  function applyIcon(name) {
+  function applyIcon(name: string) {
     const icon = setAppIcon(name);
 
     if (icon === name) {
@@ -231,7 +238,7 @@ function AppearanceScreen({ navigation }) {
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
-      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
+      style={[{ backgroundColor: UIColors.modalBackground }]}
     >
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />
