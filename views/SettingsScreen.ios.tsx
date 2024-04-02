@@ -230,7 +230,7 @@ function NewSettings({ navigation }: {
             Réglages
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Connexion a votre compte et au serveur
+            Connexion à votre compte et au serveur
           </NativeText>
         </NativeItem>
       </NativeList>
@@ -268,7 +268,7 @@ function NewSettings({ navigation }: {
             Gestion des matières
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Personnaliser les matières
+            Personnalisation des matières
           </NativeText>
         </NativeItem>
         <NativeItem
