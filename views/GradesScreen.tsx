@@ -106,14 +106,19 @@ const GradesScreen = ({ navigation }: {
   React.useEffect(() => {
     setUIaverage([
       {
+        name: 'Médiane des moyennes',
+        value: averages.median || 0,
+        icon: <DivideSquare color={UIColors.text} />,
+      },
+      {
+        name: 'Médiane des notes',
+        value: averages.gradesMedian || 0,
+        icon: <DivideSquare color={UIColors.text} />,
+      },
+      {
         name: 'Moyenne groupe',
         value: pronoteClassAverage ? pronoteClassAverage : (averages.group || 0),
         icon: <Users2 color={UIColors.text} />,
-      },
-      {
-        name: 'Moyenne médiane',
-        value: averages.median || 0,
-        icon: <DivideSquare color={UIColors.text} />,
       },
       {
         name: 'Moyenne max',
@@ -285,12 +290,13 @@ const GradesScreen = ({ navigation }: {
 
   // Estimate averages
   async function estimatedStudentAverages (grades: PapillonGrades): Promise<void> {
-    const [student, group, max, min, median] = await Promise.all([
+    const [student, group, max, min, median, gradesMedian] = await Promise.all([
       calculateSubjectAverage(grades, 'value', gradeSettings.scale),
       calculateSubjectAverage(grades, 'average', gradeSettings.scale),
       calculateSubjectAverage(grades, 'max', gradeSettings.scale),
       calculateSubjectAverage(grades, 'min', gradeSettings.scale),
       calculateSubjectMedian(grades, 'value', gradeSettings.scale),
+      calculateSubjectAverage(grades, 'average', gradeSettings.scale),
     ]);
 
     setAverages({
@@ -299,6 +305,7 @@ const GradesScreen = ({ navigation }: {
       max,
       min,
       median,
+      gradesMedian,
     });
   }
 

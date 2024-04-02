@@ -83,6 +83,7 @@ const calculateSubjectMedian = async (grades: PapillonGrades[], type: string = '
 
   for (const subjectGrades of subjects.values()) {
     const median = await calculateAverage(subjectGrades, type, base);
+    const gradesMedian = await calculateMedian(subjectGrades, type, base);
     if (median > 0) {
       total += median;
       count++;
