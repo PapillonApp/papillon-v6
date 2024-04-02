@@ -292,6 +292,8 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
           opacity: showWebView ? 1 : 0,
         }}
 
+        setSupportMultipleWindows={false}
+
         onMessage={async ({ nativeEvent }) => {
           const message = JSON.parse(nativeEvent.data);
 

@@ -12,13 +12,20 @@ import NativeText from '../../components/NativeText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const PaymentScreen = ({ navigation }) => {
-  const UIColors = GetUIColors();
-  const [products, setProducts] = useState([]);
+interface Product {
+  productId: string;
+  title: string;
+  description: string;
+  price: string;
+}
 
-  const [hasAlreadyBought, setHasAlreadyBought] = useState(false);
-  const [currentlyBuying, setCurrentlyBuying] = useState(false);
-  const [loading, setLoading] = useState(false);
+const PaymentScreen = ({ navigation }: { navigation: any }) => {
+  const UIColors = GetUIColors();
+  const [products, setProducts] = useState<Product[]>([]);
+
+  const [hasAlreadyBought, setHasAlreadyBought] = useState<boolean>(false);
+  const [currentlyBuying, setCurrentlyBuying] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   // restore purchases button in header
   React.useLayoutEffect(() => {
@@ -27,7 +34,7 @@ const PaymentScreen = ({ navigation }) => {
         <TouchableOpacity
           onPress={() => {
             setCurrentlyBuying(true);
-            InAppPurchases.getPurchaseHistoryAsync().then((history) => {
+            InAppPurchases.getPurchaseHistoryAsync().then((history: any) => {
               setCurrentlyBuying(false);
               
               if (history.results.length > 0) {
@@ -98,7 +105,7 @@ const PaymentScreen = ({ navigation }) => {
     getProducts();
   }, []);
 
-  async function subGrade(productID) {
+  async function subGrade(productID: string) {
     const item = products.find((item) => item.productId === productID);
     if (item) {
       setCurrentlyBuying(true);
@@ -110,9 +117,9 @@ const PaymentScreen = ({ navigation }) => {
 
   // purchase listener
   useEffect(() => {
-    InAppPurchases.setPurchaseListener(({ responseCode, results, errorCode }) => {
+    InAppPurchases.setPurchaseListener(({ responseCode, results, errorCode }: any) => {
       if (responseCode === InAppPurchases.IAPResponseCode.OK) {
-        results.forEach((purchase) => {
+        results.forEach((purchase: any) => {
           if (!purchase.acknowledged) {
             console.log(`Successfully purchased ${purchase.productId}`);
             // Process transaction here and unlock content...
@@ -124,8 +131,7 @@ const PaymentScreen = ({ navigation }) => {
           }
         });
       }
-    }
-    );
+    });
   }, []);
 
   return (
@@ -175,7 +181,7 @@ const PaymentScreen = ({ navigation }) => {
           </View>
 
           {hasAlreadyBought && (
-            <NativeList inset style={{
+            <NativeList style={{
               shadowColor: '#000000',
               shadowOpacity: 0.15,
               shadowRadius: 4,
@@ -240,7 +246,6 @@ const PaymentScreen = ({ navigation }) => {
             </NativeList>
           ) : (
             <NativeList 
-              inset
               header="Pourboire unique"
             >
               <NativeItem

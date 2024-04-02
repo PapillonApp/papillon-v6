@@ -94,23 +94,24 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
 };
 
 const notifyGrades = async (grades: PapillonGrades[]) => {
-  let oldGrades = await AsyncStorage.getItem('oldGrades');
+  let oldGradesData = await AsyncStorage.getItem('oldGrades');
   const fullGrades = grades.grades;
-  const avg = await calculateSubjectAverage(fullGrades);
 
-  if (oldGrades === null) {
+  if (oldGradesData === null) {
     await AsyncStorage.setItem('oldGrades', JSON.stringify(fullGrades));
     return true;
   }
 
-  oldGrades = JSON.parse(oldGrades);
+  const oldGrades = JSON.parse(oldGradesData);
 
   if (oldGrades.length === fullGrades.length) {
     return true;
   }
 
-  // find the difference between the two arrays
-  const lastGrades = fullGrades.filter((grade) => !oldGrades.includes(grade));
+  // make a list of the new grades
+  const lastGrades = fullGrades.filter((grade) => {
+    return !oldGrades.some((oldGrade) => oldGrade.subject.name === grade.subject.name && oldGrade.date === grade.date && oldGrade.grade.value.value === grade.grade.value.value); 
+  });
 
   for (let i = 0; i < lastGrades.length; i++) {
     let lastGrade = lastGrades[i];

@@ -24,12 +24,24 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import PapillonLoading from '../../components/PapillonLoading';
 
-function DonorsScreen({ navigation }) {
+interface Donor {
+  Name: string;
+  Total: string;
+  LastSupportedDateUTC: string;
+  Monthly: string;
+  DiscordProfilePicture?: string;
+}
+
+interface Props {
+  navigation: any;
+}
+
+const DonorsScreen: React.FC<Props> = ({ navigation }) => {
   const UIColors = GetUIColors();
 
   const theme = useTheme();
 
-  function formatDate(date) {
+  function formatDate(date: string): string {
     let s = date.split(' ');
     let d = s[0].split('-');
     let t = s[1].split(':');
@@ -64,7 +76,7 @@ function DonorsScreen({ navigation }) {
         />
       )}
       <ScrollView
-        style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
+        style={[{ backgroundColor: UIColors.modalBackground }]}
         contentInsetAdjustmentBehavior="automatic"
       >
         <PapillonLoading
@@ -77,7 +89,7 @@ function DonorsScreen({ navigation }) {
           inset
           header={'Donateurs'}
         >
-          {KofiSupporters.map((item, index) => (
+          {KofiSupporters.map((item: Donor, index: number) => (
             <NativeItem
               key={index}
               leading={
@@ -87,7 +99,6 @@ function DonorsScreen({ navigation }) {
                   <PapillonIcon
                     icon={<Euro size={24} color="#bf941d" />}
                     color="#bf941d"
-                    size={24}
                     small
                   />
                 )
@@ -118,7 +129,11 @@ function DonorsScreen({ navigation }) {
   );
 }
 
-const DonorsPfp = ({ image }) => {
+interface DonorsPfpProps {
+  image: string;
+}
+
+const DonorsPfp: React.FC<DonorsPfpProps> = ({ image }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (

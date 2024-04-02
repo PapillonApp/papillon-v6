@@ -96,7 +96,7 @@ function ConversationsScreen({ navigation }: {
   // Add search functionality and new conversation button.
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: 'Conversations',
+      headerTitle: 'Messages',
       headerBackTitle: 'Retour',
       headerTintColor: UIColors.text,
       headerShadowVisible: Platform.OS == 'ios',

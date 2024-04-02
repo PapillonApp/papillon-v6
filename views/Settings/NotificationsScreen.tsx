@@ -20,17 +20,28 @@ import notifee, { AuthorizationStatus } from '@notifee/react-native';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
-import { Calendar, CalendarClock, CheckCircle, TrendingUp } from 'lucide-react-native';
+import {Backpack, BaggageClaim, Calendar, CalendarClock, CheckCircle, TrendingUp, Utensils} from 'lucide-react-native';
 
-function NotificationsScreen({ navigation }) {
+interface NotificationSettings {
+  notificationsEnabled: boolean;
+  notifications_CoursEnabled: boolean;
+  notifications_DevoirsEnabled: boolean;
+  notifications_NotesEnabled: boolean;
+  notifications_BagReminderEnabled: boolean;
+  notifications_SelfReminderEnabled: boolean;
+}
+
+function NotificationsScreen({ navigation }: { navigation: any }) {
   const UIColors = GetUIColors();
 
   const [notificationsGranted, setNotificationsGranted] = useState(true);
-  const [notificationSettings, setNotificationSettings] = useState({
+  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
     'notificationsEnabled': true,
     'notifications_CoursEnabled': true,
     'notifications_DevoirsEnabled': true,
     'notifications_NotesEnabled': true,
+    'notifications_BagReminderEnabled': false,
+    'notifications_SelfReminderEnabled': false,
   });
 
   const checkPermissions = async () => {
@@ -65,7 +76,7 @@ function NotificationsScreen({ navigation }) {
     })();
   }, []);
 
-  const toggleNotification = async (key) => {
+  const toggleNotification = async (key: keyof NotificationSettings) => {
     try {
       setNotificationSettings({ ...notificationSettings, [key]: !notificationSettings[key] });
       AsyncStorage.setItem('notificationSettings', JSON.stringify({ ...notificationSettings, [key]: !notificationSettings[key] }));
@@ -76,7 +87,7 @@ function NotificationsScreen({ navigation }) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
+      style={[{ backgroundColor: UIColors.modalBackground }]}
       contentInsetAdjustmentBehavior="automatic"
     >
       { Platform.OS === 'android' && <View style={{ height: 24 }} /> }
@@ -108,9 +119,7 @@ function NotificationsScreen({ navigation }) {
       </NativeList>
 
       {!notificationsGranted && (
-        <NativeList
-          inset
-        >
+        <NativeList inset>
           <NativeItem
             backgroundColor={'#d45f2c'}
           >
@@ -204,8 +213,32 @@ function NotificationsScreen({ navigation }) {
             </NativeText>
           </NativeItem>
         </NativeList>
+
+        <NativeList inset header="Rappels" footer="Les notifications de rappels de faire son sac interviendront entre 18h et 20h, les rappels de self seront reçu entre 8h et 10h.">
+          <NativeItem
+            leading={
+              <Backpack
+                size={24}
+                color={UIColors.text}
+              />
+            }
+            trailing={
+              <Switch
+                onValueChange={() => toggleNotification('notifications_BagReminderEnabled')}
+                value={notificationSettings.notifications_BagReminderEnabled}
+              />
+            }
+          >
+            <NativeText heading='h4'>
+              Faire son sac
+            </NativeText>
+            <NativeText heading='p2'>
+              Vous rappel de préparer votre sac lorsque la journée actuel contient des cours.
+            </NativeText>
+          </NativeItem>
+        </NativeList>
       </>) : (
-        <NativeList inset>
+        <NativeList>
           <NativeItem>
             <NativeText heading='p2' style={{ textAlign: 'center' }}>
               Les notifications sont désactivées.

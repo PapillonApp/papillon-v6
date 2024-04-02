@@ -32,6 +32,7 @@ import AlertBottomSheet from '../../interface/AlertBottomSheet';
 import { AlertTriangle } from 'lucide-react-native';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { RegisterTrophy } from '../Settings/TrophiesScreen';
 
 const CreateHomeworkScreen = ({ route, navigation }) => {
   const UIColors = GetUIColors();
@@ -155,6 +156,9 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
       AsyncStorage.setItem('pap_homeworksCustom', JSON.stringify(hw)).then(() => {
         console.log('Homework added');
         console.log(hw);
+
+        RegisterTrophy('trophy_add_hw');
+
         navigation.goBack();
       });
     });
