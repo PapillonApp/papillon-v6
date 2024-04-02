@@ -202,12 +202,12 @@ function NotificationsScreen({ navigation }) {
               Nouvelle note
             </NativeText>
             <NativeText heading='p2'>
-              Vous envoie une notification lorsque Papillon récupère une nouvelle note.
+              Vous notifie lorsque Papillon récupère une nouvelle note.
             </NativeText>
           </NativeItem>
         </NativeList>
 
-        <NativeList inset header="Rappels" footer="Les notifications de rappels de faire son sac interviendront entre 18h et 20h, les rappels de self seront reçu entre 8h et 10h.">
+        <NativeList inset header="Rappels" footer="Les notifications de rappel pour faire son sac interviendront entre 18h et 20h, tandis que les rappels pour réserver le self seront reçu entre 8h et 10h.">
           <NativeItem
             leading={
               <Backpack
