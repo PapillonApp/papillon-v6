@@ -1,54 +1,42 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, ScrollView, Image, Alert, StatusBar, TextInput, Platform, ActivityIndicator, KeyboardAvoidingView, InputAccessoryView } from 'react-native';
-
+import React, { useEffect, useState, useRef } from 'react';
+import { StyleSheet, View, TouchableOpacity, ScrollView, TextInput, Platform, ActivityIndicator, KeyboardAvoidingView, InputAccessoryView } from 'react-native';
 import { Text } from 'react-native-paper';
 import GetUIColors from '../../utils/GetUIColors';
-import PapillonInsetHeader from '../../components/PapillonInsetHeader';
 import { SFSymbol } from 'react-native-sfsymbols';
-
 import { getDefaultStore } from 'jotai';
-const defaultStore = getDefaultStore();
-
 import { homeworksAtom } from '../../atoms/homeworks';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { ContextMenuButton } from 'react-native-ios-context-menu';
-
 import DateTimePicker from '@react-native-community/datetimepicker';
-
-import NativeList from '../../components/NativeList';
-import NativeItem from '../../components/NativeItem';
-import NativeText from '../../components/NativeText';
-
-import { getSavedCourseColor } from '../../utils/ColorCoursName';
-
 import { useAppContext } from '../../utils/AppContext';
 import PapillonLoading from '../../components/PapillonLoading';
-
 import formatCoursName from '../../utils/FormatCoursName';
-
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
 import { AlertTriangle } from 'lucide-react-native';
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RegisterTrophy } from '../Settings/TrophiesScreen';
 
-const CreateHomeworkScreen = ({ route, navigation }) => {
+interface Subject {
+  actionKey: string;
+  actionTitle: string;
+  menuAttributes: string[];
+  icon?: {
+    iconType: string;
+    iconValue: string;
+  };
+}
+
+const CreateHomeworkScreen = ({ route, navigation }: { route: any; navigation: any }) => {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
   const [date, setDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
-
   const appctx = useAppContext();
-
-  const [selectedSubject, setSelectedSubject] = useState(0);
-  const [nativeSubjects, setNativeSubjects] = useState([]);
-
+  const [selectedSubject, setSelectedSubject] = useState<number>(0);
+  const [nativeSubjects, setNativeSubjects] = useState<Subject[]>([]);
   const [titleMissingAlert, setTitleMissingAlert] = useState(false);
-
-  const [homeworkTitle, setHomeworkTitle] = useState('');
-  const inputRef = React.useRef(null)
+  const [homeworkTitle, setHomeworkTitle] = useState<string>('');
+  const inputRef = useRef<TextInput>(null);
 
   function addSubject() {
     Alert.prompt(
@@ -162,7 +150,6 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
         navigation.goBack();
       });
     });
-    
   }
 
   useEffect(() => {
@@ -226,7 +213,6 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
     });
   }, []);
 
-  // change the header title
   useEffect(() => {
     navigation.setOptions({
       headerTitle: Platform.OS === 'ios' ? () => (
@@ -292,9 +278,9 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
         { loading ? (
           <View style={[styles.newHwSubjectInput, {borderColor: UIColors.text + '18', paddingVertical: 11.5}]}>
             <ActivityIndicator size="small" />
-            <NativeText heading="p2">
+            <Text heading="p2">
               Chargement des matières...
-            </NativeText>
+            </Text>
           </View>
         ) : (
           <View style={[styles.newHwSubjectInput, {borderColor: UIColors.text + '18'}]}>
@@ -341,8 +327,6 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
       <View
         style={{ flex: 1, alignContent: 'center', justifyContent: 'center'}}
       >
-        <StatusBar animated backgroundColor="#fff" barStyle="light-content" />
-
         <PapillonLoading
           title="Ajouter un devoir"
           subtitle={'Indiquez un titre et une matière pour votre devoir personnalisé le ' + new Date(date).toLocaleDateString('fr-FR', { weekday: 'short', month: 'long', day: 'numeric' }) + '.'}
