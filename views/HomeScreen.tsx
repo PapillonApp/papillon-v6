@@ -122,6 +122,7 @@ const openURL = (url: string) => {
 import Carousel from 'react-native-reanimated-carousel';
 import TimeSeparator from '../interface/CoursScreen/TimeSeparator';
 import { RegisterTrophy } from './Settings/TrophiesScreen';
+import {checkContrast} from '../utils/ContrastChecker';
 
 // create list of dict from THEMES_IMAGES
 const THEMES_IMAGES_LIST = [
@@ -817,7 +818,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 }}
               >
                 <PapillonIcon
-                  fill={'#ffffff'}
+                  fill={checkContrast('#FFFFFF', nextColor) ? '#FFFFFF' : '#000000'}
                   width={32}
                   height={32}
                 />
@@ -874,13 +875,13 @@ function HomeScreen({ navigation }: { navigation: any }) {
                     },
                     Platform.OS === 'ios'
                       ? {
-                        color: '#ffffff',
+                        color: checkContrast('#FFFFFF', nextColor) ? '#FFFFFF' : '#000000',
                         fontSize: 17,
                         fontFamily: 'Papillon-Semibold',
                         marginVertical: 8,
                       }
                       : {
-                        color: '#ffffff',
+                        color: checkContrast('#FFFFFF', nextColor) ? '#FFFFFF' : '#000000',
                         fontSize: 18,
                         marginVertical: 9,
                       },
@@ -1472,7 +1473,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
             size="large"
             animating={refreshing}
             hidesWhenStopped={false}
-            color={'#ffffff'}
+            color={checkContrast('#FFFFFF', nextColor) ? '#FFFFFF' : '#000000'}
           />
         </Animated.View>
         <View

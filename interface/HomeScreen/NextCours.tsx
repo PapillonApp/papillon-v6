@@ -11,6 +11,7 @@ import { getSavedCourseColor } from '../../utils/ColorCoursName';
 import formatCoursName from '../../utils/FormatCoursName';
 import { MapPin, UserCircle2 } from 'lucide-react-native';
 import { PapillonLesson } from '../../fetch/types/timetable';
+import {checkContrast} from '../../utils/ContrastChecker';
 
 function lz(num: number): string {
   return (num < 10 ? '0' : '') + num;
@@ -285,25 +286,29 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
     </PressableScale>
   );
 
+  const textColor = checkContrast('#ffffff', getSavedCourseColor(cours[nxid].subject?.name ?? '', cours[nxid].background_color)) ? '#FFFFFF' : '#222222';
+
   if (tiny) {
     return (
       <PressableScale
         style={[
           styles.tinyContainer,
-          { backgroundColor: color ? color : getSavedCourseColor(cours[nxid].subject?.name ?? '', cours[nxid].background_color) },
+          {
+            backgroundColor: color ? color : getSavedCourseColor(cours[nxid].subject?.name ?? '', cours[nxid].background_color),
+          },
           style,
         ]}
         onPress={() => {
           mainAction();
         }}
       >
-        <Text style={styles.tinyStart} numberOfLines={1}>
+        <Text style={[styles.tinyStart, {color: textColor}]} numberOfLines={1}>
           { new Date(cours[nxid].start).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
         </Text>
 
-        <View style={styles.tinyBar} />
+        <View style={[styles.tinyBar, {backgroundColor: textColor}]} />
 
-        <Text style={styles.tinyCourse} numberOfLines={1}>
+        <Text style={[styles.tinyCourse, {color: textColor}]} numberOfLines={1}>
           { formatCoursName(cours[nxid].subject?.name ?? '(inconnu)') }
         </Text>
       </PressableScale>
@@ -352,11 +357,11 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
           }
         ]}
       >
-        <View style={styles.time.container}>
-          <Text style={styles.time.start}>
+        <View style={[styles.time.container, {backgroundColor: textColor + '10', borderRightColor: textColor + '20'}]}>
+          <Text style={[styles.time.start, {color: textColor}]}>
             { new Date(cours[nxid].start).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
           </Text>
-          <Text style={styles.time.end}>
+          <Text style={[styles.time.end, {color: textColor}]}>
             { new Date(cours[nxid].end).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
           </Text>
         </View>
@@ -366,26 +371,27 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
           ]}
         >
           <View style={styles.subject.container}>
-            <Text style={styles.subject.text} numberOfLines={1}>
+            <Text style={[styles.subject.text, {color: textColor}]} numberOfLines={1}>
               { formatCoursName(cours[nxid].subject?.name ?? '(inconnu)') }
             </Text>
           </View>
 
           <View style={[styles.len.container]}>
-            <Text style={[styles.len.startText]}>
+            <Text style={[styles.len.startText, {color: textColor}]}>
               {lenText}
             </Text>
 
-            <View style={[styles.len.bar]}>
+            <View style={[styles.len.bar, {backgroundColor: textColor + '32'}]}>
               <View style={[
                 styles.len.barFill,
                 {
                   width: barPercent + '%',
+                  backgroundColor: textColor,
                 }
               ]} />
             </View>
 
-            <Text style={[styles.len.endText]}>
+            <Text style={[styles.len.endText, {color: textColor}]}>
               { new Date(cours[nxid].end).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
             </Text>
           </View>
@@ -406,27 +412,27 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
             }
           ]}>
             
-            <View style={[styles.details.item, styles.details.room]}>
-              <MapPin size={20} color={'#ffffff'} style={[styles.details.icon]} />
+            <View style={[styles.details.item, styles.details.room, {backgroundColor: textColor + '20'}]}>
+              <MapPin size={20} color={textColor} style={[styles.details.icon]} />
               { cours[nxid].rooms && cours[nxid].rooms.length > 0 ? (
-                <Text style={[styles.details.text]} numberOfLines={1}>
+                <Text style={[styles.details.text, {color: textColor}]} numberOfLines={1}>
                   { cours[nxid].rooms[0] }
                 </Text>
               ) : (
-                <Text style={[styles.details.text]} numberOfLines={1}>
+                <Text style={[styles.details.text, {color: textColor}]} numberOfLines={1}>
                     inconnue
                 </Text>
               )}
             </View>
 
             { (cours[nxid].teachers && cours[nxid].teachers.length > 0) && (cours[nxid].rooms && cours[nxid].rooms.length > 0) && (
-              <View style={[styles.details.separator]} />
+              <View style={[styles.details.separator, {backgroundColor: textColor}]} />
             )}
 
             { cours[nxid].teachers && cours[nxid].teachers.length > 0 && (
               <View style={[styles.details.item, styles.details.teacher]}>
-                <UserCircle2 size={20} color={'#ffffff'} style={[styles.details.icon]} />
-                <Text style={[styles.details.text]} numberOfLines={1}>
+                <UserCircle2 size={20} color={textColor} style={[styles.details.icon]} />
+                <Text style={[styles.details.text, {color: textColor}]} numberOfLines={1}>
                   { cours[nxid].teachers[0] }
                 </Text>
               </View>
