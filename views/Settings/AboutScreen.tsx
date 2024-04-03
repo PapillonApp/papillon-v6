@@ -22,7 +22,7 @@ import {
 } from 'lucide-react-native';
 
 import packageJson from '../../package.json';
-import { fetchPapiAPI } from '../../utils/api';
+import { GetRessource } from '../../utils/GetRessources/GetRessources';
 
 import GetUIColors from '../../utils/GetUIColors';
 
@@ -40,7 +40,7 @@ function AboutScreen({ navigation }) {
 
   useEffect(() => {
     setLoading(true);
-    callFetchPapiAPI('team')
+    callGetRessource('team')
       .then(response => {
         setTeam(response);
         setLoading(false);
@@ -48,8 +48,8 @@ function AboutScreen({ navigation }) {
       .catch(error => console.error(error));
   }, []);
 
-  function callFetchPapiAPI(path: string) {
-    return fetchPapiAPI(path)
+  function callGetRessource(ressource: string) {
+    return GetRessource(ressource)
       .then(data => {
         return data;
       });

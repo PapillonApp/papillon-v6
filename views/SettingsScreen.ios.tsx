@@ -108,6 +108,44 @@ function NewSettings({ navigation }: {
           marginTop: -14,
         }}
       >
+        <NativeItem
+          leading={
+            <View
+              style={[
+                styles.item.leadingContainer,
+                {
+                  backgroundColor: '#d16213',
+                }
+              ]}
+            >
+              <SFSymbol
+                name="trophy.fill"
+                weight="semibold"
+                size={16}
+                color="#ffffff"
+                style={styles.item.symbol}
+              />
+            </View>
+          }
+          chevron
+          onPress={() => navigation.navigate('TrophiesScreen')}
+        >
+          <NativeText heading="h4">
+            Trophées
+          </NativeText>
+          <NativeText heading="p2">
+            Votre progression sur Papillon
+          </NativeText>
+        </NativeItem>
+      </NativeList>
+
+      <NativeList
+        inset
+        sideBar
+        style={{
+          marginTop: -14,
+        }}
+      >
         {/* <NativeItem
           leading={
             <View
