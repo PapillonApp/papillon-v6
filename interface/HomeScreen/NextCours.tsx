@@ -286,7 +286,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
     </PressableScale>
   );
 
-  const textColor = checkContrast('#ffffff', getSavedCourseColor(cours[nxid].subject?.name ?? '', cours[nxid].background_color)) ? '#FFFFFF' : '#222222';
+  const textColor = checkContrast('#ffffff', getSavedCourseColor(cours[nxid].subject?.name ?? '', cours[nxid].background_color)) ? '#FFFFFF' : '#000000';
 
   if (tiny) {
     return (
@@ -377,7 +377,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
           </View>
 
           <View style={[styles.len.container]}>
-            <Text style={[styles.len.startText, {color: textColor}]}>
+            <Text style={[styles.len.startText, {color: textColor.startsWith('#00') ? '#000000': '#FFFFFF99'}]}>
               {lenText}
             </Text>
 
@@ -532,8 +532,7 @@ const styles = StyleSheet.create({
     text: {
       fontFamily: 'Papillon-Medium',
       fontSize: 15,
-      opacity: 0.8,
-      color: '#ffffff',
+      color: '#ffffffcc',
     },
     separator: {
       width: 2,
@@ -568,14 +567,12 @@ const styles = StyleSheet.create({
     startText: {
       fontFamily: 'Papillon-Medium',
       fontSize: 15,
-      opacity: 0.6,
       color: '#ffffff',
     },
     endText: {
       fontFamily: 'Papillon-Medium',
       fontSize: 15,
-      opacity: 0.6,
-      color: '#ffffff',
+      color: '#ffffff99',
     },
 
     bar: {

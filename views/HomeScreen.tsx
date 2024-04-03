@@ -1592,11 +1592,11 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
   
   return (
     <View style={styles.tabsTabsContainer}>
-    {message && message.trim() !== "" && (
-      <View style={styles.warningMessageContainer}>
-        <Text style={styles.warningMessageText}>{message}</Text>
-      </View>
-    )}
+      {message && message.trim() !== '' && (
+        <View style={styles.warningMessageContainer}>
+          <Text style={styles.warningMessageText}>{message}</Text>
+        </View>
+      )}
       <View style={styles.tabsTabRow}>
         <PressableScale
           style={[
@@ -1823,7 +1823,7 @@ function CoursItem({
               (new Date(cours[index - 1].end).getHours() < 13 &&
               new Date(lesson.start).getHours() >= 12) ?
                 'Pause méridienne'
-              : 'Pas de cours'
+                : 'Pas de cours'
             }
             time={`${Math.floor(
               (new Date(lesson.start).getTime() -
