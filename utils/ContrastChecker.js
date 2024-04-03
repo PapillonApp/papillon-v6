@@ -24,7 +24,7 @@ function calculateContrast(l1, l2) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-function checkContrast(textColor, backgroundColor, ratio = 4.5) {
+function checkContrast(textColor, backgroundColor, ratio = 2) {
   // Get the colors in RGB
   const textColorRGB = hexToRGB(textColor);
   const backgroundColorRGB = hexToRGB(backgroundColor);
