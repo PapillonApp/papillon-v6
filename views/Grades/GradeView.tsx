@@ -44,6 +44,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { calculateSubjectAverage } from '../../utils/grades/averages';
 import { PapillonGrades } from '../../fetch/types/grades';
 import { PapillonAttachmentType } from '../../fetch/types/attachment';
+import {checkContrast} from '../../utils/ContrastChecker';
 
 function GradeView({ route, navigation }) {
   const { grade, allGrades } = route.params as {
@@ -83,6 +84,7 @@ function GradeView({ route, navigation }) {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: description,
+      headerTintColor: checkContrast('#FFFFFF', mainColor) ? '#FFF':'#000',
       headerStyle: {
         backgroundColor: mainColor,
       },
@@ -90,12 +92,12 @@ function GradeView({ route, navigation }) {
       headerLeft: () => (
         Platform.OS === 'ios' ? ( 
           Platform.isPad ? (
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iosBack}>
-              <X size={26} color="#fff" style={styles.iosBackIcon} />
+            <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.iosBack, {backgroundColor: checkContrast('#FFFFFF', mainColor) ? '#FFFFFF33':'#00000033'}]}>
+              <X size={26} color={checkContrast('#FFFFFF', mainColor) ? '#FFF':'#000'} style={styles.iosBackIcon} />
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iosBack}>
-              <ChevronLeft size={26} color="#fff" style={styles.iosBackIcon} />
+            <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.iosBack, {backgroundColor: checkContrast('#FFFFFF', mainColor) ? '#FFFFFF33':'#00000033'}]}>
+              <ChevronLeft size={26} color={checkContrast('#FFFFFF', mainColor) ? '#FFF':'#000'} style={styles.iosBackIcon} />
             </TouchableOpacity>
           )) : null
       ),
@@ -178,10 +180,10 @@ function GradeView({ route, navigation }) {
       </Modal>
       <View style={[styles.gradeHeader, { backgroundColor: mainColor }]}>
         <View style={[styles.gradeHeaderTitle]}>
-          <Text style={[styles.gradeHeaderSubject]} numberOfLines={1} ellipsizeMode='tail'>
+          <Text style={[styles.gradeHeaderSubject, {color: checkContrast('#FFFFFF', mainColor) ? '#FFF':'#000'}]} numberOfLines={1} ellipsizeMode='tail'>
             {formatCoursName(grade.subject.name)}
           </Text>
-          <Text style={[styles.gradeHeaderDate]}>
+          <Text style={[styles.gradeHeaderDate, {color: checkContrast('#FFFFFF', mainColor) ? '#FFF':'#000'}]}>
             {new Date(grade.date).toLocaleDateString('fr-FR', {
               year: 'numeric',
               month: 'short',
@@ -192,11 +194,11 @@ function GradeView({ route, navigation }) {
         <View style={[styles.gradeHeaderGrade]}>
           {grade.grade.value.significant === false && (
             <>
-              <Text style={[styles.gradeHeaderGradeValueTop]}>{valueTop}</Text>
-              <Text style={[styles.gradeHeaderGradeValueBottom]}>
+              <Text style={[styles.gradeHeaderGradeValueTop, {color: checkContrast('#FFFFFF', mainColor) ? '#FFF':'#000'}]}>{valueTop}</Text>
+              <Text style={[styles.gradeHeaderGradeValueBottom, {color: checkContrast('#FFFFFF', mainColor) ? '#FFF':'#000'}]}>
                 .{valueBottom}
               </Text>
-              <Text style={[styles.gradeHeaderGradeScale]}>
+              <Text style={[styles.gradeHeaderGradeScale, {color: checkContrast('#FFFFFF', mainColor) ? '#FFF':'#000'}]}>
                 /{grade.grade.out_of.value}
               </Text>
             </>
@@ -204,11 +206,11 @@ function GradeView({ route, navigation }) {
 
           {grade.grade.value.significant === true && (<>
             {grade.grade.value.type[0] == '1' ? (
-              <Text style={[styles.gradeHeaderGradeValueTop]}>
+              <Text style={[styles.gradeHeaderGradeValueTop, {color: checkContrast('#FFFFFF', mainColor) ? '#FFF':'#000'}]}>
                 Abs.
               </Text>
             ) : (
-              <Text style={[styles.gradeHeaderGradeValueTop]}>
+              <Text style={[styles.gradeHeaderGradeValueTop, {color: checkContrast('#FFFFFF', mainColor) ? '#FFF':'#000'}]}>
                 N.not
               </Text>
             )}

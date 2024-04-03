@@ -52,6 +52,7 @@ import { PapillonGrades, PapillonGradesViewAverages } from '../fetch/types/grade
 
 import { calculateSubjectAverage } from '../utils/grades/averages';
 import PapillonLoading from '../components/PapillonLoading';
+import {checkContrast} from '../utils/ContrastChecker';
 
 const GradesScreen = ({ navigation }: {
   navigation: any // TODO
@@ -654,7 +655,7 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
                 <NativeText style={subjectStyles.subjectEmoji}>
                   {getClosestGradeEmoji(grade.subject.name)}
                 </NativeText>
-                <NativeText style={subjectStyles.subjectName} numberOfLines={1}>
+                <NativeText style={[subjectStyles.subjectName, {color: checkContrast('#FFFFFF', grade.background_color) ? '#FFF':'#000'}]} numberOfLines={1}>
                   {formatCoursName(grade.subject.name)}
                 </NativeText>
               </View>
@@ -714,16 +715,16 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation, U
           >
             <Pressable style={[subjectStyles.listItem, { backgroundColor }]}>
               <View style={subjectStyles.subjectInfoContainer}>
-                <NativeText style={subjectStyles.subjectName} numberOfLines={1}>
+                <NativeText style={[subjectStyles.subjectName, {color: checkContrast('#FFFFFF', backgroundColor) ? '#FFF':'#000'}]} numberOfLines={1}>
                   {formattedCourseName}
                 </NativeText>
               </View>
 
               <View style={subjectStyles.gradeContainer}>
-                <NativeText style={subjectStyles.subjectGradeValue}>
+                <NativeText style={[subjectStyles.subjectGradeValue, {color: checkContrast('#FFFFFF', backgroundColor) ? '#FFF':'#000'}]}>
                   {gradeValue !== 'NaN' ? gradeValue : 'N.éval'}
                 </NativeText>
-                <NativeText style={subjectStyles.subjectGradeScale}>
+                <NativeText style={[subjectStyles.subjectGradeScale, {color: checkContrast('#FFFFFF', backgroundColor) ? '#FFF':'#000'}]}>
                   /{gradeScale}
                 </NativeText>
               </View>

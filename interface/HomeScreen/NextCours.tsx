@@ -391,7 +391,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
               ]} />
             </View>
 
-            <Text style={[styles.len.endText, {color: textColor}]}>
+            <Text style={[styles.len.endText, {color: textColor.startsWith('#00') ? '#000000': '#FFFFFF99'}]}>
               { new Date(cours[nxid].end).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
             </Text>
           </View>
@@ -415,11 +415,11 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
             <View style={[styles.details.item, styles.details.room, {backgroundColor: textColor + '20'}]}>
               <MapPin size={20} color={textColor} style={[styles.details.icon]} />
               { cours[nxid].rooms && cours[nxid].rooms.length > 0 ? (
-                <Text style={[styles.details.text, {color: textColor}]} numberOfLines={1}>
+                <Text style={[styles.details.text, {color: textColor.startsWith('#00') ? '#000000': '#FFFFFFCC'}]} numberOfLines={1}>
                   { cours[nxid].rooms[0] }
                 </Text>
               ) : (
-                <Text style={[styles.details.text, {color: textColor}]} numberOfLines={1}>
+                <Text style={[styles.details.text, {color: textColor.startsWith('#00') ? '#000000': '#FFFFFFCC'}]} numberOfLines={1}>
                     inconnue
                 </Text>
               )}
@@ -432,7 +432,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
             { cours[nxid].teachers && cours[nxid].teachers.length > 0 && (
               <View style={[styles.details.item, styles.details.teacher]}>
                 <UserCircle2 size={20} color={textColor} style={[styles.details.icon]} />
-                <Text style={[styles.details.text, {color: textColor}]} numberOfLines={1}>
+                <Text style={[styles.details.text, {color: textColor.startsWith('#00') ? '#000000': '#FFFFFFCC'}]} numberOfLines={1}>
                   { cours[nxid].teachers[0] }
                 </Text>
               </View>
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
     text: {
       fontFamily: 'Papillon-Medium',
       fontSize: 15,
-      color: '#ffffffcc',
+      color: '#ffffff',
     },
     separator: {
       width: 2,
