@@ -13,22 +13,6 @@ interface Props {
   plain?: boolean
 }
 
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 0,
-  },
-  children: {
-    marginHorizontal: 16,
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  plain: {
-    borderWidth: 0.5,
-    shadowColor: '#00000055',
-    elevation: 3,
-  },
-});
-
 const NativeList: React.FC<Props> = React.memo(({
   children,
   header,
@@ -44,13 +28,28 @@ const NativeList: React.FC<Props> = React.memo(({
     <List.Section style={[styles.container, style]}>
       {header && <List.Subheader>{header}</List.Subheader>}
 
-      <View style={[styles.children, { backgroundColor: UIColors.element, borderColor: UIColors.borderLight }, plain && styles.plain, containerStyle]}>
+      <View style={[styles.children, plain && styles.plain, containerStyle]}>
         {childrenWithKeys}
       </View>
 
       {footer && <List.Subheader>{footer}</List.Subheader>}
     </List.Section>
   );
+});
+
+const styles = StyleSheet.create({
+  container: {
+    marginTop: 0,
+  },
+  children: {
+    marginHorizontal: 16,
+    borderRadius: 0,
+    overflow: 'hidden',
+    gap: 3,
+  },
+  plain: {
+    borderWidth: 0,
+  },
 });
 
 export default NativeList;

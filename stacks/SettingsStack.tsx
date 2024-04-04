@@ -35,6 +35,11 @@ function InsetSettings() {
           ? {
             animation: 'fade_from_bottom',
             navigationBarColor: '#00000000',
+            headerStyle: {
+              backgroundColor: UIColors.background,
+                elevation: 0,
+            },
+            headerShadowVisible: false,
           }
           : {
             ...headerTitleStyles,
@@ -53,7 +58,7 @@ function InsetSettings() {
             }
             :
             {
-              headerTitle: 'Compte',
+              headerTitle: 'Paramètres',
             }
         }
       />

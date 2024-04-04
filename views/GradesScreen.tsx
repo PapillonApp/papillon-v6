@@ -712,7 +712,16 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation, U
             key={index}
             header={formattedCourseName}
           >
-            <Pressable style={[subjectStyles.listItem, { backgroundColor }]}>
+            <Pressable style={[
+              subjectStyles.listItem,
+              { backgroundColor },
+              Platform.OS === 'android' && {
+                borderRadius: 6,
+                borderTopLeftRadius: 12,
+                borderTopRightRadius: 12,
+                overflow: 'hidden',
+              }
+            ]}>
               <View style={subjectStyles.subjectInfoContainer}>
                 <NativeText style={subjectStyles.subjectName} numberOfLines={1}>
                   {formattedCourseName}
