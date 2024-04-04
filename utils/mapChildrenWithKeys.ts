@@ -18,7 +18,8 @@ const mapChildrenWithKeys = (children: ReactNode) => {
 
     // Check if this is the last child and add last={true} prop if it is
     const isLastChild = index === count - 1;
-    return cloneElement(child as ReactElement, { key: `child-${index}`, last: isLastChild });
+    const isFirstChild = index === 0;
+    return cloneElement(child as ReactElement, { key: `child-${index}`, last: isLastChild, first: isFirstChild });
   });
 };
 
