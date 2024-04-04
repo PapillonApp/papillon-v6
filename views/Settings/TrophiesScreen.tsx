@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { Animated, ScrollView, Modal, TouchableOpacity, StyleSheet, View, Text, FlatList, Alert } from 'react-native';
+import { Animated, ScrollView, Modal, TouchableOpacity, StyleSheet, View, Text, FlatList, Alert, Platform, StatusBar } from 'react-native';
 
 import GetUIColors from '../../utils/GetUIColors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -308,6 +308,9 @@ const TrophiesScreen = ({ navigation }) => {
 
   return (
     <View style={{ backgroundColor: UIColors.modalBackground, flex: 1 }}>
+      {Platform.OS === 'android' && (
+        <StatusBar translucent backgroundColor={'transparent'} barStyle={'light-content'} />
+      )}
       <Modal
         animationType='fade'
         transparent={true}
@@ -461,7 +464,7 @@ const TrophiesScreen = ({ navigation }) => {
                 ]}
               >
                 <View style={[styles.trophyEmojiContainer]}>
-                  { trophy.done < trophy.required && (
+                  { Platform.OS !== 'android' && trophy.done < trophy.required && (
                     <BlurView intensity={15} style={{
                       position: 'absolute',
                       top: 0,
@@ -487,7 +490,10 @@ const TrophiesScreen = ({ navigation }) => {
                     {trophy.description}
                   </NativeText>
 
-                  <View style={[styles.trophyCompletionBar]}>
+                  <View style={[
+                    styles.trophyCompletionBar,
+                    Platform.OS === 'android' ? { backgroundColor: UIColors.primary + '22' } : null,
+                  ]}>
                     <View style={[styles.trophyCompletionBarFill, {
                       width: `${(trophy.done < trophy.required) ? (trophy.done / trophy.required) * 100 : 100}%`,
                       backgroundColor: '#d16213',

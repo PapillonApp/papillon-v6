@@ -260,11 +260,11 @@ const CoursColor = ({ navigation }) => {
                     },
                   },
                   {
-                    menuTitle: 'Importer / exporter',
+                    menuTitle: 'Exporter / Importer',
                     icon: {
                       type: 'IMAGE_SYSTEM',
                       imageValue: {
-                        systemName: 'square.and.arrow.up',
+                        systemName: 'arrow.up.and.down',
                       },
                     },
                     menuItems: [
