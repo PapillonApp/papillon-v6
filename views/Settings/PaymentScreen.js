@@ -204,6 +204,9 @@ const PaymentScreen = ({ navigation }) => {
           <NativeText style={[styles.donateDescription]}>
             Papillon est une application libre développée majoritairement par des lycéens sur leur temps libre. Elle est gratuite et sans publicité. Si vous souhaitez soutenir le projet, vous pouvez faire un don à notre équipe pour financer les coûts de développement et faire perdurer l'application.
           </NativeText>
+          <NativeText style={[styles.donateDescription]}>
+            Vos dons permettent de financer principalement les licences des différents stores, mais aussi le nom de domaine de Papillon, ainsi que l'hébergement de nos boîtes mail !
+          </NativeText>
 
           { !loading ? (
             <NativeList 
