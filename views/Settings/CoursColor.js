@@ -33,6 +33,7 @@ import { forceSavedCourseColor } from '../../utils/ColorCoursName';
 import {CircleEllipsis, Share as ShareIcon, CircleEllipsisIcon, ListRestart, Lock, MoreVertical, UserCircle2} from 'lucide-react-native';
 import {getContextValues} from '../../utils/AppContext';
 import { RegisterTrophy } from './TrophiesScreen';
+import {checkContrast} from '../../utils/ContrastChecker';
 
 const CoursColor = ({ navigation }) => {
   const theme = useTheme();
@@ -553,9 +554,14 @@ const CoursColor = ({ navigation }) => {
                 <NativeText heading="b">
                   {formatCoursName(savedColors[key].originalCourseName)}
                 </NativeText>
-                <NativeText heading="subtitle2">
-                  {savedColors[key].color.toUpperCase()}
-                </NativeText>
+                {!checkContrast('#FFFFFF', savedColors[key].color) ? (
+                  <NativeText heading="subtitle2" style={{color: 'red', fontWeight: 'bold'}}>Le contraste est faible</NativeText>
+                ): (
+                  <NativeText heading="subtitle2">
+                    {savedColors[key].color.toUpperCase()}
+                  </NativeText>
+                )}
+
               </NativeItem>
             );
           }
