@@ -307,7 +307,7 @@ const TrophiesScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <View style={{ backgroundColor: UIColors.modalBackground, flex: 1, }}>
+    <View style={{ backgroundColor: UIColors.modalBackground, flex: 1 }}>
       <Modal
         animationType='fade'
         transparent={true}

@@ -555,7 +555,7 @@ const CoursColor = ({ navigation }) => {
                   {formatCoursName(savedColors[key].originalCourseName)}
                 </NativeText>
                 {!checkContrast('#FFFFFF', savedColors[key].color) ? (
-                  <NativeText heading="subtitle2" style={{color: 'red', fontWeight: 'bold'}}>Le contraste est faible</NativeText>
+                  <NativeText heading="subtitle2" style={{color: '#B42828', opacity: 1, fontWeight: 'bold'}}>Le contraste est faible</NativeText>
                 ): (
                   <NativeText heading="subtitle2">
                     {savedColors[key].color.toUpperCase()}
