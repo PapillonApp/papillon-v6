@@ -44,7 +44,7 @@ function useUIColors(schemeForce, platformForce) {
       element = isDark ? '#161618' : '#ffffff';
       elementHigh = isDark ? '#161618' : '#f2f2f7';
     } else {
-      element = theme.colors.elevation.level1;
+      element = theme.colors.elevation.level2;
       elementHigh = theme.colors.elevation.level2;
     }
 
@@ -52,6 +52,10 @@ function useUIColors(schemeForce, platformForce) {
 
     let primaryBackground;
     let primary = '#32AB8E';
+
+    if (platform === 'android') {
+      primary = theme.colors.primary;
+    }
 
     primaryBackground = primary;
 
