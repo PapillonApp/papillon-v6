@@ -58,7 +58,8 @@ const SelectService = ({ navigation }) => {
       company: 'Aplim',
       description: 'Identifiants EcoleDirecte',
       icon: require('../../assets/logo_modern_ed.png'),
-      soon: true,
+      view: 'LoginFormEcoledirecte',
+      soon: false,
     }
   ]);
 
@@ -74,7 +75,7 @@ const SelectService = ({ navigation }) => {
       }
       else if (selectedService === 2) {
         setEdAlertVisible(true);
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       }
       else {
         setServiceAlertVisible(true);
@@ -191,8 +192,10 @@ const SelectService = ({ navigation }) => {
         setVisible={setEdAlertVisible}
         icon={<AlertTriangle />}
         title={`${serviceOptions[selectedService]?.name}`}
-        subtitle={`${serviceOptions[selectedService]?.name} n’est pas encore disponible sur Papillon. Veuillez réessayer plus tard.`}
+        subtitle={`${serviceOptions[selectedService]?.name} est en version ALPHA. Des bugs peuvent survenir lors de l'utilisation.`}
         cancelAction={() => setEdAlertVisible(false)}
+        primaryButton='Compris !'
+        primaryAction={() => {setServiceAlertVisible(true);}}
       />
 
       <AlertBottomSheet
