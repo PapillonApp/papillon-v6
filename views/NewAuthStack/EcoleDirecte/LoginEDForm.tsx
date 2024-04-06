@@ -28,7 +28,7 @@ import AlertBottomSheet from '../../../interface/AlertBottomSheet';
 import GetUIColors from '../../../utils/GetUIColors';
 import { useAppContext } from '../../../utils/AppContext';
 
-import { AsyncStorageEcoleDirecteKeys } from '../../../fetch/EcoleDirecteData/EcoleDirecteCache';
+import { AsyncStorageEcoleDirecteKeys } from '../../../fetch/EcoleDirecteData/connector';
 import { EDCore } from '@papillonapp/ed-core';
 
 
@@ -53,6 +53,19 @@ function LoginEDForm({ route, navigation }: {
   const UIColors = GetUIColors();
 
 
+  const makeUUID = (): string => {
+    let dt = new Date().getTime();
+    const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+      /[xy]/g,
+      (c) => {
+        const r = (dt + Math.random() * 16) % 16 | 0;
+        dt = Math.floor(dt / 16);
+        return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+      }
+    );
+    return uuid;
+  };
+
 
 
 
@@ -68,14 +81,19 @@ function LoginEDForm({ route, navigation }: {
       setConnecting(true);
 
       let ed = new EDCore();
+      let uuid = makeUUID();
 
-      await ed.auth.login(username, password);
+      await ed.auth.login(username, password, uuid);
+
+      if(ed._token && ed._accessToken) {
 
       await AsyncStorage.multiSet([
         [AsyncStorageEcoleDirecteKeys.TOKEN, ed._token],
-        [AsyncStorageEcoleDirecteKeys.USER, JSON.stringify(ed.student)],
-        //[AsyncStorageEcoleDirecteKeys.PASSWORD, Buffer.from(password).toString("base64")],
+        [AsyncStorageEcoleDirecteKeys.DEVICE_UUID, uuid],
+        [AsyncStorageEcoleDirecteKeys.USERNAME, username],
+        [AsyncStorageEcoleDirecteKeys.ACCESS_TOKEN, ed._accessToken]
       ]);
+    };
 
       setConnecting(false);
 
