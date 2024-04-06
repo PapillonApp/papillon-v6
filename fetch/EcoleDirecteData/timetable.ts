@@ -74,8 +74,8 @@ export const EDtimetableHandler = async (interval: [from: Date, to?: Date], inst
         group_names: lesson.groupeCode.split(","),
         memo: "Non disponible",
         virtual: ["Non disponible"],
-        start: lesson.start_date, //new Date(new Date(lesson.start_date).getTime() - (new Date(lesson.start_date).getTimezoneOffset() * 60000)).toISOString(),
-        end: lesson.end_date, //new Date(new Date(lesson.end_date).getTime() - (new Date(lesson.end_date).getTimezoneOffset() * 60000)).toISOString(),
+        start: lesson.start_date,
+        end: lesson.end_date,
         background_color: lesson.color,
         status: lesson.status || "",
         is_cancelled: lesson.isAnnule,
@@ -86,29 +86,6 @@ export const EDtimetableHandler = async (interval: [from: Date, to?: Date], inst
       })
     })
 
-    /*const timetable: PapillonLesson[] = timetableFromED.map(lesson => ({
-      id: lesson.id,
-      num: lesson.num || 0,
-      subject: { // TODO: Export the type in Pawnote of `StudentSubject` : we're reusing it here.
-        id: lesson.id,
-        name: lesson.text || "TEST",
-        groups: false
-      },
-      teachers: lesson.prof.split(","),
-      rooms: lesson.salle.split(","),
-      group_names: lesson.groupeCode.split(","),
-      memo: "Non disponible",
-      virtual: ["Non disponible"],
-      start: new Date(new Date(lesson.start_date).getTime() - (new Date(lesson.start_date).getTimezoneOffset() * 60000)).toISOString(),
-      end:  new Date(new Date(lesson.end_date).getTime() - (new Date(lesson.end_date).getTimezoneOffset() * 60000)).toISOString(),
-      background_color: lesson.color,
-      status: lesson.status || "",
-      is_cancelled: lesson.isAnnule,
-      is_outing: lesson.outing || false,
-      is_detention: lesson.detention || false,
-      is_exempted: lesson.exempted || false,
-      is_test: lesson.test || false
-    })).sort((a, b) => a.start.localeCompare(b.start));*/
     timetable.sort((a, b) => a.start.localeCompare(b.start));
 
     
