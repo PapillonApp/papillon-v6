@@ -17,6 +17,7 @@
     "@expo/webpack-config": "^19.0.0",
     "@legeek01/expo-in-app-purchases": "^1.0.0",
     "@notifee/react-native": "^7.8.2",
+    "@papillonapp/ed-core": "^0.2.7",
     "@pchmn/expo-material3-theme": "^1.0.1",
     "@react-native-async-storage/async-storage": "1.18.2",
     "@react-native-clipboard/clipboard": "^1.10.0",
@@ -45,6 +46,7 @@
     "expo-dev-client": "~2.4.8",
     "expo-dev-launcher": "^3.0.0",
     "expo-device": "~5.4.0",
+    "expo-document-picker": "~11.5.4",
     "expo-dynamic-app-icon": "^1.1.8",
     "expo-file-system": "~15.4.4",
     "expo-font": "~11.4.0",
@@ -110,8 +112,7 @@
     "reanimated-color-picker": "^2.3.4",
     "scolengo-api": "^3.0.2",
     "sync-storage": "^0.4.2",
-    "typescript": "^5.1.3",
-    "expo-document-picker": "~11.5.4"
+    "typescript": "^5.1.3"
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",
