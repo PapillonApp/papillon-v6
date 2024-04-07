@@ -408,11 +408,9 @@ Statut : ${cours.status || 'Aucun'}
       // Register every lessons of the week inside our state cache.
       for (const lesson of lessons) {
         const dayKey = dateToFrenchFormat(new Date(lesson.start));
-
         // Insert the lesson in the day object.
-        lessonsViewCache[dayKey][lesson.id] = lesson;
+        lessonsViewCache[dayKey][String(lesson.id) + "-papillon"] = lesson;
       }
-
       setCours(lessonsViewCache);
     });
   };
