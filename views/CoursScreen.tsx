@@ -384,6 +384,7 @@ Statut : ${cours.status || 'Aucun'}
     console.info('timetable: fetching from scratch for state.');
     
     appContext.dataProvider.getTimetable(date, force).then((lessons) => {
+      console.log("lessons cours", lessons)
       if (!lessons) return; // No-op, not sure if that's good here.
       
       // We fill undefined objects.
@@ -408,11 +409,11 @@ Statut : ${cours.status || 'Aucun'}
       // Register every lessons of the week inside our state cache.
       for (const lesson of lessons) {
         const dayKey = dateToFrenchFormat(new Date(lesson.start));
-
+        console.log("cache: traite", lesson)
         // Insert the lesson in the day object.
-        lessonsViewCache[dayKey][lesson.id] = lesson;
+        lessonsViewCache[dayKey][String(lesson.id) + "-papillon"] = lesson;
       }
-
+      console.log("lesson cache", lessonsViewCache)
       setCours(lessonsViewCache);
     });
   };
