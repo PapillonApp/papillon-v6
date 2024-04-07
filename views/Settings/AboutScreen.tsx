@@ -21,7 +21,7 @@ import {
 } from 'lucide-react-native';
 
 import packageJson from '../../package.json';
-import { GetRessource } from '../../utils/GetRessources/GetRessources';
+import { formatPapillonContributors } from '../../utils/GetRessources/FormatContribs';
 
 import GetUIColors from '../../utils/GetUIColors';
 
@@ -31,25 +31,17 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
 function AboutScreen({ navigation }) {
-  const [team, setTeam] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [team, setTeam] = useState(null);
 
   useEffect(() => {
-    setLoading(true);
-    callGetRessource('team')
-      .then(response => {
-        setTeam(response);
-        setLoading(false);
-      })
-      .catch(error => console.error(error));
+    async function fetchContributors() {
+      const team = await formatPapillonContributors();
+      setTeam(team);
+    }
+    fetchContributors();
   }, []);
-
-  function callGetRessource(ressource: string) {
-    return GetRessource(ressource)
-      .then(data => {
-        return data;
-      });
-  }
+  
 
   const UIColors = GetUIColors();
   const theme = useTheme();
