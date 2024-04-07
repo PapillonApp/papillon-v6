@@ -106,8 +106,6 @@ export const EDtimetableHandler = async (interval: [from: Date, to?: Date], inst
     return timetable;
   }
   catch (error) {
-    console.log("eeeeerrrrroooooorrrrr")
-    console.log(error)
     if (!cache) return null;
     const data: Array<CachedPapillonTimetable> = JSON.parse(cache);
 
