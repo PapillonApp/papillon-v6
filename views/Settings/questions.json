@@ -1,0 +1,364 @@
+[
+    {
+      "question": "Quelle est la capitale de la France ?",
+      "response": [
+        {"text": "Paris", "valid": true},
+        {"text": "Madrid", "valid": false},
+        {"text": "Londres", "valid": false},
+        {"text": "Berlin", "valid": false}
+      ]
+    },
+    {
+      "question": "Quelle est la couleur du ciel ?",
+      "response": [
+        {"text": "Bleu", "valid": true},
+        {"text": "Vert", "valid": false},
+        {"text": "Jaune", "valid": false},
+        {"text": "Rouge", "valid": false}
+      ]
+    },
+    {
+      "question": "Quel est le premier mois de l'année ?",
+      "response": [
+        {"text": "Janvier", "valid": true},
+        {"text": "Février", "valid": false},
+        {"text": "Décembre", "valid": false},
+        {"text": "Avril", "valid": false}
+      ]
+    },
+    {
+      "question": "Combien font 2+2 ?",
+      "response": [
+        {"text": "22", "valid": false},
+        {"text": "4", "valid": true},
+        {"text": "2", "valid": false},
+        {"text": "18", "valid": false}
+      ]
+    },
+    {
+      "question": "Combien font 5*5 ?",
+      "response": [
+        {"text": "25", "valid": true},
+        {"text": "10", "valid": false},
+        {"text": "15", "valid": false},
+        {"text": "20", "valid": false}
+      ]
+    },
+    {
+      "question": "Quelle est la première lettre de l'alphabet ?",
+      "response": [
+        {"text": "A", "valid": true},
+        {"text": "F", "valid": false},
+        {"text": "O", "valid": false},
+        {"text": "B", "valid": false}
+      ]
+    },
+    {
+      "question": "Combien de jours y a-t-il dans une semaine ?",
+      "response": [
+        {"text": "7", "valid": true},
+        {"text": "6", "valid": false},
+        {"text": "8", "valid": false},
+        {"text": "5", "valid": false}
+      ]
+    },
+    {
+      "question": "Combien de doigts avez-vous sur une main ?",
+      "response": [
+        {"text": "5", "valid": true},
+        {"text": "4", "valid": false},
+        {"text": "6", "valid": false},
+        {"text": "10", "valid": false}
+      ]
+    },
+    {
+      "question": "Combien de saisons y a-t-il dans une année ?",
+      "response": [
+        {"text": "4", "valid": true},
+        {"text": "3", "valid": false},
+        {"text": "5", "valid": false},
+        {"text": "6", "valid": false}
+      ]
+    },
+    {
+      "question": "Quelle est la capitale de l'Espagne ?",
+      "response": [
+        {"text": "Madrid", "valid": true},
+        {"text": "Paris", "valid": false},
+        {"text": "Londres", "valid": false},
+        {"text": "Rome", "valid": false}
+      ]
+    },
+    {
+      "question": "Quel est le plus grand océan du monde ?",
+      "response": [
+        {"text": "Pacifique", "valid": true},
+        {"text": "Atlantique", "valid": false},
+        {"text": "Indien", "valid": false},
+        {"text": "Arctique", "valid": false}
+      ]
+    },
+    {
+      "question": "Combien de planètes composent le système solaire ?",
+      "response": [
+        {"text": "8", "valid": true},
+        {"text": "7", "valid": false},
+        {"text": "9", "valid": false},
+        {"text": "6", "valid": false}
+      ]
+    },
+    {
+      "question": "Qui a écrit 'Le Petit Prince' ?",
+      "response": [
+        {"text": "Antoine de Saint-Exupéry", "valid": true},
+        {"text": "Victor Hugo", "valid": false},
+        {"text": "Jules Verne", "valid": false},
+        {"text": "Marcel Proust", "valid": false}
+      ]
+    },
+    {
+      "question": "Quel est le symbole chimique de l'eau ?",
+      "response": [
+        {"text": "H2O", "valid": true},
+        {"text": "CO2", "valid": false},
+        {"text": "O2", "valid": false},
+        {"text": "H2SO4", "valid": false}
+      ]
+    },
+    {
+        "question": "Soit f(x) = x² une fonction continue sur l'intervalle [0,1]. Quelle est la valeur de ∫₀¹ f(x) dx ?",
+        "response": [
+          {"text": "1/3", "valid": true},
+          {"text": "1/2", "valid": false},
+          {"text": "1/4", "valid": false},
+          {"text": "1/6", "valid": false}
+        ]
+    },
+    {
+        "question": "Qui a peint la Joconde ?",
+        "response": [
+            {"text": "Leonardo da Vinci", "valid": true},
+            {"text": "Pablo Picasso", "valid": false},
+            {"text": "Vincent van Gogh", "valid": false},
+            {"text": "Claude Monet", "valid": false}
+        ]
+    },
+    {
+        "question": "Quelle est la capitale de l'Italie ?",
+        "response": [
+            {"text": "Rome", "valid": true},
+            {"text": "Madrid", "valid": false},
+            {"text": "Paris", "valid": false},
+            {"text": "Berlin", "valid": false}
+        ]
+    },
+    {
+        "question": "Combien de côtés a un triangle ?",
+        "response": [
+            {"text": "3", "valid": true},
+            {"text": "4", "valid": false},
+            {"text": "5", "valid": false},
+            {"text": "6", "valid": false}
+        ]
+    },
+    {
+        "question": "Combien de lettres y a-t-il dans l'alphabet anglais ?",
+        "response": [
+            {"text": "26", "valid": true},
+            {"text": "24", "valid": false},
+            {"text": "28", "valid": false},
+            {"text": "30", "valid": false}
+        ]
+    },
+    {
+        "question": "Quel animal est la mascotte de la marque Disney ?",
+        "response": [
+            {"text": "Mickey Mouse", "valid": true},
+            {"text": "Bugs Bunny", "valid": false},
+            {"text": "Donald Duck", "valid": false},
+            {"text": "Scooby-Doo", "valid": false}
+        ]
+    },
+    {
+        "question": "Qui a inventé la théorie de la relativité ?",
+        "response": [
+            {"text": "Albert Einstein", "valid": true},
+            {"text": "Isaac Newton", "valid": false},
+            {"text": "Galilée", "valid": false},
+            {"text": "Nikola Tesla", "valid": false}
+        ]
+    },
+    {
+        "question": "Quelle est la planète la plus proche du Soleil ?",
+        "response": [
+            {"text": "Mercure", "valid": true},
+            {"text": "Vénus", "valid": false},
+            {"text": "Terre", "valid": false},
+            {"text": "Mars", "valid": false}
+        ]
+    },
+    {
+        "question": "Quel est le résultat de 10 - 5 ?",
+        "response": [
+            {"text": "5", "valid": true},
+            {"text": "10", "valid": false},
+            {"text": "15", "valid": false},
+            {"text": "20", "valid": false}
+        ]
+    },
+    {
+        "question": "Quel est le plus grand animal terrestre ?",
+        "response": [
+            {"text": "L'éléphant", "valid": true},
+            {"text": "Le chat", "valid": false},
+            {"text": "La raton-laveur", "valid": false},
+            {"text": "L'ornithorynque", "valid": false}
+        ]
+    },
+    {
+        "question": "Quelle est la couleur du sang des humains ?",
+        "response": [
+            {"text": "Rouge", "valid": true},
+            {"text": "Bleu", "valid": false},
+            {"text": "Vert", "valid": false},
+            {"text": "Jaune", "valid": false}
+        ]
+    },
+    {
+        "question": "Combien de continents y a-t-il sur Terre ?",
+        "response": [
+            {"text": "7", "valid": true},
+            {"text": "42", "valid": false},
+            {"text": "89", "valid": false},
+            {"text": "13", "valid": false}
+        ]
+    },
+    {
+        "question": "Quelle est la langue la plus parlée au monde ?",
+        "response": [
+            {"text": "Chinois", "valid": true},
+            {"text": "Anglais", "valid": false},
+            {"text": "Espagnol", "valid": false},
+            {"text": "Hindi", "valid": false}
+        ]
+    },
+    {
+        "question": "Qui a écrit la pièce de théâtre 'Roméo et Juliette' ?",
+        "response": [
+            {"text": "William Shakespeare", "valid": true},
+            {"text": "Victor Hugo", "valid": false},
+            {"text": "Molière", "valid": false},
+            {"text": "George Bernard Shaw", "valid": false}
+        ]
+    },
+    {
+        "question": "Quel est le plus grand désert du monde ?",
+        "response": [
+            {"text": "Le Sahara", "valid": true},
+            {"text": "Le Gobi", "valid": false},
+            {"text": "Le désert d'Atacama", "valid": false},
+            {"text": "Le désert de Mojave", "valid": false}
+        ]
+    },
+    {
+
+        "question": "Quel animal miaule ?",
+        "response": [
+            {"text": "Chat", "valid": true},
+            {"text": "Chien", "valid": false},
+            {"text": "Oiseau", "valid": false},
+            {"text": "Cheval", "valid": false}
+        ]
+    },
+    {
+        "question": "Combien de roues a un vélo ?",
+        "response": [
+            {"text": "2", "valid": true},
+            {"text": "3", "valid": false},
+            {"text": "4", "valid": false},
+            {"text": "1", "valid": false}
+        ]
+    },
+
+    {
+        "question": "Quelle est la couleur du lait ?",
+        "response": [
+            {"text": "Blanc", "valid": true},
+            {"text": "Bleu", "valid": false},
+            {"text": "Vert", "valid": false},
+            {"text": "Jaune", "valid": false}
+        ]
+    },
+    {
+        "question": "Quel animal est considéré comme le roi de la jungle ?",
+        "response": [
+            {"text": "Lion", "valid": true},
+            {"text": "Tigre", "valid": false},
+            {"text": "Éléphant", "valid": false},
+            {"text": "Gorille", "valid": false}
+        ]
+    },
+    {
+        "question": "Quelle est la capitale de l'Allemagne ?",
+        "response": [
+            {"text": "Berlin", "valid": true},
+            {"text": "Paris", "valid": false},
+            {"text": "Londres", "valid": false},
+            {"text": "Madrid", "valid": false}
+        ]
+    },
+    {
+        "question": "De quelle couleur est une banane mûre ?",
+        "response": [
+            {"text": "Jaune", "valid": true},
+            {"text": "Vert", "valid": false},
+            {"text": "Rouge", "valid": false},
+            {"text": "Bleu", "valid": false}
+        ]
+    },
+    {
+        "question": "Quel insecte produit du miel ?",
+        "response": [
+            {"text": "Abeille", "valid": true},
+            {"text": "Papillon", "valid": false},
+            {"text": "Moustique", "valid": false},
+            {"text": "Coccinelle", "valid": false}
+        ]
+    },
+    {
+        "question": "Combien de mois y a-t-il dans une année bissextile ?",
+        "response": [
+            {"text": "12", "valid": true},
+            {"text": "11", "valid": false},
+            {"text": "13", "valid": false},
+            {"text": "10", "valid": false}
+        ]
+    },
+    {
+        "question": "Quel est l'animal emblématique de l'Australie ?",
+        "response": [
+            {"text": "Kangourou", "valid": true},
+            {"text": "Koala", "valid": false},
+            {"text": "Dingo", "valid": false},
+            {"text": "Émeu", "valid": false}
+        ]
+    },
+    {
+        "question": "Quel est l'organe principal du système respiratoire chez l'homme ?",
+        "response": [
+            {"text": "Poumons", "valid": true},
+            {"text": "Coeur", "valid": false},
+            {"text": "Estomac", "valid": false},
+            {"text": "Reins", "valid": false}
+        ]
+    },
+    {
+        "question": "Quelle est l'étape où le papillon émerge de sa chrysalide et déploie ses ailes ?",
+        "response": [
+        {"text": "Métamorphose", "valid": false},
+        {"text": "Éclosion", "valid": true},
+        {"text": "Inversion", "valid": false},
+        {"text": "Cocooning", "valid": false}
+        ]
+    }
+] 
