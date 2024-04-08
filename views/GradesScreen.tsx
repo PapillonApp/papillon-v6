@@ -582,6 +582,18 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
     });
   }, [allGrades, navigation]);
 
+  const typeSignificantType: { [key: string]: string } = {
+    '-1|ERROR': 'Erreur',
+    '1|ABSENT': 'Abs.',
+    '2|EXEMPTED': 'Disp.',
+    '3|NOT_GRADED': 'N.not',
+    '4|UNFIT': 'Inap.',
+    '5|UNRETURNED': 'N.Rdu',
+    '6|ABSENT_ZERO': 'Abs.0',
+    '7|UNRETURNED_ZERO': 'N.Rdu.0',
+    '8|CONGRATULATIONS': 'Félicitations',
+  };
+
   return (<>
     <NativeList
       header="Dernières notes"
@@ -674,7 +686,7 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
                   </NativeText>
                 ) : (
                   <NativeText style={subjectStyles.smallGradeValue}>
-                      N.not
+                    {typeSignificantType[grade.grade.value?.type]}
                   </NativeText>
                 )}
                 <NativeText style={subjectStyles.smallGradeScale}>
@@ -739,8 +751,19 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation, U
             </Pressable>
 
             {subject.grades.map((grade, index) => {
+              const typeSignificantType: { [key: string]: string } = {
+                '-1|ERROR': 'Erreur',
+                '1|ABSENT': 'Abs.',
+                '2|EXEMPTED': 'Disp.',
+                '3|NOT_GRADED': 'N.not',
+                '4|UNFIT': 'Inap.',
+                '5|UNRETURNED': 'N.Rdu',
+                '6|ABSENT_ZERO': 'Abs.0',
+                '7|UNRETURNED_ZERO': 'N.Rdu.0',
+                '8|CONGRATULATIONS': 'Félicitations',
+              };
               const gradeEmoji = getClosestGradeEmoji(subject.subject.name);
-              const gradeValue = grade.grade.value?.value?.toFixed(2) || 'N.not';
+              const gradeValue = grade.grade.value?.value?.toFixed(2) || typeSignificantType[grade.grade.value?.type];
               const gradeScale = grade.grade.out_of.value.toFixed(0);
               const gradeDescription = grade.description || 'Aucune description';
               const gradeDate = new Date(grade.date).toLocaleDateString('fr-FR', { month: 'long', day: 'numeric', year: 'numeric' });
