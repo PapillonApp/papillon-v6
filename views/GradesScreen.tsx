@@ -18,7 +18,7 @@ import formatCoursName from '../utils/FormatCoursName';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
 // Icons
-import {Users2, File, TrendingDown, TrendingUp, AlertTriangle, MoreVertical, EyeOff} from 'lucide-react-native';
+import {Users2, File, TrendingDown, TrendingUp, AlertTriangle, MoreVertical, EyeOff, DivideSquare} from 'lucide-react-native';
 import { Stats } from '../interface/icons/PapillonIcons';
 
 // Plugins
@@ -50,7 +50,7 @@ interface PapillonAveragesOverTime {
 import { PapillonPeriod } from '../fetch/types/period';
 import { PapillonGrades, PapillonGradesViewAverages } from '../fetch/types/grades';
 
-import { calculateSubjectAverage } from '../utils/grades/averages';
+import { calculateSubjectAverage, calculateSubjectMedian } from '../utils/grades/averages';
 import PapillonLoading from '../components/PapillonLoading';
 
 const GradesScreen = ({ navigation }: {
@@ -109,6 +109,11 @@ const GradesScreen = ({ navigation }: {
         name: 'Moyenne groupe',
         value: pronoteClassAverage ? pronoteClassAverage : (averages.group || 0),
         icon: <Users2 color={UIColors.text} />,
+      },
+      {
+        name: 'Moyenne médiane',
+        value: averages.median || 0,
+        icon: <DivideSquare color={UIColors.text} />,
       },
       {
         name: 'Moyenne max',
@@ -280,11 +285,12 @@ const GradesScreen = ({ navigation }: {
 
   // Estimate averages
   async function estimatedStudentAverages (grades: PapillonGrades): Promise<void> {
-    const [student, group, max, min] = await Promise.all([
+    const [student, group, max, min, median] = await Promise.all([
       calculateSubjectAverage(grades, 'value', gradeSettings.scale),
       calculateSubjectAverage(grades, 'average', gradeSettings.scale),
       calculateSubjectAverage(grades, 'max', gradeSettings.scale),
-      calculateSubjectAverage(grades, 'min', gradeSettings.scale)
+      calculateSubjectAverage(grades, 'min', gradeSettings.scale),
+      calculateSubjectMedian(grades, 'value', gradeSettings.scale),
     ]);
 
     setAverages({
@@ -292,6 +298,7 @@ const GradesScreen = ({ navigation }: {
       group,
       max,
       min,
+      median,
     });
   }
 
