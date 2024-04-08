@@ -4,8 +4,7 @@
       "response": [
         {"text": "Paris", "valid": true},
         {"text": "Madrid", "valid": false},
-        {"text": "Londres", "valid": false},
-        {"text": "Berlin", "valid": false}
+        {"text": "Londres", "valid": false}
       ]
     },
     {
@@ -13,8 +12,7 @@
       "response": [
         {"text": "Bleu", "valid": true},
         {"text": "Vert", "valid": false},
-        {"text": "Jaune", "valid": false},
-        {"text": "Rouge", "valid": false}
+        {"text": "Jaune", "valid": false}
       ]
     },
     {
@@ -22,7 +20,6 @@
       "response": [
         {"text": "Janvier", "valid": true},
         {"text": "Février", "valid": false},
-        {"text": "Décembre", "valid": false},
         {"text": "Avril", "valid": false}
       ]
     },
@@ -31,8 +28,7 @@
       "response": [
         {"text": "22", "valid": false},
         {"text": "4", "valid": true},
-        {"text": "2", "valid": false},
-        {"text": "18", "valid": false}
+        {"text": "2", "valid": false}
       ]
     },
     {
@@ -40,8 +36,7 @@
       "response": [
         {"text": "25", "valid": true},
         {"text": "10", "valid": false},
-        {"text": "15", "valid": false},
-        {"text": "20", "valid": false}
+        {"text": "15", "valid": false}
       ]
     },
     {
@@ -49,7 +44,6 @@
       "response": [
         {"text": "A", "valid": true},
         {"text": "F", "valid": false},
-        {"text": "O", "valid": false},
         {"text": "B", "valid": false}
       ]
     },
@@ -57,7 +51,6 @@
       "question": "Combien de jours y a-t-il dans une semaine ?",
       "response": [
         {"text": "7", "valid": true},
-        {"text": "6", "valid": false},
         {"text": "8", "valid": false},
         {"text": "5", "valid": false}
       ]
@@ -67,8 +60,7 @@
       "response": [
         {"text": "5", "valid": true},
         {"text": "4", "valid": false},
-        {"text": "6", "valid": false},
-        {"text": "10", "valid": false}
+        {"text": "6", "valid": false}
       ]
     },
     {
@@ -76,15 +68,13 @@
       "response": [
         {"text": "4", "valid": true},
         {"text": "3", "valid": false},
-        {"text": "5", "valid": false},
-        {"text": "6", "valid": false}
+        {"text": "5", "valid": false}
       ]
     },
     {
       "question": "Quelle est la capitale de l'Espagne ?",
       "response": [
         {"text": "Madrid", "valid": true},
-        {"text": "Paris", "valid": false},
         {"text": "Londres", "valid": false},
         {"text": "Rome", "valid": false}
       ]
@@ -94,8 +84,7 @@
       "response": [
         {"text": "Pacifique", "valid": true},
         {"text": "Atlantique", "valid": false},
-        {"text": "Indien", "valid": false},
-        {"text": "Arctique", "valid": false}
+        {"text": "Indien", "valid": false}
       ]
     },
     {
@@ -103,7 +92,6 @@
       "response": [
         {"text": "8", "valid": true},
         {"text": "7", "valid": false},
-        {"text": "9", "valid": false},
         {"text": "6", "valid": false}
       ]
     },
@@ -111,7 +99,6 @@
       "question": "Qui a écrit 'Le Petit Prince' ?",
       "response": [
         {"text": "Antoine de Saint-Exupéry", "valid": true},
-        {"text": "Victor Hugo", "valid": false},
         {"text": "Jules Verne", "valid": false},
         {"text": "Marcel Proust", "valid": false}
       ]
@@ -121,8 +108,7 @@
       "response": [
         {"text": "H2O", "valid": true},
         {"text": "CO2", "valid": false},
-        {"text": "O2", "valid": false},
-        {"text": "H2SO4", "valid": false}
+        {"text": "O2", "valid": false}
       ]
     },
     {
@@ -130,7 +116,6 @@
         "response": [
           {"text": "1/3", "valid": true},
           {"text": "1/2", "valid": false},
-          {"text": "1/4", "valid": false},
           {"text": "1/6", "valid": false}
         ]
     },
@@ -138,7 +123,6 @@
         "question": "Qui a peint la Joconde ?",
         "response": [
             {"text": "Leonardo da Vinci", "valid": true},
-            {"text": "Pablo Picasso", "valid": false},
             {"text": "Vincent van Gogh", "valid": false},
             {"text": "Claude Monet", "valid": false}
         ]
@@ -148,7 +132,6 @@
         "response": [
             {"text": "Rome", "valid": true},
             {"text": "Madrid", "valid": false},
-            {"text": "Paris", "valid": false},
             {"text": "Berlin", "valid": false}
         ]
     },
@@ -157,8 +140,7 @@
         "response": [
             {"text": "3", "valid": true},
             {"text": "4", "valid": false},
-            {"text": "5", "valid": false},
-            {"text": "6", "valid": false}
+            {"text": "5", "valid": false}
         ]
     },
     {
@@ -166,8 +148,7 @@
         "response": [
             {"text": "26", "valid": true},
             {"text": "24", "valid": false},
-            {"text": "28", "valid": false},
-            {"text": "30", "valid": false}
+            {"text": "28", "valid": false}
         ]
     },
     {
@@ -175,8 +156,7 @@
         "response": [
             {"text": "Mickey Mouse", "valid": true},
             {"text": "Bugs Bunny", "valid": false},
-            {"text": "Donald Duck", "valid": false},
-            {"text": "Scooby-Doo", "valid": false}
+            {"text": "Donald Duck", "valid": false}
         ]
     },
     {
@@ -184,8 +164,7 @@
         "response": [
             {"text": "Albert Einstein", "valid": true},
             {"text": "Isaac Newton", "valid": false},
-            {"text": "Galilée", "valid": false},
-            {"text": "Nikola Tesla", "valid": false}
+            {"text": "Galilée", "valid": false}
         ]
     },
     {
@@ -193,7 +172,6 @@
         "response": [
             {"text": "Mercure", "valid": true},
             {"text": "Vénus", "valid": false},
-            {"text": "Terre", "valid": false},
             {"text": "Mars", "valid": false}
         ]
     },
@@ -202,15 +180,13 @@
         "response": [
             {"text": "5", "valid": true},
             {"text": "10", "valid": false},
-            {"text": "15", "valid": false},
-            {"text": "20", "valid": false}
+            {"text": "15", "valid": false}
         ]
     },
     {
         "question": "Quel est le plus grand animal terrestre ?",
         "response": [
             {"text": "L'éléphant", "valid": true},
-            {"text": "Le chat", "valid": false},
             {"text": "La raton-laveur", "valid": false},
             {"text": "L'ornithorynque", "valid": false}
         ]
@@ -220,7 +196,6 @@
         "response": [
             {"text": "Rouge", "valid": true},
             {"text": "Bleu", "valid": false},
-            {"text": "Vert", "valid": false},
             {"text": "Jaune", "valid": false}
         ]
     },
@@ -229,7 +204,6 @@
         "response": [
             {"text": "7", "valid": true},
             {"text": "42", "valid": false},
-            {"text": "89", "valid": false},
             {"text": "13", "valid": false}
         ]
     },
@@ -238,7 +212,6 @@
         "response": [
             {"text": "Chinois", "valid": true},
             {"text": "Anglais", "valid": false},
-            {"text": "Espagnol", "valid": false},
             {"text": "Hindi", "valid": false}
         ]
     },
@@ -247,8 +220,7 @@
         "response": [
             {"text": "William Shakespeare", "valid": true},
             {"text": "Victor Hugo", "valid": false},
-            {"text": "Molière", "valid": false},
-            {"text": "George Bernard Shaw", "valid": false}
+            {"text": "Molière", "valid": false}
         ]
     },
     {
@@ -256,7 +228,6 @@
         "response": [
             {"text": "Le Sahara", "valid": true},
             {"text": "Le Gobi", "valid": false},
-            {"text": "Le désert d'Atacama", "valid": false},
             {"text": "Le désert de Mojave", "valid": false}
         ]
     },
@@ -266,7 +237,6 @@
         "response": [
             {"text": "Chat", "valid": true},
             {"text": "Chien", "valid": false},
-            {"text": "Oiseau", "valid": false},
             {"text": "Cheval", "valid": false}
         ]
     },
@@ -275,7 +245,6 @@
         "response": [
             {"text": "2", "valid": true},
             {"text": "3", "valid": false},
-            {"text": "4", "valid": false},
             {"text": "1", "valid": false}
         ]
     },
@@ -285,7 +254,6 @@
         "response": [
             {"text": "Blanc", "valid": true},
             {"text": "Bleu", "valid": false},
-            {"text": "Vert", "valid": false},
             {"text": "Jaune", "valid": false}
         ]
     },
@@ -294,15 +262,13 @@
         "response": [
             {"text": "Lion", "valid": true},
             {"text": "Tigre", "valid": false},
-            {"text": "Éléphant", "valid": false},
-            {"text": "Gorille", "valid": false}
+            {"text": "Éléphant", "valid": false}
         ]
     },
     {
         "question": "Quelle est la capitale de l'Allemagne ?",
         "response": [
             {"text": "Berlin", "valid": true},
-            {"text": "Paris", "valid": false},
             {"text": "Londres", "valid": false},
             {"text": "Madrid", "valid": false}
         ]
@@ -312,8 +278,7 @@
         "response": [
             {"text": "Jaune", "valid": true},
             {"text": "Vert", "valid": false},
-            {"text": "Rouge", "valid": false},
-            {"text": "Bleu", "valid": false}
+            {"text": "Rouge", "valid": false}
         ]
     },
     {
@@ -321,8 +286,7 @@
         "response": [
             {"text": "Abeille", "valid": true},
             {"text": "Papillon", "valid": false},
-            {"text": "Moustique", "valid": false},
-            {"text": "Coccinelle", "valid": false}
+            {"text": "Moustique", "valid": false}
         ]
     },
     {
@@ -330,8 +294,7 @@
         "response": [
             {"text": "12", "valid": true},
             {"text": "11", "valid": false},
-            {"text": "13", "valid": false},
-            {"text": "10", "valid": false}
+            {"text": "13", "valid": false}
         ]
     },
     {
@@ -339,7 +302,6 @@
         "response": [
             {"text": "Kangourou", "valid": true},
             {"text": "Koala", "valid": false},
-            {"text": "Dingo", "valid": false},
             {"text": "Émeu", "valid": false}
         ]
     },
@@ -348,8 +310,7 @@
         "response": [
             {"text": "Poumons", "valid": true},
             {"text": "Coeur", "valid": false},
-            {"text": "Estomac", "valid": false},
-            {"text": "Reins", "valid": false}
+            {"text": "Estomac", "valid": false}
         ]
     },
     {
@@ -357,7 +318,6 @@
         "response": [
         {"text": "Métamorphose", "valid": false},
         {"text": "Éclosion", "valid": true},
-        {"text": "Inversion", "valid": false},
         {"text": "Cocooning", "valid": false}
         ]
     }
