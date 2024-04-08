@@ -214,7 +214,7 @@ function HomeworkScreen({ route, navigation }: {
                   console.log('upload !');
                 }}
               >
-                Déposer ma copie
+                Déposer ma copie (soon)
               </PaperButton>
             </NativeItem>
           ) : (
