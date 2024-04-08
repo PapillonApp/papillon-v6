@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {Alert, ScrollView, Switch} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
@@ -24,155 +24,53 @@ import NativeText from '../../components/NativeText';
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
 import { IndexDataInstance } from '../../fetch';
 
+import questions from './questions.json';
+
 function SettingsScreen({ navigation }) {
+  const [hideNotes, setHideNotes] = useState(false);
+  const [deleteAccountAlert, setDeleteAccountAlert] = useState(false);
+  const [pronoteTokenActionAlert, setPronoteTokenActionAlert] = useState(false);
+  const [skolengoCacheClearAlert, setSkolengoCacheClearAlert] = useState(false);
+  const [skolengoReconnectAlert, setSkolengoReconnectAlert] = useState(false);
   const UIColors = GetUIColors();
   const appContext = useAppContext();
 
-  const [pronoteTokenActionAlert, setPronoteTokenActionAlert] = React.useState(false);
-  const [skolengoCacheClearAlert, setSkolengoCacheClearAlert] = React.useState(false);
-  const [skolengoReconnectAlert, setSkolengoReconnectAlert] = React.useState(false);
-  const [deleteAccountAlert, setDeleteAccountAlert] = React.useState(false);
-  const [hideNotes, setHideNotes] = React.useState(false);
-  async function pronoteRegenerateToken() {
-    // Force another initialisation.
-    await appContext.dataProvider.init('pronote');
-    setPronoteTokenActionAlert(true);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  async function getData() {
+    let hideNotesTab = await AsyncStorage.getItem('hideNotesTab');
+    setHideNotes(hideNotesTab === 'true');
   }
 
+  useEffect(() => {
+    getData();
+  }, []);
 
-  function skolengoCacheClear() {
-    if (appContext.dataProvider.service === 'skolengo') {
-      setSkolengoCacheClearAlert(true);
-    }
-  }
-
-  function skolengoReconnect() {
-    if (appContext.dataProvider.service === 'skolengo') {
-      setSkolengoReconnectAlert(true);
-    }
-  }
-
-  function confirmDisabling(then = ()=> {}, invalid = false) {
-    let question = [
-      {
-        question: 'Quelle est la capitale de la France ?',
-        response: [
-          {text: 'Paris', valid: true},
-          {text: 'Madrid', valid: false},
-          {text: 'Londres', valid: false},
-          {text: 'Berlin', valid: false},
-        ]
-      },
-      {
-        question: 'Quelle est la couleur du ciel ?',
-        response: [
-          {text: 'Bleu', valid: true},
-          {text: 'Vert', valid: false},
-          {text: 'Jaune', valid: false},
-          {text: 'Rouge', valid: false},
-        ]
-      },
-      {
-        question: 'Quel est le premier mois de l\'année ?',
-        response: [
-          {text: 'Janvier', valid: true},
-          {text: 'Février', valid: false},
-          {text: 'Décembre', valid: false},
-          {text: 'Avril', valid: false},
-        ]
-      },
-      {
-        question: 'Combien font 2+2 ?',
-        response: [
-          {text: '22', valid: false},
-          {text: '4', valid: true},
-          {text: '2', valid: false},
-          {text: '18', valid: false},
-        ]
-      },
-      {
-        question: 'Combien font 5*5 ?',
-        response: [
-          {text: '25', valid: true},
-          {text: '10', valid: false},
-          {text: '15', valid: false},
-          {text: '20', valid: false},
-        ]
-      },
-      {
-        question: 'Quelle est la première lettre de l\'alphabet ?',
-        response: [
-          {text: 'A', valid: true},
-          {text: 'F', valid: false},
-          {text: 'O', valid: false},
-          {text: 'B', valid: false},
-        ]
-      },
-      {
-        question: 'Quelle est la couleur du soleil ?',
-        response: [
-          {text: 'Jaune', valid: true},
-          {text: 'Bleu', valid: false},
-          {text: 'Rouge', valid: false},
-          {text: 'Vert', valid: false},
-        ]
-      },
-      {
-        question: 'Combien de jours y a-t-il dans une semaine ?',
-        response: [
-          {text: '7', valid: true},
-          {text: '6', valid: false},
-          {text: '8', valid: false},
-          {text: '5', valid: false},
-        ]
-      },
-      {
-        question: 'Combien de doigts avez-vous sur une main ?',
-        response: [
-          {text: '5', valid: true},
-          {text: '4', valid: false},
-          {text: '6', valid: false},
-          {text: '10', valid: false},
-        ]
-      },
-      {
-        question: 'Combien de saisons y a-t-il dans une année ?',
-        response: [
-          {text: '4', valid: true},
-          {text: '3', valid: false},
-          {text: '5', valid: false},
-          {text: '6', valid: false},
-        ]
-      },
-    ];
-    let randomQuestion = question[Math.floor(Math.random() * question.length)];
-    let response = randomQuestion.response
+  const confirmDisabling = (then = () => {}, invalid = false) => {
+    const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+    const { question, response } = randomQuestion;
+    const randomizedResponse = response
       .map(value => ({ value, sort: Math.random() }))
       .sort((a, b) => a.sort - b.sort)
       .map(({ value }) => value);
-    var button: Array<any> = [];
-    response.forEach(res => {
-      button.push({
-        text: res.text,
-        onPress: () => {
-          if (res.valid) {
-            then();
-          } else {
-            confirmDisabling(then, true);
-          };
-        }
-      });
-    });
-    button.push({text: 'Annuler', style: 'cancel'});
 
+    const button = randomizedResponse.map(res => ({
+      text: res.text,
+      onPress: () => {
+        if (res.valid) {
+          then();
+        } else {
+          confirmDisabling(then, true);
+        }
+      }
+    }));
+
+    button.push({ text: 'Annuler', style: 'cancel' });
 
     Alert.alert(
-      invalid ? 'Réponse incorrect':'Confirmation de votre choix',
-      'Afin de confirmer votre choix, merci de répondre à la question suivante :\n' + randomQuestion.question,
+      invalid ? 'Réponse incorrecte' : 'Confirmation de votre choix',
+      `Afin de confirmer votre choix, merci de répondre à la question suivante :\n${question}`,
       button
     );
-  }
+  };
 
   function switchHideNotes() {
     if (!hideNotes) {
