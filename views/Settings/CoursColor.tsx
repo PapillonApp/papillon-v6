@@ -34,12 +34,18 @@ import {CircleEllipsis, Share as ShareIcon, CircleEllipsisIcon, ListRestart, Loc
 import {getContextValues} from '../../utils/AppContext';
 import { RegisterTrophy } from './TrophiesScreen';
 
-const CoursColor = ({ navigation }) => {
+interface SavedColor {
+  originalCourseName: string;
+  color: string;
+  locked: boolean;
+}
+
+const CoursColor = ({ navigation }: { navigation: any }) => {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [savedColors, setSavedColors] = useState([]);
+  const [savedColors, setSavedColors] = useState<{ [key: string]: SavedColor }>({});
 
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [colorModalColor, setColorModalColor] = useState('#000000');
@@ -51,7 +57,7 @@ const CoursColor = ({ navigation }) => {
     '#6b064d', '#146c80', '#7c9f18', '#9f5610', '#b23e00', '#34495e', '#a3180f', '#891e13', '#623c85', '#b5657e', '#a6794a', '#b60000',
   ];
 
-  const moreActions = (key) => {
+  const moreActions = (key: string) => {
     Alert.alert(
       'Plus d\'actions',
       'Que voulez-vous faire avec ' + savedColors[key].originalCourseName + ' ?',
@@ -75,7 +81,7 @@ const CoursColor = ({ navigation }) => {
     );
   };
 
-  const onSelectColor = ({ hex }) => {
+  const onSelectColor = ({ hex }: { hex: string }) => {
     setColorModalColor(hex);
   };
 
@@ -308,7 +314,7 @@ const CoursColor = ({ navigation }) => {
                   },
                 ],
               }}
-              onPressMenuItem={({nativeEvent}) => {
+              onPressMenuItem={({nativeEvent}: { nativeEvent: { actionKey: string }}) => {
                 if (nativeEvent.actionKey == 'randomColor') {
                   Alert.alert(
                     'Remplacer les couleurs ?',
@@ -519,7 +525,7 @@ const CoursColor = ({ navigation }) => {
                           },
                         ],
                       }}
-                      onPressMenuItem={({nativeEvent}) => {
+                      onPressMenuItem={({nativeEvent}: { nativeEvent: { actionKey: string }}) => {
                         if (nativeEvent.actionKey === 'delete') {
                           let newCol = JSON.parse(SyncStorage.get('savedColors'));
                           delete newCol[key];

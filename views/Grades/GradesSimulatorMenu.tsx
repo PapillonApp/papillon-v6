@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, StatusBar, Platform, ActionSheetIOS } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, StatusBar, Platform } from 'react-native';
 
 import { Text, useTheme } from 'react-native-paper';
 
@@ -14,14 +14,45 @@ import { Plus, Trash2 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
-const GradesSimulatorMenu = ({ navigation }) => {
+interface Grade {
+  date: string;
+  description: string;
+  grade: {
+    average: number;
+    coefficient: number;
+    max: number;
+    min: number;
+    out_of: number;
+    significant: number;
+    value: number;
+  };
+  id: string;
+  is_bonus: boolean;
+  is_optional: boolean;
+  is_out_of_20: boolean;
+  subject: {
+    groups: boolean;
+    id: string;
+    name: string;
+  };
+}
+
+const GradesSimulatorMenu: React.FC<{ navigation: any }> = ({ navigation }) => {
   const UIColors = GetUIColors();
   const theme = useTheme();
 
-  const [grades, setGrades] = useState([]);
-
+  const [grades, setGrades] = useState<Grade[]>([]);
   const [gradeAlert, setGradeAlert] = useState(false);
-  const [selectedGrade, setSelectedGrade] = useState({'date': null, 'description': 'Note simulée', 'grade': {'average': null, 'coefficient': null, 'max': null, 'min': null, 'out_of': null, 'significant': 0, 'value': null}, 'id': '', 'is_bonus': false, 'is_optional': false, 'is_out_of_20': false, 'subject': {'groups': false, 'id': '', 'name': ''}});
+  const [selectedGrade, setSelectedGrade] = useState<Grade>({
+    date: '',
+    description: 'Note simulée',
+    grade: { average: 0, coefficient: 0, max: 0, min: 0, out_of: 0, significant: 0, value: 0 },
+    id: '',
+    is_bonus: false,
+    is_optional: false,
+    is_out_of_20: false,
+    subject: { groups: false, id: '', name: '' }
+  });
 
   // when transition ends refresh
   useEffect(() => {
@@ -51,8 +82,8 @@ const GradesSimulatorMenu = ({ navigation }) => {
       headerRight: () => (
         <TouchableOpacity
           style={{
-            padding : 7.5,
-            backgroundColor: UIColors.primary + '15',
+            padding: 7.5,
+            backgroundColor: `${UIColors.primary}15`,
             borderRadius: 20,
             marginRight: -10,
           }}
@@ -65,12 +96,11 @@ const GradesSimulatorMenu = ({ navigation }) => {
     });
   }, []);
 
-  const delGrade = (grade) => {
-    console.log(grade);
+  const delGrade = (grade: Grade) => {
     AsyncStorage.getItem('custom-grades').then((value) => {
       if (value !== null) {
         let val = JSON.parse(value);
-        let index = val.findIndex((item) => item.id === grade.id);
+        let index = val.findIndex((item: Grade) => item.id === grade.id);
         val.splice(index, 1);
         AsyncStorage.setItem('custom-grades', JSON.stringify(val));
         setGrades(val);
@@ -105,7 +135,7 @@ const GradesSimulatorMenu = ({ navigation }) => {
                   {parseFloat(item.grade.value).toFixed(2)}
                 </NativeText>
                 <NativeText style={styles.gradeOut}>
-                  /{parseInt(item.grade.out_of)}
+                  /{parseInt(item.grade.out_of.toString(), 10)}
                 </NativeText>
               </View>
             }

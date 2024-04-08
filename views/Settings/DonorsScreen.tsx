@@ -24,12 +24,20 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import PapillonLoading from '../../components/PapillonLoading';
 
-function DonorsScreen({ navigation }) {
+interface Donor {
+  Name: string;
+  Total: string;
+  LastSupportedDateUTC: string;
+  DiscordProfilePicture?: string;
+  Monthly: string;
+}
+
+function DonorsScreen({ navigation }: { navigation: any }) {
   const UIColors = GetUIColors();
 
   const theme = useTheme();
 
-  function formatDate(date) {
+  function formatDate(date: string) {
     let s = date.split(' ');
     let d = s[0].split('-');
     let t = s[1].split(':');
@@ -77,7 +85,7 @@ function DonorsScreen({ navigation }) {
           inset
           header={'Donateurs'}
         >
-          {KofiSupporters.map((item, index) => (
+          {KofiSupporters.map((item: Donor, index: number) => (
             <NativeItem
               key={index}
               leading={
@@ -118,7 +126,7 @@ function DonorsScreen({ navigation }) {
   );
 }
 
-const DonorsPfp = ({ image }) => {
+const DonorsPfp = ({ image }: { image?: string }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (

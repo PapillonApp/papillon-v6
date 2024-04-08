@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import {
   ScrollView,
   View,
@@ -10,14 +10,11 @@ import {
 import {
   useTheme,
   ActivityIndicator,
-  List,
   Text,
   Searchbar,
 } from 'react-native-paper';
-import { useState } from 'react';
 import * as Location from 'expo-location';
-import { School, Map, Backpack, Locate } from 'lucide-react-native';
-import PapillonIcon from '../../../components/PapillonIcon';
+import { School, Locate } from 'lucide-react-native';
 import ListItem from '../../../components/ListItem';
 import PapillonButton from '../../../components/PapillonButton';
 import { SkolengoStatic } from '../../../fetch/SkolengoData/SkolengoLoginFlow';
@@ -26,31 +23,37 @@ import { loginSkolengoWorkflow } from '../../../fetch/SkolengoData/SkolengoDatas
 
 import AlertBottomSheet from '../../../interface/AlertBottomSheet';
 
-function LoginSkolengoSelectSchool({ navigation }) {
+interface SchoolItem {
+  name: string;
+  city: string;
+  zipCode: string;
+}
+
+const LoginSkolengoSelectSchool: React.FC<{ navigation: any }> = ({
+  navigation,
+}) => {
   const theme = useTheme();
 
   const [searchQuery, setSearchQuery] = useState('');
-
-  /** @type {[import('scolengo-api/types/models/School').School[], import('react').Dispatch<import('react').SetStateAction<import('scolengo-api/types/models/School').School[]>>]} */
-  const [EtabList, setEtabList] = useState([]);
+  const [EtabList, setEtabList] = useState<SchoolItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [localisationPermissionAlert, setLocalisationPermissionAlert] = useState(false);
+  const [localisationPermissionAlert, setLocalisationPermissionAlert] =
+    useState(false);
 
   const appctx = useAppContext();
 
-  function setResults(schools) {
+  function setResults(schools: SchoolItem[]) {
     setEtabList(schools ?? []);
     setLoading(false);
   }
 
-  function searchSchool(text) {
+  async function searchSchool(text: string) {
     setLoading(true);
     setEtabList([]);
     setSearchQuery(text);
     SkolengoStatic.getSchools({
       text,
-    })
-      .then(setResults);
+    }).then(setResults);
   }
 
   async function searchSchoolByCoords() {
@@ -79,12 +82,12 @@ function LoginSkolengoSelectSchool({ navigation }) {
         cancelButtonText: 'Annuler',
         hideWhenScrolling: false,
         hideNavigationBar: false,
-        onChangeText: (event) => searchSchool(event.nativeEvent.text),
+        onChangeText: (event: any) => searchSchool(event.nativeEvent.text),
       },
     });
   }, [navigation]);
 
-  async function selectEtab(item) {
+  async function selectEtab(item: SchoolItem) {
     loginSkolengoWorkflow(appctx, navigation, item);
   }
 
@@ -113,7 +116,7 @@ function LoginSkolengoSelectSchool({ navigation }) {
       {Platform.OS === 'android' ? (
         <Searchbar
           placeholder="Entrez le nom d'un lycée"
-          onChangeText={(evt) => searchSchool(evt)}
+          onChangeText={(evt: string) => searchSchool(evt)}
           style={{ marginHorizontal: 12, marginTop: 12 }}
         />
       ) : null}
@@ -135,9 +138,8 @@ function LoginSkolengoSelectSchool({ navigation }) {
       />
 
       {EtabList.length > 0 && !loading ? (
-        <List.Section style={styles.etabItemList}>
-          <List.Subheader>Établissements disponibles</List.Subheader>
-
+        <View>
+          <Text>Établissements disponibles</Text>
           {EtabList.map((item, index) => (
             <ListItem
               key={index}
@@ -149,61 +151,21 @@ function LoginSkolengoSelectSchool({ navigation }) {
               style={styles.etabItem}
             />
           ))}
-        </List.Section>
+        </View>
       ) : null}
 
       {loading ? (
-        <View style={{ alignItems: 'center', marginTop: 30 }}>
-          <ActivityIndicator
-            size={46}
-            animating
-            color="#222647"
-            style={{ marginBottom: 20 }}
-          />
-          <Text
-            variant="titleLarge"
-            style={{
-              fontWeight: 500,
-              marginBottom: 4,
-              fontFamily: 'Papillon-Semibold',
-            }}
-          >
-            Recherche des établissements
-          </Text>
-          <Text style={{ opacity: 0.6, marginBottom: 50 }}>
-            Cela peut prendre quelques secondes.
-          </Text>
+        <View>
+          <ActivityIndicator size={46} animating color="#222647" />
+          <Text>Recherche des établissements</Text>
+          <Text>Cela peut prendre quelques secondes.</Text>
         </View>
       ) : null}
 
       {EtabList.length === 0 && searchQuery.trim() !== '' && !loading ? (
-        <View style={{ alignItems: 'center', marginTop: 30 }}>
-          <PapillonIcon
-            icon={<Backpack color="#fff" size={28} />}
-            color="#222647"
-            style={{ marginBottom: 14 }}
-            fill
-            small
-          />
-
-          <Text
-            variant="titleLarge"
-            style={{
-              fontWeight: 500,
-              marginBottom: 4,
-              fontFamily: 'Papillon-Semibold',
-            }}
-          >
-            Aucun résultat
-          </Text>
-          <Text
-            style={{
-              opacity: 0.6,
-              marginBottom: 50,
-              textAlign: 'center',
-              marginHorizontal: 30,
-            }}
-          >
+        <View>
+          <Text>Aucun résultat</Text>
+          <Text>
             Rééssayez avec une autre recherche ou utilisez une autre méthode de
             connexion.
           </Text>
@@ -211,32 +173,9 @@ function LoginSkolengoSelectSchool({ navigation }) {
       ) : null}
 
       {EtabList.length === 0 && searchQuery.trim() === '' && !loading ? (
-        <View style={{ alignItems: 'center', marginTop: 30 }}>
-          <PapillonIcon
-            icon={<Map color="#fff" size={28} />}
-            color="#222647"
-            style={{ marginBottom: 14 }}
-            fill
-          />
-
-          <Text
-            variant="titleLarge"
-            style={{
-              fontWeight: 500,
-              marginBottom: 4,
-              fontFamily: 'Papillon-Semibold',
-            }}
-          >
-            Démarrez une recherche
-          </Text>
-          <Text
-            style={{
-              opacity: 0.6,
-              marginBottom: 50,
-              textAlign: 'center',
-              marginHorizontal: 30,
-            }}
-          >
+        <View>
+          <Text>Démarrez une recherche</Text>
+          <Text>
             Utilisez la barre de recherche pour rechercher une ville ou un code
             postal.
           </Text>
@@ -250,79 +189,6 @@ const styles = StyleSheet.create({
   etabItem: {
     marginBottom: 5,
   },
-  etabItemList: {},
-
-  qrModal: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  qrModalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    marginTop: 24,
-    color: '#000',
-  },
-
-  qrModalText: {
-    fontSize: 16,
-    opacity: 0.6,
-    marginBottom: 24,
-    textAlign: 'center',
-    marginHorizontal: 30,
-    color: '#000',
-  },
-
-  qrBtn: {
-    width: '95%',
-  },
-
-  qrModalScannerContainer: {
-    width: '95%',
-    flex: 1,
-    marginBottom: 12,
-
-    borderRadius: 8,
-    borderCurve: 'continuous',
-    overflow: 'hidden',
-  },
-
-  qrModalScanner: {
-    flex: 1,
-  },
-
-  detectedEtab: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    borderCurve: 'continuous',
-    overflow: 'hidden',
-    padding: 12,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    margin: 12,
-    gap: 16,
-  },
-
-  detectedEtabData: {
-    flex: 1,
-  },
-
-  detectedEtabText: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  detectedEtabDescription: {
-    fontSize: 15,
-    opacity: 0.6,
-    color: '#000',
-  },
 });
 
-export { LoginSkolengoSelectSchool };
+export default LoginSkolengoSelectSchool;

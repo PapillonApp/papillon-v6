@@ -1,40 +1,27 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, Image, Alert, StatusBar, TextInput, Platform, ActivityIndicator, KeyboardAvoidingView, InputAccessoryView } from 'react-native';
-
 import { Text } from 'react-native-paper';
 import GetUIColors from '../../utils/GetUIColors';
 import PapillonInsetHeader from '../../components/PapillonInsetHeader';
 import { SFSymbol } from 'react-native-sfsymbols';
-
 import { getDefaultStore } from 'jotai';
-const defaultStore = getDefaultStore();
-
 import { homeworksAtom } from '../../atoms/homeworks';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { ContextMenuButton } from 'react-native-ios-context-menu';
-
 import DateTimePicker from '@react-native-community/datetimepicker';
-
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
-
 import { getSavedCourseColor } from '../../utils/ColorCoursName';
-
 import { useAppContext } from '../../utils/AppContext';
 import PapillonLoading from '../../components/PapillonLoading';
-
 import formatCoursName from '../../utils/FormatCoursName';
-
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
 import { AlertTriangle } from 'lucide-react-native';
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RegisterTrophy } from '../Settings/TrophiesScreen';
 
-const CreateHomeworkScreen = ({ route, navigation }) => {
+const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route, navigation }) => {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
   const [date, setDate] = useState(new Date());
@@ -42,13 +29,13 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
 
   const appctx = useAppContext();
 
-  const [selectedSubject, setSelectedSubject] = useState(0);
-  const [nativeSubjects, setNativeSubjects] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState<number>(0);
+  const [nativeSubjects, setNativeSubjects] = useState<any[]>([]);
 
-  const [titleMissingAlert, setTitleMissingAlert] = useState(false);
+  const [titleMissingAlert, setTitleMissingAlert] = useState<boolean>(false);
 
-  const [homeworkTitle, setHomeworkTitle] = useState('');
-  const inputRef = React.useRef(null)
+  const [homeworkTitle, setHomeworkTitle] = useState<string>('');
+  const inputRef = useRef<TextInput>(null);
 
   function addSubject() {
     Alert.prompt(
@@ -259,7 +246,7 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
   const layouted = () => {
     if (layoutDone) return;
     layoutDone = true;
-    inputRef.current.focus();
+    inputRef.current?.focus();
   };
 
   return (
@@ -369,7 +356,7 @@ const CreateHomeworkScreen = ({ route, navigation }) => {
               justifyContent: 'center',
             }}
             onPress={() => {
-              inputRef.current.blur();
+              inputRef.current?.blur();
             }}
           >
             <SFSymbol name="keyboard.chevron.compact.down" size={20} color={UIColors.text + '80'} />

@@ -12,9 +12,16 @@ import NativeText from '../../components/NativeText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const PaymentScreen = ({ navigation }) => {
+interface Product {
+  productId: string;
+  title: string;
+  description: string;
+  price: string;
+}
+
+const PaymentScreen = ({ navigation }: { navigation: any }) => {
   const UIColors = GetUIColors();
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   const [hasAlreadyBought, setHasAlreadyBought] = useState(false);
   const [currentlyBuying, setCurrentlyBuying] = useState(false);
@@ -98,7 +105,7 @@ const PaymentScreen = ({ navigation }) => {
     getProducts();
   }, []);
 
-  async function subGrade(productID) {
+  async function subGrade(productID: string) {
     const item = products.find((item) => item.productId === productID);
     if (item) {
       setCurrentlyBuying(true);
