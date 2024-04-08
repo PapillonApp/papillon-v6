@@ -35,7 +35,7 @@ const FindEtab = ({ navigation }: {
         backgroundColor={'transparent'}
       />
 
-      <NativeList
+      <NativeList inset
         header="Recommandations Papillon"
       >
         <NativeItem
@@ -69,7 +69,7 @@ const FindEtab = ({ navigation }: {
         </NativeItem>
       </NativeList>
 
-      <NativeList
+      <NativeList inset
         header="Options avancées"
       >
         <NativeItem
