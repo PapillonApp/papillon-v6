@@ -22,6 +22,7 @@ const NativeItem: React.FC<Props> = React.memo(({
   onPress,
   style,
   innerStyle,
+  backgroundColor,
   first,
   last,
 }) => {
@@ -48,7 +49,7 @@ const NativeItem: React.FC<Props> = React.memo(({
         <View style={[
           styles.content,
           {
-            backgroundColor: UIColors.element,
+            backgroundColor: backgroundColor || UIColors.element,
           },
           first && styles.conFirst,
           last && styles.conLast,
