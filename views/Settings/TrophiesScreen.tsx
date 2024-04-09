@@ -208,7 +208,7 @@ const TrophiesScreen = ({ navigation }) => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerStyle: {
-        backgroundColor: '#d16213',
+        backgroundColor: '#0065A8',
       },
       headerShadowVisible: false,
       headerBackTitleVisible: false,
@@ -419,7 +419,7 @@ const TrophiesScreen = ({ navigation }) => {
         </BlurView>
       </Modal>
 
-      <View style={[styles.secondHeader, {backgroundColor: '#d16213'}]}>
+      <View style={[styles.secondHeader, {backgroundColor: '#0065A8'}]}>
         <View style={[styles.secondHeaderText]}>
           <Text style={[styles.secondHeaderTitle]}>
             {trophies.filter((trophy) => trophy.done >= trophy.required).length} trophée{trophies.filter((trophy) => trophy.done >= trophy.required).length > 1 ? 's' : ''} obtenu{trophies.filter((trophy) => trophy.done >= trophy.required).length > 1 ? 's' : ''} !
@@ -497,7 +497,7 @@ const TrophiesScreen = ({ navigation }) => {
                   ]}>
                     <View style={[styles.trophyCompletionBarFill, {
                       width: `${(trophy.done < trophy.required) ? (trophy.done / trophy.required) * 100 : 100}%`,
-                      backgroundColor: '#d16213',
+                      backgroundColor: '#0065A8',
                     }]} />
                   </View>
 
@@ -512,7 +512,7 @@ const TrophiesScreen = ({ navigation }) => {
                     </NativeText>
                     )
                   ) : (
-                    <NativeText style={[styles.trophyCompletedCompleted, {color: '#d16213'}]} numberOfLines={1}>
+                    <NativeText style={[styles.trophyCompletedCompleted, {color: '#0065A8'}]} numberOfLines={1}>
                       { moment(trophy.date).fromNow() }
                     </NativeText>
                   )}
@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
   },
 
   trophyFullyCompleted: {
-    borderColor: '#d16213',
+    borderColor: '#0065A8',
     borderWidth: 2,
   },
 
