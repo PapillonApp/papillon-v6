@@ -35,12 +35,7 @@ export async function formatPapillonContributors() {
     ];
 
     const manualContributors = [
-        {
-            "name": "Anaël (Shidoss)",
-            "role": "Contributeur",
-            "avatar": "https://avatars.githubusercontent.com/u/143846034?v=4",
-            "link": "https://anaelchevillard.com/"
-          },
+
     ];
 
     const excludedContribs = {
