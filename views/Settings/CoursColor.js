@@ -34,18 +34,12 @@ import {CircleEllipsis, Share as ShareIcon, CircleEllipsisIcon, ListRestart, Loc
 import {getContextValues} from '../../utils/AppContext';
 import { RegisterTrophy } from './TrophiesScreen';
 
-interface SavedColor {
-  originalCourseName: string;
-  color: string;
-  locked: boolean;
-}
-
-const CoursColor = ({ navigation }: { navigation: any }) => {
+const CoursColor = ({ navigation }) => {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [savedColors, setSavedColors] = useState<{ [key: string]: SavedColor }>({});
+  const [savedColors, setSavedColors] = useState([]);
 
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [colorModalColor, setColorModalColor] = useState('#000000');
@@ -57,7 +51,7 @@ const CoursColor = ({ navigation }: { navigation: any }) => {
     '#6b064d', '#146c80', '#7c9f18', '#9f5610', '#b23e00', '#34495e', '#a3180f', '#891e13', '#623c85', '#b5657e', '#a6794a', '#b60000',
   ];
 
-  const moreActions = (key: string) => {
+  const moreActions = (key) => {
     Alert.alert(
       'Plus d\'actions',
       'Que voulez-vous faire avec ' + savedColors[key].originalCourseName + ' ?',
@@ -81,7 +75,7 @@ const CoursColor = ({ navigation }: { navigation: any }) => {
     );
   };
 
-  const onSelectColor = ({ hex }: { hex: string }) => {
+  const onSelectColor = ({ hex }) => {
     setColorModalColor(hex);
   };
 
@@ -314,7 +308,7 @@ const CoursColor = ({ navigation }: { navigation: any }) => {
                   },
                 ],
               }}
-              onPressMenuItem={({nativeEvent}: { nativeEvent: { actionKey: string }}) => {
+              onPressMenuItem={({nativeEvent}) => {
                 if (nativeEvent.actionKey == 'randomColor') {
                   Alert.alert(
                     'Remplacer les couleurs ?',
@@ -435,7 +429,6 @@ const CoursColor = ({ navigation }: { navigation: any }) => {
               title={'Exporter les couleurs'}
               leadingIcon="upload"
               onPress={() => {
-                setUserMenuOpen(false);
                 exportColors();
               }}
             />
@@ -444,7 +437,6 @@ const CoursColor = ({ navigation }: { navigation: any }) => {
               title={'Importer des couleurs'}
               leadingIcon="download"
               onPress={() => {
-                setUserMenuOpen(false);
                 ImportColors();
               }}
             />
@@ -525,7 +517,7 @@ const CoursColor = ({ navigation }: { navigation: any }) => {
                           },
                         ],
                       }}
-                      onPressMenuItem={({nativeEvent}: { nativeEvent: { actionKey: string }}) => {
+                      onPressMenuItem={({nativeEvent}) => {
                         if (nativeEvent.actionKey === 'delete') {
                           let newCol = JSON.parse(SyncStorage.get('savedColors'));
                           delete newCol[key];

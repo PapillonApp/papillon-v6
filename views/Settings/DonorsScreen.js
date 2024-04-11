@@ -24,20 +24,12 @@ import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import PapillonLoading from '../../components/PapillonLoading';
 
-interface Donor {
-  Name: string;
-  Total: string;
-  LastSupportedDateUTC: string;
-  DiscordProfilePicture?: string;
-  Monthly: string;
-}
-
-function DonorsScreen({ navigation }: { navigation: any }) {
+function DonorsScreen({ navigation }) {
   const UIColors = GetUIColors();
 
   const theme = useTheme();
 
-  function formatDate(date: string) {
+  function formatDate(date) {
     let s = date.split(' ');
     let d = s[0].split('-');
     let t = s[1].split(':');
@@ -57,7 +49,7 @@ function DonorsScreen({ navigation }: { navigation: any }) {
     ];
     return `${d[2].startsWith('0') ? d[2].replace('0', '') : d[2]} ${
       month[parseInt(d[1]) - 1]
-    } ${d[0]} à ${t[0]}h${t[1]} (UTC-0)`;
+    } ${d[0]}`;
   }
 
   return (
@@ -85,7 +77,7 @@ function DonorsScreen({ navigation }: { navigation: any }) {
           inset
           header={'Donateurs'}
         >
-          {KofiSupporters.map((item: Donor, index: number) => (
+          {KofiSupporters.map((item, index) => (
             <NativeItem
               key={index}
               leading={
@@ -93,7 +85,7 @@ function DonorsScreen({ navigation }: { navigation: any }) {
                   <DonorsPfp image={item.DiscordProfilePicture} />
                 ) : (
                   <PapillonIcon
-                    icon={<Euro size={24} color="#bf941d" />}
+                    icon={<Euro size={20} strokeWidth={2.3} color="#bf941d" />}
                     color="#bf941d"
                     size={24}
                     small
@@ -101,21 +93,15 @@ function DonorsScreen({ navigation }: { navigation: any }) {
                 )
               }
               trailing={
-                ( item.Monthly === 'True' ?
-                  <NativeText heading="p2">
-                    mensuel
-                  </NativeText>
-                  : null )
+                <NativeText heading="p2">
+                  {(parseFloat(item.Total.replace(',','.')) / 1).toFixed(2)} €
+                </NativeText>
               }
             >
               <NativeText heading="h4">
                 {item.Name}
               </NativeText>
-              <NativeText heading="p2">
-                a donné {(parseFloat(item.Total.replace(',','.')) / 1).toFixed(0)} café{parseFloat(item.Total.replace(',','.')) > 1 ? 's' : ''}
-              </NativeText>
-
-              <NativeText heading="subtitle2">
+              <NativeText heading="subtitle1">
                 le {formatDate(item.LastSupportedDateUTC)}
               </NativeText>
             </NativeItem>
@@ -126,7 +112,7 @@ function DonorsScreen({ navigation }: { navigation: any }) {
   );
 }
 
-const DonorsPfp = ({ image }: { image?: string }) => {
+const DonorsPfp = ({ image }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
