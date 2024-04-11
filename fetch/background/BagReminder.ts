@@ -6,7 +6,7 @@ import formatCoursName from '../../utils/FormatCoursName';
 
 const now = new Date();
 
-const fetchCours = async () => {
+const bagReminder = async () => {
   if (now.getHours() >= 18 && now.getHours() <= 20) {
     console.log('[background fetch] Running cours fetch');
     const tomorrow = new Date(now);
@@ -36,7 +36,7 @@ const remindBag = async (lesson: PapillonLesson[]) => {
   tomorrow.setHours(0, 0, 0, 0);
 
   const canNotify: boolean = await checkCanNotify('notifications_BagReminderEnabled');
-  const didNotify: boolean = await DidNotified('hw_' + tomorrow.getTime());
+  const didNotify: boolean = await DidNotified('br_' + tomorrow.getTime());
   if (!canNotify || didNotify) return;
   var body = '';
   var isFirst = true;
@@ -50,7 +50,7 @@ const remindBag = async (lesson: PapillonLesson[]) => {
     }
   });
   await notifee.displayNotification({
-    id: 'hw_' + tomorrow.getTime(),
+    id: 'br_' + tomorrow.getTime(),
     title: '🎒 Il est temps de préparer votre sac pour demain !',
     body: body,
     android: {
@@ -61,7 +61,7 @@ const remindBag = async (lesson: PapillonLesson[]) => {
       threadId: 'notifications_BagReminderEnabled',
     },
   });
-  await SetNotified('hw_' + tomorrow.getTime());
+  await SetNotified('br_' + tomorrow.getTime());
 };
 
-export default fetchCours;
+export default bagReminder;
