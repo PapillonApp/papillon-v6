@@ -21,7 +21,7 @@ import {
 } from 'lucide-react-native';
 
 import packageJson from '../../package.json';
-import { formatPapillonContributors } from '../../utils/GetRessources/FormatContribs';
+import { formatPapillonContributors } from '../../utils/GetRessources/GetContribs/FormatContribs';
 
 import GetUIColors from '../../utils/GetUIColors';
 
