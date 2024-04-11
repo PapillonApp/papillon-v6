@@ -49,7 +49,7 @@ function DonorsScreen({ navigation }) {
     ];
     return `${d[2].startsWith('0') ? d[2].replace('0', '') : d[2]} ${
       month[parseInt(d[1]) - 1]
-    } ${d[0]} à ${t[0]}h${t[1]} (UTC-0)`;
+    } ${d[0]}`;
   }
 
   return (
@@ -85,7 +85,7 @@ function DonorsScreen({ navigation }) {
                   <DonorsPfp image={item.DiscordProfilePicture} />
                 ) : (
                   <PapillonIcon
-                    icon={<Euro size={24} color="#bf941d" />}
+                    icon={<Euro size={20} strokeWidth={2.3} color="#bf941d" />}
                     color="#bf941d"
                     size={24}
                     small
@@ -93,21 +93,15 @@ function DonorsScreen({ navigation }) {
                 )
               }
               trailing={
-                ( item.Monthly === 'True' ?
-                  <NativeText heading="p2">
-                    mensuel
-                  </NativeText>
-                  : null )
+                <NativeText heading="p2">
+                  {(parseFloat(item.Total.replace(',','.')) / 1).toFixed(2)} €
+                </NativeText>
               }
             >
               <NativeText heading="h4">
                 {item.Name}
               </NativeText>
-              <NativeText heading="p2">
-                a donné {(parseFloat(item.Total.replace(',','.')) / 1).toFixed(0)} café{parseFloat(item.Total.replace(',','.')) > 1 ? 's' : ''}
-              </NativeText>
-
-              <NativeText heading="subtitle2">
+              <NativeText heading="subtitle1">
                 le {formatDate(item.LastSupportedDateUTC)}
               </NativeText>
             </NativeItem>
