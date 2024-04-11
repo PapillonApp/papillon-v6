@@ -27,7 +27,7 @@ const FindEtab = ({ navigation }: {
   return (
     <ScrollView
       contentInsetAdjustmentBehavior='automatic'
-      style={{ backgroundColor: UIColors.background }}
+      style={{ backgroundColor: UIColors.backgroundHigh }}
     >
       <StatusBar
         animated
