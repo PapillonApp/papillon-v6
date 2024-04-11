@@ -17,8 +17,8 @@ const checkCanNotify = async (type = 'notificationsEnabled') => {
   const authorized = settings.authorizationStatus === AuthorizationStatus.AUTHORIZED;
 
   const notifs = await AsyncStorage.getItem('notificationSettings');
-  let canNotify = true;
-  let enabled = true;
+  let canNotify = false;
+  let enabled = false;
   if (notifs) {
     const notifsSettings = JSON.parse(notifs);
     enabled = notifsSettings['notificationsEnabled'];
