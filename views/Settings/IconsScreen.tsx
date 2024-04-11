@@ -71,6 +71,7 @@ function AppearanceScreen({ navigation }: { navigation: any }) {
 
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
+  // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles, monochrome
   const papillonIcons: Icon[] = [
     {
         coverName: 'Par défaut',
@@ -153,12 +154,13 @@ function AppearanceScreen({ navigation }: { navigation: any }) {
         icon: require('../../assets/customicons/sparkles.png'),
       },
       {
-        coverName: 'Icône vert clair',
-        name: 'lightgreen',
-        icon: require('../../assets/customicons/lightgreen.png'),
+        coverName: 'Icône monnochrome',
+        name: 'monochrome',
+        icon: require('../../assets/customicons/monochrome.png'),
       },
   ];
 
+  // backtoschool, barbie, betterneon, macos, oldios, verscinq
   const communityIcons: Icon[] = [
     {
         coverName: 'Back to School 2023',
