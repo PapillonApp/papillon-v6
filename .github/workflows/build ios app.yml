@@ -1,0 +1,52 @@
+name: Build iOS App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      - name: Install Homebrew dependencies
+        run: |
+          brew install node
+          brew install watchman
+
+      - name: Install Xcode Command Line Tools
+        run: xcode-select --install
+
+      - name: Install CocoaPods
+        run: sudo gem install cocoapods
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Install Expo CLI
+        run: npm install -g expo-cli
+
+      - name: Install CocoaPods dependencies
+        run: |
+          cd ios
+          pod install
+
+      - name: Prebuild the app
+        run: npx expo prebuild
+
+      - name: Build the app for iOS
+        run: |
+          cd ios
+          xcodebuild -workspace Papillon.xcworkspace -scheme Papillon -sdk iphoneos -configuration Release build
+
+      - name: Archive the app
+        run: |
+          cd ios
+          xcodebuild -workspace Papillon.xcworkspace -scheme Papillon -sdk iphoneos -configuration Release archive -archivePath $PWD/build/Papillon.xcarchive
