@@ -11,6 +11,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+import SegmentedControl from "react-native-segmented-control-2";
+
 import type { PapillonNews } from '../fetch/types/news';
 
 import { BlurView } from 'expo-blur';
@@ -45,6 +47,11 @@ import {
   Users,
   UserCheck2,
   LucideIcon,
+  Eye,
+  Rows,
+  MailOpen,
+  Mail,
+  Bell,
 } from 'lucide-react-native';
 
 import PapillonLoading from '../components/PapillonLoading';
@@ -119,12 +126,12 @@ const ICONS_CATEGORIES: Array<{
   }
 ];
 
-const FullNewsIcon = ({ isSurvey, category }: {
+const FullNewsIcon = ({ isSurvey, category, UIColors }: {
   isSurvey: boolean;
   category?: string;
 }) => {
   const normalizedCategory = normalizeText(category);
-  const COLOR = '#B42828';
+  const COLOR = UIColors.text + '55';
 
   let CategoryIcon: LucideIcon;
   if (isSurvey) CategoryIcon = PieChart;
@@ -162,6 +169,8 @@ function NewsScreen ({ navigation }: {
   const [news, setNews] = useState<PapillonNews[]>([]);
   const [finalNews, setFinalNews] = useState<PapillonNews[]>([]);
   const [currentNewsType, setCurrentNewsType] = useState('Toutes');
+
+  const [unreadOnly, setUnreadOnly] = useState(true);
 
   function editNews(n: PapillonNews[]): PapillonNews[] {
     let newNews = [...n];
@@ -214,13 +223,6 @@ function NewsScreen ({ navigation }: {
     })();
   }, [appContext.dataProvider]);
 
-  // add search bar in the header
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: 'Actualités',
-    });
-  }, [navigation, finalNews, isHeadLoading, UIColors]);
-
   const [newsTypes, setNewsTypes] = useState([
     {
       name: 'Toutes',
@@ -257,11 +259,51 @@ function NewsScreen ({ navigation }: {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalURL] = useState('');
 
+  // change header title
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: 'Actualités',
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => {
+            setUnreadOnly(!unreadOnly);
+          }}
+          style={{
+            marginRight: 16,
+            backgroundColor: '#B4282822',
+            borderRadius: 10,
+            paddingHorizontal: 10,
+            paddingVertical: 6,
+            borderCurve: 'continuous',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 7,
+          }}
+        >
+          {unreadOnly ? (
+            <Bell size={20} color="#B42828" />
+          ) : (
+            <MailOpen size={20} color="#B42828" />
+          )}
+          <NativeText
+            style={{
+              color: '#B42828',
+              fontSize: 16,
+              fontFamily: 'Papillon-Medium',
+            }}
+          >
+            {unreadOnly ? 'Non lues' : 'Toutes'}
+          </NativeText>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, unreadOnly, setUnreadOnly]);
+
   return (
     <>
       <ScrollView
         style={[styles.container, {
-          backgroundColor: UIColors.modalBackground
+          backgroundColor: UIColors.background
         }]}
         contentInsetAdjustmentBehavior="automatic"
         refreshControl={
@@ -287,84 +329,118 @@ function NewsScreen ({ navigation }: {
           backgroundColor="transparent"
         />
 
-        <NativeList inset>
-          {!isLoading && news.length !== 0 ? (
+        <NativeList
+          style={{marginTop: Platform.OS == 'ios' ? -16 : 0}}
+          sectionProps={{
+            hideSurroundingSeparators: true,
+          }}
+        >
+          {!isLoading && unreadOnly && news.filter((item) => !item.read).length === 0 && (
+            <PapillonLoading
+              icon={<MailOpen size={26} color={'#B42828'} />}
+              title="Vous avez tout lu !"
+              subtitle="Vous êtes à jour sur toutes les actualités"
+              style={{ marginVertical: 32 }}
+            />
+          )}
+
+          {!isLoading && news.length !== 0 && (
             news.map((item, index) => (
-              <View key={index}>
-                <NativeItem
-                  leading={
-                    <View style={{ paddingHorizontal: 2 }}>
-                      <FullNewsIcon
-                        isSurvey={item.is === 'survey'}
-                        category={item.category}
-                      />
-                    </View>
-                  }
-                  onPress={() => {
-                    navigation.navigate('NewsDetails', { news: item });
-                  }}
-                >
-                  <View style={[{ gap: 2 }]}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: 7,
-                      }}
-                    >
-                      {!item.read && (
-                        <View
-                          style={{
-                            backgroundColor: '#B42828',
-                            borderRadius: 300,
-                            padding: 4,
-                            marginRight: 2,
-                            width: 9,
-                            height: 9,
-                          }}
-                        />
-                      )}
-
-                      <NativeText heading="h4" numberOfLines={1}>
-                        {item.title}
-                      </NativeText>
-                    </View>
-
-                    <NativeText heading="p2" numberOfLines={2}>
-                      {item.is === 'information' ? trimHtml(item.content) : `${item.questions.length} question(s)`}
-                    </NativeText>
-
-                    <NativeText
-                      heading="subtitle2"
-                      numberOfLines={1}
-                      style={{ marginTop: 4 }}
-                    >
-                      {relativeDate(new Date(item.date))}
-                    </NativeText>
-
-                    {(item.is === 'information' && item.attachments.length !== 0) && (
-                      <NativeText
-                        heading="subtitle2"
-                        numberOfLines={1}
+              <View
+                key={index}
+              >
+                {!unreadOnly || !item.read || (unreadOnly && news.filter((item) => !item.read).length === 0) ? (
+                  <NativeItem
+                    onPress={() => {
+                      navigation.navigate('NewsDetails', { news: item });
+                    }}
+                  >
+                    <View style={[{ gap: 4, marginLeft: 14 }]}>
+                      <View
                         style={{
-                          ...styles.pj,
-                          backgroundColor: UIColors.text + '22',
+                          flexDirection: 'row',
+                          alignItems: 'flex-start',
+                          justifyContent: 'space-between',
+                          gap: 7,
+                          marginLeft: !item.read ? -18 : 0,
                         }}
                       >
-                          contient {item.attachments.length} pièce(s) jointe(s)
+                        {!item.read && (
+                          <View
+                            style={{
+                              backgroundColor: '#B42828',
+                              borderRadius: 300,
+                              padding: 4,
+                              marginRight: 2,
+                              width: 9,
+                              height: 9,
+                              marginTop: 4.5,
+                            }}
+                          />
+                        )}
+
+                        <NativeText
+                          heading="h4"
+                          numberOfLines={2}
+                          style={{ flex: 1, marginRight: 8 }}
+                        >
+                          {item.title}
+                        </NativeText>
+
+                        <NativeText
+                          heading="p2"
+                          numberOfLines={1}
+                          style={{
+                            fontSize: 15,
+                          }}
+                        >
+                          {relativeDate(new Date(item.date))}
+                        </NativeText>
+                      </View>
+
+                      <NativeText
+                        heading="p"
+                        numberOfLines={1}
+                        style={{
+                        }}
+                      >
+                        {item.author}
                       </NativeText>
-                    )}
-                  </View>
-                </NativeItem>
+
+                      <NativeText heading="p2" numberOfLines={2}>
+                        {item.is === 'information' ? trimHtml(item.content) : `${item.questions.length} question(s)`}
+                      </NativeText>
+
+                      {(item.is === 'information' && item.attachments.length !== 0) && (
+                        <NativeText
+                          heading="subtitle2"
+                          numberOfLines={1}
+                          style={{
+                            ...styles.pj,
+                            backgroundColor: UIColors.text + '22',
+                          }}
+                        >
+                            contient {item.attachments.length} pièce(s) jointe(s)
+                        </NativeText>
+                      )}
+                    </View>
+                  </NativeItem>
+                ) : (
+                  <View style={{ marginTop: -1,height: 1, backgroundColor: UIColors.background }} />
+                )}
               </View>
             ))
-          ) : !isLoading && news.length === 0 ? (
+          )}
+
+          {!isLoading && news.length === 0 && (
             <PapillonLoading
-              icon={<Newspaper color={UIColors.text} />}
+              icon={<NewsPaper size={26} color={UIColors.text} />}
               title="Aucune actualité"
               subtitle="Aucune actualité n'a été trouvée"
             />
-          ) : (
+          )}
+
+          {isLoading && (
             <PapillonLoading
               title="Chargement des actualités..."
               subtitle="Obtention des dernières actualités en cours"
