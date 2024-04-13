@@ -9,7 +9,7 @@ import type { PapillonHomework } from './types/homework';
 import type { PapillonDiscussion } from './types/discussions';
 
 // Pronote related imports.
-import type { Pronote } from 'pawnote';
+import { Pronote } from 'pawnote';
 import { loadPronoteConnector } from './PronoteData/connector';
 import { userHandler as pronoteUserHandler } from './PronoteData/user';
 import { gradesHandler as pronoteGradesHandler } from './PronoteData/grades';
@@ -25,7 +25,14 @@ import type { SkolengoDatas } from './SkolengoData/SkolengoDatas';
 import { PapillonVieScolaire } from './types/vie_scolaire';
 import { PapillonEvaluation } from './types/evaluations';
 
-export type ServiceName = 'pronote' | 'skolengo'
+// EcoleDirecte related imports.
+import { EDCore } from '@papillonapp/ed-core';
+import { loadEcoleDirecteConnector } from './EcoleDirecteData/connector';
+import { userInformations as EcoleDirecteUser } from './EcoleDirecteData/user';
+import { EDtimetableHandler as EcoleDirecteTimetable } from './EcoleDirecteData/timetable';
+import { EDvieScolaireHandler } from './EcoleDirecteData/vie_scolaire';
+
+export type ServiceName = 'pronote' | 'skolengo' | 'ecoledirecte';
 
 export class IndexDataInstance {
   public initialized = false;
@@ -35,7 +42,7 @@ export class IndexDataInstance {
   public service?: ServiceName;
   public skolengoInstance?: SkolengoDatas;
   public pronoteInstance?: Pronote;
-
+  public ecoledirecteInstance?: EDCore;
   /**
    * Internal function that waits for the initialization
    * of the service to be finished so we can use it.
@@ -49,6 +56,8 @@ export class IndexDataInstance {
       }
       else if (this.service === 'pronote' && !this.pronoteInstance) {
         await this.init('pronote');
+      } else if (this.service === 'ecoledirecte' && !this.ecoledirecteInstance) {
+        await this.init('ecoledirecte');
       }
     }
 
@@ -62,7 +71,7 @@ export class IndexDataInstance {
     });
   }
 
-  public async init (service: 'pronote' | 'skolengo', instance?: Pronote): Promise<void> {
+  public async init (service: 'pronote' | 'skolengo' | 'ecoledirecte', instance?: Pronote | EDCore): Promise<void> {
     if (this.initializing) return;
     
     this.service = service;
@@ -83,9 +92,22 @@ export class IndexDataInstance {
       this.isNetworkFailing = false;
 
       this.initialized = this.skolengoInstance ? true : false;
+    } else if(this.service === 'ecoledirecte') {
+      if (instance && instance instanceof EDCore) this.ecoledirecteInstance = instance;
+      else {
+        try {
+          const connector = await loadEcoleDirecteConnector();
+          if (connector) this.ecoledirecteInstance = connector;
+          this.isNetworkFailing = false;
+        } catch {
+          this.isNetworkFailing = true;
+        }
+      }
+
+      this.initialized = this.ecoledirecteInstance ? true : false;
     }
     else if (this.service === 'pronote') {
-      if (instance) this.pronoteInstance = instance;
+      if (instance && instance instanceof Pronote) this.pronoteInstance = instance;
       else {
         try {
           const connector = await loadPronoteConnector();
@@ -184,13 +206,13 @@ export class IndexDataInstance {
    * 
    * @returns `true` when operation is successful.
    */
-  public async changeNewsState (localID: string): Promise<boolean> {
+  public async changeNewsState (localID: string, forceState: boolean = true): Promise<boolean> {
     await this.waitInit();
     if (this.service === 'skolengo') {
       // TODO
     }
     else if (this.service === 'pronote') {
-      return pronoteNewsStateHandler(localID, true, this.pronoteInstance);
+      return pronoteNewsStateHandler(localID, forceState, this.pronoteInstance);
     }
 
     return false;
@@ -232,6 +254,9 @@ export class IndexDataInstance {
     else if (this.service === 'pronote') {
       const timetable = await pronoteTimetableHandler([monday, sunday], this.pronoteInstance, force);
       if (timetable) return timetable;
+    } else if(this.service === 'ecoledirecte') {
+      const timetable = await EcoleDirecteTimetable([monday, sunday], this.ecoledirecteInstance, force);
+      if(timetable) return timetable;
     }
     
     return [];
@@ -251,6 +276,8 @@ export class IndexDataInstance {
     }
     else if (this.service === 'pronote') {
       user = await pronoteUserHandler(this.pronoteInstance, force);
+    } else if(this.service === 'ecoledirecte') {
+      user = await EcoleDirecteUser(this.ecoledirecteInstance, force);
     }
     
     if (!user) {
@@ -269,6 +296,8 @@ export class IndexDataInstance {
     }
     else if (this.service === 'pronote') {
       return pronoteVieScolaireHandler(this.pronoteInstance, force);
+    } else if (this.service === 'ecoledirecte') {
+      return EDvieScolaireHandler(this.ecoledirecteInstance, force);
     }
 
     return { absences: [], delays: [], punishments: [] } as PapillonVieScolaire;

@@ -100,6 +100,14 @@ const AuthStack = ({ navigation }) => {
         presentation: 'modal',
       }
     },
+    {
+      name: 'LoginFormEcoledirecte',
+      component: require("../views/NewAuthStack/EcoleDirecte/LoginEDForm").default,
+      options: {
+        title: 'Se connecter via EcoleDirecte',
+        presentation: 'modal',
+      }
+    },
   ]
 
   return (

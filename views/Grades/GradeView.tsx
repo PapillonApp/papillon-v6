@@ -113,6 +113,17 @@ function GradeView({ route, navigation }) {
   const [classAvgInfluence, setClassAvgInfluence] = useState(0);
   const [valueTop, setValueTop] = useState(0);
   const [valueBottom, setValueBottom] = useState(0);
+  const typeSignificantType: { [key: string]: string } = {
+    '-1|ERROR': 'Erreur',
+    '1|ABSENT': 'Abs.',
+    '2|EXEMPTED': 'Disp.',
+    '3|NOT_GRADED': 'N.not',
+    '4|UNFIT': 'Inap.',
+    '5|UNRETURNED': 'N.Rdu',
+    '6|ABSENT_ZERO': 'Abs.0',
+    '7|UNRETURNED_ZERO': 'N.Rdu.0',
+    '8|CONGRATULATIONS': 'Félicitations',
+  };
 
   async function calculateInfluence(forgr, grlwg) {
     const naverage = await calculateSubjectAverage(forgr, 'value');
@@ -205,15 +216,9 @@ function GradeView({ route, navigation }) {
           )}
 
           {grade.grade.value.significant === true && (<>
-            {grade.grade.value.type[0] == '1' ? (
-              <Text style={[styles.gradeHeaderGradeValueTop, {color: checkContrast('#FFFFFF', mainColor) ? '#FFF':'#000'}]}>
-                Abs.
-              </Text>
-            ) : (
-              <Text style={[styles.gradeHeaderGradeValueTop, {color: checkContrast('#FFFFFF', mainColor) ? '#FFF':'#000'}]}>
-                N.not
-              </Text>
-            )}
+            <Text style={[styles.gradeHeaderGradeValueTop, {color: checkContrast('#FFFFFF', mainColor) ? '#FFF':'#000'}]}>
+              {typeSignificantType[grade.grade.value.type]}
+            </Text>
           </>)}
 
         </View>
@@ -268,15 +273,9 @@ function GradeView({ route, navigation }) {
               <View style={[styles.gradeDetailRight]}>
                 
                 {grade.grade.value.significant === true && (<>
-                  {grade.grade.value.type[0] == '1' ? (
-                    <Text style={[styles.gradeDetailValue]}>
-                        Abs.
-                    </Text>
-                  ) : (
-                    <Text style={[styles.gradeDetailValue]}>
-                        N.not
-                    </Text>
-                  )}
+                  <Text style={[styles.gradeDetailValue]}>
+                    {typeSignificantType[grade.grade.value.type]}
+                  </Text>
                 </>)}
 
                 {grade.grade.value.significant === false && (<>
@@ -307,7 +306,7 @@ function GradeView({ route, navigation }) {
             trailing={
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(grade.grade.average.value).toFixed(2)}
+                  {isNaN(grade.grade.average.value)? 'N.not' : parseFloat(grade.grade.average.value).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>
                   /{grade.grade.out_of.value}
@@ -326,7 +325,7 @@ function GradeView({ route, navigation }) {
             trailing={
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(grade.grade.min.value).toFixed(2)}
+                  {isNaN(grade.grade.min.value)? 'N.not' : parseFloat(grade.grade.min.value).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>
                   /{grade.grade.out_of.value}
@@ -345,7 +344,7 @@ function GradeView({ route, navigation }) {
             trailing={
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(grade.grade.max.value).toFixed(2)}
+                  {isNaN(grade.grade.max.value)? 'N.not' : parseFloat(grade.grade.max.value).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>
                   /{grade.grade.out_of.value}

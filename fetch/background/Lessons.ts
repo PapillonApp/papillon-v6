@@ -96,8 +96,9 @@ const notifyLessons = async (lessons: PapillonLesson[]) => {
 
     if(lesson.is_cancelled) {
       body = 'Le cours est annulé.';
-    }
-    else {
+    } else if(lesson.rooms.length === 0) {
+      body = 'Vous n\'avez pas de salle attribuée.';
+    } else {
       body = `Vous serez en salle ${lesson.rooms.join(', ')}`;
     }
 

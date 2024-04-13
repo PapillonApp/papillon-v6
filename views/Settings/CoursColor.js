@@ -430,7 +430,6 @@ const CoursColor = ({ navigation }) => {
               title={'Exporter les couleurs'}
               leadingIcon="upload"
               onPress={() => {
-                setUserMenuOpen(false);
                 exportColors();
               }}
             />
@@ -439,7 +438,6 @@ const CoursColor = ({ navigation }) => {
               title={'Importer des couleurs'}
               leadingIcon="download"
               onPress={() => {
-                setUserMenuOpen(false);
                 ImportColors();
               }}
             />
