@@ -21,7 +21,9 @@ import {
   Sparkles,
   Euro,
   Info,
+  FlaskConical,
 } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SettingsScreen = ({ navigation }) => {
   const UIColors = GetUIColors();
@@ -29,7 +31,7 @@ const SettingsScreen = ({ navigation }) => {
   // User data
   const [userData, setUserData] = useState<PapillonUser | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | undefined>('');
-
+  const [devMode, setDevMode] = React.useState(false)
   const appContext = useAppContext();
 
   useEffect(() => {
@@ -41,7 +43,9 @@ const SettingsScreen = ({ navigation }) => {
       setProfilePicture(user.profile_picture);
     })();
   }, [appContext.dataProvider]);
-
+  AsyncStorage.getItem("devMode").then((v) => {
+    if(v) setDevMode(true)
+  })
   return (
     <ScrollView
       style={{
@@ -159,6 +163,19 @@ const SettingsScreen = ({ navigation }) => {
             Choisir une icône pour Papillon
           </NativeText>
         </NativeItem>
+        { devMode ? <NativeItem
+          onPress={() => navigation.navigate('DevSettings')}
+          leading={
+            <FlaskConical size={24} color={UIColors.primary} />
+          }
+        >
+          <NativeText heading="h4">
+            Options de développement
+          </NativeText>
+          <NativeText heading="p2">
+            ┬─┬ノ( º _ ºノ)
+          </NativeText>
+        </NativeItem> : null}
       </NativeList>
 
       <NativeList
