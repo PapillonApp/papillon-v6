@@ -114,7 +114,7 @@ function NewSettings({ navigation }: {
               style={[
                 styles.item.leadingContainer,
                 {
-                  backgroundColor: '#d16213',
+                  backgroundColor: '#0065A8',
                 }
               ]}
             >

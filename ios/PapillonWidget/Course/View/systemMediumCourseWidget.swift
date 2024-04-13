@@ -82,7 +82,7 @@ struct systemMediumCourseWidget: View {
           .frame(height: 60)
           // S'il reste au moins un cours
           if !upcomingCourses.isEmpty {
-            ForEach(upcomingCourses.prefix(2), id: \.id) { course in
+            ForEach(upcomingCourses.dropFirst(1).prefix(2), id: \.id) { course in
               VStack {
                 HStack {
                   Circle()
@@ -160,12 +160,12 @@ struct systemMediumCourseWidget: View {
                 Spacer()
                 VStack(alignment: .trailing){
                   RoundedRectangle(cornerRadius: 8)
-                    .fill(Color(hex: upcomingCourses.first!.backgroundColor).opacity(0.25))
+                    .fill(.white.opacity(0.25))
                     .frame(width: 57, height: 25)
                     .overlay(
                       Text("\(formattedTime(upcomingCourses.first!.start))")
                         .font(.system(.headline, design: .rounded))
-                        .foregroundStyle(Color(hex: upcomingCourses.first!.backgroundColor))
+                        .foregroundStyle(.white)
                     )
                 }
               }
@@ -177,7 +177,7 @@ struct systemMediumCourseWidget: View {
            .frame(height: 60)
             //S'il reste au moins un cours
             if !upcomingCourses.isEmpty {
-              ForEach(upcomingCourses.prefix(2), id: \.id) { course in
+              ForEach(upcomingCourses.dropFirst(1).prefix(2), id: \.id) { course in
                 VStack {
                   HStack {
                     Circle()

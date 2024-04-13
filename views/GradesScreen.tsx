@@ -18,7 +18,7 @@ import formatCoursName from '../utils/FormatCoursName';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
 // Icons
-import {Users2, File, TrendingDown, TrendingUp, AlertTriangle, MoreVertical, EyeOff} from 'lucide-react-native';
+import {Users2, File, TrendingDown, TrendingUp, AlertTriangle, MoreVertical, EyeOff, DivideSquare} from 'lucide-react-native';
 import { Stats } from '../interface/icons/PapillonIcons';
 
 // Plugins
@@ -50,7 +50,7 @@ interface PapillonAveragesOverTime {
 import { PapillonPeriod } from '../fetch/types/period';
 import { PapillonGrades, PapillonGradesViewAverages } from '../fetch/types/grades';
 
-import { calculateSubjectAverage } from '../utils/grades/averages';
+import { calculateSubjectAverage, calculateSubjectMedian } from '../utils/grades/averages';
 import PapillonLoading from '../components/PapillonLoading';
 
 const GradesScreen = ({ navigation }: {
@@ -109,6 +109,11 @@ const GradesScreen = ({ navigation }: {
         name: 'Moyenne groupe',
         value: pronoteClassAverage ? pronoteClassAverage : (averages.group || 0),
         icon: <Users2 color={UIColors.text} />,
+      },
+      {
+        name: 'Moyenne médiane',
+        value: averages.median || 0,
+        icon: <DivideSquare color={UIColors.text} />,
       },
       {
         name: 'Moyenne max',
@@ -280,11 +285,12 @@ const GradesScreen = ({ navigation }: {
 
   // Estimate averages
   async function estimatedStudentAverages (grades: PapillonGrades): Promise<void> {
-    const [student, group, max, min] = await Promise.all([
+    const [student, group, max, min, median] = await Promise.all([
       calculateSubjectAverage(grades, 'value', gradeSettings.scale),
       calculateSubjectAverage(grades, 'average', gradeSettings.scale),
       calculateSubjectAverage(grades, 'max', gradeSettings.scale),
-      calculateSubjectAverage(grades, 'min', gradeSettings.scale)
+      calculateSubjectAverage(grades, 'min', gradeSettings.scale),
+      calculateSubjectMedian(grades, 'value', gradeSettings.scale),
     ]);
 
     setAverages({
@@ -292,6 +298,7 @@ const GradesScreen = ({ navigation }: {
       group,
       max,
       min,
+      median,
     });
   }
 
@@ -316,12 +323,14 @@ const GradesScreen = ({ navigation }: {
     const options = periods.map((item) => item.name);
     options.push('Annuler');
     const cancelButtonIndex = options.length - 1;
+    const containerStyle = Platform.OS === 'android' ? { paddingBottom: insets.bottom, backgroundColor: UIColors.background} : null;
 
     showActionSheetWithOptions(
       {
         options,
         cancelButtonIndex : cancelButtonIndex,
         tintColor: UIColors.primary,
+        containerStyle,
       },
       (buttonIndex) => {
         if (typeof buttonIndex !== 'undefined' && buttonIndex !== cancelButtonIndex) {
@@ -582,6 +591,18 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
     });
   }, [allGrades, navigation]);
 
+  const typeSignificantType: { [key: string]: string } = {
+    '-1|ERROR': 'Erreur',
+    '1|ABSENT': 'Abs.',
+    '2|EXEMPTED': 'Disp.',
+    '3|NOT_GRADED': 'N.not',
+    '4|UNFIT': 'Inap.',
+    '5|UNRETURNED': 'N.Rdu',
+    '6|ABSENT_ZERO': 'Abs.0',
+    '7|UNRETURNED_ZERO': 'N.Rdu.0',
+    '8|CONGRATULATIONS': 'Félicitations',
+  };
+
   return (<>
     <NativeList
       header="Dernières notes"
@@ -674,7 +695,7 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
                   </NativeText>
                 ) : (
                   <NativeText style={subjectStyles.smallGradeValue}>
-                      N.not
+                    {typeSignificantType[grade.grade.value?.type]}
                   </NativeText>
                 )}
                 <NativeText style={subjectStyles.smallGradeScale}>
@@ -739,8 +760,19 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation, U
             </Pressable>
 
             {subject.grades.map((grade, index) => {
+              const typeSignificantType: { [key: string]: string } = {
+                '-1|ERROR': 'Erreur',
+                '1|ABSENT': 'Abs.',
+                '2|EXEMPTED': 'Disp.',
+                '3|NOT_GRADED': 'N.not',
+                '4|UNFIT': 'Inap.',
+                '5|UNRETURNED': 'N.Rdu',
+                '6|ABSENT_ZERO': 'Abs.0',
+                '7|UNRETURNED_ZERO': 'N.Rdu.0',
+                '8|CONGRATULATIONS': 'Félicitations',
+              };
               const gradeEmoji = getClosestGradeEmoji(subject.subject.name);
-              const gradeValue = grade.grade.value?.value?.toFixed(2) || 'N.not';
+              const gradeValue = grade.grade.value?.value?.toFixed(2) || typeSignificantType[grade.grade.value?.type];
               const gradeScale = grade.grade.out_of.value.toFixed(0);
               const gradeDescription = grade.description || 'Aucune description';
               const gradeDate = new Date(grade.date).toLocaleDateString('fr-FR', { month: 'long', day: 'numeric', year: 'numeric' });

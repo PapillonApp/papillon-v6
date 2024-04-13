@@ -64,7 +64,7 @@ function AppearanceScreen({ navigation }) {
 
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
-  // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles, lightgreen
+  // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles, monochrome
   const papillonIcons = [
     {
       coverName: 'Par défaut',
@@ -147,9 +147,9 @@ function AppearanceScreen({ navigation }) {
       icon: require('../../assets/customicons/sparkles.png'),
     },
     {
-      coverName: 'Icône vert clair',
-      name: 'lightgreen',
-      icon: require('../../assets/customicons/lightgreen.png'),
+      coverName: 'Icône monochrome',
+      name: 'monochrome',
+      icon: require('../../assets/customicons/monochrome.png'),
     },
   ];
 
@@ -157,37 +157,37 @@ function AppearanceScreen({ navigation }) {
   const communityIcons = [
     {
       coverName: 'Back to School 2023',
-      author: 'Alokation',
+      author: 'Timo (Alokation)',
       name: 'backtoschool',
       icon: require('../../assets/customicons/backtoschool.png'),
     },
     {
       coverName: 'Barbie Edition',
-      author: 'Tryon',
+      author: 'Lucas (Tryon)',
       name: 'barbie',
       icon: require('../../assets/customicons/barbie.png'),
     },
     {
       coverName: 'Better Neon',
-      author: 'Astrow',
+      author: 'Yann (Yannou)',
       name: 'betterneon',
       icon: require('../../assets/customicons/betterneon.png'),
     },
     {
       coverName: 'Style macOS',
-      author: 'Ahhj',
+      author: 'Bryan (Ahhj)',
       name: 'macos',
       icon: require('../../assets/customicons/macos.png'),
     },
     {
       coverName: 'Style iOS 6',
-      author: 'Alokation',
+      author: 'Timo (Alokation)',
       name: 'oldios',
       icon: require('../../assets/customicons/oldios.png'),
     },
     {
       coverName: 'Style v5',
-      author: 'Alokation',
+      author: 'Timo (Alokation)',
       name: 'verscinq',
       icon: require('../../assets/customicons/verscinq.png'),
     },

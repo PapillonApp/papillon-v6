@@ -38,6 +38,9 @@ function App() {
       } else if (serviceName === 'skolengo') {
         await provider.init(serviceName);
         setLoggedIn(Boolean(provider.pronoteInstance || provider.skolengoInstance || provider.isNetworkFailing));
+      } else if (serviceName === 'ecoledirecte') {
+        await provider.init(serviceName);
+        setLoggedIn(true);
       }
 
       setLoading(false);

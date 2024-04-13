@@ -207,13 +207,13 @@ function LessonScreen({ route, navigation }) {
           >
             <NativeText
               heading="p2"
-              style={{ color: lesson.is_cancelled ? '#ffffff' : null }}
+              style={{ color: lesson.is_cancelled ? '#ffffff' : mainColor }}
             >
               Statut du cours
             </NativeText>
             <NativeText
               heading="h4"
-              style={{ color: lesson.is_cancelled ? '#ffffff' : null }}
+              style={{ color: lesson.is_cancelled ? '#ffffff' : mainColor }}
             >
               {lesson.status}
             </NativeText>
