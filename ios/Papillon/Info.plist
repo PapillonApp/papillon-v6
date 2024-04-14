@@ -5,7 +5,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>Papillon Dev</string>
+    <string>Papillon</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIcons</key>
@@ -448,7 +448,7 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>papillon</string>
-          <string>xyz.getpapillon.ios.dev</string>
+          <string>xyz.getpapillon.ios</string>
         </array>
       </dict>
       <dict>
