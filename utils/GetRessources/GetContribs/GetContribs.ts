@@ -2,6 +2,7 @@ export interface Contributor {
     login: string;
     avatar_url: string;
     html_url: string;
+    displayname: string;
 }
 
 export interface ContributorsResponse {
@@ -25,6 +26,7 @@ export async function fetchPapillonContributors(): Promise<ContributorsResponse>
             blogUrl = 'https://' + blogUrl;
         }
         return {
+            displayname: userData.name || contributor.login, 
             login: contributor.login,
             avatar_url: contributor.avatar_url,
             html_url: blogUrl || contributor.html_url
