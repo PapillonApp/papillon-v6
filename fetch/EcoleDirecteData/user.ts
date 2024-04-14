@@ -1,5 +1,6 @@
-import type { PapillonUser, CachedPapillonUser, PapillonUserPeriod } from '../types/user';
+import type { PapillonUser, CachedPapillonUser } from '../types/user';
 import { EDCore } from '@papillonapp/ed-core';
+import { AccountInfo } from '@papillonapp/ed-core/dist/src/utils/types/accounts';
 import { AsyncStorageEcoleDirecteKeys } from './connector';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,20 +20,21 @@ export const userInformations = async (instance?: EDCore, force = false): Promis
 
     return data.user;
   }
-  
+
   try {
     if (!instance) throw new Error('No instance available.');
 
-    let name = instance.student.nom + " " + instance.student.prenom;
+    const student = instance.student as AccountInfo;
+    let name = student.nom + ' ' + student.prenom;
 
     const user: PapillonUser = {
       name: name,
-      class: instance.student.classe.libelle,
-      establishment: instance.school.name,
-      phone: instance.student.tel,
-      address: ["Non disponible"],
-      email: instance.student.email,
-      ine: "Non disponible",
+      class: student.classe.libelle,
+      establishment: instance.school?.name || 'Établissement à renseigner',
+      phone: student.tel,
+      address: ['Non disponible'],
+      email: student.email,
+      ine: 'Non disponible',
       delegue: false, // TODO
       periodes: {
         grades: [],
@@ -40,16 +42,17 @@ export const userInformations = async (instance?: EDCore, force = false): Promis
         evaluations: []
       }
     };
-  
-    if (instance.studentProfilePictureURL) {
-      user.profile_picture = await downloadAsB64(instance.studentProfilePictureURL);
+
+    if (student.photo != '') {
+      // TODO use downloadProfilePictureBase64
+      user.profile_picture = await downloadAsB64(student.photo);
     }
-  
+
     const newCache: CachedPapillonUser = {
       timestamp: new Date().getTime(),
       user
     };
-  
+
     await AsyncStorage.setItem(AsyncStorageEcoleDirecteKeys.CACHE_USER, JSON.stringify(newCache));
     return user;
   }
@@ -59,7 +62,7 @@ export const userInformations = async (instance?: EDCore, force = false): Promis
       const data: CachedPapillonUser = JSON.parse(cache);
       return data.user;
     }
-    
+
     return null;
   }
 };
