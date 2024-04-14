@@ -66,11 +66,13 @@ function LoginEDForm({ route, navigation }: {
       return;
     }
 
+    let ed = new EDCore();
+    let uuid = makeUUID();
+
     try {
       setConnecting(true);
 
-      let ed = new EDCore();
-      let uuid = makeUUID();
+
 
       await ed.auth.login(username, password, uuid);
 
@@ -98,9 +100,47 @@ function LoginEDForm({ route, navigation }: {
       navigation.goBack();
       navigation.goBack();
       appContext.setLoggedIn(true);
-    } catch(err) {
+    } catch(err: any) {
       console.log(err);
       setConnecting(false);
+
+      const errorCode = err.code ? err.code: 0;
+
+      // Doubleauth handling
+      if (errorCode == 12) {
+        // Commented code below will be used after ed-core update
+
+        // const token = await ed.auth.get2FAToken(username, password);
+        // const QCM = await ed.auth.get2FA(token);
+        // const [doubleAuthAnswer, setDoubleAuthAnswer] = React.useState('');
+        // // TODO open a sheet with the questions
+        // const sendDoubleAuthAnswer = async () => {
+        //   const authFactors = await ed.auth.resolve2FA(doubleAuthAnswer).catch(() => {
+        //     setErrorAlert(true);
+        //   });
+        //   await ed.auth.login(username, password, uuid, authFactors)
+        //     .then(async () => {
+        //       setConnecting(false);
+        //
+        //       showMessage({
+        //         message: 'Connecté avec succès',
+        //         type: 'success',
+        //         icon: 'auto',
+        //       });
+        //
+        //       await appContext.dataProvider!.init('ecoledirecte', ed);
+        //       await AsyncStorage.setItem('service', 'ecoledirecte');
+        //
+        //       navigation.goBack();
+        //       navigation.goBack();
+        //       appContext.setLoggedIn(true);
+        //     })
+        //     .catch(() => {
+        //       setErrorAlert(true);
+        //     });
+        // };
+        return;
+      }
       setErrorAlert(true);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
