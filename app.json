@@ -219,6 +219,10 @@
           "verscinq": {
             "image": "./assets/customicons/verscinq.png",
             "prerendered": true
+          },
+          "nostalgique": {
+            "image": "./assets/customicons/nostalgique.png",
+            "prerendered": true
           }
         }
       ]
