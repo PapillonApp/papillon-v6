@@ -133,6 +133,11 @@ function AppearanceScreen({ navigation }: Props) {
       icon: require('../../assets/customicons/pride.png'),
     },
     {
+      coverName: 'Icône Nostalgique',
+      name: 'nostalgique',
+      icon: require('../../assets/customicons/nostalgique.png'),
+    },
+    {
       coverName: 'Icône violette',
       name: 'purple',
       icon: require('../../assets/customicons/purple.png'),
@@ -156,11 +161,6 @@ function AppearanceScreen({ navigation }: Props) {
       coverName: 'Icône brillante',
       name: 'sparkles',
       icon: require('../../assets/customicons/sparkles.png'),
-    },
-    {
-      coverName: 'Icône monochrome',
-      name: 'monochrome',
-      icon: require('../../assets/customicons/monochrome.png'),
     },
   ];
 
