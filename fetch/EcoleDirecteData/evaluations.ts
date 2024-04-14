@@ -14,6 +14,7 @@ export const EDEvaluationsHandler = async (period: string, force = false, instan
     const data: PapillonEvaluation[] = [];
 
     for (const gradeObject of gradesData.notes) {
+      if (gradeObject.codePeriode != period) continue;
       const acquisitions: PapillonEvaluationAcquisition[] = [];
       for (const skill of gradeObject.elementsProgramme) {
         acquisitions.push({
