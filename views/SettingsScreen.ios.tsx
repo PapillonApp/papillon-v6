@@ -361,7 +361,7 @@ function NewSettings({ navigation }: {
           À propos
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Papillon version {packageJson.version} {packageJson.canal}
+            Papillon version {packageJson.version}
           </NativeText>
         </NativeItem>
       </NativeList>
