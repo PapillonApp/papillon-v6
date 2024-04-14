@@ -21,7 +21,6 @@ import { ContextMenuView } from 'react-native-ios-context-menu';
 import { PressableScale } from 'react-native-pressable-scale';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useTheme, Text } from 'react-native-paper';
-import { SFSymbol } from 'react-native-sfsymbols';
 import TimeSeparator from '../interface/CoursScreen/TimeSeparator';
 
 import * as Notifications from 'expo-notifications';
