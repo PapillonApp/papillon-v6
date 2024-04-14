@@ -87,7 +87,81 @@ function AppearanceScreen({ navigation }: Props) {
       name: 'relief',
       icon: require('../../assets/customicons/relief.png'),
     },
-    // Other icon objects...
+    {
+      coverName: 'Version bêta',
+      name: 'beta',
+      icon: require('../../assets/customicons/beta.png'),
+    },
+    {
+      coverName: 'Icône sombre',
+      name: 'black',
+      icon: require('../../assets/customicons/black.png'),
+    },
+    {
+      coverName: 'Processeur',
+      name: 'chip',
+      icon: require('../../assets/customicons/chip.png'),
+    },
+    {
+      coverName: 'Icône brodée',
+      name: 'cutted',
+      icon: require('../../assets/customicons/cutted.png'),
+    },
+    {
+      coverName: 'Icône en or',
+      name: 'gold',
+      icon: require('../../assets/customicons/gold.png'),
+    },
+    {
+      coverName: 'Icône dégradée',
+      name: 'gradient',
+      icon: require('../../assets/customicons/gradient.png'),
+    },
+    {
+      coverName: 'Icône en métal',
+      name: 'metal',
+      icon: require('../../assets/customicons/metal.png'),
+    },
+    {
+      coverName: 'Icône néon',
+      name: 'neon',
+      icon: require('../../assets/customicons/neon.png'),
+    },
+    {
+      coverName: 'Pride 2023',
+      name: 'pride',
+      icon: require('../../assets/customicons/pride.png'),
+    },
+    {
+      coverName: 'Icône violette',
+      name: 'purple',
+      icon: require('../../assets/customicons/purple.png'),
+    },
+    {
+      coverName: 'Icône violette (rayons)',
+      name: 'rayspurple',
+      icon: require('../../assets/customicons/rayspurple.png'),
+    },
+    {
+      coverName: 'Icône verte (rayons)',
+      name: 'rays',
+      icon: require('../../assets/customicons/rays.png'),
+    },
+    {
+      coverName: 'Icône rétro',
+      name: 'retro',
+      icon: require('../../assets/customicons/retro.png'),
+    },
+    {
+      coverName: 'Icône brillante',
+      name: 'sparkles',
+      icon: require('../../assets/customicons/sparkles.png'),
+    },
+    {
+      coverName: 'Icône monochrome',
+      name: 'monochrome',
+      icon: require('../../assets/customicons/monochrome.png'),
+    },
   ];
 
   // backtoschool, barbie, betterneon, macos, oldios, verscinq
@@ -98,7 +172,36 @@ function AppearanceScreen({ navigation }: Props) {
       name: 'backtoschool',
       icon: require('../../assets/customicons/backtoschool.png'),
     },
-    // Other icon objects...
+    {
+      coverName: 'Barbie Edition',
+      author: 'Lucas (Tryon)',
+      name: 'barbie',
+      icon: require('../../assets/customicons/barbie.png'),
+    },
+    {
+      coverName: 'Better Neon',
+      author: 'Yann (Yannou)',
+      name: 'betterneon',
+      icon: require('../../assets/customicons/betterneon.png'),
+    },
+    {
+      coverName: 'Style macOS',
+      author: 'Bryan (Ahhj)',
+      name: 'macos',
+      icon: require('../../assets/customicons/macos.png'),
+    },
+    {
+      coverName: 'Style iOS 6',
+      author: 'Timo (Alokation)',
+      name: 'oldios',
+      icon: require('../../assets/customicons/oldios.png'),
+    },
+    {
+      coverName: 'Style v5',
+      author: 'Timo (Alokation)',
+      name: 'verscinq',
+      icon: require('../../assets/customicons/verscinq.png'),
+    },
   ];
 
   const [currentIcon, setCurrentIcon] = useState<string | null>(null);
