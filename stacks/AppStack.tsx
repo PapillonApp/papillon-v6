@@ -82,7 +82,7 @@ const AppStack = ({ navigation }) => {
       name: 'InsetMatieres',
       component: require('../views/Settings/CoursColor').default,
       options: {
-        headerTitle: 'Gestion des matières',
+        headerTitle: 'Couleur des matières',
         presentation: 'modal',
       }
     },
