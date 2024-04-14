@@ -17,7 +17,18 @@ import ListItem from '../../components/ListItem';
 
 import GetUIColors from '../../utils/GetUIColors';
 
-function IconItem({ icon, applyIcon, current }) {
+interface Icon {
+  coverName: string;
+  name: string;
+  author?: string;
+  icon: any;
+}
+
+interface Props {
+  navigation: any;
+}
+
+function IconItem({ icon, applyIcon, current }: { icon: Icon; applyIcon: (name: string) => void; current: boolean }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   let subt = 'par l\'équipe Papillon';
@@ -58,14 +69,14 @@ function IconItem({ icon, applyIcon, current }) {
   );
 }
 
-function AppearanceScreen({ navigation }) {
+function AppearanceScreen({ navigation }: Props) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
   // 3d, beta, black, chip, cutted, gold, gradient, metal, neon, pride, purple, rays-purple, rays, retro, sparkles, monochrome
-  const papillonIcons = [
+  const papillonIcons: Icon[] = [
     {
       coverName: 'Par défaut',
       name: 'classic',
@@ -154,7 +165,7 @@ function AppearanceScreen({ navigation }) {
   ];
 
   // backtoschool, barbie, betterneon, macos, oldios, verscinq
-  const communityIcons = [
+  const communityIcons: Icon[] = [
     {
       coverName: 'Back to School 2023',
       author: 'Timo (Alokation)',
@@ -193,7 +204,7 @@ function AppearanceScreen({ navigation }) {
     },
   ];
 
-  const [currentIcon, setCurrentIcon] = useState(null);
+  const [currentIcon, setCurrentIcon] = useState<string | null>(null);
 
   useEffect(() => {
     setCurrentIcon(getAppIcon() || 'classic');
@@ -204,7 +215,7 @@ function AppearanceScreen({ navigation }) {
     }
   }, []);
 
-  function applyIcon(name) {
+  function applyIcon(name: string) {
     const icon = setAppIcon(name);
 
     if (icon === name) {
@@ -311,6 +322,9 @@ const styles = StyleSheet.create({
   iconElemCurrent: {
     borderColor: '#32AB8E',
     borderWidth: 2,
+  },
+  container: {
+    flex: 1,
   },
 });
 

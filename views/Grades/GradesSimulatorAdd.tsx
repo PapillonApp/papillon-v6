@@ -21,7 +21,11 @@ import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const GradesSimulatorAdd = ({ navigation }) => {
+interface Subject {
+  name: string;
+}
+
+const GradesSimulatorAdd: React.FC<{ navigation: any }> = ({ navigation }) => {
   const UIColors = GetUIColors();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -31,7 +35,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
   const [description, setDescription] = useState('');
   const [out_of, setOutOf] = useState('20');
 
-  const [subjectList, setSubjectList] = useState([]);
+  const [subjectList, setSubjectList] = useState<Subject[]>([]);
   const [selectedSubject, setSelectedSubject] = useState(0);
 
   const [student, setStudent] = useState('');
@@ -44,9 +48,9 @@ const GradesSimulatorAdd = ({ navigation }) => {
   const [fieldsAlert, setFieldsAlert] = useState(false);
 
   useEffect(() => {
-    appctx.dataprovider.getGrades('', false).then((grades) => {
-      let subjects = [];
-      grades.grades.forEach((grade) => {
+    appctx.dataprovider.getGrades('', false).then((grades: any) => {
+      let subjects: Subject[] = [];
+      grades.grades.forEach((grade: any) => {
         // if subject name is not in the list
         if (subjects.findIndex((subject) => subject.name === grade.subject.name) === -1) {
           subjects.push(grade.subject);
@@ -57,7 +61,7 @@ const GradesSimulatorAdd = ({ navigation }) => {
     });
   }, []);
 
-  const changeValue = (value, funct) => {
+  const changeValue = (value: string, funct: React.Dispatch<React.SetStateAction<string>>) => {
     let originalValue = value;
 
     let nValue = value.replace(',', '.');
