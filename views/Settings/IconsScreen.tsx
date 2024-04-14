@@ -202,6 +202,12 @@ function AppearanceScreen({ navigation }: Props) {
       name: 'verscinq',
       icon: require('../../assets/customicons/verscinq.png'),
     },
+    {
+      coverName: 'Mascotte',
+      author: 'Anaël Chevillard',
+      name: 'mascotte',
+      icon: require('../../assets/customicons/mascotte.png'),
+    },
   ];
 
   const [currentIcon, setCurrentIcon] = useState<string | null>(null);
