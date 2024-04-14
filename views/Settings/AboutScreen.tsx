@@ -55,7 +55,7 @@ function AboutScreen({ navigation }) {
   const dataList = [
     {
       title: 'Version de Papillon',
-      subtitle: `${packageJson.version} ${packageJson.canal}`,
+      subtitle: `${packageJson.version}`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
     },
@@ -213,7 +213,7 @@ function AboutScreen({ navigation }) {
           <NativeItem
             trailing={
               <NativeText heading="p2">
-                {packageJson.version} {packageJson.canal}
+                ver. {packageJson.version}
               </NativeText>
             }
             onPress={() => navigation.navigate('ChangelogScreen')}
