@@ -5,7 +5,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>Papillon</string>
+    <string>Papillon Dev</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIcons</key>
@@ -152,15 +152,6 @@
           <key>CFBundleIconFiles</key>
           <array>
             <string>sparkles-Icon-60x60</string>
-          </array>
-          <key>UIPrerenderedIcon</key>
-          <true/>
-        </dict>
-        <key>lightgreen</key>
-        <dict>
-          <key>CFBundleIconFiles</key>
-          <array>
-            <string>lightgreen-Icon-60x60</string>
           </array>
           <key>UIPrerenderedIcon</key>
           <true/>
@@ -376,15 +367,6 @@
           <key>UIPrerenderedIcon</key>
           <true/>
         </dict>
-        <key>lightgreen</key>
-        <dict>
-          <key>CFBundleIconFiles</key>
-          <array>
-            <string>lightgreen-Icon-60x60</string>
-          </array>
-          <key>UIPrerenderedIcon</key>
-          <true/>
-        </dict>
         <key>backtoschool</key>
         <dict>
           <key>CFBundleIconFiles</key>
@@ -466,7 +448,7 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>papillon</string>
-          <string>xyz.getpapillon.ios</string>
+          <string>xyz.getpapillon.ios.dev</string>
         </array>
       </dict>
       <dict>

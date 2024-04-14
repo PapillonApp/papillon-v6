@@ -26,7 +26,7 @@ const LocateEtab = ({ navigation }: {
   const [isLoading, setIsLoading] = React.useState(false);
   const [currentSearch, setCurrentSearch] = React.useState('');
   const [isLocalisation, setIsLocalisation] = React.useState(false)
-  const [locateState, setLocateState] = React.useState("En attente de la permissions...")
+  const [locateState, setLocateState] = React.useState("En attente de la permission...")
   const [locatePermIssue, setLocatePermIssue] = React.useState(false)
   const debouncedCurrentSearch = useDebounce(currentSearch, 175);
 
