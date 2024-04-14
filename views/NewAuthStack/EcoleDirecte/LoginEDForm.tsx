@@ -30,12 +30,13 @@ import { useAppContext } from '../../../utils/AppContext';
 
 import { AsyncStorageEcoleDirecteKeys } from '../../../fetch/EcoleDirecteData/connector';
 import { EDCore } from '@papillonapp/ed-core';
+import { v4 as uuidv4 } from 'uuid';
 
 
 function LoginEDForm({ route, navigation }: {
   navigation: any; // TODO
   route: {
-    
+
   }
 }) {
   const theme = useTheme();
@@ -54,26 +55,14 @@ function LoginEDForm({ route, navigation }: {
 
 
   const makeUUID = (): string => {
-    let dt = new Date().getTime();
-    const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-      /[xy]/g,
-      (c) => {
-        const r = (dt + Math.random() * 16) % 16 | 0;
-        dt = Math.floor(dt / 16);
-        return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-      }
-    );
-    return uuid;
+    return uuidv4();
   };
-
-
-
 
 
   const handleLogin = async () => {
     if (username.trim() === '' || password.trim() === '') {
       setStringErrorAlert(true);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
     }
 
@@ -87,13 +76,13 @@ function LoginEDForm({ route, navigation }: {
 
       if(ed._token && ed._accessToken) {
 
-      await AsyncStorage.multiSet([
-        [AsyncStorageEcoleDirecteKeys.TOKEN, ed._token],
-        [AsyncStorageEcoleDirecteKeys.DEVICE_UUID, uuid],
-        [AsyncStorageEcoleDirecteKeys.USERNAME, username],
-        [AsyncStorageEcoleDirecteKeys.ACCESS_TOKEN, ed._accessToken]
-      ]);
-    };
+        await AsyncStorage.multiSet([
+          [AsyncStorageEcoleDirecteKeys.TOKEN, ed._token],
+          [AsyncStorageEcoleDirecteKeys.DEVICE_UUID, uuid],
+          [AsyncStorageEcoleDirecteKeys.USERNAME, username],
+          [AsyncStorageEcoleDirecteKeys.ACCESS_TOKEN, ed._accessToken]
+        ]);
+      };
 
       setConnecting(false);
 
@@ -110,10 +99,10 @@ function LoginEDForm({ route, navigation }: {
       navigation.goBack();
       appContext.setLoggedIn(true);
     } catch(err) {
-      console.log(err)
+      console.log(err);
       setConnecting(false);
       setErrorAlert(true);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
 
