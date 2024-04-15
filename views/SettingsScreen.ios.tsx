@@ -66,7 +66,7 @@ function NewSettings({ navigation }: {
           backgroundColor="transparent"
         />
       )}
-      
+
       <NativeList
         inset
         sideBar
@@ -114,7 +114,7 @@ function NewSettings({ navigation }: {
               style={[
                 styles.item.leadingContainer,
                 {
-                  backgroundColor: '#d16213',
+                  backgroundColor: '#0065A8',
                 }
               ]}
             >
@@ -265,7 +265,7 @@ function NewSettings({ navigation }: {
           onPress={() => navigation.navigate('CoursColor')}
         >
           <NativeText heading="h4">
-            Gestion des matières
+            Couleur des matières
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
             Personnalisation des matières
@@ -361,7 +361,7 @@ function NewSettings({ navigation }: {
           À propos
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Papillon version {packageJson.version} {packageJson.canal}
+            Papillon version {packageJson.version}
           </NativeText>
         </NativeItem>
       </NativeList>

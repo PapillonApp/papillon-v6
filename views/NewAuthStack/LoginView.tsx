@@ -222,7 +222,7 @@ const LoginView = ({ navigation }) => {
           navigation.navigate('NetworkLoggerScreen');
         }}
       >
-        v{packageJson.version} {packageJson.canal}
+        ver. {packageJson.version}
       </Text>
     </View>
   );

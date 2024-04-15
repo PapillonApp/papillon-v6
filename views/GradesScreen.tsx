@@ -323,12 +323,14 @@ const GradesScreen = ({ navigation }: {
     const options = periods.map((item) => item.name);
     options.push('Annuler');
     const cancelButtonIndex = options.length - 1;
+    const containerStyle = Platform.OS === 'android' ? { paddingBottom: insets.bottom, backgroundColor: UIColors.background} : null;
 
     showActionSheetWithOptions(
       {
         options,
         cancelButtonIndex : cancelButtonIndex,
         tintColor: UIColors.primary,
+        containerStyle,
       },
       (buttonIndex) => {
         if (typeof buttonIndex !== 'undefined' && buttonIndex !== cancelButtonIndex) {

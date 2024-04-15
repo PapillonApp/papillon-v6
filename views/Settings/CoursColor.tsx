@@ -1,57 +1,54 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Pressable, Platform, StatusBar } from 'react-native';
-
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
-
-const Buffer = require("buffer").Buffer;
-
-import {useTheme, Text, Menu, Divider} from 'react-native-paper';
+import { useTheme, Text, Menu, Divider } from 'react-native-paper';
 import * as Haptics from 'expo-haptics';
 import GetUIColors from '../../utils/GetUIColors';
-
-import SyncStorage, { set } from 'sync-storage';
-
+import SyncStorage from 'sync-storage';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
-
 import Share from 'react-native-share';
-
 import { ContextMenuButton } from 'react-native-ios-context-menu';
-
 import ColorPicker, {
   Panel1,
   Swatches,
   Preview,
   HueSlider,
 } from 'reanimated-color-picker';
-
 import formatCoursName from '../../utils/FormatCoursName';
-
 import { forceSavedCourseColor } from '../../utils/ColorCoursName';
-import {CircleEllipsis, Share as ShareIcon, CircleEllipsisIcon, ListRestart, Lock, MoreVertical, UserCircle2} from 'lucide-react-native';
-import {getContextValues} from '../../utils/AppContext';
+import { CircleEllipsis, CircleEllipsisIcon, Lock, MoreVertical } from 'lucide-react-native';
+import { getContextValues } from '../../utils/AppContext';
 import { RegisterTrophy } from './TrophiesScreen';
 
-const CoursColor = ({ navigation }) => {
+interface SavedColors {
+  [key: string]: {
+    color: string;
+    originalCourseName: string;
+    systemCourseName: string;
+    locked: boolean;
+  };
+}
+
+const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [savedColors, setSavedColors] = useState([]);
-
+  const [savedColors, setSavedColors] = useState<SavedColors>({});
   const [colorModalOpen, setColorModalOpen] = useState(false);
-  const [colorModalColor, setColorModalColor] = useState('#000000');
-  const [currentEditedSubject, setCurrentEditedSubject] = useState('');
+  const [colorModalColor, setColorModalColor] = useState<string>('#000000');
+  const [currentEditedSubject, setCurrentEditedSubject] = useState<string>('');
 
-  const colors = [
+  const colors: string[] = [
     '#2667a9', '#76a10b', '#3498DB', '#1ABC9C', '#a01679', '#27AE60', '#156cd6', '#F39C12', '#E67E22', '#D35400', '#2C3E50', '#E74C3C', '#C0392B', '#8E44AD', '#ad4491', '#9f563b', '#920205',
     '#6a42a3', '#498821', '#2e86b3', '#17a085', '#89125f', '#2f9e49', '#1e6fcf', '#d08e15', '#b85f18', '#a33e00', '#3f515f', '#c92a1e', '#a82b1f', '#7b389f', '#a65089', '#996032', '#8c0101',
     '#6b064d', '#146c80', '#7c9f18', '#9f5610', '#b23e00', '#34495e', '#a3180f', '#891e13', '#623c85', '#b5657e', '#a6794a', '#b60000',
   ];
 
-  const moreActions = (key) => {
+  const moreActions = (key: string) => {
     Alert.alert(
       'Plus d\'actions',
       'Que voulez-vous faire avec ' + savedColors[key].originalCourseName + ' ?',
@@ -59,7 +56,7 @@ const CoursColor = ({ navigation }) => {
         {
           text: 'Supprimer',
           onPress: () => {
-            let newCol = JSON.parse(SyncStorage.get('savedColors'));
+            let newCol = { ...savedColors };
             delete newCol[key];
             setSavedColors(newCol);
             SyncStorage.set('savedColors', JSON.stringify(newCol));
@@ -75,7 +72,7 @@ const CoursColor = ({ navigation }) => {
     );
   };
 
-  const onSelectColor = ({ hex }) => {
+  const onSelectColor = ({ hex }: { hex: string }) => {
     setColorModalColor(hex);
   };
 
@@ -99,12 +96,11 @@ const CoursColor = ({ navigation }) => {
 
   const ResetColors = async () => {
     let dataInstance = await getContextValues().dataProvider;
-    var colors = savedColors;
+    let colors = savedColors;
     let timetable = await dataInstance.getTimetable(new Date());
     timetable.forEach(course => {
       Object.keys(colors).forEach((key) => {
         if (colors[key].originalCourseName == course.subject.name && !colors[key].locked) {
-          //console.log('Force', key);
           colors[key].color = course.background_color;
         }
       });
@@ -115,10 +111,10 @@ const CoursColor = ({ navigation }) => {
   };
 
   const ApplyRandomColors = () => {
-    let col = {};
-    let usedColors = [];
+    let col: SavedColors = {};
+    let usedColors: string[] = [];
 
-    let lockedColors = [];
+    let lockedColors: string[] = [];
 
     const randomColor = () => {
       let color = colors[Math.floor(Math.random() * colors.length)];
@@ -429,7 +425,6 @@ const CoursColor = ({ navigation }) => {
               title={'Exporter les couleurs'}
               leadingIcon="upload"
               onPress={() => {
-                setUserMenuOpen(false);
                 exportColors();
               }}
             />
@@ -438,7 +433,6 @@ const CoursColor = ({ navigation }) => {
               title={'Importer des couleurs'}
               leadingIcon="download"
               onPress={() => {
-                setUserMenuOpen(false);
                 ImportColors();
               }}
             />

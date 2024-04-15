@@ -3,7 +3,7 @@
     "name": "Papillon",
     "slug": "papillonvex",
     "scheme": "papillon",
-    "version": "6.6.2",
+    "version": "6.6.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -196,10 +196,6 @@
             "image": "./assets/customicons/sparkles.png",
             "prerendered": true
           },
-          "lightgreen": {
-            "image": "./assets/customicons/lightgreen.png",
-            "prerendered": true
-          },
           "backtoschool": {
             "image": "./assets/customicons/backtoschool.png",
             "prerendered": true
@@ -222,6 +218,10 @@
           },
           "verscinq": {
             "image": "./assets/customicons/verscinq.png",
+            "prerendered": true
+          },
+          "mascotte": {
+            "image": "./assets/customicons/mascotte.png",
             "prerendered": true
           }
         }

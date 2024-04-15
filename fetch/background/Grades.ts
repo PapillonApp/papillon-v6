@@ -42,6 +42,19 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
   for (const grade of grades.grades) {
     const color = getSavedCourseColor(grade.subject.name, '#29947a');
 
+    const significantTypeValue = {
+      '-1|ERROR': -1,
+      '0|GRADE': 0,
+      '1|ABSENT': 1,
+      '2|EXEMPTED': 2,
+      '3|NOT_GRADED': 3,
+      '4|UNFIT': 4,
+      '5|UNRETURNED': 5,
+      '6|ABSENT_ZERO': 6,
+      '7|UNRETURNED_ZERO': 7,
+      '8|CONGRATULATIONS': 8,
+    };
+
     sharedLessons.push({
       subject: formatCoursName(grade.subject.name),
       emoji: getClosestGradeEmoji(grade.subject.name),
@@ -49,7 +62,10 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
       color: color,
       date: new Date(grade.date).getTime(),
       grade: {
-        value: grade.grade.value,
+        value: {
+          significant: grade.grade.value.significant,
+          value: grade.grade.value.value || Number(significantTypeValue[grade.grade.value.value as keyof typeof significantTypeValue]),
+        },
         out_of: grade.grade.out_of,
         average: grade.grade.average,
         max: grade.grade.max,
@@ -69,6 +85,9 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
     // store grades in shared group
     await SharedGroupPreferences.setItem('getGradesF', JSON.stringify(sharedLessons), APP_GROUP_IDENTIFIER);
     console.info('[background fetch] Stored grades in shared group (getGradesF)');
+    for (let lesson of sharedLessons) {
+      console.log(lesson.grade.value.value, lesson.grade.value.significant, lesson.subject, lesson.date);
+    }
   } catch (error) {
     console.error('[background fetch] Error while storing grades in shared group', error);
   }
