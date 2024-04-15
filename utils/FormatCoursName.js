@@ -10,25 +10,32 @@ const formatExceptions = new Map([
   ['culture gene.et expr', 'Culture générale et expression'],
   ['cult.eco jur. manag.', 'Culture Économique, Juridique et Managériale'],
   ['education civique', 'Éducation civique'],
+  ['enseign.scientifique', 'Enseignement scientifique'],
   ['ed.physique & sport.', 'Éducation Physique et Sportive'],
   ['education musicale', 'Éducation musicale'],
   ['education physique et sportive', 'Éducation Physique et Sportive'],
+  ['eps', 'Éducation Physique et Sportive'],
   ['francais', 'Français'],
+  ['histoire geo', 'Histoire-Géo'],
+  ['histoire-geo', 'Histoire-Géo'],
   ['histoire & geograph.', 'Histoire-Géo'],
   ['histoire-geographie', 'Histoire-Géographie'],
+  ['human.litter.philo', 'Humanités, Littérature & Philosophie'],
   ['llc angl.mond.cont.', 'LLCER Anglais Monde Contemporain'],
   ['maths pour informatq', 'Mathématiques pour l’informatique'],
   ['mathematiques', 'Mathématiques'],
+  ['math 1ere', 'Mathématiques 1ère'],
   ['numerique sc.inform.', 'Numérique et Sciences Informatiques'],
   ['physique-chimie', 'Physique-Chimie'],
   ['sc.econo & sociales', 'Sciences Économiques et Sociales'],
   ['sciences de la vie et de la terre', 'Sciences de la Vie et de la Terre'],
+  ['sciences vie & terre', 'Sciences de la Vie et de la Terre'],
   ['sciences economiques et sociales', 'Sciences Économiques et Sociales'],
   ['sc.numeriq.technol.', 'Sciences Numériques et Technologie'],
   ['vie de classe', 'Vie de classe'],
 ]);
 
-const lengthExceptions = new Set(['vie', 'de', 'et', 'la']);
+const lengthExceptions = new Set(['vie', 'de', 'des', 'et', 'la']);
 
 function formatCoursName(name) {
   let formattedName = name
