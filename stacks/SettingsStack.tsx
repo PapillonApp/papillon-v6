@@ -24,7 +24,7 @@ import TrophiesScreen from '../views/Settings/TrophiesScreen';
 
 function InsetSettings() {
   const UIColors = GetUIColors();
-  
+
   return (
     <Stack.Navigator
       screenOptions={
@@ -70,7 +70,7 @@ function InsetSettings() {
         name="CoursColor"
         component={CoursColor}
         options={{
-          headerTitle: 'Gestion des matières',
+          headerTitle: 'Couleur des matières',
         }}
       />
       <Stack.Screen
