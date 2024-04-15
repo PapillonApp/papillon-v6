@@ -133,11 +133,6 @@ function AppearanceScreen({ navigation }: Props) {
       icon: require('../../assets/customicons/pride.png'),
     },
     {
-      coverName: 'Icône Nostalgique',
-      name: 'nostalgique',
-      icon: require('../../assets/customicons/nostalgique.png'),
-    },
-    {
       coverName: 'Icône violette',
       name: 'purple',
       icon: require('../../assets/customicons/purple.png'),

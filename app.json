@@ -220,10 +220,6 @@
             "image": "./assets/customicons/verscinq.png",
             "prerendered": true
           },
-          "nostalgique": {
-            "image": "./assets/customicons/nostalgique.png",
-            "prerendered": true
-          },
           "mascotte": {
             "image": "./assets/customicons/mascotte.png",
             "prerendered": true
