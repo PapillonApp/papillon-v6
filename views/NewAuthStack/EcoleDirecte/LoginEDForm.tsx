@@ -57,17 +57,13 @@ function LoginEDForm({ route, navigation }: {
 
   const [isDoubleAuthEnabled, setDoubleAuthEnabled] = React.useState(false);
   const [doubleAuthObject, setDoubleAuthObject] = React.useState({ question: '', propositions: [] } as doubleauthResData);
-  const [doubleAuthToken, setDoubleAuthToken] = React.useState("");
+  const [doubleAuthToken, setDoubleAuthToken] = React.useState('');
 
   const [doubleAuthAnswer, setDoubleAuthAnswer] = React.useState('');
-  
+
   const selectDoubleAuthAnwser = (answer) => {
     setDoubleAuthAnswer(answer);
   };
-
-
-
-
 
   const appContext = useAppContext();
   const UIColors = GetUIColors();
@@ -79,6 +75,32 @@ function LoginEDForm({ route, navigation }: {
 
   let ed = new EDCore();
 
+  const handleConnection = async (uuid: string) => {
+    if(ed._token && ed._accessToken) {
+
+      await AsyncStorage.multiSet([
+        [AsyncStorageEcoleDirecteKeys.TOKEN, ed._token],
+        [AsyncStorageEcoleDirecteKeys.DEVICE_UUID, uuid],
+        [AsyncStorageEcoleDirecteKeys.USERNAME, username],
+        [AsyncStorageEcoleDirecteKeys.ACCESS_TOKEN, ed._accessToken]
+      ]);
+    }
+
+    setConnecting(false);
+
+    showMessage({
+      message: 'Connecté avec succès',
+      type: 'success',
+      icon: 'auto',
+    });
+
+    await appContext.dataProvider!.init('ecoledirecte', ed);
+    await AsyncStorage.setItem('service', 'ecoledirecte');
+
+    navigation.goBack();
+    navigation.goBack();
+    appContext.setLoggedIn(true);
+  };
 
   const handleLogin = async () => {
     if (username.trim() === '' || password.trim() === '') {
@@ -94,30 +116,7 @@ function LoginEDForm({ route, navigation }: {
 
       await ed.auth.login(username, password, uuid);
 
-      if(ed._token && ed._accessToken) {
-
-        await AsyncStorage.multiSet([
-          [AsyncStorageEcoleDirecteKeys.TOKEN, ed._token],
-          [AsyncStorageEcoleDirecteKeys.DEVICE_UUID, uuid],
-          [AsyncStorageEcoleDirecteKeys.USERNAME, username],
-          [AsyncStorageEcoleDirecteKeys.ACCESS_TOKEN, ed._accessToken]
-        ]);
-      }
-
-      setConnecting(false);
-
-      showMessage({
-        message: 'Connecté avec succès',
-        type: 'success',
-        icon: 'auto',
-      });
-
-      await appContext.dataProvider!.init('ecoledirecte', ed);
-      await AsyncStorage.setItem('service', 'ecoledirecte');
-
-      navigation.goBack();
-      navigation.goBack();
-      appContext.setLoggedIn(true);
+      await handleConnection(uuid);
     } catch(err: any) {
       setConnecting(false);
       const errorCode = err.code ? err.code: 0;
@@ -126,8 +125,7 @@ function LoginEDForm({ route, navigation }: {
       if (errorCode == 12) {
         const token = await ed.auth.get2FAToken(username, password);
         const QCM = await ed.auth.get2FA(token);
-        setDoubleAuthToken(token)
-        console.log(QCM);
+        setDoubleAuthToken(token);
         setDoubleAuthObject(QCM);
         setDoubleAuthEnabled(true);
         return;
@@ -141,42 +139,19 @@ function LoginEDForm({ route, navigation }: {
 
 
   const sendA2FAnswer = async () => {
-      setConnecting(true);
-      ed._token = doubleAuthToken;
-      const authFactors = await ed.auth.resolve2FA(doubleAuthAnswer).catch((err) => {
-        console.log(err)
-        setErrorAlert(true);
-      });
-      setDoubleAuthEnabled(false);
-      let uuid = makeUUID();
+    setConnecting(true);
+    ed._token = doubleAuthToken;
+    const authFactors = await ed.auth.resolve2FA(doubleAuthAnswer).catch((err) => {
+      console.log(err);
+      setErrorAlert(true);
+    });
+    setDoubleAuthEnabled(false);
+    let uuid = makeUUID();
 
-      await ed.auth.login(username, password, uuid, authFactors);
+    await ed.auth.login(username, password, uuid, authFactors ?? undefined);
 
-      if(ed._token && ed._accessToken) {
-
-        await AsyncStorage.multiSet([
-          [AsyncStorageEcoleDirecteKeys.TOKEN, ed._token],
-          [AsyncStorageEcoleDirecteKeys.DEVICE_UUID, uuid],
-          [AsyncStorageEcoleDirecteKeys.USERNAME, username],
-          [AsyncStorageEcoleDirecteKeys.ACCESS_TOKEN, ed._accessToken]
-        ]);
-      }
-
-      setConnecting(false);
-
-      showMessage({
-        message: 'Connecté avec succès',
-        type: 'success',
-        icon: 'auto',
-      });
-
-      await appContext.dataProvider!.init('ecoledirecte', ed);
-      await AsyncStorage.setItem('service', 'ecoledirecte');
-
-      navigation.goBack();
-      navigation.goBack();
-      appContext.setLoggedIn(true);
-  }
+    await handleConnection(uuid);
+  };
 
   return (
     <>
