@@ -8,12 +8,12 @@ import {
   TextInput,
   StatusBar,
   ActivityIndicator,
-  Image,
+  Image, Alert, TouchableOpacity,
 } from 'react-native';
 
 import * as Haptics from 'expo-haptics';
 
-import { UserCircle, KeyRound, AlertTriangle, Link2 } from 'lucide-react-native';
+import {UserCircle, KeyRound, AlertTriangle, Link2, Check} from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import { showMessage } from 'react-native-flash-message';
@@ -27,10 +27,15 @@ import AlertBottomSheet from '../../../interface/AlertBottomSheet';
 
 import GetUIColors from '../../../utils/GetUIColors';
 import { useAppContext } from '../../../utils/AppContext';
+import ModalBottom from '../../../interface/ModalBottom';
 
 import { AsyncStorageEcoleDirecteKeys } from '../../../fetch/EcoleDirecteData/connector';
 import { EDCore } from '@papillonapp/ed-core';
 import { v4 as uuidv4 } from 'uuid';
+import CheckAnimated from '../../../interface/CheckAnimated';
+import NativeText from '../../../components/NativeText';
+import { doubleauthResData } from '@papillonapp/ed-core/dist/src/types/v3';
+import PapillonCloseButton from '../../../interface/PapillonCloseButton';
 
 
 function LoginEDForm({ route, navigation }: {
@@ -49,6 +54,11 @@ function LoginEDForm({ route, navigation }: {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [connecting, setConnecting] = React.useState(false);
+
+  const [isDoubleAuthEnabled, setDoubleAuthEnabled] = React.useState(false);
+  const [doubleAuthObject, setDoubleAuthObject] = React.useState({ question: '', propositions: [] } as doubleauthResData);
+  const [doubleAuthCallback, setDoubleAuthCallback] = React.useState({ callback: () => {} });
+  const [doubleAuthAnswer, setDoubleAuthAnswer] = React.useState('');
 
   const appContext = useAppContext();
   const UIColors = GetUIColors();
@@ -84,7 +94,7 @@ function LoginEDForm({ route, navigation }: {
           [AsyncStorageEcoleDirecteKeys.USERNAME, username],
           [AsyncStorageEcoleDirecteKeys.ACCESS_TOKEN, ed._accessToken]
         ]);
-      };
+      }
 
       setConnecting(false);
 
@@ -108,37 +118,40 @@ function LoginEDForm({ route, navigation }: {
 
       // Doubleauth handling
       if (errorCode == 12) {
-        // Commented code below will be used after ed-core update
-
-        // const token = await ed.auth.get2FAToken(username, password);
-        // const QCM = await ed.auth.get2FA(token);
-        // const [doubleAuthAnswer, setDoubleAuthAnswer] = React.useState('');
-        // // TODO open a sheet with the questions
-        // const sendDoubleAuthAnswer = async () => {
-        //   const authFactors = await ed.auth.resolve2FA(doubleAuthAnswer).catch(() => {
-        //     setErrorAlert(true);
-        //   });
-        //   await ed.auth.login(username, password, uuid, authFactors)
-        //     .then(async () => {
-        //       setConnecting(false);
-        //
-        //       showMessage({
-        //         message: 'Connecté avec succès',
-        //         type: 'success',
-        //         icon: 'auto',
-        //       });
-        //
-        //       await appContext.dataProvider!.init('ecoledirecte', ed);
-        //       await AsyncStorage.setItem('service', 'ecoledirecte');
-        //
-        //       navigation.goBack();
-        //       navigation.goBack();
-        //       appContext.setLoggedIn(true);
-        //     })
-        //     .catch(() => {
-        //       setErrorAlert(true);
-        //     });
-        // };
+        const token = await ed.auth.get2FAToken(username, password);
+        const QCM = await ed.auth.get2FA(token);
+        setDoubleAuthObject(QCM);
+        const sendDoubleAuthAnswer = async () => {
+          console.log(doubleAuthAnswer);
+          // const authFactors = await ed.auth.resolve2FA(doubleAuthAnswer).catch(() => {
+          //   setErrorAlert(true);
+          // });
+          // console.log(authFactors);
+          // await ed.auth.login(username, password, uuid, authFactors ?? undefined)
+          //   .then(async () => {
+          //     setConnecting(false);
+          //
+          //     showMessage({
+          //       message: 'Connecté avec succès',
+          //       type: 'success',
+          //       icon: 'auto',
+          //     });
+          //
+          //     await appContext.dataProvider!.init('ecoledirecte', ed);
+          //     await AsyncStorage.setItem('service', 'ecoledirecte');
+          //
+          //     navigation.goBack();
+          //     navigation.goBack();
+          //     appContext.setLoggedIn(true);
+          //   })
+          //   .catch(() => {
+          //     setErrorAlert(true);
+          //   });
+        };
+        setDoubleAuthCallback({
+          callback: sendDoubleAuthAnswer
+        });
+        setDoubleAuthEnabled(true);
         return;
       }
       setErrorAlert(true);
@@ -161,6 +174,120 @@ function LoginEDForm({ route, navigation }: {
         }}
       />
       <ScrollView style={{ backgroundColor: UIColors.modalBackground }}>
+        <ModalBottom
+          visible={isDoubleAuthEnabled}
+          onDismiss={() => {
+            setDoubleAuthEnabled(false);
+          }}
+          align='bottom'
+          style={[
+            {
+              backgroundColor: '#000000',
+              borderColor: '#ffffff32',
+              borderWidth: 1,
+              elevation : 0,
+            }
+          ]}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              width: '100%',
+              maxWidth: '100%',
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              paddingBottom: 8,
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 16,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: 'column',
+                flex: 1,
+              }}
+            >
+              <NativeText heading='h4' style={{ color: '#fff' }}>
+                La double authentification est activée
+              </NativeText>
+              <NativeText heading='p2' style={{ color: '#fff' }}>
+                Répondez à la question pour vous connecter
+              </NativeText>
+              <NativeText style={{ color: '#fff', marginBottom: 10, marginTop: 10 }} heading='h4'>
+                {doubleAuthObject.question}
+              </NativeText>
+            </View>
+          </View>
+          <ScrollView
+            style={styles.doubleAuthModalScroll}
+          >
+            <NativeList
+              sectionProps={{
+                hideSeparator: true,
+                hideSurroundingSeparators: true,
+              }}
+            >
+              {doubleAuthObject.propositions.map((answer) => (
+                <NativeItem
+                  key={doubleAuthObject.propositions.indexOf(answer)}
+                  onPress={() => {
+                    setDoubleAuthAnswer(answer);
+                  }}
+                  backgroundColor={UIColors.background}
+                  cellProps={{
+                    contentContainerStyle: {
+                      paddingVertical: 3,
+                    },
+                    backgroundColor: UIColors.background,
+                  }}
+
+                  trailing={
+                    <CheckAnimated
+                      checked={answer === doubleAuthAnswer}
+                      pressed={() => {
+                        setDoubleAuthAnswer(answer);
+                      }}
+                      backgroundColor={UIColors.background}
+                    />
+                  }
+                >
+                  <NativeText heading="p">
+                    {answer}
+                  </NativeText>
+                </NativeItem>
+              ))}
+            </NativeList>
+          </ScrollView>
+          <View
+            style={{
+              flexDirection: 'row',
+              width: '100%',
+              maxWidth: '100%',
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              paddingBottom: 8,
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 16,
+            }}
+          >
+            <TouchableOpacity
+              style={[styles.startButton, {
+                backgroundColor: doubleAuthAnswer !== '' ? UIColors.primary : UIColors.text + '40',
+              }]}
+              activeOpacity={doubleAuthAnswer !== '' ? 0.5 : 1}
+              onPress={() => {
+                doubleAuthCallback.callback();
+              }}
+            >
+              <NativeText style={[styles.startText]}>
+                Confirmer
+              </NativeText>
+            </TouchableOpacity>
+          </View>
+        </ModalBottom>
+
         <AlertBottomSheet
           title="Échec de la connexion"
           subtitle="Vérifiez vos identifiants et réessayez."
@@ -282,6 +409,21 @@ function LoginEDForm({ route, navigation }: {
 }
 
 const styles = StyleSheet.create({
+  doubleAuthModalScroll: {
+    height: 300,
+  },
+  startButton: {
+    borderRadius: 300,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 44,
+    width: '100%',
+  },
+  startText: {
+    fontSize: 16,
+    fontFamily: 'Papillon-Semibold',
+    color: '#ffffff',
+  },
   loginHeader: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -377,6 +519,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Papillon-Medium',
     paddingVertical: 4,
+  },
+
+  instructionsText: {
+    fontSize: 16,
+    fontFamily: 'Papillon-Medium',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    opacity: 0.5,
   },
 });
 
