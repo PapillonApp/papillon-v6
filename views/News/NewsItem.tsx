@@ -89,6 +89,7 @@ function NewsItem({ route, navigation }: {
       ) : null
       ),
       headerRight: () => (
+        Platform.OS === 'ios' && 
         <ContextMenuButton
           isMenuPrimaryAction={true}
           menuConfig={{
@@ -122,7 +123,7 @@ function NewsItem({ route, navigation }: {
           }}
           onPressMenuItem={async ({ nativeEvent }) => {
             if (nativeEvent.actionKey === 'read') {
-              const ok = await markNewsAsRead(news.id);
+              const ok = await markNewsAsRead(news.id, !isRead);
               if (!ok) {
                 Alert.alert('Erreur', 'Impossible de marquer cette actualité comme lue.');
                 return;
@@ -146,9 +147,9 @@ function NewsItem({ route, navigation }: {
     });
   }, [navigation, isRead, readChanged]);
 
-  const markNewsAsRead = async (localID: string): Promise<boolean> => {
+  const markNewsAsRead = async (localID: string, forceState: boolean = true): Promise<boolean> => {
     if (!appContext.dataProvider) return false;
-    return appContext.dataProvider.changeNewsState(localID);
+    return appContext.dataProvider.changeNewsState(localID, forceState);
   };
 
   useEffect(() => {

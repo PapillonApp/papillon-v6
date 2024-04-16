@@ -6,7 +6,7 @@ const Stack = createNativeStackNavigator();
 import { headerTitleStyles } from './AppStack';
 import GetUIColors from '../utils/GetUIColors';
 
-import { LoginSkolengoSelectSchool } from '../views/NewAuthStack/Skolengo/LoginSkolengoSelectSchool';
+import LoginSkolengoSelectSchool from '../views/NewAuthStack/Skolengo/LoginSkolengoSelectSchool';
 
 const AuthStack = ({ navigation }) => {
   const UIColors = GetUIColors();

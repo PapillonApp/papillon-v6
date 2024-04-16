@@ -20,8 +20,9 @@ import {
   EyeOff,
 } from 'lucide-react-native';
 
+import * as Haptics from 'expo-haptics';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import LinearGradient from 'react-native-linear-gradient';
 import { showMessage } from 'react-native-flash-message';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -176,7 +177,7 @@ function NGPronoteLogin({
     } catch(err) {
       setConnecting(false);
       setErrorAlert(true);
-      console.error(err)
+      console.error(err);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
@@ -289,8 +290,6 @@ function NGPronoteLogin({
         >
           <View style={[styles.buttons]}>
             <PapillonButton
-              left={null}
-              light={null}
               title="Se connecter"
               color="#159C5E"
               onPress={() => handleLogin()}
