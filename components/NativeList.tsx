@@ -12,6 +12,7 @@ interface Props {
   style?: ViewStyle
   containerStyle?: ViewStyle
   plain?: boolean
+  inset?: boolean // only for iOS (NativeList.ios.tsx)
 }
 
 const NativeList: React.FC<Props> = React.memo(({
