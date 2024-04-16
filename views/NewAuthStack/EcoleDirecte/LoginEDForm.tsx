@@ -57,8 +57,17 @@ function LoginEDForm({ route, navigation }: {
 
   const [isDoubleAuthEnabled, setDoubleAuthEnabled] = React.useState(false);
   const [doubleAuthObject, setDoubleAuthObject] = React.useState({ question: '', propositions: [] } as doubleauthResData);
-  const [doubleAuthCallback, setDoubleAuthCallback] = React.useState({ callback: () => {} });
+  const [doubleAuthToken, setDoubleAuthToken] = React.useState("");
+
   const [doubleAuthAnswer, setDoubleAuthAnswer] = React.useState('');
+  
+  const selectDoubleAuthAnwser = (answer) => {
+    setDoubleAuthAnswer(answer);
+  };
+
+
+
+
 
   const appContext = useAppContext();
   const UIColors = GetUIColors();
@@ -68,6 +77,8 @@ function LoginEDForm({ route, navigation }: {
     return uuidv4();
   };
 
+  let ed = new EDCore();
+
 
   const handleLogin = async () => {
     if (username.trim() === '' || password.trim() === '') {
@@ -76,13 +87,10 @@ function LoginEDForm({ route, navigation }: {
       return;
     }
 
-    let ed = new EDCore();
     let uuid = makeUUID();
 
     try {
       setConnecting(true);
-
-
 
       await ed.auth.login(username, password, uuid);
 
@@ -111,53 +119,64 @@ function LoginEDForm({ route, navigation }: {
       navigation.goBack();
       appContext.setLoggedIn(true);
     } catch(err: any) {
-      console.log(err);
       setConnecting(false);
-
       const errorCode = err.code ? err.code: 0;
 
       // Doubleauth handling
       if (errorCode == 12) {
         const token = await ed.auth.get2FAToken(username, password);
         const QCM = await ed.auth.get2FA(token);
+        setDoubleAuthToken(token)
+        console.log(QCM);
         setDoubleAuthObject(QCM);
-        const sendDoubleAuthAnswer = async () => {
-          console.log(doubleAuthAnswer);
-          // const authFactors = await ed.auth.resolve2FA(doubleAuthAnswer).catch(() => {
-          //   setErrorAlert(true);
-          // });
-          // console.log(authFactors);
-          // await ed.auth.login(username, password, uuid, authFactors ?? undefined)
-          //   .then(async () => {
-          //     setConnecting(false);
-          //
-          //     showMessage({
-          //       message: 'Connecté avec succès',
-          //       type: 'success',
-          //       icon: 'auto',
-          //     });
-          //
-          //     await appContext.dataProvider!.init('ecoledirecte', ed);
-          //     await AsyncStorage.setItem('service', 'ecoledirecte');
-          //
-          //     navigation.goBack();
-          //     navigation.goBack();
-          //     appContext.setLoggedIn(true);
-          //   })
-          //   .catch(() => {
-          //     setErrorAlert(true);
-          //   });
-        };
-        setDoubleAuthCallback({
-          callback: sendDoubleAuthAnswer
-        });
         setDoubleAuthEnabled(true);
         return;
       }
+
+
       setErrorAlert(true);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
+
+
+  const sendA2FAnswer = async () => {
+      setConnecting(true);
+      ed._token = doubleAuthToken;
+      const authFactors = await ed.auth.resolve2FA(doubleAuthAnswer).catch((err) => {
+        console.log(err)
+        setErrorAlert(true);
+      });
+      setDoubleAuthEnabled(false);
+      let uuid = makeUUID();
+
+      await ed.auth.login(username, password, uuid, authFactors);
+
+      if(ed._token && ed._accessToken) {
+
+        await AsyncStorage.multiSet([
+          [AsyncStorageEcoleDirecteKeys.TOKEN, ed._token],
+          [AsyncStorageEcoleDirecteKeys.DEVICE_UUID, uuid],
+          [AsyncStorageEcoleDirecteKeys.USERNAME, username],
+          [AsyncStorageEcoleDirecteKeys.ACCESS_TOKEN, ed._accessToken]
+        ]);
+      }
+
+      setConnecting(false);
+
+      showMessage({
+        message: 'Connecté avec succès',
+        type: 'success',
+        icon: 'auto',
+      });
+
+      await appContext.dataProvider!.init('ecoledirecte', ed);
+      await AsyncStorage.setItem('service', 'ecoledirecte');
+
+      navigation.goBack();
+      navigation.goBack();
+      appContext.setLoggedIn(true);
+  }
 
   return (
     <>
@@ -228,12 +247,10 @@ function LoginEDForm({ route, navigation }: {
                 hideSurroundingSeparators: true,
               }}
             >
-              {doubleAuthObject.propositions.map((answer) => (
+              {doubleAuthObject.propositions.map((answer, index) => (
                 <NativeItem
-                  key={doubleAuthObject.propositions.indexOf(answer)}
-                  onPress={() => {
-                    setDoubleAuthAnswer(answer);
-                  }}
+                  key={index}
+                  onPress={() => selectDoubleAuthAnwser(answer)}
                   backgroundColor={UIColors.background}
                   cellProps={{
                     contentContainerStyle: {
@@ -244,10 +261,8 @@ function LoginEDForm({ route, navigation }: {
 
                   trailing={
                     <CheckAnimated
-                      checked={answer === doubleAuthAnswer}
-                      pressed={() => {
-                        setDoubleAuthAnswer(answer);
-                      }}
+                      checked={answer === doubleAuthAnswer }
+                      pressed={() => selectDoubleAuthAnwser(answer)}
                       backgroundColor={UIColors.background}
                     />
                   }
@@ -277,9 +292,7 @@ function LoginEDForm({ route, navigation }: {
                 backgroundColor: doubleAuthAnswer !== '' ? UIColors.primary : UIColors.text + '40',
               }]}
               activeOpacity={doubleAuthAnswer !== '' ? 0.5 : 1}
-              onPress={() => {
-                doubleAuthCallback.callback();
-              }}
+              onPress={() => sendA2FAnswer()}
             >
               <NativeText style={[styles.startText]}>
                 Confirmer
