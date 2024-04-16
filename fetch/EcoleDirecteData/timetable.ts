@@ -61,6 +61,31 @@ export const EDtimetableHandler = async (interval: [from: Date, to?: Date], inst
     let timetable: PapillonLesson[] = [];
 
     timetableFromED.forEach(lesson => {
+
+      if(lesson.typeCours === 'CONGE') return timetable.push({
+        id: lesson.id,
+        num: lesson.num || 0,
+        subject: {
+          id: lesson.id,
+          name: lesson.text || 'TEST',
+          groups: false
+        },
+        teachers: ['Aucun prof.'],
+        rooms: ['Chez soi'],
+        group_names: lesson.groupeCode.split(','),
+        memo: 'Non disponible',
+        virtual: ['Non disponible'],
+        start: lesson.start_date,
+        end: lesson.end_date,
+        background_color: lesson.color,
+        status: lesson.status || '',
+        is_cancelled: lesson.isAnnule,
+        is_outing: lesson.outing || false,
+        is_detention: lesson.detention || false,
+        is_exempted: lesson.exempted || false,
+        is_test: lesson.test || false
+      });
+
       timetable.push({
         id: lesson.id,
         num: lesson.num || 0,
