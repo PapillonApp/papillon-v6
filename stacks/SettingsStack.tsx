@@ -14,6 +14,7 @@ import ProfileScreen from '../views/Settings/ProfileScreen';
 import AppearanceScreen from '../views/Settings/AppearanceScreen';
 import SettingsScreen2 from '../views/Settings/SettingsScreen';
 import IconsScreen from '../views/Settings/IconsScreen';
+import IconSelectScreen from '../views/Settings/IconSelectScreen';
 import CoursColor from '../views/Settings/CoursColor';
 import AdjustmentsScreen from '../views/Settings/AdjustmentsScreen';
 import HeaderSelectScreen from '../views/Settings/HeaderSelectScreen';
@@ -147,6 +148,13 @@ function InsetSettings() {
         options={{
           headerTitle: 'Icône de l\'application',
           presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="IconSelect"
+        component={IconSelectScreen}
+        options={{
+          headerTitle: 'Icône de l\'application',
         }}
       />
       <Stack.Screen

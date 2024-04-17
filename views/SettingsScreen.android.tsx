@@ -23,6 +23,9 @@ import {
   Info,
 } from 'lucide-react-native';
 
+import { IconsList } from './Settings/IconSelectScreen';
+import { getAppIcon } from 'expo-dynamic-app-icon';
+
 const SettingsScreen = ({ navigation }) => {
   const UIColors = GetUIColors();
 
@@ -41,6 +44,18 @@ const SettingsScreen = ({ navigation }) => {
       setProfilePicture(user.profile_picture);
     })();
   }, [appContext.dataProvider]);
+
+  // icon
+  const [currentIcon, setCurrentIcon] = useState<string | null>(null);
+
+  // on focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setCurrentIcon(getAppIcon() || 'classic');
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <ScrollView
@@ -147,9 +162,18 @@ const SettingsScreen = ({ navigation }) => {
           </NativeText>
         </NativeItem>
         <NativeItem
-          onPress={() => navigation.navigate('Icons')}
+          onPress={() => navigation.navigate('IconSelect')}
           leading={
-            <Sparkles size={24} color={UIColors.primary} />
+            <View
+              style={[
+                styles.iconContainer
+              ]}
+            >
+              <Image
+                source={IconsList.find((icon) => icon.name === currentIcon)?.icon}
+                style={styles.iconImage}
+              />
+            </View>
           }
         >
           <NativeText heading="h4">
@@ -216,6 +240,19 @@ const styles = StyleSheet.create({
   list: {
     marginTop: 6,
     marginBottom: 10,
+  },
+
+  iconContainer: {
+    width: 30,
+    height: 30,
+    margin: -3,
+    borderRadius: 300,
+    overflow: 'hidden',
+  },
+
+  iconImage: {
+    width: '100%',
+    height: '100%',
   },
 });
 
