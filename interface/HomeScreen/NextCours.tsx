@@ -16,6 +16,8 @@ function lz(num: number): string {
   return (num < 10 ? '0' : '') + num;
 }
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, navigation, color, tiny, mainAction = () => {}, longPressAction = () => {} }: {
   cours: PapillonLesson[] | null
   style?: ViewStyle
@@ -28,6 +30,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
   navigation: any // TODO
 }) => {
   const UIColors = GetUIColors();
+  const insets = useSafeAreaInsets();
 
   const [nxid, setNxid] = useState(0);
   const [lenText, setLenText] = useState('À venir');
@@ -42,18 +45,13 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
   const hideAnim = useRef(new Animated.Value(0)).current;
 
   yOffset.addListener(({ value }) => {
-    if (value > -40) {
-      setHideDetail(true);
-    }
-    else {
-      setHideDetail(false);
-    }
-
-    if (value > -10) {
-      setHideAll(true);
-    }
-    else {
-      setHideAll(false);
+    if(Platform.OS === 'ios') {
+      if (value > 0 - insets.top + 10) {
+        setHideDetail(true);
+      }
+      else {
+        setHideDetail(false);
+      }
     }
   });
 
@@ -313,6 +311,20 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
   return (
     cours && cours[nxid] && !coursEnded &&
 
+    <Animated.View
+      style={{
+        height: detailAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [90, 60],
+          extrapolate: 'clamp',
+        }),
+        marginTop: detailAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 30],
+          extrapolate: 'clamp',
+        }),
+      }}
+    >
     <PressableScale
       style={[
         styles.container,
@@ -435,6 +447,7 @@ const NextCours = ({ cours, yOffset, style, setNextColor = (color) => {}, naviga
         </Animated.View>
       </Animated.View>
     </PressableScale>
+    </Animated.View>
   );
 };
 
