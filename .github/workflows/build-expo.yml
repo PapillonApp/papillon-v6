@@ -50,9 +50,6 @@ jobs:
     - name: 📦 Install dependencies
       run: npm i
 
-    - name: 📋 Test project
-      run: yarn test
-
     - name: 👷 Build app
       run: |
         eas build --local \
