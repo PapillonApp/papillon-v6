@@ -1552,7 +1552,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
         subtitle="Les informations affichées peuvent être obsolètes."
         left={<Globe2 color={UIColors.text} />}
         height={80}
-        style={{ marginHorizontal: 16 }}
+        style={{ marginHorizontal: 16, marginBottom: 16, marginTop : -16}}
       />
 
       <CoursElement
