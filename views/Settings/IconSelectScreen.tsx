@@ -261,7 +261,7 @@ const IconSelectScreen = () => {
                       </Reanimated.View>
                     )}
                     <TouchableHighlight
-                      style={styles.iconPreview}
+                      style={[styles.iconPreview, Platform.OS === 'android' ? {borderRadius: 200} : null]}
                       onPress={() => {
                         applyIcon(icon.name);
                       }}
