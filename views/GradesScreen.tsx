@@ -516,6 +516,10 @@ const GradesScreen = ({ navigation }: {
       >
         <StatusBar translucent animated barStyle={UIColors.dark ? 'light-content' : 'dark-content'} backgroundColor={UIColors.backgroundHigh} />
 
+        { insets.top < 24 && Platform.OS === 'ios' && (
+          <View style={{ height: 32 }} />
+        )}
+
         {hideNotesTab && (
           <PapillonLoading
             title='Onglet notes désactivé'

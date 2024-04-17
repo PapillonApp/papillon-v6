@@ -252,6 +252,10 @@ function NewsScreen({ navigation }: {
           <View style={{height: 16}} />
         )}
 
+        { insets.top < 24 && Platform.OS === 'ios' && (
+          <View style={{ height: 32 }} />
+        )}
+
         {!isLoading && unreadOnly && news.filter((item) => !item.read).length === 0 && (
           <Reanimated.View
             entering={ZoomIn.duration(200).easing(Easing.out(Easing.bezierFn(0.5, 0, 1, 0)))}
