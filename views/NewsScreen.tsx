@@ -243,8 +243,10 @@ function NewsScreen({ navigation }: {
           backgroundColor="transparent"
         />
 
-        {Platform.OS === 'ios' && (
+        {Platform.OS === 'ios' ? (
           <View style={{ height: insets.top }} />
+        ) : (
+          <View style={{height: 16}} />
         )}
 
         {!isLoading && unreadOnly && news.filter((item) => !item.read).length === 0 && (
