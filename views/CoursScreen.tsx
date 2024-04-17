@@ -15,6 +15,8 @@ import {
   Pressable,
 } from 'react-native';
 
+import Reanimated, {ZoomIn, Easing, FadeOut} from 'react-native-reanimated';
+
 import InfinitePager, { type InfinitePagerImperativeApi } from 'react-native-infinite-pager';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -672,7 +674,11 @@ const CoursItem = ({ cours, lessonPressed, navigation }: {
   const UIColors = GetUIColors();
 
   return (
-    <View style={[styles.fullCours]}>
+    <Reanimated.View
+      style={[styles.fullCours]}
+      entering={ZoomIn.duration(200).easing(Easing.out(Easing.bezierFn(0.5, 0, 1, 0)))}
+      exiting={FadeOut.duration(200)}
+    >
       <View style={[styles.coursTimeContainer]}>
         <Text numberOfLines={1} style={[styles.ctStart]}>
           {formattedStartTime()}
@@ -875,7 +881,7 @@ const CoursItem = ({ cours, lessonPressed, navigation }: {
           </View>
         </PressableScale>
       </ContextMenuView>
-    </View>
+    </Reanimated.View>
   );
 };
 
