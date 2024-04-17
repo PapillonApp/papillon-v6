@@ -98,6 +98,9 @@ function NewsScreen({ navigation }: {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
 
+    // if two news have same title and date, remove one
+    newNews = newNews.filter((item, index, self) => self.findIndex((t) => t.title === item.title && t.date === item.date) === index);
+
     return newNews;
   }
 
@@ -283,7 +286,7 @@ function NewsScreen({ navigation }: {
             news.map((item, index) => (
               !unreadOnly || !item.read || (unreadOnly && news.filter((item) => !item.read).length === 0) ? (
                 <Reanimated.View
-                  key={item.id}
+                  key={item.author + item.date + item.title}
                   style={[
                     {
                       overflow: 'hidden',
