@@ -742,7 +742,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
         left: 0,
         width: '100%',
         opacity: yOffset.interpolate({
-          inputRange: Platform.OS == 'ios' ? [25, 50] : [75, 100],
+          inputRange: Platform.OS == 'ios' ? [25, 50] : [0, 1],
           outputRange: [0, 1],
         }),
         elevation: 2,
@@ -917,7 +917,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   yOffset={new Animated.Value(0)}
                   mainAction={() => {
                     // scroll up
-                    scrollRef.current?.scrollTo({ y: 0, animated: true });
+                    scrollRef.current?.scrollTo({ y: 60, animated: true });
                   }}
                 />
               </Animated.View>
