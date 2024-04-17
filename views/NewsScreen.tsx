@@ -236,6 +236,9 @@ function NewsScreen ({ navigation }: {
           backgroundColor="transparent"
         />
 
+        {Platform.OS === 'ios' && (
+          <View style={{ height: 16 }} />
+        )}
 
         {!isLoading && unreadOnly && news.filter((item) => !item.read).length === 0 && (
           <NativeList
@@ -247,7 +250,7 @@ function NewsScreen ({ navigation }: {
                 icon={<MailOpen size={26} color={'#B42828'} />}
                 title="Vous avez tout lu !"
                 subtitle="Vous êtes à jour sur toutes les actualités"
-                style={{ marginVertical: 32 }}
+                style={{ marginVertical: 16 }}
               />
             </NativeItem>
 
