@@ -6,7 +6,7 @@ on:
         type: choice
         description: OS to build on. Ubuntu is faster, MacOS supports iOS builds, Windows is unsupported
         options:
-          - macos-latest
+          - macos-14
           - ubuntu-latest
       platform:
         type: choice
