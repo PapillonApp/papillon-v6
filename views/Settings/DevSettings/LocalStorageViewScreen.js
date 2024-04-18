@@ -6,6 +6,7 @@ import GetUIColors from '../../../utils/GetUIColors';
 import { showMessage } from 'react-native-flash-message';
 
 import { Info, CircleX, ScrollText, CircleAlert, Trash2, Pencil, Check, X, Eye, EyeOff, RefreshCw } from 'lucide-react-native';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PapillonLoading from '../../../components/PapillonLoading';
 import moment from 'moment';
@@ -64,7 +65,7 @@ function RenderItem({ item }) {
   }
   if(!editing) return (
     <View style={styles.entryContainer}>
-      { options.sensibleData ? (
+      { options.sensibleData && Platform.OS == 'android' ? (
         <View>
           <CircleAlert size={24} color={'yellow'} style={styles.leftIcon} onPress={() => { warningSensibleData(itemName); }}/>
         </View>
@@ -110,6 +111,8 @@ function RenderItem({ item }) {
       </View>
     </View>
   );
+
+  return null;
 }
 const entryInfo = {
   'allNotifs': {

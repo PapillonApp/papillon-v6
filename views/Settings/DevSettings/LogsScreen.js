@@ -36,7 +36,7 @@ function LogsRenderer({ log }) {
       break;
   }
   let formatedDate = moment(log.time).format('DD/MM/YYYY HH:MM:ss.SSS');
-  return (
+  return ( log ?
     <View style={styles.logContainer}>
       {icon}
       <View style={{
@@ -46,7 +46,7 @@ function LogsRenderer({ log }) {
         <Text style={{color: color}}>{log.message}</Text>
       </View>
     </View>
-  );
+    : null );
 }
 
 function LogsScreen({ navigation }) {
