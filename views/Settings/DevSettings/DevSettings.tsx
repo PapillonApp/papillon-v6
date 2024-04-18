@@ -74,7 +74,7 @@ function DevSettings({ navigation }) {
                         onPress={() => {
                             Alert.alert(
                                 "Avertissement de sécurité",
-                                "Le local storage contient vos informations d'identification sous la forme de token. Il contient également vos données personnelles. Faites donc très attention aux informations que vous fournissez en faisant une capture d'écran.\n\nLes informations sensibles sont indiqués, veillez-donc à les masquer.",
+                                "Le local storage contient vos informations d'identification sous la forme de token. Il contient également vos données personnelles. Faites donc très attention aux informations que vous fournissez en faisant une capture d'écran.\n\nLes informations sensibles sont indiqués, veillez-donc à les masquer.\n\nL'équipe Papillon ne saurait être tenue responsable de tout bug lié à la manipulation du local storage.",
                                 [{
                                     text: "Annuler",
                                     style: "cancel"
