@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, ScrollView, StatusBar, View, Text, StyleSheet } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, StatusBar, View, Text, StyleSheet } from 'react-native';
 
 import { useTheme } from 'react-native-paper';
 import GetUIColors from '../../../utils/GetUIColors';
@@ -87,9 +87,11 @@ function LogsScreen({ navigation }) {
       >
         <NativeList inset>
           {logsLoading ? (
-            <PapillonLoading
-              title="Chargement des logs"
-            />
+            <NativeItem
+              leading={<ActivityIndicator />}
+            >
+              <NativeText heading="subtitle2">Chargement des logs</NativeText>
+            </NativeItem>
           ) : 
             Array.from(logs).map((log, index) => (
               <LogsRenderer log={log} key={index} />

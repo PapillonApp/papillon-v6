@@ -357,7 +357,7 @@ function NewSettings({ navigation }: {
                 style={[
                   styles.item.leadingContainer,
                   {
-                    backgroundColor: '#FF0000',
+                    backgroundColor: '#888888',
                   }
                 ]}
               >
