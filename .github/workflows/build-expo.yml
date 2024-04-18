@@ -41,7 +41,7 @@ jobs:
 
   build-ios:
     runs-on: macos-14
-    need: [prepare-env]
+    needs: [prepare-env]
     strategy:
       matrix:
         node: [20.x]
@@ -84,7 +84,7 @@ jobs:
         
   build-android:
     runs-on: macos-14
-    need: [prepare-env]
+    needs: [prepare-env]
     strategy:
       matrix:
         node: [20.x]
