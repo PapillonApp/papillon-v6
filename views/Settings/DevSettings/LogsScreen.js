@@ -47,7 +47,7 @@ function LogsRenderer({ log }) {
         <NativeText heading="subtitle2">
           {formatedDate} - {log.type}
         </NativeText>
-        <NativeText style={{color: color, fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace'}}>
+        <NativeText style={{color: color, fontSize: 14}}>
           {log.message}
         </NativeText>
       </NativeItem>
