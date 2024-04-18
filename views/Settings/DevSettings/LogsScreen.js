@@ -12,10 +12,47 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import PapillonLoading from "../../../components/PapillonLoading";
 import moment from "moment"
 moment.locale("fr")
+let UIColors;
+function setValues(UIColors1) {
+    UIColors = UIColors1
+}
+function LogsRenderer({ log }) {
+    let icon;
+    let color = UIColors.text
+    switch(log.type) {
+        case "log": 
+            icon = <ScrollText size={24} color={"#FFFFFF"} style={styles.icon}/>
+            break;
+        case "info":
+            icon = <Info size={24} color={"cyan"} style={styles.icon}/>
+            break;
+        case "warn":
+            icon = <CircleAlert size={24} color={"yellow"} style={styles.icon}/>
+            color = "yellow"
+            break;
+        case "error":
+            icon = <CircleX size={24} color={"red"} style={styles.icon}/>
+            color = "red"
+            break;
+    }
+    let formatedDate = moment(log.time).format("DD/MM/YYYY HH:MM:ss.SSS")
+    return (
+        <View style={styles.logContainer}>
+            {icon}
+            <View style={{
+                marginLeft: 10
+            }}>
+                <Text style={{color: UIColors.text, fontSize: 10}}>{formatedDate} - {log.type}</Text>
+                <Text style={{color: color}}>{log.message}</Text>
+            </View>
+        </View>
+    )
+}
 
 function LogsScreen({ navigation }) {
     const theme = useTheme();
     const UIColors = GetUIColors();
+    setValues(UIColors)
     const [logs, setLogs] = React.useState([])
     const [logsLoading, setLogsLoading] = React.useState(true)
     async function loadLogs() {
@@ -28,38 +65,6 @@ function LogsScreen({ navigation }) {
     React.useEffect(() => {
         loadLogs()
     }, [])
-    function LogsRenderer({ log }) {
-        let icon;
-        let color = UIColors.text
-        switch(log.type) {
-            case "log": 
-                icon = <ScrollText size={24} color={"#FFFFFF"} style={styles.icon}/>
-                break;
-            case "info":
-                icon = <Info size={24} color={"cyan"} style={styles.icon}/>
-                break;
-            case "warn":
-                icon = <CircleAlert size={24} color={"yellow"} style={styles.icon}/>
-                color = "yellow"
-                break;
-            case "error":
-                icon = <CircleX size={24} color={"red"} style={styles.icon}/>
-                color = "red"
-                break;
-        }
-        let formatedDate = moment(log.time).format("DD/MM/YYYY HH:MM:ss.SSS")
-        return (
-            <View style={styles.logContainer}>
-                {icon}
-                <View style={{
-                    marginLeft: 10
-                }}>
-                    <Text style={{color: UIColors.text, fontSize: 10}}>{formatedDate} - {log.type}</Text>
-                    <Text style={{color: color}}>{log.message}</Text>
-                </View>
-            </View>
-        )
-    }
     return (
         <View style={{ flex: 1 }}>
             {Platform.OS === 'ios' ? (
