@@ -5,7 +5,7 @@ import { useTheme } from 'react-native-paper';
 import GetUIColors from '../../../utils/GetUIColors';
 import { showMessage } from 'react-native-flash-message';
 
-import { Info, CircleX, ScrollText, CircleAlert, Trash2, Pencil, Check, X, Eye, EyeOff, RefreshCw } from 'lucide-react-native';
+import { Info, CircleX, ScrollText, AlertTriangle, Trash2, Pencil, Check, X, Eye, EyeOff, RefreshCw } from 'lucide-react-native';
 
 import NativeList from '../../../components/NativeList';
 import NativeItem from '../../../components/NativeItem';
@@ -68,12 +68,10 @@ function RenderItem({ item }) {
     else displayedValue = messageValueDefaultHidden;
   }
   if(!editing) return (
-    <NativeItem style={styles.entryContainer}
+    <NativeItem
       leading={
-        options.sensibleData && Platform.OS == 'android' ? (
-          <View>
-            <CircleAlert size={24} color={'yellow'} style={styles.leftIcon} onPress={() => { warningSensibleData(itemName); }}/>
-          </View>
+        options && options.sensibleData && Platform.OS == 'android' ? (
+          <AlertTriangle size={24} color={'yellow'}/>
         ) : null
       }
       trailing={
@@ -93,10 +91,8 @@ function RenderItem({ item }) {
         </View>
       }
     >
-      <View>
-        <NativeText heading="subtitle2">{itemName}</NativeText>
-        { displayedValue }
-      </View>
+      <NativeText heading="subtitle2">{itemName}</NativeText>
+      { displayedValue }
     </NativeItem>
   );
   if(editing) return (

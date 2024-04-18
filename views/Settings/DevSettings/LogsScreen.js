@@ -9,7 +9,7 @@ import NativeText from '../../../components/NativeText';
 import ListItem from '../../../components/ListItem';
 import PapillonIcon from '../../../components/PapillonIcon';
 
-import { Info, CircleX, ScrollText, CircleAlert } from 'lucide-react-native';
+import { Info, CircleX, ScrollText, CircleAlert, AlertTriangle } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PapillonLoading from '../../../components/PapillonLoading';
 import moment from 'moment';
@@ -29,7 +29,7 @@ function LogsRenderer({ log }) {
       icon = <Info size={24} color={'cyan'} style={styles.icon}/>;
       break;
     case 'warn':
-      icon = <CircleAlert size={24} color={'yellow'} style={styles.icon}/>;
+      icon = <AlertTriangle size={24} color={'yellow'} style={styles.icon}/>;
       color = 'yellow';
       break;
     case 'error':
@@ -38,18 +38,22 @@ function LogsRenderer({ log }) {
       break;
   }
   let formatedDate = moment(log.time).format('DD/MM/YYYY HH:MM:ss.SSS');
-  return ( log ?
-    <NativeItem
-      leading={icon}
-    >
-      <NativeText heading="subtitle2">
-        {formatedDate} - {log.type}
-      </NativeText>
-      <NativeText style={{color: color, fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace'}}>
-        {log.message}
-      </NativeText>
-    </NativeItem>
-    : null );
+  
+  if (log) {
+    return (
+      <NativeItem
+        leading={icon ? icon : <View />}
+      >
+        <NativeText heading="subtitle2">
+          {formatedDate} - {log.type}
+        </NativeText>
+        <NativeText style={{color: color, fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace'}}>
+          {log.message}
+        </NativeText>
+      </NativeItem>
+    );
+  }
+  return <View />;
 }
 
 function LogsScreen({ navigation }) {
