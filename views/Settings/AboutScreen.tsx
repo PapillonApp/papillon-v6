@@ -233,8 +233,6 @@ function AboutScreen({ navigation }) {
               </NativeText>
             }
             onPress={async() => {
-              //navigation.navigate('NetworkLoggerScreen')
-              console.log("Cliqué")
               let devMode = await AsyncStorage.getItem("devMode")
               if(devMode === "true") {
                 showMessage({

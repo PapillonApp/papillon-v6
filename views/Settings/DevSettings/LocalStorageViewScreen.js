@@ -53,7 +53,6 @@ function LocalStorageViewScreen({ navigation }) {
                 }
             }
         }
-        console.log(`${itemName} visible user: ${userOptions}`)
         let displayedValue;
         let editing;
         if(userOptions) {
@@ -285,7 +284,6 @@ function LocalStorageViewScreen({ navigation }) {
         )
     }
     function changeEditHandler(name, value, type) {
-        console.log(`change edit ${type} of ${name} = ${value}`)
         let entryUserOptions = storageList
         if(type === "value") entryUserOptions[name] = { edit: true, editValue: value, editName: entryUserOptions[name].editName }
         if(type === "name") entryUserOptions[name] = { edit: true, editValue: entryUserOptions[name].editValue, editName: value }
@@ -362,7 +360,6 @@ function LocalStorageViewScreen({ navigation }) {
         )
     }
     function showData(name) {
-        console.log("show data" + name)
         let options = entryInfo[name]
         if(!options) {
             if(name.includes("cache")) {
@@ -396,14 +393,12 @@ function LocalStorageViewScreen({ navigation }) {
         else showData1(name)
     }
     function showData1(name) {
-        console.log(`set show data ${name}`)
         let entryUserOptions = storageList
         entryUserOptions[name] = { display: true }
         setStorageList(entryUserOptions)
         rerenderStorage()
     }
     function hideData(name) {
-        console.log(`hide data ${name}`)
         let entryUserOptions = storageList
         entryUserOptions[name] = { display: false }
         setStorageList(entryUserOptions)
