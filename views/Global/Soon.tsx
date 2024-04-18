@@ -2,12 +2,12 @@ import React from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 
-export function WillBeSoon(
-  { name, plural } = {
-    name: 'Cette fonctionnalité',
-    plural: false,
-  }
-) {
+interface Props {
+  name?: string;
+  plural?: boolean;
+}
+
+export const WillBeSoon: React.FC<Props> = ({ name = 'Cette fonctionnalité', plural = false }) => {
   return (
     <View
       style={{
@@ -36,9 +36,8 @@ export function WillBeSoon(
           marginTop: 4,
         }}
       >
-        {name} {plural ? 'seront disponibles' : 'sera disponible'} dans une
-        prochaîne beta.
+        {name} {plural ? 'seront disponibles' : 'sera disponible'} dans une prochaine beta.
       </Text>
     </View>
   );
-}
+};

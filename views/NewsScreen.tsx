@@ -2,16 +2,13 @@ import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import {
   StyleSheet,
   View,
-  Animated,
+  Animated as AnimatedRN,
   StatusBar,
   RefreshControl,
   Platform,
   ScrollView,
-  Modal,
   TouchableOpacity,
 } from 'react-native';
-
-import SegmentedControl from "react-native-segmented-control-2";
 
 import type { PapillonNews } from '../fetch/types/news';
 
@@ -21,37 +18,16 @@ import moment from 'moment/moment';
 import 'moment/locale/fr';
 moment.locale('fr');
 
-import PdfRendererView from 'react-native-pdf-renderer';
-
-import { SFSymbol } from 'react-native-sfsymbols';
-import PapillonInsetHeader from '../components/PapillonInsetHeader';
-
 import {
-  SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
 import { useTheme } from 'react-native-paper';
 
 import {
-  Newspaper,
-  ChefHat,
-  Projector,
-  X,
-  PieChart,
-  Palette,
-  ShieldCheck,
-  PenLine,
-  Tent,
-  Dumbbell,
-  Users,
-  UserCheck2,
-  LucideIcon,
-  Eye,
-  Rows,
   MailOpen,
-  Mail,
   Bell,
+  Newspaper,
 } from 'lucide-react-native';
 
 import PapillonLoading from '../components/PapillonLoading';
@@ -63,8 +39,9 @@ import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
+import Reanimated, { Layout, Easing, ZoomIn, ZoomOut, FadeIn, FadeOut } from 'react-native-reanimated';
 
-const yOffset = new Animated.Value(0);
+const yOffset = new AnimatedRN.Value(0);
 
 const headerOpacity = yOffset.interpolate({
   inputRange: [-40, 0],
@@ -72,7 +49,7 @@ const headerOpacity = yOffset.interpolate({
   extrapolate: 'clamp',
 });
 
-const scrollHandler = Animated.event(
+const scrollHandler = AnimatedRN.event(
   [{ nativeEvent: { contentOffset: { y: yOffset } } }],
   { useNativeDriver: false }
 );
@@ -81,74 +58,7 @@ function relativeDate(date: Date) {
   return moment(date).fromNow();
 }
 
-function normalizeText(text?: string) {
-  if (!text) return '';
-
-  // remove accents and render in lowercase
-  return text
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .trim()
-    .toLowerCase();
-}
-
-const ICONS_CATEGORIES: Array<{
-  name: string
-  icon: LucideIcon
-}> = [
-  {
-    name: 'administration',
-    icon: ShieldCheck,
-  },
-  {
-    name: 'arts',
-    icon: Palette,
-  },
-  {
-    name: 'autorisation de sortie',
-    icon: PenLine,
-  },
-  {
-    name: 'sorties',
-    icon: Tent,
-  },
-  {
-    name: 'sports',
-    icon: Dumbbell,
-  },
-  {
-    name: 'stage',
-    icon: Users,
-  },
-  {
-    name: 'vie scolaire',
-    icon: UserCheck2,
-  }
-];
-
-const FullNewsIcon = ({ isSurvey, category, UIColors }: {
-  isSurvey: boolean;
-  category?: string;
-}) => {
-  const normalizedCategory = normalizeText(category);
-  const COLOR = UIColors.text + '55';
-
-  let CategoryIcon: LucideIcon;
-  if (isSurvey) CategoryIcon = PieChart;
-  else {
-    const category = ICONS_CATEGORIES.find((item) => item.name === normalizedCategory);
-    if (category) CategoryIcon = category.icon;
-    else CategoryIcon = Newspaper;
-  }
-
-  return (
-    <View>
-      <CategoryIcon color={COLOR} size={24} />
-    </View>
-  );
-};
-
-const trimHtml = (html: string) => html 
+const trimHtml = (html: string) => html
   // remove &nbsp;
   .replace(/&nbsp;/g, ' ')
   // remove html tags
@@ -158,7 +68,9 @@ const trimHtml = (html: string) => html
   // remove line breaks
   .replace(/\n{1,}/g, '');
 
-function NewsScreen ({ navigation }: {
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+function NewsScreen({ navigation }: {
   navigation: any; // TODO
 }) {
   const theme = useTheme();
@@ -168,7 +80,6 @@ function NewsScreen ({ navigation }: {
 
   const [news, setNews] = useState<PapillonNews[]>([]);
   const [finalNews, setFinalNews] = useState<PapillonNews[]>([]);
-  const [currentNewsType, setCurrentNewsType] = useState('Toutes');
 
   const [unreadOnly, setUnreadOnly] = useState(true);
 
@@ -186,6 +97,9 @@ function NewsScreen ({ navigation }: {
     newNews.sort((a, b) => {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
+
+    // if two news have same title and date, remove one
+    newNews = newNews.filter((item, index, self) => self.findIndex((t) => t.title === item.title && t.date === item.date) === index);
 
     return newNews;
   }
@@ -217,47 +131,16 @@ function NewsScreen ({ navigation }: {
       const news = await appContext.dataProvider.getNews(true);
       const editedNews = editNews(news);
 
+      setNews([]);
+      setFinalNews([]);
+
       setNews(editedNews);
       setFinalNews(editedNews);
       setIsHeadLoading(false);
     })();
   }, [appContext.dataProvider]);
 
-  const [newsTypes, setNewsTypes] = useState([
-    {
-      name: 'Toutes',
-      icon: <Newspaper color={'#B42828'} size={20} />,
-      enabled: true,
-    },
-    {
-      name: 'Menus',
-      icon: <ChefHat color={'#B42828'} size={20} />,
-      enabled: false,
-    },
-    {
-      name: 'Réunions',
-      icon: <Projector color={'#B42828'} size={20} />,
-      enabled: false,
-    },
-  ]);
-
-  useEffect(() => {
-    news.forEach((item) => {
-      if (normalizeText(item.title).includes(normalizeText('menu'))) {
-        const newNewsTypes = newsTypes;
-        newNewsTypes[1].enabled = true;
-        setNewsTypes(newNewsTypes);
-      }
-      if (normalizeText(item.title).includes(normalizeText('reunion'))) {
-        const newNewsTypes = newsTypes;
-        newNewsTypes[2].enabled = true;
-        setNewsTypes(newNewsTypes);
-      }
-    });
-  }, [news]);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalURL] = useState('');
 
   // change header title
   useLayoutEffect(() => {
@@ -296,21 +179,55 @@ function NewsScreen ({ navigation }: {
           </NativeText>
         </TouchableOpacity>
       ),
+      headerShadowVisible: false,
+      headerTransparent: Platform.OS === 'ios' ? true : false,
+      headerStyle: Platform.OS === 'android' ? {
+        backgroundColor: UIColors.background,
+        elevation: 0,
+      } : undefined,
     });
-  }, [navigation, unreadOnly, setUnreadOnly]);
+  }, [navigation, UIColors, headerOpacity, setUnreadOnly, unreadOnly]);
 
   return (
     <>
+      {Platform.OS === 'ios' && (
+        <AnimatedRN.View
+          style={
+            {
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 44 + insets.top,
+              width: '100%',
+              zIndex: 999,
+              backgroundColor: UIColors.element + '00',
+              opacity: headerOpacity,
+              borderBottomColor: UIColors.dark ? UIColors.text + '22' : UIColors.text + '55',
+              borderBottomWidth: 0.5,
+            }
+          }
+        >
+          <BlurView
+            tint={UIColors.dark ? 'dark' : 'light'}
+            intensity={80}
+            style={{
+              flex: 1,
+              zIndex: 999,
+            }}
+          />
+        </AnimatedRN.View>
+      )}
+
       <ScrollView
-        style={[styles.container, {
-          backgroundColor: UIColors.background
-        }]}
+        style={{ backgroundColor: UIColors.backgroundHigh, flex: 1 }}
         contentInsetAdjustmentBehavior="automatic"
         refreshControl={
           <RefreshControl
             refreshing={isHeadLoading}
             onRefresh={onRefresh}
             colors={[Platform.OS === 'android' ? UIColors.primary : '']}
+            progressViewOffset={insets.top + 50}
           />
         }
         onScroll={scrollHandler}
@@ -329,27 +246,63 @@ function NewsScreen ({ navigation }: {
           backgroundColor="transparent"
         />
 
-        <NativeList
-          style={{marginTop: Platform.OS == 'ios' ? -16 : 0}}
-          sectionProps={{
-            hideSurroundingSeparators: true,
-          }}
-        >
-          {!isLoading && unreadOnly && news.filter((item) => !item.read).length === 0 && (
-            <PapillonLoading
-              icon={<MailOpen size={26} color={'#B42828'} />}
-              title="Vous avez tout lu !"
-              subtitle="Vous êtes à jour sur toutes les actualités"
-              style={{ marginVertical: 32 }}
-            />
-          )}
+        {Platform.OS === 'ios' ? (
+          <View style={{ height: insets.top }} />
+        ) : (
+          <View style={{height: 16}} />
+        )}
 
+        { insets.top < 24 && Platform.OS === 'ios' && (
+          <View style={{ height: 32 }} />
+        )}
+
+        {!isLoading && unreadOnly && news.filter((item) => !item.read).length === 0 && (
+          <Reanimated.View
+            entering={ZoomIn.duration(200).easing(Easing.out(Easing.bezierFn(0.5, 0, 1, 0)))}
+            exiting={FadeOut.duration(200)}
+            style={{
+              marginTop: -10,
+            }}
+          >
+            <NativeList
+              inset
+            >
+              <NativeItem>
+                <PapillonLoading
+                  icon={<MailOpen size={26} color={'#B42828'} />}
+                  title="Vous avez tout lu !"
+                  subtitle="Vous êtes à jour sur toutes les actualités"
+                  style={{ marginVertical: 10 }}
+                />
+              </NativeItem>
+
+            </NativeList>
+          </Reanimated.View>
+        )}
+
+        <Reanimated.View
+          style={[
+            styles.newsList,
+          ]}
+          layout={Layout.duration(250).easing(Easing.out(Easing.bezierFn(1, 0, 0.5, 1)))}
+        >
           {!isLoading && news.length !== 0 && (
             news.map((item, index) => (
-              <View
-                key={index}
-              >
-                {!unreadOnly || !item.read || (unreadOnly && news.filter((item) => !item.read).length === 0) ? (
+              !unreadOnly || !item.read || (unreadOnly && news.filter((item) => !item.read).length === 0) ? (
+                <Reanimated.View
+                  key={item.author + item.date + item.title}
+                  style={[
+                    {
+                      overflow: 'hidden',
+                      borderRadius: 10,
+                      borderCurve: 'continuous',
+                      marginBottom: 8,
+                    },
+                  ]}
+                  layout={Layout.duration(250).easing(Easing.out(Easing.bezierFn(1, 0, 0.5, 1)))}
+                  entering={ZoomIn.duration(250).easing(Easing.out(Easing.bezierFn(0.5, 0, 1, 0)))}
+                  exiting={FadeOut.duration(200)}
+                >
                   <NativeItem
                     onPress={() => {
                       navigation.navigate('NewsDetails', { news: item });
@@ -420,21 +373,21 @@ function NewsScreen ({ navigation }: {
                             backgroundColor: UIColors.text + '22',
                           }}
                         >
-                            contient {item.attachments.length} pièce(s) jointe(s)
+                          contient {item.attachments.length} pièce(s) jointe(s)
                         </NativeText>
                       )}
                     </View>
                   </NativeItem>
-                ) : (
-                  <View style={{ marginTop: -1,height: 1, backgroundColor: UIColors.background }} />
-                )}
-              </View>
+                </Reanimated.View>
+              ) : (
+                <View />
+              )
             ))
           )}
 
           {!isLoading && news.length === 0 && (
             <PapillonLoading
-              icon={<NewsPaper size={26} color={UIColors.text} />}
+              icon={<Newspaper size={26} color={UIColors.text} />}
               title="Aucune actualité"
               subtitle="Aucune actualité n'a été trouvée"
             />
@@ -446,7 +399,7 @@ function NewsScreen ({ navigation }: {
               subtitle="Obtention des dernières actualités en cours"
             />
           )}
-        </NativeList>
+        </Reanimated.View>
       </ScrollView>
     </>
   );
@@ -455,48 +408,6 @@ function NewsScreen ({ navigation }: {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-
-  newsList: {},
-
-  newsItem: {
-    marginBottom: 8,
-  },
-
-  selectTypes: {
-    flex: 1,
-    flexDirection: 'row',
-    marginVertical: 16,
-    paddingHorizontal: 16,
-  },
-
-  newsChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 7,
-    paddingHorizontal: 14,
-    borderRadius: 300,
-    gap: 7,
-    marginRight: 9,
-  },
-
-  newsChipText: {
-    fontSize: 15,
-    fontFamily: 'Papillon-Medium',
-  },
-
-  pdfClose: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    width: 40,
-    height: 40,
-    borderRadius: 300,
-    backgroundColor: '#00000099',
-    zIndex: 100,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 
   pj: {
@@ -508,6 +419,10 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     overflow: 'hidden',
   },
+
+  newsList: {
+    marginHorizontal: 16,
+  }
 });
 
 export default NewsScreen;

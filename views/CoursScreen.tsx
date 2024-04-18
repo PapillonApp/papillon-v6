@@ -4,6 +4,7 @@ import React, { useCallback, useState, useEffect, useRef, useLayoutEffect } from
 import {
   Animated,
   View,
+  Dimensions,
   StyleSheet,
   StatusBar,
   Platform,
@@ -14,6 +15,8 @@ import {
   Pressable,
 } from 'react-native';
 
+import Reanimated, {ZoomIn, Easing, FadeOut} from 'react-native-reanimated';
+
 import InfinitePager, { type InfinitePagerImperativeApi } from 'react-native-infinite-pager';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -21,25 +24,19 @@ import { ContextMenuView } from 'react-native-ios-context-menu';
 import { PressableScale } from 'react-native-pressable-scale';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useTheme, Text } from 'react-native-paper';
-import { SFSymbol } from 'react-native-sfsymbols';
 import TimeSeparator from '../interface/CoursScreen/TimeSeparator';
 
 import * as Notifications from 'expo-notifications';
 import * as Calendar from 'expo-calendar';
 import { BlurView } from 'expo-blur';
 
-import PapillonInsetHeader from '../components/PapillonInsetHeader';
 import PapillonLoading from '../components/PapillonLoading';
 import NativeText from '../components/NativeText';
-import ListItem from '../components/ListItem';
 
 import { Calendar as CalendarPapillonIcon } from '../interface/icons/PapillonIcons';
 import {
-  DoorOpen,
-  User2,
   Info,
   Calendar as IconCalendar,
-  Users,
   CalendarDays,
   X,
   TextSelect,
@@ -409,7 +406,7 @@ Statut : ${cours.status || 'Aucun'}
       for (const lesson of lessons) {
         const dayKey = dateToFrenchFormat(new Date(lesson.start));
         // Insert the lesson in the day object.
-        lessonsViewCache[dayKey][String(lesson.id) + "-papillon"] = lesson;
+        lessonsViewCache[dayKey][String(lesson.id) + '-papillon'] = lesson;
       }
       setCours(lessonsViewCache);
     });
@@ -675,10 +672,13 @@ const CoursItem = ({ cours, lessonPressed, navigation }: {
 
   const theme = useTheme();
   const UIColors = GetUIColors();
-  const mainColor = theme.dark ? '#ffffff' : '#444444';
 
   return (
-    <View style={[styles.fullCours]}>
+    <Reanimated.View
+      style={[styles.fullCours]}
+      entering={ZoomIn.duration(200).easing(Easing.out(Easing.bezierFn(0.5, 0, 1, 0)))}
+      exiting={FadeOut.duration(200)}
+    >
       <View style={[styles.coursTimeContainer]}>
         <Text numberOfLines={1} style={[styles.ctStart]}>
           {formattedStartTime()}
@@ -740,9 +740,7 @@ const CoursItem = ({ cours, lessonPressed, navigation }: {
           style={[
             styles.coursItemContainer,
             { backgroundColor: theme.dark ? '#111111' : '#ffffff' },
-            cours.is_cancelled && {
-              opacity: 0.5,
-            }
+            { opacity: cours.is_cancelled || cours.is_exempted ? 0.5 : 1 },
           ]}
           onPress={() => lessonPressed()}
         >
@@ -808,46 +806,82 @@ const CoursItem = ({ cours, lessonPressed, navigation }: {
                 )}
               </View>
 
-              {cours.status && (
-                <View
-                  style={[
-                    styles.coursStatus,
-                    {
-                      backgroundColor: `${getSavedCourseColor(
-                        cours.subject?.name ?? '',
-                        cours.background_color
-                      )}22`,
-                    },
-                    cours.is_cancelled ? styles.coursStatusCancelled : null,
-                  ]}
-                >
-                  {cours.is_cancelled ? (
-                    <Info size={20} color="#ffffff" />
-                  ) : (
-                    <Info
-                      size={20}
-                      color={theme.dark ? '#ffffff' : '#000000'}
-                    />
-                  )}
-
-                  <Text
+              {cours.is_exempted && (
+                !cours.is_cancelled && (
+                  <View
                     style={[
-                      styles.coursStatusText,
-                      { color: theme.dark ? '#ffffff' : '#000000' },
-                      cours.is_cancelled
-                        ? styles.coursStatusCancelledText
-                        : null,
+                      styles.coursStatus,
+                      {
+                        backgroundColor: `${getSavedCourseColor(
+                          cours.subject?.name ?? '',
+                          cours.background_color
+                        )}22`,
+                      },
                     ]}
                   >
-                    {cours.status}
-                  </Text>
-                </View>
+                    {cours.is_cancelled ? (
+                      <Info size={20} color="#ffffff" />
+                    ) : (
+                      <Info
+                        size={20}
+                        color={theme.dark ? '#ffffff' : '#000000'}
+                      />
+                    )}
+
+                    <Text
+                      style={[
+                        styles.coursStatusText,
+                        { color: theme.dark ? '#ffffff' : '#000000' },
+                      ]}
+                    >
+                      Dispensé
+                    </Text>
+                  </View>
+                )
+              )}
+
+              {cours.status && (
+                !cours.is_exempted || cours.is_cancelled ? (
+                  <View
+                    style={[
+                      styles.coursStatus,
+                      {
+                        backgroundColor: `${getSavedCourseColor(
+                          cours.subject?.name ?? '',
+                          cours.background_color
+                        )}22`,
+                      },
+                      cours.is_cancelled ? styles.coursStatusCancelled : null,
+                    ]}
+                  >
+                    {cours.is_cancelled ? (
+                      <Info size={20} color="#ffffff" />
+                    ) : (
+                      <Info
+                        size={20}
+                        color={theme.dark ? '#ffffff' : '#000000'}
+                      />
+                    )}
+
+                    <Text
+                      style={[
+                        styles.coursStatusText,
+                        { color: theme.dark ? '#ffffff' : '#000000' },
+                        cours.is_cancelled
+                          ? styles.coursStatusCancelledText
+                          : null,
+                      ]}
+                    >
+                      {cours.status}
+                    </Text>
+                  </View>
+                ) : null
               )}
             </View>
           </View>
         </PressableScale>
       </ContextMenuView>
-    </View>
+    </Reanimated.View>
   );
 };
 
@@ -878,9 +912,12 @@ function CoursPage({ cours, navigation, forceRefresh }: {
         <RefreshControl
           refreshing={isHeadLoading}
           onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? '#32AB8E' : '']}
+          colors={[Platform.OS === 'android' ? '#0065A8' : '']}
         />
       }
+      contentContainerStyle={{
+        minHeight: Platform.OS === 'android' ? Dimensions.get('window').height - 150 : 0,
+      }}
     >
       {cours.length === 0 && (
         <PapillonLoading
@@ -899,7 +936,7 @@ function CoursPage({ cours, navigation, forceRefresh }: {
                 (new Date(cours[index - 1].end).getHours() < 13 &&
                 new Date(lesson.start).getHours() >= 12) ?
                   'Pause méridienne'
-                : 'Pas de cours'
+                  : 'Pas de cours'
               }
               time={`${Math.floor(
                 (new Date(lesson.start).getTime() -

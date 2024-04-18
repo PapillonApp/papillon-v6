@@ -23,27 +23,32 @@ function App() {
 
   useEffect(() => {
     const prepare = async () => {
-      await loadFonts();
+      try {
+        await loadFonts();
 
-      const serviceName = await AsyncStorage.getItem('service');
+        const serviceName = await AsyncStorage.getItem('service');
 
-      if (!serviceName) {
+        if (!serviceName) {
+          setLoading(false);
+          return;
+        }
+
+        if (serviceName === 'pronote') {
+          setLoggedIn(true);
+          await provider.init(serviceName);
+        } else if (serviceName === 'skolengo') {
+          await provider.init(serviceName);
+          setLoggedIn(Boolean(provider.pronoteInstance || provider.skolengoInstance || provider.isNetworkFailing));
+        } else if (serviceName === 'ecoledirecte') {
+          await provider.init(serviceName);
+          setLoggedIn(true);
+        }
+
         setLoading(false);
-        return;
+      } catch (error) {
+        console.error(error);
+        setLoading(false);
       }
-
-      if (serviceName === 'pronote') {
-        setLoggedIn(true);
-        await provider.init(serviceName);
-      } else if (serviceName === 'skolengo') {
-        await provider.init(serviceName);
-        setLoggedIn(Boolean(provider.pronoteInstance || provider.skolengoInstance || provider.isNetworkFailing));
-      } else if (serviceName === 'ecoledirecte') {
-        await provider.init(serviceName);
-        setLoggedIn(true);
-      }
-
-      setLoading(false);
     };
 
     prepare();

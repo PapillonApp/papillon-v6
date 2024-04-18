@@ -23,6 +23,9 @@ import {
   Info,
   FlaskConical,
 } from 'lucide-react-native';
+
+import { IconsList } from './Settings/IconSelectScreen';
+import { getAppIcon } from 'expo-dynamic-app-icon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SettingsScreen = ({ navigation }) => {
@@ -43,6 +46,18 @@ const SettingsScreen = ({ navigation }) => {
       setProfilePicture(user.profile_picture);
     })();
   }, [appContext.dataProvider]);
+
+  // icon
+  const [currentIcon, setCurrentIcon] = useState<string | null>(null);
+
+  // on focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setCurrentIcon(getAppIcon() || 'classic');
+    });
+
+    return unsubscribe;
+  }, [navigation]);
   AsyncStorage.getItem("devMode").then((v) => {
     if(v) setDevMode(true)
   })
@@ -151,9 +166,18 @@ const SettingsScreen = ({ navigation }) => {
           </NativeText>
         </NativeItem>
         <NativeItem
-          onPress={() => navigation.navigate('Icons')}
+          onPress={() => navigation.navigate('IconSelect')}
           leading={
-            <Sparkles size={24} color={UIColors.primary} />
+            <View
+              style={[
+                styles.iconContainer
+              ]}
+            >
+              <Image
+                source={IconsList.find((icon) => icon.name === currentIcon)?.icon}
+                style={styles.iconImage}
+              />
+            </View>
           }
         >
           <NativeText heading="h4">
@@ -205,7 +229,7 @@ const SettingsScreen = ({ navigation }) => {
             À propos
           </NativeText>
           <NativeText heading="p2">
-            Papillon version {packageJson.version} {packageJson.canal}
+            Papillon version {packageJson.version}
           </NativeText>
         </NativeItem>
       </NativeList>
@@ -233,6 +257,19 @@ const styles = StyleSheet.create({
   list: {
     marginTop: 6,
     marginBottom: 10,
+  },
+
+  iconContainer: {
+    width: 30,
+    height: 30,
+    margin: -3,
+    borderRadius: 300,
+    overflow: 'hidden',
+  },
+
+  iconImage: {
+    width: '100%',
+    height: '100%',
   },
 });
 

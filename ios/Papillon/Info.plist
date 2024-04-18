@@ -156,15 +156,6 @@
           <key>UIPrerenderedIcon</key>
           <true/>
         </dict>
-        <key>lightgreen</key>
-        <dict>
-          <key>CFBundleIconFiles</key>
-          <array>
-            <string>lightgreen-Icon-60x60</string>
-          </array>
-          <key>UIPrerenderedIcon</key>
-          <true/>
-        </dict>
         <key>backtoschool</key>
         <dict>
           <key>CFBundleIconFiles</key>
@@ -215,6 +206,15 @@
           <key>CFBundleIconFiles</key>
           <array>
             <string>verscinq-Icon-60x60</string>
+          </array>
+          <key>UIPrerenderedIcon</key>
+          <true/>
+        </dict>
+        <key>mascotte</key>
+        <dict>
+          <key>CFBundleIconFiles</key>
+          <array>
+            <string>mascotte-Icon-60x60</string>
           </array>
           <key>UIPrerenderedIcon</key>
           <true/>
@@ -376,15 +376,6 @@
           <key>UIPrerenderedIcon</key>
           <true/>
         </dict>
-        <key>lightgreen</key>
-        <dict>
-          <key>CFBundleIconFiles</key>
-          <array>
-            <string>lightgreen-Icon-60x60</string>
-          </array>
-          <key>UIPrerenderedIcon</key>
-          <true/>
-        </dict>
         <key>backtoschool</key>
         <dict>
           <key>CFBundleIconFiles</key>
@@ -435,6 +426,15 @@
           <key>CFBundleIconFiles</key>
           <array>
             <string>verscinq-Icon-60x60</string>
+          </array>
+          <key>UIPrerenderedIcon</key>
+          <true/>
+        </dict>
+        <key>mascotte</key>
+        <dict>
+          <key>CFBundleIconFiles</key>
+          <array>
+            <string>mascotte-Icon-60x60</string>
           </array>
           <key>UIPrerenderedIcon</key>
           <true/>

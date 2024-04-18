@@ -10,6 +10,9 @@ import { SFSymbol } from 'react-native-sfsymbols';
 
 import GetUIColors from '../utils/GetUIColors';
 
+import { IconsList } from './Settings/IconSelectScreen';
+import { getAppIcon } from 'expo-dynamic-app-icon';
+
 import packageJson from '../package.json';
 import { useAppContext } from '../utils/AppContext';
 import type { PapillonUser } from '../fetch/types/user';
@@ -50,6 +53,18 @@ function NewSettings({ navigation }: {
     });
   });
 
+  // icon
+  const [currentIcon, setCurrentIcon] = useState<string | null>(null);
+
+  // on focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setCurrentIcon(getAppIcon() || 'classic');
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   return (
     <ScrollView
       contentInsetAdjustmentBehavior='automatic'
@@ -66,7 +81,7 @@ function NewSettings({ navigation }: {
           backgroundColor="transparent"
         />
       )}
-      
+
       <NativeList
         inset
         sideBar
@@ -265,33 +280,27 @@ function NewSettings({ navigation }: {
           onPress={() => navigation.navigate('CoursColor')}
         >
           <NativeText heading="h4">
-            Gestion des matières
+            Couleur des matières
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
             Personnalisation des matières
           </NativeText>
         </NativeItem>
         <NativeItem
-          leading={
+          leading={ currentIcon &&
             <View
               style={[
-                styles.item.leadingContainer,
-                {
-                  backgroundColor: '#A84700',
-                }
+                styles.iconContainer
               ]}
             >
-              <SFSymbol
-                name="sparkles"
-                weight="semibold"
-                size={18}
-                color="#ffffff"
-                style={styles.item.symbol}
+              <Image
+                source={IconsList.find((icon) => icon.name === currentIcon)?.icon}
+                style={styles.iconImage}
               />
             </View>
           }
           chevron
-          onPress={() => navigation.navigate('Icons')}
+          onPress={() => navigation.navigate('IconSelect')}
         >
           <NativeText heading="h4">
             Icône de l'application
@@ -361,7 +370,7 @@ function NewSettings({ navigation }: {
           À propos
           </NativeText>
           <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
-            Papillon version {packageJson.version} {packageJson.canal}
+            Papillon version {packageJson.version}
           </NativeText>
         </NativeItem>
       </NativeList>
@@ -398,6 +407,19 @@ const styles = StyleSheet.create({
     },
     symbol: {
     },
+  },
+
+  iconContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+  },
+
+  iconImage: {
+    width: '100%',
+    height: '100%',
   },
 });
 

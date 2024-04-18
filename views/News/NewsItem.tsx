@@ -89,6 +89,7 @@ function NewsItem({ route, navigation }: {
       ) : null
       ),
       headerRight: () => (
+        Platform.OS === 'ios' && 
         <ContextMenuButton
           isMenuPrimaryAction={true}
           menuConfig={{

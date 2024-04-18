@@ -127,7 +127,7 @@ function SettingsScreen({ navigation }: {
 
         <ListItem
           title="À propos de Papillon"
-          subtitle={`Papillon version ${packageJson.version} ${packageJson.canal}`}
+          subtitle={`Papillon version ${packageJson.version}`}
           color="#888888"
           left={
             <PapillonIcon

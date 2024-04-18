@@ -192,41 +192,81 @@ function LessonScreen({ route, navigation }) {
         )}
       </NativeList>
 
-      {lesson.status ? (
-        <NativeList 
-          inset 
-          header="Statut">
-          <NativeItem
-            leading={
-              <Info
-                size={24}
-                color={lesson.is_cancelled ? '#ffffff' : mainColor}
-              />
-            }
-            backgroundColor={lesson.is_cancelled ? '#B42828' : null}
-          >
-            <NativeText
-              heading="p2"
-              style={{ color: lesson.is_cancelled ? '#ffffff' : mainColor }}
+      {lesson.is_exempted ? (
+        !lesson.is_cancelled && (
+          <NativeList 
+            inset 
+            header="Statut">
+            <NativeItem
+              leading={
+                <Info
+                  size={24}
+                  color={mainColor}
+                />
+              }
             >
-              Statut du cours
-            </NativeText>
-            <NativeText
-              heading="h4"
-              style={{ color: lesson.is_cancelled ? '#ffffff' : mainColor }}
-            >
-              {lesson.status}
-            </NativeText>
-          </NativeItem>
-          {lesson.memo ? (
-            <NativeItem leading={<TextSelect size={24} color={mainColor} />}>
-              <NativeText heading="p2">Commentaire</NativeText>
-              <NativeText heading="h4">{lesson.memo}</NativeText>
+              <NativeText
+                heading="p2"
+                style={{ color: mainColor }}
+              >
+                Statut du cours
+              </NativeText>
+              <NativeText
+                heading="h4"
+                style={{ color: mainColor }}
+              >
+                Dispensé
+              </NativeText>
             </NativeItem>
-          ) : (
-            <View style={{ marginTop: -0.5 }} />
-          )}
-        </NativeList>
+            {lesson.memo ? (
+              <NativeItem leading={<TextSelect size={24} color={mainColor} />}>
+                <NativeText heading="p2">Commentaire</NativeText>
+                <NativeText heading="h4">{lesson.memo}</NativeText>
+              </NativeItem>
+            ) : (
+              <View style={{ marginTop: -0.5 }} />
+            )}
+          </NativeList>
+        )
+      ) : null}
+
+      {lesson.status ? (
+        !lesson.is_exempted || lesson.is_cancelled ? (
+          <NativeList 
+            inset 
+            header="Statut">
+            <NativeItem
+              leading={
+                <Info
+                  size={24}
+                  color={lesson.is_cancelled ? '#ffffff' : mainColor}
+                />
+              }
+              backgroundColor={lesson.is_cancelled ? '#B42828' : null}
+            >
+              <NativeText
+                heading="p2"
+                style={{ color: lesson.is_cancelled ? '#ffffff' : mainColor }}
+              >
+                Statut du cours
+              </NativeText>
+              <NativeText
+                heading="h4"
+                style={{ color: lesson.is_cancelled ? '#ffffff' : mainColor }}
+              >
+                {lesson.status}
+              </NativeText>
+            </NativeItem>
+            {lesson.memo ? (
+              <NativeItem leading={<TextSelect size={24} color={mainColor} />}>
+                <NativeText heading="p2">Commentaire</NativeText>
+                <NativeText heading="h4">{lesson.memo}</NativeText>
+              </NativeItem>
+            ) : (
+              <View style={{ marginTop: -0.5 }} />
+            )}
+          </NativeList>
+        ) : null
       ) : null}
 
       <NativeList 

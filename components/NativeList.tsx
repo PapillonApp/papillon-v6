@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { List } from 'react-native-paper';
-import GetUIColors from '../utils/GetUIColors';
 import mapChildrenWithKeys from '../utils/mapChildrenWithKeys';
+import type { ViewStyle } from 'react-native';
+
 
 interface Props {
   children: React.ReactNode
@@ -11,6 +12,7 @@ interface Props {
   style?: ViewStyle
   containerStyle?: ViewStyle
   plain?: boolean
+  inset?: boolean // only for iOS (NativeList.ios.tsx)
 }
 
 const NativeList: React.FC<Props> = React.memo(({
@@ -21,7 +23,6 @@ const NativeList: React.FC<Props> = React.memo(({
   containerStyle,
   plain,
 }) => {
-  const UIColors = GetUIColors(null, plain ? 'ios' : null);
   const childrenWithKeys = mapChildrenWithKeys(children);
 
   return (
