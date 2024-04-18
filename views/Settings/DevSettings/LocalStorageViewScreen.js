@@ -1,11 +1,15 @@
 import * as React from 'react';
-import { Platform, ScrollView, StatusBar, View, Text, StyleSheet, Alert, TextInput } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, StatusBar, View, Text, StyleSheet, Alert, TextInput } from 'react-native';
 
 import { useTheme } from 'react-native-paper';
 import GetUIColors from '../../../utils/GetUIColors';
 import { showMessage } from 'react-native-flash-message';
 
 import { Info, CircleX, ScrollText, CircleAlert, Trash2, Pencil, Check, X, Eye, EyeOff, RefreshCw } from 'lucide-react-native';
+
+import NativeList from '../../../components/NativeList';
+import NativeItem from '../../../components/NativeItem';
+import NativeText from '../../../components/NativeText';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PapillonLoading from '../../../components/PapillonLoading';
@@ -52,9 +56,9 @@ function RenderItem({ item }) {
     else editing = false;
   }
   else editing = false;
-  let messageValueDefaultHidden = (<Text style={{color: 'yellow'}}>Contenu masqué par défaut</Text>);
-  let messageValueManuallyHidden = (<Text style={{color: 'yellow'}}>Contenu masqué</Text>);
-  let messageValueShow = (<Text style={{color: UIColors.text}}>{itemValue}</Text>);
+  let messageValueDefaultHidden = (<Text style={[styles.itemText, {color: 'yellow', fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace'}]}>Contenu masqué par défaut</Text>);
+  let messageValueManuallyHidden = (<Text style={[styles.itemText, {color: 'yellow', fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace'}]}>Contenu masqué</Text>);
+  let messageValueShow = (<Text style={[styles.itemText, {color: UIColors.text, fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace'}]}>{itemValue}</Text>);
   if(userOptions && typeof userOptions.display !== 'undefined') {
     if(userOptions.display) displayedValue = messageValueShow;
     if(userOptions.display === false) displayedValue = messageValueManuallyHidden;
@@ -64,37 +68,51 @@ function RenderItem({ item }) {
     else displayedValue = messageValueDefaultHidden;
   }
   if(!editing) return (
-    <View style={styles.entryContainer}>
-      { options.sensibleData && Platform.OS == 'android' ? (
-        <View>
-          <CircleAlert size={24} color={'yellow'} style={styles.leftIcon} onPress={() => { warningSensibleData(itemName); }}/>
+    <NativeItem style={styles.entryContainer}
+      leading={
+        options.sensibleData && Platform.OS == 'android' ? (
+          <View>
+            <CircleAlert size={24} color={'yellow'} style={styles.leftIcon} onPress={() => { warningSensibleData(itemName); }}/>
+          </View>
+        ) : null
+      }
+      trailing={
+        <View style={styles.actionView}>
+          { options.about ? (
+            <Info color={UIColors.text} style={styles.actionIcon} onPress={() => { showAbout(itemName); }} />
+          ) : null}
+          { displayedValue === messageValueShow ? (
+            <EyeOff color={UIColors.text} style={styles.actionIcon} onPress={() => { hideData(itemName); }} />
+          ) : (
+            <Eye color={UIColors.text} style={styles.actionIcon} onPress={() => { showData(itemName); }} />
+          )}
+          { !options.preventEdit ? (
+            <Pencil color={UIColors.text} style={styles.actionIcon} onPress={() => { editEntry(itemName, itemValue); }}/>
+          ): null}
+          <Trash2 color="red" style={styles.actionIcon} onPress={() => { deleteEntry(itemName); }}/>
         </View>
-      ) : null}
+      }
+    >
       <View>
-        <Text style={{color: UIColors.text, fontSize: 10}}>{itemName}</Text>
+        <NativeText heading="subtitle2">{itemName}</NativeText>
         { displayedValue }
       </View>
-      <View style={styles.actionView}>
-        { options.about ? (
-          <Info color={UIColors.text} style={styles.actionIcon} onPress={() => { showAbout(itemName); }} />
-        ) : null}
-        { displayedValue === messageValueShow ? (
-          <EyeOff color={UIColors.text} style={styles.actionIcon} onPress={() => { hideData(itemName); }} />
-        ) : (
-          <Eye color={UIColors.text} style={styles.actionIcon} onPress={() => { showData(itemName); }} />
-        )}
-        { !options.preventEdit ? (
-          <Pencil color={UIColors.text} style={styles.actionIcon} onPress={() => { editEntry(itemName, itemValue); }}/>
-        ): null}
-        <Trash2 color="red" style={styles.actionIcon} onPress={() => { deleteEntry(itemName); }}/>
-      </View>
-    </View>
+    </NativeItem>
   );
   if(editing) return (
-    <View style={styles.entryContainer}>
-      <View>
-        <Pencil size={24} color={UIColors.text} style={styles.leftIcon} />
-      </View>
+    <NativeItem style={styles.entryContainer}
+      leading={
+        <View>
+          <Pencil size={24} color={UIColors.text} style={styles.leftIcon} />
+        </View>
+      }
+      trailing={
+        <View style={styles.actionView}>
+          <X color="red" style={styles.actionIcon} onPress={() => { cancelEdit(itemName); }}/>
+          <Check color="green" style={styles.actionIcon} onPress={() => { validateEdit(itemName); }}/>
+        </View>
+      }
+    >
       <View>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <Text style={{color: UIColors.text}}>Nom : </Text>
@@ -105,11 +123,7 @@ function RenderItem({ item }) {
           <TextInput numberOfLines={1} defaultValue={itemValue} style={{color: UIColors.text, borderBottomWidth: 1, borderBottomColor: UIColors.text}} onChangeText={(value) => { changeEditHandler(itemName, value, 'value'); }}/>
         </View>
       </View>
-      <View style={styles.actionView}>
-        <X color="red" style={styles.actionIcon} onPress={() => { cancelEdit(itemName); }}/>
-        <Check color="green" style={styles.actionIcon} onPress={() => { validateEdit(itemName); }}/>
-      </View>
-    </View>
+    </NativeItem>
   );
 
   return null;
@@ -426,19 +440,22 @@ function LocalStorageViewScreen({ navigation }) {
       <ScrollView
         style={{ 
           backgroundColor: UIColors.modalBackground,
-          padding: 10, 
         }}
         contentInsetAdjustmentBehavior="automatic"
       >
-        {storageLoading ? (
-          <PapillonLoading
-            title="Chargement du local storage"
-          />
-        ) : 
-          Array.from(storage).map((item, index) => (
-            <RenderItem item={item} key={index} />
-          ))
-        }
+        <NativeList inset>
+          {storageLoading ? (
+            <NativeItem
+              leading={<ActivityIndicator />}
+            >
+              <NativeText heading="subtitle2">Chargement des données</NativeText>
+            </NativeItem>
+          ) : 
+            Array.from(storage).map((item, index) => (
+              <RenderItem item={item} key={index} />
+            ))
+          }
+        </NativeList>
       </ScrollView>
     </View>
   );
@@ -453,6 +470,7 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
     flexDirection: 'row',
     marginTop: 4,
+    gap: 4,
   },
   actionIcon: {
     marginLeft: 5
