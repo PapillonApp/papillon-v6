@@ -4,6 +4,8 @@ import { Platform, ScrollView, StatusBar, View, Text, StyleSheet } from 'react-n
 import { useTheme } from 'react-native-paper';
 import GetUIColors from '../../../utils/GetUIColors';
 import NativeList from '../../../components/NativeList';
+import NativeItem from '../../../components/NativeItem';
+import NativeText from '../../../components/NativeText';
 import ListItem from '../../../components/ListItem';
 import PapillonIcon from '../../../components/PapillonIcon';
 
@@ -37,15 +39,16 @@ function LogsRenderer({ log }) {
   }
   let formatedDate = moment(log.time).format('DD/MM/YYYY HH:MM:ss.SSS');
   return ( log ?
-    <View style={styles.logContainer}>
-      {icon}
-      <View style={{
-        marginLeft: 10
-      }}>
-        <Text style={{color: UIColors.text, fontSize: 10}}>{formatedDate} - {log.type}</Text>
-        <Text style={{color: color}}>{log.message}</Text>
-      </View>
-    </View>
+    <NativeItem
+      leading={icon}
+    >
+      <NativeText heading="subtitle2">
+        {formatedDate} - {log.type}
+      </NativeText>
+      <NativeText style={{color: color, fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace'}}>
+        {log.message}
+      </NativeText>
+    </NativeItem>
     : null );
 }
 
@@ -79,19 +82,20 @@ function LogsScreen({ navigation }) {
       <ScrollView
         style={{ 
           backgroundColor: UIColors.modalBackground,
-          padding: 10, 
         }}
         contentInsetAdjustmentBehavior="automatic"
       >
-        {logsLoading ? (
-          <PapillonLoading
-            title="Chargement des logs"
-          />
-        ) : 
-          Array.from(logs).map((log, index) => (
-            <LogsRenderer log={log} key={index} />
-          ))
-        }
+        <NativeList inset>
+          {logsLoading ? (
+            <PapillonLoading
+              title="Chargement des logs"
+            />
+          ) : 
+            Array.from(logs).map((log, index) => (
+              <LogsRenderer log={log} key={index} />
+            ))
+          }
+        </NativeList>
       </ScrollView>
     </View>
   );
