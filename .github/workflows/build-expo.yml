@@ -2,7 +2,6 @@ name: Build and Pubish App
 on:
   workflow_dispatch:
     inputs:
-      os:
       profile:
         type: choice
         description: Build profile to use
