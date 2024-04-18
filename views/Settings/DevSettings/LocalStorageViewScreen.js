@@ -15,7 +15,7 @@ function LocalStorageViewScreen({ navigation }) {
     const theme = useTheme();
     const UIColors = GetUIColors();
     const [storage, setStorage] = React.useState([])
-    const [storageList, setStorageList] = React.useState({})
+    const [storageList, setStorageList] = React.useState({1: false})
     const [storageLoading, setStorageLoading] = React.useState(true)
     async function loadStorage() {
         let keys = await AsyncStorage.getAllKeys()
@@ -27,6 +27,7 @@ function LocalStorageViewScreen({ navigation }) {
             
         })
         //setStorageList(storageListArray)
+        console.log
         setStorage(items)
         setStorageLoading(false)
     }
@@ -37,6 +38,7 @@ function LocalStorageViewScreen({ navigation }) {
         let itemName = item[0]
         let itemValue = item[1]
         let options = entryInfo[itemName]
+        let userOptions = storageList[itemName]
         if(!options) {
             if(itemName.includes("cache")) {
                 options = {
@@ -55,6 +57,16 @@ function LocalStorageViewScreen({ navigation }) {
                 }
             }
         }
+        console.log(`${itemName} visible user: ${userOptions}`)
+        let displayedValue;
+        if(userOptions) {
+            if(userOptions.display) displayedValue = (<Text style={{color: UIColors.text}}>{itemValue}</Text>)
+            if(userOptions.display === false) displayedValue = (<Text style={{color: "yellow"}}>Contenu masqué</Text>)
+        }
+        else {
+            if(options.defaultDisplay) displayedValue = (<Text style={{color: UIColors.text}}>{itemValue}</Text>)
+            else displayedValue = (<Text style={{color: "yellow"}}>Contenu masqué par défaut</Text>)
+        }
         return (
             <View style={styles.entryContainer}>
                 { options.sensibleData ? (
@@ -64,18 +76,14 @@ function LocalStorageViewScreen({ navigation }) {
                 ) : null}
                 <View>
                     <Text style={{color: UIColors.text, fontSize: 10}}>{itemName}</Text>
-                    { options.defaultDisplay ? (
-                        <Text style={{color: UIColors.text}}>{itemValue}</Text>
-                    ) : (
-                        <Text style={{color: "yellow"}}>Contenu masqué par défaut</Text>
-                    )}
+                    { displayedValue }
                 </View>
                 <View style={styles.actionView}>
                     { options.about ? (
                         <Info color={UIColors.text} style={styles.actionIcon} onPress={() => { showAbout(itemName) }} />
                     ) : null}
                     { options.defaultDisplay ? (
-                        <EyeOff color={UIColors.text} style={styles.actionIcon} />
+                        <EyeOff color={UIColors.text} style={styles.actionIcon} onPress={() => { hideData(itemName) }} />
                     ) : (
                         <Eye color={UIColors.text} style={styles.actionIcon} onPress={() => { showData(itemName) }} />
                     )}
@@ -256,6 +264,7 @@ function LocalStorageViewScreen({ navigation }) {
         )
     }
     function showData(name) {
+        console.log("show data" + name)
         let options = entryInfo[name]
         if(!options) {
             if(name.includes("cache")) {
@@ -282,10 +291,21 @@ function LocalStorageViewScreen({ navigation }) {
                 },
                 {
                     text: "Continuer",
-                    onPress: () => navigation.navigate('LocalStorageViewScreen')
+                    onPress: () => showData1(name)
                 }]
             )
         }
+        else showData1(name)
+    }
+    function showData1(name) {
+        let entryUserOptions = storageList
+        entryUserOptions[name] = { display: true }
+        setStorageList(entryUserOptions)
+    }
+    function hideData(name) {
+        let entryUserOptions = storageList
+        entryUserOptions[name] = { display: false }
+        setStorageList(entryUserOptions)
     }
     function showAbout(name) {
         Alert.alert(
