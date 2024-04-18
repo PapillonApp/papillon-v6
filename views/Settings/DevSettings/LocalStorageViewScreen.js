@@ -5,7 +5,7 @@ import { useTheme } from 'react-native-paper';
 import GetUIColors from '../../../utils/GetUIColors';
 import { showMessage } from 'react-native-flash-message';
 
-import { Info, CircleX, ScrollText, CircleAlert, Trash2, Pencil, Check, X, Eye, EyeOff } from 'lucide-react-native';
+import { Info, CircleX, ScrollText, CircleAlert, Trash2, Pencil, Check, X, Eye, EyeOff, RefreshCw } from 'lucide-react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import PapillonLoading from "../../../components/PapillonLoading";
 import moment from "moment"
@@ -18,18 +18,12 @@ function LocalStorageViewScreen({ navigation }) {
     const [storageList, setStorageList] = React.useState({1: false})
     const [storageLoading, setStorageLoading] = React.useState(true)
     async function loadStorage() {
+        setStorageLoading(true)
         let keys = await AsyncStorage.getAllKeys()
         let items = await AsyncStorage.multiGet(keys)
-        let storageListObject = {}
-        items.forEach((value1) => {
-            let item = value1[0]
-            let value = value1[1]
-            
-        })
-        //setStorageList(storageListArray)
-        console.log
         setStorage(items)
         setStorageLoading(false)
+        return true;
     }
     React.useEffect(() => {
         loadStorage()
@@ -45,7 +39,8 @@ function LocalStorageViewScreen({ navigation }) {
                     about: null,
                     defaultDisplay: false,
                     warnBeforeDisplay: "Charger cette valeur peut faire planter l'application en raison de sa longueur.",
-                    sensibledata: false
+                    sensibledata: false,
+                    preventEdit: true
                 }
             }
             else {
@@ -53,21 +48,31 @@ function LocalStorageViewScreen({ navigation }) {
                     about: null,
                     defaultDisplay: false,
                     warnBeforeDisplay: false,
-                    sensibledata: false
+                    sensibledata: false,
+                    preventEdit: false
                 }
             }
         }
         console.log(`${itemName} visible user: ${userOptions}`)
         let displayedValue;
+        let editing;
         if(userOptions) {
-            if(userOptions.display) displayedValue = (<Text style={{color: UIColors.text}}>{itemValue}</Text>)
-            if(userOptions.display === false) displayedValue = (<Text style={{color: "yellow"}}>Contenu masqué</Text>)
+            if(userOptions.edit) editing = true
+            else editing = false
+        }
+        else editing = false
+        let messageValueDefaultHidden = (<Text style={{color: "yellow"}}>Contenu masqué par défaut</Text>)
+        let messageValueManuallyHidden = (<Text style={{color: "yellow"}}>Contenu masqué</Text>)
+        let messageValueShow = (<Text style={{color: UIColors.text}}>{itemValue}</Text>)
+        if(userOptions && typeof userOptions.display !== 'undefined') {
+            if(userOptions.display) displayedValue = messageValueShow
+            if(userOptions.display === false) displayedValue = messageValueManuallyHidden
         }
         else {
-            if(options.defaultDisplay) displayedValue = (<Text style={{color: UIColors.text}}>{itemValue}</Text>)
-            else displayedValue = (<Text style={{color: "yellow"}}>Contenu masqué par défaut</Text>)
+            if(options.defaultDisplay) displayedValue = messageValueShow
+            else displayedValue = messageValueDefaultHidden
         }
-        return (
+        if(!editing) return (
             <View style={styles.entryContainer}>
                 { options.sensibleData ? (
                     <View>
@@ -82,15 +87,36 @@ function LocalStorageViewScreen({ navigation }) {
                     { options.about ? (
                         <Info color={UIColors.text} style={styles.actionIcon} onPress={() => { showAbout(itemName) }} />
                     ) : null}
-                    { options.defaultDisplay ? (
+                    { displayedValue === messageValueShow ? (
                         <EyeOff color={UIColors.text} style={styles.actionIcon} onPress={() => { hideData(itemName) }} />
                     ) : (
                         <Eye color={UIColors.text} style={styles.actionIcon} onPress={() => { showData(itemName) }} />
                     )}
-                    { options.defaultDisplay ? (
-                        <Pencil color={UIColors.text} style={styles.actionIcon} onPress={() => { editEntry(itemName) }}/>
+                    { !options.preventEdit ? (
+                        <Pencil color={UIColors.text} style={styles.actionIcon} onPress={() => { editEntry(itemName, itemValue) }}/>
                     ): null}
                     <Trash2 color="red" style={styles.actionIcon} onPress={() => { deleteEntry(itemName) }}/>
+                </View>
+            </View>
+        )
+        if(editing) return (
+            <View style={styles.entryContainer}>
+                <View>
+                    <Pencil size={24} color={UIColors.text} style={styles.leftIcon} />
+                </View>
+                <View>
+                    <View style={{flexDirection: "row", alignItems: "center"}}>
+                        <Text style={{color: UIColors.text}}>Nom : </Text>
+                        <TextInput numberOfLines={1} defaultValue={itemName} style={{color: UIColors.text, borderBottomWidth: 1, borderBottomColor: UIColors.text}} onChangeText={(value) => { changeEditHandler(itemName, value, "name") }}/>
+                    </View>
+                    <View>
+                        <Text style={{color: UIColors.text}}>Valeur :</Text>
+                        <TextInput numberOfLines={1} defaultValue={itemValue} style={{color: UIColors.text, borderBottomWidth: 1, borderBottomColor: UIColors.text}} onChangeText={(value) => { changeEditHandler(itemName, value, "value") }}/>
+                    </View>
+                </View>
+                <View style={styles.actionView}>
+                    <X color="red" style={styles.actionIcon} onPress={() => { cancelEdit(itemName) }}/>
+                    <Check color="green" style={styles.actionIcon} onPress={() => { validateEdit(itemName) }}/>
                 </View>
             </View>
         )
@@ -100,91 +126,111 @@ function LocalStorageViewScreen({ navigation }) {
             about: "Identifiants locaux des données ayant une notification en attente",
             defaultDisplay: true,
             warnBeforeDisplay: false,
-            sensibleData: false
+            sensibleData: false,
+            preventEdit: false
         },
         "devMode": {
             about: "Défini l'activation des options de développement",
             defaultDisplay: true,
             warnBeforeDisplay: false,
-            sensibleData: false
+            sensibleData: false,
+            preventEdit: false
         },
         "logs": {
             about: "Logs de l'application",
             defaultDisplay: false,
             warnBeforeDisplay: "Charger cette valeur peut faire planter l'application en raison de sa longueur.",
-            sensibleData: false
+            sensibleData: false,
+            preventEdit: true
         },
         "oldGrades": {
             about: "Cache des notes pour le background fetch",
             defaultDisplay: false,
             warnBeforeDisplay: "Charger cette valeur peut faire planter l'application en raison de sa longueur.",
-            sensibleData: false
+            sensibleData: false,
+            preventEdit: true
         },
         "ppln_terms": {
             about: "Défini si les conditions ont été acceptées",
             defaultDisplay: true,
             warnBeforeDisplay: false,
-            sensibleData: false
+            sensibleData: false,
+            preventEdit: false
         },
         "preventNotifInit": {
             about: "Défini si l'initialisation des notifications doit être ignoré",
             defaultDisplay: true,
             warnBeforeDisplay: false,
-            sensibleData: false
+            sensibleData: false,
+            preventEdit: false
         },
         "pronote:account_type_id": {
             about: "Type de compte pronote",
             defaultDisplay: true,
             warnBeforeDisplay: false,
-            sensibleData: false
+            sensibleData: false,
+            preventEdit: false
         },
         "pronote:cache_user": {
             about: "Cache des informations utilisateurs. Contient nom, prénom, et autres données personnelles.",
             defaultDisplay: false,
             warnBeforeDisplay: "Cette valeur contient vos données personnelles tel que votre prénom et nom.",
-            sensibleData: true
+            sensibleData: true,
+            preventEdit: false
         },
         "pronote:device_uuid": {
             about: "UUID de l'appareil pour pronote (généré automatiquement, modifier cette valeur entraînera l'échec de la reconnexion)",
             defaultDisplay: true,
             warnBeforeDisplay: false,
-            sensibleData: false
+            sensibleData: false,
+            preventEdit: false
         },
         "pronote:instance_url": {
             about: "URL de l'instance PRONOTE.",
             defaultDisplay: false,
             warnBeforeDisplay: "Cette valeur contient l'URL de l'instance de PRONOTE. N'importe qui qui accède à cette url peut connaître toutes les informations de votre établissement.",
-            sensibleData: true
+            sensibleData: true,
+            preventEdit: false
         },
         "pronote:next_time_token": {
             about: "Token de reconnexion à PRONOTE",
             defaultDisplay: false,
             warnBeforeDisplay: "Cette valeur contient le token de reconnexion à votre compte PRONOTE. Combiné à l'UUID et votre nom d'utilisateur, n'importe qui peut accéder à votre compte.",
-            sensibleData: true
+            sensibleData: true,
+            preventEdit: false
         },
         "pronote:username": {
             about: "Nom d'utilisateur PRONOTE",
             defaultDisplay: false,
             warnBeforeDisplay: "Cette valeur contient votre nom d'utilisateur, généralement composé de votre prénom et/ou nom.",
-            sensibleData: true
+            sensibleData: true,
+            preventEdit: false
         },
         "savedColors": {
             about: "Stockage des couleurs personnalisées",
             defaultDisplay: false,
             warnBeforeDisplay: "Charger cette valeur peut faire planter l'application en raison de sa longueur.",
-            sensibleData: false
+            sensibleData: false,
+            preventEdit: false
         },
         "service": {
             about: "Nom du service utilisé",
             defaultDisplay: true,
             warnBeforeDisplay: false,
-            sensibleData: false
+            sensibleData: false,
+            preventEdit: false
         }
+    }
+    function rerenderStorage() {
+        setStorageLoading(true)
+        setTimeout(() => {
+            setStorageLoading(false)
+        }, 100)
     }
     function deleteEntry(name) {
         Alert.alert(
             `Supprimer ${name} ?`,
-            "ATTENTION : NE PAS VALIDER SANS SAVOIR CE QUE VOUS FAITES !\nSupprimer cette entrée peut altérer au bon fonctionnement de l'application !",
+            "ATTENTION : NE PAS VALIDER SANS SAVOIR CE QUE VOUS FAITES !\nSupprimer cette entrée peut altérer au bon fonctionnement de l'application !\n\nL'équipe Papillon ne pourra être tenue responsable de tout bug engendré.",
             [{
                 text: "Annuler",
                 style: "cancel"
@@ -202,6 +248,7 @@ function LocalStorageViewScreen({ navigation }) {
                             floating: true,
                             position: "bottom"
                         });
+                        loadStorage()
                     })
                     .catch(err => {
                         showMessage({
@@ -212,39 +259,84 @@ function LocalStorageViewScreen({ navigation }) {
                             floating: true,
                             position: "bottom"
                         });
+                        loadStorage()
                     })
                 }
             }]
         )
     }
-    function editEntry() {
+    function editEntry(name, value) {
         Alert.alert(
             "Modifier cette entrée ?",
-            "ATTENTION : NE PAS VALIDER SANS SAVOIR CE QUE VOUS FAITES !\nModifier cette entrée peut altérer au bon fonctionnement de l'application !",
+            "ATTENTION : NE PAS VALIDER SANS SAVOIR CE QUE VOUS FAITES !\nModifier cette entrée peut altérer au bon fonctionnement de l'application !\n\nL'équipe Papillon ne pourra être tenue responsable de tout bug engendré.",
             [{
                 text: "Annuler",
                 style: "cancel"
             },
             {
                 text: "Continuer",
-                onPress: () => navigation.navigate('LocalStorageViewScreen')
+                onPress: () => {
+                    let entryUserOptions = storageList
+                    entryUserOptions[name] = { edit: true, editName: name, editValue: value }
+                    setStorageList(entryUserOptions)
+                    rerenderStorage()
+                }
             }]
         )
     }
-    function validateEdit() {
+    function changeEditHandler(name, value, type) {
+        console.log(`change edit ${type} of ${name} = ${value}`)
+        let entryUserOptions = storageList
+        if(type === "value") entryUserOptions[name] = { edit: true, editValue: value, editName: entryUserOptions[name].editName }
+        if(type === "name") entryUserOptions[name] = { edit: true, editValue: entryUserOptions[name].editValue, editName: value }
+        setStorageList(entryUserOptions)
+    }
+    function validateEdit(name) {
         Alert.alert(
             "Valider la modification ?",
-            "ATTENTION : NE PAS VALIDER SANS SAVOIR CE QUE VOUS FAITES !\nModifier cette entrée peut altérer au bon fonctionnement de l'application !",
+            "ATTENTION : NE PAS VALIDER SANS SAVOIR CE QUE VOUS FAITES !\nModifier cette entrée peut altérer au bon fonctionnement de l'application !\n\nL'équipe Papillon ne pourra être tenue responsable de tout bug engendré.",
             [{
                 text: "Non",
                 style: "cancel"
             },
             {
                 text: "Oui",
+                onPress: async () => {
+                    let value = storageList[name].editValue
+                    let newName = storageList[name].editName || name
+                    try {
+                        await AsyncStorage.removeItem(name)
+                        AsyncStorage.setItem(newName, value)
+                        .then(() => {
+                            showMessage({
+                                message: 'Entrée modifiée avec succès',
+                                type: 'success',
+                                icon: 'auto',
+                                floating: true,
+                                position: "bottom"
+                            });
+                            let entryUserOptions = storageList
+                            entryUserOptions[name] = undefined
+                            entryUserOptions[newName] = { edit: false, display: true }
+                            setStorageList(entryUserOptions)
+                            loadStorage()
+                        })
+                    }
+                    catch(err) {
+                        showMessage({
+                            message: 'Erreur lors de la modification',
+                            description: err,
+                            type: "danger",
+                            icon: 'auto',
+                            floating: true,
+                            position: "bottom"
+                        });
+                    }
+                }
             }]
         )
     }
-    function cancelEdit() {
+    function cancelEdit(name) {
         Alert.alert(
             "Annuler la modification ?",
             "",
@@ -254,6 +346,12 @@ function LocalStorageViewScreen({ navigation }) {
             },
             {
                 text: "Oui",
+                onPress: () => {
+                    let entryUserOptions = storageList
+                    entryUserOptions[name] = { edit: false, editValue: null, display: true }
+                    setStorageList(entryUserOptions)
+                    rerenderStorage()
+                }
             }]
         )
     }
@@ -298,14 +396,18 @@ function LocalStorageViewScreen({ navigation }) {
         else showData1(name)
     }
     function showData1(name) {
+        console.log(`set show data ${name}`)
         let entryUserOptions = storageList
         entryUserOptions[name] = { display: true }
         setStorageList(entryUserOptions)
+        rerenderStorage()
     }
     function hideData(name) {
+        console.log(`hide data ${name}`)
         let entryUserOptions = storageList
         entryUserOptions[name] = { display: false }
         setStorageList(entryUserOptions)
+        rerenderStorage()
     }
     function showAbout(name) {
         Alert.alert(
@@ -387,6 +489,8 @@ function LocalStorageViewScreen({ navigation }) {
                         <Trash2 color="red" style={styles.actionIcon} onPress={() => { deleteEntry() }}/>
                     </View>
                 </View>
+
+                // edit view
                 <View style={styles.entryContainer}>
                     <View>
                         <Pencil size={24} color={UIColors.text} style={styles.leftIcon} />
@@ -406,6 +510,7 @@ function LocalStorageViewScreen({ navigation }) {
                         <Check color="green" style={styles.actionIcon} onPress={() => { validateEdit() }}/>
                     </View>
                 </View>
+
                 <View style={styles.entryContainer}>
                     <View>
                         <CircleAlert size={24} color={"yellow"} style={styles.leftIcon} onPress={() => { warningSensibleData() }}/>
