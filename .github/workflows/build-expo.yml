@@ -12,32 +12,32 @@ on:
           - production
 jobs:
   prepare-env:
-  runs-on: macos-14
-  strategy:
-    matrix:
-      node: [20.x]
-  steps:
-  - name: 🏗 Setup repo
-    uses: actions/checkout@v2
-
-  - name: 🏗 Setup Node
-    uses: actions/setup-node@v2
-    with:
-      node-version: 20
-      cache: npm
-
-  - name: 🏗 Setup Expo and EAS
-    uses: expo/expo-github-action@v7
-    with:
-      token: ${{ secrets.EXPO_TOKEN }}
-      expo-version: latest
-      eas-version: latest
-
-  - name: 🏗 Setup EAS local builds
-    run: npm i -g eas-cli-local-build-plugin
-
-  - name: 📦 Install dependencies
-    run: npm i
+    runs-on: macos-14
+    strategy:
+      matrix:
+        node: [20.x]
+    steps:
+    - name: 🏗 Setup repo
+      uses: actions/checkout@v2
+  
+    - name: 🏗 Setup Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: 20
+        cache: npm
+  
+    - name: 🏗 Setup Expo and EAS
+      uses: expo/expo-github-action@v7
+      with:
+        token: ${{ secrets.EXPO_TOKEN }}
+        expo-version: latest
+        eas-version: latest
+  
+    - name: 🏗 Setup EAS local builds
+      run: npm i -g eas-cli-local-build-plugin
+  
+    - name: 📦 Install dependencies
+      run: npm i
 
 
   build-ios:
