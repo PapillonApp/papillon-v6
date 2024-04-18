@@ -25,6 +25,7 @@ import TrophiesScreen from '../views/Settings/TrophiesScreen';
 import DevSettings from '../views/Settings/DevSettings/DevSettings';
 import LogsScreen from '../views/Settings/DevSettings/LogsScreen';
 import LocalStorageViewScreen from '../views/Settings/DevSettings/LocalStorageViewScreen';
+import NetworkLoggerScreen from '../views/Settings/NetworkLogger';
 
 function InsetSettings() {
   const UIColors = GetUIColors();
@@ -38,7 +39,7 @@ function InsetSettings() {
             navigationBarColor: '#00000000',
             headerStyle: {
               backgroundColor: UIColors.background,
-                elevation: 0,
+              elevation: 0,
             },
             headerShadowVisible: false,
           }
@@ -186,6 +187,13 @@ function InsetSettings() {
         component={LocalStorageViewScreen}
         options={{
           headerTitle: 'Local storage',
+        }}
+      />
+      <Stack.Screen
+        name="NetworkLoggerScreen"
+        component={NetworkLoggerScreen}
+        options={{
+          headerTitle: 'Historique réseau',
         }}
       />
     </Stack.Navigator>
