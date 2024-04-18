@@ -14,25 +14,25 @@ async function initLogs() {
         error: console.error,
         info: console.info
     }
-    console.log = function log(msg) {
-        logsArray.push({type: "log", message: msg, time: Date.now()})
+    console.log = function log(...msg) {
+        logsArray.push({type: "log", message: msg.join(" "), time: Date.now()})
         AsyncStorage.setItem("logs", JSON.stringify(logsArray))
-        console1.log(msg)
+        console1.log(msg.join(" "))
     }
-    console.info = function info(msg) {
-        logsArray.push({type: "info", message: msg, time: Date.now()})
+    console.info = function info(...msg) {
+        logsArray.push({type: "info", message: msg.join(" "), time: Date.now()})
         AsyncStorage.setItem("logs", JSON.stringify(logsArray))
-        console1.info(msg)
+        console1.info(msg.join(" "))
     }
-    console.warn = function warn(msg) {
-        logsArray.push({type: "warn", message: msg, time: Date.now()})
+    console.warn = function warn(...msg) {
+        logsArray.push({type: "warn", message: msg.join(" "), time: Date.now()})
         AsyncStorage.setItem("logs", JSON.stringify(logsArray))
-        console1.warn(msg)
+        console1.warn(msg.join(" "))
     }
-    console.error = function warn(msg) {
-        logsArray.push({type: "error", message: msg, time: Date.now()})
+    console.error = function warn(...msg) {
+        logsArray.push({type: "error", message: msg.join(" "), time: Date.now()})
         AsyncStorage.setItem("logs", JSON.stringify(logsArray))
-        console1.error(msg)
+        console1.error(msg.join(" "))
     }
 }
 initLogs()
