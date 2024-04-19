@@ -4,6 +4,7 @@ export interface PapillonVieScolaire {
   delays: PapillonDelay[]
   absences: PapillonAbsence[]
   punishments: PapillonPunishment[]
+  observations: PapillonObservation[]
 }
 
 export interface CachedPapillonVieScolaire extends PapillonVieScolaire {
@@ -57,4 +58,13 @@ export interface PapillonPunishment {
   nature: string
   /** In minutes. */
   duration: number
+}
+
+export interface PapillonObservation {
+  id: string
+  date: number
+  sectionName: string
+  subjectName?: string
+  shouldParentsJustify: boolean
+  reasons: [string | null]
 }
