@@ -18,12 +18,6 @@ jobs:
     steps:
     - name: 🏗 Setup repo
       uses: actions/checkout@v2
-  
-    - name: 🏗 Setup Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'zulu' # See 'Supported distributions' for available options
-        java-version: '19'
         
     - name: 🏗 Setup Node
       uses: actions/setup-node@v2
@@ -54,6 +48,12 @@ jobs:
     steps:
     - name: 🏗 Setup repo
       uses: actions/checkout@v2
+
+    - name: 🏗 Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu' # See 'Supported distributions' for available options
+        java-version: '19'
 
     - name: 🏗 Setup Node
       uses: actions/setup-node@v2
