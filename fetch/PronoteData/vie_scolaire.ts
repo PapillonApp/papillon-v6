@@ -1,5 +1,5 @@
 import { type Pronote, StudentAbsence, StudentDelay, StudentPunishment, StudentObservation } from 'pawnote';
-import type { PapillonVieScolaire, PapillonPunishment, CachedPapillonVieScolaire } from '../types/vie_scolaire';
+import type { PapillonVieScolaire, PapillonPunishment, CachedPapillonVieScolaire, PapillonObservationType } from '../types/vie_scolaire';
 import type { PapillonAttachmentType } from '../types/attachment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AsyncStoragePronoteKeys } from './connector';
@@ -59,6 +59,7 @@ export const vieScolaireHandler = async (instance?: Pronote, force = false): Pro
           id: item.id,
           date: item.date.getTime(),
           sectionName: item.section.name,
+          sectionType: item.section.type as unknown as PapillonObservationType, // they're literally the same
           subjectName: item.subject?.name,
           shouldParentsJustify: item.shouldParentsJustify,
           reasons: [item.reason ?? null]

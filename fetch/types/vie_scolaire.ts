@@ -64,7 +64,15 @@ export interface PapillonObservation {
   id: string
   date: number
   sectionName: string
+  sectionType: PapillonObservationType
   subjectName?: string
   shouldParentsJustify: boolean
   reasons: [string | null]
+}
+
+export enum PapillonObservationType {
+  LogBookIssue = 0,
+  Observation = 1,
+  Encouragement = 2,
+  Other = 3
 }
