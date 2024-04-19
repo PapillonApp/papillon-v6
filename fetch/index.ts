@@ -245,8 +245,11 @@ export class IndexDataInstance {
 
     const monday = new Date(day);
     monday.setDate(mondayIndex);
+    monday.setHours(0, 0, 0, 0);
+    
     const sunday = new Date(day);
     sunday.setDate(sundayIndex);
+    sunday.setHours(23, 59, 59, 999);
 
     if (this.service === 'skolengo') {
       return this.skolengoInstance!.getTimetable(day, force);
@@ -300,7 +303,7 @@ export class IndexDataInstance {
       return EDvieScolaireHandler(this.ecoledirecteInstance, force);
     }
 
-    return { absences: [], delays: [], punishments: [] } as PapillonVieScolaire;
+    return { absences: [], delays: [], punishments: [], observations: [] } as PapillonVieScolaire;
   }
 
   public async getConversations (): Promise<PapillonDiscussion[]> {
