@@ -6,7 +6,6 @@ export interface CachedPapillonTimetable {
 
 export interface PapillonLesson {
   id: string
-  num: number
   subject?: {
     id: string
     name: string
@@ -16,9 +15,10 @@ export interface PapillonLesson {
   rooms: string[]
   group_names: string[]
   memo?: string
+  /** Virtual classroom or video conference URLs. */
   virtual: string[]
-  start: string
-  end: string
+  start: number
+  end: number
   background_color?: string
   status?: string
   is_cancelled: boolean

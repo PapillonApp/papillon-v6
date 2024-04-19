@@ -1,40 +1,8 @@
-import { type Pronote } from 'pawnote';
+import { type Pronote, TimetableLesson, TimetableActivity } from 'pawnote';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AsyncStoragePronoteKeys } from './connector';
 import type { CachedPapillonTimetable, PapillonLesson } from '../types/timetable';
 import { dateToFrenchFormat } from '../../utils/dates';
-
-function removeDuplicateCourses(courses: PapillonLesson[]): PapillonLesson[] {
-  const result = courses;
-
-  for (let i = 0; i < courses.length; i += 1) {
-    // if next cours starts at the same time
-    if (i + 1 < courses.length && courses[i].start === courses[i + 1].start) {
-      // remove the course that has is_cancelled set to true
-      if (courses[i].is_cancelled) {
-        result.splice(i, 1);
-      } else if (courses[i + 1].is_cancelled) {
-        result.splice(i + 1, 1);
-      }
-    }
-    else {
-      // celui ci est en classe absente alors que rien sur pronote
-      if (i + 1 < courses.length && courses[i].subject?.id === courses[i + 1].subject?.id && courses[i].rooms.join(',') == courses[i + 1].rooms.join(',')) {
-        // check if difference between the two courses is less than 21 minutes
-        const diff = new Date(courses[i + 1].start).getTime() - new Date(courses[i].end).getTime();
-        if (diff < 21 * 60 * 1000) {
-          // Merge the two courses.
-          result[i].end = courses[i + 1].end;
-
-          // Remove the second course.
-          result.splice(i + 1, 1);
-        }
-      }
-    }
-  }
-
-  return result;
-}
 
 export const timetableHandler = async (interval: [from: Date, to?: Date], instance?: Pronote, force = false): Promise<PapillonLesson[] | null> => {
   const from = dateToFrenchFormat(interval[0]);
@@ -56,28 +24,67 @@ export const timetableHandler = async (interval: [from: Date, to?: Date], instan
   if (!instance) return null;
 
   try {
-    const timetableFromPawnote = await instance.getLessonsForInterval(...interval);
-    
-    const timetable: PapillonLesson[] = removeDuplicateCourses(timetableFromPawnote.map(lesson => ({
-      id: lesson.id,
-      num: lesson.num,
-      subject: lesson.subject,
-      teachers: lesson.teacherNames,
-      rooms: lesson.classrooms,
-      group_names: lesson.groupNames,
-      memo: lesson.memo,
-      virtual: lesson.virtualClassrooms,
-      start: lesson.start.toISOString(),
-      end: lesson.end.toISOString(),
-      background_color: lesson.backgroundColor,
-      status: lesson.status,
-      is_cancelled: lesson.canceled,
-      is_outing: lesson.outing,
-      is_detention: lesson.detention,
-      is_exempted: lesson.exempted,
-      is_test: lesson.test
-    })).sort((a, b) => a.start.localeCompare(b.start)));
-    
+    const timetableOverview = await instance.getTimetableOverview(...interval);
+    const classes = timetableOverview.parse({
+      withSuperposedCanceledClasses: false,
+      withCanceledClasses: true,
+      withPlannedClasses: true
+    });
+
+    const timetable: PapillonLesson[] = [];
+
+    for (const currentClass of classes) {
+      if (currentClass instanceof TimetableLesson) {
+        const teachers = [
+          ...currentClass.teacherNames,
+          // We consider personal as teachers also here (for compatibility).
+          ...currentClass.personalNames
+        ];
+
+        timetable.push({
+          id: currentClass.id,
+          subject: currentClass.subject,
+          teachers,
+          rooms: currentClass.classrooms,
+          group_names: currentClass.groupNames,
+          memo: currentClass.notes,
+          virtual: currentClass.virtualClassrooms,
+          start: currentClass.startDate.getTime(),
+          end: currentClass.endDate.getTime(),
+          background_color: currentClass.backgroundColor,
+          status: currentClass.status,
+          is_cancelled: currentClass.canceled,
+          is_outing: false,
+          is_detention: currentClass.detention,
+          is_exempted: currentClass.exempted,
+          is_test: currentClass.test
+        });
+      }
+      else if (currentClass instanceof TimetableActivity) {
+        timetable.push({
+          id: currentClass.id,
+          subject: {
+            name: currentClass.title,
+            groups: false,
+            id: '0'
+          },
+          teachers: currentClass.attendants,
+          rooms: [],
+          group_names: [currentClass.resourceValue],
+          memo: currentClass.notes,
+          virtual: [],
+          start: currentClass.startDate.getTime(),
+          end: currentClass.endDate.getTime(),
+          background_color: currentClass.backgroundColor,
+          is_cancelled: false,
+          is_outing: true,
+          is_detention: false,
+          is_exempted: false,
+          is_test: false
+        });
+      }
+    }
+
     // Build up the new timetables cache inside storage.
     let cachedTimetables: Array<CachedPapillonTimetable> = [];
     if (cache) cachedTimetables = JSON.parse(cache);
