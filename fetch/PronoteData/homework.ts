@@ -24,7 +24,7 @@ const makeLocalID = (homework: {
   localID += homework.date.getTime();
   // whole description
   localID += homework.description;
-  localID = encodeURIComponent(localID)
+  localID = encodeURIComponent(localID);
   return btoa(localID);
 };
 
@@ -100,10 +100,15 @@ export const homeworkHandler = async (force = false, instance?: Pronote): Promis
         
         done: homework.done,
         date: homework.deadline.toISOString(),
-        return: homework.return ? {
+
+        return: homework.return && {
           type: homework.return.type,
-          uploaded: homework.return.type === PronoteApiHomeworkReturnType.FILE_UPLOAD ? homework.return.uploaded : undefined,
-        } : undefined,
+          uploaded: (homework.return.type === PronoteApiHomeworkReturnType.FILE_UPLOAD && homework.return.uploaded) ? {
+            name: homework.return.uploaded.name,
+            type: homework.return.uploaded.type as unknown as PapillonAttachmentType,
+            url: homework.return.uploaded.url,
+          } : null,
+        },
 
         difficulty: homework.difficulty,
         lengthInMinutes: homework.lengthInMinutes,
