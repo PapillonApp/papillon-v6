@@ -10,10 +10,10 @@ export const discussionsHandler = async (instance?: Pronote): Promise<PapillonDi
 
     const discussions: PapillonDiscussion[] = [];
     for (const discussion of discussionsOverview.discussions) {
-      const messages = await discussion.fetchMessages();
+      const overview = await discussion.fetchMessagesOverview();
       const parsedMessages: PapillonDiscussionMessage[] = [];
       
-      for (const message of messages) {
+      for (const message of overview.messages) {
         parsedMessages.push({
           id: message.id,
           content: message.content,
@@ -31,7 +31,7 @@ export const discussionsHandler = async (instance?: Pronote): Promise<PapillonDi
         local_id: makeLocalID(discussion.subject, discussion.dateAsFrenchText),
         subject: discussion.subject,
         creator: discussion.creator ?? '',
-        timestamp: messages[0].created.getTime(),
+        timestamp: overview.messages[0].created.getTime(),
         unread: discussion.numberOfMessagesUnread,
         closed: discussion.closed,
         messages: parsedMessages,
