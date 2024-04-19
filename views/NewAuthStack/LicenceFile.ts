@@ -7,10 +7,10 @@ export const licenceFile = `
     Papillon est un client de vie scolaire libre, gratuit, indépendant et affilié à aucune entreprise ou organisation.
   </li>
   <li>
-    Vos données scolaires et personnellent ne quittent pas votre appareil conformément à <a href="https://docs.getpapillon.xyz/documents/privacy-policy/">la politique de confidentialité.</a>
+    Vos données scolaires et personnelles ne quittent pas votre appareil conformément à <a href="https://docs.getpapillon.xyz/documents/privacy-policy/">la politique de confidentialité.</a>
   </li>
   <li>
-    L'application "Papillon" est un logiciel open source, gratuit et à but non lucratif conçu pour permettre l'accès aux données des services scolaires transmises par des librairies tierces. Papillon n'est pas responsable de la manière dont les données sont transmises par ces librairies tierces.
+    L'application "Papillon" est un logiciel open source, gratuit et à but non lucratif conçu pour permettre l'accès aux données des services scolaires transmises par des librairies tierces. Papillon n'est pas responsable de la manière dont les données sont transmises par ces librairies tierces, ni du fonctionnement de ces dernières.
   </li>
   <li>
     Certains logs de débogage anonymisés et d'autres crash reports (ne contenant aucune donnée personnelle ou scolaire) peuvent être envoyés à l'équipe de développement pour améliorer le fonctionnement du logiciel.
@@ -19,16 +19,13 @@ export const licenceFile = `
     Aucune personne ou logiciel automatisé n’utilise ou ne collecte vos données personnelles.
   </li>
   <li>
-    La suppression de l'application ou sa déconnexion entraînera la suppression de toutes les données stockées localement.
+    La suppression de l'application ou sa déconnexion entraînera la suppression de toutes les données stockées localement. Vous pouvez accéder à ses données via le menu de développement (LocalStorage).
   </li>
   <li>
     Vous avez le droit d'utiliser, de modifier de redistribuer, et de partager Papillon sous les termes de la licence GPL-v3.0.
   </li>
   <li>
-    Papillon ou l'une de ses fonctionnalités peut être retiré de la distribution à tout moment sans préavis par le gestionnaire du service.
-  </li>
-  <li>
-    Papillon utilise des librairies tierces sous licence libre ou open-source et n'est pas responsable de leur fonctionnement.
+    Papillon ou l'une de ses fonctionnalités peut être retirée de la distribution à tout moment sans préavis par le gestionnaire du service.
   </li>
   <li>
     Papillon n'est pas responsable de la sécurité des données conservées localement sur votre appareil.
