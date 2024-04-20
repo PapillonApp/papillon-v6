@@ -17,7 +17,7 @@ import { timetableHandler as pronoteTimetableHandler } from './PronoteData/timet
 import { evaluationsHandler as pronoteEvaluationsHandler } from './PronoteData/evaluations';
 import { vieScolaireHandler as pronoteVieScolaireHandler } from './PronoteData/vie_scolaire';
 import { newsHandler as pronoteNewsHandler, newsStateHandler as pronoteNewsStateHandler } from './PronoteData/news';
-import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as pronoteHomeworkHandler } from './PronoteData/homework';
+import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as pronoteHomeworkHandler, homeworkUploadFileHandler as pronoteHomeworkUploadFileHandler } from './PronoteData/homework';
 import { discussionsHandler as pronoteDiscussionsHandler, discussionsRecipientsHandler as pronoteDiscussionsRecipientsHandler } from './PronoteData/discussions';
 
 // Skolengo related imports.
@@ -359,6 +359,12 @@ export class IndexDataInstance {
     }
 
     return [];
+  }
+
+  public async uploadHomework (homework: PapillonHomework, file: { name: string, uri: string, size: number, type: string }): Promise<void> {
+    if (this.service === 'pronote') {
+      return pronoteHomeworkUploadFileHandler(homework, file, this.pronoteInstance);
+    }
   }
 }
 
