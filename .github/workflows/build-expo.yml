@@ -98,6 +98,9 @@ jobs:
         distribution: 'zulu' # See 'Supported distributions' for available options
         java-version: '19'
 
+    - name: 👊 Check Java version
+      run: java -version
+
     - name: 🏗 Setup Node
       uses: actions/setup-node@v2
       with:
