@@ -61,7 +61,6 @@ function HomeworkScreen({ route, navigation }: {
 
   const appContext = useAppContext();
 
-  // TODO
   const deleteCustomHomework = () => {
     AsyncStorage.getItem('pap_homeworksCustom').then((customHomeworks) => {
       let hw = [];
@@ -100,32 +99,6 @@ function HomeworkScreen({ route, navigation }: {
   }, [navigation]);
 
   const changeHwState = async () => {
-    // TODO: if custom : true
-    // if (homework.custom) {
-    //   AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
-    //     let hw = [];
-    //     if (customHomeworks) {
-    //       hw = JSON.parse(customHomeworks);
-    //     }
-
-    //     // find the homework
-    //     for (let i = 0; i < hw.length; i++) {
-    //       if (hw[i].local_id === homework.local_id) {
-    //         hw[i].done = !thisHwChecked;
-    //       }
-    //     }
-
-    //     setThisHwChecked(!thisHwChecked);
-    //     AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
-
-    //     setTimeout(() => {
-    //       setHomeworkStateLoading(false);
-    //     }, 100);
-    //   });
-
-    //   return;
-    // }
-
     await appContext.dataProvider?.changeHomeworkState(homework, !homework.done);
     setHomeworkStateLoading(false);
   };
