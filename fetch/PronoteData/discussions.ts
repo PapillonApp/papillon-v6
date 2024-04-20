@@ -1,5 +1,5 @@
-import type { Pronote } from 'pawnote';
-import type { PapillonDiscussion, PapillonDiscussionMessage } from '../types/discussions';
+import { Pronote, PronoteApiResourceType } from 'pawnote';
+import { type PapillonDiscussion, type PapillonDiscussionMessage, type PapillonRecipient, PapillonRecipientType } from '../types/discussions';
 
 const makeLocalID = (subject: string, date: string) => `${subject.substring(0, 3)}${date}`;
 
@@ -60,5 +60,73 @@ export const discussionsRecipientsHandler = async (localDiscussionID: string, in
   catch {
     console.warn('[pronote:discussionsRecipientsHandler]: error occurred, returning empty array.');
     return [];
+  }
+};
+
+const convertPronoteResourceTypeToPapillon = (type: PronoteApiResourceType): PapillonRecipientType => {
+  switch (type) {
+    case PronoteApiResourceType.Teacher:
+      return PapillonRecipientType.TEACHER;
+    case PronoteApiResourceType.Personal:
+      return PapillonRecipientType.PERSONAL;
+    default:
+      return PapillonRecipientType.UNKNOWN;
+  }
+};
+
+const convertPapillonResourceTypeToPronote = (type: PapillonRecipientType): PronoteApiResourceType => {
+  switch (type) {
+    case PapillonRecipientType.PERSONAL:
+      return PronoteApiResourceType.Personal;
+    case PapillonRecipientType.TEACHER:
+    default:
+      return PronoteApiResourceType.Teacher;
+  }
+};
+
+export const discussionsCreationRecipientsHandler = async (instance?: Pronote): Promise<PapillonRecipient[]> => {
+  try {
+    const types: (PronoteApiResourceType.Teacher | PronoteApiResourceType.Personal)[] = [];
+    if (!instance) return [];
+
+    if (instance.authorizations.canDiscussWithStaff) {
+      types.push(PronoteApiResourceType.Personal);
+    }
+
+    if (instance.authorizations.canDiscussWithTeachers) {
+      types.push(PronoteApiResourceType.Teacher);
+    }
+
+    const recipients = await Promise.all(types.map(type => instance.getRecipientsForDiscussionCreation(type)));
+
+    return recipients.flat().map(recipient => ({
+      id: recipient.id,
+      type: convertPronoteResourceTypeToPapillon(recipient.type),
+      name: recipient.name,
+      functions: recipient.subjects.map(subject => subject.name)
+    }));
+  }
+  catch {
+    console.warn('[pronote:discussionsRecipientsHandler]: error occurred, returning empty array.');
+    return [];
+  }
+};
+
+export const discussionsCreationHandler = async (subject: string, content: string, recipients: PapillonRecipient[], instance?: Pronote): Promise<void> => {
+  try {
+    if (!instance) throw new Error('No instance available.');
+
+    const parsedRecipients = recipients.map(r => ({
+      id: r.id,
+      type: convertPapillonResourceTypeToPronote(r.type),
+    }));
+
+    // @ts-expect-error : parsedRecipients is only implementing half of the needed class, but in fact we're only using
+    // the id and type fields in the pawnote api call.
+    await instance.createDiscussion(subject, content, parsedRecipients);
+  }
+  catch (error) {
+    console.error('[pronote:discussionsCreationHandler] Failed to create discussion.');
+    console.error(error);
   }
 };

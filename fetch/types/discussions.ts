@@ -22,3 +22,16 @@ export interface PapillonDiscussion {
   messages: PapillonDiscussionMessage[]
   participants: string[]
 }
+
+export enum PapillonRecipientType {
+  UNKNOWN,
+  TEACHER,
+  PERSONAL
+}
+
+export interface PapillonRecipient {
+  id: string
+  name: string
+  functions: string[]
+  type: PapillonRecipientType
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, ActivityIndicator, StatusBar } from 'react-native';
 
 import { useTheme } from 'react-native-paper';
@@ -14,7 +14,7 @@ import NativeText from '../../components/NativeText';
 import { PressableScale } from 'react-native-pressable-scale';
 import { Check, Send } from 'lucide-react-native';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PapillonRecipientType, type PapillonRecipient } from '../../fetch/types/discussions';
 
 const NewConversation = ({ navigation }: {
   navigation: any // TODO
@@ -22,15 +22,15 @@ const NewConversation = ({ navigation }: {
   const appContext = useAppContext();
   const UIColors = GetUIColors();
 
-  const [recipients, setRecipients] = useState([]);
-  const [selectedRecipients, setSelectedRecipients] = useState([]);
+  const [recipients, setRecipients] = useState<PapillonRecipient[]>([]);
+  const [selectedRecipients, setSelectedRecipients] = useState<PapillonRecipient[]>([]);
   
   const [loading, setLoading] = useState(true);
   const [content, setContent] = useState('');
   const [subject, setSubject] = useState('');
 
   // add loading indicator to header
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -46,9 +46,9 @@ const NewConversation = ({ navigation }: {
         </View>
       ),
     });
-  }, [navigation, subject, content, selectedRecipients]);
+  }, [navigation, loading, subject, content, selectedRecipients]);
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!appContext.dataProvider) {
       Alert.alert(
         'Erreur',
@@ -60,22 +60,7 @@ const NewConversation = ({ navigation }: {
       return;
     }
 
-    // list names of selected recipients
-    let recipientsNames = [];
-
-    for (let i = 0; i < recipients.length; i++) {
-      if (selectedRecipients.includes(recipients[i].id)) {
-        recipientsNames.push(recipients[i].name);
-      }
-    }
-
-    let subjectToSend = subject;
-    if (subjectToSend == '') {
-      subjectToSend = 'Aucun sujet';
-    }
-
-    let messageToSend = content;
-    if (messageToSend == '') {
+    if (!content.trim()) {
       Alert.alert(
         'Message vide',
         'Vous ne pouvez pas envoyer un message vide.',
@@ -84,35 +69,34 @@ const NewConversation = ({ navigation }: {
       );
     }
 
-    let recipientsToSend = selectedRecipients;
+    try {
+      await appContext.dataProvider.createDiscussion(
+        subject.trim() ||'Aucun sujet',
+        content,
+        selectedRecipients
+      );
 
-    appContext.dataProvider.createDiscussion(
-      subjectToSend,
-      messageToSend,
-      recipientsToSend
-    ).then((result) => {
-      if (result.status === 'ok') {
-        AsyncStorage.setItem('hasNewMessagesSent', 'true');
-        navigation.goBack();
-      } else {
-        Alert.alert(
-          'Erreur',
-          'Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.',
-          [{ text: 'OK' }],
-          { cancelable: false }
-        );
-      }
-    });
+      navigation.goBack();
+    }
+    catch {
+      Alert.alert(
+        'Erreur',
+        'Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.',
+        [{ text: 'OK' }],
+        { cancelable: false }
+      );
+    }
   };
 
   useEffect(() => {
-    if (recipients.length === 0) {
-      appContext.dataProvider?.getRecipients().then((v) => {
-        if (v) setRecipients(v);
-        setLoading(false);
-      });
-    }
-  }, [recipients]);
+    (async () => {
+      if (!appContext.dataProvider) return;
+
+      const recipients = await appContext.dataProvider.getCreationRecipients();
+      setRecipients(recipients);
+      setLoading(false);
+    })();
+  }, [appContext.dataProvider]);
 
   return (
     <ScrollView
@@ -157,21 +141,27 @@ const NewConversation = ({ navigation }: {
             leading={
               <HwCheckbox
                 loading={false}
-                checked={selectedRecipients.includes(item.id)}
+                checked={selectedRecipients.some((e) => e.id === item.id)}
                 pressed={() => {
-                  if (selectedRecipients.includes(item.id)) {
-                    setSelectedRecipients(selectedRecipients.filter((e) => e !== item.id));
-                  } else {
-                    setSelectedRecipients([...selectedRecipients, item.id]);
+                  // if already selected, remove it
+                  if (selectedRecipients.some((e) => e.id === item.id)) {
+                    setSelectedRecipients(prev => prev.filter((e) => e.id !== item.id));
+                  }
+                  // otherwise add it
+                  else {
+                    setSelectedRecipients(prev => [...prev, item]);
                   }
                 }}
               />
             }
             onPress={() => {
-              if (selectedRecipients.includes(item.id)) {
-                setSelectedRecipients(selectedRecipients.filter((e) => e !== item.id));
-              } else {
-                setSelectedRecipients([...selectedRecipients, item.id]);
+              // if already selected, remove it
+              if (selectedRecipients.some((e) => e.id === item.id)) {
+                setSelectedRecipients(prev => prev.filter((e) => e.id !== item.id));
+              }
+              // otherwise add it
+              else {
+                setSelectedRecipients(prev => [...prev, item]);
               }
             }}
           >
@@ -181,9 +171,11 @@ const NewConversation = ({ navigation }: {
             <NativeText heading="p2">
               {item.functions.join(', ')}
             </NativeText>
-            <NativeText heading="subtitle1">
-              {item.type == 'teacher' ? 'Professeur' : 'Personnel'}
-            </NativeText>
+            {item.type !== PapillonRecipientType.UNKNOWN && (
+              <NativeText heading="subtitle1">
+                {item.type === PapillonRecipientType.TEACHER ? 'Professeur' : 'Personnel'}
+              </NativeText>
+            )}
           </NativeItem>
         ))}
       </NativeList>

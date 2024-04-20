@@ -6,7 +6,7 @@ import type { PapillonNews } from './types/news';
 import type { PapillonGrades } from './types/grades';
 import type { PapillonLesson } from './types/timetable';
 import type { PapillonHomework } from './types/homework';
-import type { PapillonDiscussion } from './types/discussions';
+import type { PapillonDiscussion, PapillonRecipient } from './types/discussions';
 
 // Pronote related imports.
 import { Pronote } from 'pawnote';
@@ -17,8 +17,8 @@ import { timetableHandler as pronoteTimetableHandler } from './PronoteData/timet
 import { evaluationsHandler as pronoteEvaluationsHandler } from './PronoteData/evaluations';
 import { vieScolaireHandler as pronoteVieScolaireHandler } from './PronoteData/vie_scolaire';
 import { newsHandler as pronoteNewsHandler, newsStateHandler as pronoteNewsStateHandler } from './PronoteData/news';
-import { discussionsHandler as pronoteDiscussionsHandler, discussionsRecipientsHandler as pronoteDiscussionsRecipientsHandler } from './PronoteData/discussions';
 import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as pronoteHomeworkHandler, homeworkUploadFileHandler as pronoteHomeworkUploadFileHandler, homeworkRemoveFileHandler as pronoteHomeworkRemoveFileHandler } from './PronoteData/homework';
+import { discussionsHandler as pronoteDiscussionsHandler, discussionsRecipientsHandler as pronoteDiscussionsRecipientsHandler, discussionsCreationRecipientsHandler as pronoteDiscussionsCreationRecipientsHandler, discussionsCreationHandler as pronoteDiscussionsCreationHandler } from './PronoteData/discussions';
 
 // Skolengo related imports.
 import type { SkolengoDatas } from './SkolengoData/SkolengoDatas';
@@ -340,15 +340,12 @@ export class IndexDataInstance {
     }
   }
 
-  async createDiscussion(subject, content, participants) {
+  async createDiscussion(subject: string, content: string, recipients: PapillonRecipient[]): Promise<void> {
     await this.waitInit();
-    // if (this.service === 'pronote')
-    //   return require('./PronoteData/PronoteConversations.js').createDiscussion(
-    //     subject,
-    //     content,
-    //     participants
-    //   );
-    return {};
+
+    if (this.service === 'pronote') {
+      await pronoteDiscussionsCreationHandler(subject, content, recipients, this.pronoteInstance);
+    }
   }
 
   public async getRecipients (localDiscussionID: string): Promise<string[]> {
@@ -361,13 +358,27 @@ export class IndexDataInstance {
     return [];
   }
 
+  public async getCreationRecipients (): Promise<PapillonRecipient[]> {
+    await this.waitInit();
+
+    if (this.service === 'pronote') {
+      return pronoteDiscussionsCreationRecipientsHandler(this.pronoteInstance);
+    }
+
+    return [];
+  }
+
   public async uploadHomework (homework: PapillonHomework, file: { name: string, uri: string, size: number, type: string }): Promise<void> {
+    await this.waitInit();
+
     if (this.service === 'pronote') {
       return pronoteHomeworkUploadFileHandler(homework, file, this.pronoteInstance);
     }
   }
 
   public async removeUploadedHomework (homework: PapillonHomework): Promise<void> {
+    await this.waitInit();
+
     if (this.service === 'pronote') {
       return pronoteHomeworkRemoveFileHandler(homework, this.pronoteInstance);
     }
