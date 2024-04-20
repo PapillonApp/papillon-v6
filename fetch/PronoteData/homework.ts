@@ -210,3 +210,33 @@ export const homeworkUploadFileHandler = async (homework: PapillonHomework, file
     console.error(error);
   }
 };
+
+export const homeworkRemoveFileHandler = async (homework: PapillonHomework, instance?: Pronote): Promise<void> => {
+  try {
+    if (!instance) throw new Error('No instance available.');
+    if (!homework.return) throw new Error('No return available.');
+
+    let homeworks = defaultStore.get(homeworksAtom);
+    if (homework.pronoteCachedSessionID !== instance.sessionID) {
+      homeworks = await homeworkHandler(true, instance);
+    }
+
+    if (!homeworks) throw new Error('No homeworks available.');
+    
+    // We search for the homework with the same localID.
+    const homeworkIndex = homeworks.findIndex(currentHomework => currentHomework.localID === homework.localID);
+
+    if (homeworkIndex === -1) throw new Error('Homework not found.');
+    const homeworkID = homeworks[homeworkIndex].id;
+
+    await instance.removeHomeworkFile(homeworkID);
+    
+    // refetch and save
+    homeworks = await homeworkHandler(true, instance);
+    defaultStore.set(homeworksAtom, homeworks);
+  }
+  catch (error) {
+    console.error('[pronote:homework/remove-upload] Failed to remove file.');
+    console.error(error);
+  }
+};

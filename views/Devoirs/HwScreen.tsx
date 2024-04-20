@@ -206,6 +206,11 @@ function HomeworkScreen({ route, navigation }: {
                 <PaperButton onPress={() => openURL(homework.return!.uploaded!.url)}>
                   Voir ma copie
                 </PaperButton>
+                <PaperButton onPress={async () => {
+                  await appContext.dataProvider?.removeUploadedHomework(homework);
+                }}>
+                  Supprimer
+                </PaperButton>
               </NativeItem>
             )
           ) : (
