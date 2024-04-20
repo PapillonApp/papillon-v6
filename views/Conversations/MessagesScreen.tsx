@@ -5,27 +5,26 @@ import {
   FlatList,
   StyleSheet,
   Text,
-  StatusBar,
   TouchableOpacity,
-  Image,
   TextInput,
   KeyboardAvoidingView,
 } from 'react-native';
 
+import type { PapillonUser } from '../../fetch/types/user';
+
 import { RenderHTML } from 'react-native-render-html';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import type { PapillonDiscussionMessage } from '../../fetch/types/discussions';
 import { useAppContext } from '../../utils/AppContext';
 
 import * as WebBrowser from 'expo-web-browser';
-
 import GetUIColors from '../../utils/GetUIColors';
+
 import { Send as SendLucide } from 'lucide-react-native';
 
 import { useAtomValue } from 'jotai';
 import { discussionsAtom } from '../../atoms/discussions';
+import { PapillonDiscussionMessage } from '../../fetch/types/discussions';
 
 function getInitials(name: string): string {
   if (name === undefined) {
@@ -48,7 +47,14 @@ function getInitials(name: string): string {
   return initials;
 }
 
-const MessagesScreen = ({ route, navigation }) => {
+const MessagesScreen = ({ route, navigation }: {
+  navigation: any;
+  route: {
+    params: {
+      conversationID: string;
+    }
+  }
+}) => {
   const UIColors = GetUIColors();
   const appContext = useAppContext();
   const insets = useSafeAreaInsets();
@@ -57,7 +63,7 @@ const MessagesScreen = ({ route, navigation }) => {
   const conversations = useAtomValue(discussionsAtom);
   const conversation = conversations!.find((conversation) => conversation.local_id === conversationID)!;
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<PapillonUser | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -66,20 +72,13 @@ const MessagesScreen = ({ route, navigation }) => {
       const userData = await appContext.dataProvider.getUser();
       setUser(userData);
     })();
-  }, []);
+  }, [appContext.dataProvider]);
 
-  const openURL = async (url: string) => {
-    await WebBrowser.openBrowserAsync(url, {
-      presentationStyle: 'formSheet',
-      controlsColor: UIColors.primary,
-    });
+  const sendMessage = async (text: string) => {
+    console.log('Sending message:', text);
   };
 
-  const sendMessage = (text: string) => {
-    console.log('Sending message:', text);
-  }
-
-  // header text is the subject of the conversation
+  // Header text is the subject of the conversation.
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: conversation.subject,
@@ -111,19 +110,30 @@ const MessagesScreen = ({ route, navigation }) => {
         renderItem={({ item }) => (
           <PapillonMessage
             message={item}
-            UIColors={UIColors}
             sent={item.author === `${user?.name} (${user?.class})`}
-            user={user}
           />
         )}
         ListHeaderComponent={<View style={{ height: insets.bottom + 12 }} />}
       />
-      <PapillonSend UIColors={UIColors} sendFunction={sendMessage} insets={insets} />
+      <PapillonSend sendFunction={sendMessage} insets={insets} />
     </KeyboardAvoidingView>
   );
 };
 
-const PapillonMessage = ({ message, UIColors, sent, user }) => {
+const PapillonMessage = ({ message, sent }: {
+  message: PapillonDiscussionMessage
+  /** Whether the message was sent by the user or no. */
+  sent: boolean
+}) => {
+  const UIColors = GetUIColors();
+
+  const openURL = async (url: string) => {
+    await WebBrowser.openBrowserAsync(url, {
+      presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
+      controlsColor: UIColors.primary,
+    });
+  };
+
   return (
     <View
       style={[styles.PapillonMessageContainer, sent ? styles.PapillonMessageContainerSent : {}]}
@@ -139,7 +149,7 @@ const PapillonMessage = ({ message, UIColors, sent, user }) => {
             justifyContent: 'center',
           }]}
         >
-          { !sent ? (
+          {!sent && (
             <Text
               style={[
                 {
@@ -149,9 +159,9 @@ const PapillonMessage = ({ message, UIColors, sent, user }) => {
                 },
               ]}
             >
-              {getInitials(message.author)}
+              {getInitials(message.author!)}
             </Text>
-          ) : null}
+          )}
         </View>
       ) : null}
       <View
@@ -216,7 +226,11 @@ const PapillonMessage = ({ message, UIColors, sent, user }) => {
   );
 };
 
-const PapillonSend = ({ sendFunction = (text) => {}, UIColors, insets }) => {
+const PapillonSend = ({ sendFunction, insets }: {
+  sendFunction: (text: string) => Promise<void>;
+  insets: { bottom: number }
+}) => {
+  const UIColors = GetUIColors();
   const [textValue, setTextValue] = useState('');
 
   return (
