@@ -1,3 +1,5 @@
+import type { PapillonAttachment } from './attachment';
+
 export interface CachedPapillonTimetable {
   interval: { from: string, to?: string }
   timetable: PapillonLesson[]
@@ -26,4 +28,9 @@ export interface PapillonLesson {
   is_detention: boolean
   is_exempted: boolean
   is_test: boolean
+  contents?: Array<{
+    description?: string
+    title?: string
+    files?: PapillonAttachment[]
+  }>
 }

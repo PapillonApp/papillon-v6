@@ -1,8 +1,10 @@
 import { type Pronote, TimetableLesson, TimetableActivity } from 'pawnote';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AsyncStoragePronoteKeys } from './connector';
-import type { CachedPapillonTimetable, PapillonLesson } from '../types/timetable';
 import { dateToFrenchFormat } from '../../utils/dates';
+
+import type { CachedPapillonTimetable, PapillonLesson } from '../types/timetable';
+import type { PapillonAttachmentType } from '../types/attachment';
 
 export const timetableHandler = async (interval: [from: Date, to?: Date], instance?: Pronote, force = false): Promise<PapillonLesson[] | null> => {
   const from = dateToFrenchFormat(interval[0]);
@@ -41,6 +43,22 @@ export const timetableHandler = async (interval: [from: Date, to?: Date], instan
           ...currentClass.personalNames
         ];
 
+        const resource = await currentClass.getResource();
+        const contents: PapillonLesson['contents'] = [];
+        if (resource) {
+          for (const resourceContent of resource.contents) {
+            contents.push({
+              description: resourceContent.description,
+              title: resourceContent.title,
+              files: resourceContent.files.map(file => ({
+                name: file.name,
+                type: file.type as unknown as PapillonAttachmentType,
+                url: file.url
+              }))
+            });
+          }
+        }
+
         timetable.push({
           id: currentClass.id,
           subject: currentClass.subject,
@@ -57,7 +75,8 @@ export const timetableHandler = async (interval: [from: Date, to?: Date], instan
           is_outing: false,
           is_detention: currentClass.detention,
           is_exempted: currentClass.exempted,
-          is_test: currentClass.test
+          is_test: currentClass.test,
+          contents
         });
       }
       else if (currentClass instanceof TimetableActivity) {
