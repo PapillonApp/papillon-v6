@@ -15,6 +15,8 @@ import { PressableScale } from 'react-native-pressable-scale';
 import { Check, Send } from 'lucide-react-native';
 
 import { PapillonRecipientType, type PapillonRecipient } from '../../fetch/types/discussions';
+import { useSetAtom } from 'jotai';
+import { discussionsAtom } from '../../atoms/discussions';
 
 const NewConversation = ({ navigation }: {
   navigation: any // TODO
@@ -22,6 +24,7 @@ const NewConversation = ({ navigation }: {
   const appContext = useAppContext();
   const UIColors = GetUIColors();
 
+  const setConversations = useSetAtom(discussionsAtom);
   const [recipients, setRecipients] = useState<PapillonRecipient[]>([]);
   const [selectedRecipients, setSelectedRecipients] = useState<PapillonRecipient[]>([]);
   
@@ -38,7 +41,7 @@ const NewConversation = ({ navigation }: {
             <ActivityIndicator />
           ) : (
             <TouchableOpacity
-              onPress={() => sendMessage()}
+              onPress={() => createDiscussion()}
             >
               <Send size={24} color={UIColors.primary} />
             </TouchableOpacity>
@@ -48,7 +51,7 @@ const NewConversation = ({ navigation }: {
     });
   }, [navigation, loading, subject, content, selectedRecipients]);
 
-  const sendMessage = async () => {
+  const createDiscussion = async () => {
     if (!appContext.dataProvider) {
       Alert.alert(
         'Erreur',
@@ -76,12 +79,15 @@ const NewConversation = ({ navigation }: {
         selectedRecipients
       );
 
+      const conversations = await appContext.dataProvider.getConversations();
+      setConversations(conversations);
+
       navigation.goBack();
     }
     catch {
       Alert.alert(
         'Erreur',
-        'Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.',
+        'Une erreur est survenue lors de la création de la discussion. Veuillez réessayer.',
         [{ text: 'OK' }],
         { cancelable: false }
       );
@@ -171,11 +177,11 @@ const NewConversation = ({ navigation }: {
             <NativeText heading="p2">
               {item.functions.join(', ')}
             </NativeText>
-            {item.type !== PapillonRecipientType.UNKNOWN && (
-              <NativeText heading="subtitle1">
-                {item.type === PapillonRecipientType.TEACHER ? 'Professeur' : 'Personnel'}
-              </NativeText>
-            )}
+            <NativeText heading="subtitle1">
+              {item.type === PapillonRecipientType.TEACHER ? 'Professeur'
+                : item.type === PapillonRecipientType.PERSONAL ? 'Personnel' : 'Élève'
+              }
+            </NativeText>
           </NativeItem>
         ))}
       </NativeList>
