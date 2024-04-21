@@ -20,13 +20,13 @@ export interface PapillonDiscussion {
   unread: number
   closed: boolean
   messages: PapillonDiscussionMessage[]
-  participants: string[]
+  participants: PapillonRecipient[]
 }
 
 export enum PapillonRecipientType {
-  UNKNOWN,
   TEACHER,
-  PERSONAL
+  PERSONAL,
+  STUDENT
 }
 
 export interface PapillonRecipient {

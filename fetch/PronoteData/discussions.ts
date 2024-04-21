@@ -1,7 +1,37 @@
-import { Pronote, PronoteApiResourceType } from 'pawnote';
+import { DiscussionCreationRecipient, type FetchedMessageRecipient, type Pronote, PronoteApiResourceType } from 'pawnote';
 import { type PapillonDiscussion, type PapillonDiscussionMessage, type PapillonRecipient, PapillonRecipientType } from '../types/discussions';
 
 const makeLocalID = (subject: string, date: string) => `${subject.substring(0, 3)}${date}`;
+
+type PronoteApiUserResource = PronoteApiResourceType.Teacher | PronoteApiResourceType.Personal | PronoteApiResourceType.Student;
+const convertPronoteResourceTypeToPapillon = (type: PronoteApiUserResource): PapillonRecipientType => {
+  switch (type) {
+    case PronoteApiResourceType.Teacher:
+      return PapillonRecipientType.TEACHER;
+    case PronoteApiResourceType.Personal:
+      return PapillonRecipientType.PERSONAL;
+    case PronoteApiResourceType.Student:
+      return PapillonRecipientType.STUDENT;
+  }
+};
+
+const convertPapillonResourceTypeToPronote = (type: PapillonRecipientType): PronoteApiUserResource => {
+  switch (type) {
+    case PapillonRecipientType.PERSONAL:
+      return PronoteApiResourceType.Personal;
+    case PapillonRecipientType.TEACHER:
+      return PronoteApiResourceType.Teacher;
+    case PapillonRecipientType.STUDENT:
+      return PronoteApiResourceType.Student;
+  }
+};
+
+const convertPronoteRecipientToPapillon = (recipient: DiscussionCreationRecipient | FetchedMessageRecipient): PapillonRecipient => ({
+  id: recipient.id,
+  type: convertPronoteResourceTypeToPapillon(recipient.type),
+  name: recipient.name,
+  functions: recipient instanceof DiscussionCreationRecipient ? recipient.subjects.map(subject => subject.name) : []
+});
 
 export const discussionsHandler = async (instance?: Pronote): Promise<PapillonDiscussion[]> => {
   try {
@@ -27,6 +57,8 @@ export const discussionsHandler = async (instance?: Pronote): Promise<PapillonDi
         });
       }
 
+      const recipients = await discussion.fetchRecipients();
+
       discussions.push({
         local_id: makeLocalID(discussion.subject, discussion.dateAsFrenchText),
         subject: discussion.subject,
@@ -35,7 +67,7 @@ export const discussionsHandler = async (instance?: Pronote): Promise<PapillonDi
         unread: discussion.numberOfMessagesUnread,
         closed: discussion.closed,
         messages: parsedMessages,
-        participants: [] // TODO in Pawnote
+        participants: recipients.map(recipient => convertPronoteRecipientToPapillon(recipient))
       });
     }
 
@@ -63,30 +95,9 @@ export const discussionsRecipientsHandler = async (localDiscussionID: string, in
   }
 };
 
-const convertPronoteResourceTypeToPapillon = (type: PronoteApiResourceType): PapillonRecipientType => {
-  switch (type) {
-    case PronoteApiResourceType.Teacher:
-      return PapillonRecipientType.TEACHER;
-    case PronoteApiResourceType.Personal:
-      return PapillonRecipientType.PERSONAL;
-    default:
-      return PapillonRecipientType.UNKNOWN;
-  }
-};
-
-const convertPapillonResourceTypeToPronote = (type: PapillonRecipientType): PronoteApiResourceType => {
-  switch (type) {
-    case PapillonRecipientType.PERSONAL:
-      return PronoteApiResourceType.Personal;
-    case PapillonRecipientType.TEACHER:
-    default:
-      return PronoteApiResourceType.Teacher;
-  }
-};
-
 export const discussionsCreationRecipientsHandler = async (instance?: Pronote): Promise<PapillonRecipient[]> => {
   try {
-    const types: (PronoteApiResourceType.Teacher | PronoteApiResourceType.Personal)[] = [];
+    const types: PronoteApiUserResource[] = [];
     if (!instance) return [];
 
     if (instance.authorizations.canDiscussWithStaff) {
@@ -99,12 +110,7 @@ export const discussionsCreationRecipientsHandler = async (instance?: Pronote): 
 
     const recipients = await Promise.all(types.map(type => instance.getRecipientsForDiscussionCreation(type)));
 
-    return recipients.flat().map(recipient => ({
-      id: recipient.id,
-      type: convertPronoteResourceTypeToPapillon(recipient.type),
-      name: recipient.name,
-      functions: recipient.subjects.map(subject => subject.name)
-    }));
+    return recipients.flat().map(recipient => convertPronoteRecipientToPapillon(recipient));
   }
   catch {
     console.warn('[pronote:discussionsRecipientsHandler]: error occurred, returning empty array.');
