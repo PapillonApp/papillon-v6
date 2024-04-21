@@ -6,7 +6,7 @@ import type { PapillonNews } from './types/news';
 import type { PapillonGrades } from './types/grades';
 import type { PapillonLesson } from './types/timetable';
 import type { PapillonHomework } from './types/homework';
-import type { PapillonDiscussion, PapillonRecipient } from './types/discussions';
+import type { PapillonDiscussion, PapillonDiscussionMessage, PapillonRecipient } from './types/discussions';
 
 // Pronote related imports.
 import { Pronote } from 'pawnote';
@@ -18,7 +18,7 @@ import { evaluationsHandler as pronoteEvaluationsHandler } from './PronoteData/e
 import { vieScolaireHandler as pronoteVieScolaireHandler } from './PronoteData/vie_scolaire';
 import { newsHandler as pronoteNewsHandler, newsStateHandler as pronoteNewsStateHandler } from './PronoteData/news';
 import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as pronoteHomeworkHandler, homeworkUploadFileHandler as pronoteHomeworkUploadFileHandler, homeworkRemoveFileHandler as pronoteHomeworkRemoveFileHandler } from './PronoteData/homework';
-import { discussionsHandler as pronoteDiscussionsHandler, discussionsRecipientsHandler as pronoteDiscussionsRecipientsHandler, discussionsCreationRecipientsHandler as pronoteDiscussionsCreationRecipientsHandler, discussionsCreationHandler as pronoteDiscussionsCreationHandler } from './PronoteData/discussions';
+import { discussionsHandler as pronoteDiscussionsHandler, discussionsRecipientsHandler as pronoteDiscussionsRecipientsHandler, discussionsCreationRecipientsHandler as pronoteDiscussionsCreationRecipientsHandler, discussionsCreationHandler as pronoteDiscussionsCreationHandler, discussionReplyHandler as pronoteDiscussionReplyHandler } from './PronoteData/discussions';
 
 // Skolengo related imports.
 import type { SkolengoDatas } from './SkolengoData/SkolengoDatas';
@@ -31,6 +31,7 @@ import { loadEcoleDirecteConnector } from './EcoleDirecteData/connector';
 import { userInformations as EcoleDirecteUser } from './EcoleDirecteData/user';
 import { EDtimetableHandler as EcoleDirecteTimetable } from './EcoleDirecteData/timetable';
 import { EDvieScolaireHandler } from './EcoleDirecteData/vie_scolaire';
+import { Alert } from 'react-native';
 
 export type ServiceName = 'pronote' | 'skolengo' | 'ecoledirecte';
 
@@ -284,8 +285,7 @@ export class IndexDataInstance {
     }
     
     if (!user) {
-      // TODO: Show a message to user that cache is not renewed and data can't be fetched.
-      throw new Error('No cache or service unknown/disconnected.');
+      throw Alert.alert('Aucun cache n\'a été trouvé, il se peut que vous avez été déconnecté de votre session.');
     }
 
     return runUserMiddleware(user);
@@ -306,6 +306,10 @@ export class IndexDataInstance {
     return { absences: [], delays: [], punishments: [], observations: [] } as PapillonVieScolaire;
   }
 
+  /**
+   * Get every conversation registered.
+   * Also get the recipients of each conversation and read all the messages.
+   */
   public async getConversations (): Promise<PapillonDiscussion[]> {
     await this.waitInit();
     
@@ -316,31 +320,25 @@ export class IndexDataInstance {
     return [];
   }
 
-  async replyToConversation(localID: string, messageContent: string) {
+  /**
+   * Reply to a conversation and returns the
+   * whole conversation with updated messages.
+   */
+  async replyToConversation (localDiscussionID: string, messageContent: string): Promise<PapillonDiscussionMessage[] | null> {
     await this.waitInit();
 
     if (this.service === 'pronote') {
-      //   return require('./PronoteData/PronoteConversations.js').replyToConversation(
-      //     id,
-      //     message
-      //   );
-      // TODO
+      return pronoteDiscussionReplyHandler(localDiscussionID, messageContent, this.pronoteInstance);
     }
 
-    return {};
+    return null;
   }
 
-  public async readStateConversation (localID: string): Promise<void> {
-    await this.waitInit();
-    if (this.service === 'pronote') {
-      // TODO
-      // return require('./PronoteData/PronoteConversations.js').readStateConversation(
-      //   id
-      // );
-    }
-  }
-
-  async createDiscussion(subject: string, content: string, recipients: PapillonRecipient[]): Promise<void> {
+  /**
+   * Create a discussion with the given `subject` and `content` as first message.
+   * If possible, add `recipients` to the discussion.
+   */
+  async createDiscussion (subject: string, content: string, recipients: PapillonRecipient[]): Promise<void> {
     await this.waitInit();
 
     if (this.service === 'pronote') {
@@ -348,6 +346,10 @@ export class IndexDataInstance {
     }
   }
 
+  /**
+   * Get the recipients attached to a discussion
+   * using the local ID of it.
+   */
   public async getRecipients (localDiscussionID: string): Promise<string[]> {
     await this.waitInit();
 
@@ -358,6 +360,9 @@ export class IndexDataInstance {
     return [];
   }
 
+  /**
+   * Get the recipients that can be added to a new discussion.
+   */
   public async getCreationRecipients (): Promise<PapillonRecipient[]> {
     await this.waitInit();
 

@@ -1,7 +1,7 @@
 import { DiscussionCreationRecipient, type FetchedMessageRecipient, type Pronote, PronoteApiResourceType } from 'pawnote';
 import { type PapillonDiscussion, type PapillonDiscussionMessage, type PapillonRecipient, PapillonRecipientType } from '../types/discussions';
 
-const makeLocalID = (subject: string, date: string) => `${subject.substring(0, 3)}${date}`;
+const makeLocalID = (subject: string, recipient: string | undefined, creator: string) => `${subject}${recipient || 'TO_EVERYONE'}${creator}`;
 
 type PronoteApiUserResource = PronoteApiResourceType.Teacher | PronoteApiResourceType.Personal | PronoteApiResourceType.Student;
 const convertPronoteResourceTypeToPapillon = (type: PronoteApiUserResource): PapillonRecipientType => {
@@ -60,7 +60,7 @@ export const discussionsHandler = async (instance?: Pronote): Promise<PapillonDi
       const recipients = await discussion.fetchRecipients();
 
       discussions.push({
-        local_id: makeLocalID(discussion.subject, discussion.dateAsFrenchText),
+        local_id: makeLocalID(discussion.subject, discussion.recipientName, discussion.creator),
         subject: discussion.subject,
         creator: discussion.creator ?? '',
         timestamp: overview.messages[0].created.getTime(),
@@ -83,7 +83,7 @@ export const discussionsRecipientsHandler = async (localDiscussionID: string, in
     const overview = await instance?.getDiscussionsOverview();
     if (!overview) return [];
 
-    const discussion = overview.discussions.find(discussion => makeLocalID(discussion.subject, discussion.dateAsFrenchText) === localDiscussionID);
+    const discussion = overview.discussions.find(discussion => makeLocalID(discussion.subject, discussion.recipientName, discussion.creator) === localDiscussionID);
     if (!discussion) return [];
 
     const recipients = await discussion.fetchRecipients();
@@ -134,5 +134,41 @@ export const discussionsCreationHandler = async (subject: string, content: strin
   catch (error) {
     console.error('[pronote:discussionsCreationHandler] Failed to create discussion.');
     console.error(error);
+  }
+};
+
+export const discussionReplyHandler = async (localDiscussionID: string, content: string, instance?: Pronote): Promise<PapillonDiscussionMessage[] | null> => {
+  try {
+    const overview = await instance?.getDiscussionsOverview();
+    if (!overview) throw new Error('No discussions available.');
+
+    const discussion = overview.discussions.find(discussion => makeLocalID(discussion.subject, discussion.recipientName, discussion.creator) === localDiscussionID);
+    if (!discussion) throw new Error('Discussion not found.');
+
+    const messagesOverview = await discussion.fetchMessagesOverview();
+    await messagesOverview.sendMessage(content);
+
+    const parsedMessages: PapillonDiscussionMessage[] = [];
+      
+    for (const message of messagesOverview.messages) {
+      parsedMessages.push({
+        id: message.id,
+        content: message.content,
+        author: message.author.name,
+        timestamp: message.created.getTime(),
+        amountOfRecipients: message.amountOfRecipients,
+        files: message.files.map(file => ({
+          name: file.name,
+          url: file.url
+        }))
+      });
+    }
+
+    return parsedMessages;
+  }
+  catch (error) {
+    console.error('[pronote:discussionReplyHandler] Failed to send message.');
+    console.error(error);
+    return null;
   }
 };
