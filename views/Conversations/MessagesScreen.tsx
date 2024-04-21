@@ -8,23 +8,24 @@ import {
   TouchableOpacity,
   TextInput,
   KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 
 import type { PapillonUser } from '../../fetch/types/user';
+import type { PapillonDiscussionMessage } from '../../fetch/types/discussions';
 
 import { RenderHTML } from 'react-native-render-html';
 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppContext } from '../../utils/AppContext';
 
 import * as WebBrowser from 'expo-web-browser';
 import GetUIColors from '../../utils/GetUIColors';
+import { useHeaderHeight } from '@react-navigation/elements';
 
 import { Send as SendLucide } from 'lucide-react-native';
 
 import { useAtomValue } from 'jotai';
 import { discussionsAtom } from '../../atoms/discussions';
-import { PapillonDiscussionMessage } from '../../fetch/types/discussions';
 
 function getInitials(name: string): string {
   if (name === undefined) {
@@ -57,7 +58,7 @@ const MessagesScreen = ({ route, navigation }: {
 }) => {
   const UIColors = GetUIColors();
   const appContext = useAppContext();
-  const insets = useSafeAreaInsets();
+  const headerHeight  = useHeaderHeight();
 
   const { conversationID } = route.params;
   const conversations = useAtomValue(discussionsAtom);
@@ -95,14 +96,15 @@ const MessagesScreen = ({ route, navigation }: {
           backgroundColor: UIColors.background,
         },
       ]}
-      behavior="padding"
-      keyboardVerticalOffset={insets.bottom + 38}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={headerHeight}
     >
       <FlatList
         data={conversation.messages}
         keyExtractor={(message) => message.id}
         style={[
           {
+            marginBottom: 16,
             flex: 1,
           },
         ]}
@@ -113,9 +115,8 @@ const MessagesScreen = ({ route, navigation }: {
             sent={item.author === `${user?.name} (${user?.class})`}
           />
         )}
-        ListHeaderComponent={<View style={{ height: insets.bottom + 12 }} />}
       />
-      <PapillonSend sendFunction={sendMessage} insets={insets} />
+      <PapillonSend sendFunction={sendMessage} />
     </KeyboardAvoidingView>
   );
 };
@@ -226,9 +227,8 @@ const PapillonMessage = ({ message, sent }: {
   );
 };
 
-const PapillonSend = ({ sendFunction, insets }: {
+const PapillonSend = ({ sendFunction }: {
   sendFunction: (text: string) => Promise<void>;
-  insets: { bottom: number }
 }) => {
   const UIColors = GetUIColors();
   const [textValue, setTextValue] = useState('');
@@ -244,8 +244,7 @@ const PapillonSend = ({ sendFunction, insets }: {
           borderColor: UIColors.text + '20',
           borderWidth: 1,
           paddingHorizontal: 16,
-          marginTop: -30,
-          marginBottom: insets.bottom,
+          marginBottom: 16,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -259,6 +258,7 @@ const PapillonSend = ({ sendFunction, insets }: {
             paddingVertical: 11,
             textAlignVertical: 'center',
             paddingTop: 11,
+            color: UIColors.text,
             flex: 1,
           },
         ]}
@@ -269,8 +269,8 @@ const PapillonSend = ({ sendFunction, insets }: {
         onChangeText={(text) => setTextValue(text)}
       />
       <TouchableOpacity
-        onPress={() => {
-          sendFunction(textValue);
+        onPress={async () => {
+          await sendFunction(textValue);
           setTextValue('');
         }}
         disabled={textValue.length === 0}
