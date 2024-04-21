@@ -9,6 +9,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 
 import type { PapillonUser } from '../../fetch/types/user';
@@ -24,7 +25,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 
 import { Send as SendLucide } from 'lucide-react-native';
 
-import { useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { discussionsAtom } from '../../atoms/discussions';
 
 function getInitials(name: string): string {
@@ -61,7 +62,7 @@ const MessagesScreen = ({ route, navigation }: {
   const headerHeight  = useHeaderHeight();
 
   const { conversationID } = route.params;
-  const conversations = useAtomValue(discussionsAtom);
+  const [conversations, setConversations] = useAtom(discussionsAtom);
   const conversation = conversations!.find((conversation) => conversation.local_id === conversationID)!;
 
   const [user, setUser] = useState<PapillonUser | null>(null);
@@ -76,7 +77,29 @@ const MessagesScreen = ({ route, navigation }: {
   }, [appContext.dataProvider]);
 
   const sendMessage = async (text: string) => {
-    console.log('Sending message:', text);
+    console.log(conversation);
+    if (!appContext.dataProvider) throw new Error('No data provider available.');
+    const messages = await appContext.dataProvider.replyToConversation(conversationID, text);
+    
+    if (messages === null) {
+      Alert.alert(
+        'Erreur',
+        'Impossible d\'envoyer le message.',
+        [{ text: 'OK' }],
+        { cancelable: false }
+      );
+
+      return;
+    }
+
+    setConversations((conversations) => {
+      if (!conversations) return [];
+      const copy = [...conversations];
+
+      const conversationIndex = copy.findIndex((c) => c.local_id === conversation.local_id);
+      copy[conversationIndex].messages = messages;
+      return copy;
+    });
   };
 
   // Header text is the subject of the conversation.
