@@ -30,7 +30,7 @@ import {
   FileUp
 } from 'lucide-react-native';
 
-import { getSavedCourseColor } from '../utils/ColorCoursName';
+import { getSavedCourseColor } from '../utils/cours/ColorCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
 

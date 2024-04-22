@@ -17,8 +17,8 @@ import ColorPicker, {
   Preview,
   HueSlider,
 } from 'reanimated-color-picker';
-import formatCoursName from '../../utils/FormatCoursName';
-import { forceSavedCourseColor } from '../../utils/ColorCoursName';
+import formatCoursName from '../../utils/cours/FormatCoursName';
+import { forceSavedCourseColor } from '../../utils/cours/ColorCoursName';
 import { CircleEllipsis, CircleEllipsisIcon, Lock, MoreVertical } from 'lucide-react-native';
 import { getContextValues } from '../../utils/AppContext';
 import { RegisterTrophy } from './TrophiesScreen';

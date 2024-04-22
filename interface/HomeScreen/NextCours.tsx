@@ -7,8 +7,8 @@ import { PressableScale } from 'react-native-pressable-scale';
 
 import GetUIColors from '../../utils/GetUIColors';
 
-import { getSavedCourseColor } from '../../utils/ColorCoursName';
-import formatCoursName from '../../utils/FormatCoursName';
+import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
+import formatCoursName from '../../utils/cours/FormatCoursName';
 import { MapPin, UserCircle2 } from 'lucide-react-native';
 import { PapillonLesson } from '../../fetch/types/timetable';
 
