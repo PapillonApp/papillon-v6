@@ -9,7 +9,7 @@ import {
   Linking
 } from 'react-native';
 
-import { Calendar, BarChart3, Palette, Bug, ServerOff, WifiOff, Wind } from 'lucide-react-native';
+import { BarChart3, Palette, Bug, ServerOff, WifiOff, Wind } from 'lucide-react-native';
 
 import { Text, useTheme } from 'react-native-paper';
 import packageJson from '../package.json';

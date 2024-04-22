@@ -10,8 +10,6 @@ import NativeText from '../components/NativeText';
 import packageJson from '../package.json';
 import { useAppContext } from '../utils/AppContext';
 import type { PapillonUser } from '../fetch/types/user';
-import PapillonInsetHeader from '../components/PapillonInsetHeader';
-import PapillonCloseButton from '../interface/PapillonCloseButton';
 
 import {
   Bell,
