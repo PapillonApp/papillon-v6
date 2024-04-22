@@ -79,7 +79,7 @@ jobs:
     - name: 📱 Upload binary
       uses: actions/upload-artifact@v2
       with:
-        name: app-ios
+        name: app-ios.ipa
         path: app-build
         
   build-android:

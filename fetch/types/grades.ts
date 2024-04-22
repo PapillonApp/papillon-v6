@@ -53,11 +53,11 @@ export interface PapillonGrades {
       groups: boolean
     }
 
-    average: PapillonGradeValue
+    average?: PapillonGradeValue
     class_average: PapillonGradeValue
     max: PapillonGradeValue
     min: PapillonGradeValue
-    out_of: PapillonGradeValue
+    out_of?: PapillonGradeValue
     color: string
   }>
 

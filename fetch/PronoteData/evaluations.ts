@@ -45,6 +45,6 @@ export const evaluationsHandler = async (periodName: string, instance?: Pronote,
     return evaluationsAllData;
   }
   catch {
-    return [];
+    return null;
   }
 };

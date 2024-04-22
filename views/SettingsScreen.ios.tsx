@@ -13,6 +13,8 @@ import GetUIColors from '../utils/GetUIColors';
 import { IconsList } from './Settings/IconSelectScreen';
 import { getAppIcon } from 'expo-dynamic-app-icon';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import packageJson from '../package.json';
 import { useAppContext } from '../utils/AppContext';
 import type { PapillonUser } from '../fetch/types/user';
@@ -27,7 +29,7 @@ function NewSettings({ navigation }: {
   const theme = useTheme();
   const [userData, setUserData] = useState<PapillonUser | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | undefined>('');
-
+  const [devMode, setDevMode] = React.useState(false);
   const appContext = useAppContext();
 
   useEffect(() => {
@@ -59,6 +61,10 @@ function NewSettings({ navigation }: {
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setCurrentIcon(getAppIcon() || 'classic');
+
+      AsyncStorage.getItem("devMode").then((v) => {
+        if (v) setDevMode(true);
+      });
     });
 
     return unsubscribe;
@@ -85,13 +91,13 @@ function NewSettings({ navigation }: {
         inset
         sideBar
       >
-        { userData && userData.name ? (
+        {userData && userData.name ? (
           <NativeItem
             style={[
               styles.profile.container,
             ]}
             leading={
-              profilePicture  ?
+              profilePicture ?
                 <Image
                   style={styles.profile.pic}
                   source={{
@@ -107,12 +113,12 @@ function NewSettings({ navigation }: {
               <NativeText heading="h3">
                 {userData.name}
               </NativeText>
-              <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+              <NativeText heading="p" style={{ opacity: 0.6, fontSize: 15 }}>
                 Personnaliser le profil Papillon
               </NativeText>
             </View>
           </NativeItem>
-        ) : null }
+        ) : null}
       </NativeList>
 
       <NativeList
@@ -214,7 +220,7 @@ function NewSettings({ navigation }: {
           <NativeText heading="h4">
             Notifications
           </NativeText>
-          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+          <NativeText heading="p" style={{ opacity: 0.6, fontSize: 15 }}>
             Personnalisation des notifications
           </NativeText>
         </NativeItem>
@@ -243,7 +249,7 @@ function NewSettings({ navigation }: {
           <NativeText heading="h4">
             Réglages
           </NativeText>
-          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+          <NativeText heading="p" style={{ opacity: 0.6, fontSize: 15 }}>
             Connexion à votre compte et au serveur
           </NativeText>
         </NativeItem>
@@ -281,12 +287,12 @@ function NewSettings({ navigation }: {
           <NativeText heading="h4">
             Couleur des matières
           </NativeText>
-          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+          <NativeText heading="p" style={{ opacity: 0.6, fontSize: 15 }}>
             Personnalisation des matières
           </NativeText>
         </NativeItem>
         <NativeItem
-          leading={ currentIcon &&
+          leading={currentIcon &&
             <View
               style={[
                 styles.iconContainer
@@ -304,7 +310,7 @@ function NewSettings({ navigation }: {
           <NativeText heading="h4">
             Icône de l'application
           </NativeText>
-          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+          <NativeText heading="p" style={{ opacity: 0.6, fontSize: 15 }}>
             Modifier l'icône de l'application
           </NativeText>
         </NativeItem>
@@ -343,6 +349,37 @@ function NewSettings({ navigation }: {
             Soutenir Papillon
           </NativeText>
         </NativeItem>
+        {devMode ? (
+          <NativeItem
+            leading={
+              <View
+                style={[
+                  styles.item.leadingContainer,
+                  {
+                    backgroundColor: '#888888',
+                  }
+                ]}
+              >
+                <SFSymbol
+                  name="flask"
+                  weight="semibold"
+                  size={18}
+                  color="#ffffff"
+                  style={styles.item.symbol}
+                />
+              </View>
+            }
+            chevron
+            onPress={() => navigation.navigate('DevSettings')}
+          >
+            <NativeText heading="h4">
+              Options de développement
+            </NativeText>
+            <NativeText heading="p" style={{ opacity: 0.6, fontSize: 15 }}>
+              ┬─┬ノ( º _ ºノ)
+            </NativeText>
+          </NativeItem>
+        ) : null}
         <NativeItem
           leading={
             <View
@@ -366,9 +403,9 @@ function NewSettings({ navigation }: {
           onPress={() => navigation.navigate('About')}
         >
           <NativeText heading="h4">
-          À propos
+            À propos
           </NativeText>
-          <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+          <NativeText heading="p" style={{ opacity: 0.6, fontSize: 15 }}>
             Papillon version {packageJson.version}
           </NativeText>
         </NativeItem>

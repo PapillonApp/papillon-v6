@@ -22,6 +22,10 @@ import PaymentScreen from '../views/Settings/PaymentScreen';
 import NotificationsScreen from '../views/Settings/NotificationsScreen';
 import ConsentScreenWithoutAcceptation from '../views/ConsentScreenWithoutAcceptation';
 import TrophiesScreen from '../views/Settings/TrophiesScreen';
+import DevSettings from '../views/Settings/DevSettings/DevSettings';
+import LogsScreen from '../views/Settings/DevSettings/LogsScreen';
+import LocalStorageViewScreen from '../views/Settings/DevSettings/LocalStorageViewScreen';
+import NetworkLoggerScreen from '../views/Settings/NetworkLogger';
 
 function InsetSettings() {
   const UIColors = GetUIColors();
@@ -35,7 +39,7 @@ function InsetSettings() {
             navigationBarColor: '#00000000',
             headerStyle: {
               backgroundColor: UIColors.background,
-                elevation: 0,
+              elevation: 0,
             },
             headerShadowVisible: false,
           }
@@ -162,6 +166,34 @@ function InsetSettings() {
         component={SettingsScreen2}
         options={{
           headerTitle: 'Réglages',
+        }}
+      />
+      <Stack.Screen
+        name="DevSettings"
+        component={DevSettings}
+        options={{
+          headerTitle: 'Options de développement',
+        }}
+      />
+      <Stack.Screen
+        name="LogsScreen"
+        component={LogsScreen}
+        options={{
+          headerTitle: 'Logs',
+        }}
+      />
+      <Stack.Screen
+        name="LocalStorageViewScreen"
+        component={LocalStorageViewScreen}
+        options={{
+          headerTitle: 'Local storage',
+        }}
+      />
+      <Stack.Screen
+        name="NetworkLoggerScreen"
+        component={NetworkLoggerScreen}
+        options={{
+          headerTitle: 'Historique réseau',
         }}
       />
     </Stack.Navigator>

@@ -19,10 +19,12 @@ import {
   Sparkles,
   Euro,
   Info,
+  FlaskConical,
 } from 'lucide-react-native';
 
 import { IconsList } from './Settings/IconSelectScreen';
 import { getAppIcon } from 'expo-dynamic-app-icon';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SettingsScreen = ({ navigation }) => {
   const UIColors = GetUIColors();
@@ -30,7 +32,7 @@ const SettingsScreen = ({ navigation }) => {
   // User data
   const [userData, setUserData] = useState<PapillonUser | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | undefined>('');
-
+  const [devMode, setDevMode] = React.useState(false);
   const appContext = useAppContext();
 
   useEffect(() => {
@@ -50,6 +52,10 @@ const SettingsScreen = ({ navigation }) => {
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setCurrentIcon(getAppIcon() || 'classic');
+
+      AsyncStorage.getItem("devMode").then((v) => {
+        if (v) setDevMode(true);
+      });
     });
 
     return unsubscribe;
@@ -70,13 +76,13 @@ const SettingsScreen = ({ navigation }) => {
           styles.list
         ]}
       >
-        { userData && userData.name ? (
+        {userData && userData.name ? (
           <NativeItem
             style={[
               styles.profile.container,
             ]}
             leading={
-              profilePicture  ?
+              profilePicture ?
                 <Image
                   style={styles.profile.pic}
                   source={{
@@ -91,12 +97,12 @@ const SettingsScreen = ({ navigation }) => {
               <NativeText heading="h3">
                 {userData.name}
               </NativeText>
-              <NativeText heading="p" style={{opacity: 0.6, fontSize: 15}}>
+              <NativeText heading="p" style={{ opacity: 0.6, fontSize: 15 }}>
                 Personnaliser le profil Papillon
               </NativeText>
             </View>
           </NativeItem>
-        ) : null }
+        ) : null}
 
         <NativeItem
           onPress={() => navigation.navigate('TrophiesScreen')}
@@ -181,6 +187,19 @@ const SettingsScreen = ({ navigation }) => {
             Choisir une icône pour Papillon
           </NativeText>
         </NativeItem>
+        {devMode ? <NativeItem
+          onPress={() => navigation.navigate('DevSettings')}
+          leading={
+            <FlaskConical size={24} color={UIColors.primary} />
+          }
+        >
+          <NativeText heading="h4">
+            Options de développement
+          </NativeText>
+          <NativeText heading="p2">
+            ┬─┬ノ( º _ ºノ)
+          </NativeText>
+        </NativeItem> : null}
       </NativeList>
 
       <NativeList
