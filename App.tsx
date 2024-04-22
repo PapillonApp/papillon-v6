@@ -11,9 +11,9 @@ import AppStack from './stacks/AppStack';
 import AuthStack from './stacks/AuthStack';
 import LoadingScreen from './stacks/LoadingScreen';
 import { startNetworkLogging } from 'react-native-network-logger';
-
+import FlashMessage from 'react-native-flash-message';
 startNetworkLogging();
-
+console.log("Initializing app")
 const provider = new IndexDataInstance();
 
 function App() {
@@ -107,6 +107,7 @@ function App() {
           ))}
         </Stack.Navigator>
       </AppContextProvider>
+      <FlashMessage position="top" />
     </View>
   );
 }
