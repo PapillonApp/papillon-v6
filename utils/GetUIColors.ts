@@ -1,58 +1,111 @@
-const formatExceptions: Map<string, string> = new Map([
-  // Please keep this list sorted alphabetically
-  ['accompagnemt. perso.', 'Accompagnement Personnalisé'],
-  ['at. professionnalis.', 'Attelier de Professionnalisation'],
-  ['bloc 1 smdsi', 'Bloc 1 Support et Mise à Disposition des Services Informatiques'],
-  ['bloc 2 sisr', 'Bloc 2 Solutions d’Infrastructure, Systèmes et Réseaux'],
-  ['bloc 2 slam', 'Bloc 2 Solutions Logicielles et Applications Métiers'],
-  ['bloc 3 tp', 'Bloc 3 Travaux Pratiques'],
-  ['cul.eco.jur.man.app.', 'Culture Économique, Juridique et Managériale Appliquée'],
-  ['culture gene.et expr', 'Culture générale et expression'],
-  ['cult.eco jur. manag.', 'Culture Économique, Juridique et Managériale'],
-  ['education civique', 'Éducation civique'],
-  ['enseign.scientifique', 'Enseignement scientifique'],
-  ['ed.physique & sport.', 'Éducation Physique et Sportive'],
-  ['education musicale', 'Éducation musicale'],
-  ['education physique et sportive', 'Éducation Physique et Sportive'],
-  ['eps', 'Éducation Physique et Sportive'],
-  ['francais', 'Français'],
-  ['histoire geo', 'Histoire-Géo'],
-  ['histoire-geo', 'Histoire-Géo'],
-  ['histoire & geograph.', 'Histoire-Géo'],
-  ['histoire-geographie', 'Histoire-Géographie'],
-  ['human.litter.philo', 'Humanités, Littérature & Philosophie'],
-  ['llc angl.mond.cont.', 'LLCER Anglais Monde Contemporain'],
-  ['maths pour informatq', 'Mathématiques pour l’informatique'],
-  ['mathematiques', 'Mathématiques'],
-  ['math 1ere', 'Mathématiques 1ère'],
-  ['numerique sc.inform.', 'Numérique et Sciences Informatiques'],
-  ['physique-chimie', 'Physique-Chimie'],
-  ['sc.econo & sociales', 'Sciences Économiques et Sociales'],
-  ['sciences de la vie et de la terre', 'Sciences de la Vie et de la Terre'],
-  ['sciences vie & terre', 'Sciences de la Vie et de la Terre'],
-  ['sciences economiques et sociales', 'Sciences Économiques et Sociales'],
-  ['sc.numeriq.technol.', 'Sciences Numériques et Technologie'],
-  ['vie de classe', 'Vie de classe'],
-]);
+import { useMemo } from 'react';
+import { Platform, useColorScheme } from 'react-native';
+import { useTheme } from 'react-native-paper';
 
-const lengthExceptions: Set<string> = new Set(['vie', 'de', 'des', 'et', 'la']);
-
-function formatCoursName(name: string): string {
-  let formattedName: string = name
-    .split(' ')
-    .map((word: string) => {
-      if (word.length > 3 || lengthExceptions.has(word.toLowerCase())) {
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-      }
-      return word;
-    })
-    .join(' ');
-
-  if (formatExceptions.has(formattedName.toLowerCase())) {
-    formattedName = formatExceptions.get(formattedName.toLowerCase())!;
-  }
-
-  return formattedName;
+interface UIColors {
+  theme: string;
+  dark: boolean;
+  background: string;
+  backgroundHigh: string;
+  backgroundItems: string;
+  modalBackground: string;
+  element: string;
+  elementHigh: string;
+  text: string;
+  primary: string;
+  primaryBackground: string;
+  border: string;
+  borderLight: string;
 }
 
-export default formatCoursName;
+function useUIColors(schemeForce: string | undefined, platformForce: string | undefined): UIColors {
+  const theme = useTheme();
+  const scheme = useColorScheme();
+
+  let isDark: boolean = scheme === 'dark';
+  let platform: string = Platform.OS;
+
+  if (schemeForce) {
+    isDark = schemeForce === 'dark';
+  }
+
+  if (platformForce) {
+    platform = platformForce;
+  }
+
+  return useMemo(() => {
+    let background: string;
+    let backgroundHigh: string;
+    let backgroundItems: string;
+
+    if (platform === 'ios') {
+      background = isDark ? '#0B0B0C' : '#ffffff';
+      backgroundHigh = isDark ? '#0B0B0C' : '#f2f2f7';
+      backgroundItems = backgroundHigh;
+    } else {
+      background = theme.colors.background;
+      backgroundHigh = theme.colors.background;
+      backgroundItems = theme.colors.elevation.level1;
+    }
+
+    let modalBackground: string = background;
+    if (platform === 'ios') {
+      modalBackground = isDark ? '#0B0B0C' : '#f2f2f7';
+    }
+
+    let element: string;
+    let elementHigh: string;
+
+    if (platform === 'ios') {
+      element = isDark ? '#161618' : '#ffffff';
+      elementHigh = isDark ? '#161618' : '#f2f2f7';
+    } else {
+      element = theme.colors.elevation.level2;
+      elementHigh = theme.colors.elevation.level2;
+    }
+
+    const text: string = isDark ? '#ffffff' : '#000000';
+
+    let primaryBackground: string;
+    let primary: string = '#32AB8E';
+
+    if (platform === 'android') {
+      primary = theme.colors.primary;
+    }
+
+    primaryBackground = primary;
+
+    if (platform === 'android' && isDark) {
+      primaryBackground = theme.colors.primaryContainer;
+    }
+
+    let borderColor: string;
+    let borderColorLight: string;
+
+    if (isDark) {
+      borderColor = '#444444';
+      borderColorLight = '#333333';
+    } else {
+      borderColor = '#d5d5d5';
+      borderColorLight = '#d5d5d5';
+    }
+
+    return {
+      theme: isDark ? 'dark' : 'light',
+      dark: isDark,
+      background,
+      backgroundHigh,
+      backgroundItems,
+      modalBackground,
+      element,
+      elementHigh,
+      text,
+      primary,
+      primaryBackground,
+      border: borderColor,
+      borderLight: borderColorLight,
+    };
+  }, [isDark, platform, theme]);
+}
+
+export default useUIColors;
