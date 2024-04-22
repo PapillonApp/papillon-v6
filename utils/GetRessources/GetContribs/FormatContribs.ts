@@ -59,7 +59,7 @@ export async function formatPapillonContributors() {
                 name: "Contributeurs",
                 member: [
                     ...filteredContributors.map(contributor => ({
-                        name: contributor.login,
+                        name: contributor.displayname,
                         role: "Contributeur",
                         avatar: contributor.avatar_url,
                         link: contributor.html_url
