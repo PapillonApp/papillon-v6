@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import {
   StyleSheet,
   View,
-  Animated,
+  Animated as AnimatedRN,
   StatusBar,
   RefreshControl,
   Platform,
@@ -39,8 +39,9 @@ import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
+import Reanimated, { Layout, Easing, ZoomIn, ZoomOut, FadeIn, FadeOut } from 'react-native-reanimated';
 
-const yOffset = new Animated.Value(0);
+const yOffset = new AnimatedRN.Value(0);
 
 const headerOpacity = yOffset.interpolate({
   inputRange: [-40, 0],
@@ -48,7 +49,7 @@ const headerOpacity = yOffset.interpolate({
   extrapolate: 'clamp',
 });
 
-const scrollHandler = Animated.event(
+const scrollHandler = AnimatedRN.event(
   [{ nativeEvent: { contentOffset: { y: yOffset } } }],
   { useNativeDriver: false }
 );
@@ -57,7 +58,7 @@ function relativeDate(date: Date) {
   return moment(date).fromNow();
 }
 
-const trimHtml = (html: string) => html 
+const trimHtml = (html: string) => html
   // remove &nbsp;
   .replace(/&nbsp;/g, ' ')
   // remove html tags
@@ -67,7 +68,9 @@ const trimHtml = (html: string) => html
   // remove line breaks
   .replace(/\n{1,}/g, '');
 
-function NewsScreen ({ navigation }: {
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+function NewsScreen({ navigation }: {
   navigation: any; // TODO
 }) {
   const theme = useTheme();
@@ -94,6 +97,9 @@ function NewsScreen ({ navigation }: {
     newNews.sort((a, b) => {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
+
+    // if two news have same title and date, remove one
+    newNews = newNews.filter((item, index, self) => self.findIndex((t) => t.title === item.title && t.date === item.date) === index);
 
     return newNews;
   }
@@ -125,6 +131,9 @@ function NewsScreen ({ navigation }: {
       const news = await appContext.dataProvider.getNews(true);
       const editedNews = editNews(news);
 
+      setNews([]);
+      setFinalNews([]);
+
       setNews(editedNews);
       setFinalNews(editedNews);
       setIsHeadLoading(false);
@@ -136,7 +145,7 @@ function NewsScreen ({ navigation }: {
   // change header title
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle : 'Actualités',
+      headerTitle: 'Actualités',
       headerRight: () => (
         <TouchableOpacity
           onPress={() => {
@@ -181,8 +190,8 @@ function NewsScreen ({ navigation }: {
 
   return (
     <>
-      { Platform.OS === 'ios' && (
-        <Animated.View 
+      {Platform.OS === 'ios' && (
+        <AnimatedRN.View
           style={
             {
               position: 'absolute',
@@ -207,7 +216,7 @@ function NewsScreen ({ navigation }: {
               zIndex: 999,
             }}
           />
-        </Animated.View>
+        </AnimatedRN.View>
       )}
 
       <ScrollView
@@ -218,6 +227,7 @@ function NewsScreen ({ navigation }: {
             refreshing={isHeadLoading}
             onRefresh={onRefresh}
             colors={[Platform.OS === 'android' ? UIColors.primary : '']}
+            progressViewOffset={insets.top + 50}
           />
         }
         onScroll={scrollHandler}
@@ -236,38 +246,63 @@ function NewsScreen ({ navigation }: {
           backgroundColor="transparent"
         />
 
-
-        {!isLoading && unreadOnly && news.filter((item) => !item.read).length === 0 && (
-          <NativeList
-            inset
-            style={{ marginTop: insets.top/2}}
-          >
-            <NativeItem>
-              <PapillonLoading
-                icon={<MailOpen size={26} color={'#B42828'} />}
-                title="Vous avez tout lu !"
-                subtitle="Vous êtes à jour sur toutes les actualités"
-                style={{ marginVertical: 32 }}
-              />
-            </NativeItem>
-
-          </NativeList>
+        {Platform.OS === 'ios' ? (
+          <View style={{ height: insets.top }} />
+        ) : (
+          <View style={{height: 16}} />
         )}
 
-        <NativeList
-          inset
-          header={!isLoading && unreadOnly && news.filter((item) => !item.read).length === 0 ? 'Anciennes actualités' : unreadOnly && 'Nouvelles actualités'}
-          style={{marginTop: Platform.OS == 'ios' ? (!isLoading && unreadOnly && news.filter((item) => !item.read).length === 0 ? -16 : insets.top/2) : 0,  marginBottom: 16}}
-          sectionProps={{
-            hideSurroundingSeparators: true,
-          }}
+        { insets.top < 24 && Platform.OS === 'ios' && (
+          <View style={{ height: 32 }} />
+        )}
+
+        {!isLoading && unreadOnly && news.filter((item) => !item.read).length === 0 && (
+          <Reanimated.View
+            entering={ZoomIn.duration(200).easing(Easing.out(Easing.bezierFn(0.5, 0, 1, 0)))}
+            exiting={FadeOut.duration(200)}
+            style={{
+              marginTop: -10,
+            }}
+          >
+            <NativeList
+              inset
+            >
+              <NativeItem>
+                <PapillonLoading
+                  icon={<MailOpen size={26} color={'#B42828'} />}
+                  title="Vous avez tout lu !"
+                  subtitle="Vous êtes à jour sur toutes les actualités"
+                  style={{ marginVertical: 10 }}
+                />
+              </NativeItem>
+
+            </NativeList>
+          </Reanimated.View>
+        )}
+
+        <Reanimated.View
+          style={[
+            styles.newsList,
+          ]}
+          layout={Layout.duration(250).easing(Easing.out(Easing.bezierFn(1, 0, 0.5, 1)))}
         >
           {!isLoading && news.length !== 0 && (
             news.map((item, index) => (
-              <View
-                key={index}
-              >
-                {!unreadOnly || !item.read || (unreadOnly && news.filter((item) => !item.read).length === 0) ? (
+              !unreadOnly || !item.read || (unreadOnly && news.filter((item) => !item.read).length === 0) ? (
+                <Reanimated.View
+                  key={item.author + item.date + item.title}
+                  style={[
+                    {
+                      overflow: 'hidden',
+                      borderRadius: 10,
+                      borderCurve: 'continuous',
+                      marginBottom: 8,
+                    },
+                  ]}
+                  layout={Layout.duration(250).easing(Easing.out(Easing.bezierFn(1, 0, 0.5, 1)))}
+                  entering={ZoomIn.duration(250).easing(Easing.out(Easing.bezierFn(0.5, 0, 1, 0)))}
+                  exiting={FadeOut.duration(200)}
+                >
                   <NativeItem
                     onPress={() => {
                       navigation.navigate('NewsDetails', { news: item });
@@ -338,15 +373,15 @@ function NewsScreen ({ navigation }: {
                             backgroundColor: UIColors.text + '22',
                           }}
                         >
-                            contient {item.attachments.length} pièce(s) jointe(s)
+                          contient {item.attachments.length} pièce(s) jointe(s)
                         </NativeText>
                       )}
                     </View>
                   </NativeItem>
-                ) : (
-                  <View style={{ marginTop: -1,height: 1, backgroundColor: UIColors.background }} />
-                )}
-              </View>
+                </Reanimated.View>
+              ) : (
+                <View />
+              )
             ))
           )}
 
@@ -364,7 +399,7 @@ function NewsScreen ({ navigation }: {
               subtitle="Obtention des dernières actualités en cours"
             />
           )}
-        </NativeList>
+        </Reanimated.View>
       </ScrollView>
     </>
   );
@@ -384,6 +419,10 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     overflow: 'hidden',
   },
+
+  newsList: {
+    marginHorizontal: 16,
+  }
 });
 
 export default NewsScreen;

@@ -72,12 +72,16 @@ function DevoirsScreen({ navigation }: {
   const UIColors = GetUIColors();
   const theme = useTheme();
 
+  const [urlOpened, setUrlOpened] = useState<boolean>(false);
+
   const openURL = async (url: string) => {
+    setUrlOpened(true);
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
       presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
       controlsColor: UIColors.primary,
     });
+    setUrlOpened(false);
   };
 
   const [loading, setLoading] = useState(false);
@@ -166,12 +170,16 @@ function DevoirsScreen({ navigation }: {
         flex: 1,
       }}
     >
-      <StatusBar
-        animated
-        translucent
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
-        backgroundColor={'transparent'}
-      />
+      {(urlOpened && Platform.OS === 'ios') ? (
+        <StatusBar animated barStyle='light-content'/>
+      ) : (
+        <StatusBar
+          animated
+          translucent
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor={'transparent'}
+        />
+      )}
 
       {groupedHomeworks !== null ? (
         <>

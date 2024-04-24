@@ -14,6 +14,7 @@ import ProfileScreen from '../views/Settings/ProfileScreen';
 import AppearanceScreen from '../views/Settings/AppearanceScreen';
 import SettingsScreen2 from '../views/Settings/SettingsScreen';
 import IconsScreen from '../views/Settings/IconsScreen';
+import IconSelectScreen from '../views/Settings/IconSelectScreen';
 import CoursColor from '../views/Settings/CoursColor';
 import AdjustmentsScreen from '../views/Settings/AdjustmentsScreen';
 import HeaderSelectScreen from '../views/Settings/HeaderSelectScreen';
@@ -21,6 +22,10 @@ import PaymentScreen from '../views/Settings/PaymentScreen';
 import NotificationsScreen from '../views/Settings/NotificationsScreen';
 import ConsentScreenWithoutAcceptation from '../views/ConsentScreenWithoutAcceptation';
 import TrophiesScreen from '../views/Settings/TrophiesScreen';
+import DevSettings from '../views/Settings/DevSettings/DevSettings';
+import LogsScreen from '../views/Settings/DevSettings/LogsScreen';
+import LocalStorageViewScreen from '../views/Settings/DevSettings/LocalStorageViewScreen';
+import NetworkLoggerScreen from '../views/Settings/NetworkLogger';
 
 function InsetSettings() {
   const UIColors = GetUIColors();
@@ -34,7 +39,7 @@ function InsetSettings() {
             navigationBarColor: '#00000000',
             headerStyle: {
               backgroundColor: UIColors.background,
-                elevation: 0,
+              elevation: 0,
             },
             headerShadowVisible: false,
           }
@@ -150,10 +155,45 @@ function InsetSettings() {
         }}
       />
       <Stack.Screen
+        name="IconSelect"
+        component={IconSelectScreen}
+        options={{
+          headerTitle: 'Icône de l\'application',
+        }}
+      />
+      <Stack.Screen
         name="Settings"
         component={SettingsScreen2}
         options={{
           headerTitle: 'Réglages',
+        }}
+      />
+      <Stack.Screen
+        name="DevSettings"
+        component={DevSettings}
+        options={{
+          headerTitle: 'Options de développement',
+        }}
+      />
+      <Stack.Screen
+        name="LogsScreen"
+        component={LogsScreen}
+        options={{
+          headerTitle: 'Logs',
+        }}
+      />
+      <Stack.Screen
+        name="LocalStorageViewScreen"
+        component={LocalStorageViewScreen}
+        options={{
+          headerTitle: 'Local storage',
+        }}
+      />
+      <Stack.Screen
+        name="NetworkLoggerScreen"
+        component={NetworkLoggerScreen}
+        options={{
+          headerTitle: 'Historique réseau',
         }}
       />
     </Stack.Navigator>

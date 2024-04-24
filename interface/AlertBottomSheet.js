@@ -187,7 +187,7 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
               styles.modal,
               Platform.OS === 'android' && styles.androidModal,
               {
-                backgroundColor: UIColors.background, marginBottom: insets.bottom,
+                backgroundColor: UIColors.background, marginBottom: insets.bottom + (insets.bottom < 12 ? 12 : 0),
                 borderColor: UIColors.borderLight,
                 borderWidth: UIColors.dark ? 0.5 : 0,
                 opacity: opacity,

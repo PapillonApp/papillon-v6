@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, ScrollView, StyleSheet, StatusBar, Platform } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
-import { Settings, User2, Info, Sparkles, Bell } from 'lucide-react-native';
+import { Settings, User2, Info, Sparkles, Bell, FlaskConical } from 'lucide-react-native';
 
 import packageJson from '../package.json';
 
@@ -10,13 +10,17 @@ import ListItem from '../components/ListItem';
 import PapillonIcon from '../components/PapillonIcon';
 
 import GetUIColors from '../utils/GetUIColors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function SettingsScreen({ navigation }: {
   navigation: any // TODO
 }) {
   const theme = useTheme();
   const UIColors = GetUIColors();
-
+  const [devMode, setDevMode] = React.useState(false)
+  AsyncStorage.getItem("devMode").then((v) => {
+    if(v) setDevMode(true)
+  })
   return (
     <ScrollView
       style={{ backgroundColor: UIColors.background }}
@@ -99,8 +103,25 @@ function SettingsScreen({ navigation }: {
           }
           onPress={() => navigation.navigate('Appearance')}
         />
-      </View>
 
+        { devMode ? (
+          <ListItem
+            title="Options de développement"
+            subtitle="┬─┬ノ( º _ ºノ)"
+            color="#FF0000"
+            left={
+              <PapillonIcon
+                icon={<FlaskConical size={24} color="#fff" />}
+                color="#FF0000"
+                fill
+                small
+              />
+            }
+            onPress={() => navigation.navigate('DevSettings')}
+          />
+          ) : null}
+      </View>
+      
       <View style={styles.optionsList}>
         <Text style={styles.ListTitle}>À propos</Text>
 

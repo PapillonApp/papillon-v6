@@ -1,0 +1,135 @@
+name: Build and Pubish App
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        type: choice
+        description: Build profile to use
+        options:
+          - development
+          - preview
+          - production
+jobs:
+  prepare-env:
+    runs-on: macos-14
+    strategy:
+      matrix:
+        node: [20.x]
+    steps:
+    - name: 🏗 Setup repo
+      uses: actions/checkout@v2
+        
+    - name: 🏗 Setup Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: 20
+        cache: npm
+  
+    - name: 🏗 Setup Expo and EAS
+      uses: expo/expo-github-action@v7
+      with:
+        token: ${{ secrets.EXPO_TOKEN }}
+        expo-version: latest
+        eas-version: latest
+  
+    - name: 🏗 Setup EAS local builds
+      run: npm i -g eas-cli-local-build-plugin
+  
+    - name: 📦 Install dependencies
+      run: npm i
+
+
+  build-ios:
+    runs-on: macos-14
+    needs: [prepare-env]
+    strategy:
+      matrix:
+        node: [20.x]
+    steps:
+    - name: 🏗 Setup repo
+      uses: actions/checkout@v2
+
+    - name: 🏗 Setup Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: 20
+        cache: npm
+
+    - name: 🏗 Setup Expo and EAS
+      uses: expo/expo-github-action@v7
+      with:
+        token: ${{ secrets.EXPO_TOKEN }}
+        expo-version: latest
+        eas-version: latest
+
+    - name: 🏗 Setup EAS local builds
+      run: npm i -g eas-cli-local-build-plugin
+
+    - name: 📦 Install dependencies
+      run: npm i
+
+    - name: 👷 Build app
+      run: |
+        eas build --local \
+          --non-interactive \
+          --output=./app-build \
+          --platform=ios \
+          --profile=${{ github.event.inputs.profile }}
+
+    - name: 📱 Upload binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: app-ios.ipa
+        path: app-build
+        
+  build-android:
+    runs-on: macos-14
+    needs: [prepare-env]
+    strategy:
+      matrix:
+        node: [20.x]
+    steps:
+    - name: 🏗 Setup repo
+      uses: actions/checkout@v2
+
+    - name: 🏗 Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu' # See 'Supported distributions' for available options
+        java-version: '17'
+
+    - name: 👊 Check Java version
+      run: java -version
+
+    - name: 🏗 Setup Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: 20
+        cache: npm
+
+    - name: 🏗 Setup Expo and EAS
+      uses: expo/expo-github-action@v7
+      with:
+        token: ${{ secrets.EXPO_TOKEN }}
+        expo-version: latest
+        eas-version: latest
+
+    - name: 🏗 Setup EAS local builds
+      run: npm i -g eas-cli-local-build-plugin
+
+    - name: 📦 Install dependencies
+      run: npm i
+
+    - name: 👷 Build app
+      run: |
+        eas build --local \
+          --non-interactive \
+          --output=./app-build \
+          --platform=android \
+          --profile=${{ github.event.inputs.profile }}
+
+    - name: 📱 Upload binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: app-android
+        path: app-build
