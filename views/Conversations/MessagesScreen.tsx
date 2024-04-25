@@ -22,6 +22,7 @@ import { useAppContext } from '../../utils/AppContext';
 import * as WebBrowser from 'expo-web-browser';
 import GetUIColors from '../../utils/GetUIColors';
 import { useHeaderHeight } from '@react-navigation/elements';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Send as SendLucide } from 'lucide-react-native';
 
@@ -139,7 +140,7 @@ const MessagesScreen = ({ route, navigation }: {
           />
         )}
       />
-      <PapillonSend sendFunction={sendMessage} />
+      <PapillonSend sendFunction={sendMessage}/>
     </KeyboardAvoidingView>
   );
 };
@@ -255,6 +256,7 @@ const PapillonSend = ({ sendFunction }: {
 }) => {
   const UIColors = GetUIColors();
   const [textValue, setTextValue] = useState('');
+  const insets = useSafeAreaInsets();
 
   return (
     <View
@@ -264,10 +266,10 @@ const PapillonSend = ({ sendFunction }: {
           borderRadius: 21,
           borderCurve: 'continuous',
           marginHorizontal: 15,
+          marginBottom: insets.bottom,
           borderColor: UIColors.text + '20',
           borderWidth: 1,
           paddingHorizontal: 16,
-          marginBottom: 16,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
