@@ -70,16 +70,15 @@ const LocateEtabList = ({ route, navigation }: {
         
         if (instances.length === 0) {
           setInstances(null);
-          console.log('Aucune instance trouvée');
+          console.log('[LocateEtabList] Aucune instance trouvée');
         } else {
           setInstances(instances);
-          console.log('Nombres instances ' + instances.length);
-          console.log(instances);
         }
-        setInstancesLoading(false);
       }
       catch {
         setInstances(null);
+      }
+      finally {
         setInstancesLoading(false);
       }
     })();
