@@ -38,7 +38,7 @@ export const userHandler = async (instance?: Pronote, force = false): Promise<Pa
       address: information.address,
       email: information.email,
       ine: information.INE,
-      delegue: false, // TODO in Pawnote
+      delegue: instance.isDelegate,
       periodes: {
         grades: parsePeriodsForPapillon(
           instance.readPeriodsForGradesOverview(),
