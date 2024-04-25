@@ -24,7 +24,7 @@ export interface PapillonHomework {
   difficulty: PronoteApiHomeworkDifficulty
   return?: {
     type: PronoteApiHomeworkReturnType
-    uploaded?: boolean
+    uploaded: PapillonAttachment | null
   }
   lengthInMinutes?: number,
   custom?: boolean

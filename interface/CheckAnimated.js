@@ -5,7 +5,7 @@ import GetUIColors from '../utils/GetUIColors';
 import { Check } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 
-const CheckAnimated = ({ checked, pressed = () => {}, loading, backgroundColor, style }) => {
+const CheckAnimated = ({ checked, pressed = () => {}, loading, backgroundColor, style = {} }) => {
   const UIColors = GetUIColors();
   const [check, setCheck] = useState(checked);
   const [initialState, setInitialState] = useState(false);

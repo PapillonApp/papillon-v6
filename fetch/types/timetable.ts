@@ -1,3 +1,5 @@
+import type { PapillonAttachment } from './attachment';
+
 export interface CachedPapillonTimetable {
   interval: { from: string, to?: string }
   timetable: PapillonLesson[]
@@ -6,7 +8,6 @@ export interface CachedPapillonTimetable {
 
 export interface PapillonLesson {
   id: string
-  num: number
   subject?: {
     id: string
     name: string
@@ -16,9 +17,10 @@ export interface PapillonLesson {
   rooms: string[]
   group_names: string[]
   memo?: string
+  /** Virtual classroom or video conference URLs. */
   virtual: string[]
-  start: string
-  end: string
+  start: number
+  end: number
   background_color?: string
   status?: string
   is_cancelled: boolean
@@ -26,4 +28,9 @@ export interface PapillonLesson {
   is_detention: boolean
   is_exempted: boolean
   is_test: boolean
+  contents?: Array<{
+    description?: string
+    title?: string
+    files?: PapillonAttachment[]
+  }>
 }
