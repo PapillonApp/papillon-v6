@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import { useTheme } from 'react-native-paper';
+import { useAppContext } from '../../utils/AppContext';
 
 import { openBrowserAsync, WebBrowserPresentationStyle } from 'expo-web-browser';
 import * as Linking from 'expo-linking';
@@ -36,7 +37,7 @@ import { showMessage } from 'react-native-flash-message';
 function AboutScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [team, setTeam] = useState(null);
-  const [numClickVersion, setNumClickVersion] = useState(0)
+  const [numClickVersion, setNumClickVersion] = useState(0);
 
   useEffect(() => {
     async function fetchContributors() {
@@ -49,6 +50,7 @@ function AboutScreen({ navigation }) {
 
   const UIColors = GetUIColors();
   const theme = useTheme();
+  const appContext = useAppContext();
 
   const openUserLink = (url: string) => openBrowserAsync(url, {
     dismissButtonStyle: 'done',
@@ -220,72 +222,25 @@ function AboutScreen({ navigation }) {
                 ver. {packageJson.version}
               </NativeText>
             }
-            onPress={() => navigation.navigate('ChangelogScreen')}
+            onPress={() => navigation.navigate('Changelogs')}
           >
             <NativeText heading="h4">
                 Version de Papillon
             </NativeText>
           </NativeItem>
-          <NativeItem
-            trailing={
-              <NativeText heading="p2">
-                {packageJson.dependencies['pawnote'].split('^')[1]}
-              </NativeText>
-            }
-            onPress={async() => {
-              let devMode = await AsyncStorage.getItem("devMode")
-              if(devMode === "true") {
-                showMessage({
-                  message: 'Inutile, les options de développement ont déjà été activées',
-                  type: "info",
-                  icon: 'auto',
-                  floating: true,
-                  position: "bottom"
-                });
-                return;
+          {appContext.dataProvider.service === 'pronote' && (
+            <NativeItem
+              trailing={
+                <NativeText heading="p2">
+                  {packageJson.dependencies['pawnote'].split('^')[1]}
+                </NativeText>
               }
-              setNumClickVersion(numClickVersion + 1)
-              console.log("Cliqué", numClickVersion)
-              if(numClickVersion >= 3 && numClickVersion < 10) {
-                showMessage({
-                  message: `Encore ${10 - numClickVersion} clicks`,
-                  type: "info",
-                  icon: 'auto',
-                  floating: true,
-                  position: "bottom"
-                });
-              }
-              if(numClickVersion === 10) {
-                setNumClickVersion(0)
-                Alert.alert(
-                  "Activer les options de développement ?",
-                  "Ces options sont réservées à des utilisateurs avancés, et peuvent être utilisées en cas de problème sur demande de l'équipe.",
-                  [{
-                    "text": "Oui",
-                    "isPreferred": true,
-                    "onPress": () => {
-                      AsyncStorage.setItem("devMode", "true")
-                      showMessage({
-                        message: "Options de développement activées",
-                        type: "success",
-                        icon: 'auto',
-                        floating: true,
-                        position: "bottom"
-                      });
-                    }
-                  },
-                  {
-                    "text": "Non",
-                    "style": "cancel"
-                  }]
-                )
-              }
-            }}
-          >
-            <NativeText heading="h4">
+            >
+              <NativeText heading="h4">
               Version de Pawnote
-            </NativeText>
-          </NativeItem>
+              </NativeText>
+            </NativeItem>
+          )}
           <NativeItem
             trailing={
               <NativeText heading="p2">
@@ -294,6 +249,55 @@ function AboutScreen({ navigation }) {
                 }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`}
               </NativeText>
             }
+            onPress={async() => {
+              let devMode = await AsyncStorage.getItem('devMode');
+              if(devMode === 'true') {
+                showMessage({
+                  message: 'Inutile, les options de développement ont déjà été activées',
+                  type: 'info',
+                  icon: 'auto',
+                  floating: true,
+                  position: 'bottom'
+                });
+                return;
+              }
+              setNumClickVersion(numClickVersion + 1);
+              console.log('Cliqué', numClickVersion);
+              if(numClickVersion >= 3 && numClickVersion < 10) {
+                showMessage({
+                  message: `Encore ${10 - numClickVersion} clicks`,
+                  type: 'info',
+                  icon: 'auto',
+                  floating: true,
+                  position: 'bottom'
+                });
+              }
+              if(numClickVersion === 10) {
+                setNumClickVersion(0);
+                Alert.alert(
+                  'Activer les options de développement ?',
+                  'Ces options sont réservées à des utilisateurs avancés, et peuvent être utilisées en cas de problème sur demande de l\'équipe.',
+                  [{
+                    'text': 'Oui',
+                    'isPreferred': true,
+                    'onPress': () => {
+                      AsyncStorage.setItem('devMode', 'true');
+                      showMessage({
+                        message: 'Options de développement activées',
+                        type: 'success',
+                        icon: 'auto',
+                        floating: true,
+                        position: 'bottom'
+                      });
+                    }
+                  },
+                  {
+                    'text': 'Non',
+                    'style': 'cancel'
+                  }]
+                );
+              }
+            }}
           >
             <NativeText heading="h4">
               Dépendances
