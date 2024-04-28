@@ -60,7 +60,8 @@ const MessagesScreen = ({ route, navigation }: {
 }) => {
   const UIColors = GetUIColors();
   const appContext = useAppContext();
-  const headerHeight  = useHeaderHeight();
+  const headerHeight = useHeaderHeight();
+  const insets = useSafeAreaInsets();
 
   const { conversationID } = route.params;
   const [conversations, setConversations] = useAtom(discussionsAtom);
@@ -81,7 +82,7 @@ const MessagesScreen = ({ route, navigation }: {
     console.log(conversation);
     if (!appContext.dataProvider) throw new Error('No data provider available.');
     const messages = await appContext.dataProvider.replyToConversation(conversationID, text);
-    
+
     if (messages === null) {
       Alert.alert(
         'Erreur',
@@ -121,7 +122,7 @@ const MessagesScreen = ({ route, navigation }: {
         },
       ]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={headerHeight}
+      keyboardVerticalOffset={insets.bottom * 2}
     >
       <FlatList
         data={conversation.messages}
@@ -140,7 +141,7 @@ const MessagesScreen = ({ route, navigation }: {
           />
         )}
       />
-      <PapillonSend sendFunction={sendMessage}/>
+      <PapillonSend sendFunction={sendMessage} />
     </KeyboardAvoidingView>
   );
 };
@@ -163,7 +164,7 @@ const PapillonMessage = ({ message, sent }: {
     <View
       style={[styles.PapillonMessageContainer, sent ? styles.PapillonMessageContainerSent : {}]}
     >
-      { !sent ? (
+      {!sent ? (
         <View
           style={[{
             backgroundColor: UIColors.primary,
@@ -212,9 +213,9 @@ const PapillonMessage = ({ message, sent }: {
         </View>
         <View
           style={[styles.PapillonMessageBubble,
-            {
-              backgroundColor: !sent ? UIColors.text + '15' : UIColors.primary,
-            },
+          {
+            backgroundColor: !sent ? UIColors.text + '15' : UIColors.primary,
+          },
           ]}
         >
           <RenderHTML
@@ -233,12 +234,12 @@ const PapillonMessage = ({ message, sent }: {
             ignoredStyles={['fontSize']}
             renderersProps={{
               a: {
-                onPress (_, href) {
+                onPress(_, href) {
                   let url = href;
                   if (!url.startsWith('http')) {
                     url = 'https://' + url.split('://')[1];
                   }
-                          
+
                   openURL(url);
                 },
               }
