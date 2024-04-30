@@ -1,12 +1,12 @@
-import { type Pronote, StudentAbsence, StudentDelay, StudentPunishment } from 'pawnote';
-import type { PapillonVieScolaire, PapillonPunishment, CachedPapillonVieScolaire } from '../types/vie_scolaire';
+import { type Pronote, StudentAbsence, StudentDelay, StudentPunishment, StudentObservation } from 'pawnote';
+import type { PapillonVieScolaire, PapillonPunishment, CachedPapillonVieScolaire, PapillonObservationType } from '../types/vie_scolaire';
 import type { PapillonAttachmentType } from '../types/attachment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AsyncStoragePronoteKeys } from './connector';
 
 export const vieScolaireHandler = async (instance?: Pronote, force = false): Promise<PapillonVieScolaire> => {
   const cache = await AsyncStorage.getItem(AsyncStoragePronoteKeys.CACHE_VIE_SCOLAIRE);
-  const data: PapillonVieScolaire = { absences: [], delays: [], punishments: [] };
+  const data: PapillonVieScolaire = { absences: [], delays: [], punishments: [], observations: [] };
 
   if (cache && !force) {
     const cached = JSON.parse(cache) as CachedPapillonVieScolaire;
@@ -39,7 +39,7 @@ export const vieScolaireHandler = async (instance?: Pronote, force = false): Pro
           justified: item.justified,
           hours: item.hoursMissed + 'h' + item.minutesMissed,
           administrativelyFixed: item.administrativelyFixed,
-          reasons: [item.reason]
+          reasons: [item.reason ?? null]
         });
       }
   
@@ -51,6 +51,18 @@ export const vieScolaireHandler = async (instance?: Pronote, force = false): Pro
           justified: item.justified,
           justification: item.justification,
           reasons: [item.reason]
+        });
+      }
+
+      else if (item instanceof StudentObservation) {
+        data.observations.push({
+          id: item.id,
+          date: item.date.getTime(),
+          sectionName: item.section.name,
+          sectionType: item.section.type as unknown as PapillonObservationType, // they're literally the same
+          subjectName: item.subject?.name,
+          shouldParentsJustify: item.shouldParentsJustify,
+          reasons: [item.reason ?? null]
         });
       }
   
@@ -102,7 +114,8 @@ export const vieScolaireHandler = async (instance?: Pronote, force = false): Pro
       return {
         absences: cached.absences,
         delays: cached.delays,
-        punishments: cached.punishments
+        punishments: cached.punishments,
+        observations: cached.observations
       };
     }
 

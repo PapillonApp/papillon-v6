@@ -5,6 +5,7 @@ import {
   StatusBar,
   RefreshControl,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 
 import moment from 'moment/moment';
@@ -105,13 +106,15 @@ function ConversationsScreen({ navigation }: {
         backgroundColor: Platform.OS == 'android' && UIColors.background,
       },
       headerRight: () => (
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('InsetNewConversation');
-          }}
-        >
-          <Plus size={24} />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('InsetNewConversation');
+            }}
+          >
+            <Plus size={24} color={UIColors.text} />
+          </TouchableOpacity>
+        </View>
       ),
       headerSearchBarOptions: {
         placeholder: 'Rechercher une conversation',

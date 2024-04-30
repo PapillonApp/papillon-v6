@@ -20,5 +20,18 @@ export interface PapillonDiscussion {
   unread: number
   closed: boolean
   messages: PapillonDiscussionMessage[]
-  participants: string[]
+  participants: PapillonRecipient[]
+}
+
+export enum PapillonRecipientType {
+  TEACHER,
+  PERSONAL,
+  STUDENT
+}
+
+export interface PapillonRecipient {
+  id: string
+  name: string
+  functions: string[]
+  type: PapillonRecipientType
 }

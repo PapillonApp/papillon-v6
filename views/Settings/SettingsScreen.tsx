@@ -26,7 +26,7 @@ import { IndexDataInstance } from '../../fetch';
 
 import questions from './questions.json';
 
-function SettingsScreen({ navigation }) {
+function SettingsScreen({ navigation }: { navigation: any }) {
   const [hideNotes, setHideNotes] = useState(false);
   const [deleteAccountAlert, setDeleteAccountAlert] = useState(false);
   const [pronoteTokenActionAlert, setPronoteTokenActionAlert] = useState(false);
@@ -43,6 +43,14 @@ function SettingsScreen({ navigation }) {
   useEffect(() => {
     getData();
   }, []);
+
+  async function pronoteRegenerateToken() {
+    if (appContext.dataProvider) {
+      // Force another initialization.
+      await appContext.dataProvider.init('pronote');
+      setPronoteTokenActionAlert(true);
+    }
+  }
 
   const confirmDisabling = (then = () => {}, invalid = false) => {
     const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
@@ -128,7 +136,7 @@ function SettingsScreen({ navigation }) {
   return (
     <ScrollView style={{ backgroundColor: UIColors.modalBackground }}>
 
-      {appContext.dataProvider.service === 'pronote' && ( 
+      {appContext.dataProvider && appContext.dataProvider.service === 'pronote' && ( 
         <NativeList
           header="Connexion à Pronote"
           inset

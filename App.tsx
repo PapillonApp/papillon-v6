@@ -13,7 +13,6 @@ import LoadingScreen from './stacks/LoadingScreen';
 import { startNetworkLogging } from 'react-native-network-logger';
 import FlashMessage from 'react-native-flash-message';
 startNetworkLogging();
-console.log("Initializing app")
 const provider = new IndexDataInstance();
 
 function App() {

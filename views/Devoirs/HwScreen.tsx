@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useState } from 'react';
+import * as DocumentPicker from 'expo-document-picker';
 
 import {
   StyleSheet,
@@ -61,7 +62,6 @@ function HomeworkScreen({ route, navigation }: {
 
   const appContext = useAppContext();
 
-  // TODO
   const deleteCustomHomework = () => {
     AsyncStorage.getItem('pap_homeworksCustom').then((customHomeworks) => {
       let hw = [];
@@ -100,32 +100,6 @@ function HomeworkScreen({ route, navigation }: {
   }, [navigation]);
 
   const changeHwState = async () => {
-    // TODO: if custom : true
-    // if (homework.custom) {
-    //   AsyncStorage.getItem('customHomeworks').then((customHomeworks) => {
-    //     let hw = [];
-    //     if (customHomeworks) {
-    //       hw = JSON.parse(customHomeworks);
-    //     }
-
-    //     // find the homework
-    //     for (let i = 0; i < hw.length; i++) {
-    //       if (hw[i].local_id === homework.local_id) {
-    //         hw[i].done = !thisHwChecked;
-    //       }
-    //     }
-
-    //     setThisHwChecked(!thisHwChecked);
-    //     AsyncStorage.setItem('customHomeworks', JSON.stringify(hw));
-
-    //     setTimeout(() => {
-    //       setHomeworkStateLoading(false);
-    //     }, 100);
-    //   });
-
-    //   return;
-    // }
-
     await appContext.dataProvider?.changeHomeworkState(homework, !homework.done);
     setHomeworkStateLoading(false);
   };
@@ -208,15 +182,37 @@ function HomeworkScreen({ route, navigation }: {
 
         <NativeList header="Statut" inset>
           {homework.return && homework.return.type === PronoteApiHomeworkReturnType.FILE_UPLOAD ? (
-            <NativeItem>
-              <PaperButton
-                onPress={() => {
-                  console.log('upload !');
-                }}
-              >
-                Déposer ma copie (bientôt)
-              </PaperButton>
-            </NativeItem>
+            !homework.return.uploaded ? (
+              <NativeItem>
+                <PaperButton
+                  onPress={async () => {
+                    const document = await DocumentPicker.getDocumentAsync({ multiple: false, copyToCacheDirectory: true });
+                    if (document.canceled || document.assets.length === 0) return;
+                    const file = document.assets[0];
+                    
+                    await appContext.dataProvider?.uploadHomework(homework, {
+                      uri: file.uri,
+                      type: file.mimeType!,
+                      name: file.name,
+                      size: file.size || 0
+                    });
+                  }}
+                >
+                  Déposer ma copie
+                </PaperButton>
+              </NativeItem>
+            ) : (
+              <NativeItem>
+                <PaperButton onPress={() => openURL(homework.return!.uploaded!.url)}>
+                  Voir ma copie
+                </PaperButton>
+                <PaperButton onPress={async () => {
+                  await appContext.dataProvider?.removeUploadedHomework(homework);
+                }}>
+                  Supprimer
+                </PaperButton>
+              </NativeItem>
+            )
           ) : (
             <NativeItem
               leading={

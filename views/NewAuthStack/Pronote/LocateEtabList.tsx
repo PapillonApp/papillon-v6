@@ -43,6 +43,7 @@ const LocateEtabList = ({ route, navigation }: {
       })
       .catch((error) => {
         instanceURL = instanceURL.replace('index-education.net', 'pronote.toutatice.fr');
+        console.error(error);
       });
 
     navigation.navigate('NGPronoteWebviewLogin', { instanceURL: instanceURL });
@@ -66,8 +67,13 @@ const LocateEtabList = ({ route, navigation }: {
         const instances = await findPronoteInstances(defaultPawnoteFetcher, {
           longitude, latitude
         });
-  
-        setInstances(instances);
+        
+        if (instances.length === 0) {
+          setInstances(null);
+          console.log('[LocateEtabList] Aucune instance trouvée');
+        } else {
+          setInstances(instances);
+        }
       }
       catch {
         setInstances(null);
@@ -136,11 +142,11 @@ const LocateEtabList = ({ route, navigation }: {
         </NativeList>
       )}
 
-      {!isInstancesLoading && instances?.length === 0 && (
+      {!isInstancesLoading && instances === null && (
         <PapillonLoading 
           icon={<School color={UIColors.text} size={26} style={{ margin: 8 }} />}
           title="Aucun établissement trouvé"
-          subtitle={`Aucun établissement n'a été trouvé dans la ville de ${location.properties.name} (${location.properties.postcode}).`}
+          subtitle={location.properties.name === 'votre position' ? 'Aucun établissement n\'a été trouvé à proximité de votre position.' : `Aucun établissement n'a été trouvé à proximité de ${location.properties.name} (${location.properties.postcode}).`}
         />
       )}
 

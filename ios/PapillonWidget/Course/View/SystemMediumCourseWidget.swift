@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct systemMediumCourseWidget: View {
+struct SystemMediumCourseWidget: View {
   
   let currentDate = Date()
 
@@ -82,7 +82,7 @@ struct systemMediumCourseWidget: View {
           .frame(height: 60)
           // S'il reste au moins un cours
           if !upcomingCourses.isEmpty {
-            ForEach(upcomingCourses.dropFirst(1).prefix(2), id: \.id) { course in
+            ForEach(upcomingCourses.prefix(2), id: \.id) { course in
               VStack {
                 HStack {
                   Circle()
@@ -130,7 +130,7 @@ struct systemMediumCourseWidget: View {
               .frame(height: (reader.size.height - 60) * 0.5)
             }
           }
-        } 
+        }
         // S'il reste au moins un cours suivant
         else if !upcomingCourses.isEmpty {
           ZStack {
