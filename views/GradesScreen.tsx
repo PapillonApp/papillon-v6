@@ -916,7 +916,7 @@ const GradesAverageHistory = React.memo(({ isLoading, averages, chartLines, char
                 Moyenne générale
             </NativeText>
           )}
-
+          {/*
           <TouchableOpacity style={[{flexDirection: 'row', alignItems: 'center', gap:6}]}>
             <AlertTriangle size={20} strokeWidth={2.2} color={UIColors.primary} />
             <NativeText heading="p" style={[styles.chart.header.title.text, {color: UIColors.primary}]}>
@@ -924,6 +924,7 @@ const GradesAverageHistory = React.memo(({ isLoading, averages, chartLines, char
                 reevaluated ? 'Estim. réévaluée' : 'Estimation'}
             </NativeText>
           </TouchableOpacity>
+          */}
         </View>
         <View style={[styles.chart.avg.container]}>
           <NativeText heading="h2" style={styles.chart.avg.value}>
