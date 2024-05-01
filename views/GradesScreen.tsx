@@ -735,7 +735,6 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation, U
             inset
             plain
             key={index}
-            header={formattedCourseName}
           >
             <Pressable style={[
               subjectStyles.listItem,
