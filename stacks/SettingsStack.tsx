@@ -26,6 +26,7 @@ import DevSettings from '../views/Settings/DevSettings/DevSettings';
 import LogsScreen from '../views/Settings/DevSettings/LogsScreen';
 import LocalStorageViewScreen from '../views/Settings/DevSettings/LocalStorageViewScreen';
 import NetworkLoggerScreen from '../views/Settings/NetworkLogger';
+import ChangelogScreen from '../views/ChangelogScreen';
 
 function InsetSettings() {
   const UIColors = GetUIColors();
@@ -166,6 +167,15 @@ function InsetSettings() {
         component={SettingsScreen2}
         options={{
           headerTitle: 'Réglages',
+        }}
+      />
+      <Stack.Screen
+        name="Changelogs"
+        component={ChangelogScreen}
+        options={{
+          headerTitle: 'Changelogs',
+          headerShown: false,
+          presentation: 'modal',
         }}
       />
       <Stack.Screen

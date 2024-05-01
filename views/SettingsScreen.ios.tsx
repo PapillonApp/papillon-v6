@@ -292,15 +292,21 @@ function NewSettings({ navigation }: {
           </NativeText>
         </NativeItem>
         <NativeItem
-          leading={currentIcon &&
+          leading={
             <View
               style={[
-                styles.iconContainer
+                styles.item.leadingContainer,
+                {
+                  backgroundColor: '#A84700',
+                }
               ]}
             >
-              <Image
-                source={IconsList.find((icon) => icon.name === currentIcon)?.icon}
-                style={styles.iconImage}
+              <SFSymbol
+                name="sparkles"
+                weight="semibold"
+                size={18}
+                color="#ffffff"
+                style={styles.item.symbol}
               />
             </View>
           }

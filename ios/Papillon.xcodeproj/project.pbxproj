@@ -58,7 +58,7 @@
 		BD49E978242D47278F0B722F /* barbie-Icon-60x60@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FEF441A373C14A38AA66F317 /* barbie-Icon-60x60@2x.png */; };
 		BD99EFE02ADD9CE70000DAEF /* AccessoryInlineCourseWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD99EFDF2ADD9CE70000DAEF /* AccessoryInlineCourseWidget.swift */; };
 		BD99EFE22ADD9EEC0000DAEF /* AccessoryRectangularCourseWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD99EFE12ADD9EEC0000DAEF /* AccessoryRectangularCourseWidget.swift */; };
-		BD99EFE42ADDA2580000DAEF /* systemMediumCourseWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD99EFE32ADDA2580000DAEF /* systemMediumCourseWidget.swift */; };
+		BD99EFE42ADDA2580000DAEF /* SystemMediumCourseWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD99EFE32ADDA2580000DAEF /* SystemMediumCourseWidget.swift */; };
 		BD99EFE62ADDB7580000DAEF /* SystemSmallCourseWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD99EFE52ADDB7580000DAEF /* SystemSmallCourseWidget.swift */; };
 		BDA68BA12ABF40920034EC6A /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA68BA02ABF40920034EC6A /* WidgetKit.framework */; };
 		BDA68BA32ABF40920034EC6A /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA68BA22ABF40920034EC6A /* SwiftUI.framework */; };
@@ -153,7 +153,7 @@
 		BD1F689F2B9B5BE900D857A1 /* SystemMediumGradeWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMediumGradeWidget.swift; sourceTree = "<group>"; };
 		BD99EFDF2ADD9CE70000DAEF /* AccessoryInlineCourseWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessoryInlineCourseWidget.swift; sourceTree = "<group>"; };
 		BD99EFE12ADD9EEC0000DAEF /* AccessoryRectangularCourseWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessoryRectangularCourseWidget.swift; sourceTree = "<group>"; };
-		BD99EFE32ADDA2580000DAEF /* systemMediumCourseWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = systemMediumCourseWidget.swift; sourceTree = "<group>"; };
+		BD99EFE32ADDA2580000DAEF /* SystemMediumCourseWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMediumCourseWidget.swift; sourceTree = "<group>"; };
 		BD99EFE52ADDB7580000DAEF /* SystemSmallCourseWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemSmallCourseWidget.swift; sourceTree = "<group>"; };
 		BDA68B9F2ABF40920034EC6A /* PapillonWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PapillonWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDA68BA02ABF40920034EC6A /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -372,7 +372,7 @@
 				BD99EFDF2ADD9CE70000DAEF /* AccessoryInlineCourseWidget.swift */,
 				BD99EFE12ADD9EEC0000DAEF /* AccessoryRectangularCourseWidget.swift */,
 				BD99EFE52ADDB7580000DAEF /* SystemSmallCourseWidget.swift */,
-				BD99EFE32ADDA2580000DAEF /* systemMediumCourseWidget.swift */,
+				BD99EFE32ADDA2580000DAEF /* SystemMediumCourseWidget.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -704,7 +704,7 @@
 				BDA68BB82ABF5ED00034EC6A /* Intents.intentdefinition in Sources */,
 				BDF0E6BD2B9A9BF000A77575 /* GradeWidget.swift in Sources */,
 				BDA68BA82ABF40920034EC6A /* CourseWidget.swift in Sources */,
-				BD99EFE42ADDA2580000DAEF /* systemMediumCourseWidget.swift in Sources */,
+				BD99EFE42ADDA2580000DAEF /* SystemMediumCourseWidget.swift in Sources */,
 				BD99EFE62ADDB7580000DAEF /* SystemSmallCourseWidget.swift in Sources */,
 				BDA68BA62ABF40920034EC6A /* PapillonWidgetBundle.swift in Sources */,
 			);

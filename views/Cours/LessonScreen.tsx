@@ -10,8 +10,10 @@ import {
 import { useTheme, Text } from 'react-native-paper';
 import GetUIColors from '../../utils/GetUIColors';
 
+
 import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
 import getEtabRoom from '../../utils/CustomEtabRoomFormat';
+
 import formatCoursName from '../../utils/FormatCoursName';
 
 import {
