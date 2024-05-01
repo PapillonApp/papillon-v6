@@ -1,4 +1,4 @@
-name: Build and Pubish App
+name: Build and Publish App
 on:
   workflow_dispatch:
     inputs:
@@ -120,7 +120,15 @@ jobs:
     - name: 📦 Install dependencies
       run: npm i
 
-    - name: 👷 Build app
+    - name: 👷 Build apk
+      run: |
+        eas build --local \
+          --non-interactive \
+          --output=./app-build.apk \
+          --platform=android \
+          --profile=${{ github.event.inputs.profile }}
+    
+    - name: 👷 Build AAB
       run: |
         eas build --local \
           --non-interactive \
@@ -128,8 +136,11 @@ jobs:
           --platform=android \
           --profile=${{ github.event.inputs.profile }}
 
+    - name: 📱 Upload binaries
     - name: 📱 Upload binary
-      uses: actions/upload-artifact@v2
-      with:
-        name: app-android
-        path: app-build.aab
+    uses: actions/upload-artifact@v2
+    with:
+      name: Build and Publish App
+      path: |
+        app-build.apk
+        app-build.aab
