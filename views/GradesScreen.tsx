@@ -106,14 +106,14 @@ const GradesScreen = ({ navigation }: {
   React.useEffect(() => {
     setUIaverage([
       {
-        name: 'Moyenne groupe',
-        value: pronoteClassAverage ? pronoteClassAverage : (averages.group || 0),
-        icon: <Users2 color={UIColors.text} />,
-      },
-      {
         name: 'Moyenne médiane',
         value: averages.median || 0,
         icon: <DivideSquare color={UIColors.text} />,
+      },
+      {
+        name: 'Moyenne groupe',
+        value: pronoteClassAverage ? pronoteClassAverage : (averages.group || 0),
+        icon: <Users2 color={UIColors.text} />,
       },
       {
         name: 'Moyenne max',
