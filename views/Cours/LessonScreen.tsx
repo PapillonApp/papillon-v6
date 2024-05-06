@@ -14,7 +14,7 @@ import GetUIColors from '../../utils/GetUIColors';
 import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
 import getEtabRoom from '../../utils/CustomEtabRoomFormat';
 
-import formatCoursName from '../../utils/FormatCoursName';
+import formatCoursName from '../../utils/cours/FormatCoursName';
 
 import {
   DoorOpen,
