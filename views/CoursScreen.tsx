@@ -88,7 +88,7 @@ export default function CoursScreen ({ navigation }: {
   const lessonsFromPage = useCallback((page: number) => {
     const dayKey = dateToFrenchFormat(getDateFromPageNumber(page));
     if (dayKey in cours) return Object.values(cours[dayKey]);
-    
+
     // Not yet fetched...
     return [];
   }, [cours]);
@@ -416,22 +416,23 @@ Statut : ${cours.status || 'Aucun'}
     console.info('timetable: page change to', page);
     // Get the date selected using the page number.
     const date = getDateFromPageNumber(page);
-    
+    console.log(`timetable: getting edt for ${date}`)
     // Change the calendar.
     // Should be the only place where it changes it !
     setCalendarDate(date);
-
     // If inside cache, then simply use it.
     const currentDayKey = dateToFrenchFormat(date);
     if (currentDayKey in coursRef.current) {
-      setIsLoading(false);
-      return;
+      let courseFromCache = coursRef.current[currentDayKey]
+      if(Object.keys(courseFromCache).length !== 0) {
+        setIsLoading(false);
+        return;
+      }
     }
-    
-    setIsLoading(true);
 
     // Otherwise, we need to fetch. Make sure to not
     // force to also use storage cache, if it's in there.
+    setIsLoading(true);
     await refreshStateCache(date, false);
     setIsLoading(false);
   };
