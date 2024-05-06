@@ -10,9 +10,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import RenderHtml from 'react-native-render-html';
 
-import { AlertTriangle, Check } from 'lucide-react-native';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ConsentScreenWithoutAcceptation = ({ navigation }: { navigation: any }) => {
   const UIColors = GetUIColors();

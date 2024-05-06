@@ -18,7 +18,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import packageJson from '../package.json';
 import { useAppContext } from '../utils/AppContext';
 import type { PapillonUser } from '../fetch/types/user';
-import PapillonInsetHeader from '../components/PapillonInsetHeader';
 import PapillonCloseButton from '../interface/PapillonCloseButton';
 
 function NewSettings({ navigation }: {

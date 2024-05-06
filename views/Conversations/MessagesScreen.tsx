@@ -22,6 +22,7 @@ import { useAppContext } from '../../utils/AppContext';
 import * as WebBrowser from 'expo-web-browser';
 import GetUIColors from '../../utils/GetUIColors';
 import { useHeaderHeight } from '@react-navigation/elements';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Send as SendLucide } from 'lucide-react-native';
@@ -60,8 +61,10 @@ const MessagesScreen = ({ route, navigation }: {
 }) => {
   const UIColors = GetUIColors();
   const appContext = useAppContext();
+
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
+
 
   const { conversationID } = route.params;
   const [conversations, setConversations] = useAtom(discussionsAtom);
@@ -122,7 +125,7 @@ const MessagesScreen = ({ route, navigation }: {
         },
       ]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={insets.bottom * 2}
+      keyboardVerticalOffset={insets.bottom * 2
     >
       <FlatList
         data={conversation.messages}

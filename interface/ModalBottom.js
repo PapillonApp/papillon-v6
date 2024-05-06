@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
-import { Animated, Easing, View, StyleSheet, Modal, Pressable, TouchableOpacity, StatusBar, Platform } from 'react-native';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Animated, Easing, View, StyleSheet, Modal, Pressable, StatusBar, Platform } from 'react-native';
 
-import { Text } from 'react-native-paper';
+
 import { BlurView } from 'expo-blur';
 
 import GetUIColors from '../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { PressableScale } from 'react-native-pressable-scale';
 
-import { X } from 'lucide-react-native';
 
 const AlertBottomSheet = (props) => {
   const { visible, onDismiss, align, style } = props;

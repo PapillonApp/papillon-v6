@@ -58,8 +58,8 @@ import {
 
 // Formatting
 import GetUIColors from '../utils/GetUIColors';
-import { getSavedCourseColor } from '../utils/ColorCoursName';
-import formatCoursName from '../utils/FormatCoursName';
+import { getSavedCourseColor } from '../utils/cours/ColorCoursName';
+import formatCoursName from '../utils/cours/FormatCoursName';
 
 // Custom components
 import CheckAnimated from '../interface/CheckAnimated';

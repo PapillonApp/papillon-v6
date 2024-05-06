@@ -24,7 +24,7 @@ import GetUIColors from '../../utils/GetUIColors';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
-import formatCoursName from '../../utils/FormatCoursName';
+import formatCoursName from '../../utils/cours/FormatCoursName';
 import { useAppContext } from '../../utils/AppContext';
 
 import AlertBottomSheet from '../../interface/AlertBottomSheet';

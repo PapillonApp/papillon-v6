@@ -11,9 +11,9 @@ import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
-import { getSavedCourseColor } from '../utils/ColorCoursName';
-import getClosestGradeEmoji from '../utils/EmojiCoursName';
-import formatCoursName from '../utils/FormatCoursName';
+import { getSavedCourseColor } from '../utils/cours/ColorCoursName';
+import getClosestGradeEmoji from '../utils/cours/EmojiCoursName';
+import formatCoursName from '../utils/cours/FormatCoursName';
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
 

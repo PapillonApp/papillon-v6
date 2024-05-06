@@ -43,9 +43,9 @@ import {
   BookOpenCheck,
 } from 'lucide-react-native';
 
-import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
-import getClosestGradeEmoji from '../utils/EmojiCoursName';
-import formatCoursName from '../utils/FormatCoursName';
+import { getClosestCourseColor, getSavedCourseColor } from '../utils/cours/ColorCoursName';
+import getClosestGradeEmoji from '../utils/cours/EmojiCoursName';
+import formatCoursName from '../utils/cours/FormatCoursName';
 import { dateToFrenchFormat } from '../utils/dates';
 import { useAppContext } from '../utils/AppContext';
 import GetUIColors from '../utils/GetUIColors';
