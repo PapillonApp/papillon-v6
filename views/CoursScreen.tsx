@@ -12,8 +12,7 @@ import {
   TouchableOpacity,
   Alert,
   Modal,
-  Pressable,
-  ActivityIndicator,
+  Pressable
 } from 'react-native';
 
 import Reanimated, {ZoomIn, Easing, FadeOut} from 'react-native-reanimated';
