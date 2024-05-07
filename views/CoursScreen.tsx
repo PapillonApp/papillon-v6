@@ -13,6 +13,7 @@ import {
   Alert,
   Modal,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 
 import Reanimated, {ZoomIn, Easing, FadeOut} from 'react-native-reanimated';
@@ -41,6 +42,7 @@ import {
   X,
   TextSelect,
   BookOpenCheck,
+  RotateCcw
 } from 'lucide-react-native';
 
 import { getClosestCourseColor, getSavedCourseColor } from '../utils/cours/ColorCoursName';
@@ -291,63 +293,82 @@ Statut : ${cours.status || 'Aucun'}
         elevation: 0,
       } : undefined,
       headerRight: () =>
-        <ContextMenuView
-          style={{ marginRight: 16 }}
-          previewConfig={{
-            borderRadius: 10,
-          }}
-          menuConfig={{
-            menuTitle: calendarDate.toLocaleDateString('fr', {
-              weekday: 'long',
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric',
-            }),
-            menuItems: [
-              {
-                actionKey: 'addToCalendar',
-                actionTitle: 'Ajouter au calendrier',
-                actionSubtitle:
-                    'Ajoute tous les cours de la journée au calendrier',
-                icon: {
-                  type: 'IMAGE_SYSTEM',
-                  imageValue: {
-                    systemName: 'calendar.badge.plus',
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginRight: 0,
+          gap: 10
+        }}>
+          <TouchableOpacity
+            style={{
+              opacity: 0.4
+            }}
+            onPress={async() => {
+              setIsLoading(true)
+              await forceRefresh()
+              setIsLoading(false)
+            }}
+          >
+            <RotateCcw size={24} color={UIColors.text} />
+          </TouchableOpacity>
+          <ContextMenuView
+            style={{ marginRight: 16 }}
+            previewConfig={{
+              borderRadius: 10,
+            }}
+            menuConfig={{
+              menuTitle: calendarDate.toLocaleDateString('fr', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              }),
+              menuItems: [
+                {
+                  actionKey: 'addToCalendar',
+                  actionTitle: 'Ajouter au calendrier',
+                  actionSubtitle:
+                      'Ajoute tous les cours de la journée au calendrier',
+                  icon: {
+                    type: 'IMAGE_SYSTEM',
+                    imageValue: {
+                      systemName: 'calendar.badge.plus',
+                    },
                   },
                 },
-              },
-            ],
-          }}
-          onPressMenuItem={({ nativeEvent }) => {
-            const dayKey = dateToFrenchFormat(calendarDate);
-            const cours = coursRef.current;
+              ],
+            }}
+            onPressMenuItem={({ nativeEvent }) => {
+              const dayKey = dateToFrenchFormat(calendarDate);
+              const cours = coursRef.current;
 
-            if (!(dayKey in cours)) return; // Pretty useless otherwise...
+              if (!(dayKey in cours)) return; // Pretty useless otherwise...
 
-            if (nativeEvent.actionKey === 'addToCalendar') {
-              addToCalendar(cours[dayKey]);
-            } else if (nativeEvent.actionKey === 'notifyAll') {
-              notifyAll(cours[dayKey]);
-            }
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => setCalendarModalOpen(true)}
-            style={[
-              styles.calendarDateContainer,
-              { backgroundColor: '#0065A8' + '20' }
-            ]}
+              if (nativeEvent.actionKey === 'addToCalendar') {
+                addToCalendar(cours[dayKey]);
+              } else if (nativeEvent.actionKey === 'notifyAll') {
+                notifyAll(cours[dayKey]);
+              }
+            }}
           >
-            <CalendarPapillonIcon stroke={'#0065A8'} />
-            <Text style={[styles.calendarDateText, {color: '#0065A8'}]}>
-              {new Date(calendarDate).toLocaleDateString('fr', {
-                weekday: 'short',
-                day: '2-digit',
-                month: 'short',
-              })}
-            </Text>
-          </TouchableOpacity>
-        </ContextMenuView>
+            <TouchableOpacity
+              onPress={() => setCalendarModalOpen(true)}
+              style={[
+                styles.calendarDateContainer,
+                { backgroundColor: '#0065A8' + '20' }
+              ]}
+            >
+              <CalendarPapillonIcon stroke={'#0065A8'} />
+              <Text style={[styles.calendarDateText, {color: '#0065A8'}]}>
+                {new Date(calendarDate).toLocaleDateString('fr', {
+                  weekday: 'short',
+                  day: '2-digit',
+                  month: 'short',
+                })}
+              </Text>
+            </TouchableOpacity>
+          </ContextMenuView>
+        </View>
     });
   }, [navigation, calendarDate, UIColors]);
 
@@ -438,7 +459,7 @@ Statut : ${cours.status || 'Aucun'}
   };
 
   const forceRefresh = () => refreshStateCache(calendarDate, true);
-
+  
   return (
     <View
       style={[styles.container, {
