@@ -13,7 +13,7 @@ import GetUIColors from '../../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AlertTriangle } from 'lucide-react-native';
 
-import { getSavedCourseColor } from '../../utils/ColorCoursName';
+import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
 import PapillonButton from '../../components/PapillonButton';
 import { randomUUID } from 'expo-crypto';
 

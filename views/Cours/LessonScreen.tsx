@@ -9,7 +9,12 @@ import {
 
 import { useTheme, Text } from 'react-native-paper';
 import GetUIColors from '../../utils/GetUIColors';
-import formatCoursName from '../../utils/FormatCoursName';
+
+
+import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
+import getEtabRoom from '../../utils/CustomEtabRoomFormat';
+
+import formatCoursName from '../../utils/cours/FormatCoursName';
 
 import {
   DoorOpen,

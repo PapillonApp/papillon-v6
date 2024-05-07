@@ -72,15 +72,15 @@ jobs:
       run: |
         eas build --local \
           --non-interactive \
-          --output=./app-build \
+          --output=./app-build.ipa \
           --platform=ios \
           --profile=${{ github.event.inputs.profile }}
 
     - name: 📱 Upload binary
       uses: actions/upload-artifact@v2
       with:
-        name: app-ios.ipa
-        path: app-build
+        name: app-ios
+        path: app-build.ipa
         
   build-android:
     runs-on: macos-14
@@ -124,7 +124,7 @@ jobs:
       run: |
         eas build --local \
           --non-interactive \
-          --output=./app-build \
+          --output=./app-build.aab \
           --platform=android \
           --profile=${{ github.event.inputs.profile }}
 
@@ -132,4 +132,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: app-android
-        path: app-build
+        path: app-build.aab

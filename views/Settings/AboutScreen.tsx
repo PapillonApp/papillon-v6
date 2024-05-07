@@ -23,7 +23,7 @@ import {
 } from 'lucide-react-native';
 
 import packageJson from '../../package.json';
-import { formatPapillonContributors } from '../../utils/GetRessources/GetContribs/FormatContribs';
+import { formatPapillonContributors } from '../../utils/contributors/FormatContribs';
 
 import GetUIColors from '../../utils/GetUIColors';
 
@@ -46,7 +46,7 @@ function AboutScreen({ navigation }) {
     }
     fetchContributors();
   }, []);
-  
+
 
   const UIColors = GetUIColors();
   const theme = useTheme();
@@ -67,17 +67,15 @@ function AboutScreen({ navigation }) {
     },
     {
       title: 'Version de Pawnote',
-      subtitle: `${
-        packageJson.dependencies['pawnote'].split('^')[1]
-      }`,
+      subtitle: `${packageJson.dependencies['pawnote'].split('^')[1]
+        }`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
     },
     {
       title: 'Dépendances',
-      subtitle: `RN: ${
-        packageJson.dependencies['react-native'].split('^')[1]
-      }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`,
+      subtitle: `RN: ${packageJson.dependencies['react-native'].split('^')[1]
+        }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
     }
@@ -99,7 +97,7 @@ function AboutScreen({ navigation }) {
         style={{ backgroundColor: UIColors.modalBackground }}
         contentInsetAdjustmentBehavior="automatic"
       >
-        <NativeList 
+        <NativeList
           inset
           header="Communauté"
         >
@@ -165,7 +163,7 @@ function AboutScreen({ navigation }) {
               </NativeText>
             </NativeItem>
           </NativeList>
-        ) : <View /> }
+        ) : <View />}
 
         {loading && (
           <NativeList inset>
@@ -187,7 +185,7 @@ function AboutScreen({ navigation }) {
             inset
             header={team.name}
           >
-            
+
             {team.member.map((item, index) => (
               <NativeItem
                 key={index}
@@ -210,7 +208,7 @@ function AboutScreen({ navigation }) {
             ))}
           </NativeList>
         ))}
-        
+
 
         <NativeList
           inset
@@ -225,7 +223,7 @@ function AboutScreen({ navigation }) {
             onPress={() => navigation.navigate('Changelogs')}
           >
             <NativeText heading="h4">
-                Version de Papillon
+              Version de Papillon
             </NativeText>
           </NativeItem>
           {appContext.dataProvider.service === 'pronote' && (
@@ -237,21 +235,20 @@ function AboutScreen({ navigation }) {
               }
             >
               <NativeText heading="h4">
-              Version de Pawnote
+                Version de Pawnote
               </NativeText>
             </NativeItem>
           )}
           <NativeItem
             trailing={
               <NativeText heading="p2">
-                {`RN: ${
-                  packageJson.dependencies['react-native'].split('^')[1]
-                }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`}
+                {`RN: ${packageJson.dependencies['react-native'].split('^')[1]
+                  }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`}
               </NativeText>
             }
-            onPress={async() => {
+            onPress={async () => {
               let devMode = await AsyncStorage.getItem('devMode');
-              if(devMode === 'true') {
+              if (devMode === 'true') {
                 showMessage({
                   message: 'Inutile, les options de développement ont déjà été activées',
                   type: 'info',
@@ -262,8 +259,7 @@ function AboutScreen({ navigation }) {
                 return;
               }
               setNumClickVersion(numClickVersion + 1);
-              console.log('Cliqué', numClickVersion);
-              if(numClickVersion >= 3 && numClickVersion < 10) {
+              if (numClickVersion >= 3 && numClickVersion < 10) {
                 showMessage({
                   message: `Encore ${10 - numClickVersion} clicks`,
                   type: 'info',
@@ -272,7 +268,7 @@ function AboutScreen({ navigation }) {
                   position: 'bottom'
                 });
               }
-              if(numClickVersion === 10) {
+              if (numClickVersion === 10) {
                 setNumClickVersion(0);
                 Alert.alert(
                   'Activer les options de développement ?',

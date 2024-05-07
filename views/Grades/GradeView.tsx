@@ -30,9 +30,9 @@ import {
 import { RegisterTrophy } from '../Settings/TrophiesScreen';
 
 import { useLayoutEffect } from 'react';
-import { getSavedCourseColor } from '../../utils/ColorCoursName';
+import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
 
-import formatCoursName from '../../utils/FormatCoursName';
+import formatCoursName from '../../utils/cours/FormatCoursName';
 import GetUIColors from '../../utils/GetUIColors';
 
 import NativeList from '../../components/NativeList';

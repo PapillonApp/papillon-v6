@@ -1,7 +1,7 @@
 import SharedGroupPreferences from 'react-native-shared-group-preferences';
-import formatCoursName from '../../utils/FormatCoursName';
-import getClosestGradeEmoji from '../../utils/EmojiCoursName';
-import { getSavedCourseColor } from '../../utils/ColorCoursName';
+import formatCoursName from '../../utils/cours/FormatCoursName';
+import getClosestGradeEmoji from '../../utils/cours/EmojiCoursName';
+import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
 import type { PapillonLesson } from '../types/timetable';
 import { getContextValues } from '../../utils/AppContext';
 import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Animated, Easing, View, StyleSheet, Modal, Pressable, TouchableOpacity, StatusBar, Platform } from 'react-native';
 
 import { Text } from 'react-native-paper';

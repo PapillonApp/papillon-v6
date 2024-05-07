@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { Animated, View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIndicator, Alert, StatusBar, Easing } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Animated, View, Text, StyleSheet, ActivityIndicator, Easing } from 'react-native';
 
 import GetUIColors from '../utils/GetUIColors';
 
