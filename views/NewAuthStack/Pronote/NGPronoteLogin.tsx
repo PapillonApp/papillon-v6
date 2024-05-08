@@ -130,6 +130,7 @@ function NGPronoteLogin({
     }
 
     try {
+      if(connecting) return;
       setConnecting(true);
 
       const pronoteURL = instanceDetails!.pronoteRootURL;
