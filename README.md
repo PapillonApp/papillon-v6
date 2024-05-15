@@ -94,7 +94,7 @@ Papillon est engagé à protéger les données de tous ses utilisateurs, pour fo
 
 >L'application est gratuite, sans publicités, ne revend pas vos données, n'utilise pas de serveurs, n'utilise pas d'outils d'analyse, et ne récupère pas de logs de manière automatisée.
 
-**Par souci de transparence, vous pouvez retrouver le fonctionnement exact du traitement des données et nos politiques sur : [https://safety.getpapillon.xyz/](https://safety.getpapillon.xyz/)** 
+**Par souci de transparence, vous pouvez retrouver le fonctionnement exact du traitement des données et nos politiques sur : <https://safety.getpapillon.xyz/>**
 <!-- Obliger de renommer le lien sinon, ça ajoute les étoiles dans l'URL -->
 
 ## 📄 Licence
