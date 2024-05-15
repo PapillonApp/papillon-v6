@@ -19,10 +19,10 @@
         <img alt="License" src="https://img.shields.io/github/license/PapillonApp/Papillon">
         <br />
         <a href="https://discord.gg/vFmCwSzvAp">
-            <img src="https://img.shields.io/badge/Discord-Rejoindre-5865F2?style=flat&amp;logo=discord&amp;logoColor=white" alt="Rejoindre notre serveut Discord">
+            <img src="https://img.shields.io/badge/Discord-Rejoindre-5865F2?style=flat&amp;logo=discord&amp;logoColor=white" alt="Rejoindre notre serveur Discord">
         </a>
         <a href="https://www.instagram.com/thepapillonapp/">
-            <img src="https://img.shields.io/badge/Instagram-thepapillonapp-E4405F?style=flat&amp;logo=instagram&amp;logoColor=white" alt="Nous suivre sur instagram">
+            <img src="https://img.shields.io/badge/Instagram-thepapillonapp-E4405F?style=flat&amp;logo=instagram&amp;logoColor=white" alt="Nous suivre sur Instagram">
         </a>
     </div>
 </p>
@@ -90,12 +90,12 @@ Nous accueillons les contributions de tous. Veuillez lire notre [guide de contri
 5. Ouvrez une Pull Request
 
 ## 🔒 Vie privée & confidentialité
-Papillon est engagé a protéger les données de tous ses utilisateurs, pour fournir une expérience fiable et de confiance.
+Papillon est engagé à protéger les données de tous ses utilisateurs, pour fournir une expérience fiable et de confiance.
 
 >L'application est gratuite, sans publicités, ne revend pas vos données, n'utilise pas de serveurs, n'utilise pas d'outils d'analyse, et ne récupère pas de logs de manière automatisée.
 
-**Par souci de transparence, vous pouvez retrouver le fonctionnement exact du traitement des données et nos politiques sur : https://safety.getpapillon.xyz/**
+**Par souci de transparence, vous pouvez retrouver le fonctionnement exact du traitement des données et nos politiques sur : <https://safety.getpapillon.xyz/>**
+<!-- Obliger de renommer le lien sinon, ça ajoute les étoiles dans l'URL -->
 
-## 📄 License
+## 📄 Licence
 Distribué sous la licence GPLv3. Voir [`LICENSE`](LICENSE) pour plus d'informations.
-
