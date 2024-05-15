@@ -97,5 +97,5 @@ Papillon est engagé à protéger les données de tous ses utilisateurs, pour fo
 **Par souci de transparence, vous pouvez retrouver le fonctionnement exact du traitement des données et nos politiques sur : [https://safety.getpapillon.xyz/](https://safety.getpapillon.xyz/)** 
 <!-- Obliger de renommer le lien sinon, ça ajoute les étoiles dans l'URL -->
 
-## 📄 License
+## 📄 Licence
 Distribué sous la licence GPLv3. Voir [`LICENSE`](LICENSE) pour plus d'informations.
