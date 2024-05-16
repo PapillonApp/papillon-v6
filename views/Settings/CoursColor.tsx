@@ -26,6 +26,8 @@ import { RegisterTrophy } from './TrophiesScreen';
 interface SavedColors {
   [key: string]: {
     color: string;
+    originalColor: string;
+    edited: boolean;
     originalCourseName: string;
     systemCourseName: string;
     locked: boolean;
@@ -85,6 +87,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
       [currentEditedSubject]: {
         ...savedColors[currentEditedSubject],
         color: hex,
+        edited: true,
       },
     });
 
@@ -96,18 +99,15 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   const ResetColors = async () => {
-    let dataInstance = await getContextValues().dataProvider;
     let colors = savedColors;
-    let timetable = await dataInstance.getTimetable(new Date());
-    timetable.forEach(course => {
-      Object.keys(colors).forEach((key) => {
-        if (colors[key].originalCourseName == course.subject.name && !colors[key].locked) {
-          colors[key].color = course.background_color;
-        }
-      });
-    });
+    Object.keys(colors).forEach((key) => {
+      if(!colors[key].locked) {
+        colors[key].color = colors[key].originalColor
+        colors[key].edited = false
+      }
+    })
     SyncStorage.set('savedColors', JSON.stringify(colors));
-    setSavedColors(JSON.parse(SyncStorage.get('savedColors'))); //Chelou mais sinon rien ne s'actualise
+    setSavedColors(colors); //Chelou mais sinon rien ne s'actualise
     Haptics.selectionAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
@@ -328,7 +328,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                 } else if (nativeEvent.actionKey == 'resetColor') {
                   Alert.alert(
                     'Réinitialiser les couleurs ?',
-                    'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible.',
+                    'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible et s\'appliquera uniquement aux couleurs non verrouillées.\n\nAttention : cela va rétablir les couleurs par défaut mises en caches, pour récupérer de nouveau les couleurs vous devez sélectionner l\'option "supprimer les couleurs".',
                     [
                       {
                         text: 'Réinitialiser',
@@ -403,7 +403,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                 setUserMenuOpen(false);
                 Alert.alert(
                   'Réinitialiser les couleurs ?',
-                  'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible.',
+                  'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible et s\'appliquera uniquement aux couleurs non verrouillées.\n\nAttention : cela va rétablir les couleurs par défaut mises en caches, pour récupérer de nouveau les couleurs vous devez sélectionner l\'option "supprimer les couleurs".',
                   [
                     {
                       text: 'Réinitialiser',
@@ -549,7 +549,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                   {formatCoursName(savedColors[key].originalCourseName)}
                 </NativeText>
                 <NativeText heading="subtitle2">
-                  {savedColors[key].color.toUpperCase()}
+                  {savedColors[key].color.toUpperCase()} {savedColors[key].edited === true ? "- Modifié" : ""}
                 </NativeText>
               </NativeItem>
             );
