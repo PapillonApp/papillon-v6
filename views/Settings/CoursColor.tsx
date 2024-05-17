@@ -67,6 +67,16 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
           style: 'destructive',
         },
         {
+          text: 'Réinitialiser',
+          onPress: () => {
+            let newCol = { ...savedColors };
+            newCol[key].color = newCol[key].originalColor;
+            newCol[key].edited = false;
+            setSavedColors(newCol);
+            SyncStorage.set('savedColors', JSON.stringify(newCol));
+          }
+        },
+        {
           text: 'Annuler',
           style: 'cancel',
         },
@@ -110,7 +120,10 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
     setSavedColors(colors); //Chelou mais sinon rien ne s'actualise
     Haptics.selectionAsync(Haptics.ImpactFeedbackStyle.Light);
   };
-
+  const DeleteColors = async () => {
+    setSavedColors({})
+    SyncStorage.set('savedColors', "{}");
+  }
   const ApplyRandomColors = () => {
     let col: SavedColors = {};
     let usedColors: string[] = [];
@@ -374,7 +387,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
               title={'Appliquer des couleurs aléatoires'}
               leadingIcon="dice-5-outline"
               onPress={() => {
-                setUserMenuOpen(false);
+                setMenuOpen(false);
                 Alert.alert(
                   'Remplacer les couleurs ?',
                   'Voulez-vous vraiment modifier les couleurs ? Cette action est irréverssible.',
@@ -400,7 +413,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
               title={'Réinitialiser les couleurs'}
               leadingIcon="undo"
               onPress={() => {
-                setUserMenuOpen(false);
+                setMenuOpen(false);
                 Alert.alert(
                   'Réinitialiser les couleurs ?',
                   'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible et s\'appliquera uniquement aux couleurs non verrouillées.\n\nAttention : cela va rétablir les couleurs par défaut mises en caches, pour récupérer de nouveau les couleurs vous devez sélectionner l\'option "supprimer les couleurs".',
@@ -409,6 +422,31 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                       text: 'Réinitialiser',
                       onPress: () => {
                         ResetColors();
+                      },
+                      style: 'destructive',
+                    },
+                    {
+                      text: 'Annuler',
+                      style: 'cancel',
+                    },
+                  ],
+                  { cancelable: true }
+                );
+              }}
+            />
+            <Menu.Item
+              title={'Supprimer les couleurs'}
+              leadingIcon="delete"
+              onPress={() => {
+                setMenuOpen(false);
+                Alert.alert(
+                  'Supprimer les couleurs ?',
+                  'Voulez-vous vraiment supprimer les couleurs ? Cette action est irréverssible et s\'appliquera uniquement aux couleurs non verrouillées.\n\nCette option vous permet de récupérer de nouveau les couleurs depuis votre service scolaire. Si vous souhaitez rétablir celles en cache, veuillez utiliser l\'option "Réinitialiser les couleurs".',
+                  [
+                    {
+                      text: 'Supprimer',
+                      onPress: () => {
+                        DeleteColors();
                       },
                       style: 'destructive',
                     },
