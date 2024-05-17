@@ -80,11 +80,11 @@ export const gradesHandler = async (periodName: string, instance?: Pronote, forc
           name: average.subject.name,
           groups: average.subject.groups
         },
-        average: getGradeState(average.student),
+        average: typeof average.student !== 'undefined' ? getGradeState(average.student) : void 0,
         class_average: getGradeState(average.class_average),
         max: getGradeState(average.max),
         min: getGradeState(average.min),
-        out_of: getGradeState(average.outOf),
+        out_of: typeof average.outOf !== 'undefined' ? getGradeState(average.outOf) : void 0,
         color: average.backgroundColor ?? '#08BE88'
       })),
   

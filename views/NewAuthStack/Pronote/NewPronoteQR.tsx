@@ -11,7 +11,7 @@ import NativeText from '../../../components/NativeText';
 import GetUIColors from '../../../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const NewPronoteQR = ({ navigation }) => {
+const NewPronoteQR = ({ navigation }: { navigation: any }) => {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
 
@@ -27,7 +27,7 @@ const NewPronoteQR = ({ navigation }) => {
     })();
   }, []);
 
-  const handleBarCodeScan = ({ data }) => {
+  const handleBarCodeScan = ({ data }: { data: any }) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setScanned(true);
     
@@ -82,7 +82,7 @@ const NewPronoteQR = ({ navigation }) => {
       </NativeText>
 
       <View style={styles.square} />
-      <View style={styles.squareBackground} />
+      <View/>
 
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScan}

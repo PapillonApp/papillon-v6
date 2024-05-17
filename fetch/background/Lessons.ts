@@ -1,7 +1,7 @@
 import SharedGroupPreferences from 'react-native-shared-group-preferences';
-import formatCoursName from '../../utils/FormatCoursName';
-import getClosestGradeEmoji from '../../utils/EmojiCoursName';
-import { getSavedCourseColor } from '../../utils/ColorCoursName';
+import formatCoursName from '../../utils/cours/FormatCoursName';
+import getClosestGradeEmoji from '../../utils/cours/EmojiCoursName';
+import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
 import type { PapillonLesson } from '../types/timetable';
 import { getContextValues } from '../../utils/AppContext';
 import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';
@@ -66,6 +66,12 @@ const notifyLessons = async (lessons: PapillonLesson[]) => {
   const canNotify : boolean = await checkCanNotify('notifications_CoursEnabled');
   if (!canNotify) return;
 
+  // remove all notifications
+  for (const lesson of lessons) {
+    const lessonID = (lesson.subject?.name ? lesson.subject.name : '') + new Date(lesson.start).getTime();
+    notifee.cancelNotification(lessonID);
+  }
+
   // get all lessons with status set
   const lessonsWithStatus = lessons.filter(lesson => lesson.status !== undefined);
   
@@ -90,8 +96,9 @@ const notifyLessons = async (lessons: PapillonLesson[]) => {
 
     if(lesson.is_cancelled) {
       body = 'Le cours est annulé.';
-    }
-    else {
+    } else if(lesson.rooms.length === 0) {
+      body = 'Vous n\'avez pas de salle attribuée.';
+    } else {
       body = `Vous serez en salle ${lesson.rooms.join(', ')}`;
     }
 

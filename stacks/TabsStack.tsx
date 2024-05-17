@@ -66,7 +66,7 @@ const views = [
   },
   {
     name: 'NotesHandler',
-    component: require('../views/GradesScreenNew').default,
+    component: require('../views/GradesScreen').default,
     options: {
       tabBarLabel: 'Notes',
       tabBarIcon: ({ color, size, focused }) =>
@@ -160,8 +160,10 @@ const TabsStack = ({ navigation }) => {
             justifyContent: 'center',
             textAlign: 'center',
           },
-          headerTitleStyle: {
+          headerTitleStyle: Platform.OS === 'ios' ? {
             fontFamily: 'Papillon-Semibold',
+            fontSize: 17.5,
+          } : {
             fontSize: 17.5,
           },
           tabBarShowLabel: true,
@@ -179,6 +181,11 @@ const TabsStack = ({ navigation }) => {
           ],
           headerSearchBarOptions: {},
           headerTitleAlign: 'left',
+          headerStyle: Platform.OS === 'android' ? {
+            backgroundColor: UIColors.background,
+            borderBottomWidth: 0,
+            elevation: 0,
+          } : undefined,
         }}
       >
         {views.map((view, index) => (

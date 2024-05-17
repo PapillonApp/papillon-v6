@@ -4,7 +4,9 @@ import { View, Platform } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 const Stack = createNativeStackNavigator();
 
+import GetUIColors from '../utils/GetUIColors';
 import { setBackgroundFetch } from '../fetch/BackgroundFetch';
+import UserReview from '../utils/UserReview';
 
 export const headerTitleStyles = {
   headerLargeTitleStyle: {
@@ -20,6 +22,8 @@ export const headerTitleStyles = {
 };
 
 const AppStack = ({ navigation }) => {
+  const UIColors = GetUIColors();
+
   const views = [
     {
       name: 'TabsStack',
@@ -78,7 +82,7 @@ const AppStack = ({ navigation }) => {
       name: 'InsetMatieres',
       component: require('../views/Settings/CoursColor').default,
       options: {
-        headerTitle: 'Gestion des matières',
+        headerTitle: 'Couleur des matières',
         presentation: 'modal',
       }
     },
@@ -137,6 +141,7 @@ const AppStack = ({ navigation }) => {
 
   useEffect(() => {
     setBackgroundFetch();
+    UserReview();
   }, []);
 
   return (
@@ -147,6 +152,11 @@ const AppStack = ({ navigation }) => {
             ? {
               animation: 'fade_from_bottom',
               navigationBarColor: '#00000000',
+              headerStyle: {
+                backgroundColor: UIColors.background,
+                elevation: 0,
+              },
+              headerShadowVisible: false,
             }
             : {
               ...headerTitleStyles,

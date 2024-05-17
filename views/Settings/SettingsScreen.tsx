@@ -1,10 +1,10 @@
-import React from 'react';
-import { ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {Alert, ScrollView, Switch} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { unsetBackgroundFetch } from '../../fetch/BackgroundFetch';
 
-import { LogOut, RefreshCw, RotateCw, Server, Trash2 } from 'lucide-react-native';
+import {EyeOff, LogOut, RefreshCw, RotateCw, Trash2} from 'lucide-react-native';
 import { showMessage } from 'react-native-flash-message';
 import { revokeAsync } from 'expo-auth-session';
 
@@ -24,38 +24,119 @@ import NativeText from '../../components/NativeText';
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
 import { IndexDataInstance } from '../../fetch';
 
-function SettingsScreen({ navigation }) {
+import questions from './questions.json';
+
+function SettingsScreen({ navigation }: { navigation: any }) {
+  const [hideNotes, setHideNotes] = useState(false);
+  const [deleteAccountAlert, setDeleteAccountAlert] = useState(false);
+  const [pronoteTokenActionAlert, setPronoteTokenActionAlert] = useState(false);
+  const [skolengoCacheClearAlert, setSkolengoCacheClearAlert] = useState(false);
+  const [skolengoReconnectAlert, setSkolengoReconnectAlert] = useState(false);
   const UIColors = GetUIColors();
   const appContext = useAppContext();
 
-  const [pronoteTokenActionAlert, setPronoteTokenActionAlert] = React.useState(false);
-  const [skolengoCacheClearAlert, setSkolengoCacheClearAlert] = React.useState(false);
-  const [skolengoReconnectAlert, setSkolengoReconnectAlert] = React.useState(false);
-  const [deleteAccountAlert, setDeleteAccountAlert] = React.useState(false);
+  async function getData() {
+    let hideNotesTab = await AsyncStorage.getItem('hideNotesTab');
+    setHideNotes(hideNotesTab === 'true');
+  }
+
+  useEffect(() => {
+    getData();
+  }, []);
 
   async function pronoteRegenerateToken() {
-    // Force another initialisation.
-    await appContext.dataProvider.init('pronote');
-    setPronoteTokenActionAlert(true);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-  }
-
-
-  function skolengoCacheClear() {
-    if (appContext.dataProvider.service === 'skolengo') {
-      setSkolengoCacheClearAlert(true);
+    if (appContext.dataProvider) {
+      // Force another initialization.
+      await appContext.dataProvider.init('pronote');
+      setPronoteTokenActionAlert(true);
     }
   }
 
-  function skolengoReconnect() {
-    if (appContext.dataProvider.service === 'skolengo') {
-      setSkolengoReconnectAlert(true);
+  const confirmDisabling = (then = () => {}, invalid = false) => {
+    const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+    const { question, response } = randomQuestion;
+    const randomizedResponse = response
+      .map(value => ({ value, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ value }) => value);
+
+    const button = randomizedResponse.map(res => ({
+      text: res.text,
+      onPress: () => {
+        if (res.valid) {
+          then();
+        } else {
+          confirmDisabling(then, true);
+        }
+      }
+    }));
+
+    button.push({ text: 'Annuler', style: 'cancel' });
+
+    Alert.alert(
+      invalid ? 'Réponse incorrecte' : 'Confirmation de votre choix',
+      `Afin de confirmer votre choix, merci de répondre à la question suivante :\n${question}`,
+      button
+    );
+  };
+
+  function switchHideNotes() {
+    if (!hideNotes) {
+      Alert.alert(
+        'Voulez-vous vraiment désactiver l\'onglet note ?',
+        'Vos notes seront masquées. Un redémmarage peut-être requis.',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+          {
+            onPress: async () => {
+              setHideNotes(true);
+              await AsyncStorage.setItem('hideNotesTab', 'true');
+            },
+            style: 'destructive',
+            text: 'Continuer',
+          },
+        ]
+      );
+    } else {
+      Alert.alert(
+        'Voulez-vous vraiment réactiver l\'onglet note ?',
+        'Vos notes seront de nouveau visible dans l\'onglet note. Un redémmarage peut-être requis.',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+          {
+            onPress: () => {
+              confirmDisabling(() => {
+                setHideNotes(false);
+                AsyncStorage.setItem('hideNotesTab', 'false');
+              });
+            },
+            style: 'destructive',
+            text: 'Continuer',
+          },
+        ]
+      );
     }
   }
+
+  async function getData() {
+    let hideNotesTab = await AsyncStorage.getItem('hideNotesTab');
+    setHideNotes(hideNotesTab === 'true');
+  }
+
+  React.useEffect( () => {
+    getData();
+  }, []);
 
   return (
     <ScrollView style={{ backgroundColor: UIColors.modalBackground }}>
-      {appContext.dataProvider.service === 'pronote' && ( 
+
+      {appContext.dataProvider && appContext.dataProvider.service === 'pronote' && ( 
         <NativeList
           header="Connexion à Pronote"
           inset
@@ -182,6 +263,28 @@ function SettingsScreen({ navigation }) {
       )}
 
       <NativeList
+        header="Avancé"
+        inset
+      >
+        <NativeItem
+          leading={<EyeOff size={24} color={UIColors.text}/>}
+          trailing={
+            <Switch
+              value={hideNotes}
+              onValueChange={() => switchHideNotes()}
+            />
+          }
+        >
+          <NativeText heading="h4">
+            Désactiver l'onglet notes
+          </NativeText>
+          <NativeText heading="p2">
+            Vos notes ne seront plus accessibles
+          </NativeText>
+        </NativeItem>
+      </NativeList>
+
+      <NativeList
         header="Mon compte"
         inset
       >
@@ -216,7 +319,7 @@ function SettingsScreen({ navigation }) {
   
           // Remove every data from storage.
           await AsyncStorage.clear();
-          AsyncStorage.setItem("preventNotifInit", "true") //to prevent notif to re-init after logout (app stack still displayed for a few second before re-rendering)
+          AsyncStorage.setItem('preventNotifInit', 'true'); //to prevent notif to re-init after logout (app stack still displayed for a few second before re-rendering)
           // Create a new provider since we're resetting everything.
           try {
             appContext.setDataProvider(new IndexDataInstance());
@@ -225,7 +328,7 @@ function SettingsScreen({ navigation }) {
             console.error('Error while creating new data provider', e);
           }
           appContext.setLoggedIn(false);
-          unsetBackgroundFetch()
+          unsetBackgroundFetch();
           showMessage({
             message: 'Déconnecté avec succès',
             type: 'success',

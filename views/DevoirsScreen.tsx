@@ -26,15 +26,18 @@ import { convert as convertHTML } from 'html-to-text';
 import {
   File,
   Plus,
-  ExternalLink
+  ExternalLink,
+  FileUp
 } from 'lucide-react-native';
 
-import { getSavedCourseColor } from '../utils/ColorCoursName';
+import { getSavedCourseColor } from '../utils/cours/ColorCoursName';
 
 import GetUIColors from '../utils/GetUIColors';
 
 import { useAppContext } from '../utils/AppContext';
 import NativeText from '../components/NativeText';
+
+import {PronoteApiHomeworkReturnType } from 'pawnote';
 
 import * as WebBrowser from 'expo-web-browser';
 import type { PapillonHomework } from '../fetch/types/homework';
@@ -69,12 +72,16 @@ function DevoirsScreen({ navigation }: {
   const UIColors = GetUIColors();
   const theme = useTheme();
 
+  const [urlOpened, setUrlOpened] = useState<boolean>(false);
+
   const openURL = async (url: string) => {
+    setUrlOpened(true);
     await WebBrowser.openBrowserAsync(url, {
       dismissButtonStyle: 'done',
       presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
       controlsColor: UIColors.primary,
     });
+    setUrlOpened(false);
   };
 
   const [loading, setLoading] = useState(false);
@@ -163,12 +170,16 @@ function DevoirsScreen({ navigation }: {
         flex: 1,
       }}
     >
-      <StatusBar
-        animated
-        translucent
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
-        backgroundColor={'transparent'}
-      />
+      {(urlOpened && Platform.OS === 'ios') ? (
+        <StatusBar animated barStyle='light-content'/>
+      ) : (
+        <StatusBar
+          animated
+          translucent
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor={'transparent'}
+        />
+      )}
 
       {groupedHomeworks !== null ? (
         <>
@@ -312,6 +323,7 @@ function Hwitem({ homework, openURL, navigation }: {
   }, []);
 
   if (!homework) return;
+  
   return (
     <Animated.View
       style={[{
@@ -342,12 +354,19 @@ function Hwitem({ homework, openURL, navigation }: {
       >
         <NativeItem
           leading={
-            <CheckAnimated
-              backgroundColor={void 0}
-              checked={homework.done && !checkStateLoading}
-              loading={checkStateLoading}
-              pressed={handleStateChange}
-            />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <CheckAnimated
+                backgroundColor={void 0}
+                checked={homework.done && !checkStateLoading}
+                loading={checkStateLoading}
+                pressed={handleStateChange}
+              />
+            </View>
+          }
+          trailing={
+            homework.return && homework.return.type == PronoteApiHomeworkReturnType.FILE_UPLOAD && (
+              <FileUp size={20} color="grey" />
+            )
           }
           onPress={() => {
             navigation.navigate('Devoir', { homeworkLocalID: homework.localID });
@@ -363,12 +382,15 @@ function Hwitem({ homework, openURL, navigation }: {
             <NativeText numberOfLines={1} heading="subtitle1" style={{fontSize: 14, paddingRight: 10}}>
               {homework.subject.name.toUpperCase()}
             </NativeText>
+            <View>
           </View>
-          <NativeText>
-            {convertHTML(homework.description.replace('\n', ' '), { wordwrap: 130 })}
-          </NativeText>
+          </View>
+          <View>
+            <NativeText>
+              {convertHTML(homework.description.replace('\n', ' '), { wordwrap: 130 })}
+            </NativeText>
+          </View>
         </NativeItem>
-
         {homework.attachments.map((file, index) => (
           <NativeItem
             key={index}
@@ -561,7 +583,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontFamily: 'Papillon-Medium',
   },
-
   homeworkFileContainer: {
     borderTopWidth: 1,
   },

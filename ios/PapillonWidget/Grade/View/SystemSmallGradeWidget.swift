@@ -24,9 +24,41 @@ struct SystemSmallGradeWidget: View {
               Spacer()
               Spacer()
               HStack(alignment: .bottom, spacing: 0) {
-                Text(String(format: "%.2f", firstGrade.grade.value.value))
-                  .font(.system(.title2, design: .rounded))
-                  .bold()
+                if firstGrade.grade.value.significant == true {
+                  switch firstGrade.grade.value.value {
+                    case 1 : Text("Abs")
+                      .font(.system(.title2, design: .rounded))
+                      .bold()
+                    case 2 : Text("Disp.")
+                      .font(.system(.title2, design: .rounded))
+                      .bold()
+                    case 3 : Text("N.not")
+                      .font(.system(.title2, design: .rounded))
+                      .bold()
+                    case 4 : Text("Inap.")
+                      .font(.system(.title2, design: .rounded))
+                      .bold()
+                    case 5 : Text("N.Rdu")
+                      .font(.system(.title2, design: .rounded))
+                      .bold()
+                    case 6 : Text("Abs.0")
+                      .font(.system(.title2, design: .rounded))
+                      .bold()
+                    case 7 : Text("N.Rdu.0")
+                      .font(.system(.title2, design: .rounded))
+                      .bold()
+                    case 8 : Text("Félicitation")
+                      .font(.system(.title2, design: .rounded))
+                      .bold()
+                    default: Text("Erreur")
+                      .font(.system(.title2, design: .rounded))
+                      .bold()
+                  }
+                } else {
+                  Text(String(format: "%.2f", firstGrade.grade.value.value))
+                    .font(.system(.title2, design: .rounded))
+                    .bold()
+                }
                 Text("/" + String(format: "%.0f", firstGrade.grade.outOf.value))
                   .font(.system(.subheadline, design: .rounded))
                   .baselineOffset(2)
@@ -36,7 +68,7 @@ struct SystemSmallGradeWidget: View {
             .padding(.horizontal)
             .padding(.bottom, 14)
             }
-            .widgetBackground(Color(.clear))
+          .widgetBackground(Color("Background"))
         } else {
           // Handle the case where entry.grades is nil or empty
           VStack(alignment: .center) {
@@ -50,7 +82,7 @@ struct SystemSmallGradeWidget: View {
               .multilineTextAlignment(.center)
             Spacer()
           }
-          .widgetBackground(Color(.clear))
+          .widgetBackground(Color("Background"))
         }
     }
 }

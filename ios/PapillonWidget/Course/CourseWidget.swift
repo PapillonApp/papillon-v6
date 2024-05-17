@@ -113,7 +113,7 @@ struct CourseWidgetView: View {
     var body: some View {
       switch family {
         case .systemSmall: SystemSmallCourseWidget(entry: entry)
-        case .systemMedium: systemMediumCourseWidget(entry: entry)
+        case .systemMedium: SystemMediumCourseWidget(entry: entry)
         case .accessoryInline: AccessoryInlineCourseWidget(entry: entry)   
         case .accessoryRectangular: AccessoryRectangularCourseWidget(entry: entry)
         default:

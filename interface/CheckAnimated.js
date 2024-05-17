@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
-import { Animated, Easing, View, Text, StyleSheet, ActivityIndicator, Pressable, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { Animated, Easing, View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import GetUIColors from '../utils/GetUIColors';
 
 import { Check } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { set } from 'sync-storage';
 
-const CheckAnimated = ({ checked, pressed = () => {}, loading, backgroundColor }) => {
+const CheckAnimated = ({ checked, pressed = () => {}, loading, backgroundColor, style = {} }) => {
   const UIColors = GetUIColors();
   const [check, setCheck] = useState(checked);
   const [initialState, setInitialState] = useState(false);
@@ -106,7 +105,8 @@ const CheckAnimated = ({ checked, pressed = () => {}, loading, backgroundColor }
   return (
     <TouchableOpacity
       style={[
-        styles.container
+        styles.container,
+        style,
       ]}
       onPress={handlePress}
     >

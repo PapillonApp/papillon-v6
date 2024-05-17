@@ -52,10 +52,12 @@ const GradesSettings = ({ navigation }: {
           trailing={
             <TextInput
               style={{ color: UIColors.text, fontSize: 22, textAlign: 'center', padding: 0, width: 60, fontFamily: 'Papillon-Medium', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, backgroundColor: UIColors.text + '15', marginLeft: 10 }}
-              keyboardType='numeric'
+              keyboardType='number-pad'
               value={gradeSettings.scale.toString()}
               maxLength={3}
               onChangeText={(value) => {
+                // only numbers
+                value = value.replace(/[^0-9]/g, '');
                 setGradeSettings({ scale: Number(value) });
                 AsyncStorage.setItem('gradeSettings', JSON.stringify({ scale: Number(value) }));
               }}

@@ -5,26 +5,29 @@ import {
   FlatList,
   StyleSheet,
   Text,
-  StatusBar,
   TouchableOpacity,
-  Image,
   TextInput,
   KeyboardAvoidingView,
+  Platform,
+  Alert,
 } from 'react-native';
+
+import type { PapillonUser } from '../../fetch/types/user';
+import type { PapillonDiscussionMessage } from '../../fetch/types/discussions';
 
 import { RenderHTML } from 'react-native-render-html';
 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import type { PapillonDiscussionMessage } from '../../fetch/types/discussions';
 import { useAppContext } from '../../utils/AppContext';
 
 import * as WebBrowser from 'expo-web-browser';
-
 import GetUIColors from '../../utils/GetUIColors';
+import { useHeaderHeight } from '@react-navigation/elements';
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { Send as SendLucide } from 'lucide-react-native';
 
-import { useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { discussionsAtom } from '../../atoms/discussions';
 
 function getInitials(name: string): string {
@@ -48,16 +51,26 @@ function getInitials(name: string): string {
   return initials;
 }
 
-const MessagesScreen = ({ route, navigation }) => {
+const MessagesScreen = ({ route, navigation }: {
+  navigation: any;
+  route: {
+    params: {
+      conversationID: string;
+    }
+  }
+}) => {
   const UIColors = GetUIColors();
   const appContext = useAppContext();
+
+  const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
 
+
   const { conversationID } = route.params;
-  const conversations = useAtomValue(discussionsAtom);
+  const [conversations, setConversations] = useAtom(discussionsAtom);
   const conversation = conversations!.find((conversation) => conversation.local_id === conversationID)!;
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<PapillonUser | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -66,20 +79,35 @@ const MessagesScreen = ({ route, navigation }) => {
       const userData = await appContext.dataProvider.getUser();
       setUser(userData);
     })();
-  }, []);
+  }, [appContext.dataProvider]);
 
-  const openURL = async (url: string) => {
-    await WebBrowser.openBrowserAsync(url, {
-      presentationStyle: 'formSheet',
-      controlsColor: UIColors.primary,
+  const sendMessage = async (text: string) => {
+    console.log(conversation);
+    if (!appContext.dataProvider) throw new Error('No data provider available.');
+    const messages = await appContext.dataProvider.replyToConversation(conversationID, text);
+
+    if (messages === null) {
+      Alert.alert(
+        'Erreur',
+        'Impossible d\'envoyer le message.',
+        [{ text: 'OK' }],
+        { cancelable: false }
+      );
+
+      return;
+    }
+
+    setConversations((conversations) => {
+      if (!conversations) return [];
+      const copy = [...conversations];
+
+      const conversationIndex = copy.findIndex((c) => c.local_id === conversation.local_id);
+      copy[conversationIndex].messages = messages;
+      return copy;
     });
   };
 
-  const sendMessage = (text: string) => {
-    console.log('Sending message:', text);
-  }
-
-  // header text is the subject of the conversation
+  // Header text is the subject of the conversation.
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: conversation.subject,
@@ -96,14 +124,15 @@ const MessagesScreen = ({ route, navigation }) => {
           backgroundColor: UIColors.background,
         },
       ]}
-      behavior="padding"
-      keyboardVerticalOffset={insets.bottom + 38}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={insets.bottom * 2}
     >
       <FlatList
         data={conversation.messages}
         keyExtractor={(message) => message.id}
         style={[
           {
+            marginBottom: 16,
             flex: 1,
           },
         ]}
@@ -111,24 +140,34 @@ const MessagesScreen = ({ route, navigation }) => {
         renderItem={({ item }) => (
           <PapillonMessage
             message={item}
-            UIColors={UIColors}
             sent={item.author === `${user?.name} (${user?.class})`}
-            user={user}
           />
         )}
-        ListHeaderComponent={<View style={{ height: insets.bottom + 12 }} />}
       />
-      <PapillonSend UIColors={UIColors} sendFunction={sendMessage} insets={insets} />
+      <PapillonSend sendFunction={sendMessage} />
     </KeyboardAvoidingView>
   );
 };
 
-const PapillonMessage = ({ message, UIColors, sent, user }) => {
+const PapillonMessage = ({ message, sent }: {
+  message: PapillonDiscussionMessage
+  /** Whether the message was sent by the user or no. */
+  sent: boolean
+}) => {
+  const UIColors = GetUIColors();
+
+  const openURL = async (url: string) => {
+    await WebBrowser.openBrowserAsync(url, {
+      presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
+      controlsColor: UIColors.primary,
+    });
+  };
+
   return (
     <View
       style={[styles.PapillonMessageContainer, sent ? styles.PapillonMessageContainerSent : {}]}
     >
-      { !sent ? (
+      {!sent ? (
         <View
           style={[{
             backgroundColor: UIColors.primary,
@@ -139,7 +178,7 @@ const PapillonMessage = ({ message, UIColors, sent, user }) => {
             justifyContent: 'center',
           }]}
         >
-          { !sent ? (
+          {!sent && (
             <Text
               style={[
                 {
@@ -149,9 +188,9 @@ const PapillonMessage = ({ message, UIColors, sent, user }) => {
                 },
               ]}
             >
-              {getInitials(message.author)}
+              {getInitials(message.author!)}
             </Text>
-          ) : null}
+          )}
         </View>
       ) : null}
       <View
@@ -177,9 +216,9 @@ const PapillonMessage = ({ message, UIColors, sent, user }) => {
         </View>
         <View
           style={[styles.PapillonMessageBubble,
-            {
-              backgroundColor: !sent ? UIColors.text + '15' : UIColors.primary,
-            },
+          {
+            backgroundColor: !sent ? UIColors.text + '15' : UIColors.primary,
+          },
           ]}
         >
           <RenderHTML
@@ -198,12 +237,12 @@ const PapillonMessage = ({ message, UIColors, sent, user }) => {
             ignoredStyles={['fontSize']}
             renderersProps={{
               a: {
-                onPress (_, href) {
+                onPress(_, href) {
                   let url = href;
                   if (!url.startsWith('http')) {
                     url = 'https://' + url.split('://')[1];
                   }
-                          
+
                   openURL(url);
                 },
               }
@@ -216,8 +255,12 @@ const PapillonMessage = ({ message, UIColors, sent, user }) => {
   );
 };
 
-const PapillonSend = ({ sendFunction = (text) => {}, UIColors, insets }) => {
+const PapillonSend = ({ sendFunction }: {
+  sendFunction: (text: string) => Promise<void>;
+}) => {
+  const UIColors = GetUIColors();
   const [textValue, setTextValue] = useState('');
+  const insets = useSafeAreaInsets();
 
   return (
     <View
@@ -227,11 +270,10 @@ const PapillonSend = ({ sendFunction = (text) => {}, UIColors, insets }) => {
           borderRadius: 21,
           borderCurve: 'continuous',
           marginHorizontal: 15,
+          marginBottom: insets.bottom,
           borderColor: UIColors.text + '20',
           borderWidth: 1,
           paddingHorizontal: 16,
-          marginTop: -30,
-          marginBottom: insets.bottom,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -245,6 +287,7 @@ const PapillonSend = ({ sendFunction = (text) => {}, UIColors, insets }) => {
             paddingVertical: 11,
             textAlignVertical: 'center',
             paddingTop: 11,
+            color: UIColors.text,
             flex: 1,
           },
         ]}
@@ -255,8 +298,8 @@ const PapillonSend = ({ sendFunction = (text) => {}, UIColors, insets }) => {
         onChangeText={(text) => setTextValue(text)}
       />
       <TouchableOpacity
-        onPress={() => {
-          sendFunction(textValue);
+        onPress={async () => {
+          await sendFunction(textValue);
           setTextValue('');
         }}
         disabled={textValue.length === 0}

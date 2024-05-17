@@ -27,7 +27,7 @@ const FindEtab = ({ navigation }: {
   return (
     <ScrollView
       contentInsetAdjustmentBehavior='automatic'
-      style={{ backgroundColor: UIColors.background }}
+      style={{ backgroundColor: UIColors.backgroundHigh }}
     >
       <StatusBar
         animated
@@ -35,7 +35,7 @@ const FindEtab = ({ navigation }: {
         backgroundColor={'transparent'}
       />
 
-      <NativeList
+      <NativeList inset
         header="Recommandations Papillon"
       >
         <NativeItem
@@ -69,7 +69,7 @@ const FindEtab = ({ navigation }: {
         </NativeItem>
       </NativeList>
 
-      <NativeList
+      <NativeList inset
         header="Options avancées"
       >
         <NativeItem

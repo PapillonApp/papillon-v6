@@ -6,39 +6,34 @@ import {
   StyleSheet,
   StatusBar,
   TouchableOpacity,
-  Alert,
   Platform,
-  Share as ShareUI,
   Modal,
   ActivityIndicator,
 } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
-
-import Config from 'react-native-config';
+import { Text } from 'react-native-paper';
 
 import {
   Diff,
   GraduationCap,
   Percent,
-  Share,
   SquareAsterisk,
   TrendingDown,
   TrendingUp,
-  UserMinus,
   UserPlus,
   Users2,
   ChevronLeft,
   Link,
   File,
+  X,
 } from 'lucide-react-native';
 
-import { useLayoutEffect } from 'react';
-import { PressableScale } from 'react-native-pressable-scale';
-import { getSavedCourseColor } from '../../utils/ColorCoursName';
+import { RegisterTrophy } from '../Settings/TrophiesScreen';
 
-import formatCoursName from '../../utils/FormatCoursName';
+import { useLayoutEffect } from 'react';
+import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
+
+import formatCoursName from '../../utils/cours/FormatCoursName';
 import GetUIColors from '../../utils/GetUIColors';
-import { useAppContext } from '../../utils/AppContext';
 
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
@@ -46,13 +41,11 @@ import NativeText from '../../components/NativeText';
 
 import * as WebBrowser from 'expo-web-browser';
 
-import {calculateAverage, calculateSubjectAverage} from '../../utils/grades/averages';
+import { calculateSubjectAverage } from '../../utils/grades/averages';
 import { PapillonGrades } from '../../fetch/types/grades';
 import { PapillonAttachmentType } from '../../fetch/types/attachment';
 
 function GradeView({ route, navigation }) {
-  const appctx = useAppContext();
-  const theme = useTheme();
   const { grade, allGrades } = route.params as {
     grade: PapillonGrades['grades'][number];
     allGrades: any; // TODO ?
@@ -66,6 +59,10 @@ function GradeView({ route, navigation }) {
       controlsColor: UIColors.primary,
     });
   };
+
+  useEffect(() => {
+    RegisterTrophy('trophy_grades_view');
+  }, []);
 
   const [modalLoading, setModalLoading] = useState(false);
   const [modalLoadingText, setModalLoadingText] = useState('');
@@ -91,11 +88,16 @@ function GradeView({ route, navigation }) {
       },
       headerShadowVisible: false,
       headerLeft: () => (
-        Platform.OS === 'ios' ? (
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iosBack}>
-            <ChevronLeft size={26} color="#fff" style={styles.iosBackIcon} />
-          </TouchableOpacity>
-        ) : null
+        Platform.OS === 'ios' ? ( 
+          Platform.isPad ? (
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iosBack}>
+              <X size={26} color="#fff" style={styles.iosBackIcon} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iosBack}>
+              <ChevronLeft size={26} color="#fff" style={styles.iosBackIcon} />
+            </TouchableOpacity>
+          )) : null
       ),
     });
   }, [navigation, grade]);
@@ -109,6 +111,17 @@ function GradeView({ route, navigation }) {
   const [classAvgInfluence, setClassAvgInfluence] = useState(0);
   const [valueTop, setValueTop] = useState(0);
   const [valueBottom, setValueBottom] = useState(0);
+  const typeSignificantType: { [key: string]: string } = {
+    '-1|ERROR': 'Erreur',
+    '1|ABSENT': 'Abs.',
+    '2|EXEMPTED': 'Disp.',
+    '3|NOT_GRADED': 'N.not',
+    '4|UNFIT': 'Inap.',
+    '5|UNRETURNED': 'N.Rdu',
+    '6|ABSENT_ZERO': 'Abs.0',
+    '7|UNRETURNED_ZERO': 'N.Rdu.0',
+    '8|CONGRATULATIONS': 'Félicitations',
+  };
 
   async function calculateInfluence(forgr, grlwg) {
     const naverage = await calculateSubjectAverage(forgr, 'value');
@@ -194,24 +207,18 @@ function GradeView({ route, navigation }) {
               <Text style={[styles.gradeHeaderGradeValueBottom]}>
                 .{valueBottom}
               </Text>
+              <Text style={[styles.gradeHeaderGradeScale]}>
+                /{grade.grade.out_of.value}
+              </Text>
             </>
           )}
 
           {grade.grade.value.significant === true && (<>
-            {grade.grade.value.type[0] == '1' ? (
-              <Text style={[styles.gradeHeaderGradeValueTop]}>
-                Abs.
-              </Text>
-            ) : (
-              <Text style={[styles.gradeHeaderGradeValueTop]}>
-                N.not
-              </Text>
-            )}
+            <Text style={[styles.gradeHeaderGradeValueTop]}>
+              {typeSignificantType[grade.grade.value.type]}
+            </Text>
           </>)}
 
-          <Text style={[styles.gradeHeaderGradeScale]}>
-            /{grade.grade.out_of.value}
-          </Text>
         </View>
       </View>
       <ScrollView
@@ -262,12 +269,21 @@ function GradeView({ route, navigation }) {
             }
             trailing= {
               <View style={[styles.gradeDetailRight]}>
-                <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(
-                    (grade.grade.value.value / grade.grade.out_of.value) * 20
-                  ).toFixed(2)}
-                </Text>
-                <Text style={[styles.gradeDetailValueSub]}>/20</Text>
+                
+                {grade.grade.value.significant === true && (<>
+                  <Text style={[styles.gradeDetailValue]}>
+                    {typeSignificantType[grade.grade.value.type]}
+                  </Text>
+                </>)}
+
+                {grade.grade.value.significant === false && (<>
+                  <Text style={[styles.gradeDetailValue]}>
+                    {parseFloat(
+                      (grade.grade.value.value / grade.grade.out_of.value) * 20
+                    ).toFixed(2)}
+                  </Text>
+                  <Text style={[styles.gradeDetailValueSub]}>/20</Text>
+                </>)}
               </View>
             }
           >
@@ -288,7 +304,7 @@ function GradeView({ route, navigation }) {
             trailing={
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(grade.grade.average.value).toFixed(2)}
+                  {isNaN(grade.grade.average.value)? 'N.not' : parseFloat(grade.grade.average.value).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>
                   /{grade.grade.out_of.value}
@@ -307,7 +323,7 @@ function GradeView({ route, navigation }) {
             trailing={
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(grade.grade.min.value).toFixed(2)}
+                  {isNaN(grade.grade.min.value)? 'N.not' : parseFloat(grade.grade.min.value).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>
                   /{grade.grade.out_of.value}
@@ -326,7 +342,7 @@ function GradeView({ route, navigation }) {
             trailing={
               <View style={[styles.gradeDetailRight]}>
                 <Text style={[styles.gradeDetailValue]}>
-                  {parseFloat(grade.grade.max.value).toFixed(2)}
+                  {isNaN(grade.grade.max.value)? 'N.not' : parseFloat(grade.grade.max.value).toFixed(2)}
                 </Text>
                 <Text style={[styles.gradeDetailValueSub]}>
                   /{grade.grade.out_of.value}
@@ -350,7 +366,11 @@ function GradeView({ route, navigation }) {
                 <UserPlus color={UIColors.text} />
               }
               trailing={
-                avgInfluence > 0 ? (
+                avgInfluence == 0 ? (
+                  <NativeText heading="h4">
+                    {parseFloat(avgInfluence)} pts
+                  </NativeText>
+                ) : avgInfluence > 0 ? (
                   <NativeText heading="h4" style={{ color: '#1AA989' }}>
                   + {parseFloat(avgInfluence).toFixed(2)} pts
                   </NativeText>
@@ -390,7 +410,11 @@ function GradeView({ route, navigation }) {
                 <Percent color={UIColors.text} />
               }
               trailing={
-                avgPercentInfluence > 0 ? (
+                avgPercentInfluence == 0 ? (
+                  <NativeText heading="h4">
+                    {parseFloat(avgPercentInfluence)} %
+                  </NativeText>
+                ) : avgPercentInfluence > 0 ? (
                   <NativeText heading="h4" style={{ color: '#1AA989' }}>
                   + {parseFloat(avgPercentInfluence).toFixed(2)} %
                   </NativeText>
@@ -420,7 +444,11 @@ function GradeView({ route, navigation }) {
               <Diff color={UIColors.text} />
             }
             trailing={
-              (grade.grade.value.value - grade.grade.average.value).toFixed(2) > 0 ? (
+              isNaN((grade.grade.value.value - grade.grade.average.value).toFixed(2)) || (grade.grade.value.value - grade.grade.average.value).toFixed(2) == 0  ? (
+                <NativeText heading="h4">
+                  0 pts
+                </NativeText>
+              ) : (grade.grade.value.value - grade.grade.average.value).toFixed(2) > 0 ? (
                 <NativeText heading="h4" style={{ color: '#1AA989' }}>
                   + {(grade.grade.value.value - grade.grade.average.value).toFixed(2)} pts
                 </NativeText>

@@ -4,6 +4,7 @@ import React, { useCallback, useState, useEffect, useRef, useLayoutEffect } from
 import {
   Animated,
   View,
+  Dimensions,
   StyleSheet,
   StatusBar,
   Platform,
@@ -11,8 +12,10 @@ import {
   TouchableOpacity,
   Alert,
   Modal,
-  Pressable,
+  Pressable
 } from 'react-native';
+
+import Reanimated, {ZoomIn, Easing, FadeOut} from 'react-native-reanimated';
 
 import InfinitePager, { type InfinitePagerImperativeApi } from 'react-native-infinite-pager';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -21,33 +24,29 @@ import { ContextMenuView } from 'react-native-ios-context-menu';
 import { PressableScale } from 'react-native-pressable-scale';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useTheme, Text } from 'react-native-paper';
-import { SFSymbol } from 'react-native-sfsymbols';
+import TimeSeparator from '../interface/CoursScreen/TimeSeparator';
 
 import * as Notifications from 'expo-notifications';
 import * as Calendar from 'expo-calendar';
 import { BlurView } from 'expo-blur';
 
-import PapillonInsetHeader from '../components/PapillonInsetHeader';
 import PapillonLoading from '../components/PapillonLoading';
 import NativeText from '../components/NativeText';
-import ListItem from '../components/ListItem';
 
 import { Calendar as CalendarPapillonIcon } from '../interface/icons/PapillonIcons';
 import {
-  DoorOpen,
-  User2,
   Info,
   Calendar as IconCalendar,
-  Users,
   CalendarDays,
   X,
   TextSelect,
   BookOpenCheck,
+  RotateCcw
 } from 'lucide-react-native';
 
-import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
-import getClosestGradeEmoji from '../utils/EmojiCoursName';
-import formatCoursName from '../utils/FormatCoursName';
+import { getClosestCourseColor, getSavedCourseColor } from '../utils/cours/ColorCoursName';
+import getClosestGradeEmoji from '../utils/cours/EmojiCoursName';
+import formatCoursName from '../utils/cours/FormatCoursName';
 import { dateToFrenchFormat } from '../utils/dates';
 import { useAppContext } from '../utils/AppContext';
 import GetUIColors from '../utils/GetUIColors';
@@ -90,7 +89,7 @@ export default function CoursScreen ({ navigation }: {
   const lessonsFromPage = useCallback((page: number) => {
     const dayKey = dateToFrenchFormat(getDateFromPageNumber(page));
     if (dayKey in cours) return Object.values(cours[dayKey]);
-    
+
     // Not yet fetched...
     return [];
   }, [cours]);
@@ -293,63 +292,82 @@ Statut : ${cours.status || 'Aucun'}
         elevation: 0,
       } : undefined,
       headerRight: () =>
-        <ContextMenuView
-          style={{ marginRight: 16 }}
-          previewConfig={{
-            borderRadius: 10,
-          }}
-          menuConfig={{
-            menuTitle: calendarDate.toLocaleDateString('fr', {
-              weekday: 'long',
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric',
-            }),
-            menuItems: [
-              {
-                actionKey: 'addToCalendar',
-                actionTitle: 'Ajouter au calendrier',
-                actionSubtitle:
-                    'Ajoute tous les cours de la journée au calendrier',
-                icon: {
-                  type: 'IMAGE_SYSTEM',
-                  imageValue: {
-                    systemName: 'calendar.badge.plus',
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginRight: 0,
+          gap: 10
+        }}>
+          <TouchableOpacity
+            style={{
+              opacity: 0.4
+            }}
+            onPress={async() => {
+              setIsLoading(true)
+              await forceRefresh()
+              setIsLoading(false)
+            }}
+          >
+            <RotateCcw size={24} color={UIColors.text} />
+          </TouchableOpacity>
+          <ContextMenuView
+            style={{ marginRight: 16 }}
+            previewConfig={{
+              borderRadius: 10,
+            }}
+            menuConfig={{
+              menuTitle: calendarDate.toLocaleDateString('fr', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              }),
+              menuItems: [
+                {
+                  actionKey: 'addToCalendar',
+                  actionTitle: 'Ajouter au calendrier',
+                  actionSubtitle:
+                      'Ajoute tous les cours de la journée au calendrier',
+                  icon: {
+                    type: 'IMAGE_SYSTEM',
+                    imageValue: {
+                      systemName: 'calendar.badge.plus',
+                    },
                   },
                 },
-              },
-            ],
-          }}
-          onPressMenuItem={({ nativeEvent }) => {
-            const dayKey = dateToFrenchFormat(calendarDate);
-            const cours = coursRef.current;
+              ],
+            }}
+            onPressMenuItem={({ nativeEvent }) => {
+              const dayKey = dateToFrenchFormat(calendarDate);
+              const cours = coursRef.current;
 
-            if (!(dayKey in cours)) return; // Pretty useless otherwise...
+              if (!(dayKey in cours)) return; // Pretty useless otherwise...
 
-            if (nativeEvent.actionKey === 'addToCalendar') {
-              addToCalendar(cours[dayKey]);
-            } else if (nativeEvent.actionKey === 'notifyAll') {
-              notifyAll(cours[dayKey]);
-            }
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => setCalendarModalOpen(true)}
-            style={[
-              styles.calendarDateContainer,
-              { backgroundColor: '#0065A8' + '20' }
-            ]}
+              if (nativeEvent.actionKey === 'addToCalendar') {
+                addToCalendar(cours[dayKey]);
+              } else if (nativeEvent.actionKey === 'notifyAll') {
+                notifyAll(cours[dayKey]);
+              }
+            }}
           >
-            <CalendarPapillonIcon stroke={'#0065A8'} />
-            <Text style={[styles.calendarDateText, {color: '#0065A8'}]}>
-              {new Date(calendarDate).toLocaleDateString('fr', {
-                weekday: 'short',
-                day: '2-digit',
-                month: 'short',
-              })}
-            </Text>
-          </TouchableOpacity>
-        </ContextMenuView>
+            <TouchableOpacity
+              onPress={() => setCalendarModalOpen(true)}
+              style={[
+                styles.calendarDateContainer,
+                { backgroundColor: '#0065A8' + '20' }
+              ]}
+            >
+              <CalendarPapillonIcon stroke={'#0065A8'} />
+              <Text style={[styles.calendarDateText, {color: '#0065A8'}]}>
+                {new Date(calendarDate).toLocaleDateString('fr', {
+                  weekday: 'short',
+                  day: '2-digit',
+                  month: 'short',
+                })}
+              </Text>
+            </TouchableOpacity>
+          </ContextMenuView>
+        </View>
     });
   }, [navigation, calendarDate, UIColors]);
 
@@ -382,65 +400,65 @@ Statut : ${cours.status || 'Aucun'}
 
     console.info('timetable: fetching from scratch for state.');
     
-    appContext.dataProvider.getTimetable(date, force).then((lessons) => {
-      if (!lessons) return; // No-op, not sure if that's good here.
-      
-      // We fill undefined objects.
-      const mondayIndex = date.getDate() - date.getDay() + 1;
-      for (let i = 0; i <= 6; i++) {
-        const day = new Date(date);
-        day.setDate(mondayIndex + i);
+    const lessons = await appContext.dataProvider.getTimetable(date, force);
+    if (!lessons) return; // No-op, not sure if that's good here.
+    
+    // We fill undefined objects.
+    const mondayIndex = date.getDate() - date.getDay() + 1;
+    for (let i = 0; i <= 6; i++) {
+      const day = new Date(date);
+      day.setDate(mondayIndex + i);
 
-        const dayKey = dateToFrenchFormat(day);
+      const dayKey = dateToFrenchFormat(day);
 
-        // Create the object if not done.
-        if (!(dayKey in lessonsViewCache)) {
-          lessonsViewCache[dayKey] = {};
-        }
-      }
-
-      // Empty every lessons of the week inside our state cache.
-      for (let dayKey in lessonsViewCache) {
+      // Create the object if not done.
+      if (!(dayKey in lessonsViewCache)) {
         lessonsViewCache[dayKey] = {};
       }
+    }
 
-      // Register every lessons of the week inside our state cache.
-      for (const lesson of lessons) {
-        const dayKey = dateToFrenchFormat(new Date(lesson.start));
+    // Empty every lessons of the week inside our state cache.
+    for (let dayKey in lessonsViewCache) {
+      lessonsViewCache[dayKey] = {};
+    }
 
-        // Insert the lesson in the day object.
-        lessonsViewCache[dayKey][lesson.id] = lesson;
-      }
+    // Register every lessons of the week inside our state cache.
+    for (const lesson of lessons) {
+      const dayKey = dateToFrenchFormat(new Date(lesson.start));
+      // Insert the lesson in the day object.
+      lessonsViewCache[dayKey][String(lesson.id) + '-papillon'] = lesson;
+    }
 
-      setCours(lessonsViewCache);
-    });
+    setCours(lessonsViewCache);
   };
 
   const handlePageChange = async (page: number) => {
+    console.info('timetable: page change to', page);
     // Get the date selected using the page number.
     const date = getDateFromPageNumber(page);
-    
+    console.log(`timetable: getting edt for ${date}`)
     // Change the calendar.
     // Should be the only place where it changes it !
     setCalendarDate(date);
-
     // If inside cache, then simply use it.
     const currentDayKey = dateToFrenchFormat(date);
     if (currentDayKey in coursRef.current) {
-      setIsLoading(false);
-      return;
+      let courseFromCache = coursRef.current[currentDayKey]
+      if(Object.keys(courseFromCache).length !== 0) {
+        setIsLoading(false);
+        return;
+      }
     }
-    
-    setIsLoading(true);
 
     // Otherwise, we need to fetch. Make sure to not
     // force to also use storage cache, if it's in there.
+    setIsLoading(true);
     await refreshStateCache(date, false);
     setIsLoading(false);
   };
 
   const forceRefresh = () => refreshStateCache(calendarDate, true);
-
+  
   return (
     <View
       style={[styles.container, {
@@ -676,10 +694,13 @@ const CoursItem = ({ cours, lessonPressed, navigation }: {
 
   const theme = useTheme();
   const UIColors = GetUIColors();
-  const mainColor = theme.dark ? '#ffffff' : '#444444';
 
   return (
-    <View style={[styles.fullCours]}>
+    <Reanimated.View
+      style={[styles.fullCours]}
+      entering={ZoomIn.duration(200).easing(Easing.out(Easing.bezierFn(0.5, 0, 1, 0)))}
+      exiting={FadeOut.duration(200)}
+    >
       <View style={[styles.coursTimeContainer]}>
         <Text numberOfLines={1} style={[styles.ctStart]}>
           {formattedStartTime()}
@@ -706,11 +727,11 @@ const CoursItem = ({ cours, lessonPressed, navigation }: {
               actionTitle: `Professeur${cours.teachers.length > 1 ? 's' : ''}`,
               actionSubtitle: cours.teachers.join(', ') || 'Aucun professeur',
             },
-            cours.group_names.length > 0 && {
+            ...(cours.group_names.length > 0 ? [{
               actionKey: 'data-groupes',
               actionTitle: `Groupe${cours.group_names.length > 1 ? 's' : ''}`,
               actionSubtitle: cours.group_names.join(', ') || 'Aucun groupe',
-            },
+            }] : []),
             {
               menuTitle: '',
               menuOptions: ['displayInline'],
@@ -741,9 +762,7 @@ const CoursItem = ({ cours, lessonPressed, navigation }: {
           style={[
             styles.coursItemContainer,
             { backgroundColor: theme.dark ? '#111111' : '#ffffff' },
-            cours.is_cancelled && {
-              opacity: 0.5,
-            }
+            { opacity: cours.is_cancelled || cours.is_exempted ? 0.5 : 1 },
           ]}
           onPress={() => lessonPressed()}
         >
@@ -809,46 +828,82 @@ const CoursItem = ({ cours, lessonPressed, navigation }: {
                 )}
               </View>
 
-              {cours.status && (
-                <View
-                  style={[
-                    styles.coursStatus,
-                    {
-                      backgroundColor: `${getSavedCourseColor(
-                        cours.subject?.name ?? '',
-                        cours.background_color
-                      )}22`,
-                    },
-                    cours.is_cancelled ? styles.coursStatusCancelled : null,
-                  ]}
-                >
-                  {cours.is_cancelled ? (
-                    <Info size={20} color="#ffffff" />
-                  ) : (
-                    <Info
-                      size={20}
-                      color={theme.dark ? '#ffffff' : '#000000'}
-                    />
-                  )}
-
-                  <Text
+              {cours.is_exempted && (
+                !cours.is_cancelled && (
+                  <View
                     style={[
-                      styles.coursStatusText,
-                      { color: theme.dark ? '#ffffff' : '#000000' },
-                      cours.is_cancelled
-                        ? styles.coursStatusCancelledText
-                        : null,
+                      styles.coursStatus,
+                      {
+                        backgroundColor: `${getSavedCourseColor(
+                          cours.subject?.name ?? '',
+                          cours.background_color
+                        )}22`,
+                      },
                     ]}
                   >
-                    {cours.status}
-                  </Text>
-                </View>
+                    {cours.is_cancelled ? (
+                      <Info size={20} color="#ffffff" />
+                    ) : (
+                      <Info
+                        size={20}
+                        color={theme.dark ? '#ffffff' : '#000000'}
+                      />
+                    )}
+
+                    <Text
+                      style={[
+                        styles.coursStatusText,
+                        { color: theme.dark ? '#ffffff' : '#000000' },
+                      ]}
+                    >
+                      Dispensé
+                    </Text>
+                  </View>
+                )
+              )}
+
+              {cours.status && (
+                !cours.is_exempted || cours.is_cancelled ? (
+                  <View
+                    style={[
+                      styles.coursStatus,
+                      {
+                        backgroundColor: `${getSavedCourseColor(
+                          cours.subject?.name ?? '',
+                          cours.background_color
+                        )}22`,
+                      },
+                      cours.is_cancelled ? styles.coursStatusCancelled : null,
+                    ]}
+                  >
+                    {cours.is_cancelled ? (
+                      <Info size={20} color="#ffffff" />
+                    ) : (
+                      <Info
+                        size={20}
+                        color={theme.dark ? '#ffffff' : '#000000'}
+                      />
+                    )}
+
+                    <Text
+                      style={[
+                        styles.coursStatusText,
+                        { color: theme.dark ? '#ffffff' : '#000000' },
+                        cours.is_cancelled
+                          ? styles.coursStatusCancelledText
+                          : null,
+                      ]}
+                    >
+                      {cours.status}
+                    </Text>
+                  </View>
+                ) : null
               )}
             </View>
           </View>
         </PressableScale>
       </ContextMenuView>
-    </View>
+    </Reanimated.View>
   );
 };
 
@@ -879,9 +934,12 @@ function CoursPage({ cours, navigation, forceRefresh }: {
         <RefreshControl
           refreshing={isHeadLoading}
           onRefresh={onRefresh}
-          colors={[Platform.OS === 'android' ? '#32AB8E' : '']}
+          colors={[Platform.OS === 'android' ? '#0065A8' : '']}
         />
       }
+      contentContainerStyle={{
+        minHeight: Platform.OS === 'android' ? Dimensions.get('window').height - 150 : 0,
+      }}
     >
       {cours.length === 0 && (
         <PapillonLoading
@@ -895,34 +953,38 @@ function CoursPage({ cours, navigation, forceRefresh }: {
       {cours.map((lesson, index) => (
         <View key={lesson.id}>
           {index !== 0 && new Date(lesson.start).getTime() - new Date(cours[index - 1].end).getTime() > 1800000 && (
-            <View style={styles.coursSeparator}>
-              <View
-                style={[
-                  styles.coursSeparatorLine,
-                  { backgroundColor: `${UIColors.text}15` },
-                ]}
-              />
-
-              <Text style={{ color: `${UIColors.text}30` }}>
-                {`${Math.floor(
-                  (new Date(lesson.start).getTime() - new Date(cours[index - 1].end).getTime()) /
+            <TimeSeparator
+              reason={
+                (new Date(cours[index - 1].end).getHours() < 13 &&
+                new Date(lesson.start).getHours() >= 12) ?
+                  'Pause méridienne'
+                  : 'Pas de cours'
+              }
+              time={`${Math.floor(
+                (new Date(lesson.start).getTime() -
+                    new Date(cours[index - 1].end).getTime()) /
                     3600000
-                )} h ${lz(
-                  Math.floor(
-                    ((new Date(lesson.start).getTime() - new Date(cours[index - 1].end).getTime()) %
+              )} h ${lz(
+                Math.floor(
+                  ((new Date(lesson.start).getTime() -
+                      new Date(cours[index - 1].end).getTime()) %
                       3600000) /
                       60000
-                  )
-                )} min`}
-              </Text>
-
-              <View
-                style={[
-                  styles.coursSeparatorLine,
-                  { backgroundColor: `${UIColors.text}15` },
-                ]}
-              />
-            </View>
+                )
+              )} min`}
+              lunch={
+                new Date(cours[index - 1].end).getHours() < 13 &&
+                new Date(lesson.start).getHours() >= 12
+              }
+              showLine
+              style={{
+                marginHorizontal: 0,
+                marginTop: 0,
+                marginBottom: 8,
+                height: 38,
+                marginLeft: 69,
+              }}
+            />
           )}
 
           <CoursItem

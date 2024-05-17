@@ -1,6 +1,6 @@
-import type { PapillonVieScolaire } from '../fetch/types/vie_scolaire';
+import { PapillonObservationType, PapillonVieScolaire } from '../fetch/types/vie_scolaire';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState, type JSX } from 'react';
 import {
   StyleSheet,
   View,
@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 
 import { useTheme } from 'react-native-paper';
-import { Clock3, UserX } from 'lucide-react-native';
+import { Clock3, UserX, BookMarked, ThumbsUp, type LucideIcon } from 'lucide-react-native';
 
 import GetUIColors from '../utils/GetUIColors';
 import PapillonLoading from '../components/PapillonLoading';
@@ -21,6 +21,24 @@ import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
 const lz = (n: number) => (n < 10 ? `0${n}` : n);
+const getObservationIcon = (type: PapillonObservationType): JSX.Element => {
+  let Icon: LucideIcon;
+
+  switch (type) {
+    case PapillonObservationType.LogBookIssue:
+      Icon = BookMarked;
+      break;
+    case PapillonObservationType.Encouragement:
+      Icon = ThumbsUp;
+      break;
+    default:
+      // TODO: add more icons
+      Icon = BookMarked;
+      break;
+  }
+
+  return <Icon size={24} color="#565EA3" />;
+};
 
 function SchoolLifeScreen({ navigation }: {
   navigation: any // TODO
@@ -31,54 +49,48 @@ function SchoolLifeScreen({ navigation }: {
   const appContext = useAppContext();
 
   const [loading, setLoading] = useState(true);
-  const [refresh, setRefresh] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const [totalHoursMissed, setTotalHoursMissed] = useState<number>(0);
   const [totalDelayMinutes, setTotalDelayMinutes] = useState<number>(0);
 
-  useEffect(() => {
-    (async () => {
+  const retrieveData = async (force = false) => {
+    try {
       if (!appContext.dataProvider) return;
+      const value = await appContext.dataProvider.getViesco(force);
+  
+      value.absences = value.absences.sort((a, b) => new Date(b.from).getTime() - new Date(a.from).getTime());
+  
+      // put the justified absences at the end of the list
+      value.absences = value.absences.sort((a, b) => {
+        if (a.justified === b.justified) return 0;
+        if (a.justified) return 1;
+        return -1;
+      });
+  
+      setVieScolaire(value);
+      const total = value.absences.reduce((total, absence) => {
+        const hours = parseInt(absence.hours.split('h')[0]);
+        const minutes = parseInt(absence.hours.split('h')[1]);
+        return total + hours + minutes / 60;
+      }, 0);
+      setTotalHoursMissed(total);
+      const totalDelay = value.delays.reduce((total, delay) => {
+        return total + delay.duration;
+      }, 0);
+      setTotalDelayMinutes(totalDelay);
+    } catch {}
+    finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
-      try {
-        const value = await appContext.dataProvider.getViesco();
+  useEffect(() => {
+    retrieveData(false);
+  }, [appContext.dataProvider]);
 
-        value.absences = value.absences.sort((a, b) => new Date(b.from).getTime() - new Date(a.from).getTime());
-
-        // put the justified absences at the end of the list
-        value.absences = value.absences.sort((a, b) => {
-          if (a.justified === b.justified) return 0;
-          if (a.justified) return 1;
-          return -1;
-        });
-
-        setVieScolaire(value);
-        const total = value.absences.reduce((total, absence) => {
-          const hours = parseInt(absence.hours.split('h')[0]);
-          const minutes = parseInt(absence.hours.split('h')[1]);
-          return total + hours + minutes / 60;
-        }, 0);
-        setTotalHoursMissed(total);
-        const totalDelay = value.delays.reduce((total, delay) => {
-          return total + delay.duration;
-        }, 0);
-        setTotalDelayMinutes(totalDelay);
-        
-
-      } catch { /** No-op. */ }
-      finally {
-        setLoading(false);
-        setRefreshing(false);
-      }
-    })();
-  }, [appContext.dataProvider, refresh]);
-
-  const refreshData = () => {
-    setRefresh(!refresh);
-  }
-
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: 'Vie scolaire',
       headerBackTitle: 'Retour',
@@ -89,16 +101,15 @@ function SchoolLifeScreen({ navigation }: {
   });
   
   return (
-    
     <ScrollView
       style={{ backgroundColor: UIColors.backgroundHigh }}
       contentInsetAdjustmentBehavior="automatic"
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
-          onRefresh={() => {
+          onRefresh={async () => {
             setRefreshing(true);
-            refreshData();
+            await retrieveData(true);
           }}
         />
       }
@@ -119,7 +130,7 @@ function SchoolLifeScreen({ navigation }: {
 
       {vieScolaire && (
         <>
-          {(vieScolaire.absences.length === 0 && vieScolaire.delays.length === 0 && vieScolaire.punishments.length === 0) && !loading && (
+          {(vieScolaire.absences.length === 0 && vieScolaire.delays.length === 0 && vieScolaire.punishments.length === 0 && vieScolaire.observations.length === 0) && !loading && (
             <PapillonLoading
               title="Aucun événement"
               subtitle="Vous n'avez aucun événement à afficher"
@@ -246,7 +257,6 @@ function SchoolLifeScreen({ navigation }: {
             </NativeList>
           )}
 
-
           {vieScolaire.punishments && vieScolaire.punishments.length > 0 && (
             <NativeList header="Punitions" inset>
               {vieScolaire.punishments.map((punition, index) => (
@@ -276,6 +286,45 @@ function SchoolLifeScreen({ navigation }: {
                       : 'Aucun motif donné'
                     }
                   </NativeText>
+                </NativeItem>
+              ))}
+            </NativeList>
+          )}
+
+          {vieScolaire.observations && vieScolaire.observations.length > 0 && (
+            <NativeList header="Observations" inset>
+              {vieScolaire.observations.map((observation, index) => (
+                <NativeItem
+                  key={index}
+                  leading={getObservationIcon(observation.sectionType)}
+                >
+                  <NativeText heading="h4">
+                    {observation.sectionName}
+                  </NativeText>
+                  {observation.subjectName && (
+                    <NativeText heading="p">
+                      en {observation.subjectName}
+                    </NativeText>
+                  )}
+                  <NativeText heading="p2">
+                    le{' '}
+                    {new Date(observation.date).toLocaleDateString('fr', {
+                      weekday: 'long',
+                      day: '2-digit',
+                      month: 'short',
+                    })}
+                  </NativeText>
+
+                  {observation.reasons[0] && (
+                    <NativeText
+                      heading="subtitle2"
+                      style={{
+                        marginTop: 6
+                      }}
+                    >
+                      {observation.reasons[0]}
+                    </NativeText>
+                  )}
                 </NativeItem>
               ))}
             </NativeList>

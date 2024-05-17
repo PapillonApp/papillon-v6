@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { Animated, Easing, View, Image, ActivityIndicator, Text, StatusBar, useColorScheme, Dimensions } from 'react-native';
 
-import GetUIColors from '../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const LoadingScreen = () => {

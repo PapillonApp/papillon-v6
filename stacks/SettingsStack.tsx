@@ -14,16 +14,23 @@ import ProfileScreen from '../views/Settings/ProfileScreen';
 import AppearanceScreen from '../views/Settings/AppearanceScreen';
 import SettingsScreen2 from '../views/Settings/SettingsScreen';
 import IconsScreen from '../views/Settings/IconsScreen';
+import IconSelectScreen from '../views/Settings/IconSelectScreen';
 import CoursColor from '../views/Settings/CoursColor';
 import AdjustmentsScreen from '../views/Settings/AdjustmentsScreen';
 import HeaderSelectScreen from '../views/Settings/HeaderSelectScreen';
 import PaymentScreen from '../views/Settings/PaymentScreen';
 import NotificationsScreen from '../views/Settings/NotificationsScreen';
-import ConsentScreen from '../views/NewAuthStack/ConsentScreen';
+import ConsentScreenWithoutAcceptation from '../views/ConsentScreenWithoutAcceptation';
+import TrophiesScreen from '../views/Settings/TrophiesScreen';
+import DevSettings from '../views/Settings/DevSettings/DevSettings';
+import LogsScreen from '../views/Settings/DevSettings/LogsScreen';
+import LocalStorageViewScreen from '../views/Settings/DevSettings/LocalStorageViewScreen';
+import NetworkLoggerScreen from '../views/Settings/NetworkLogger';
+import ChangelogScreen from '../views/ChangelogScreen';
 
 function InsetSettings() {
   const UIColors = GetUIColors();
-  
+
   return (
     <Stack.Navigator
       screenOptions={
@@ -31,6 +38,11 @@ function InsetSettings() {
           ? {
             animation: 'fade_from_bottom',
             navigationBarColor: '#00000000',
+            headerStyle: {
+              backgroundColor: UIColors.background,
+              elevation: 0,
+            },
+            headerShadowVisible: false,
           }
           : {
             ...headerTitleStyles,
@@ -49,7 +61,7 @@ function InsetSettings() {
             }
             :
             {
-              headerTitle: 'Compte',
+              headerTitle: 'Paramètres',
             }
         }
       />
@@ -64,7 +76,7 @@ function InsetSettings() {
         name="CoursColor"
         component={CoursColor}
         options={{
-          headerTitle: 'Gestion des matières',
+          headerTitle: 'Couleur des matières',
         }}
       />
       <Stack.Screen
@@ -92,7 +104,7 @@ function InsetSettings() {
         name="About"
         component={AboutScreen}
         options={{
-          headerTitle: 'A propos de Papillon',
+          headerTitle: 'À propos de Papillon',
         }}
       />
       <Stack.Screen
@@ -100,7 +112,7 @@ function InsetSettings() {
         component={DonorsScreen}
         options={{
           headerTitle: 'Donateurs',
-          headerBackTitle: 'A propos',
+          headerBackTitle: 'À propos',
         }}
       />
       <Stack.Screen
@@ -118,8 +130,16 @@ function InsetSettings() {
         }}
       />
       <Stack.Screen
-        name="ConsentScreen"
-        component={ConsentScreen}
+        name="TrophiesScreen"
+        component={TrophiesScreen}
+        options={{
+          headerTitle: 'Trophées',
+          headerTintColor: '#ffffff',
+        }}
+      />
+      <Stack.Screen
+        name="ConsentScreenWithoutAcceptation"
+        component={ConsentScreenWithoutAcceptation}
         options={{
           headerTitle: 'Termes & conditions',
           headerBackVisible: true,
@@ -136,10 +156,54 @@ function InsetSettings() {
         }}
       />
       <Stack.Screen
+        name="IconSelect"
+        component={IconSelectScreen}
+        options={{
+          headerTitle: 'Icône de l\'application',
+        }}
+      />
+      <Stack.Screen
         name="Settings"
         component={SettingsScreen2}
         options={{
           headerTitle: 'Réglages',
+        }}
+      />
+      <Stack.Screen
+        name="Changelogs"
+        component={ChangelogScreen}
+        options={{
+          headerTitle: 'Changelogs',
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="DevSettings"
+        component={DevSettings}
+        options={{
+          headerTitle: 'Options de développement',
+        }}
+      />
+      <Stack.Screen
+        name="LogsScreen"
+        component={LogsScreen}
+        options={{
+          headerTitle: 'Logs',
+        }}
+      />
+      <Stack.Screen
+        name="LocalStorageViewScreen"
+        component={LocalStorageViewScreen}
+        options={{
+          headerTitle: 'Local storage',
+        }}
+      />
+      <Stack.Screen
+        name="NetworkLoggerScreen"
+        component={NetworkLoggerScreen}
+        options={{
+          headerTitle: 'Historique réseau',
         }}
       />
     </Stack.Navigator>

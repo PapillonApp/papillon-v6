@@ -1,7 +1,7 @@
 import SharedGroupPreferences from 'react-native-shared-group-preferences';
-import formatCoursName from '../../utils/FormatCoursName';
-import getClosestGradeEmoji from '../../utils/EmojiCoursName';
-import { getSavedCourseColor } from '../../utils/ColorCoursName';
+import formatCoursName from '../../utils/cours/FormatCoursName';
+import getClosestGradeEmoji from '../../utils/cours/EmojiCoursName';
+import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
 import { getContextValues } from '../../utils/AppContext';
 import { checkCanNotify, DidNotified } from './Helper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -42,6 +42,19 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
   for (const grade of grades.grades) {
     const color = getSavedCourseColor(grade.subject.name, '#29947a');
 
+    const significantTypeValue = {
+      '-1|ERROR': -1,
+      '0|GRADE': 0,
+      '1|ABSENT': 1,
+      '2|EXEMPTED': 2,
+      '3|NOT_GRADED': 3,
+      '4|UNFIT': 4,
+      '5|UNRETURNED': 5,
+      '6|ABSENT_ZERO': 6,
+      '7|UNRETURNED_ZERO': 7,
+      '8|CONGRATULATIONS': 8,
+    };
+
     sharedLessons.push({
       subject: formatCoursName(grade.subject.name),
       emoji: getClosestGradeEmoji(grade.subject.name),
@@ -49,7 +62,10 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
       color: color,
       date: new Date(grade.date).getTime(),
       grade: {
-        value: grade.grade.value,
+        value: {
+          significant: grade.grade.value.significant,
+          value: grade.grade.value.value || Number(significantTypeValue[grade.grade.value.value as keyof typeof significantTypeValue]),
+        },
         out_of: grade.grade.out_of,
         average: grade.grade.average,
         max: grade.grade.max,
@@ -69,6 +85,9 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
     // store grades in shared group
     await SharedGroupPreferences.setItem('getGradesF', JSON.stringify(sharedLessons), APP_GROUP_IDENTIFIER);
     console.info('[background fetch] Stored grades in shared group (getGradesF)');
+    for (let lesson of sharedLessons) {
+      console.log(lesson.grade.value.value, lesson.grade.value.significant, lesson.subject, lesson.date);
+    }
   } catch (error) {
     console.error('[background fetch] Error while storing grades in shared group', error);
   }
@@ -94,23 +113,24 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
 };
 
 const notifyGrades = async (grades: PapillonGrades[]) => {
-  let oldGrades = await AsyncStorage.getItem('oldGrades');
+  let oldGradesData = await AsyncStorage.getItem('oldGrades');
   const fullGrades = grades.grades;
-  const avg = await calculateSubjectAverage(fullGrades);
 
-  if (oldGrades === null) {
+  if (oldGradesData === null) {
     await AsyncStorage.setItem('oldGrades', JSON.stringify(fullGrades));
     return true;
   }
 
-  oldGrades = JSON.parse(oldGrades);
+  const oldGrades = JSON.parse(oldGradesData);
 
   if (oldGrades.length === fullGrades.length) {
     return true;
   }
 
-  // find the difference between the two arrays
-  const lastGrades = fullGrades.filter((grade) => !oldGrades.includes(grade));
+  // make a list of the new grades
+  const lastGrades = fullGrades.filter((grade) => {
+    return !oldGrades.some((oldGrade) => oldGrade.subject.name === grade.subject.name && oldGrade.date === grade.date && oldGrade.grade.value.value === grade.grade.value.value); 
+  });
 
   for (let i = 0; i < lastGrades.length; i++) {
     let lastGrade = lastGrades[i];
@@ -128,7 +148,7 @@ const notifyGrades = async (grades: PapillonGrades[]) => {
     let bdy = `Vous avez eu ${lastGrade.grade.value.value}/${lastGrade.grade.out_of.value} ${goodGrade ? '! 👏' : ''}`;
 
     if(lastGrade.grade.value.value === undefined || lastGrade.grade.value.value === null || lastGrade.grade.value.value < 0) {
-      bdy = 'Vous n\'avez pas été noté(e) pour ce cours.';
+      bdy = 'Vous n\'avez pas été noté(e) pour cette évaluation.';
     }
 
     notifee.displayNotification({

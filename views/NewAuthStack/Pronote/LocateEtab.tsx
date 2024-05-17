@@ -25,9 +25,9 @@ const LocateEtab = ({ navigation }: {
   const [results, setResults] = React.useState<GeographicMunicipality[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [currentSearch, setCurrentSearch] = React.useState('');
-  const [isLocalisation, setIsLocalisation] = React.useState(false)
-  const [locateState, setLocateState] = React.useState("En attente de la permissions...")
-  const [locatePermIssue, setLocatePermIssue] = React.useState(false)
+  const [isLocalisation, setIsLocalisation] = React.useState(false);
+  const [locateState, setLocateState] = React.useState('En attente de la permission...');
+  const [locatePermIssue, setLocatePermIssue] = React.useState(false);
   const debouncedCurrentSearch = useDebounce(currentSearch, 175);
 
   const textInputRef = React.createRef<TextInput>();
@@ -68,23 +68,23 @@ const LocateEtab = ({ navigation }: {
 
   const LocateMe = async () => {
     setIsLoading(true);
-    setIsLocalisation(true)
-    console.log("[1/6] Début localisation")
+    setIsLocalisation(true);
+    console.log('[1/6] Début localisation');
     try {
-      console.log("[2/6] Demande de permissions envoyée")
+      console.log('[2/6] Demande de permissions envoyée');
       const { status } = await Location.requestForegroundPermissionsAsync();
-      console.log("[3/6] Statut permissions:", status)
+      console.log('[3/6] Statut permissions:', status);
       if (status !== 'granted') {
         setIsLoading(false);
-        setIsLocalisation(false)
-        setLocatePermIssue(true)
+        setIsLocalisation(false);
+        setLocatePermIssue(true);
         return;
       }
-      setLocateState("Localisation en cours...")
-      console.log("[4/6] Localisation en cours")
+      setLocateState('Localisation en cours...');
+      console.log('[4/6] Localisation en cours');
       const location = await Location.getCurrentPositionAsync({});
-      console.log("[5/6] Localisation terminée, traitement")
-      console.log("[6/6] Latitude & longitude présents ?", location.coords.latitude && location.coords.longitude)
+      console.log('[5/6] Localisation terminée, traitement');
+      console.log('[6/6] Latitude & longitude présents ?', location.coords.latitude +' , ' + location.coords.longitude);
       if (location.coords.latitude && location.coords.longitude) {
         navigation.navigate('LocateEtabList', {
           location: {
@@ -103,7 +103,7 @@ const LocateEtab = ({ navigation }: {
       }
     }
     catch(err) {
-      console.error("Failed to locate", err)
+      console.error('Failed to locate', err);
     }
     finally {
       setIsLoading(false);
@@ -165,7 +165,7 @@ const LocateEtab = ({ navigation }: {
 
       { !isLoading && locatePermIssue && currentSearch.length < 2 ? (
         <PapillonLoading 
-          icon={<Locate color={"red"} size={26} style={{ margin: 8 }} />}
+          icon={<Locate color={'red'} size={26} style={{ margin: 8 }} />}
           title="Permission de localisation refusée"
           subtitle="Vous avez refusé la permission de localisation. Pour réessayez, sélectionnez à nouveau l'option. Vous devrez peut-être autoriser manuellement l'autorisation."
         />

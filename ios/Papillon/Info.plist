@@ -156,15 +156,6 @@
           <key>UIPrerenderedIcon</key>
           <true/>
         </dict>
-        <key>lightgreen</key>
-        <dict>
-          <key>CFBundleIconFiles</key>
-          <array>
-            <string>lightgreen-Icon-60x60</string>
-          </array>
-          <key>UIPrerenderedIcon</key>
-          <true/>
-        </dict>
         <key>backtoschool</key>
         <dict>
           <key>CFBundleIconFiles</key>
@@ -215,6 +206,15 @@
           <key>CFBundleIconFiles</key>
           <array>
             <string>verscinq-Icon-60x60</string>
+          </array>
+          <key>UIPrerenderedIcon</key>
+          <true/>
+        </dict>
+        <key>mascotte</key>
+        <dict>
+          <key>CFBundleIconFiles</key>
+          <array>
+            <string>mascotte-Icon-60x60</string>
           </array>
           <key>UIPrerenderedIcon</key>
           <true/>
@@ -376,15 +376,6 @@
           <key>UIPrerenderedIcon</key>
           <true/>
         </dict>
-        <key>lightgreen</key>
-        <dict>
-          <key>CFBundleIconFiles</key>
-          <array>
-            <string>lightgreen-Icon-60x60</string>
-          </array>
-          <key>UIPrerenderedIcon</key>
-          <true/>
-        </dict>
         <key>backtoschool</key>
         <dict>
           <key>CFBundleIconFiles</key>
@@ -439,6 +430,15 @@
           <key>UIPrerenderedIcon</key>
           <true/>
         </dict>
+        <key>mascotte</key>
+        <dict>
+          <key>CFBundleIconFiles</key>
+          <array>
+            <string>mascotte-Icon-60x60</string>
+          </array>
+          <key>UIPrerenderedIcon</key>
+          <true/>
+        </dict>
       </dict>
       <key>CFBundlePrimaryIcon</key>
       <dict>
@@ -457,7 +457,7 @@
     <key>CFBundlePackageType</key>
     <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
     <key>CFBundleShortVersionString</key>
-    <string>6.6.2</string>
+    <string>6.6.3</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleURLTypes</key>

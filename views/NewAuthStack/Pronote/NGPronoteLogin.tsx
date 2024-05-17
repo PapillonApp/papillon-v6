@@ -20,8 +20,9 @@ import {
   EyeOff,
 } from 'lucide-react-native';
 
+import * as Haptics from 'expo-haptics';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import LinearGradient from 'react-native-linear-gradient';
 import { showMessage } from 'react-native-flash-message';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -61,6 +62,7 @@ function NGPronoteLogin({
   const theme = useTheme();
 
   const [errorAlert, setErrorAlert] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<String>("");
   const [stringErrorAlert, setStringErrorAlert] = React.useState(false);
   const [urlAlert, setURLAlert] = React.useState(false);
   const [instanceDetails, setInstanceDetails] = React.useState<
@@ -128,6 +130,7 @@ function NGPronoteLogin({
     }
 
     try {
+      if(connecting) return;
       setConnecting(true);
 
       const pronoteURL = instanceDetails!.pronoteRootURL;
@@ -157,26 +160,22 @@ function NGPronoteLogin({
         message: 'Connecté avec succès',
         type: 'success',
         icon: 'auto',
+        floating: true
       });
 
       await appContext.dataProvider!.init('pronote', pronote);
       await AsyncStorage.setItem('service', 'pronote');
 
-      navigation.goBack();
-      navigation.goBack();
-      navigation.goBack();
-      navigation.goBack();
-      navigation.goBack();
-      navigation.getParent()?.goBack();
-      navigation.getParent()?.goBack();
-      navigation.getParent()?.goBack();
-      navigation.getParent()?.goBack();
-      navigation.getParent()?.goBack();
+      navigation.popToTop()
       appContext.setLoggedIn(true);
     } catch(err) {
       setConnecting(false);
       setErrorAlert(true);
-      console.error(err)
+      let strErr = String(err)
+      if(strErr.includes("resolve the challenge") || strErr.includes("username or password is incorrect")) setErrorMessage("Vos identifiants semblent incorrects. Veuillez les vérifier et recommencer.")
+      else if(strErr.includes("IP address")) setErrorMessage("Votre adresse IP a été temporairement suspendue. Veuillez réessayer dans quelques minutes.\nUn bannissement IP dure généralement 5 minutes.")
+      else setErrorMessage(`Une erreur inconnue s'est produite.\n\n${strErr}`)
+      console.error(err);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
@@ -186,7 +185,7 @@ function NGPronoteLogin({
       <ScrollView style={{ backgroundColor: UIColors.modalBackground }}>
         <AlertBottomSheet
           title="Échec de la connexion"
-          subtitle="Vérifiez vos identifiants et réessayez."
+          subtitle={errorMessage}
           visible={errorAlert}
           icon={<AlertTriangle />}
           cancelAction={() => setErrorAlert(false)}
@@ -289,8 +288,6 @@ function NGPronoteLogin({
         >
           <View style={[styles.buttons]}>
             <PapillonButton
-              left={null}
-              light={null}
               title="Se connecter"
               color="#159C5E"
               onPress={() => handleLogin()}

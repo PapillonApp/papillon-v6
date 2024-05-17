@@ -6,10 +6,10 @@ import type { PapillonNews } from './types/news';
 import type { PapillonGrades } from './types/grades';
 import type { PapillonLesson } from './types/timetable';
 import type { PapillonHomework } from './types/homework';
-import type { PapillonDiscussion } from './types/discussions';
+import type { PapillonDiscussion, PapillonDiscussionMessage, PapillonRecipient } from './types/discussions';
 
 // Pronote related imports.
-import type { Pronote } from 'pawnote';
+import { Pronote } from 'pawnote';
 import { loadPronoteConnector } from './PronoteData/connector';
 import { userHandler as pronoteUserHandler } from './PronoteData/user';
 import { gradesHandler as pronoteGradesHandler } from './PronoteData/grades';
@@ -17,15 +17,23 @@ import { timetableHandler as pronoteTimetableHandler } from './PronoteData/timet
 import { evaluationsHandler as pronoteEvaluationsHandler } from './PronoteData/evaluations';
 import { vieScolaireHandler as pronoteVieScolaireHandler } from './PronoteData/vie_scolaire';
 import { newsHandler as pronoteNewsHandler, newsStateHandler as pronoteNewsStateHandler } from './PronoteData/news';
-import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as pronoteHomeworkHandler } from './PronoteData/homework';
-import { discussionsHandler as pronoteDiscussionsHandler, discussionsRecipientsHandler as pronoteDiscussionsRecipientsHandler } from './PronoteData/discussions';
+import { homeworkPatchHandler as pronoteHomeworkPatchHandler, homeworkHandler as pronoteHomeworkHandler, homeworkUploadFileHandler as pronoteHomeworkUploadFileHandler, homeworkRemoveFileHandler as pronoteHomeworkRemoveFileHandler } from './PronoteData/homework';
+import { discussionsHandler as pronoteDiscussionsHandler, discussionsRecipientsHandler as pronoteDiscussionsRecipientsHandler, discussionsCreationRecipientsHandler as pronoteDiscussionsCreationRecipientsHandler, discussionsCreationHandler as pronoteDiscussionsCreationHandler, discussionReplyHandler as pronoteDiscussionReplyHandler } from './PronoteData/discussions';
 
 // Skolengo related imports.
 import type { SkolengoDatas } from './SkolengoData/SkolengoDatas';
 import { PapillonVieScolaire } from './types/vie_scolaire';
 import { PapillonEvaluation } from './types/evaluations';
 
-export type ServiceName = 'pronote' | 'skolengo'
+// EcoleDirecte related imports.
+import { EDCore } from '@papillonapp/ed-core';
+import { loadEcoleDirecteConnector } from './EcoleDirecteData/connector';
+import { userInformations as EcoleDirecteUser } from './EcoleDirecteData/user';
+import { EDtimetableHandler as EcoleDirecteTimetable } from './EcoleDirecteData/timetable';
+import { EDvieScolaireHandler } from './EcoleDirecteData/vie_scolaire';
+import { Alert } from 'react-native';
+
+export type ServiceName = 'pronote' | 'skolengo' | 'ecoledirecte';
 
 export class IndexDataInstance {
   public initialized = false;
@@ -35,7 +43,7 @@ export class IndexDataInstance {
   public service?: ServiceName;
   public skolengoInstance?: SkolengoDatas;
   public pronoteInstance?: Pronote;
-
+  public ecoledirecteInstance?: EDCore;
   /**
    * Internal function that waits for the initialization
    * of the service to be finished so we can use it.
@@ -49,6 +57,8 @@ export class IndexDataInstance {
       }
       else if (this.service === 'pronote' && !this.pronoteInstance) {
         await this.init('pronote');
+      } else if (this.service === 'ecoledirecte' && !this.ecoledirecteInstance) {
+        await this.init('ecoledirecte');
       }
     }
 
@@ -62,7 +72,7 @@ export class IndexDataInstance {
     });
   }
 
-  public async init (service: 'pronote' | 'skolengo', instance?: Pronote): Promise<void> {
+  public async init (service: 'pronote' | 'skolengo' | 'ecoledirecte', instance?: Pronote | EDCore): Promise<void> {
     if (this.initializing) return;
     
     this.service = service;
@@ -83,9 +93,22 @@ export class IndexDataInstance {
       this.isNetworkFailing = false;
 
       this.initialized = this.skolengoInstance ? true : false;
+    } else if(this.service === 'ecoledirecte') {
+      if (instance && instance instanceof EDCore) this.ecoledirecteInstance = instance;
+      else {
+        try {
+          const connector = await loadEcoleDirecteConnector();
+          if (connector) this.ecoledirecteInstance = connector;
+          this.isNetworkFailing = false;
+        } catch {
+          this.isNetworkFailing = true;
+        }
+      }
+
+      this.initialized = this.ecoledirecteInstance ? true : false;
     }
     else if (this.service === 'pronote') {
-      if (instance) this.pronoteInstance = instance;
+      if (instance && instance instanceof Pronote) this.pronoteInstance = instance;
       else {
         try {
           const connector = await loadPronoteConnector();
@@ -184,13 +207,13 @@ export class IndexDataInstance {
    * 
    * @returns `true` when operation is successful.
    */
-  public async changeNewsState (localID: string): Promise<boolean> {
+  public async changeNewsState (localID: string, forceState: boolean = true): Promise<boolean> {
     await this.waitInit();
     if (this.service === 'skolengo') {
       // TODO
     }
     else if (this.service === 'pronote') {
-      return pronoteNewsStateHandler(localID, true, this.pronoteInstance);
+      return pronoteNewsStateHandler(localID, forceState, this.pronoteInstance);
     }
 
     return false;
@@ -223,8 +246,11 @@ export class IndexDataInstance {
 
     const monday = new Date(day);
     monday.setDate(mondayIndex);
+    monday.setHours(0, 0, 0, 0);
+    
     const sunday = new Date(day);
     sunday.setDate(sundayIndex);
+    sunday.setHours(23, 59, 59, 999);
 
     if (this.service === 'skolengo') {
       return this.skolengoInstance!.getTimetable(day, force);
@@ -232,6 +258,9 @@ export class IndexDataInstance {
     else if (this.service === 'pronote') {
       const timetable = await pronoteTimetableHandler([monday, sunday], this.pronoteInstance, force);
       if (timetable) return timetable;
+    } else if(this.service === 'ecoledirecte') {
+      const timetable = await EcoleDirecteTimetable([monday, sunday], this.ecoledirecteInstance, force);
+      if(timetable) return timetable;
     }
     
     return [];
@@ -251,11 +280,12 @@ export class IndexDataInstance {
     }
     else if (this.service === 'pronote') {
       user = await pronoteUserHandler(this.pronoteInstance, force);
+    } else if(this.service === 'ecoledirecte') {
+      user = await EcoleDirecteUser(this.ecoledirecteInstance, force);
     }
     
     if (!user) {
-      // TODO: Show a message to user that cache is not renewed and data can't be fetched.
-      throw new Error('No cache or service unknown/disconnected.');
+      throw Alert.alert('Aucun cache n\'a été trouvé, il se peut que vous avez été déconnecté de votre session.');
     }
 
     return runUserMiddleware(user);
@@ -269,11 +299,17 @@ export class IndexDataInstance {
     }
     else if (this.service === 'pronote') {
       return pronoteVieScolaireHandler(this.pronoteInstance, force);
+    } else if (this.service === 'ecoledirecte') {
+      return EDvieScolaireHandler(this.ecoledirecteInstance, force);
     }
 
-    return { absences: [], delays: [], punishments: [] } as PapillonVieScolaire;
+    return { absences: [], delays: [], punishments: [], observations: [] } as PapillonVieScolaire;
   }
 
+  /**
+   * Get every conversation registered.
+   * Also get the recipients of each conversation and read all the messages.
+   */
   public async getConversations (): Promise<PapillonDiscussion[]> {
     await this.waitInit();
     
@@ -284,41 +320,36 @@ export class IndexDataInstance {
     return [];
   }
 
-  async replyToConversation(localID: string, messageContent: string) {
+  /**
+   * Reply to a conversation and returns the
+   * whole conversation with updated messages.
+   */
+  async replyToConversation (localDiscussionID: string, messageContent: string): Promise<PapillonDiscussionMessage[] | null> {
     await this.waitInit();
 
     if (this.service === 'pronote') {
-      //   return require('./PronoteData/PronoteConversations.js').replyToConversation(
-      //     id,
-      //     message
-      //   );
-      // TODO
+      return pronoteDiscussionReplyHandler(localDiscussionID, messageContent, this.pronoteInstance);
     }
 
-    return {};
+    return null;
   }
 
-  public async readStateConversation (localID: string): Promise<void> {
+  /**
+   * Create a discussion with the given `subject` and `content` as first message.
+   * If possible, add `recipients` to the discussion.
+   */
+  async createDiscussion (subject: string, content: string, recipients: PapillonRecipient[]): Promise<void> {
     await this.waitInit();
+
     if (this.service === 'pronote') {
-      // TODO
-      // return require('./PronoteData/PronoteConversations.js').readStateConversation(
-      //   id
-      // );
+      await pronoteDiscussionsCreationHandler(subject, content, recipients, this.pronoteInstance);
     }
   }
 
-  async createDiscussion(subject, content, participants) {
-    await this.waitInit();
-    // if (this.service === 'pronote')
-    //   return require('./PronoteData/PronoteConversations.js').createDiscussion(
-    //     subject,
-    //     content,
-    //     participants
-    //   );
-    return {};
-  }
-
+  /**
+   * Get the recipients attached to a discussion
+   * using the local ID of it.
+   */
   public async getRecipients (localDiscussionID: string): Promise<string[]> {
     await this.waitInit();
 
@@ -327,6 +358,35 @@ export class IndexDataInstance {
     }
 
     return [];
+  }
+
+  /**
+   * Get the recipients that can be added to a new discussion.
+   */
+  public async getCreationRecipients (): Promise<PapillonRecipient[]> {
+    await this.waitInit();
+
+    if (this.service === 'pronote') {
+      return pronoteDiscussionsCreationRecipientsHandler(this.pronoteInstance);
+    }
+
+    return [];
+  }
+
+  public async uploadHomework (homework: PapillonHomework, file: { name: string, uri: string, size: number, type: string }): Promise<void> {
+    await this.waitInit();
+
+    if (this.service === 'pronote') {
+      return pronoteHomeworkUploadFileHandler(homework, file, this.pronoteInstance);
+    }
+  }
+
+  public async removeUploadedHomework (homework: PapillonHomework): Promise<void> {
+    await this.waitInit();
+
+    if (this.service === 'pronote') {
+      return pronoteHomeworkRemoveFileHandler(homework, this.pronoteInstance);
+    }
   }
 }
 

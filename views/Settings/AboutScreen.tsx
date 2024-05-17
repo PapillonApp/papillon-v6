@@ -7,9 +7,11 @@ import {
   StatusBar,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 
 import { useTheme } from 'react-native-paper';
+import { useAppContext } from '../../utils/AppContext';
 
 import { openBrowserAsync, WebBrowserPresentationStyle } from 'expo-web-browser';
 import * as Linking from 'expo-linking';
@@ -21,7 +23,7 @@ import {
 } from 'lucide-react-native';
 
 import packageJson from '../../package.json';
-import { fetchPapiAPI } from '../../utils/api';
+import { formatPapillonContributors } from '../../utils/contributors/FormatContribs';
 
 import GetUIColors from '../../utils/GetUIColors';
 
@@ -29,30 +31,26 @@ import PapillonIcon from '../../components/PapillonIcon';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { showMessage } from 'react-native-flash-message';
 
 function AboutScreen({ navigation }) {
-  const [team, setTeam] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [team, setTeam] = useState(null);
+  const [numClickVersion, setNumClickVersion] = useState(0);
 
   useEffect(() => {
-    setLoading(true);
-    callFetchPapiAPI('team')
-      .then(response => {
-        setTeam(response);
-        setLoading(false);
-      })
-      .catch(error => console.error(error));
+    async function fetchContributors() {
+      const team = await formatPapillonContributors();
+      setTeam(team);
+    }
+    fetchContributors();
   }, []);
 
-  function callFetchPapiAPI(path: string) {
-    return fetchPapiAPI(path)
-      .then(data => {
-        return data;
-      });
-  }
 
   const UIColors = GetUIColors();
   const theme = useTheme();
+  const appContext = useAppContext();
 
   const openUserLink = (url: string) => openBrowserAsync(url, {
     dismissButtonStyle: 'done',
@@ -63,23 +61,21 @@ function AboutScreen({ navigation }) {
   const dataList = [
     {
       title: 'Version de Papillon',
-      subtitle: `${packageJson.version} ${packageJson.canal}`,
+      subtitle: `${packageJson.version}`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
     },
     {
       title: 'Version de Pawnote',
-      subtitle: `${
-        packageJson.dependencies['pawnote'].split('^')[1]
-      }`,
+      subtitle: `${packageJson.dependencies['pawnote'].split('^')[1]
+        }`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
     },
     {
       title: 'Dépendances',
-      subtitle: `RN: ${
-        packageJson.dependencies['react-native'].split('^')[1]
-      }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`,
+      subtitle: `RN: ${packageJson.dependencies['react-native'].split('^')[1]
+        }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
     }
@@ -101,7 +97,7 @@ function AboutScreen({ navigation }) {
         style={{ backgroundColor: UIColors.modalBackground }}
         contentInsetAdjustmentBehavior="automatic"
       >
-        <NativeList 
+        <NativeList
           inset
           header="Communauté"
         >
@@ -167,7 +163,7 @@ function AboutScreen({ navigation }) {
               </NativeText>
             </NativeItem>
           </NativeList>
-        ) : <View /> }
+        ) : <View />}
 
         {loading && (
           <NativeList inset>
@@ -189,7 +185,7 @@ function AboutScreen({ navigation }) {
             inset
             header={team.name}
           >
-            
+
             {team.member.map((item, index) => (
               <NativeItem
                 key={index}
@@ -212,7 +208,7 @@ function AboutScreen({ navigation }) {
             ))}
           </NativeList>
         ))}
-        
+
 
         <NativeList
           inset
@@ -221,35 +217,83 @@ function AboutScreen({ navigation }) {
           <NativeItem
             trailing={
               <NativeText heading="p2">
-                {packageJson.version} {packageJson.canal}
+                ver. {packageJson.version}
               </NativeText>
             }
-            onPress={() => navigation.navigate('ChangelogScreen')}
+            onPress={() => navigation.navigate('Changelogs')}
           >
             <NativeText heading="h4">
-                Version de Papillon
+              Version de Papillon
             </NativeText>
           </NativeItem>
+          {appContext.dataProvider.service === 'pronote' && (
+            <NativeItem
+              trailing={
+                <NativeText heading="p2">
+                  {packageJson.dependencies['pawnote'].split('^')[1]}
+                </NativeText>
+              }
+            >
+              <NativeText heading="h4">
+                Version de Pawnote
+              </NativeText>
+            </NativeItem>
+          )}
           <NativeItem
             trailing={
               <NativeText heading="p2">
-                {packageJson.dependencies['pawnote'].split('^')[1]}
+                {`RN: ${packageJson.dependencies['react-native'].split('^')[1]
+                  }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`}
               </NativeText>
             }
-            onPress={() => navigation.navigate('NetworkLoggerScreen')}
-          >
-            <NativeText heading="h4">
-              Version de Pawnote
-            </NativeText>
-          </NativeItem>
-          <NativeItem
-            trailing={
-              <NativeText heading="p2">
-                {`RN: ${
-                  packageJson.dependencies['react-native'].split('^')[1]
-                }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`}
-              </NativeText>
-            }
+            onPress={async () => {
+              let devMode = await AsyncStorage.getItem('devMode');
+              if (devMode === 'true') {
+                showMessage({
+                  message: 'Inutile, les options de développement ont déjà été activées',
+                  type: 'info',
+                  icon: 'auto',
+                  floating: true,
+                  position: 'bottom'
+                });
+                return;
+              }
+              setNumClickVersion(numClickVersion + 1);
+              if (numClickVersion >= 3 && numClickVersion < 10) {
+                showMessage({
+                  message: `Encore ${10 - numClickVersion} clicks`,
+                  type: 'info',
+                  icon: 'auto',
+                  floating: true,
+                  position: 'bottom'
+                });
+              }
+              if (numClickVersion === 10) {
+                setNumClickVersion(0);
+                Alert.alert(
+                  'Activer les options de développement ?',
+                  'Ces options sont réservées à des utilisateurs avancés, et peuvent être utilisées en cas de problème sur demande de l\'équipe.',
+                  [{
+                    'text': 'Oui',
+                    'isPreferred': true,
+                    'onPress': () => {
+                      AsyncStorage.setItem('devMode', 'true');
+                      showMessage({
+                        message: 'Options de développement activées',
+                        type: 'success',
+                        icon: 'auto',
+                        floating: true,
+                        position: 'bottom'
+                      });
+                    }
+                  },
+                  {
+                    'text': 'Non',
+                    'style': 'cancel'
+                  }]
+                );
+              }
+            }}
           >
             <NativeText heading="h4">
               Dépendances
@@ -257,7 +301,7 @@ function AboutScreen({ navigation }) {
           </NativeItem>
           <NativeItem
             onPress={() => {
-              navigation.navigate('ConsentScreen');
+              navigation.navigate('ConsentScreenWithoutAcceptation');
             }}
             chevron
           >

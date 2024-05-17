@@ -58,8 +58,8 @@ import {
 
 // Formatting
 import GetUIColors from '../utils/GetUIColors';
-import { getSavedCourseColor } from '../utils/ColorCoursName';
-import formatCoursName from '../utils/FormatCoursName';
+import { getSavedCourseColor } from '../utils/cours/ColorCoursName';
+import formatCoursName from '../utils/cours/FormatCoursName';
 
 // Custom components
 import CheckAnimated from '../interface/CheckAnimated';
@@ -83,7 +83,10 @@ import { atom, useAtom, useSetAtom } from 'jotai';
 import { homeworksAtom, homeworksUntilNextWeekAtom } from '../atoms/homeworks';
 import NativeText from '../components/NativeText';
 
+import { GetRessource } from '../utils/GetRessources/GetRessources';
+
 // Functions
+
 const openURL = (url: string) => {
   const isURL = url.includes('http://') || url.includes('https://');
 
@@ -117,6 +120,8 @@ const openURL = (url: string) => {
 };
 
 import Carousel from 'react-native-reanimated-carousel';
+import TimeSeparator from '../interface/CoursScreen/TimeSeparator';
+import { RegisterTrophy } from './Settings/TrophiesScreen';
 
 // create list of dict from THEMES_IMAGES
 const THEMES_IMAGES_LIST = [
@@ -663,7 +668,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
   let shouldScroll = false;
 
   yOffset.addListener(({ value }) => {
-    if (Platform.OS === 'ios') {
+    if (1==1) {
       if (value > 40) {
         setScrolled(true);
         shouldScroll = true;
@@ -697,7 +702,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
       toValue: scrolled ? 1 : 0,
       duration: 400,
       easing: Easing.in(Easing.bezier(0.5, 0, 0, 1)),
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start();
   }, [scrolled]);
 
@@ -727,7 +732,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
   >
     <Animated.View
       style={{
-        backgroundColor: Platform.OS == 'ios' ? UIColors.element : nextColor,
+        backgroundColor: UIColors.element,
         borderBottomWidth: Platform.OS == 'ios' ? 0.5 : 0,
         borderBottomColor: UIColors.borderLight,
         zIndex: 2,
@@ -736,8 +741,8 @@ function HomeScreen({ navigation }: { navigation: any }) {
         top: 0,
         left: 0,
         width: '100%',
-        opacity: yOffset.interpolate({
-          inputRange: Platform.OS == 'ios' ? [25, 50] : [75, 100],
+        opacity: scrolledAnim.interpolate({
+          inputRange: Platform.OS == 'ios' ? [0, 1] : [0, 1],
           outputRange: [0, 1],
         }),
         elevation: 2,
@@ -861,11 +866,15 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   ],
                 }}
               >
-                <Text
+                <Animated.Text
                   style={[
                     {
                       textAlign: 'center',
                       marginTop: 3,
+                      opacity: yOffset.interpolate({
+                        inputRange: [40, 60],
+                        outputRange: [1, 0],
+                      }),
                     },
                     Platform.OS === 'ios'
                       ? {
@@ -882,7 +891,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   ]}
                 >
                   Vue d'ensemble
-                </Text>
+                </Animated.Text>
               </Animated.View>
 
               <Animated.View
@@ -912,7 +921,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   yOffset={new Animated.Value(0)}
                   mainAction={() => {
                     // scroll up
-                    scrollRef.current?.scrollTo({ y: 0, animated: true });
+                    scrollRef.current?.scrollTo({ y: 60, animated: true });
                   }}
                 />
               </Animated.View>
@@ -920,22 +929,23 @@ function HomeScreen({ navigation }: { navigation: any }) {
               <Text
                 style={[
                   {
-                    color: '#ffffff',
+                    color: scrolled ? UIColors.text : '#ffffff',
                     fontSize: 18,
                     marginVertical: 9,
+                    fontFamily: 'Papillon-Semibold',
                   },
                 ]}
               >
                 Vue d'ensemble
               </Text>
             </>)}
-            
+
 
             {Platform.OS === 'ios' ? (
               <ContextMenuButton
                 isMenuPrimaryAction={true}
                 accessible={true}
-                  accessibilityLabel="Votre profil"
+                accessibilityLabel="Votre profil"
                 menuConfig={{
                   menuTitle: '',
                   menuItems: [
@@ -1180,6 +1190,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                   scrollAnimationDuration={100}
                   onSnapToItem={(index) => {
                     setCurrentThemeIndex(index);
+                    RegisterTrophy('trophy_bandeau', new Date().getDate());
                     Haptics.impactAsync(
                       Haptics.ImpactFeedbackStyle.Light
                     );
@@ -1296,6 +1307,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
           scrollAnimationDuration={100}
           onSnapToItem={(index) => {
             setCurrentThemeIndex(index);
+            RegisterTrophy('trophy_bandeau', new Date().getDate());
             Haptics.impactAsync(
               Haptics.ImpactFeedbackStyle.Light
             );
@@ -1478,19 +1490,19 @@ function HomeScreen({ navigation }: { navigation: any }) {
             style={{
               marginBottom: 16,
               opacity: yOffset.interpolate({
-                inputRange: Platform.OS === 'ios' ? [(15 - insets.top), (35 - insets.top)] : [0, 40],
+                inputRange: Platform.OS === 'ios' ? [(40 - insets.top), (60 - insets.top)] : [0, 40],
                 outputRange: [1, 0],
               }),
               transform: [
                 {
                   translateY: yOffset.interpolate({
-                    inputRange: Platform.OS === 'ios' ? [-1000, (15 - insets.top), (35 - insets.top)] : [0, 0, 40],
+                    inputRange: Platform.OS === 'ios' ? [-1000, (40 - insets.top), (60 - insets.top)] : [0, 0, 40],
                     outputRange: [0, 0, -5],
                   }),
                 },
                 {
                   scale: yOffset.interpolate({
-                    inputRange: Platform.OS === 'ios' ? [-1000, (15 - insets.top), (35 - insets.top)] : [0, 0, 40],
+                    inputRange: Platform.OS === 'ios' ? [-1000, (40 - insets.top), (60 - insets.top)] : [0, 0, 40],
                     outputRange: [1, 1, 0.9],
                   }),
                 }
@@ -1524,7 +1536,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
                 setNextColor={(color) => {
                   setNextColor(color);
                 }}
-                yOffset={new Animated.Value(0)}
+                yOffset={yOffset}
                 color={themeAdjustments.enabled ? nextColor : void 0}
                 style={{
                   marginHorizontal: 16,
@@ -1545,7 +1557,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
         subtitle="Les informations affichées peuvent être obsolètes."
         left={<Globe2 color={UIColors.text} />}
         height={80}
-        style={{ marginHorizontal: 16 }}
+        style={{ marginHorizontal: 16, marginBottom: 16, marginTop : -16}}
       />
 
       <CoursElement
@@ -1574,8 +1586,21 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
   const theme = useTheme();
   const UIColors = GetUIColors(null, 'ios');
 
+  const [message, setMessage] = useState(null);
+
+  useEffect(() => {
+    GetRessource('messages')
+      .then(data => setMessage(data.warning.content))
+      .catch(error => console.error(error));
+  }, []);
+  
   return (
     <View style={styles.tabsTabsContainer}>
+    {message && message.trim() !== "" && (
+      <View style={styles.warningMessageContainer}>
+        <Text style={styles.warningMessageText}>{message}</Text>
+      </View>
+    )}
       <View style={styles.tabsTabRow}>
         <PressableScale
           style={[
@@ -1797,15 +1822,14 @@ function CoursItem({
             },
           ]}
         >
-          <View
-            style={[
-              styles.coursSeparatorLine,
-              { backgroundColor: UIColors.text + '15' },
-            ]}
-          />
-
-          <Text style={{ color: UIColors.text + '30' }}>
-            {`${Math.floor(
+          <TimeSeparator
+            reason={
+              (new Date(cours[index - 1].end).getHours() < 13 &&
+              new Date(lesson.start).getHours() >= 12) ?
+                'Pause méridienne'
+              : 'Pas de cours'
+            }
+            time={`${Math.floor(
               (new Date(lesson.start).getTime() -
                   new Date(cours[index - 1].end).getTime()) /
                   3600000
@@ -1817,13 +1841,10 @@ function CoursItem({
                     60000
               )
             )} min`}
-          </Text>
-
-          <View
-            style={[
-              styles.coursSeparatorLine,
-              { backgroundColor: UIColors.text + '15' },
-            ]}
+            lunch={
+              new Date(cours[index - 1].end).getHours() < 13 &&
+              new Date(lesson.start).getHours() >= 12
+            }
           />
         </Animated.View>
       )}
@@ -2382,9 +2403,7 @@ function DevoirsContent({
                     style={[
                       styles.homeworksDevoirsContentHeaderSubjectColor,
                       {
-                        backgroundColor:
-                          homework.background_color ??
-                          getSavedCourseColor(homework.subject.name),
+                        backgroundColor: getSavedCourseColor(homework.subject.name) ?? homework.background_color,
                       },
                     ]}
                   />
@@ -2655,6 +2674,20 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     gap: 6,
     marginBottom: 16,
+  },
+
+  warningMessageContainer: {
+    borderWidth: 2,
+    borderColor: '#B42828',
+    backgroundColor: '#E8BEBE',
+    padding: 10,
+    gap: 10,
+    borderRadius: 10,
+  },
+  warningMessageText: {
+    textAlign: 'center',
+    color: '#4D2527',
+    fontFamily: 'Papillon-Semibold',
   },
 
   tabsTabRow: {
