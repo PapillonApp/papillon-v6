@@ -125,7 +125,7 @@ const MessagesScreen = ({ route, navigation }: {
         },
       ]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={insets.bottom * 2
+      keyboardVerticalOffset={insets.bottom * 2}
     >
       <FlatList
         data={conversation.messages}

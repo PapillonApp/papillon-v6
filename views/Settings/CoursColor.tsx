@@ -26,6 +26,8 @@ import { RegisterTrophy } from './TrophiesScreen';
 interface SavedColors {
   [key: string]: {
     color: string;
+    originalColor: string;
+    edited: boolean;
     originalCourseName: string;
     systemCourseName: string;
     locked: boolean;
@@ -65,6 +67,16 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
           style: 'destructive',
         },
         {
+          text: 'Réinitialiser',
+          onPress: () => {
+            let newCol = { ...savedColors };
+            newCol[key].color = newCol[key].originalColor;
+            newCol[key].edited = false;
+            setSavedColors(newCol);
+            SyncStorage.set('savedColors', JSON.stringify(newCol));
+          }
+        },
+        {
           text: 'Annuler',
           style: 'cancel',
         },
@@ -85,6 +97,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
       [currentEditedSubject]: {
         ...savedColors[currentEditedSubject],
         color: hex,
+        edited: true,
       },
     });
 
@@ -96,21 +109,21 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   const ResetColors = async () => {
-    let dataInstance = await getContextValues().dataProvider;
     let colors = savedColors;
-    let timetable = await dataInstance.getTimetable(new Date());
-    timetable.forEach(course => {
-      Object.keys(colors).forEach((key) => {
-        if (colors[key].originalCourseName == course.subject.name && !colors[key].locked) {
-          colors[key].color = course.background_color;
-        }
-      });
-    });
+    Object.keys(colors).forEach((key) => {
+      if(!colors[key].locked) {
+        colors[key].color = colors[key].originalColor
+        colors[key].edited = false
+      }
+    })
     SyncStorage.set('savedColors', JSON.stringify(colors));
-    setSavedColors(JSON.parse(SyncStorage.get('savedColors'))); //Chelou mais sinon rien ne s'actualise
+    setSavedColors(colors); //Chelou mais sinon rien ne s'actualise
     Haptics.selectionAsync(Haptics.ImpactFeedbackStyle.Light);
   };
-
+  const DeleteColors = async () => {
+    setSavedColors({})
+    SyncStorage.set('savedColors', "{}");
+  }
   const ApplyRandomColors = () => {
     let col: SavedColors = {};
     let usedColors: string[] = [];
@@ -328,7 +341,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                 } else if (nativeEvent.actionKey == 'resetColor') {
                   Alert.alert(
                     'Réinitialiser les couleurs ?',
-                    'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible.',
+                    'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible et s\'appliquera uniquement aux couleurs non verrouillées.\n\nAttention : cela va rétablir les couleurs par défaut mises en caches, pour récupérer de nouveau les couleurs vous devez sélectionner l\'option "supprimer les couleurs".',
                     [
                       {
                         text: 'Réinitialiser',
@@ -374,7 +387,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
               title={'Appliquer des couleurs aléatoires'}
               leadingIcon="dice-5-outline"
               onPress={() => {
-                setUserMenuOpen(false);
+                setMenuOpen(false);
                 Alert.alert(
                   'Remplacer les couleurs ?',
                   'Voulez-vous vraiment modifier les couleurs ? Cette action est irréverssible.',
@@ -400,15 +413,40 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
               title={'Réinitialiser les couleurs'}
               leadingIcon="undo"
               onPress={() => {
-                setUserMenuOpen(false);
+                setMenuOpen(false);
                 Alert.alert(
                   'Réinitialiser les couleurs ?',
-                  'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible.',
+                  'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible et s\'appliquera uniquement aux couleurs non verrouillées.\n\nAttention : cela va rétablir les couleurs par défaut mises en caches, pour récupérer de nouveau les couleurs vous devez sélectionner l\'option "supprimer les couleurs".',
                   [
                     {
                       text: 'Réinitialiser',
                       onPress: () => {
                         ResetColors();
+                      },
+                      style: 'destructive',
+                    },
+                    {
+                      text: 'Annuler',
+                      style: 'cancel',
+                    },
+                  ],
+                  { cancelable: true }
+                );
+              }}
+            />
+            <Menu.Item
+              title={'Supprimer les couleurs'}
+              leadingIcon="delete"
+              onPress={() => {
+                setMenuOpen(false);
+                Alert.alert(
+                  'Supprimer les couleurs ?',
+                  'Voulez-vous vraiment supprimer les couleurs ? Cette action est irréverssible et s\'appliquera uniquement aux couleurs non verrouillées.\n\nCette option vous permet de récupérer de nouveau les couleurs depuis votre service scolaire. Si vous souhaitez rétablir celles en cache, veuillez utiliser l\'option "Réinitialiser les couleurs".',
+                  [
+                    {
+                      text: 'Supprimer',
+                      onPress: () => {
+                        DeleteColors();
                       },
                       style: 'destructive',
                     },
@@ -549,7 +587,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                   {formatCoursName(savedColors[key].originalCourseName)}
                 </NativeText>
                 <NativeText heading="subtitle2">
-                  {savedColors[key].color.toUpperCase()}
+                  {savedColors[key].color.toUpperCase()} {savedColors[key].edited === true ? "- Modifié" : ""}
                 </NativeText>
               </NativeItem>
             );

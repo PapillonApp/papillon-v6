@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   Alert,
   Modal,
-  Pressable,
+  Pressable
 } from 'react-native';
 
 import Reanimated, {ZoomIn, Easing, FadeOut} from 'react-native-reanimated';
@@ -41,6 +41,7 @@ import {
   X,
   TextSelect,
   BookOpenCheck,
+  RotateCcw
 } from 'lucide-react-native';
 
 import { getClosestCourseColor, getSavedCourseColor } from '../utils/cours/ColorCoursName';
@@ -88,7 +89,7 @@ export default function CoursScreen ({ navigation }: {
   const lessonsFromPage = useCallback((page: number) => {
     const dayKey = dateToFrenchFormat(getDateFromPageNumber(page));
     if (dayKey in cours) return Object.values(cours[dayKey]);
-    
+
     // Not yet fetched...
     return [];
   }, [cours]);
@@ -291,63 +292,82 @@ Statut : ${cours.status || 'Aucun'}
         elevation: 0,
       } : undefined,
       headerRight: () =>
-        <ContextMenuView
-          style={{ marginRight: 16 }}
-          previewConfig={{
-            borderRadius: 10,
-          }}
-          menuConfig={{
-            menuTitle: calendarDate.toLocaleDateString('fr', {
-              weekday: 'long',
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric',
-            }),
-            menuItems: [
-              {
-                actionKey: 'addToCalendar',
-                actionTitle: 'Ajouter au calendrier',
-                actionSubtitle:
-                    'Ajoute tous les cours de la journée au calendrier',
-                icon: {
-                  type: 'IMAGE_SYSTEM',
-                  imageValue: {
-                    systemName: 'calendar.badge.plus',
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginRight: 0,
+          gap: 10
+        }}>
+          <TouchableOpacity
+            style={{
+              opacity: 0.4
+            }}
+            onPress={async() => {
+              setIsLoading(true)
+              await forceRefresh()
+              setIsLoading(false)
+            }}
+          >
+            <RotateCcw size={24} color={UIColors.text} />
+          </TouchableOpacity>
+          <ContextMenuView
+            style={{ marginRight: 16 }}
+            previewConfig={{
+              borderRadius: 10,
+            }}
+            menuConfig={{
+              menuTitle: calendarDate.toLocaleDateString('fr', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              }),
+              menuItems: [
+                {
+                  actionKey: 'addToCalendar',
+                  actionTitle: 'Ajouter au calendrier',
+                  actionSubtitle:
+                      'Ajoute tous les cours de la journée au calendrier',
+                  icon: {
+                    type: 'IMAGE_SYSTEM',
+                    imageValue: {
+                      systemName: 'calendar.badge.plus',
+                    },
                   },
                 },
-              },
-            ],
-          }}
-          onPressMenuItem={({ nativeEvent }) => {
-            const dayKey = dateToFrenchFormat(calendarDate);
-            const cours = coursRef.current;
+              ],
+            }}
+            onPressMenuItem={({ nativeEvent }) => {
+              const dayKey = dateToFrenchFormat(calendarDate);
+              const cours = coursRef.current;
 
-            if (!(dayKey in cours)) return; // Pretty useless otherwise...
+              if (!(dayKey in cours)) return; // Pretty useless otherwise...
 
-            if (nativeEvent.actionKey === 'addToCalendar') {
-              addToCalendar(cours[dayKey]);
-            } else if (nativeEvent.actionKey === 'notifyAll') {
-              notifyAll(cours[dayKey]);
-            }
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => setCalendarModalOpen(true)}
-            style={[
-              styles.calendarDateContainer,
-              { backgroundColor: '#0065A8' + '20' }
-            ]}
+              if (nativeEvent.actionKey === 'addToCalendar') {
+                addToCalendar(cours[dayKey]);
+              } else if (nativeEvent.actionKey === 'notifyAll') {
+                notifyAll(cours[dayKey]);
+              }
+            }}
           >
-            <CalendarPapillonIcon stroke={'#0065A8'} />
-            <Text style={[styles.calendarDateText, {color: '#0065A8'}]}>
-              {new Date(calendarDate).toLocaleDateString('fr', {
-                weekday: 'short',
-                day: '2-digit',
-                month: 'short',
-              })}
-            </Text>
-          </TouchableOpacity>
-        </ContextMenuView>
+            <TouchableOpacity
+              onPress={() => setCalendarModalOpen(true)}
+              style={[
+                styles.calendarDateContainer,
+                { backgroundColor: '#0065A8' + '20' }
+              ]}
+            >
+              <CalendarPapillonIcon stroke={'#0065A8'} />
+              <Text style={[styles.calendarDateText, {color: '#0065A8'}]}>
+                {new Date(calendarDate).toLocaleDateString('fr', {
+                  weekday: 'short',
+                  day: '2-digit',
+                  month: 'short',
+                })}
+              </Text>
+            </TouchableOpacity>
+          </ContextMenuView>
+        </View>
     });
   }, [navigation, calendarDate, UIColors]);
 
@@ -416,28 +436,29 @@ Statut : ${cours.status || 'Aucun'}
     console.info('timetable: page change to', page);
     // Get the date selected using the page number.
     const date = getDateFromPageNumber(page);
-    
+    console.log(`timetable: getting edt for ${date}`)
     // Change the calendar.
     // Should be the only place where it changes it !
     setCalendarDate(date);
-
     // If inside cache, then simply use it.
     const currentDayKey = dateToFrenchFormat(date);
     if (currentDayKey in coursRef.current) {
-      setIsLoading(false);
-      return;
+      let courseFromCache = coursRef.current[currentDayKey]
+      if(Object.keys(courseFromCache).length !== 0) {
+        setIsLoading(false);
+        return;
+      }
     }
-    
-    setIsLoading(true);
 
     // Otherwise, we need to fetch. Make sure to not
     // force to also use storage cache, if it's in there.
+    setIsLoading(true);
     await refreshStateCache(date, false);
     setIsLoading(false);
   };
 
   const forceRefresh = () => refreshStateCache(calendarDate, true);
-
+  
   return (
     <View
       style={[styles.container, {

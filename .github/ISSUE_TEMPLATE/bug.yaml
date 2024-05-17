@@ -11,7 +11,7 @@ body:
       required: true
   - type: textarea
     attributes:
-      label: Etapes à reproduire
+      label: Étapes à reproduire
       description: 'Étapes pour reproduire le bug :'
       placeholder: |
         1. [ex: Etape 1]
