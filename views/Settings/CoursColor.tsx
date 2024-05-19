@@ -274,7 +274,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                     icon: {
                       type: 'IMAGE_SYSTEM',
                       imageValue: {
-                        systemName: 'arrow.up.and.down',
+                        systemName: 'square.and.arrow.down.on.square',
                       },
                     },
                     menuItems: [
