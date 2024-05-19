@@ -62,6 +62,8 @@ export const EDtimetableHandler = async (interval: [from: Date, to?: Date], inst
 
     timetableFromED.forEach(lesson => {
 
+      if(lesson.typeCours === "PERMANENCE") return;
+
       if(lesson.typeCours === 'CONGE') return timetable.push({
         id: lesson.id,
         num: lesson.num || 0,
