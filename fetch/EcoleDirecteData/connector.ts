@@ -12,6 +12,8 @@ export const AsyncStorageEcoleDirecteKeys = {
   CACHE_TIMETABLE: 'ecoledirecte:cache_timetable',
   CACHE_HOMEWORK: 'ecoledirecte:cache_homework',
   CACHE_VIE_SCOLAIRE: 'ecoledirecte:cache_vie_scolaire',
+  CACHE_DOCUMENTS: 'ecoledirecte:cache_documents',
+  CACHE_CLOUD: 'ecoledirecte:cache_cloud',
 };
 
 export const removeEcoleDirecteConnector = async () => {
