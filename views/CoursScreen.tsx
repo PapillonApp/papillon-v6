@@ -163,7 +163,7 @@ export default function CoursScreen({ navigation }: {
         if (!calendarId) {
           await Calendar.createCalendarAsync({
             title: `Papillon-${cours.subject.name}`,
-            color: cours.background_color ?? getClosestCourseColor(cours.subject.name),
+            color: getSavedCourseColor(cours.subject.name, cours.background_color),
             entityType: Calendar.EntityTypes.EVENT,
           });
 
