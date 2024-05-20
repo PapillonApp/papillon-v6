@@ -416,6 +416,7 @@ const HomeScreen = ({ navigation }) => {
                   backgroundColor: getSavedCourseColor(nextCourse?.subject?.name, nextCourse?.background_color) || UIColors.primary,
                 }
               ]}
+              onPress={() => navigation.navigate('Lesson', { event: nextCourse })}
             >
               <View
                 style={[
