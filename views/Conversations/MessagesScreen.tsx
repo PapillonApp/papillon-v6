@@ -15,6 +15,9 @@ import {
 import type { PapillonUser } from '../../fetch/types/user';
 import type { PapillonDiscussionMessage } from '../../fetch/types/discussions';
 
+import { ContextMenuView } from 'react-native-ios-context-menu';
+import * as Clipboard from 'expo-clipboard';
+
 import { RenderHTML } from 'react-native-render-html';
 
 import { useAppContext } from '../../utils/AppContext';
@@ -25,10 +28,11 @@ import { useHeaderHeight } from '@react-navigation/elements';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Send as SendLucide } from 'lucide-react-native';
+import { File, Send as SendLucide } from 'lucide-react-native';
 
 import { useAtom } from 'jotai';
 import { discussionsAtom } from '../../atoms/discussions';
+import { ScrollView } from 'react-native';
 
 function getInitials(name: string): string {
   if (name === undefined) {
@@ -132,7 +136,7 @@ const MessagesScreen = ({ route, navigation }: {
         keyExtractor={(message) => message.id}
         style={[
           {
-            marginBottom: 16,
+            marginBottom: 12,
             flex: 1,
           },
         ]}
@@ -162,6 +166,8 @@ const PapillonMessage = ({ message, sent }: {
       controlsColor: UIColors.primary,
     });
   };
+
+  console.log(JSON.stringify(message));
 
   return (
     <View
@@ -214,48 +220,161 @@ const PapillonMessage = ({ message, sent }: {
             {message.author}
           </Text>
         </View>
-        <View
-          style={[styles.PapillonMessageBubble,
-          {
-            backgroundColor: !sent ? UIColors.text + '15' : UIColors.primary,
-          },
-          ]}
-        >
-          <RenderHTML
-            source={{ html: message.content as string }}
-            baseStyle={{
-              paddingHorizontal: 10,
-              paddingVertical: 6,
-              color: !sent ? UIColors.text : '#ffffff',
-              fontSize: 16,
-            }}
-            tagsStyles={{
-              a: {
-                color: UIColors.primary,
-              },
-            }}
-            ignoredStyles={['fontSize']}
-            renderersProps={{
-              a: {
-                onPress(_, href) {
-                  let url = href;
-                  if (!url.startsWith('http')) {
-                    url = 'https://' + url.split('://')[1];
-                  }
 
-                  openURL(url);
+        <ContextMenuView
+          previewConfig={{
+            borderRadius: 18,
+            backgroundColor: UIColors.background,
+          }}
+          menuConfig={{
+            menuTitle: '',
+            menuItems: [
+              {
+                actionKey: 'copy',
+                actionTitle: 'Copier le message',
+                icon: {
+                  type: 'IMAGE_SYSTEM',
+                  imageValue: {
+                    systemName: 'doc.on.doc',
+                  },
                 },
-              }
-            }}
-            contentWidth={300}
-          />
-        </View>
+              },
+              {
+                menuTitle: '',
+                menuOptions: ['displayInline'],
+                menuItems: [
+                  {
+                    actionKey: 'details1',
+                    actionTitle: 'Date du message',
+                    actionSubtitle: new Date(message.timestamp).toLocaleString('fr-FR', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    }),
+                    icon: {
+                      type: 'IMAGE_SYSTEM',
+                      imageValue: {
+                        systemName: 'calendar',
+                      },
+                    },
+                  },
+                  {
+                    actionKey: 'details2',
+                    actionTitle: 'Auteur',
+                    actionSubtitle: message.author,
+                    icon: {
+                      type: 'IMAGE_SYSTEM',
+                      imageValue: {
+                        systemName: 'person',
+                      },
+                    },
+                  },
+                ],
+              },
+
+            ],
+          }}
+
+          onPressMenuItem={async (event) => {
+            if (event.nativeEvent.actionKey === 'copy') {
+              // remove html tags
+              let text = message.content.replace(/<[^>]*>?/gm, '');
+              // remove &nbsp;
+              text = text.replace(/&nbsp;/g, ' ');
+
+              await Clipboard.setStringAsync(text);
+            }
+          }}
+        >
+          <View
+            style={[styles.PapillonMessageBubble,
+            {
+              backgroundColor: !sent ? UIColors.text + '15' : UIColors.primary,
+            },
+            ]}
+          >
+            <RenderHTML
+              source={{ html: message.content as string }}
+              baseStyle={{
+                paddingHorizontal: 10,
+                paddingVertical: 6,
+                color: !sent ? UIColors.text : '#ffffff',
+                fontSize: 16,
+              }}
+              tagsStyles={{
+                a: {
+                  color: UIColors.primary,
+                },
+              }}
+              ignoredStyles={['fontSize']}
+              renderersProps={{
+                a: {
+                  onPress(_, href) {
+                    let url = href;
+                    if (!url.startsWith('http')) {
+                      url = 'https://' + url.split('://')[1];
+                    }
+
+                    openURL(url);
+                  },
+                }
+              }}
+              contentWidth={300}
+            />
+
+            {message.files && message.files.length > 0 ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={{
+                  flexDirection: 'row',
+                }}
+                contentContainerStyle={{
+                  paddingVertical: 8,
+                  paddingHorizontal: 10,
+                  gap: 8,
+                }}
+              >
+                {message.files.map((file, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={async () => {
+                      if (!file.url) return;
+                      await openURL(file.url);
+                    }}
+                    style={{
+                      backgroundColor: UIColors.primary + '20',
+                      paddingVertical: 6,
+                      paddingHorizontal: 10,
+                      borderRadius: 8,
+                      flexDirection: 'row',
+                      gap: 4,
+                    }}
+                  >
+                    <File size={16} strokeWidth={2.4} color={UIColors.primary} />
+
+                    <Text
+                      style={{
+                        color: UIColors.primary,
+                        fontSize: 14,
+                      }}
+                    >
+                      {file.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            ) : null}
+          </View>
+        </ContextMenuView>
       </View>
     </View>
   );
 };
 
-const PapillonSend = ({ sendFunction }: {
+const PapillonSend = ({ sendFunction, inputRef }: {
   sendFunction: (text: string) => Promise<void>;
 }) => {
   const UIColors = GetUIColors();
@@ -296,6 +415,7 @@ const PapillonSend = ({ sendFunction }: {
         multiline
         value={textValue}
         onChangeText={(text) => setTextValue(text)}
+        ref={inputRef}
       />
       <TouchableOpacity
         onPress={async () => {
