@@ -33,7 +33,8 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   useAnimatedScrollHandler,
-  interpolate
+  interpolate,
+  FadeOutDown
 } from 'react-native-reanimated';
 
 import NativeText from '../components/NativeText';
@@ -405,14 +406,15 @@ const HomeScreen = ({ navigation }) => {
         onScroll={scrollHandler}
         scrollEventThrottle={16}
       >
-        {nextCourse && (
+        {nextCourse && !loading && (
           <Animated.View
             style={{
               margin: 16,
               marginTop: Platform.OS == 'ios' ? 8 : 18,
+              marginBottom: 0,
             }}
             entering={FadeInDown.springify()}
-            exiting={FadeOut}
+            exiting={FadeOutUp.springify()}
             layout={LinearTransition}
           >
             <PressableScale
@@ -1629,7 +1631,7 @@ const styles = StyleSheet.create({
   },
 
   tabsTabsContainer: {
-    marginTop: -6,
+    marginTop: 8,
     marginHorizontal: 16,
     gap: 9,
     marginBottom: 16,
