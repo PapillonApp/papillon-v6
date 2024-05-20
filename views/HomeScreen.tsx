@@ -406,7 +406,7 @@ const HomeScreen = ({ navigation }) => {
         onScroll={scrollHandler}
         scrollEventThrottle={16}
       >
-        {nextCourse && !loading && (
+        {nextCourse && (
           <Animated.View
             style={{
               margin: 16,
