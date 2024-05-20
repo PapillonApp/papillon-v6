@@ -7,11 +7,13 @@ import {
   StatusBar,
   Platform,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { Link, File, Trash } from 'lucide-react-native';
+import { Link, File, Trash, FileUp, Eye } from 'lucide-react-native';
 
 import * as WebBrowser from 'expo-web-browser';
 import ParsedText from 'react-native-parsed-text';
@@ -49,6 +51,8 @@ function HomeworkScreen({ route, navigation }: {
   const homework = homeworks!.find((hw) => hw.localID === homeworkLocalID)!;
 
   const [homeworkStateLoading, setHomeworkStateLoading] = useState(false);
+
+  const [homeworkUploadLoading, setHomeworkUploadLoading] = useState(false);
 
   const [deleteCustomHomeworkAlert, setDeleteCustomHomeworkAlert] = useState(false);
 
@@ -114,7 +118,7 @@ function HomeworkScreen({ route, navigation }: {
   return (
     <View
       // @ts-expect-error : Not sure if props are correct
-      contentContainerStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}
+      contentContainerStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
       style={{ flex: 1, backgroundColor: UIColors.modalBackground }}
       contentInsetAdjustmentBehavior="automatic"
     >
@@ -134,18 +138,18 @@ function HomeworkScreen({ route, navigation }: {
         <NativeList header="Description" inset>
           <NativeItem>
             <ParsedText
-              style={[styles.hwContentText, {color: UIColors.text}]}
+              style={[styles.hwContentText, { color: UIColors.text }]}
               selectable={true}
               parse={
                 [
                   {
                     type: 'url',
-                    style: [styles.url, {color: UIColors.primary}],
+                    style: [styles.url, { color: UIColors.primary }],
                     onPress: (url) => openURL(url),
                   },
                   {
                     type: 'email',
-                    style: [styles.url, {color: UIColors.primary}],
+                    style: [styles.url, { color: UIColors.primary }],
                   },
                 ]
               }
@@ -156,7 +160,7 @@ function HomeworkScreen({ route, navigation }: {
           {homework.difficulty !== PronoteApiHomeworkDifficulty.NONE && (
             <NativeItem trailing={
               <NativeText heading="p2">
-                {homework.difficulty === PronoteApiHomeworkDifficulty.EASY ? 'Facile' : 
+                {homework.difficulty === PronoteApiHomeworkDifficulty.EASY ? 'Facile' :
                   homework.difficulty === PronoteApiHomeworkDifficulty.MEDIUM ? 'Moyen' : 'Difficile'}
               </NativeText>
             }>
@@ -183,34 +187,50 @@ function HomeworkScreen({ route, navigation }: {
         <NativeList header="Statut" inset>
           {homework.return && homework.return.type === PronoteApiHomeworkReturnType.FILE_UPLOAD ? (
             !homework.return.uploaded ? (
-              <NativeItem>
-                <PaperButton
-                  onPress={async () => {
-                    const document = await DocumentPicker.getDocumentAsync({ multiple: false, copyToCacheDirectory: true });
-                    if (document.canceled || document.assets.length === 0) return;
-                    const file = document.assets[0];
-                    
-                    await appContext.dataProvider?.uploadHomework(homework, {
-                      uri: file.uri,
-                      type: file.mimeType!,
-                      name: file.name,
-                      size: file.size || 0
-                    });
-                  }}
-                >
+              <NativeItem
+                leading={
+                  homeworkUploadLoading ?
+                    <ActivityIndicator size="small" />
+                    :
+                    <FileUp size={24} color={UIColors.text} />
+                }
+                onPress={async () => {
+                  const document = await DocumentPicker.getDocumentAsync({ multiple: false, copyToCacheDirectory: true });
+                  if (document.canceled || document.assets.length === 0) return;
+                  const file = document.assets[0];
+
+                  setHomeworkUploadLoading(true);
+
+                  await appContext.dataProvider?.uploadHomework(homework, {
+                    uri: file.uri,
+                    type: file.mimeType!,
+                    name: file.name,
+                    size: file.size || 0
+                  });
+
+                  setHomeworkUploadLoading(false);
+                }}
+              >
+                <NativeText heading="h4">
                   Déposer ma copie
-                </PaperButton>
+                </NativeText>
+                <NativeText heading="p2">
+                  Utiliser un fichier de votre appareil
+                </NativeText>
               </NativeItem>
             ) : (
-              <NativeItem>
-                <PaperButton onPress={() => openURL(homework.return!.uploaded!.url)}>
+              <NativeItem
+                leading={
+                  <Eye size={24} color={UIColors.text} />
+                }
+                onPress={() => openURL(homework.return!.uploaded!.url)}
+              >
+                <NativeText heading="h4">
                   Voir ma copie
-                </PaperButton>
-                <PaperButton onPress={async () => {
-                  await appContext.dataProvider?.removeUploadedHomework(homework);
-                }}>
-                  Supprimer
-                </PaperButton>
+                </NativeText>
+                <NativeText heading="p2">
+                  Vous avez déposé votre copie
+                </NativeText>
               </NativeItem>
             )
           ) : (
@@ -233,6 +253,39 @@ function HomeworkScreen({ route, navigation }: {
             >
               <NativeText heading="b">
                 Marquer comme fait
+              </NativeText>
+            </NativeItem>
+          )}
+
+          {homework.return && homework.return.type === PronoteApiHomeworkReturnType.FILE_UPLOAD && homework.return.uploaded && (
+            <NativeItem
+              onPress={async () => {
+                Alert.alert(
+                  'Supprimer ma copie',
+                  'Êtes-vous sûr de vouloir supprimer votre copie ?',
+                  [
+                    {
+                      text: 'Annuler',
+                      style: 'cancel',
+                    },
+                    {
+                      text: 'Supprimer',
+                      style: 'destructive',
+                      onPress: async () => {
+                        setHomeworkUploadLoading(true);
+                        await appContext.dataProvider?.removeUploadedHomework(homework);
+                        setHomeworkUploadLoading(false);
+                      },
+                    },
+                  ],
+                );
+              }}
+              leading={
+                <Trash size={24} color={UIColors.text + '99'} />
+              }
+            >
+              <NativeText heading="p2">
+                Supprimer ma copie
               </NativeText>
             </NativeItem>
           )}
@@ -293,14 +346,12 @@ function HomeworkScreen({ route, navigation }: {
                     }}
                     leading={fileIcon}
                   >
-                    <View style={{marginRight: 80, paddingLeft: 6}}>
-                      <NativeText heading="h4">
-                        {file.name}
-                      </NativeText>
-                      <NativeText numberOfLines={1}>
-                        {file.url}
-                      </NativeText>
-                    </View>
+                    <NativeText heading="h4">
+                      {file.name}
+                    </NativeText>
+                    <NativeText numberOfLines={1} heading='p2'>
+                      {file.url}
+                    </NativeText>
                   </NativeItem>
                 );
 
