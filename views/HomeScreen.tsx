@@ -22,6 +22,7 @@ import Animated, {
   ZoomInEasyDown,
   ZoomOutEasyUp,
   ZoomIn,
+  ZoomOut,
   FadeIn,
   FadeOut,
   FlipInXUp,
@@ -571,16 +572,61 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
       .catch(error => console.error(error));
   }, []);
 
+  const [showWanring, setShowWarning] = useState(true);
+
   return (
     <Animated.View style={styles.tabsTabsContainer}>
-      {message && message.trim() !== "" && (
+      {message && showWanring && message.trim() !== "" && (
         <Animated.View
-          style={styles.warningMessageContainer}
-          entering={FadeIn}
-          exiting={FadeOut}
+          style={{
+            borderRadius: 12,
+            padding: 12,
+            backgroundColor: "#E1462322",
+            borderColor: '#E1462300',
+            borderWidth: 1,
+          }}
+          entering={ZoomIn}
+          exiting={ZoomOut}
           layout={LinearTransition}
         >
-          <Text style={styles.warningMessageText}>{message}</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 8,
+            }}
+          >
+            <Text
+              style={{
+                color: UIColors.text,
+                fontFamily: 'Papillon-Semibold',
+                fontSize: 16.5,
+              }}
+            >
+              Message de l'équipe Papillon
+            </Text>
+            <TouchableOpacity
+              style={{
+                padding: 4,
+                borderRadius: 20,
+                backgroundColor: UIColors.text + '22',
+                opacity: 0.7,
+              }}
+              onPress={() => setShowWarning(false)}
+            >
+              <X size={16} strokeWidth={3.5} color={UIColors.text} />
+            </TouchableOpacity>
+          </View>
+
+          <Text style={{
+            color: UIColors.text,
+            fontFamily: 'Papillon-Medium',
+            fontSize: 15,
+            opacity: 0.8,
+          }}>
+            {message}
+          </Text>
         </Animated.View>
       )}
 
@@ -1583,9 +1629,9 @@ const styles = StyleSheet.create({
   },
 
   tabsTabsContainer: {
-    marginTop: 8,
+    marginTop: -6,
     marginHorizontal: 16,
-    gap: 6,
+    gap: 9,
     marginBottom: 16,
   },
 
