@@ -119,6 +119,7 @@ const HomeScreen = ({ navigation }) => {
 
   // Initialise l'état pour le chargement des données
   const [loading, setLoading] = useState<boolean>(false);
+  const [hwLoading, setHwLoading] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   // Initialise les états pour l'utilisateur et les données des cours
@@ -203,6 +204,7 @@ const HomeScreen = ({ navigation }) => {
 
       // Indique que le chargement est en cours
       setLoading(true);
+      setHwLoading(true);
 
       // Récupère les informations de l'utilisateur
       const userData = await appContext.dataProvider.getUser(refreshCount > 0);
@@ -216,12 +218,15 @@ const HomeScreen = ({ navigation }) => {
       const lessons = await appContext.dataProvider.getTimetable(new Date(), refreshCount > 0, endDate);
       setLessons(lessons);
 
+      // Indique que le chargement est terminé
+      setTimeout(() => setLoading(false), 1000);
+
       // Récupère les données des devoirs
       const homeworks = await appContext.dataProvider.getHomeworks(refreshCount > 0);
       setHomeworks(homeworks);
 
       // Indique que le chargement est terminé
-      setTimeout(() => setLoading(false), 1000);
+      setHwLoading(false);
     };
 
     // Exécute la fonction de chargement des données
@@ -543,7 +548,7 @@ const HomeScreen = ({ navigation }) => {
             customHomeworks={[]}
             homeworksDays={homeworksDays}
             navigation={navigation}
-            loading={loading}
+            loading={hwLoading}
           />
         </Animated.View>
 
