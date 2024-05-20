@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Pressable, Platform, StatusBar } from 'react-native';
+import { Buffer } from 'buffer';
+import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Pressable, Platform, StatusBar, PermissionsAndroid } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { useTheme, Text, Menu, Divider } from 'react-native-paper';
@@ -23,6 +24,7 @@ import { CircleEllipsis, CircleEllipsisIcon, Lock, MoreVertical } from 'lucide-r
 import { getContextValues } from '../../utils/AppContext';
 import { RegisterTrophy } from './TrophiesScreen';
 
+import * as RNFileAccess from 'react-native-file-access'
 interface SavedColors {
   [key: string]: {
     color: string;
@@ -195,13 +197,19 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
     setSavedColors(col);
   }, []);
 
-  const exportColors = () => {
+  const exportColors = async () => {
     const data = JSON.stringify(savedColors);
     const base64 = Buffer.from(data).toString('base64');
-    
+    await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE)
+    .then(PermStatus => {
+      console.log(PermStatus)
+    })
+    RNFileAccess.FileSystem.writeFile("/storage/emulated/0/colors.json", data)
+    .then(() => { console.log("write ok")})
+    .catch(err => { console.error(err)})
     Share.open({
-      url: 'data:text/json;base64,' + base64,
-      filename: 'Papillon_CouleursMatieres_' + new Date().toISOString() + '.json',
+      url: 'data:application/json;base64,' + base64,
+      filename: 'Papillon_CouleursMatieres_' + new Date().toISOString(),
       type: 'application/json',
     });
   };
