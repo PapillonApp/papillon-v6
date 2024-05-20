@@ -132,7 +132,7 @@ const MessagesScreen = ({ route, navigation }: {
         keyExtractor={(message) => message.id}
         style={[
           {
-            marginBottom: 16,
+            marginBottom: 12,
             flex: 1,
           },
         ]}
