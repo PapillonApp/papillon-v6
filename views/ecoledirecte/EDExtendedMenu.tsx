@@ -29,12 +29,12 @@ function ModuleRenderer({ navigation, module }) {
         module.color = '#3b67d9';
       break;
 
-      case 'MESSAGERIE':
+      /*case 'MESSAGERIE':
         module.name = 'Messagerie';
         module.description = 'Vos messages';
         module.icon = <MessageSquare size={24} color='#fff' />
         module.color = '#32d98e';
-      break;
+      break;*/
 
       case 'DOCUMENTS_ELEVE':
         module.name = 'Documents';
