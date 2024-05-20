@@ -233,7 +233,7 @@ function NotificationsScreen({ navigation }: { navigation: any }) {
               Faire son sac
             </NativeText>
             <NativeText heading='p2'>
-              Vous rappel de préparer votre sac lorsque la journée actuel contient des cours.
+              Vous rappel de préparer votre sac lorsque la journée actuelle contient des cours.
             </NativeText>
           </NativeItem>
           <NativeItem
