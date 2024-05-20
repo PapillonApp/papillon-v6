@@ -13,7 +13,7 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { Link, File, Trash, FileUp, Eye } from 'lucide-react-native';
+import { Link, File, Trash, FileUp, Eye, Paperclip } from 'lucide-react-native';
 
 import * as WebBrowser from 'expo-web-browser';
 import ParsedText from 'react-native-parsed-text';
@@ -192,7 +192,7 @@ function HomeworkScreen({ route, navigation }: {
                   homeworkUploadLoading ?
                     <ActivityIndicator size="small" />
                     :
-                    <FileUp size={24} color={UIColors.text} />
+                    <Paperclip size={24} color={UIColors.text} />
                 }
                 onPress={async () => {
                   const document = await DocumentPicker.getDocumentAsync({ multiple: false, copyToCacheDirectory: true });
@@ -212,10 +212,10 @@ function HomeworkScreen({ route, navigation }: {
                 }}
               >
                 <NativeText heading="h4">
-                  Déposer ma copie
+                  Déposer un fichier
                 </NativeText>
                 <NativeText heading="p2">
-                  Utiliser un fichier de votre appareil
+                  Rendre votre devoir avec un fichier de votre appareil
                 </NativeText>
               </NativeItem>
             ) : (
