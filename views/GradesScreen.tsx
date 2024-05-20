@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Animated, ActivityIndicator, StatusBar, View, Dimensions, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Easing, Platform, Pressable } from 'react-native';
 
 // Custom imports
@@ -11,6 +11,11 @@ import NativeList from '../components/NativeList';
 import NativeItem from '../components/NativeItem';
 import NativeText from '../components/NativeText';
 
+import {
+  BottomSheetModal,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet';
+
 import { getSavedCourseColor } from '../utils/cours/ColorCoursName';
 import getClosestGradeEmoji from '../utils/cours/EmojiCoursName';
 import formatCoursName from '../utils/cours/FormatCoursName';
@@ -18,7 +23,7 @@ import formatCoursName from '../utils/cours/FormatCoursName';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
 // Icons
-import {Users2, File, TrendingDown, TrendingUp, AlertTriangle, MoreVertical, EyeOff, DivideSquare} from 'lucide-react-native';
+import { Users2, File, TrendingDown, TrendingUp, AlertTriangle, MoreVertical, EyeOff, DivideSquare, User } from 'lucide-react-native';
 import { Stats } from '../interface/icons/PapillonIcons';
 
 // Plugins
@@ -61,6 +66,14 @@ const GradesScreen = ({ navigation }: {
   const insets = useSafeAreaInsets();
   const { showActionSheetWithOptions } = useActionSheet();
 
+  const subjectAverageModal = useRef<BottomSheetModal>(null);
+
+  const showSubjectAverages = useCallback((subject) => {
+    setCurrentSubject(subject);
+    subjectAverageModal.current?.present();
+  }, []);
+  const [currentSubject, setCurrentSubject] = useState(null);
+
   // Data
   const [hideNotesTab, setHideNotesTab] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -71,8 +84,8 @@ const GradesScreen = ({ navigation }: {
   const [allGrades, setAllGrades] = React.useState<PapillonGrades | null>(null);
   const [latestGrades, setLatestGrades] = React.useState<PapillonGrades | null>(null);
   const [averages, setAverages] = React.useState<PapillonGradesViewAverages>({} as PapillonGradesViewAverages);
-  const [pronoteStudentAverage, setPronoteStudentAverage] = React.useState<number|null>(null);
-  const [pronoteClassAverage, setPronoteClassAverage] = React.useState<number|null>(null);
+  const [pronoteStudentAverage, setPronoteStudentAverage] = React.useState<number | null>(null);
+  const [pronoteClassAverage, setPronoteClassAverage] = React.useState<number | null>(null);
   const [averagesOverTime, setAveragesOverTime] = React.useState<PapillonAveragesOverTime[]>([]);
   const [classAveragesOverTime, setClassAveragesOverTime] = React.useState<PapillonAveragesOverTime[]>([]);
   const [chartLines, setChartLines] = React.useState(null);
@@ -191,11 +204,11 @@ const GradesScreen = ({ navigation }: {
         data: studentLinesData,
       }
     ];
-    
+
     setChartLines(lines);
   }, [averagesOverTime, classAveragesOverTime, UIColors.text, UIColors.border, UIColors.primary, UIColors.element]);
 
-  async function getPeriodsFromAPI (): Promise<PapillonPeriod> {
+  async function getPeriodsFromAPI(): Promise<PapillonPeriod> {
     if (hideNotesTab) return null;
     return appContext.dataProvider!.getUser().then((user) => {
       const periods = user.periodes.grades;
@@ -208,7 +221,7 @@ const GradesScreen = ({ navigation }: {
     });
   }
 
-  function getGradesFromAPI (force = false, periodName = selectedPeriod): Promise<void> {
+  function getGradesFromAPI(force = false, periodName = selectedPeriod): Promise<void> {
     if (hideNotesTab) return null;
     if (!isRefreshing) {
       setIsLoading(true);
@@ -250,11 +263,11 @@ const GradesScreen = ({ navigation }: {
 
     data.sort((a, b) => a.subject.name.localeCompare(b.subject.name));
 
-    if(grades.class_overall_average?.value > 0) {
+    if (grades.class_overall_average?.value > 0) {
       setPronoteClassAverage(grades.class_overall_average.value);
     }
 
-    if(grades.overall_average?.value > 0) {
+    if (grades.overall_average?.value > 0) {
       setPronoteStudentAverage(grades.overall_average.value);
     }
 
@@ -266,7 +279,7 @@ const GradesScreen = ({ navigation }: {
   }
 
   // Calculate averages over time
-  async function calculateAveragesOverTime (grades: PapillonGrades[], type= 'value'): Promise<Array> {
+  async function calculateAveragesOverTime(grades: PapillonGrades[], type = 'value'): Promise<Array> {
     // map grades to data with date and average value
     const data = await Promise.all(grades.map(async (grade, i) => {
       const gradesUntil = grades.slice(0, i + 1);
@@ -284,7 +297,7 @@ const GradesScreen = ({ navigation }: {
   }
 
   // Estimate averages
-  async function estimatedStudentAverages (grades: PapillonGrades): Promise<void> {
+  async function estimatedStudentAverages(grades: PapillonGrades): Promise<void> {
     const [student, group, max, min, median] = await Promise.all([
       calculateSubjectAverage(grades, 'value', gradeSettings.scale),
       calculateSubjectAverage(grades, 'average', gradeSettings.scale),
@@ -303,7 +316,7 @@ const GradesScreen = ({ navigation }: {
   }
 
   // Estimate averages over time
-  async function estimateAveragesOverTime (grades: PapillonGrades): Promise<void> {
+  async function estimateAveragesOverTime(grades: PapillonGrades): Promise<void> {
     const [averagesOverTime, classAveragesOverTime] = await Promise.all([
       calculateAveragesOverTime(grades, 'value'),
       calculateAveragesOverTime(grades, 'average')
@@ -313,22 +326,22 @@ const GradesScreen = ({ navigation }: {
   }
 
   // Parse grades
-  async function parseGrades (grades: PapillonGrades): Promise<void> {
+  async function parseGrades(grades: PapillonGrades): Promise<void> {
     addGradesToSubject(grades);
     estimatedStudentAverages(grades?.grades);
     estimateAveragesOverTime(grades?.grades);
   }
 
-  function androidPeriodChangePicker () {
+  function androidPeriodChangePicker() {
     const options = periods.map((item) => item.name);
     options.push('Annuler');
     const cancelButtonIndex = options.length - 1;
-    const containerStyle = Platform.OS === 'android' ? { paddingBottom: insets.bottom, backgroundColor: UIColors.background} : null;
+    const containerStyle = Platform.OS === 'android' ? { paddingBottom: insets.bottom, backgroundColor: UIColors.background } : null;
 
     showActionSheetWithOptions(
       {
         options,
-        cancelButtonIndex : cancelButtonIndex,
+        cancelButtonIndex: cancelButtonIndex,
         tintColor: UIColors.primary,
         containerStyle,
       },
@@ -357,7 +370,7 @@ const GradesScreen = ({ navigation }: {
     outputRange: [0, 1],
     extrapolate: 'clamp',
   });
-  
+
   const HeaderRight = ({
     navigation,
     periods,
@@ -379,7 +392,7 @@ const GradesScreen = ({ navigation }: {
         menuState: selectedPeriod === period.name ? 'on' : 'off',
       })),
     }), [periods, selectedPeriod]);
-  
+
     return (
       <View style={{
         flexDirection: 'row',
@@ -388,7 +401,7 @@ const GradesScreen = ({ navigation }: {
         gap: 12,
         marginRight: 16,
       }}>
-        { isLoading && (
+        {isLoading && (
           <ActivityIndicator />
         )}
         <ContextMenuButton
@@ -407,7 +420,7 @@ const GradesScreen = ({ navigation }: {
               paddingHorizontal: 10,
               paddingVertical: 5,
               borderRadius: 10,
-              borderCurve : 'continuous',
+              borderCurve: 'continuous',
               backgroundColor: UIColors.primary + '22',
             }}
             onPress={() => {
@@ -449,7 +462,7 @@ const GradesScreen = ({ navigation }: {
   React.useLayoutEffect(() => {
     checkIfTabEnable();
     navigation.setOptions({
-      headerTitle : 'Notes',
+      headerTitle: 'Notes',
       headerRight: () => <HeaderRight
         navigation={navigation}
         periods={periods}
@@ -470,42 +483,208 @@ const GradesScreen = ({ navigation }: {
 
   return (
     <>
-      { Platform.OS === 'ios' && (
-        <Animated.View 
-          style={
-            {
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 44 + insets.top,
-              width: '100%',
-              zIndex: 999,
-              backgroundColor: UIColors.element + '00',
-              opacity: headerOpacity,
-              borderBottomColor: UIColors.dark ? UIColors.text + '22' : UIColors.text + '55',
-              borderBottomWidth: 0.5,
-            }
-          }
-        >
-          <BlurView
-            tint={UIColors.dark ? 'dark' : 'light'}
-            intensity={80}
-            style={{
+      <BottomSheetModal
+        ref={subjectAverageModal}
+        index={1}
+        snapPoints={['10%', '60%', '90%']}
+
+        style={{
+          shadowColor: '#000000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+        }}
+
+        backgroundComponent={({ style }) => (
+          <View
+            style={[style, {
               flex: 1,
-              zIndex: 999,
-            }}
+              borderTopLeftRadius: 10,
+              borderTopRightRadius: 10,
+              borderCurve: 'continuous',
+              overflow: 'hidden',
+              backgroundColor: UIColors.modalBackground + 'ff',
+            }]}
           />
-        </Animated.View>
-      )}
-      <ScrollView
+        )}
+
+        handleComponent={() => (
+          <View />
+        )}
+      >
+        <BottomSheetView>
+          <View
+            style={{
+              backgroundColor: UIColors.background,
+              paddingVertical: 16,
+              paddingHorizontal: 16,
+
+              borderTopLeftRadius: 10,
+              borderTopRightRadius: 10,
+              borderCurve: 'continuous',
+
+              borderBottomWidth: 0.5,
+              borderBottomColor: UIColors.border,
+
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <View
+              style={{
+                width: 40,
+                height: 4,
+                backgroundColor: UIColors.border,
+                borderRadius: 2,
+                position: 'absolute',
+                top: 6,
+              }}
+            />
+
+            <NativeText
+              style={{
+                fontSize: 16.5,
+                fontFamily: 'Papillon-Semibold',
+                textAlign: 'center',
+                marginTop: 6,
+              }}
+              numberOfLines={1}
+            >
+              {currentSubject && formatCoursName(currentSubject.subject.name)}
+            </NativeText>
+          </View>
+
+          <NativeList inset header="Moyennes">
+            {currentSubject && currentSubject.average ? (
+              <NativeItem
+                leading={
+                  <User color={UIColors.text} />
+                }
+                trailing={
+                  <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 2 }}>
+                    <NativeText heading="h2">
+                      {currentSubject.average.value.toFixed(2)}
+                    </NativeText>
+                    <NativeText heading="p2">
+                      /20
+                    </NativeText>
+                  </View>
+                }
+              >
+                <NativeText heading="h4">
+                  Moyenne éleve
+                </NativeText>
+              </NativeItem>
+            ) : <View />}
+
+            {currentSubject && currentSubject.class_average ? (
+              <NativeItem
+                leading={
+                  <Users2 color={UIColors.text} />
+                }
+                trailing={
+                  <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 2 }}>
+                    <NativeText heading="h2">
+                      {currentSubject.class_average.value.toFixed(2)}
+                    </NativeText>
+                    <NativeText heading="p2">
+                      /20
+                    </NativeText>
+                  </View>
+                }
+              >
+                <NativeText heading="h4">
+                  Moyenne groupe
+                </NativeText>
+              </NativeItem>
+            ) : <View />}
+
+            {currentSubject && currentSubject.max ? (
+              <NativeItem
+                leading={
+                  <TrendingUp color={UIColors.text} />
+                }
+                trailing={
+                  <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 2 }}>
+                    <NativeText heading="h2">
+                      {currentSubject.max.value.toFixed(2)}
+                    </NativeText>
+                    <NativeText heading="p2">
+                      /20
+                    </NativeText>
+                  </View>
+                }
+              >
+                <NativeText heading="h4">
+                  Moyenne max.
+                </NativeText>
+              </NativeItem>
+            ) : <View />}
+
+            {currentSubject && currentSubject.min ? (
+              <NativeItem
+                leading={
+                  <TrendingDown color={UIColors.text} />
+                }
+                trailing={
+                  <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 2 }}>
+                    <NativeText heading="h2">
+                      {currentSubject.min.value.toFixed(2)}
+                    </NativeText>
+                    <NativeText heading="p2">
+                      /20
+                    </NativeText>
+                  </View>
+                }
+              >
+                <NativeText heading="h4">
+                  Moyenne min.
+                </NativeText>
+              </NativeItem>
+            ) : <View />}
+          </NativeList>
+
+        </BottomSheetView>
+      </BottomSheetModal >
+
+      {
+        Platform.OS === 'ios' && (
+          <Animated.View
+            style={
+              {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 44 + insets.top,
+                width: '100%',
+                zIndex: 999,
+                backgroundColor: UIColors.element + '00',
+                opacity: headerOpacity,
+                borderBottomColor: UIColors.dark ? UIColors.text + '22' : UIColors.text + '55',
+                borderBottomWidth: 0.5,
+              }
+            }
+          >
+            <BlurView
+              tint={UIColors.dark ? 'dark' : 'light'}
+              intensity={80}
+              style={{
+                flex: 1,
+                zIndex: 999,
+              }}
+            />
+          </Animated.View>
+        )
+      }
+      < ScrollView
         contentInsetAdjustmentBehavior='automatic'
         style={{ backgroundColor: UIColors.backgroundHigh, flex: 1, paddingTop: Platform.OS === 'ios' && insets.top }}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         refreshControl={
-          <RefreshControl
-            refreshing={hideNotesTab ? false:isRefreshing}
+          < RefreshControl
+            refreshing={hideNotesTab ? false : isRefreshing}
             progressViewOffset={Platform.OS === 'ios' ? 100 : 0}
             onRefresh={() => {
               setIsRefreshing(true);
@@ -516,71 +695,88 @@ const GradesScreen = ({ navigation }: {
       >
         <StatusBar translucent animated barStyle={UIColors.dark ? 'light-content' : 'dark-content'} backgroundColor={UIColors.backgroundHigh} />
 
-        { insets.top < 24 && Platform.OS === 'ios' && (
-          <View style={{ height: 32 }} />
-        )}
+        {
+          insets.top < 24 && Platform.OS === 'ios' && (
+            <View style={{ height: 32 }} />
+          )
+        }
 
-        {hideNotesTab && (
-          <PapillonLoading
-            title='Onglet notes désactivé'
-            subtitle='Vos notes sont masquées.'
-            icon={<EyeOff stroke={UIColors.text}/>}
-          />
-        )}
+        {
+          hideNotesTab && (
+            <PapillonLoading
+              title='Onglet notes désactivé'
+              subtitle='Vos notes sont masquées.'
+              icon={<EyeOff stroke={UIColors.text} />}
+            />
+          )
+        }
 
-        {grades.length === 0 && !hideNotesTab && (
-          <PapillonLoading
-            title='Aucune note à afficher'
-            subtitle='Vos notes apparaîtront ici.'
-            icon={<Stats stroke={UIColors.text}/>}
-          />
-        )}
+        {
+          grades.length === 0 && !hideNotesTab && (
+            <PapillonLoading
+              title='Aucune note à afficher'
+              subtitle='Vos notes apparaîtront ici.'
+              icon={<Stats stroke={UIColors.text} />}
+            />
+          )
+        }
 
-        { averages.student && averages.student > 0 && !hideNotesTab && (
-          <GradesAverageHistory
-            isLoading={isLoading}
-            averages={averages}
-            chartLines={chartLines}
-            chartPoint={chartPoint}
-            setChartPoint={setChartPoint}
-            gradeSettings={gradeSettings}
-            pronoteStudentAverage={pronoteStudentAverage}
-          />
-        )}
+        {
+          averages.student && averages.student > 0 && !hideNotesTab && (
+            <GradesAverageHistory
+              isLoading={isLoading}
+              averages={averages}
+              chartLines={chartLines}
+              chartPoint={chartPoint}
+              setChartPoint={setChartPoint}
+              gradeSettings={gradeSettings}
+              pronoteStudentAverage={pronoteStudentAverage}
+            />
+          )
+        }
 
-        { latestGrades && latestGrades.length > 0 && !hideNotesTab && (
-          <LatestGradesList
-            isLoading={isLoading}
-            grades={latestGrades}
-            gradeSettings={gradeSettings}
-            navigation={navigation}
-            allGrades={allGrades}
-          />
-        )}
+        {
+          latestGrades && latestGrades.length > 0 && !hideNotesTab && (
+            <LatestGradesList
+              isLoading={isLoading}
+              grades={latestGrades}
+              gradeSettings={gradeSettings}
+              navigation={navigation}
+              allGrades={allGrades}
+            />
+          )
+        }
 
-        { Platform.OS === 'android' && (
-          <View style={{ height: 16 }} />
-        )}
+        {
+          Platform.OS === 'android' && (
+            <View style={{ height: 16 }} />
+          )
+        }
 
-        { averages.student && averages.student > 0 && !hideNotesTab && (
-          <GradesAveragesList
-            isLoading={isLoading}
-            UIaverage={UIaverage}
-            gradeSettings={gradeSettings}
-          />
-        )}
-        {!hideNotesTab && (
-          <GradesList
-            grades={grades}
-            allGrades={allGrades}
-            gradeSettings={gradeSettings}
-            navigation={navigation}
-            UIColors={UIColors}
-          />
-        )}
+        {
+          averages.student && averages.student > 0 && !hideNotesTab && (
+            <GradesAveragesList
+              isLoading={isLoading}
+              UIaverage={UIaverage}
+              gradeSettings={gradeSettings}
+            />
+          )
+        }
+        {
+          !hideNotesTab && (
+            <GradesList
+              grades={grades}
+              allGrades={allGrades}
+              gradeSettings={gradeSettings}
+              navigation={navigation}
+              UIColors={UIColors}
+              showSubjectAverages={showSubjectAverages}
+            />
+          )
+        }
         <View style={{ height: 56 }} />
-      
-      </ScrollView>
+
+      </ScrollView >
     </>
   );
 };
@@ -693,7 +889,7 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
               </NativeText>
 
               <View style={subjectStyles.smallGradeContainer}>
-                { grade.grade.value?.value ? ( 
+                {grade.grade.value?.value ? (
                   <NativeText style={subjectStyles.smallGradeValue}>
                     {((grade.grade.value?.value / grade.grade.out_of.value) * gradeSettings.scale).toFixed(2)}
                   </NativeText>
@@ -703,7 +899,7 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
                   </NativeText>
                 )}
                 <NativeText style={subjectStyles.smallGradeScale}>
-                    /{gradeSettings.scale.toFixed(0)}
+                  /{gradeSettings.scale.toFixed(0)}
                 </NativeText>
               </View>
             </View>
@@ -714,7 +910,7 @@ const LatestGradesList = React.memo(({ isLoading, grades, allGrades, gradeSettin
   </>);
 });
 
-const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation, UIColors }) => {
+const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation, UIColors, showSubjectAverages = () => { } }) => {
   const showGrade = useCallback((grade) => {
     navigation.navigate('Grade', {
       grade,
@@ -746,7 +942,9 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation, U
                 borderTopRightRadius: 12,
                 overflow: 'hidden',
               }
-            ]}>
+            ]}
+              onPress={() => showSubjectAverages(subject)}
+            >
               <View style={subjectStyles.subjectInfoContainer}>
                 <NativeText style={subjectStyles.subjectName} numberOfLines={1}>
                   {formattedCourseName}
@@ -793,7 +991,7 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation, U
                   }
                   trailing={
                     <View style={subjectStyles.inGradeView}>
-                      {(grade.subjectFile  || grade.correctionFile) && (
+                      {(grade.subjectFile || grade.correctionFile) && (
                         <File size={20} strokeWidth={2.2} color={UIColors.text} />
                       )}
 
@@ -803,11 +1001,11 @@ const GradesList = React.memo(({ grades, allGrades, gradeSettings, navigation, U
                             {gradeValue}
                           </NativeText>
                           <NativeText heading="p" style={subjectStyles.gradeScale}>
-                              /{gradeScale}
+                            /{gradeScale}
                           </NativeText>
                         </View>
 
-                        { parseFloat(grade.grade.coefficient) !== 1 && (
+                        {parseFloat(grade.grade.coefficient) !== 1 && (
                           <NativeText heading="p" style={subjectStyles.gradeCoef}>
                             Coeff. {grade.grade.coefficient}
                           </NativeText>
@@ -909,18 +1107,18 @@ const GradesAverageHistory = React.memo(({ isLoading, averages, chartLines, char
       <View style={[styles.chart.header.container]}>
         <View style={[styles.chart.header.title.container]}>
           {currentDate ? (
-            <NativeText heading="p" style={[styles.chart.header.title.text, {opacity: 0.5}]}>
+            <NativeText heading="p" style={[styles.chart.header.title.text, { opacity: 0.5 }]}>
               au {new Date(currentDate).toLocaleDateString('fr-FR', { month: 'long', day: 'numeric' })}
             </NativeText>
           ) : (
             <NativeText heading="p" style={[styles.chart.header.title.text]}>
-                Moyenne générale
+              Moyenne générale
             </NativeText>
           )}
 
-          <TouchableOpacity style={[{flexDirection: 'row', alignItems: 'center', gap:6}]}>
+          <TouchableOpacity style={[{ flexDirection: 'row', alignItems: 'center', gap: 6 }]}>
             <AlertTriangle size={20} strokeWidth={2.2} color={UIColors.primary} />
-            <NativeText heading="p" style={[styles.chart.header.title.text, {color: UIColors.primary}]}>
+            <NativeText heading="p" style={[styles.chart.header.title.text, { color: UIColors.primary }]}>
               {isReal ? 'Moyenne réelle' :
                 reevaluated ? 'Estim. réévaluée' : 'Estimation'}
             </NativeText>
@@ -936,7 +1134,7 @@ const GradesAverageHistory = React.memo(({ isLoading, averages, chartLines, char
           </NativeText>
         </View>
       </View>
-      { chartLines[0] && chartLines[0].data.length > 2 ? (
+      {chartLines[0] && chartLines[0].data.length > 2 ? (
         <View>
           <LineChart
             lines={chartLines}
@@ -951,7 +1149,7 @@ const GradesAverageHistory = React.memo(({ isLoading, averages, chartLines, char
           />
         </View>
       ) : (
-        <View style={{height: 8}} />
+        <View style={{ height: 8 }} />
       )}
     </View>
   );
@@ -1122,7 +1320,7 @@ const subjectStyles = StyleSheet.create({
     gap: 12,
   },
 
-  inGradeContainer : {
+  inGradeContainer: {
     flexDirection: 'column',
     alignItems: 'flex-end',
     gap: 3,
@@ -1184,7 +1382,7 @@ const subjectStyles = StyleSheet.create({
     fontSize: 15,
     opacity: 0.5,
   },
-  
+
 });
 
 export default GradesScreen;
