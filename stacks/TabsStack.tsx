@@ -40,8 +40,9 @@ const views = [
       tabBarLabel: 'Accueil',
       tabBarIcon: ({ color, size, focused }) =>
         getIcon(PapillonIconsHome, PapillonIconsHomeFill, color, size, focused),
-      headerShown: false,
-      color: 'red',
+      headerShown: true,
+      headerShadowVisible: false,
+      color: '#29947a',
     },
   },
   {
