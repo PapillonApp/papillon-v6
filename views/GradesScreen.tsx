@@ -515,7 +515,7 @@ const GradesScreen = ({ navigation }: {
         <BottomSheetView>
           <View
             style={{
-              backgroundColor: UIColors.background,
+              backgroundColor: UIColors.element,
               paddingVertical: 16,
               paddingHorizontal: 16,
 
@@ -524,7 +524,7 @@ const GradesScreen = ({ navigation }: {
               borderCurve: 'continuous',
 
               borderBottomWidth: 0.5,
-              borderBottomColor: UIColors.border,
+              borderBottomColor: UIColors.text + '30',
 
               alignItems: 'center',
               justifyContent: 'center',
