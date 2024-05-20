@@ -514,39 +514,54 @@ const GradesScreen = ({ navigation }: {
       >
         <BottomSheetView>
           <View
-            style={{
-              backgroundColor: UIColors.element,
-              paddingVertical: 16,
-              paddingHorizontal: 16,
+            style={[
+              Platform.OS === 'ios' ? {
+                backgroundColor: UIColors.element,
+                paddingVertical: 16,
+                paddingHorizontal: 16,
 
-              borderTopLeftRadius: 10,
-              borderTopRightRadius: 10,
-              borderCurve: 'continuous',
+                borderTopLeftRadius: 10,
+                borderTopRightRadius: 10,
+                borderCurve: 'continuous',
 
-              borderBottomWidth: 0.5,
-              borderBottomColor: UIColors.text + '30',
+                borderBottomWidth: 0.5,
+                borderBottomColor: UIColors.text + '30',
 
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+                alignItems: 'center',
+                justifyContent: 'center',
+              } : {
+                backgroundColor: UIColors.element,
+                paddingVertical: 16,
+                paddingHorizontal: 20,
+
+                borderTopLeftRadius: 8,
+                borderTopRightRadius: 8,
+                borderCurve: 'continuous',
+
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+              }
+            ]}
           >
-            <View
-              style={{
-                width: 40,
-                height: 4,
-                backgroundColor: UIColors.border,
-                borderRadius: 2,
-                position: 'absolute',
-                top: 6,
-              }}
-            />
+            {Platform.OS === 'ios' ?
+              <View
+                style={{
+                  width: 40,
+                  height: 4,
+                  backgroundColor: UIColors.border,
+                  borderRadius: 2,
+                  position: 'absolute',
+                  top: 6,
+                }}
+              />
+              : null}
 
             <NativeText
               style={{
                 fontSize: 16.5,
                 fontFamily: 'Papillon-Semibold',
                 textAlign: 'center',
-                marginTop: 6,
+                marginTop: Platform.OS === 'ios' ? 6 : 0,
               }}
               numberOfLines={1}
             >
