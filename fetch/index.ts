@@ -244,12 +244,17 @@ export class IndexDataInstance {
    * If the user is offline and/or the cache fails, an
    * empty list is returned.
    */
-  public async getTimetable (day: Date, force = false): Promise<PapillonLesson[]> {
+  public async getTimetable (day: Date, force = false, day2: Date): Promise<PapillonLesson[]> {
     await this.waitInit();
 
     // JS dates are starting from Sunday, we do `+1` to be on Monday;
-    const mondayIndex = day.getDate() - day.getDay() + 1;
-    const sundayIndex = mondayIndex + 6;
+    let mondayIndex = day.getDate() - day.getDay() + 1;
+    let sundayIndex = mondayIndex + 6;
+
+    if(day2) {
+      mondayIndex = day.getDate();
+      sundayIndex = day2.getDate();
+    };
 
     const monday = new Date(day);
     monday.setDate(mondayIndex);

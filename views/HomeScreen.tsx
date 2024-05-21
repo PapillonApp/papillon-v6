@@ -1,52 +1,66 @@
-import React, { useMemo, useEffect, useState, useRef } from 'react';
-
-import {
-  View,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Image,
-  Animated,
-  Easing,
-  TouchableHighlight,
-  ActivityIndicator,
-  RefreshControl,
-  Linking,
-  Platform,
-  StatusBar,
-  TouchableOpacity,
-  Dimensions,
-  DeviceEventEmitter,
-} from 'react-native';
-
-// Components & Styles
-import { useTheme, Text, Menu, Divider } from 'react-native-paper';
-import { PressableScale } from 'react-native-pressable-scale';
-import { ContextMenuButton } from 'react-native-ios-context-menu';
-
-// Modules
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as WebBrowser from 'expo-web-browser';
-import { useIsFocused } from '@react-navigation/native';
+import React, { useEffect, useState, useLayoutEffect, useRef, useMemo } from 'react';
+import { View, Platform, ScrollView, StyleSheet, Image, TouchableOpacity, RefreshControl, ActivityIndicator, StatusBar, TouchableHighlight } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { atom, useAtom, useSetAtom } from 'jotai';
+import { homeworksAtom, homeworksUntilNextWeekAtom } from '../atoms/homeworks';
+
+import CheckAnimated from '../interface/CheckAnimated';
+import { convert as convertHTML } from 'html-to-text';
+
+import formatCoursName from '../utils/cours/FormatCoursName';
+import TimeSeparator from '../interface/CoursScreen/TimeSeparator';
+
 import {
   ContextMenuView,
   MenuElementConfig,
 } from 'react-native-ios-context-menu';
-import NextCoursElem from '../interface/HomeScreen/NextCours';
-import * as ExpoLinking from 'expo-linking';
-import * as Haptics from 'expo-haptics';
 
-import QuickActions, { ShortcutItem } from 'react-native-quick-actions';
+import Animated, {
+  FadeInDown,
+  FadeOutUp,
+  ZoomInEasyDown,
+  ZoomOutEasyUp,
+  ZoomIn,
+  ZoomOut,
+  FadeIn,
+  FadeOut,
+  FlipInXUp,
+  FlipInXDown,
+  LinearTransition,
+  ZoomInEasyUp,
+  FadeInUp,
+  useSharedValue,
+  useAnimatedStyle,
+  useAnimatedScrollHandler,
+  interpolate,
+  FadeOutDown
+} from 'react-native-reanimated';
 
-// Icons
+import NativeText from '../components/NativeText';
+
+import GetUIColors from '../utils/GetUIColors';
+import { useAppContext } from '../utils/AppContext';
+import { PapillonUser } from '../fetch/types/user';
+import { PapillonLesson } from '../fetch/types/timetable';
+import GetNextCours from '../utils/cours/GetNextCours';
+import GetLessonStartTime from '../utils/cours/GetLessonStartTime';
+import { PressableScale } from 'react-native-pressable-scale';
+import { getClosestCourseColor, getSavedCourseColor } from '../utils/cours/ColorCoursName';
+
 import {
+  User2,
+  Locate,
   DownloadCloud,
   AlertCircle,
   UserCircle2,
   Globe2,
   X,
+  MapPin,
 } from 'lucide-react-native';
+
+import { useTheme, Text } from 'react-native-paper';
+
 import {
   Competences,
   Messages,
@@ -56,265 +70,67 @@ import {
   Book as PapillonIconsBook,
 } from '../interface/icons/PapillonIcons';
 
-// Formatting
-import GetUIColors from '../utils/GetUIColors';
-import { getSavedCourseColor } from '../utils/cours/ColorCoursName';
-import formatCoursName from '../utils/cours/FormatCoursName';
-
-// Custom components
-import CheckAnimated from '../interface/CheckAnimated';
-import ModalBottom from '../interface/ModalBottom';
-import PapillonCloseButton from '../interface/PapillonCloseButton';
-
-import { useAppContext } from '../utils/AppContext';
-import { LinearGradient } from 'expo-linear-gradient';
-
-import { useNetInfo } from '@react-native-community/netinfo';
-import AlertAnimated from '../interface/AlertAnimated';
-import type { PapillonUser } from '../fetch/types/user';
-import type { PapillonLesson } from '../fetch/types/timetable';
-import type {
-  PapillonGroupedHomeworks,
-  PapillonHomework,
-} from '../fetch/types/homework';
-import { dateToFrenchFormat } from '../utils/dates';
-import { convert as convertHTML } from 'html-to-text';
-import { atom, useAtom, useSetAtom } from 'jotai';
-import { homeworksAtom, homeworksUntilNextWeekAtom } from '../atoms/homeworks';
-import NativeText from '../components/NativeText';
-
 import { GetRessource } from '../utils/GetRessources/GetRessources';
+import { PapillonGroupedHomeworks } from '../fetch/types/homework';
+import { BlurView } from 'expo-blur';
 
-// Functions
+const useRealTimeCourse = (lessons: PapillonLesson[] | null) => {
+  // Initialise le prochain cours et son heure de début
+  const [nextCourse, setNextCourse] = useState<PapillonLesson | null>(null);
+  const [nextCourseStartTime, setNextCourseStartTime] = useState<string | null>('');
 
-const openURL = (url: string) => {
-  const isURL = url.includes('http://') || url.includes('https://');
+  // Effectue une mise à jour du prochain cours et de son heure de début toutes les secondes
+  useEffect(() => {
+    if (lessons) {
+      // Récupère le prochain cours
+      const next = GetNextCours(lessons);
+      setNextCourse(next);
 
-  if (!isURL) {
-    Alert.alert(
-      'URL invalide',
-      'Le lien fourni par votre établissement ne peut pas être ouvert.',
-      [
-        {
-          text: 'OK',
-          style: 'cancel',
-        },
-        {
-          text: 'Ouvrir quand même',
-          onPress: () => {
-            Linking.openURL(`https://${url}`);
-          },
-        },
-      ]
-    );
-    return;
-  }
+      // Met à jour l'heure de début du prochain cours
+      setNextCourseStartTime(next ? GetLessonStartTime(next) : '');
+    }
 
-  WebBrowser.openBrowserAsync(url, {
-    dismissButtonStyle: 'done',
-    presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
-    controlsColor: Platform.OS === 'ios' ? '#32AB8E' : void 0,
-    readerMode: true,
-    createTask: false,
-  });
+    // Intervalle pour la mise à jour
+    const intervalId = setInterval(() => {
+      if (lessons) {
+        // Vérifie s'il y a un nouveau prochain cours
+        const updatedNextCourse = GetNextCours(lessons);
+        if (updatedNextCourse !== nextCourse) {
+          setNextCourse(updatedNextCourse);
+          setNextCourseStartTime(GetLessonStartTime(updatedNextCourse) || '');
+        }
+      }
+    }, 1000);
+
+    // Libère l'intervalle lors du démontage du composant
+    return () => clearInterval(intervalId);
+  }, [lessons]);
+
+  // Retourne le prochain cours et son heure de début
+  return { nextCourse, nextCourseStartTime };
 };
 
-import Carousel from 'react-native-reanimated-carousel';
-import TimeSeparator from '../interface/CoursScreen/TimeSeparator';
-import { RegisterTrophy } from './Settings/TrophiesScreen';
-
-// create list of dict from THEMES_IMAGES
-const THEMES_IMAGES_LIST = [
-  {
-    key: 'papillon/default',
-    name: '(Ne rien mettre)',
-    image: require('../assets/themes/papillon/default.png'),
-  },
-  {
-    key: 'papillon/grospapillon',
-    name: 'Grand Papillon',
-    image: require('../assets/themes/papillon/grospapillon.png'),
-  },
-  {
-    key: 'papillon/papillonligne',
-    name: 'Linear Beauty',
-    image: require('../assets/themes/papillon/papillonligne.png'),
-  },
-  {
-    key: 'papillon/papillonlumineux',
-    name: 'Luminous Butterfly',
-    image: require('../assets/themes/papillon/papillonlumineux.png'),
-  },
-  {
-    key: 'papillon/papillonpapier',
-    name: 'Paper Grace',
-    image: require('../assets/themes/papillon/papillonpapier.png'),
-  },
-  {
-    key: 'papillon/papillonplusieurs',
-    name: 'Multiplicity Elegance',
-    image: require('../assets/themes/papillon/papillonplusieurs.png'),
-  },
-  {
-    key: 'papillon/formes',
-    name: 'Abstract Wings',
-    image: require('../assets/themes/papillon/formes.png'),
-  },
-  {
-    key: 'papillon/formescolor',
-    name: 'Abstract Wings (en couleur)',
-    image: require('../assets/themes/papillon/formescolor.png'),
-  },
-  {
-    key: 'hero/circuit',
-    name: 'Circuitry Quest',
-    image: require('../assets/themes/hero/circuit.png'),
-  },
-  {
-    key: 'hero/damier',
-    name: 'Checkered Realm',
-    image: require('../assets/themes/hero/damier.png'),
-  },
-  {
-    key: 'hero/flakes',
-    name: 'Frosty Flakes',
-    image: require('../assets/themes/hero/flakes.png'),
-  },
-  {
-    key: 'hero/movement',
-    name: 'Dynamic Motion',
-    image: require('../assets/themes/hero/movement.png'),
-  },
-  {
-    key: 'hero/sparkcircle',
-    name: 'Sparkling Halo',
-    image: require('../assets/themes/hero/sparkcircle.png'),
-  },
-  {
-    key: 'hero/topography',
-    name: 'Topographic Vision',
-    image: require('../assets/themes/hero/topography.png'),
-  },
-  {
-    key: 'hero/wave',
-    name: 'Wavy Horizon',
-    image: require('../assets/themes/hero/wave.png'),
-  },
-  {
-    key: 'gribouillage/clouds',
-    name: 'Doodle Cloudscape',
-    image: require('../assets/themes/gribouillage/clouds.png'),
-  },
-  {
-    key: 'gribouillage/cross',
-    name: 'Crosshatch Dreams',
-    image: require('../assets/themes/gribouillage/cross.png'),
-  },
-  {
-    key: 'gribouillage/gribs',
-    name: 'Gribble Whirl',
-    image: require('../assets/themes/gribouillage/gribs.png'),
-  },
-  {
-    key: 'gribouillage/hearts',
-    name: 'Heartfelt Scribbles',
-    image: require('../assets/themes/gribouillage/hearts.png'),
-  },
-  {
-    key: 'gribouillage/heavy',
-    name: 'Heavy Sketch',
-    image: require('../assets/themes/gribouillage/heavy.png'),
-  },
-  {
-    key: 'gribouillage/lines',
-    name: 'Ink Lines Odyssey',
-    image: require('../assets/themes/gribouillage/lines.png'),
-  },
-  {
-    key: 'gribouillage/stars',
-    name: 'Starry Doodles',
-    image: require('../assets/themes/gribouillage/stars.png'),
-  },
-  {
-    key: 'artdeco/arrows',
-    name: 'Arrow Symphony',
-    image: require('../assets/themes/artdeco/arrows.png'),
-  },
-  {
-    key: 'artdeco/clouds',
-    name: 'Cloud Mirage',
-    image: require('../assets/themes/artdeco/clouds.png'),
-  },
-  {
-    key: 'artdeco/cubes',
-    name: 'Cubist Echo',
-    image: require('../assets/themes/artdeco/cubes.png'),
-  },
-  {
-    key: 'artdeco/sparks',
-    name: 'Sparkling Artistry',
-    image: require('../assets/themes/artdeco/sparks.png'),
-  },
-  {
-    key: 'artdeco/stripes',
-    name: 'Striped Illusion',
-    image: require('../assets/themes/artdeco/stripes.png'),
-  },
-];
-
-// make an array of images
-const THEMES_IMAGES = THEMES_IMAGES_LIST.map((theme) => theme.image);
-
-function HomeScreen({ navigation }: { navigation: any }) {
+const HomeScreen = ({ navigation }) => {
+  // Récupère le contexte de l'application, les couleurs de l'interface et les insets
   const appContext = useAppContext();
-  const theme = useTheme();
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
-  const isFocused = useIsFocused();
-  const expoLinkedURL = ExpoLinking.useURL();
 
-  const [refreshing, setRefreshing] = useState(false);
-  const refreshingAnim = useRef(new Animated.Value(0)).current;
-  const [customHomeworks] = useState([]); // TODO ?
+  // Initialise l'état pour le rafraîchissement des données
+  const [refreshCount, setRefreshCount] = useState<number>(0);
+
+  // Initialise l'état pour le chargement des données
+  const [loading, setLoading] = useState<boolean>(false);
+  const [hwLoading, setHwLoading] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+
+  // Initialise les états pour l'utilisateur et les données des cours
+  const [user, setUser] = useState<PapillonUser | null>(null);
+  const [lessons, setLessons] = useState<PapillonLesson[] | null>(null);
+
   const [homeworksDays, setHomeworksDays] = useState<
     Array<{ custom: boolean; date: number }>
   >([]);
-
-  useEffect(() => {
-    if (refreshing) {
-      Animated.timing(refreshingAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: false,
-      }).start();
-    }
-    else {
-      refreshingAnim.setValue(0);
-    }
-  }, [refreshing]);
-
-  const [showsTomorrowLessons, setShowsTomorrowLessons] = useState(false);
-  const net = useNetInfo();
-  const now = new Date();
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
-
-  function checkTerms() {
-    AsyncStorage.getItem('ppln_terms').then((value) => {
-      if (!value) {
-        navigation.navigate('ConsentScreen');
-      }
-    });
-  }
-
-  // check terms on focus
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      checkTerms();
-    });
-  }, [navigation]);
 
   const setHomeworks = useSetAtom(homeworksAtom);
   const [groupedHomeworks] = useAtom(
@@ -348,7 +164,7 @@ function HomeScreen({ navigation }: { navigation: any }) {
             });
 
             const formattedDate =
-              homeworkDate.getDate() === now.getDate() + 1
+              homeworkDate.getDate() === new Date().getDate() + 1
                 ? 'demain'
                 : new Date(homeworkDate).toLocaleDateString('fr-FR', {
                   weekday: 'long',
@@ -379,1208 +195,372 @@ function HomeScreen({ navigation }: { navigation: any }) {
     )
   );
 
-  // url handling
+  // Récupère le prochain cours et son heure de début à partir du hook useRealTimeCourse
+  const { nextCourse, nextCourseStartTime } = useRealTimeCourse(lessons);
+
+  // Effectue le chargement des données de l'utilisateur et des cours lors du montage du composant
   useEffect(() => {
-    setTimeout(() => {
-      if (expoLinkedURL) handleURL(expoLinkedURL);
-    }, 1000);
-
-    // subscribe to url changes
-    ExpoLinking.addEventListener('url', ({ url }) => {
-      handleURL(url);
-    });
-  }, [expoLinkedURL]);
-
-  // quick actions
-  useEffect(() => {
-    if (Platform.OS === 'android') return;
-
-    const processShortcut = (item: ShortcutItem) => {
-      if (item.type === 'Navigation') {
-        console.log('Processing shortcut', item.title);
-        navigation.navigate(item.userInfo.url);
-      }
-    };
-
-    QuickActions.setShortcutItems([
-      {
-        type: 'Navigation', // Required
-        title: 'Cours',
-        icon: 'cal', // Icons instructions below
-        userInfo: {
-          url: 'CoursHandler' // Provide any custom data like deep linking URL
-        }
-      },
-      {
-        type: 'Navigation', // Required
-        title: 'Devoirs',
-        icon: 'check_custom', // Icons instructions below
-        userInfo: {
-          url: 'DevoirsHandler' // Provide any custom data like deep linking URL
-        }
-      },
-      {
-        type: 'Navigation', // Required
-        title: 'Notes',
-        icon: 'chart_pie_custom', // Icons instructions below
-        userInfo: {
-          url: 'NotesHandler' // Provide any custom data like deep linking URL
-        }
-      },
-      {
-        type: 'Navigation', // Required
-        title: 'Actualités',
-        icon: 'news_custom', // Icons instructions below
-        userInfo: {
-          url: 'NewsHandler' // Provide any custom data like deep linking URL
-        }
-      },
-    ]);
-
-    // if app was opened from a quick action
-    QuickActions.popInitialAction().then(item => {
-      processShortcut(item);
-    }).catch(() => {
-      // There was no shortcut item
-      console.log('No initial action');
-    });
-
-    // if app was opened from a quick action while it was in background
-    DeviceEventEmitter.addListener('quickActionShortcut', (item: ShortcutItem) => {
-      console.log(item.title);
-      processShortcut(item);
-    });
-
-    // cleanup
-    return () => {
-      QuickActions.clearShortcutItems();
-      DeviceEventEmitter.removeAllListeners('quickActionShortcut');
-    };
-  }, []);
-
-  /**
-   * For now, it only handles papillon://grade?=... URLs.
-   * @param url The URL to handle.
-   */
-  const handleURL = (url: string): void => {
-    // if url is papillon://grade?=...
-    if (!url || !url.startsWith('papillon://grade?=')) return;
-    const grade = url.split('papillon://grade?=')[1];
-
-    // decode base64
-    const decodedGrade = Buffer.from(grade, 'base64').toString();
-
-    // remove everything before the first { and after the last }
-    const decodedGradeRegex = decodedGrade.replace(/.*?({.*}).*/g, '$1');
-
-    // parse JSON
-    const decodedGradeJSON = JSON.parse(decodedGradeRegex);
-
-    // open grade modal
-    navigation.navigate('Grade', {
-      grade: decodedGradeJSON,
-      allGrades: [decodedGradeJSON],
-    });
-  };
-
-  const [themeAdjustments, setThemeAdjustments] = useState({
-    enabled: true,
-    color: '#32AB8E',
-    image: 'papillon/default',
-  });
-
-  const [nextColor, setNextColor] = useState('#32AB8E');
-
-  React.useLayoutEffect(() => {
-    AsyncStorage.getItem('hs_themeIndex').then((value) => {
-      if (value) {
-        console.log('Setting theme index to', value);
-        setCurrentThemeIndex(parseInt(value));
-      }
-    });
-  }, []);
-
-  const loadCustomHomeworks = async (): Promise<void> => {
-    return; // TODO
-    const customHomeworks = await AsyncStorage.getItem('customHomeworks');
-    const homeworks: any[] = JSON.parse(customHomeworks || '[]');
-
-    homeworks.forEach((homework) => {
-      let hwDate = new Date(homework.date);
-      hwDate.setHours(0, 0, 0, 0);
-
-      setHomeworksDays((prevDays) => {
-        const newDays = [...prevDays];
-
-        // check if day already exists
-        if (!newDays.find((day) => day.date === hwDate.getTime())) {
-          newDays.push({
-            date: hwDate.getTime(),
-            custom: true,
-          });
-        }
-
-        // sort days
-        newDays.sort((a, b) => a.date - b.date);
-
-        return newDays;
-      });
-    });
-
-    // setCustomHomeworks(homeworks);
-  };
-
-  /**
-   * Once the data has been fetched from either cache or APIs,
-   * we need to process them before displaying.
-   */
-  const applyHomeworksAndLessonsData = async (
-    lessons: PapillonLesson[]
-  ): Promise<void> => {
-    setLessons({ loading: false, data: lessons });
-
-    await loadCustomHomeworks();
-  };
-
-  /**
-   * `data` is only allowed when we strictly
-   * check that the state is not loading.
-   */
-  type LazyLoadedValue<T> =
-    | {
-        loading: true;
-        data: null;
-      }
-    | {
-        loading: false;
-        data: T;
-      };
-
-  const [user, setUser] = useState<LazyLoadedValue<PapillonUser>>({
-    loading: true,
-    data: null,
-  });
-
-  const [lessons, setLessons] = useState<LazyLoadedValue<PapillonLesson[]>>({
-    loading: true,
-    data: null,
-  });
-
-  /**
-   * Fetch timetable (1st) and homeworks (2nd) and apply them
-   * so that they can be displayed.
-   *
-   * @param force - Whether to force the refresh of the data.
-   */
-  const refreshScreenData = async (force: boolean): Promise<void> => {
-    try {
+    const fetchData = async () => {
+      // Vérifie si le dataProvider est disponible
       if (!appContext.dataProvider) return;
 
-      const todayKey = dateToFrenchFormat(now);
-      let timetable = await appContext.dataProvider.getTimetable(now, force);
-      // Take only the lessons that are for today.
-      let lessons = timetable.filter(
-        (lesson) => dateToFrenchFormat(new Date(lesson.start)) === todayKey
-      );
+      // Indique que le chargement est en cours
+      setLoading(true);
+      setHwLoading(true);
 
-      // Check if all lessons for today are done.
-      const todayLessonsDone = lessons.every(
-        (lesson) => new Date(lesson.end) < now
-      );
+      // Récupère les informations de l'utilisateur
+      const userData = await appContext.dataProvider.getUser(refreshCount > 0);
+      setUser(userData);
 
-      if (todayLessonsDone) {
-        const tomorrowKey = dateToFrenchFormat(tomorrow);
+      // Définit la date de fin pour récupérer les cours de la semaine
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + 7);
 
-        // Check if tomorrow is monday.
-        const isTomorrowMonday = tomorrow.getDay() === 1;
+      // Récupère les données des cours de la semaine
+      const lessons = await appContext.dataProvider.getTimetable(new Date(), refreshCount > 0, endDate);
+      setLessons(lessons);
 
-        // We need to fetch next week's timetable.
-        if (isTomorrowMonday) {
-          timetable = await appContext.dataProvider.getTimetable(
-            tomorrow,
-            force
-          );
-        } // else, we just keep our current timetable array.
+      // Indique que le chargement est terminé
+      setTimeout(() => setLoading(false), 1000);
 
-        lessons = timetable.filter(
-          (lesson) => dateToFrenchFormat(new Date(lesson.start)) === tomorrowKey
-        );
-        setShowsTomorrowLessons(true);
-      }
+      // Récupère les données des devoirs
+      const homeworks = await appContext.dataProvider.getHomeworks(refreshCount > 0);
+      setHomeworks(homeworks);
 
-      if (groupedHomeworks === null) {
-        const homeworks = await appContext.dataProvider.getHomeworks(force);
-        setHomeworks(homeworks);
-      }
+      // Indique que le chargement est terminé
+      setHwLoading(false);
+    };
 
-      await applyHomeworksAndLessonsData(lessons);
-    } catch {
-      /** No-op. */
-    }
-  };
+    // Exécute la fonction de chargement des données
+    fetchData();
+  }, [appContext.dataProvider, refreshCount]);
 
-  // On first mount, we need to fetch user data
-  // and finally all the data that will be displayed.
-  // We don't force the refresh of the data, so cache can be used.
-  useEffect(() => {
-    (async () => {
-      if (!appContext.dataProvider) return;
+  const translationY = useSharedValue(0);
 
-      const userData = await appContext.dataProvider.getUser();
-      setUser({ loading: false, data: userData });
-
-      await refreshScreenData(false);
-    })();
-  }, []);
-
-  const yOffset = new Animated.Value(0);
-
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-
-  const [changeThemeOpen, setChangeThemeOpen] = useState(false);
-  const [changeThemeModal, setChangeThemeModal] = useState(false);
-  const changeThemeOpenRef = useRef(changeThemeOpen);
-  const [showThemeCarousel, setShowThemeCarousel] = useState(false);
-  const changeThemeAnim = useRef(new Animated.Value(0)).current;
-
-  // when changeThemeOpen is true, animate the value to 1
-  useEffect(() => {
-    Animated.timing(changeThemeAnim, {
-      toValue: changeThemeOpen ? 1 : 0,
-      duration: 300,
-      easing: Easing.elastic(1),
-      useNativeDriver: true,
-    }).start();
-
-    if (changeThemeOpen) {
-      setShowThemeCarousel(true);
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    } else {
-      setTimeout(() => {
-        setShowThemeCarousel(false);
-      }, 200);
-    }
-  }, [changeThemeOpen]);
-
-  const [scrolled, setScrolled] = useState(false);
-  const scrolledAnim = useRef(new Animated.Value(0)).current;
-
-  let shouldScroll = false;
-
-  yOffset.addListener(({ value }) => {
-    if (1==1) {
-      if (value > 40) {
-        setScrolled(true);
-        shouldScroll = true;
-      } else {
-        if (!changeThemeOpenRef.current) {
-          setScrolled(false);
-        }
-        shouldScroll = false;
-      }
-    }
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    translationY.value = event.contentOffset.y;
   });
 
-  useEffect(() => {
-    if (changeThemeOpen) {
-      setScrolled(true);
-    }
-    else if (!shouldScroll) {
-      setScrolled(false);
-    }
-    else {
-      setScrolled(true);
-    }
-
-    changeThemeOpenRef.current = changeThemeOpen;
-  }, [changeThemeOpen]);
-
-  const scrollRef = useRef<ScrollView>(null);
-
-  useEffect(() => {
-    Animated.timing(scrolledAnim, {
-      toValue: scrolled ? 1 : 0,
-      duration: 400,
-      easing: Easing.in(Easing.bezier(0.5, 0, 0, 1)),
-      useNativeDriver: true,
-    }).start();
-  }, [scrolled]);
-
-  // Animations
-  const scrollHandler = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: yOffset } } }],
-    { useNativeDriver: false }
-  );
-
-  const themeImageOpacity = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-20, 50] : [0, 100],
-    outputRange: [0.8, 0],
-    extrapolate: 'clamp',
+  // interpolate opacity from 0 to 1
+  const stylez = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(translationY.value, [0, 30], [0, 1]),
+    };
   });
 
-  const themeImageTransform = yOffset.interpolate({
-    inputRange: Platform.OS === 'ios' ? [-20, 50] : [0, 100],
-    outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
-
-  return (<View
-    style={{
-      backgroundColor: UIColors.backgroundHigh,
-      flex: 1,
-    }}
-  >
-    <Animated.View
-      style={{
-        backgroundColor: UIColors.element,
-        borderBottomWidth: Platform.OS == 'ios' ? 0.5 : 0,
-        borderBottomColor: UIColors.borderLight,
-        zIndex: 2,
-        height: Platform.OS == 'ios' ? 46 + insets.top : 52 + insets.top,
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        opacity: scrolledAnim.interpolate({
-          inputRange: Platform.OS == 'ios' ? [0, 1] : [0, 1],
-          outputRange: [0, 1],
-        }),
-        elevation: 2,
-      }}
-    />
-    <Animated.View
-      style={[
-        {
-          overflow: 'hidden',
-          elevation: 4,
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          width: '100%',
-          zIndex: 2000,
-          backgroundColor: changeThemeOpen ? UIColors.element : 'transparent',
-        },
-      ]}
-    >
-      <View
-        style={[
-          {
-            backgroundColor: '#00000000',
-            paddingTop: insets.top,
-            paddingBottom: 0,
-            flexDirection: 'column',
-            zIndex: 3,
-          },
-        ]}
-      >
-        <Animated.View
-          pointerEvents={changeThemeOpen ? 'none' : 'auto'}
-          style={{
-            opacity: changeThemeAnim.interpolate({
-              inputRange: [0, 0.5],
-              outputRange: [1, 0],
-            }),
-            transform: [
-              {
-                scale: changeThemeAnim.interpolate({
-                  inputRange: [0, 0.5],
-                  outputRange: [1, 0.9],
-                }),
-              },
-            ],
-            zIndex: 4000,
-          }}
-        >
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingHorizontal: 16,
-              paddingBottom: 6,
-              paddingTop: 4,
-            }}
-          >
-            { Platform.OS === 'ios' && (
-              <View style={{
-                height: 32,
-                width: 32,
-              }} />
-            )}
-
-            {Platform.OS === 'ios' && (<>
-              <View
-                style={{
-                  position: 'absolute',
-                  left: 16,
-                }}
-              >
-                <PapillonIcon
-                  fill={'#ffffff'}
-                  width={32}
-                  height={32}
-                />
-              </View>
-
-              {!UIColors.dark && (
-                <Animated.View
-                  style={{
-                    position: 'absolute',
-                    left: 16,
-                    zIndex: 1,
-                    opacity: scrolledAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0, 1],
-                    }),
-                  }}
-                >
-                  <PapillonIcon
-                    fill={UIColors.text + '88'}
-                    width={32}
-                    height={32}
-                  />
-                </Animated.View>
-              )}
-            </>)}
-
-            {Platform.OS === 'ios' ? (<>
-              <Animated.View
-                pointerEvents={'none'}
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  right: 0,
-                  opacity: scrolledAnim.interpolate({
-                    inputRange: [0, 0.8],
-                    outputRange: [1, 0],
-                  }),
-                  transform: [
-                    {
-                      scale: scrolledAnim.interpolate({
-                        inputRange: [0, 0.8],
-                        outputRange: [1, 1.13],
-                        extrapolate: 'clamp',
-                      }),
-                    },
-                  ],
-                }}
-              >
-                <Animated.Text
-                  style={[
-                    {
-                      textAlign: 'center',
-                      marginTop: 3,
-                      opacity: yOffset.interpolate({
-                        inputRange: [40, 60],
-                        outputRange: [1, 0],
-                      }),
-                    },
-                    Platform.OS === 'ios'
-                      ? {
-                        color: '#ffffff',
-                        fontSize: 17,
-                        fontFamily: 'Papillon-Semibold',
-                        marginVertical: 8,
-                      }
-                      : {
-                        color: '#ffffff',
-                        fontSize: 18,
-                        marginVertical: 9,
-                      },
-                  ]}
-                >
-                  Vue d'ensemble
-                </Animated.Text>
-              </Animated.View>
-
-              <Animated.View
-                style={{
-                  flex: 1,
-                  height: 38,
-                  marginTop: -2,
-                  opacity: scrolledAnim.interpolate({
-                    inputRange: [0.4, 1],
-                    outputRange: [0, 1],
-                  }),
-                  transform: [
-                    {
-                      scale: scrolledAnim.interpolate({
-                        inputRange: [0.4, 1],
-                        outputRange: [0.8, 1],
-                        extrapolate: 'clamp',
-                      }),
-                    },
-                  ],
-                }}
-              >
-                <NextCoursElem
-                  tiny
-                  cours={lessons.data}
-                  navigation={navigation}
-                  yOffset={new Animated.Value(0)}
-                  mainAction={() => {
-                    // scroll up
-                    scrollRef.current?.scrollTo({ y: 60, animated: true });
-                  }}
-                />
-              </Animated.View>
-            </>) : (<>
-              <Text
-                style={[
-                  {
-                    color: scrolled ? UIColors.text : '#ffffff',
-                    fontSize: 18,
-                    marginVertical: 9,
-                    fontFamily: 'Papillon-Semibold',
-                  },
-                ]}
-              >
-                Vue d'ensemble
-              </Text>
-            </>)}
-
-
-            {Platform.OS === 'ios' ? (
-              <ContextMenuButton
-                isMenuPrimaryAction={true}
-                accessible={true}
-                accessibilityLabel="Votre profil"
-                menuConfig={{
-                  menuTitle: '',
-                  menuItems: [
-                    {
-                      actionKey: 'profile',
-                      actionTitle: 'Mon profil',
-                      actionSubtitle: user.loading
-                        ? 'Chargement...'
-                        : user.data.name,
-                      icon: {
-                        type: 'IMAGE_SYSTEM',
-                        imageValue: {
-                          systemName: 'person.crop.circle',
-                        },
-                      },
-                    },
-                    {
-                      menuTitle: 'Personnalisation',
-                      icon: {
-                        type: 'IMAGE_SYSTEM',
-                        imageValue: {
-                          systemName: 'paintbrush',
-                        },
-                      },
-                      menuItems: [
-                        {
-                          actionKey: 'theme',
-                          actionTitle: 'Bandeau',
-                          icon: {
-                            type: 'IMAGE_SYSTEM',
-                            imageValue: {
-                              systemName: 'swatchpalette',
-                            },
-                          },
-                        },
-                        {
-                          actionKey: 'cours',
-                          actionTitle: 'Matières',
-                          icon: {
-                            type: 'IMAGE_SYSTEM',
-                            imageValue: {
-                              systemName: 'paintpalette',
-                            },
-                          },
-                        },
-                      ],
-                    },
-                    {
-                      actionKey: 'preferences',
-                      actionTitle: 'Préférences',
-                      icon: {
-                        type: 'IMAGE_SYSTEM',
-                        imageValue: {
-                          systemName: 'gear',
-                        },
-                      },
-                    },
-                  ],
-                }}
-                onPressMenuItem={({ nativeEvent }) => {
-                  if (nativeEvent.actionKey === 'preferences') {
-                    navigation.navigate('InsetSettings', { isModal: true });
-                  } else if (nativeEvent.actionKey === 'theme') {
-                    setChangeThemeModal(true);
-                  } else if (nativeEvent.actionKey === 'profile') {
-                    navigation.navigate('InsetProfile', { isModal: true });
-                  } else if (nativeEvent.actionKey === 'cours') {
-                    navigation.navigate('InsetMatieres', { isModal: true });
-                  }
-                }}
-              >
-                <TouchableOpacity
-                  style={headerStyles.headerPfpContainer}
-                  onPress={() => {
-                    setUserMenuOpen(true);
-                  }}
-                  accessible={true}
-                  accessibilityLabel="Votre profil"
-                >
-                  {!user.loading && user.data.profile_picture ? (
-                    <Image
-                      source={{ uri: user.data.profile_picture }}
-                      style={headerStyles.headerPfp}
-                    />
-                  ) : (
-                    <UserCircle2
-                      size={36}
-                      style={headerStyles.headerPfp}
-                      color="#ccc"
-                    />
-                  )}
-                </TouchableOpacity>
-              </ContextMenuButton>
-            ) : (
-              <Menu
-                visible={userMenuOpen}
-                onDismiss={() => setUserMenuOpen(false)}
-                contentStyle={{
-                  paddingVertical: 0,
-                }}
-                anchor={
-                  <TouchableOpacity
-                    style={headerStyles.headerPfpContainer}
-                    onPress={() => setUserMenuOpen(true)}
-                  >
-                    {!user.loading && user.data.profile_picture ? (
-                      <Image
-                        source={{ uri: user.data.profile_picture }}
-                        style={headerStyles.headerPfp}
-                      />
-                    ) : (
-                      <UserCircle2
-                        size={36}
-                        style={headerStyles.headerPfp}
-                        color="#ccc"
-                      />
-                    )}
-                  </TouchableOpacity>
-                }
-              >
-                <Menu.Item
-                  title={user.loading ? 'Mon profil' : user.data.name}
-                  leadingIcon="account-circle"
-                  onPress={() => {
-                    setUserMenuOpen(false);
-                    navigation.navigate('InsetProfile', { isModal: true });
-                  }}
-                />
-                <Divider />
-                <Menu.Item
-                  title="Bandeau"
-                  leadingIcon="palette"
-                  onPress={() => {
-                    setUserMenuOpen(false);
-                    setChangeThemeModal(true);
-                  }}
-                />
-                <Divider />
-                <Menu.Item
-                  title="Préférences"
-                  leadingIcon="cog"
-                  onPress={() => {
-                    setUserMenuOpen(false);
-                    navigation.navigate('InsetSettings', { isModal: true });
-                  }}
-                />
-              </Menu>
-            )}
-          </View>
-        </Animated.View>
-
-        {showThemeCarousel && (
-          <Animated.View
-            style={{
-              paddingTop: insets.top,
-              height: 200,
-              marginTop: -97,
-              width: '100%',
-              opacity: changeThemeAnim.interpolate({
-                inputRange: [0.5, 1],
-                outputRange: [0, 1],
-              }),
-              transform: [
-                {
-                  scale: changeThemeAnim.interpolate({
-                    inputRange: [0.5, 1],
-                    outputRange: [0.9, 1],
-                  }),
-                },
-              ],
-            }}
-          >
-            <View
-              style={{
-                width: '100%',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingHorizontal: 16,
-                paddingBottom: 6,
-                paddingTop: 4,
-              }}
+  // Met à jour les options de navigation en fonction de l'utilisateur connecté
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <Animated.View>
+          {loading && (
+            <Animated.View
+              style={{}}
+              entering={FadeInDown.springify()}
+              exiting={FadeOutUp}
             >
-              {Platform.OS === 'ios' && (
-                <PapillonIcon
-                  fill={UIColors.text + '88'}
-                  width={32}
-                  height={32}
-                />
-              )}
-              <Text
-                style={[
-                  Platform.OS === 'ios'
-                    ? {
-                      color: scrolled ? UIColors.text : '#ffffff',
-                      fontSize: 17,
-                      fontFamily: 'Papillon-Semibold',
-                      marginVertical: 8,
-                    }
-                    : {
-                      color: '#ffffff',
-                      fontSize: 18,
-                      marginVertical: 9,
-                    },
-                ]}
-              >
-                    Bandeau
+              <Text style={{
+                fontSize: 16,
+                opacity: 0.5,
+                color: UIColors.text,
+                fontFamily: 'Papillon-Medium'
+              }}>
+                Chargement...
               </Text>
-              <TouchableOpacity
+            </Animated.View>
+          )}
+
+          {!loading && (
+            <Animated.View
+              style={{}}
+              entering={FadeInDown.springify()}
+              exiting={FadeOutUp}
+            >
+              <Text
+                style={{
+                  fontSize: 17,
+                  color: UIColors.text,
+                  fontFamily: 'Papillon-Semibold',
+                }}
+                numberOfLines={1}
+              >
+                {(user && user?.name) ? `Bonjour, ${user?.name?.split(' ').pop()} !` : 'Bonjour !'}
+              </Text>
+            </Animated.View>
+          )}
+        </Animated.View>
+      ),
+      headerLeft: () => (
+        <Animated.View>
+          {loading && (
+            <Animated.View
+              style={{ marginLeft: 18, marginRight: 2 }}
+              entering={ZoomInEasyDown.springify()}
+              exiting={ZoomOutEasyUp}
+            >
+              <ActivityIndicator />
+            </Animated.View>
+          )}
+
+          {!loading && (
+            <Animated.View
+              style={{ marginLeft: 16, marginRight: -6 }}
+              entering={ZoomInEasyDown.springify()}
+              exiting={ZoomOutEasyUp}
+            >
+              <Text style={{ fontSize: 26 }}>
+                👋
+              </Text>
+            </Animated.View>
+          )}
+        </Animated.View>
+      ),
+      headerRight: () => (
+        user?.profile_picture && ( // check for profile picture before rendering
+          <TouchableOpacity onPress={() => navigation.navigate('InsetSettings')}
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 20,
+              marginRight: 16,
+              backgroundColor: UIColors.text + '22',
+            }}
+          >
+            {user && user?.profile_picture && (
+              <Animated.Image
+                source={{ uri: user?.profile_picture }}
                 style={{
                   width: 32,
                   height: 32,
-
-                  alignItems: 'center',
-                  justifyContent: 'center',
-
                   borderRadius: 20,
-                  backgroundColor: UIColors.dark ? '#ffffff35' : '#00000035',
                 }}
-                onPress={() => {
-                  setChangeThemeModal(false);
-                }}
-              >
-                <X color={UIColors.text} size={22} strokeWidth={2.5} />
-              </TouchableOpacity>
-            </View>
-
-            <View
-              style={{
-                flex: 1,
-                marginTop: -10,
-              }}
-            >
-              {THEMES_IMAGES_LIST &&
-                    THEMES_IMAGES_LIST[currentThemeIndex] && (
-                <Carousel
-                  loop
-                  width={Dimensions.get('window').width}
-                  height={110}
-                  defaultIndex={currentThemeIndex}
-                  data={THEMES_IMAGES_LIST}
-                  scrollAnimationDuration={100}
-                  onSnapToItem={(index) => {
-                    setCurrentThemeIndex(index);
-                    RegisterTrophy('trophy_bandeau', new Date().getDate());
-                    Haptics.impactAsync(
-                      Haptics.ImpactFeedbackStyle.Light
-                    );
-                    AsyncStorage.setItem(
-                      'hs_themeIndex',
-                      index.toString()
-                    );
-                  }}
-                  renderItem={({ index }) => (
-                    <View
-                      style={{
-                        flex: 1,
-                        opacity: currentThemeIndex === index ? 1 : 0.5,
-                      }}
-                    >
-                      <View
-                        style={{
-                          flex: 1,
-
-                          backgroundColor: UIColors.dark ?'#ffffff22' : nextColor,
-                          borderColor: 
-                            UIColors.dark ?
-                              currentThemeIndex === index
-                                ? '#ffffff'
-                                : '#ffffff00'
-                              : '#00000030',
-                          borderWidth: 1.5,
-
-                          borderRadius: 12,
-                          borderCurve: 'continuous',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <Image
-                          source={THEMES_IMAGES_LIST[index].image}
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                          }}
-                          resizeMode="cover"
-                        />
-                      </View>
-                    </View>
-                  )}
-                  mode="parallax"
-                />
-              )}
-            </View>
-          </Animated.View>
-        )}
-      </View>
-    </Animated.View>
-
-    <ModalBottom
-      visible={changeThemeModal}
-      onDismiss={() => {
-        setChangeThemeModal(false);
-      }}
-      align='top'
-      style={[
-        {
-          backgroundColor: '#00000070',
-          borderColor: '#ffffff32',
-          borderWidth: 1,
-          elevation : 0,
-        }
-      ]}
-    >
-      <View
-        style={{
-          paddingVertical: 4,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: 'row',
-            width: '100%',
-            maxWidth: '100%',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            paddingBottom: 8,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 16,
-          }}
-        >
-          <View
-            style={{
-              flexDirection: 'column',
-              flex: 1,
-            }}
-          >
-            <NativeText heading='h4' style={{ color: '#fff' }}>
-              Personnalisation du bandeau
-            </NativeText>
-            <NativeText heading='p2' style={{ color: '#fff' }}>
-              Sélectionnez un modèle
-            </NativeText>
-          </View>
-          <PapillonCloseButton
-            onPress={() => {
-              setChangeThemeModal(false);
-            }}
-            theme={'dark'}
-          />
-        </View>
-
-        <Carousel
-          loop
-          width={Dimensions.get('window').width - 24}
-          height={110}
-          defaultIndex={currentThemeIndex}
-          data={THEMES_IMAGES_LIST}
-          scrollAnimationDuration={100}
-          onSnapToItem={(index) => {
-            setCurrentThemeIndex(index);
-            RegisterTrophy('trophy_bandeau', new Date().getDate());
-            Haptics.impactAsync(
-              Haptics.ImpactFeedbackStyle.Light
-            );
-            AsyncStorage.setItem(
-              'hs_themeIndex',
-              index.toString()
-            );
-          }}
-          renderItem={({ index }) => (
-            <View
-              style={{
-                flex: 1,
-                opacity: currentThemeIndex === index ? 1 : 0.5,
-              }}
-            >
-              <View
-                style={{
-                  flex: 1,
-                  marginHorizontal: 8,
-                  
-                  backgroundColor: '#ffffff22',
-                  borderColor: 
-                  currentThemeIndex === index
-                    ? '#ffffff'
-                    : '#ffffff00',
-                  borderWidth: 1.5,
-                  
-                  borderRadius: 12,
-                  borderCurve: 'continuous',
-                  overflow: 'hidden',
-                }}
-              >
-                <Image
-                  source={THEMES_IMAGES_LIST[index].image}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                  }}
-                  resizeMode="cover"
-                />
-              </View>
-            </View>
-          )}
-          mode="parallax"
-        />
-      </View>
-    </ModalBottom>
-    
-    <ScrollView
-      ref={scrollRef}
-      style={{
-        flex: 1,
-        paddingTop: Platform.OS === 'ios' ? 44 : 0,
-      }}
-      scrollIndicatorInsets={{top: 44}}
-      contentInsetAdjustmentBehavior="automatic"
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          progressViewOffset={44}
-          colors={[Platform.OS === 'android' ? UIColors.primary : '']}
-          onRefresh={async () => {
-            // Refresh data
-            setRefreshing(true);
-            setLessons({ loading: true, data: null });
-
-            await refreshScreenData(true);
-            setRefreshing(false);
-          }}
-        />
-      }
-      onScroll={scrollHandler}
-      scrollEventThrottle={16}
-    >
-      <View style={{ height: 10 }} />
-
-      {isFocused && (
-        <StatusBar
-          barStyle={
-            !scrolled
-              ? 'light-content'
-              : theme.dark
-                ? 'light-content'
-                : 'dark-content'
-          }
-          translucent
-          backgroundColor={'transparent'}
-        />
-      )}
-
-      <View
-        style={{
-          backgroundColor: nextColor,
-          marginTop: Platform.OS === 'ios' ? -1010 : -10,
-          marginBottom: 12,
-          overflow: 'hidden',
-        }}
-      >
-        {THEMES_IMAGES_LIST && THEMES_IMAGES_LIST[currentThemeIndex] && (
-          <Animated.Image
-            source={THEMES_IMAGES_LIST[currentThemeIndex].image}
+                entering={FadeIn.duration(100)}
+              />
+            )}
+          </TouchableOpacity>
+        )
+      ),
+      headerTransparent: true,
+      headerBackground: () => (
+        Platform.OS === 'ios' ?
+          <Animated.View
             style={[
               {
-                position: 'absolute',
-                top: 920,
-                left: 0,
-                width: '100%',
-                height: 150,
-                opacity: yOffset.interpolate({
-                  inputRange: [-90, -60, -30, 10],
-                  outputRange: [0, 1, 1, 0],
-                }),
+                flex: 1,
+                backgroundColor: '#00000000',
+                borderBottomWidth: 0.5,
+                borderBottomColor: UIColors.text + '40',
               },
+              stylez,
+            ]}
+          >
+            <BlurView
+              intensity={100}
+              tint={UIColors.dark ? 'dark' : 'light'}
+              style={{
+                flex: 1,
+              }}
+            />
+          </Animated.View>
+          :
+          <Animated.View
+            style={[
+              {
+                flex: 1,
+                backgroundColor: UIColors.backgroundHigh,
+                elevation: 4,
+              },
+              stylez,
             ]}
           />
-        )}
-        <LinearGradient
-          colors={[
-            nextColor + 'ff',
-            nextColor + '00',
-            nextColor + 'ff',
-          ]}
-          locations={[0, 0.2, 0.5]}
-          style={{
-            position: 'absolute',
-            top: 920,
-            left: 0,
-            width: '100%',
-            height: 180,
-          }}
-        />
-        <Animated.View
-          style={{
-            height: refreshingAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0, 20],
-            }),
-          }}
-        />
-        <Animated.View
-          style={{
-            position: 'absolute',
-            top: 950,
-            left: '50%',
-            marginLeft: -20,
-            opacity: yOffset.interpolate({
-              inputRange: [-110, -80],
-              outputRange: [1, 0],
-            }),
-            transform: [
-              {
-                rotate: yOffset.interpolate({
-                  inputRange: [-500, -200, -50],
-                  outputRange: ['0deg', '0deg', '-250deg'],
-                }),
-              },
-              {
-                scale: yOffset.interpolate({
-                  inputRange: [-500, -120, -50],
-                  outputRange: [1, 1, 0],
-                }),
-              }
-            ],
-          }}
-        >
-          <ActivityIndicator
-            size="large"
-            animating={refreshing}
-            hidesWhenStopped={false}
-            color={'#ffffff'}
+      ),
+    });
+  }, [navigation, user, loading, UIColors, stylez]);
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  return (
+    <View style={{ flex: 1, backgroundColor: UIColors.backgroundHigh }}>
+      <StatusBar animated barStyle={UIColors.dark ? 'light-content' : 'dark-content'} backgroundColor={'transparent'} translucent />
+
+      <Animated.ScrollView
+        style={{
+          flex: 1,
+          backgroundColor: UIColors.backgroundHigh,
+          paddingTop: insets.top + 44,
+        }}
+        scrollIndicatorInsets={{ top: insets.top }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            progressViewOffset={insets.top + 44}
+            onRefresh={() => {
+              setRefreshCount(refreshCount + 1);
+              setRefreshing(true);
+              setTimeout(() => setRefreshing(false), 200);
+            }}
           />
-        </Animated.View>
-        <View
-          style={{
-            backgroundColor: changeThemeOpen ? UIColors.background : '#00000032',
-            paddingTop: Platform.OS === 'ios' ? 1000 : insets.top + 16 + 32,
-          }}
-        >
+        }
+        layout={LinearTransition}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+      >
+        {nextCourse && (
           <Animated.View
             style={{
-              marginBottom: 16,
-              opacity: yOffset.interpolate({
-                inputRange: Platform.OS === 'ios' ? [(40 - insets.top), (60 - insets.top)] : [0, 40],
-                outputRange: [1, 0],
-              }),
-              transform: [
-                {
-                  translateY: yOffset.interpolate({
-                    inputRange: Platform.OS === 'ios' ? [-1000, (40 - insets.top), (60 - insets.top)] : [0, 0, 40],
-                    outputRange: [0, 0, -5],
-                  }),
-                },
-                {
-                  scale: yOffset.interpolate({
-                    inputRange: Platform.OS === 'ios' ? [-1000, (40 - insets.top), (60 - insets.top)] : [0, 0, 40],
-                    outputRange: [1, 1, 0.9],
-                  }),
-                }
-              ],
+              margin: 16,
+              marginTop: Platform.OS == 'ios' ? 8 : 18,
+              marginBottom: 0,
             }}
+            entering={FadeInDown.springify()}
+            exiting={FadeOutUp.springify()}
+            layout={LinearTransition}
           >
-            <Animated.View
-              style={{
-                height: 90,
-                opacity: changeThemeAnim.interpolate({
-                  inputRange: [0, 0.5],
-                  outputRange: [1, 0],
-                }),
-                transform: [
-                  {
-                    scale: changeThemeAnim.interpolate({
-                      inputRange: [0, 0.5],
-                      outputRange: [1, 0.9],
-                    }),
-                  },
-                ],
-              }}
+            <PressableScale
+              style={[
+                styles.nextCourse__container,
+                {
+                  backgroundColor: getSavedCourseColor(nextCourse?.subject?.name, nextCourse?.background_color) || UIColors.primary,
+                }
+              ]}
+              onPress={() => navigation.navigate('Lesson', { event: nextCourse })}
             >
-              <NextCoursElem
-                longPressAction={() => {
-                  setChangeThemeModal(true);
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                }}
-                cours={lessons.data}
-                navigation={navigation}
-                setNextColor={(color) => {
-                  setNextColor(color);
-                }}
-                yOffset={yOffset}
-                color={themeAdjustments.enabled ? nextColor : void 0}
-                style={{
-                  marginHorizontal: 16,
-                  marginVertical: 0,
-                  marginTop: 2,
-                }}
-              />
-            </Animated.View>
+              <View
+                style={[
+                  styles.nextCourse__left,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.nextCourse__left_start,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {new Date(nextCourse?.start).toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </Text>
+
+                <Text
+                  style={[
+                    styles.nextCourse__left_end,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {new Date(nextCourse?.end).toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </Text>
+              </View>
+
+              <View
+                style={[
+                  styles.nextCourse__content,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.nextCourse__content_name,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {formatCoursName(nextCourse?.subject?.name)}
+                </Text>
+
+                <Text
+                  style={[
+                    styles.nextCourse__content_start_time,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {nextCourseStartTime}
+                </Text>
+
+                <View
+                  style={[
+                    styles.nextCourse__content_list,
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.nextCourse__content_list_item,
+                    ]}
+                  >
+                    <User2 size={16} strokeWidth={2.5} color={'#fff'} />
+                    <Text
+                      style={[
+                        styles.nextCourse__content_list_item_text,
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {nextCourse?.teachers.join(', ')}
+                    </Text>
+                  </View>
+
+                  <View
+                    style={[
+                      styles.nextCourse__content_list_item,
+                    ]}
+                    numberOfLines={1}
+                  >
+                    <MapPin size={16} strokeWidth={2.5} color={'#fff'} />
+                    <Text
+                      style={[
+                        styles.nextCourse__content_list_item_text,
+                      ]}
+                    >
+                      {nextCourse?.rooms.join(', ')}
+                    </Text>
+                  </View>
+                </View>
+
+              </View>
+            </PressableScale>
           </Animated.View>
-        </View>
-      </View>
+        )}
 
-      <TabsElement navigation={navigation} />
+        <Animated.View
+          layout={LinearTransition}
+        >
+          <TabsElement navigation={navigation} />
+        </Animated.View>
 
-      <AlertAnimated
-        visible={!net.isConnected}
-        title="Vous êtes hors-ligne"
-        subtitle="Les informations affichées peuvent être obsolètes."
-        left={<Globe2 color={UIColors.text} />}
-        height={80}
-        style={{ marginHorizontal: 16, marginBottom: 16, marginTop : -16}}
-      />
+        <Animated.View
+          layout={LinearTransition}
+        >
+          <CoursElement
+            cours={lessons?.filter(
+              (lesson) =>
+                new Date(lesson.start).getDate() === new Date().getDate()
+            )}
+            navigation={navigation}
+            loading={loading}
+            showsTomorrow={false}
+            date={new Date()}
+          />
+        </Animated.View>
 
-      <CoursElement
-        cours={lessons.data}
-        navigation={navigation}
-        loading={lessons.loading}
-        showsTomorrow={showsTomorrowLessons}
-        date={showsTomorrowLessons ? tomorrow : now}
-      />
+        <Animated.View
+          layout={LinearTransition}
+        >
+          <DevoirsElement
+            homeworks={groupedHomeworks}
+            customHomeworks={[]}
+            homeworksDays={homeworksDays}
+            navigation={navigation}
+            loading={hwLoading}
+          />
+        </Animated.View>
 
-      <DevoirsElement
-        homeworks={groupedHomeworks}
-        customHomeworks={customHomeworks}
-        homeworksDays={homeworksDays}
-        navigation={navigation}
-        loading={groupedHomeworks === null}
-      />
+        <View style={{ height: insets.bottom + 66 }} />
 
-      <View style={{ height: Platform.OS === 'android' ? 0 : 50 }} />
-    </ScrollView>
-  </View>
+      </Animated.ScrollView>
+    </View>
   );
-}
+};
 
 const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
   const theme = useTheme();
@@ -1593,15 +573,69 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
       .then(data => setMessage(data.warning.content))
       .catch(error => console.error(error));
   }, []);
-  
+
+  const [showWanring, setShowWarning] = useState(true);
+
   return (
-    <View style={styles.tabsTabsContainer}>
-    {message && message.trim() !== "" && (
-      <View style={styles.warningMessageContainer}>
-        <Text style={styles.warningMessageText}>{message}</Text>
-      </View>
-    )}
-      <View style={styles.tabsTabRow}>
+    <Animated.View style={styles.tabsTabsContainer}>
+      {message && showWanring && message.trim() !== "" && (
+        <Animated.View
+          style={{
+            borderRadius: 12,
+            padding: 12,
+            backgroundColor: "#E1462322",
+            borderColor: '#E1462300',
+            borderWidth: 1,
+          }}
+          entering={ZoomIn}
+          exiting={ZoomOut}
+          layout={LinearTransition}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 8,
+            }}
+          >
+            <Text
+              style={{
+                color: UIColors.text,
+                fontFamily: 'Papillon-Semibold',
+                fontSize: 16.5,
+              }}
+            >
+              Message de l'équipe Papillon
+            </Text>
+            <TouchableOpacity
+              style={{
+                padding: 4,
+                borderRadius: 20,
+                backgroundColor: UIColors.text + '22',
+                opacity: 0.7,
+              }}
+              onPress={() => setShowWarning(false)}
+            >
+              <X size={16} strokeWidth={3.5} color={UIColors.text} />
+            </TouchableOpacity>
+          </View>
+
+          <Text style={{
+            color: UIColors.text,
+            fontFamily: 'Papillon-Medium',
+            fontSize: 15,
+            opacity: 0.8,
+          }}>
+            {message}
+          </Text>
+        </Animated.View>
+      )}
+
+      <Animated.View
+        style={styles.tabsTabRow}
+        layout={LinearTransition}
+      >
         <PressableScale
           style={[
             styles.tabsTab,
@@ -1670,8 +704,8 @@ const TabsElement: React.FC<{ navigation: any }> = ({ navigation }) => {
           <Competences stroke={theme.dark ? '#ffffff' : '#000000'} />
           <Text style={styles.tabsTabText}>Compét.</Text>
         </PressableScale>
-      </View>
-    </View>
+      </Animated.View>
+    </Animated.View>
   );
 };
 
@@ -1778,17 +812,6 @@ function CoursItem({
   navigation: any; // TODO: type from react-navigation
 }) {
   const UIColors = GetUIColors(null, 'ios');
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      easing: Easing.elastic(1),
-      useNativeDriver: true,
-      delay: index * 50,
-    }).start();
-  });
 
   function lz(nb: number) {
     return nb < 10 ? `0${nb}` : nb.toString();
@@ -1798,56 +821,41 @@ function CoursItem({
     <>
       {cours[index - 1] &&
         new Date(lesson.start).getTime() -
-          new Date(cours[index - 1].end).getTime() >
-          1800000 && (
-        <Animated.View
-          style={[
-            styles.coursSeparator,
-            {
-              opacity: fadeAnim,
-              transform: [
-                {
-                  translateY: fadeAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [50, 0],
-                  }),
-                },
-                {
-                  scale: fadeAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.9, 1],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <TimeSeparator
-            reason={
-              (new Date(cours[index - 1].end).getHours() < 13 &&
-              new Date(lesson.start).getHours() >= 12) ?
-                'Pause méridienne'
-              : 'Pas de cours'
-            }
-            time={`${Math.floor(
-              (new Date(lesson.start).getTime() -
+        new Date(cours[index - 1].end).getTime() >
+        1800000 && (
+          <Animated.View
+            style={[
+              styles.coursSeparator,
+            ]}
+            entering={FadeInDown.delay(200 + 100 * index)}
+            exiting={FadeOut}
+          >
+            <TimeSeparator
+              reason={
+                (new Date(cours[index - 1].end).getHours() < 13 &&
+                  new Date(lesson.start).getHours() >= 12) ?
+                  'Pause méridienne'
+                  : 'Pas de cours'
+              }
+              time={`${Math.floor(
+                (new Date(lesson.start).getTime() -
                   new Date(cours[index - 1].end).getTime()) /
-                  3600000
-            )} h ${lz(
-              Math.floor(
-                ((new Date(lesson.start).getTime() -
+                3600000
+              )} h ${lz(
+                Math.floor(
+                  ((new Date(lesson.start).getTime() -
                     new Date(cours[index - 1].end).getTime()) %
                     3600000) /
-                    60000
-              )
-            )} min`}
-            lunch={
-              new Date(cours[index - 1].end).getHours() < 13 &&
-              new Date(lesson.start).getHours() >= 12
-            }
-          />
-        </Animated.View>
-      )}
+                  60000
+                )
+              )} min`}
+              lunch={
+                new Date(cours[index - 1].end).getHours() < 13 &&
+                new Date(lesson.start).getHours() >= 12
+              }
+            />
+          </Animated.View>
+        )}
 
       <ContextMenuView
         style={{ flex: 1 }}
@@ -1882,25 +890,9 @@ function CoursItem({
         <Animated.View
           style={[
             styles.homeworksDevoirsDayContainer,
-            {
-              // Bind opacity to animated value
-              opacity: fadeAnim,
-              transform: [
-                {
-                  translateY: fadeAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [50, 0],
-                  }),
-                },
-                {
-                  scale: fadeAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.9, 1],
-                  }),
-                },
-              ],
-            },
           ]}
+          entering={FadeInDown.springify().delay(100 * index)}
+          exiting={FadeOut}
         >
           <TouchableHighlight
             style={styles.coursItemContainer}
@@ -2090,17 +1082,6 @@ const DevoirsDay = ({
   index: number;
 }) => {
   const UIColors = GetUIColors();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      easing: Easing.elastic(1),
-      useNativeDriver: true,
-      delay: index * 150,
-    }).start();
-  });
 
   const parentIndex = index;
 
@@ -2108,74 +1089,58 @@ const DevoirsDay = ({
     <Animated.View
       style={[
         styles.homeworksDevoirsDayContainer,
-        {
-          // Bind opacity to animated value
-          opacity: fadeAnim,
-          transform: [
-            {
-              translateY: fadeAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [50, 0],
-              }),
-            },
-            {
-              scale: fadeAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0.9, 1],
-              }),
-            },
-          ],
-        },
       ]}
+      entering={FadeInDown.springify().delay(100 * index)}
+      exiting={FadeOut}
     >
       {((homeworks && homeworks.homeworks.length > 0) ||
         customHomeworks.length > 0) && (
-        <>
-          <View
-            style={[
-              styles.homeworksDevoirsDayHeaderContainer,
-              UIColors.theme == 'dark' && Platform.OS !== 'ios'
-                ? { backgroundColor: UIColors.text + '22' }
-                : { backgroundColor: UIColors.primary + '22' },
-            ]}
-          >
-            <Text
+          <>
+            <View
               style={[
-                styles.homeworksDevoirsDayHeaderTitle,
+                styles.homeworksDevoirsDayHeaderContainer,
                 UIColors.theme == 'dark' && Platform.OS !== 'ios'
-                  ? { color: UIColors.text }
-                  : { color: UIColors.primary },
+                  ? { backgroundColor: UIColors.text + '22' }
+                  : { backgroundColor: UIColors.primary + '22' },
               ]}
             >
-              pour {homeworks?.formattedDate}
-            </Text>
-          </View>
+              <Text
+                style={[
+                  styles.homeworksDevoirsDayHeaderTitle,
+                  UIColors.theme == 'dark' && Platform.OS !== 'ios'
+                    ? { color: UIColors.text }
+                    : { color: UIColors.primary },
+                ]}
+              >
+                pour {homeworks?.formattedDate}
+              </Text>
+            </View>
 
-          <View style={styles.homeworksDevoirsDayContent}>
-            {homeworks &&
-              homeworks.homeworks.map((homework, index) => (
-                <DevoirsContent
-                  key={homework.id}
-                  index={index}
-                  parentIndex={parentIndex}
-                  homework={homework}
-                  navigation={navigation}
-                />
-              ))}
+            <View style={styles.homeworksDevoirsDayContent}>
+              {homeworks &&
+                homeworks.homeworks.map((homework, index) => (
+                  <DevoirsContent
+                    key={homework.id}
+                    index={index}
+                    parentIndex={parentIndex}
+                    homework={homework}
+                    navigation={navigation}
+                  />
+                ))}
 
-            {customHomeworks &&
-              customHomeworks.map((homework, index) => (
-                <DevoirsContent
-                  key={homework.localID}
-                  index={index}
-                  parentIndex={parentIndex}
-                  homework={homework}
-                  navigation={navigation}
-                />
-              ))}
-          </View>
-        </>
-      )}
+              {customHomeworks &&
+                customHomeworks.map((homework, index) => (
+                  <DevoirsContent
+                    key={homework.localID}
+                    index={index}
+                    parentIndex={parentIndex}
+                    homework={homework}
+                    navigation={navigation}
+                  />
+                ))}
+            </View>
+          </>
+        )}
     </Animated.View>
   );
 };
@@ -2231,66 +1196,10 @@ function DevoirsContent({
     setCheckLoading(false);
   };
 
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      easing: Easing.elastic(1),
-      useNativeDriver: true,
-      delay: index * 50 + parentIndex * 150 + 100,
-    }).start();
-  });
-
-  const textMaxHeight = useRef(new Animated.Value(42)).current;
-  const textOpacity = useRef(new Animated.Value(1)).current;
-  const textMargin = useRef(new Animated.Value(0)).current;
-
   // when check, animate text to 0
   useEffect(() => {
     if (homework.done) {
-      Animated.parallel([
-        Animated.timing(textMaxHeight, {
-          toValue: 0,
-          duration: 300,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: false,
-        }),
-        Animated.timing(textMargin, {
-          toValue: -5,
-          duration: 200,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: false,
-        }),
-        Animated.timing(textOpacity, {
-          toValue: 0,
-          duration: 200,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: false,
-        }),
-      ]).start();
-    } else {
-      Animated.parallel([
-        Animated.timing(textMaxHeight, {
-          toValue: 42,
-          duration: 300,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: false,
-        }),
-        Animated.timing(textMargin, {
-          toValue: 0,
-          duration: 200,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: false,
-        }),
-        Animated.timing(textOpacity, {
-          toValue: 1,
-          duration: 200,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: false,
-        }),
-      ]).start();
+
     }
   }, [homework.done]);
 
@@ -2359,25 +1268,9 @@ function DevoirsContent({
     >
       <Animated.View
         style={[
-          {
-            // Bind opacity to animated value
-            opacity: fadeAnim,
-            transform: [
-              {
-                translateY: fadeAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [50, 0],
-                }),
-              },
-              {
-                scale: fadeAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.9, 1],
-                }),
-              },
-            ],
-          },
         ]}
+        entering={FadeInDown.springify().delay(100 * index)}
+        exiting={FadeOut}
       >
         <TouchableHighlight
           style={[styles.homeworksDevoirsContentContainer]}
@@ -2422,10 +1315,7 @@ function DevoirsContent({
 
               <Animated.View
                 style={{
-                  maxHeight: textMaxHeight,
                   overflow: 'visible',
-                  opacity: textOpacity,
-                  marginTop: textMargin,
                 }}
               >
                 <Text
@@ -2485,6 +1375,77 @@ function DevoirsContent({
 }
 
 const styles = StyleSheet.create({
+  nextCourse__container: {
+    borderRadius: 14,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+    flexDirection: 'row',
+    height: 84,
+  },
+
+  nextCourse__left: {
+    padding: 14,
+    gap: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ffffff33',
+    borderRightWidth: 1,
+    borderRightColor: '#ffffff33',
+  },
+
+  nextCourse__left_start: {
+    fontSize: 17,
+    fontFamily: 'Papillon-Semibold',
+    color: '#ffffff',
+  },
+
+  nextCourse__left_end: {
+    fontSize: 15,
+    fontFamily: 'Papillon-Medium',
+    color: '#ffffff99',
+  },
+
+  nextCourse__content: {
+    flex: 1,
+  },
+
+  nextCourse__content: {
+    padding: 14,
+    gap: 0,
+    justifyContent: 'center',
+    gap: 3,
+  },
+
+  nextCourse__content_name: {
+    fontSize: 17,
+    fontFamily: 'Papillon-Semibold',
+    color: '#ffffff',
+  },
+
+  nextCourse__content_start_time: {
+    fontSize: 15,
+    fontFamily: 'Papillon-Medium',
+    color: '#ffffff99',
+  },
+
+  nextCourse__content_list: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 2,
+  },
+
+  nextCourse__content_list_item: {
+    flexDirection: 'row',
+    gap: 6,
+    alignItems: 'center',
+  },
+
+  nextCourse__content_list_item_text: {
+    fontSize: 15,
+    fontFamily: 'Papillon-Medium',
+    color: '#ffffff',
+  },
+
   loadingContainer: {
     flex: 1,
     flexDirection: 'row',
@@ -2672,7 +1633,7 @@ const styles = StyleSheet.create({
   tabsTabsContainer: {
     marginTop: 8,
     marginHorizontal: 16,
-    gap: 6,
+    gap: 9,
     marginBottom: 16,
   },
 
@@ -2795,232 +1756,6 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-});
-
-const headerStyles = StyleSheet.create({
-  header: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-
-    backgroundColor: '#32AB8E',
-
-    elevation: 1,
-  },
-
-  ListTitle: {
-    paddingLeft: 16,
-    fontSize: 15,
-    fontFamily: 'Papillon-Medium',
-    opacity: 0.5,
-
-    marginTop: 24,
-    width: '92%',
-  },
-
-  headerContainer: {
-    marginBottom: 12,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-
-    paddingLeft: 2,
-
-    width: '92%',
-  },
-
-  headerNameText: {
-    fontSize: 16,
-    fontFamily: 'Papillon-Medium',
-    color: '#ffffff',
-    opacity: 0.6,
-    maxWidth: '85%',
-  },
-  headerCoursesText: {
-    fontSize: 18,
-    fontFamily: 'Papillon-Semibold',
-    color: '#ffffff',
-    marginTop: 4,
-    marginBottom: 3,
-    letterSpacing: -0.1,
-    maxWidth: '85%',
-  },
-
-  nextCoursContainer: {
-    width: '92%',
-    height: 68,
-    borderRadius: 12,
-    borderCurve: 'continuous',
-
-    marginTop: 2,
-    marginBottom: -32,
-
-    borderWidth: 0,
-
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 0.5,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 1,
-
-    elevation: 3,
-
-    flexDirection: 'row',
-  },
-
-  nextCoursLoading: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-  },
-  nextCoursLoadingText: {
-    fontSize: 15,
-    opacity: 0.5,
-  },
-
-  nextCoursLeft: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-
-    gap: 14,
-  },
-  nextCoursEmoji: {
-    width: 42,
-    height: 42,
-    borderRadius: 24,
-    backgroundColor: '#ffffff10',
-    borderColor: '#ffffff25',
-    borderWidth: 1,
-
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  nextCoursEmojiText: {
-    fontSize: 22,
-  },
-
-  nextCoursLeftData: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    gap: 2,
-    flex: 1,
-  },
-  nextCoursLeftDataText: {
-    fontSize: 18,
-    fontFamily: 'Papillon-Semibold',
-    color: '#ffffff',
-    flex: 1,
-    marginTop: 2,
-  },
-  nextCoursLeftDataTextRoom: {
-    fontSize: 15,
-    color: '#ffffff99',
-    flex: 1,
-  },
-
-  nextCoursRight: {
-    width: '35%',
-
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-
-    backgroundColor: '#ffffff10',
-    borderLeftWidth: 1,
-    borderLeftColor: '#ffffff25',
-
-    gap: 0,
-
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 12,
-  },
-  nextCoursRightTime: {
-    fontSize: 17,
-    fontFamily: 'Papillon-Semibold',
-    color: '#ffffff',
-    flex: 1,
-    marginTop: 3,
-
-    letterSpacing: 0.5,
-  },
-  nextCoursRightDelay: {
-    fontSize: 15,
-    color: '#ffffff99',
-    flex: 1,
-    fontVariant: ['tabular-nums'],
-  },
-
-  nextCoursInfo: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  nextCoursInfoText: {
-    fontSize: 15,
-    opacity: 0.5,
-  },
-
-  nextClassesList: {
-    width: '92%',
-
-    borderRadius: 12,
-    borderCurve: 'continuous',
-  },
-
-  nextClassesListItem: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    gap: 16,
-  },
-  nextClassesListItemEmoji: {
-    fontSize: 20,
-    marginHorizontal: 7,
-  },
-  nextClassesListItemText: {
-    fontSize: 17,
-    fontFamily: 'Papillon-Semibold',
-    flex: 1,
-    marginTop: 2,
-  },
-  nextClassesListItemTime: {
-    fontSize: 15,
-    opacity: 0.5,
-    marginLeft: 10,
-  },
-
-  headerPfpContainer: {
-    width: 32,
-    height: 32,
-    backgroundColor: '#ffffff10',
-    borderRadius: 24,
-  },
-  headerPfp: {
-    width: 32,
-    height: 32,
-    borderRadius: 24,
-    borderColor: '#ffffff25',
-    borderWidth: 1,
   },
 });
 
