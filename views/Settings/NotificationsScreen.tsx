@@ -233,7 +233,7 @@ function NotificationsScreen({ navigation }: { navigation: any }) {
               Faire son sac
             </NativeText>
             <NativeText heading='p2'>
-              Vous rappel de préparer votre sac lorsque la journée actuel contient des cours.
+              Vous rappelle de préparer votre sac lorsque la journée actuelle contient des cours.
             </NativeText>
           </NativeItem>
           <NativeItem
@@ -254,7 +254,7 @@ function NotificationsScreen({ navigation }: { navigation: any }) {
               Réserver le self
             </NativeText>
             <NativeText heading='p2'>
-              Vous rappel de réserver votre repas lorsque la journée suivante contient des cours.
+              Vous rappelle de réserver votre repas lorsque la journée suivante contient des cours.
             </NativeText>
           </NativeItem>
         </NativeList>
