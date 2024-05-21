@@ -9,7 +9,12 @@ import {
 
 import { useTheme, Text } from 'react-native-paper';
 import GetUIColors from '../../utils/GetUIColors';
-import formatCoursName from '../../utils/FormatCoursName';
+
+
+import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
+import getEtabRoom from '../../utils/CustomEtabRoomFormat';
+
+import formatCoursName from '../../utils/cours/FormatCoursName';
 
 import {
   DoorOpen,
@@ -56,9 +61,8 @@ function LessonScreen({ route, navigation }: {
   const mainColor = theme.dark ? '#ffffff' : '#444444';
 
   const length = Math.floor((lesson.end - lesson.start) / 60_000);
-  const lengthString = `${Math.floor(length / 60)}h${
-    length % 60 < 10 ? '0' : ''
-  }${length % 60}`;
+  const lengthString = `${Math.floor(length / 60)}h${length % 60 < 10 ? '0' : ''
+    }${length % 60}`;
 
   // date (jeudi 1 janvier 1970)
   const dateCours = new Date(lesson.start).toLocaleDateString('fr-FR', {
@@ -83,51 +87,60 @@ function LessonScreen({ route, navigation }: {
   // change header component
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => (
+      headerLeft: () => (
         <View
           style={{
-            flexDirection: 'column',
-            alignItems: Platform.OS === 'ios' ? 'center' : 'flex-start',
-            maxWidth: Platform.OS === 'ios' ? '92%' : null,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 12,
+            marginLeft: 0,
           }}
         >
-          <Text
-            numberOfLines={1}
-            style={{ fontFamily: 'Papillon-Semibold', fontSize: 17 }}
+          <View
+            style={{
+              backgroundColor: getSavedCourseColor(lesson.subject?.name, lesson.background_color),
+              width: 4,
+              height: 36,
+              borderRadius: 2,
+            }}
+          />
+          <View
+            style={{
+              flexDirection: 'column',
+              justifyContent: 'center',
+              gap: 3,
+            }}
           >
-            {formatCoursName(lesson.subject?.name)}
-          </Text>
-          <View style={{ flexDirection: 'row' }}>
-            <Text
-              numberOfLines={1}
+            <NativeText
               style={{
-                fontFamily: 'Papillon-Medium',
-                fontSize: 15,
-                opacity: 0.5,
+                fontSize: 16,
+                fontFamily: 'Papillon-Semibold',
               }}
+              numberOfLines={1}
+            >
+              {formatCoursName(lesson.subject?.name)}
+            </NativeText>
+            <NativeText
+              style={{
+                fontSize: 15,
+                fontFamily: 'Papillon-Medium',
+                opacity: 0.7,
+              }}
+              numberOfLines={1}
             >
               {(lesson.rooms.length > 0 &&
-              !lesson.rooms[0].toLowerCase().includes('salle')
+                !lesson.rooms[0].toLowerCase().includes('salle')
                 ? 'salle '
                 : '') +
                 (lesson.rooms.length > 0
                   ? lesson.rooms.join(', ')
-                  : 'inconnue') +
-                ' - '}
-            </Text>
-            <Text
-              numberOfLines={1}
-              style={{
-                fontFamily: 'Papillon-Medium',
-                fontSize: 15,
-                opacity: 0.5,
-                minWidth: 50,
-              }}
-            >
-              {lesson.status?.toLowerCase() || lengthString + ' de cours'}
-            </Text>
+                  : 'inconnue')}
+            </NativeText>
           </View>
         </View>
+      ),
+      headerTitle: () => (
+        <View />
       ),
     });
   }, [navigation, theme, lesson.subject?.name, UIColors]);
@@ -183,8 +196,8 @@ function LessonScreen({ route, navigation }: {
       </NativeList>
 
       {lesson.is_exempted && !lesson.is_cancelled && (
-        <NativeList 
-          inset 
+        <NativeList
+          inset
           header="Statut">
           <NativeItem
             leading={
@@ -219,8 +232,8 @@ function LessonScreen({ route, navigation }: {
       )}
 
       {lesson.status && (!lesson.is_exempted || lesson.is_cancelled) && (
-        <NativeList 
-          inset 
+        <NativeList
+          inset
           header="Statut">
           <NativeItem
             leading={
@@ -255,8 +268,8 @@ function LessonScreen({ route, navigation }: {
         </NativeList>
       )}
 
-      <NativeList 
-        inset 
+      <NativeList
+        inset
         header="Horaires">
         <NativeItem leading={<Hourglass size={24} color={mainColor} />}>
           <NativeText heading="p2">Durée du cours</NativeText>

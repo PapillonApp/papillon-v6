@@ -1,8 +1,3 @@
-import SharedGroupPreferences from 'react-native-shared-group-preferences';
-import formatCoursName from '../../utils/FormatCoursName';
-import getClosestGradeEmoji from '../../utils/EmojiCoursName';
-import { getSavedCourseColor } from '../../utils/ColorCoursName';
-import type { PapillonLesson } from '../types/timetable';
 import { getContextValues } from '../../utils/AppContext';
 import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';
 import { checkCanNotify, DidNotified, SetNotified } from './Helper';

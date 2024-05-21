@@ -3,7 +3,7 @@
     "name": "Papillon",
     "slug": "papillonvex",
     "scheme": "papillon",
-    "version": "6.6.3",
+    "version": "6.6.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",

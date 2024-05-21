@@ -126,6 +126,8 @@ function getSavedCourseColor(courseName, courseColor) {
   const color = getClosestColor(courseColor || getClosestCourseColor(courseName));
   savedColors[courseName] = {
     color: color,
+    originalColor: color,
+    edited: false,
     originalCourseName: originalCourseName,
     systemCourseName: courseName,
   };
@@ -133,7 +135,7 @@ function getSavedCourseColor(courseName, courseColor) {
   return color;
 }
 
-function forceSavedCourseColor(courseName, courseColor) {
+function forceSavedCourseColor(courseName, courseColor, edited = true) {
   courseName = normalizeCoursName(courseName);
   let savedColors = SyncStorage.get('savedColors');
   if (savedColors) {
@@ -144,6 +146,7 @@ function forceSavedCourseColor(courseName, courseColor) {
 
   const color = courseColor;
   savedColors[courseName].color = color;
+  savedColors[courseName].edited = edited;
   SyncStorage.set('savedColors', JSON.stringify(savedColors));
   return color;
 }

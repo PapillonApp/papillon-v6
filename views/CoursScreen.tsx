@@ -12,10 +12,10 @@ import {
   TouchableOpacity,
   Alert,
   Modal,
-  Pressable,
+  Pressable
 } from 'react-native';
 
-import Reanimated, {ZoomIn, Easing, FadeOut} from 'react-native-reanimated';
+import Reanimated, { ZoomIn, Easing, FadeOut } from 'react-native-reanimated';
 
 import InfinitePager, { type InfinitePagerImperativeApi } from 'react-native-infinite-pager';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -41,16 +41,17 @@ import {
   X,
   TextSelect,
   BookOpenCheck,
+  RotateCcw
 } from 'lucide-react-native';
 
-import { getClosestCourseColor, getSavedCourseColor } from '../utils/ColorCoursName';
-import getClosestGradeEmoji from '../utils/EmojiCoursName';
-import formatCoursName from '../utils/FormatCoursName';
+import { getClosestCourseColor, getSavedCourseColor } from '../utils/cours/ColorCoursName';
+import getClosestGradeEmoji from '../utils/cours/EmojiCoursName';
+import formatCoursName from '../utils/cours/FormatCoursName';
 import { dateToFrenchFormat } from '../utils/dates';
 import { useAppContext } from '../utils/AppContext';
 import GetUIColors from '../utils/GetUIColors';
 
-export default function CoursScreen ({ navigation }: {
+export default function CoursScreen({ navigation }: {
   navigation: any // TODO
 }) {
   const appContext = useAppContext();
@@ -79,7 +80,7 @@ export default function CoursScreen ({ navigation }: {
 
   // We make a ref of it to be accessible inside our event handlers.
   // See <https://medium.com/geographit/accessing-react-state-in-event-listeners-with-usestate-and-useref-hooks-8cceee73c559>.
-  const coursRef = useRef(cours); 
+  const coursRef = useRef(cours);
   const setCours = (cours: TimetableViewCache) => {
     coursRef.current = cours;
     _setCours(cours);
@@ -88,7 +89,7 @@ export default function CoursScreen ({ navigation }: {
   const lessonsFromPage = useCallback((page: number) => {
     const dayKey = dateToFrenchFormat(getDateFromPageNumber(page));
     if (dayKey in cours) return Object.values(cours[dayKey]);
-    
+
     // Not yet fetched...
     return [];
   }, [cours]);
@@ -137,7 +138,7 @@ export default function CoursScreen ({ navigation }: {
     }
   }, [calendarModalOpen]);
 
-  async function addToCalendar (cours: Record<string, PapillonLesson>): Promise<void> {
+  async function addToCalendar(cours: Record<string, PapillonLesson>): Promise<void> {
     // get calendar permission
     const { status } = await Calendar.requestCalendarPermissionsAsync();
 
@@ -162,7 +163,7 @@ export default function CoursScreen ({ navigation }: {
         if (!calendarId) {
           await Calendar.createCalendarAsync({
             title: `Papillon-${cours.subject.name}`,
-            color: cours.background_color ?? getClosestCourseColor(cours.subject.name),
+            color: getSavedCourseColor(cours.subject.name, cours.background_color),
             entityType: Calendar.EntityTypes.EVENT,
           });
 
@@ -180,7 +181,7 @@ export default function CoursScreen ({ navigation }: {
 
         // if we still don't have it, then skip.
         if (!calendarId) return;
-          
+
         // add event to calendar
         if (!cours.is_cancelled) {
           await Calendar.createEventAsync(calendarId, {
@@ -226,7 +227,7 @@ Statut : ${cours.status || 'Aucun'}
     }
   }
 
-  async function notifyAll (_cours: Record<string, PapillonLesson>): Promise<void> {
+  async function notifyAll(_cours: Record<string, PapillonLesson>): Promise<void> {
     // for each cours
     for (const coursThis of Object.values(_cours)) {
       if (!coursThis.subject) continue;
@@ -251,9 +252,8 @@ Statut : ${cours.status || 'Aucun'}
       await Notifications.scheduleNotificationAsync({
         identifier,
         content: {
-          title: `${getClosestGradeEmoji(coursThis.subject.name)} ${
-            coursThis.subject.name
-          } - Ça commence dans 5 minutes`,
+          title: `${getClosestGradeEmoji(coursThis.subject.name)} ${coursThis.subject.name
+            } - Ça commence dans 5 minutes`,
           body: `Le cours est en salle ${coursThis.rooms[0]} avec ${coursThis.teachers[0]}.`,
           sound: 'papillon_ding.wav',
         },
@@ -291,63 +291,84 @@ Statut : ${cours.status || 'Aucun'}
         elevation: 0,
       } : undefined,
       headerRight: () =>
-        <ContextMenuView
-          style={{ marginRight: 16 }}
-          previewConfig={{
-            borderRadius: 10,
-          }}
-          menuConfig={{
-            menuTitle: calendarDate.toLocaleDateString('fr', {
-              weekday: 'long',
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric',
-            }),
-            menuItems: [
-              {
-                actionKey: 'addToCalendar',
-                actionTitle: 'Ajouter au calendrier',
-                actionSubtitle:
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginRight: 0,
+          gap: 10
+        }}>
+          {Platform.OS === 'android' &&
+            <TouchableOpacity
+              style={{
+                opacity: 0.4
+              }}
+              onPress={async () => {
+                setIsLoading(true)
+                await forceRefresh()
+                setIsLoading(false)
+              }}
+            >
+              <RotateCcw size={24} color={UIColors.text} />
+            </TouchableOpacity>
+          }
+          <ContextMenuView
+            style={{ marginRight: 16 }}
+            previewConfig={{
+              borderRadius: 10,
+            }}
+            menuConfig={{
+              menuTitle: calendarDate.toLocaleDateString('fr', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              }),
+              menuItems: [
+                {
+                  actionKey: 'addToCalendar',
+                  actionTitle: 'Ajouter au calendrier',
+                  actionSubtitle:
                     'Ajoute tous les cours de la journée au calendrier',
-                icon: {
-                  type: 'IMAGE_SYSTEM',
-                  imageValue: {
-                    systemName: 'calendar.badge.plus',
+                  icon: {
+                    type: 'IMAGE_SYSTEM',
+                    imageValue: {
+                      systemName: 'calendar.badge.plus',
+                    },
                   },
                 },
-              },
-            ],
-          }}
-          onPressMenuItem={({ nativeEvent }) => {
-            const dayKey = dateToFrenchFormat(calendarDate);
-            const cours = coursRef.current;
+              ],
+            }}
+            onPressMenuItem={({ nativeEvent }) => {
+              const dayKey = dateToFrenchFormat(calendarDate);
+              const cours = coursRef.current;
 
-            if (!(dayKey in cours)) return; // Pretty useless otherwise...
+              if (!(dayKey in cours)) return; // Pretty useless otherwise...
 
-            if (nativeEvent.actionKey === 'addToCalendar') {
-              addToCalendar(cours[dayKey]);
-            } else if (nativeEvent.actionKey === 'notifyAll') {
-              notifyAll(cours[dayKey]);
-            }
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => setCalendarModalOpen(true)}
-            style={[
-              styles.calendarDateContainer,
-              { backgroundColor: '#0065A8' + '20' }
-            ]}
+              if (nativeEvent.actionKey === 'addToCalendar') {
+                addToCalendar(cours[dayKey]);
+              } else if (nativeEvent.actionKey === 'notifyAll') {
+                notifyAll(cours[dayKey]);
+              }
+            }}
           >
-            <CalendarPapillonIcon stroke={'#0065A8'} />
-            <Text style={[styles.calendarDateText, {color: '#0065A8'}]}>
-              {new Date(calendarDate).toLocaleDateString('fr', {
-                weekday: 'short',
-                day: '2-digit',
-                month: 'short',
-              })}
-            </Text>
-          </TouchableOpacity>
-        </ContextMenuView>
+            <TouchableOpacity
+              onPress={() => setCalendarModalOpen(true)}
+              style={[
+                styles.calendarDateContainer,
+                { backgroundColor: '#0065A8' + '20' }
+              ]}
+            >
+              <CalendarPapillonIcon stroke={'#0065A8'} />
+              <Text style={[styles.calendarDateText, { color: '#0065A8' }]}>
+                {new Date(calendarDate).toLocaleDateString('fr', {
+                  weekday: 'short',
+                  day: '2-digit',
+                  month: 'short',
+                })}
+              </Text>
+            </TouchableOpacity>
+          </ContextMenuView>
+        </View>
     });
   }, [navigation, calendarDate, UIColors]);
 
@@ -372,17 +393,17 @@ Statut : ${cours.status || 'Aucun'}
     // `handlePageChange` function and then do `setCalendarDate(date)`.
     if (pagerRef.current) pagerRef.current.setPage(diffDays, { animated: false });
   };
-  
+
   const refreshStateCache = async (date: Date, force: boolean): Promise<void> => {
     if (!appContext.dataProvider) return;
     // Temporary clone.
     let lessonsViewCache = { ...coursRef.current };
 
     console.info('timetable: fetching from scratch for state.');
-    
+
     const lessons = await appContext.dataProvider.getTimetable(date, force);
     if (!lessons) return; // No-op, not sure if that's good here.
-    
+
     // We fill undefined objects.
     const mondayIndex = date.getDate() - date.getDay() + 1;
     for (let i = 0; i <= 6; i++) {
@@ -416,22 +437,23 @@ Statut : ${cours.status || 'Aucun'}
     console.info('timetable: page change to', page);
     // Get the date selected using the page number.
     const date = getDateFromPageNumber(page);
-    
+    console.log(`timetable: getting edt for ${date}`)
     // Change the calendar.
     // Should be the only place where it changes it !
     setCalendarDate(date);
-
     // If inside cache, then simply use it.
     const currentDayKey = dateToFrenchFormat(date);
     if (currentDayKey in coursRef.current) {
-      setIsLoading(false);
-      return;
+      let courseFromCache = coursRef.current[currentDayKey]
+      if (Object.keys(courseFromCache).length !== 0) {
+        setIsLoading(false);
+        return;
+      }
     }
-    
-    setIsLoading(true);
 
     // Otherwise, we need to fetch. Make sure to not
     // force to also use storage cache, if it's in there.
+    setIsLoading(true);
     await refreshStateCache(date, false);
     setIsLoading(false);
   };
@@ -470,7 +492,7 @@ Statut : ${cours.status || 'Aucun'}
           <Animated.View
             style={[
               styles.calendarModalContainer,
-              {paddingBottom: insets.bottom + 6},
+              { paddingBottom: insets.bottom + 6 },
               {
                 opacity
               },
@@ -512,10 +534,10 @@ Statut : ${cours.status || 'Aucun'}
                 ]}>
                   <CalendarDays size={24} color={'#ffffff'} />
                   <View style={styles.modalTipData}>
-                    <NativeText heading="subtitle3" style={{color: '#ffffff'}}>
+                    <NativeText heading="subtitle3" style={{ color: '#ffffff' }}>
                       Astuce
                     </NativeText>
-                    <NativeText heading="p" style={{color: '#ffffff'}}>
+                    <NativeText heading="p" style={{ color: '#ffffff' }}>
                       Vous pouvez également balayer d'un bord à l'autre pour changer de jour.
                     </NativeText>
                   </View>
@@ -525,17 +547,17 @@ Statut : ${cours.status || 'Aucun'}
 
             <Animated.View
               style={[
-                {opacity}
+                { opacity }
               ]}
             >
-              <Pressable style={{flex: 1, width:'100%'}} onPress={() => setCalendarModalOpen(false)} />
+              <Pressable style={{ flex: 1, width: '100%' }} onPress={() => setCalendarModalOpen(false)} />
             </Animated.View>
 
             <TouchableOpacity style={styles.modalCloseButton} onPress={() => setCalendarModalOpen(false)}>
               <X size={24} color={'#ffffff'} />
             </TouchableOpacity>
 
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.calendarModalViewContainer,
                 {
@@ -597,11 +619,11 @@ Statut : ${cours.status || 'Aucun'}
         ref={pagerRef}
         style={styles.viewPager}
         pageWrapperStyle={styles.pageWrapper}
-        
+
         pageBuffer={1}
         gesturesDisabled={false}
         onPageChange={handlePageChange}
-        
+
         renderPage={({ index }) => (
           !isLoading ? (
             <CoursPage
@@ -899,7 +921,7 @@ function CoursPage({ cours, navigation, forceRefresh }: {
     setIsHeadLoading(false);
   };
 
-  function lz (nb: number) {
+  function lz(nb: number) {
     return nb < 10 ? `0${nb}` : nb.toString();
   }
 
@@ -935,20 +957,20 @@ function CoursPage({ cours, navigation, forceRefresh }: {
             <TimeSeparator
               reason={
                 (new Date(cours[index - 1].end).getHours() < 13 &&
-                new Date(lesson.start).getHours() >= 12) ?
+                  new Date(lesson.start).getHours() >= 12) ?
                   'Pause méridienne'
                   : 'Pas de cours'
               }
               time={`${Math.floor(
                 (new Date(lesson.start).getTime() -
-                    new Date(cours[index - 1].end).getTime()) /
-                    3600000
+                  new Date(cours[index - 1].end).getTime()) /
+                3600000
               )} h ${lz(
                 Math.floor(
                   ((new Date(lesson.start).getTime() -
-                      new Date(cours[index - 1].end).getTime()) %
-                      3600000) /
-                      60000
+                    new Date(cours[index - 1].end).getTime()) %
+                    3600000) /
+                  60000
                 )
               )} min`}
               lunch={

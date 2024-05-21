@@ -1,6 +1,6 @@
 {
   "name": "papillonvex",
-  "version": "6.6.3",
+  "version": "6.6.4",
   "canal": "beta",
   "private": true,
   "scripts": {
@@ -15,6 +15,7 @@
     "@expo/prebuild-config": "~6.2.4",
     "@expo/react-native-action-sheet": "^4.0.1",
     "@expo/webpack-config": "^19.0.0",
+    "@gorhom/bottom-sheet": "^4.6.3",
     "@legeek01/expo-in-app-purchases": "^1.0.0",
     "@notifee/react-native": "^7.8.2",
     "@papillonapp/ed-core": "^0.2.7",
@@ -72,7 +73,7 @@
     "jwt-decode": "^3.1.2",
     "lucide-react-native": "^0.363.0",
     "moment": "^2.29.4",
-    "pawnote": "^0.20.4",
+    "pawnote": "^0.21.0",
     "react": "18.2.0",
     "react-dom": "^18.2.0",
     "react-native": "^0.72.0",

@@ -2,7 +2,7 @@ import {getContextValues} from '../../utils/AppContext';
 import notifee from '@notifee/react-native';
 import {PapillonLesson} from '../types/timetable';
 import {checkCanNotify, DidNotified, SetNotified} from './Helper';
-import formatCoursName from '../../utils/FormatCoursName';
+import formatCoursName from '../../utils/cours/FormatCoursName';
 
 const now = new Date();
 

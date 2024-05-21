@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
-import { Animated, Easing, View, Text, StyleSheet, ActivityIndicator, Pressable, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { Animated, Easing, View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import GetUIColors from '../utils/GetUIColors';
 
 import { Check } from 'lucide-react-native';

@@ -15,15 +15,15 @@ import { PressableScale } from 'react-native-pressable-scale';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Newspaper } from 'lucide-react-native';
-import formatCoursName from '../utils/FormatCoursName';
-import getClosestGradeEmoji from '../utils/EmojiCoursName';
+import formatCoursName from '../utils/cours/FormatCoursName';
+import getClosestGradeEmoji from '../utils/cours/EmojiCoursName';
 import GetUIColors from '../utils/GetUIColors';
 import PapillonLoading from '../components/PapillonLoading';
 
 import { useAppContext } from '../utils/AppContext';
 import { WillBeSoon } from './Global/Soon';
 
-import { getSavedCourseColor } from '../utils/ColorCoursName';
+import { getSavedCourseColor } from '../utils/cours/ColorCoursName';
 import type { PapillonPeriod } from '../fetch/types/period';
 import type { PapillonEvaluation } from '../fetch/types/evaluations';
 

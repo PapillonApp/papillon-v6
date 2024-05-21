@@ -1,7 +1,7 @@
 import SharedGroupPreferences from 'react-native-shared-group-preferences';
-import formatCoursName from '../../utils/FormatCoursName';
-import getClosestGradeEmoji from '../../utils/EmojiCoursName';
-import { getSavedCourseColor } from '../../utils/ColorCoursName';
+import formatCoursName from '../../utils/cours/FormatCoursName';
+import getClosestGradeEmoji from '../../utils/cours/EmojiCoursName';
+import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
 import { getContextValues } from '../../utils/AppContext';
 import { checkCanNotify, DidNotified } from './Helper';
 import AsyncStorage from '@react-native-async-storage/async-storage';

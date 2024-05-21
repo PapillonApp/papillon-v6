@@ -9,7 +9,7 @@ import {
   Linking
 } from 'react-native';
 
-import { Calendar, BarChart3, Palette, Bug, ServerOff, WifiOff, Wind } from 'lucide-react-native';
+import { BarChart3, Palette, Bug, ServerOff, WifiOff, Wind } from 'lucide-react-native';
 
 import { Text, useTheme } from 'react-native-paper';
 import packageJson from '../package.json';
@@ -57,10 +57,6 @@ function ChangelogScreen() {
     },
   ];
 
-  // Easter egg (allez voir :))
-  function monTelephoneAunTresTresTresGrosProbleme() {
-    Linking.openURL('https://www.youtube.com/watch?v=U8R2NgcRBc0');
-  }
 
   return (
     <View style={{ flex: 1, backgroundColor: UIColors.background }}>

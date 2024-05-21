@@ -10,6 +10,7 @@ import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import Share from 'react-native-share';
+import { Buffer } from "buffer";
 import { ContextMenuButton } from 'react-native-ios-context-menu';
 import ColorPicker, {
   Panel1,
@@ -17,8 +18,8 @@ import ColorPicker, {
   Preview,
   HueSlider,
 } from 'reanimated-color-picker';
-import formatCoursName from '../../utils/FormatCoursName';
-import { forceSavedCourseColor } from '../../utils/ColorCoursName';
+import formatCoursName from '../../utils/cours/FormatCoursName';
+import { forceSavedCourseColor } from '../../utils/cours/ColorCoursName';
 import { CircleEllipsis, CircleEllipsisIcon, Lock, MoreVertical } from 'lucide-react-native';
 import { getContextValues } from '../../utils/AppContext';
 import { RegisterTrophy } from './TrophiesScreen';
@@ -26,6 +27,8 @@ import { RegisterTrophy } from './TrophiesScreen';
 interface SavedColors {
   [key: string]: {
     color: string;
+    originalColor: string;
+    edited: boolean;
     originalCourseName: string;
     systemCourseName: string;
     locked: boolean;
@@ -65,6 +68,16 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
           style: 'destructive',
         },
         {
+          text: 'Réinitialiser',
+          onPress: () => {
+            let newCol = { ...savedColors };
+            newCol[key].color = newCol[key].originalColor;
+            newCol[key].edited = false;
+            setSavedColors(newCol);
+            SyncStorage.set('savedColors', JSON.stringify(newCol));
+          }
+        },
+        {
           text: 'Annuler',
           style: 'cancel',
         },
@@ -85,6 +98,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
       [currentEditedSubject]: {
         ...savedColors[currentEditedSubject],
         color: hex,
+        edited: true,
       },
     });
 
@@ -96,21 +110,21 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   const ResetColors = async () => {
-    let dataInstance = await getContextValues().dataProvider;
     let colors = savedColors;
-    let timetable = await dataInstance.getTimetable(new Date());
-    timetable.forEach(course => {
-      Object.keys(colors).forEach((key) => {
-        if (colors[key].originalCourseName == course.subject.name && !colors[key].locked) {
-          colors[key].color = course.background_color;
-        }
-      });
-    });
+    Object.keys(colors).forEach((key) => {
+      if (!colors[key].locked) {
+        colors[key].color = colors[key].originalColor
+        colors[key].edited = false
+      }
+    })
     SyncStorage.set('savedColors', JSON.stringify(colors));
-    setSavedColors(JSON.parse(SyncStorage.get('savedColors'))); //Chelou mais sinon rien ne s'actualise
+    setSavedColors(colors); //Chelou mais sinon rien ne s'actualise
     Haptics.selectionAsync(Haptics.ImpactFeedbackStyle.Light);
   };
-
+  const DeleteColors = async () => {
+    setSavedColors({})
+    SyncStorage.set('savedColors', "{}");
+  }
   const ApplyRandomColors = () => {
     let col: SavedColors = {};
     let usedColors: string[] = [];
@@ -185,7 +199,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
   const exportColors = () => {
     const data = JSON.stringify(savedColors);
     const base64 = Buffer.from(data).toString('base64');
-    
+
     Share.open({
       url: 'data:text/json;base64,' + base64,
       filename: 'Papillon_CouleursMatieres_' + new Date().toISOString() + '.json',
@@ -260,7 +274,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                     icon: {
                       type: 'IMAGE_SYSTEM',
                       imageValue: {
-                        systemName: 'arrow.up.and.down',
+                        systemName: 'square.and.arrow.down.on.square',
                       },
                     },
                     menuItems: [
@@ -305,7 +319,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                   },
                 ],
               }}
-              onPressMenuItem={({nativeEvent}) => {
+              onPressMenuItem={({ nativeEvent }) => {
                 if (nativeEvent.actionKey == 'randomColor') {
                   Alert.alert(
                     'Remplacer les couleurs ?',
@@ -328,7 +342,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                 } else if (nativeEvent.actionKey == 'resetColor') {
                   Alert.alert(
                     'Réinitialiser les couleurs ?',
-                    'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible.',
+                    'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible et s\'appliquera uniquement aux couleurs non verrouillées.\n\nAttention : cela va rétablir les couleurs par défaut mises en caches, pour récupérer de nouveau les couleurs vous devez sélectionner l\'option "supprimer les couleurs".',
                     [
                       {
                         text: 'Réinitialiser',
@@ -365,8 +379,8 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
               paddingVertical: 0,
             }}
             anchor={
-              <TouchableOpacity onPress={() => {setMenuOpen(true);}}>
-                <CircleEllipsisIcon color={UIColors.primary}/>
+              <TouchableOpacity onPress={() => { setMenuOpen(true); }}>
+                <CircleEllipsisIcon color={UIColors.primary} />
               </TouchableOpacity>
             }
           >
@@ -374,7 +388,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
               title={'Appliquer des couleurs aléatoires'}
               leadingIcon="dice-5-outline"
               onPress={() => {
-                setUserMenuOpen(false);
+                setMenuOpen(false);
                 Alert.alert(
                   'Remplacer les couleurs ?',
                   'Voulez-vous vraiment modifier les couleurs ? Cette action est irréverssible.',
@@ -400,15 +414,40 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
               title={'Réinitialiser les couleurs'}
               leadingIcon="undo"
               onPress={() => {
-                setUserMenuOpen(false);
+                setMenuOpen(false);
                 Alert.alert(
                   'Réinitialiser les couleurs ?',
-                  'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible.',
+                  'Voulez-vous vraiment réinitialiser les couleurs ? Cette action est irréverssible et s\'appliquera uniquement aux couleurs non verrouillées.\n\nAttention : cela va rétablir les couleurs par défaut mises en caches, pour récupérer de nouveau les couleurs vous devez sélectionner l\'option "supprimer les couleurs".',
                   [
                     {
                       text: 'Réinitialiser',
                       onPress: () => {
                         ResetColors();
+                      },
+                      style: 'destructive',
+                    },
+                    {
+                      text: 'Annuler',
+                      style: 'cancel',
+                    },
+                  ],
+                  { cancelable: true }
+                );
+              }}
+            />
+            <Menu.Item
+              title={'Supprimer les couleurs'}
+              leadingIcon="delete"
+              onPress={() => {
+                setMenuOpen(false);
+                Alert.alert(
+                  'Supprimer les couleurs ?',
+                  'Voulez-vous vraiment supprimer les couleurs ? Cette action est irréverssible et s\'appliquera uniquement aux couleurs non verrouillées.\n\nCette option vous permet de récupérer de nouveau les couleurs depuis votre service scolaire. Si vous souhaitez rétablir celles en cache, veuillez utiliser l\'option "Réinitialiser les couleurs".',
+                  [
+                    {
+                      text: 'Supprimer',
+                      onPress: () => {
+                        DeleteColors();
                       },
                       style: 'destructive',
                     },
@@ -447,7 +486,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
     >
-      { Platform.OS === 'ios' &&
+      {Platform.OS === 'ios' &&
         <StatusBar barStyle={'light-content'} />
       }
 
@@ -462,7 +501,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                 key={index}
                 leading={
                   <TouchableOpacity
-                    style={[styles.colorPreview, {backgroundColor: savedColors[key].color }]}
+                    style={[styles.colorPreview, { backgroundColor: savedColors[key].color }]}
                     onPress={() => {
                       setColorModalOpen(true);
                       setColorModalColor(savedColors[key].color);
@@ -514,7 +553,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                           },
                         ],
                       }}
-                      onPressMenuItem={({nativeEvent}) => {
+                      onPressMenuItem={({ nativeEvent }) => {
                         if (nativeEvent.actionKey === 'delete') {
                           let newCol = JSON.parse(SyncStorage.get('savedColors'));
                           delete newCol[key];
@@ -549,7 +588,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                   {formatCoursName(savedColors[key].originalCourseName)}
                 </NativeText>
                 <NativeText heading="subtitle2">
-                  {savedColors[key].color.toUpperCase()}
+                  {savedColors[key].color.toUpperCase()} {savedColors[key].edited === true ? "- Modifié" : ""}
                 </NativeText>
               </NativeItem>
             );
@@ -564,7 +603,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
 
       <Modal visible={colorModalOpen} animationType='fade' transparent={true}>
         <View style={[styles.colorModalContainer]}>
-          <View style={[styles.colorModal, {backgroundColor: UIColors.element}]}>
+          <View style={[styles.colorModal, { backgroundColor: UIColors.element }]}>
             <ColorPicker style={styles.picker} value={colorModalColor} onComplete={onSelectColor}>
               <Preview
                 textStyle={{
@@ -576,7 +615,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
               <Swatches />
             </ColorPicker>
 
-            <View style={[styles.modalActions, {borderColor: UIColors.border}]}>
+            <View style={[styles.modalActions, { borderColor: UIColors.border }]}>
               <TouchableOpacity style={[styles.modalAction]} onPress={() => setColorModalOpen(false)}>
                 <Text
                   style={[styles.modalActionText]}
@@ -584,10 +623,10 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                   Annuler
                 </Text>
               </TouchableOpacity>
-              <View style={{width: 1, height: 47, backgroundColor: UIColors.border + '99'}} />
+              <View style={{ width: 1, height: 47, backgroundColor: UIColors.border + '99' }} />
               <TouchableOpacity style={[styles.modalAction]} onPress={onSave}>
                 <Text
-                  style={[styles.modalActionText, {color: colorModalColor}]}
+                  style={[styles.modalActionText, { color: colorModalColor }]}
                 >
                   Enregistrer
                 </Text>
@@ -634,7 +673,7 @@ const LockToggle = ({ value, onValueChange, color }) => {
           locked ? UIColors.modalBackground : UIColors.text
         }
         style={[
-          !locked ? {opacity: 0.4} : {},
+          !locked ? { opacity: 0.4 } : {},
         ]}
       />
     </TouchableOpacity>
