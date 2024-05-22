@@ -297,7 +297,7 @@ export class IndexDataInstance {
     }
     
     if (!user) {
-      throw Alert.alert('Aucun cache n\'a été trouvé, il se peut que vous avez été déconnecté de votre session.');
+      throw Alert.alert('Aucun cache n\'a été trouvé, il se peut que vous aillez été déconnecté de votre session.');
     }
 
     return runUserMiddleware(user);
