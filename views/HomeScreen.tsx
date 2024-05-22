@@ -459,6 +459,9 @@ const HomeScreen = ({ navigation }) => {
               <View
                 style={[
                   styles.nextCourse__content,
+                  {
+                    flex: 1,
+                  }
                 ]}
               >
                 <Text
