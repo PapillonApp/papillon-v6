@@ -8,12 +8,12 @@ import {
   TextInput,
   StatusBar,
   ActivityIndicator,
-  Image,
+  Image, Alert, TouchableOpacity,
 } from 'react-native';
 
 import * as Haptics from 'expo-haptics';
 
-import { UserCircle, KeyRound, AlertTriangle, Link2 } from 'lucide-react-native';
+import {UserCircle, KeyRound, AlertTriangle, Link2, Check} from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import { showMessage } from 'react-native-flash-message';
@@ -27,15 +27,21 @@ import AlertBottomSheet from '../../../interface/AlertBottomSheet';
 
 import GetUIColors from '../../../utils/GetUIColors';
 import { useAppContext } from '../../../utils/AppContext';
+import ModalBottom from '../../../interface/ModalBottom';
 
 import { AsyncStorageEcoleDirecteKeys } from '../../../fetch/EcoleDirecteData/connector';
 import { EDCore } from '@papillonapp/ed-core';
+import { v4 as uuidv4 } from 'uuid';
+import CheckAnimated from '../../../interface/CheckAnimated';
+import NativeText from '../../../components/NativeText';
+import { doubleauthResData } from '@papillonapp/ed-core/dist/src/types/v3';
+import PapillonCloseButton from '../../../interface/PapillonCloseButton';
 
 
 function LoginEDForm({ route, navigation }: {
   navigation: any; // TODO
   route: {
-    
+
   }
 }) {
   const theme = useTheme();
@@ -49,43 +55,28 @@ function LoginEDForm({ route, navigation }: {
   const [password, setPassword] = React.useState('');
   const [connecting, setConnecting] = React.useState(false);
 
+  const [isDoubleAuthEnabled, setDoubleAuthEnabled] = React.useState(false);
+  const [doubleAuthObject, setDoubleAuthObject] = React.useState({ question: '', propositions: [] } as doubleauthResData);
+  const [doubleAuthToken, setDoubleAuthToken] = React.useState('');
+
+  const [doubleAuthAnswer, setDoubleAuthAnswer] = React.useState('');
+
+  const selectDoubleAuthAnwser = (answer) => {
+    setDoubleAuthAnswer(answer);
+  };
+
   const appContext = useAppContext();
   const UIColors = GetUIColors();
 
 
   const makeUUID = (): string => {
-    let dt = new Date().getTime();
-    const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-      /[xy]/g,
-      (c) => {
-        const r = (dt + Math.random() * 16) % 16 | 0;
-        dt = Math.floor(dt / 16);
-        return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-      }
-    );
-    return uuid;
+    return uuidv4();
   };
 
+  let ed = new EDCore();
 
-
-
-
-  const handleLogin = async () => {
-    if (username.trim() === '' || password.trim() === '') {
-      setStringErrorAlert(true);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      return;
-    }
-
-    try {
-      setConnecting(true);
-
-      let ed = new EDCore();
-      let uuid = makeUUID();
-
-      await ed.auth.login(username, password, uuid);
-
-      if(ed._token && ed._accessToken) {
+  const handleConnection = async (uuid: string) => {
+    if(ed._token && ed._accessToken) {
 
       await AsyncStorage.multiSet([
         [AsyncStorageEcoleDirecteKeys.TOKEN, ed._token],
@@ -93,28 +84,73 @@ function LoginEDForm({ route, navigation }: {
         [AsyncStorageEcoleDirecteKeys.USERNAME, username],
         [AsyncStorageEcoleDirecteKeys.ACCESS_TOKEN, ed._accessToken]
       ]);
-    };
-
-      setConnecting(false);
-
-      showMessage({
-        message: 'Connecté avec succès',
-        type: 'success',
-        icon: 'auto',
-      });
-
-      await appContext.dataProvider!.init('ecoledirecte', ed);
-      await AsyncStorage.setItem('service', 'ecoledirecte');
-
-      navigation.goBack();
-      navigation.goBack();
-      appContext.setLoggedIn(true);
-    } catch(err) {
-      console.log(err)
-      setConnecting(false);
-      setErrorAlert(true);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
+
+    setConnecting(false);
+
+    showMessage({
+      message: 'Connecté avec succès',
+      type: 'success',
+      icon: 'auto',
+    });
+
+    await appContext.dataProvider!.init('ecoledirecte', ed);
+    await AsyncStorage.setItem('service', 'ecoledirecte');
+
+    navigation.goBack();
+    navigation.goBack();
+    appContext.setLoggedIn(true);
+  };
+
+  const handleLogin = async () => {
+    if (username.trim() === '' || password.trim() === '') {
+      setStringErrorAlert(true);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      return;
+    }
+
+    let uuid = makeUUID();
+
+    try {
+      setConnecting(true);
+
+      await ed.auth.login(username, password, uuid);
+
+      await handleConnection(uuid);
+    } catch(err: any) {
+      setConnecting(false);
+      const errorCode = err.code ? err.code: 0;
+
+      // Doubleauth handling
+      if (errorCode == 12) {
+        const token = await ed.auth.get2FAToken(username, password);
+        const QCM = await ed.auth.get2FA(token);
+        setDoubleAuthToken(token);
+        setDoubleAuthObject(QCM);
+        setDoubleAuthEnabled(true);
+        return;
+      }
+
+
+      setErrorAlert(true);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    }
+  };
+
+
+  const sendA2FAnswer = async () => {
+    setConnecting(true);
+    ed._token = doubleAuthToken;
+    const authFactors = await ed.auth.resolve2FA(doubleAuthAnswer).catch((err) => {
+      console.log(err);
+      setErrorAlert(true);
+    });
+    setDoubleAuthEnabled(false);
+    let uuid = makeUUID();
+
+    await ed.auth.login(username, password, uuid, authFactors ?? undefined);
+
+    await handleConnection(uuid);
   };
 
   return (
@@ -132,6 +168,114 @@ function LoginEDForm({ route, navigation }: {
         }}
       />
       <ScrollView style={{ backgroundColor: UIColors.modalBackground }}>
+        <ModalBottom
+          visible={isDoubleAuthEnabled}
+          onDismiss={() => {
+            setDoubleAuthEnabled(false);
+          }}
+          align='bottom'
+          style={[
+            {
+              backgroundColor: '#000000',
+              borderColor: '#ffffff32',
+              borderWidth: 1,
+              elevation : 0,
+            }
+          ]}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              width: '100%',
+              maxWidth: '100%',
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              paddingBottom: 8,
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 16,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: 'column',
+                flex: 1,
+              }}
+            >
+              <NativeText heading='h4' style={{ color: '#fff' }}>
+                La double authentification est activée
+              </NativeText>
+              <NativeText heading='p2' style={{ color: '#fff' }}>
+                Répondez à la question pour vous connecter
+              </NativeText>
+              <NativeText style={{ color: '#fff', marginBottom: 10, marginTop: 10 }} heading='h4'>
+                {doubleAuthObject.question}
+              </NativeText>
+            </View>
+          </View>
+          <ScrollView
+            style={styles.doubleAuthModalScroll}
+          >
+            <NativeList
+              sectionProps={{
+                hideSeparator: true,
+                hideSurroundingSeparators: true,
+              }}
+            >
+              {doubleAuthObject.propositions.map((answer, index) => (
+                <NativeItem
+                  key={index}
+                  onPress={() => selectDoubleAuthAnwser(answer)}
+                  backgroundColor={UIColors.background}
+                  cellProps={{
+                    contentContainerStyle: {
+                      paddingVertical: 3,
+                    },
+                    backgroundColor: UIColors.background,
+                  }}
+
+                  trailing={
+                    <CheckAnimated
+                      checked={answer === doubleAuthAnswer }
+                      pressed={() => selectDoubleAuthAnwser(answer)}
+                      backgroundColor={UIColors.background}
+                    />
+                  }
+                >
+                  <NativeText heading="p">
+                    {answer}
+                  </NativeText>
+                </NativeItem>
+              ))}
+            </NativeList>
+          </ScrollView>
+          <View
+            style={{
+              flexDirection: 'row',
+              width: '100%',
+              maxWidth: '100%',
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              paddingBottom: 8,
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 16,
+            }}
+          >
+            <TouchableOpacity
+              style={[styles.startButton, {
+                backgroundColor: doubleAuthAnswer !== '' ? UIColors.primary : UIColors.text + '40',
+              }]}
+              activeOpacity={doubleAuthAnswer !== '' ? 0.5 : 1}
+              onPress={() => sendA2FAnswer()}
+            >
+              <NativeText style={[styles.startText]}>
+                Confirmer
+              </NativeText>
+            </TouchableOpacity>
+          </View>
+        </ModalBottom>
+
         <AlertBottomSheet
           title="Échec de la connexion"
           subtitle="Vérifiez vos identifiants et réessayez."
@@ -253,6 +397,21 @@ function LoginEDForm({ route, navigation }: {
 }
 
 const styles = StyleSheet.create({
+  doubleAuthModalScroll: {
+    height: 300,
+  },
+  startButton: {
+    borderRadius: 300,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 44,
+    width: '100%',
+  },
+  startText: {
+    fontSize: 16,
+    fontFamily: 'Papillon-Semibold',
+    color: '#ffffff',
+  },
   loginHeader: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -348,6 +507,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Papillon-Medium',
     paddingVertical: 4,
+  },
+
+  instructionsText: {
+    fontSize: 16,
+    fontFamily: 'Papillon-Medium',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    opacity: 0.5,
   },
 });
 

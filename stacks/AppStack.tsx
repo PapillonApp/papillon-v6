@@ -137,6 +137,20 @@ const AppStack = ({ navigation }) => {
         presentation: 'modal',
       }
     },
+    {
+      name: 'ED_Extended_InsetDocuments',
+      component: require('../views/ecoledirecte/ed_documents').default,
+      options: {
+        presentation: 'modal',
+      }
+    },
+    {
+      name: 'ED_Extended_InsetCloud',
+      component: require('../views/ecoledirecte/ed_cloud').default,
+      options: {
+        presentation: 'modal',
+      }
+    },
   ];
 
   useEffect(() => {

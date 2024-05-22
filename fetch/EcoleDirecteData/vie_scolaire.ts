@@ -24,20 +24,20 @@ export const EDvieScolaireHandler = async (instance?: EDCore, force = false): Pr
   try {
     if (!instance) throw new Error('No instance available.');
 
-  
+
     const schoolLife: schoolLifeResData = await instance.schoolLife.fetch();
 
     schoolLife.absencesRetards.forEach(element=> {
-      if(element.typeElement === "Retard") {
+      if(element.typeElement === 'Retard') {
         data.delays.push({
           id: JSON.stringify(element.id),
           date: new Date(element.date).getTime(),
-          duration: parseFloat(element.libelle.split(":")[1]),
+          duration: parseFloat(element.libelle.split(':')[1]),
           justified: element.justifie,
           justification: element.commentaire,
           reasons: [element.motif]
         });
-      } else if(element.typeElement === "Absence") {
+      } else if(element.typeElement === 'Absence') {
         data.absences.push({
           id: JSON.stringify(element.id),
           from: new Date(element.interval.start).getTime(),
@@ -51,9 +51,9 @@ export const EDvieScolaireHandler = async (instance?: EDCore, force = false): Pr
     });
 
     schoolLife.sanctionsEncouragements.forEach(element=> {
-      if(element.typeElement === "Punition") {
+      if(element.typeElement === 'Punition') {
         data.punishments.push({
-          id: element.id,
+          id: element.id.toString(),
           schedulable: false, // TODO
           schedule: [], // TODO
           date: new Date(element.date).getTime(),
@@ -61,7 +61,7 @@ export const EDvieScolaireHandler = async (instance?: EDCore, force = false): Pr
           exclusion: false,
           during_lesson: false,
           homework: {
-            text: "Rien",
+            text: 'Rien',
             documents: []
           },
           reason: {
@@ -86,7 +86,7 @@ export const EDvieScolaireHandler = async (instance?: EDCore, force = false): Pr
   catch {
     if (cache) {
       const cached = JSON.parse(cache) as CachedPapillonVieScolaire;
-      
+
       return {
         absences: cached.absences,
         delays: cached.delays,

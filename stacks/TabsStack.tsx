@@ -5,6 +5,8 @@ const Tab = createBottomTabNavigator();
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAppContext } from '../utils/AppContext';
+
 import {
   Home as PapillonIconsHome,
   HomeFill as PapillonIconsHomeFill,
@@ -88,6 +90,21 @@ const views = [
 ];
 
 const TabsStack = ({ navigation }) => {
+  const appContext = useAppContext();
+  if(appContext.dataProvider?.service === "ecoledirecte") {
+    views[4] = {
+      name: 'ED_ExtendedMenu',
+      component: require('../views/ecoledirecte/EDExtendedMenu').default,
+      options: {
+        tabBarLabel: 'Plus',
+        tabBarIcon: ({ color, size, focused }) =>
+          getIcon(PapillonIconsNews, PapillonIconsNewsFill, color, size, focused, true),
+        color: '#3248a8',
+      },
+    }
+  }
+
+
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
 

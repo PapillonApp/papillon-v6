@@ -59,10 +59,8 @@ function LessonScreen({ route, navigation }: {
 
   // main color
   const mainColor = theme.dark ? '#ffffff' : '#444444';
-
-  const length = Math.floor((lesson.end - lesson.start) / 60_000);
-  const lengthString = `${Math.floor(length / 60)}h${length % 60 < 10 ? '0' : ''
-    }${length % 60}`;
+  const length = Math.floor((new Date(lesson.end).getTime() - new Date(lesson.start).getTime()) / 60_000);
+  const lengthString = `${Math.floor(length / 60)}h${length % 60 < 10 ? '0' : ''}${length % 60}`;
 
   // date (jeudi 1 janvier 1970)
   const dateCours = new Date(lesson.start).toLocaleDateString('fr-FR', {

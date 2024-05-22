@@ -261,7 +261,7 @@ function AboutScreen({ navigation }) {
               setNumClickVersion(numClickVersion + 1);
               if (numClickVersion >= 3 && numClickVersion < 10) {
                 showMessage({
-                  message: `Encore ${10 - numClickVersion} clicks`,
+                  message: `Encore ${10 - numClickVersion} cliques`,
                   type: 'info',
                   icon: 'auto',
                   floating: true,

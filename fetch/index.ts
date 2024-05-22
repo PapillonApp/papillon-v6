@@ -31,6 +31,13 @@ import { loadEcoleDirecteConnector } from './EcoleDirecteData/connector';
 import { userInformations as EcoleDirecteUser } from './EcoleDirecteData/user';
 import { EDtimetableHandler as EcoleDirecteTimetable } from './EcoleDirecteData/timetable';
 import { EDvieScolaireHandler } from './EcoleDirecteData/vie_scolaire';
+import { EDDocumentsHandler } from './EcoleDirecteData/documents';
+import { EDCloudHandler } from './EcoleDirecteData/cloud';
+// EcoleDirecte related types imports.
+import type { studentDocsResData } from '@papillonapp/ed-core/dist/src/types/v3';
+import type { cloudResFolder } from '@papillonapp/ed-core/dist/src/types/v3';
+
+
 import { Alert } from 'react-native';
 
 export type ServiceName = 'pronote' | 'skolengo' | 'ecoledirecte';
@@ -393,6 +400,35 @@ export class IndexDataInstance {
       return pronoteHomeworkRemoveFileHandler(homework, this.pronoteInstance);
     }
   }
+
+
+  /**
+   * ONLY FOR ECOLEDIRECTE
+   * 
+   * Get the documents
+   */
+  public async getED_Documents (force = false): Promise<studentDocsResData | null> {
+    await this.waitInit();
+    if (this.service === 'ecoledirecte') {
+      return EDDocumentsHandler(this.ecoledirecteInstance, force);
+    }
+
+    throw new Error('Method only works for EcoleDirecte');
+  }
+
+  public async getED_Cloud (force = false): Promise<cloudResFolder[] | null> {
+    await this.waitInit();
+    if (this.service === 'ecoledirecte') {
+      return EDCloudHandler(this.ecoledirecteInstance, force);
+    }
+
+    throw new Error('Method only works for EcoleDirecte');
+  }
+
+
+
+
+
 }
 
 /**
