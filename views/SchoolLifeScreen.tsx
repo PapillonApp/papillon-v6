@@ -156,7 +156,7 @@ function SchoolLifeScreen({ navigation }: {
                         styles.absenceItemStatusTitleToJustify,
                       ]}
                     >
-                      A justifier
+                      À justifier
                     </NativeText>
                   ) : (
                     <NativeText style={[styles.absenceItemStatusTitle]}>
@@ -222,11 +222,11 @@ function SchoolLifeScreen({ navigation }: {
                         styles.absenceItemStatusTitleToJustify,
                       ]}
                     >
-                      A justifier
+                      À justifier
                     </NativeText>
                   ) : (
                     <NativeText style={[styles.absenceItemStatusTitle]}>
-                      Justifiée
+                      Justifié
                     </NativeText>
                   )}
                 >
