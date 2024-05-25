@@ -12,9 +12,10 @@ import GetUIColors from '../../utils/GetUIColors';
 
 
 import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
-import getEtabRoom from '../../utils/CustomEtabRoomFormat';
 
 import formatCoursName from '../../utils/cours/FormatCoursName';
+
+import { convert as convertHTML } from 'html-to-text';
 
 import {
   DoorOpen,
@@ -299,7 +300,7 @@ function LessonScreen({ route, navigation }: {
             <NativeItem leading={<ClipboardList size={24} color={mainColor} />}>
               <NativeText heading="p2">Description</NativeText>
               <NativeText heading="h4">
-                {content.description || 'Non spécifié'}
+                {content.description ? convertHTML(content.description) : 'Non spécifié'}
               </NativeText>
             </NativeItem>
           </NativeList>
