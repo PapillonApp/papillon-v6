@@ -11,6 +11,8 @@ import { convert as convertHTML } from 'html-to-text';
 import formatCoursName from '../utils/cours/FormatCoursName';
 import TimeSeparator from '../interface/CoursScreen/TimeSeparator';
 
+import * as WebBrowser from 'expo-web-browser';
+
 import {
   ContextMenuView,
   MenuElementConfig,
@@ -73,6 +75,10 @@ import {
 import { GetRessource } from '../utils/GetRessources/GetRessources';
 import { PapillonGroupedHomeworks } from '../fetch/types/homework';
 import { BlurView } from 'expo-blur';
+
+const openURL = async (url: string) => {
+  await WebBrowser.openBrowserAsync(url);
+};
 
 const useRealTimeCourse = (lessons: PapillonLesson[] | null) => {
   // Initialise le prochain cours et son heure de début
