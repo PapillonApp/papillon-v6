@@ -13,7 +13,7 @@ import {
 
 import * as Haptics from 'expo-haptics';
 
-import {UserCircle, KeyRound, AlertTriangle, Link2, Check} from 'lucide-react-native';
+import { UserCircle, KeyRound, AlertTriangle, Link2, Check } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import { showMessage } from 'react-native-flash-message';
@@ -76,7 +76,7 @@ function LoginEDForm({ route, navigation }: {
   let ed = new EDCore();
 
   const handleConnection = async (uuid: string) => {
-    if(ed._token && ed._accessToken) {
+    if (ed._token && ed._accessToken) {
 
       await AsyncStorage.multiSet([
         [AsyncStorageEcoleDirecteKeys.TOKEN, ed._token],
@@ -117,9 +117,9 @@ function LoginEDForm({ route, navigation }: {
       await ed.auth.login(username, password, uuid);
 
       await handleConnection(uuid);
-    } catch(err: any) {
+    } catch (err: any) {
       setConnecting(false);
-      const errorCode = err.code ? err.code: 0;
+      const errorCode = err.code ? err.code : 0;
 
       // Doubleauth handling
       if (errorCode == 12) {
@@ -155,18 +155,6 @@ function LoginEDForm({ route, navigation }: {
 
   return (
     <>
-      <LinearGradient
-        colors={[UIColors.modalBackground, UIColors.modalBackground + '00']}
-        locations={[0, 1]}
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          height: 100,
-          zIndex: 9999,
-        }}
-      />
       <ScrollView style={{ backgroundColor: UIColors.modalBackground }}>
         <ModalBottom
           visible={isDoubleAuthEnabled}
@@ -179,7 +167,7 @@ function LoginEDForm({ route, navigation }: {
               backgroundColor: '#000000',
               borderColor: '#ffffff32',
               borderWidth: 1,
-              elevation : 0,
+              elevation: 0,
             }
           ]}
         >
@@ -236,7 +224,7 @@ function LoginEDForm({ route, navigation }: {
 
                   trailing={
                     <CheckAnimated
-                      checked={answer === doubleAuthAnswer }
+                      checked={answer === doubleAuthAnswer}
                       pressed={() => selectDoubleAuthAnwser(answer)}
                       backgroundColor={UIColors.background}
                     />
@@ -317,9 +305,11 @@ function LoginEDForm({ route, navigation }: {
             style={styles.loginHeaderLogo}
             source={require('../../../assets/logo_modern_ed.png')}
           />
-
+          <Text style={styles.loginHeaderText}>
+            Se connecter à EcoleDirecte
+          </Text>
           <Text style={styles.loginHeaderDescription}>
-            Identifiants EcoleDirecte
+            avec vos identifiants
           </Text>
         </View>
 
@@ -415,13 +405,13 @@ const styles = StyleSheet.create({
   loginHeader: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 70,
+    paddingTop: 20,
     paddingHorizontal: 28,
-    paddingBottom: 18,
+    paddingBottom: 10,
   },
   loginHeaderLogo: {
-    width: 52,
-    height: 52,
+    width: 56,
+    height: 56,
     resizeMode: 'contain',
   },
   loginHeaderText: {
