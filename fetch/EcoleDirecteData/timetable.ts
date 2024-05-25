@@ -35,7 +35,7 @@ export const EDtimetableHandler = async (interval: [from: Date, to?: Date], inst
   if (cache && !force) {
     const data: Array<CachedPapillonTimetable> = JSON.parse(cache);
     const cached = data.find(cached => cached.interval.from === from && cached.interval.to === to);
-    
+
     // Within 12 hours.
     if (cached && now - cached.cacheTimestamp < 12 * 60 * 60 * 1000) {
       return cached.timetable;
@@ -44,51 +44,78 @@ export const EDtimetableHandler = async (interval: [from: Date, to?: Date], inst
 
   if (!instance) return null;
 
-
-
   try {
 
-    let firstdate = interval[0].toLocaleDateString().split("/");
-    let date1 = firstdate[2] + '-' + firstdate[1] + '-' + firstdate[0];
+    // YYYY-MM-DD date format
+    let firstDate = interval[0].toLocaleDateString().split('/');
+    let date1 = firstDate[2] + '-' + firstDate[1] + '-' + firstDate[0];
 
-    let secdate = interval[1].toLocaleDateString().split("/");
-    let date2 = secdate ? secdate[2] + '-' + secdate[1] + '-' + secdate[0] : date1;
+    // YYYY-MM-DD date format
+    let secondDate = interval[1] ? interval[1].toLocaleDateString().split('/'): null;
+    let date2 = secondDate ? secondDate[2] + '-' + secondDate[1] + '-' + secondDate[0] : date1;
 
     console.log(date1, date2);
 
     const timetableFromED = await instance.timetable.fetchByDate(date1, date2);
 
-    let timetable: PapillonLesson[] = new Array();
+    let timetable: PapillonLesson[] = [];
 
     timetableFromED.forEach(lesson => {
-      timetable.push({
+
+      if(lesson.typeCours === "PERMANENCE") return;
+
+      if(lesson.typeCours === 'CONGE') return timetable.push({
         id: lesson.id,
         num: lesson.num || 0,
         subject: {
           id: lesson.id,
-          name: lesson.text || "TEST",
+          name: lesson.text || 'TEST',
           groups: false
         },
-        teachers: lesson.prof.split(","),
-        rooms: lesson.salle.split(","),
-        group_names: lesson.groupeCode.split(","),
-        memo: "Non disponible",
-        virtual: ["Non disponible"],
+        teachers: ['Aucun prof.'],
+        rooms: ['Chez soi'],
+        group_names: lesson.groupeCode.split(','),
+        memo: 'Non disponible',
+        virtual: ['Non disponible'],
         start: lesson.start_date,
         end: lesson.end_date,
         background_color: lesson.color,
-        status: lesson.status || "",
+        status: lesson.status || '',
         is_cancelled: lesson.isAnnule,
         is_outing: lesson.outing || false,
         is_detention: lesson.detention || false,
         is_exempted: lesson.exempted || false,
         is_test: lesson.test || false
-      })
-    })
+      });
+
+      timetable.push({
+        id: lesson.id,
+        num: lesson.num || 0,
+        subject: {
+          id: lesson.id,
+          name: lesson.text || 'TEST',
+          groups: false
+        },
+        teachers: lesson.prof.split(','),
+        rooms: lesson.salle.split(','),
+        group_names: lesson.groupeCode.split(','),
+        memo: 'Non disponible',
+        virtual: ['Non disponible'],
+        start: lesson.start_date,
+        end: lesson.end_date,
+        background_color: lesson.color,
+        status: lesson.status || '',
+        is_cancelled: lesson.isAnnule,
+        is_outing: lesson.outing || false,
+        is_detention: lesson.detention || false,
+        is_exempted: lesson.exempted || false,
+        is_test: lesson.test || false
+      });
+    });
 
     timetable.sort((a, b) => a.start.localeCompare(b.start));
 
-    
+
     // Build up the new timetables cache inside storage.
     let cachedTimetables: Array<CachedPapillonTimetable> = [];
     if (cache) cachedTimetables = JSON.parse(cache);

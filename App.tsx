@@ -15,6 +15,10 @@ import FlashMessage from 'react-native-flash-message';
 startNetworkLogging();
 const provider = new IndexDataInstance();
 
+import {
+  BottomSheetModalProvider,
+} from '@gorhom/bottom-sheet';
+
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -93,18 +97,20 @@ function App() {
   return (
     <View style={{ flex: 1 }}>
       <AppContextProvider state={ctxValue}>
-        <Stack.Navigator>
-          {loading ? (
-            <Stack.Screen name="Loading" component={LoadingScreen} options={{ headerShown: false }} />
-          ) : loggedIn ? (
-            <Stack.Screen name="AppStack" component={AppStack} options={{ headerShown: false, animation: 'fade', animationDuration: 150 }} />
-          ) : (
-            <Stack.Screen name="AuthStack" component={AuthStack} options={{ headerShown: false }} />
-          )}
-          {AltScreens.map((screen, index) => (
-            <Stack.Screen key={index} name={screen.name} component={screen.component} options={screen.options} />
-          ))}
-        </Stack.Navigator>
+        <BottomSheetModalProvider>
+          <Stack.Navigator>
+            {loading ? (
+              <Stack.Screen name="Loading" component={LoadingScreen} options={{ headerShown: false }} />
+            ) : loggedIn ? (
+              <Stack.Screen name="AppStack" component={AppStack} options={{ headerShown: false, animation: 'fade', animationDuration: 150 }} />
+            ) : (
+              <Stack.Screen name="AuthStack" component={AuthStack} options={{ headerShown: false }} />
+            )}
+            {AltScreens.map((screen, index) => (
+              <Stack.Screen key={index} name={screen.name} component={screen.component} options={screen.options} />
+            ))}
+          </Stack.Navigator>
+        </BottomSheetModalProvider>
       </AppContextProvider>
       <FlashMessage position="top" />
     </View>
