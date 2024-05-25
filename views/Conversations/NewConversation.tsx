@@ -27,7 +27,7 @@ const NewConversation = ({ navigation }: {
   const setConversations = useSetAtom(discussionsAtom);
   const [recipients, setRecipients] = useState<PapillonRecipient[]>([]);
   const [selectedRecipients, setSelectedRecipients] = useState<PapillonRecipient[]>([]);
-  
+
   const [loading, setLoading] = useState(true);
   const [content, setContent] = useState('');
   const [subject, setSubject] = useState('');
@@ -74,7 +74,7 @@ const NewConversation = ({ navigation }: {
 
     try {
       await appContext.dataProvider.createDiscussion(
-        subject.trim() ||'Aucun sujet',
+        subject.trim() || 'Aucun sujet',
         content,
         selectedRecipients
       );
@@ -119,7 +119,7 @@ const NewConversation = ({ navigation }: {
           <TextInput
             placeholder="Entrez un sujet"
             placeholderTextColor={UIColors.text + '77'}
-            style={[styles.input, {color: UIColors.text}]}
+            style={[styles.input, { color: UIColors.text }]}
             value={subject}
             onChangeText={t => setSubject(t)}
           />
@@ -133,58 +133,71 @@ const NewConversation = ({ navigation }: {
             placeholder="Saisissez votre message"
             placeholderTextColor={UIColors.text + '77'}
             multiline={true}
-            style={[styles.inputMsg, {color: UIColors.text}]}
+            style={[styles.inputMsg, { color: UIColors.text }]}
             value={content}
             onChangeText={t => setContent(t)}
           />
         </NativeItem>
       </NativeList>
 
-      <NativeList header="Personnes disponibles">
-        {recipients.map((item, index) => (
-          <NativeItem
-            key={index}
-            leading={
-              <HwCheckbox
-                loading={false}
-                checked={selectedRecipients.some((e) => e.id === item.id)}
-                pressed={() => {
-                  // if already selected, remove it
-                  if (selectedRecipients.some((e) => e.id === item.id)) {
-                    setSelectedRecipients(prev => prev.filter((e) => e.id !== item.id));
-                  }
-                  // otherwise add it
-                  else {
-                    setSelectedRecipients(prev => [...prev, item]);
-                  }
-                }}
-              />
-            }
-            onPress={() => {
-              // if already selected, remove it
-              if (selectedRecipients.some((e) => e.id === item.id)) {
-                setSelectedRecipients(prev => prev.filter((e) => e.id !== item.id));
+      {recipients && recipients.length > 0 ? (
+        <NativeList header="Personnes disponibles">
+          {recipients.map((item, index) => (
+            <NativeItem
+              key={index}
+              leading={
+                <HwCheckbox
+                  loading={false}
+                  checked={selectedRecipients.some((e) => e.id === item.id)}
+                  pressed={() => {
+                    // if already selected, remove it
+                    if (selectedRecipients.some((e) => e.id === item.id)) {
+                      setSelectedRecipients(prev => prev.filter((e) => e.id !== item.id));
+                    }
+                    // otherwise add it
+                    else {
+                      setSelectedRecipients(prev => [...prev, item]);
+                    }
+                  }}
+                />
               }
-              // otherwise add it
-              else {
-                setSelectedRecipients(prev => [...prev, item]);
-              }
-            }}
-          >
+              onPress={() => {
+                // if already selected, remove it
+                if (selectedRecipients.some((e) => e.id === item.id)) {
+                  setSelectedRecipients(prev => prev.filter((e) => e.id !== item.id));
+                }
+                // otherwise add it
+                else {
+                  setSelectedRecipients(prev => [...prev, item]);
+                }
+              }}
+            >
+              <NativeText heading="h4">
+                {item.name}
+              </NativeText>
+              <NativeText heading="p2">
+                {item.functions.join(', ')}
+              </NativeText>
+              <NativeText heading="subtitle1">
+                {item.type === PapillonRecipientType.TEACHER ? 'Professeur'
+                  : item.type === PapillonRecipientType.PERSONAL ? 'Personnel' : 'Élève'
+                }
+              </NativeText>
+            </NativeItem>
+          ))}
+        </NativeList>
+      ) : !loading ? (
+        <NativeList header="Personnes disponibles">
+          <NativeItem>
             <NativeText heading="h4">
-              {item.name}
+              Aucune personne disponible
             </NativeText>
             <NativeText heading="p2">
-              {item.functions.join(', ')}
-            </NativeText>
-            <NativeText heading="subtitle1">
-              {item.type === PapillonRecipientType.TEACHER ? 'Professeur'
-                : item.type === PapillonRecipientType.PERSONAL ? 'Personnel' : 'Élève'
-              }
+              Votre établissement ne permet pas l'envoi de messages.
             </NativeText>
           </NativeItem>
-        ))}
-      </NativeList>
+        </NativeList>
+      ) : null}
     </ScrollView>
   );
 };

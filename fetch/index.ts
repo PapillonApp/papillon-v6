@@ -31,6 +31,13 @@ import { loadEcoleDirecteConnector } from './EcoleDirecteData/connector';
 import { userInformations as EcoleDirecteUser } from './EcoleDirecteData/user';
 import { EDtimetableHandler as EcoleDirecteTimetable } from './EcoleDirecteData/timetable';
 import { EDvieScolaireHandler } from './EcoleDirecteData/vie_scolaire';
+import { EDDocumentsHandler } from './EcoleDirecteData/documents';
+import { EDCloudHandler } from './EcoleDirecteData/cloud';
+// EcoleDirecte related types imports.
+import type { studentDocsResData } from '@papillonapp/ed-core/dist/src/types/v3';
+import type { cloudResFolder } from '@papillonapp/ed-core/dist/src/types/v3';
+
+
 import { Alert } from 'react-native';
 
 export type ServiceName = 'pronote' | 'skolengo' | 'ecoledirecte';
@@ -237,12 +244,17 @@ export class IndexDataInstance {
    * If the user is offline and/or the cache fails, an
    * empty list is returned.
    */
-  public async getTimetable (day: Date, force = false): Promise<PapillonLesson[]> {
+  public async getTimetable (day: Date, force = false, day2: Date): Promise<PapillonLesson[]> {
     await this.waitInit();
 
     // JS dates are starting from Sunday, we do `+1` to be on Monday;
-    const mondayIndex = day.getDate() - day.getDay() + 1;
-    const sundayIndex = mondayIndex + 6;
+    let mondayIndex = day.getDate() - day.getDay() + 1;
+    let sundayIndex = mondayIndex + 6;
+
+    if(day2) {
+      mondayIndex = day.getDate();
+      sundayIndex = day2.getDate();
+    };
 
     const monday = new Date(day);
     monday.setDate(mondayIndex);
@@ -285,7 +297,7 @@ export class IndexDataInstance {
     }
     
     if (!user) {
-      throw Alert.alert('Aucun cache n\'a été trouvé, il se peut que vous avez été déconnecté de votre session.');
+      throw Alert.alert('Aucun cache n\'a été trouvé, il se peut que vous ayez été déconnecté de votre session.');
     }
 
     return runUserMiddleware(user);
@@ -388,6 +400,35 @@ export class IndexDataInstance {
       return pronoteHomeworkRemoveFileHandler(homework, this.pronoteInstance);
     }
   }
+
+
+  /**
+   * ONLY FOR ECOLEDIRECTE
+   * 
+   * Get the documents
+   */
+  public async getED_Documents (force = false): Promise<studentDocsResData | null> {
+    await this.waitInit();
+    if (this.service === 'ecoledirecte') {
+      return EDDocumentsHandler(this.ecoledirecteInstance, force);
+    }
+
+    throw new Error('Method only works for EcoleDirecte');
+  }
+
+  public async getED_Cloud (force = false): Promise<cloudResFolder[] | null> {
+    await this.waitInit();
+    if (this.service === 'ecoledirecte') {
+      return EDCloudHandler(this.ecoledirecteInstance, force);
+    }
+
+    throw new Error('Method only works for EcoleDirecte');
+  }
+
+
+
+
+
 }
 
 /**

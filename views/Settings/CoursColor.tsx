@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Pressable, Platform, StatusBar } from 'react-native';
+import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Pressable, Platform, StatusBar, PermissionsAndroid } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { useTheme, Text, Menu, Divider } from 'react-native-paper';
@@ -10,6 +10,7 @@ import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import Share from 'react-native-share';
+import { Buffer } from "buffer";
 import { ContextMenuButton } from 'react-native-ios-context-menu';
 import ColorPicker, {
   Panel1,
@@ -23,6 +24,7 @@ import { CircleEllipsis, CircleEllipsisIcon, Lock, MoreVertical } from 'lucide-r
 import { getContextValues } from '../../utils/AppContext';
 import { RegisterTrophy } from './TrophiesScreen';
 
+import * as RNFileAccess from 'react-native-file-access'
 interface SavedColors {
   [key: string]: {
     color: string;
@@ -43,7 +45,6 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [colorModalColor, setColorModalColor] = useState<string>('#000000');
   const [currentEditedSubject, setCurrentEditedSubject] = useState<string>('');
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const colors: string[] = [
     '#2667a9', '#76a10b', '#3498DB', '#1ABC9C', '#a01679', '#27AE60', '#156cd6', '#F39C12', '#E67E22', '#D35400', '#2C3E50', '#E74C3C', '#C0392B', '#8E44AD', '#ad4491', '#9f563b', '#920205',
@@ -111,7 +112,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
   const ResetColors = async () => {
     let colors = savedColors;
     Object.keys(colors).forEach((key) => {
-      if(!colors[key].locked) {
+      if (!colors[key].locked) {
         colors[key].color = colors[key].originalColor
         colors[key].edited = false
       }
@@ -195,13 +196,12 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
     setSavedColors(col);
   }, []);
 
-  const exportColors = () => {
+  const exportColors = async () => {
     const data = JSON.stringify(savedColors);
     const base64 = Buffer.from(data).toString('base64');
-    
     Share.open({
-      url: 'data:text/json;base64,' + base64,
-      filename: 'Papillon_CouleursMatieres_' + new Date().toISOString() + '.json',
+      url: 'data:application/json;base64,' + base64,
+      filename: 'Papillon_CouleursMatieres_' + new Date().toISOString(),
       type: 'application/json',
     });
   };
@@ -273,7 +273,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                     icon: {
                       type: 'IMAGE_SYSTEM',
                       imageValue: {
-                        systemName: 'arrow.up.and.down',
+                        systemName: 'square.and.arrow.down.on.square',
                       },
                     },
                     menuItems: [
@@ -318,7 +318,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                   },
                 ],
               }}
-              onPressMenuItem={({nativeEvent}) => {
+              onPressMenuItem={({ nativeEvent }) => {
                 if (nativeEvent.actionKey == 'randomColor') {
                   Alert.alert(
                     'Remplacer les couleurs ?',
@@ -378,8 +378,8 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
               paddingVertical: 0,
             }}
             anchor={
-              <TouchableOpacity onPress={() => {setMenuOpen(true);}}>
-                <CircleEllipsisIcon color={UIColors.primary}/>
+              <TouchableOpacity onPress={() => { setMenuOpen(true); }}>
+                <CircleEllipsisIcon color={UIColors.primary} />
               </TouchableOpacity>
             }
           >
@@ -485,7 +485,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
     <ScrollView
       style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
     >
-      { Platform.OS === 'ios' &&
+      {Platform.OS === 'ios' &&
         <StatusBar barStyle={'light-content'} />
       }
 
@@ -500,7 +500,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                 key={index}
                 leading={
                   <TouchableOpacity
-                    style={[styles.colorPreview, {backgroundColor: savedColors[key].color }]}
+                    style={[styles.colorPreview, { backgroundColor: savedColors[key].color }]}
                     onPress={() => {
                       setColorModalOpen(true);
                       setColorModalColor(savedColors[key].color);
@@ -552,7 +552,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                           },
                         ],
                       }}
-                      onPressMenuItem={({nativeEvent}) => {
+                      onPressMenuItem={({ nativeEvent }) => {
                         if (nativeEvent.actionKey === 'delete') {
                           let newCol = JSON.parse(SyncStorage.get('savedColors'));
                           delete newCol[key];
@@ -602,7 +602,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
 
       <Modal visible={colorModalOpen} animationType='fade' transparent={true}>
         <View style={[styles.colorModalContainer]}>
-          <View style={[styles.colorModal, {backgroundColor: UIColors.element}]}>
+          <View style={[styles.colorModal, { backgroundColor: UIColors.element }]}>
             <ColorPicker style={styles.picker} value={colorModalColor} onComplete={onSelectColor}>
               <Preview
                 textStyle={{
@@ -614,7 +614,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
               <Swatches />
             </ColorPicker>
 
-            <View style={[styles.modalActions, {borderColor: UIColors.border}]}>
+            <View style={[styles.modalActions, { borderColor: UIColors.border }]}>
               <TouchableOpacity style={[styles.modalAction]} onPress={() => setColorModalOpen(false)}>
                 <Text
                   style={[styles.modalActionText]}
@@ -622,10 +622,10 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                   Annuler
                 </Text>
               </TouchableOpacity>
-              <View style={{width: 1, height: 47, backgroundColor: UIColors.border + '99'}} />
+              <View style={{ width: 1, height: 47, backgroundColor: UIColors.border + '99' }} />
               <TouchableOpacity style={[styles.modalAction]} onPress={onSave}>
                 <Text
-                  style={[styles.modalActionText, {color: colorModalColor}]}
+                  style={[styles.modalActionText, { color: colorModalColor }]}
                 >
                   Enregistrer
                 </Text>
@@ -672,7 +672,7 @@ const LockToggle = ({ value, onValueChange, color }) => {
           locked ? UIColors.modalBackground : UIColors.text
         }
         style={[
-          !locked ? {opacity: 0.4} : {},
+          !locked ? { opacity: 0.4 } : {},
         ]}
       />
     </TouchableOpacity>

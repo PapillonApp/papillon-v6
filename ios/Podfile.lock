@@ -641,10 +641,10 @@ PODS:
   - SocketRocket (0.6.1)
   - UMAppLoader (4.2.0)
   - Yoga (1.14.0)
-  - ZXingObjC/Core (3.6.5)
-  - ZXingObjC/OneD (3.6.5):
+  - ZXingObjC/Core (3.6.9)
+  - ZXingObjC/OneD (3.6.9):
     - ZXingObjC/Core
-  - ZXingObjC/PDF417 (3.6.5):
+  - ZXingObjC/PDF417 (3.6.9):
     - ZXingObjC/Core
 
 DEPENDENCIES:
@@ -1061,7 +1061,7 @@ SPEC CHECKSUMS:
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   UMAppLoader: e83f024f75f07802fce99739f04b4537d188caaf
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
-  ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
+  ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
 PODFILE CHECKSUM: f73324ee57d220dbc7eb340fa5567e6b5b770f16
 
