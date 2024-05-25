@@ -24,7 +24,6 @@ import { CircleEllipsis, CircleEllipsisIcon, Lock, MoreVertical } from 'lucide-r
 import { getContextValues } from '../../utils/AppContext';
 import { RegisterTrophy } from './TrophiesScreen';
 
-import * as RNFileAccess from 'react-native-file-access'
 interface SavedColors {
   [key: string]: {
     color: string;
