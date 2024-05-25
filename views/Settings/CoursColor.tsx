@@ -45,7 +45,6 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [colorModalColor, setColorModalColor] = useState<string>('#000000');
   const [currentEditedSubject, setCurrentEditedSubject] = useState<string>('');
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const colors: string[] = [
     '#2667a9', '#76a10b', '#3498DB', '#1ABC9C', '#a01679', '#27AE60', '#156cd6', '#F39C12', '#E67E22', '#D35400', '#2C3E50', '#E74C3C', '#C0392B', '#8E44AD', '#ad4491', '#9f563b', '#920205',
@@ -200,13 +199,6 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
   const exportColors = async () => {
     const data = JSON.stringify(savedColors);
     const base64 = Buffer.from(data).toString('base64');
-    await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE)
-    .then(PermStatus => {
-      console.log(PermStatus)
-    })
-    RNFileAccess.FileSystem.writeFile("/storage/emulated/0/colors.json", data)
-    .then(() => { console.log("write ok")})
-    .catch(err => { console.error(err)})
     Share.open({
       url: 'data:application/json;base64,' + base64,
       filename: 'Papillon_CouleursMatieres_' + new Date().toISOString(),
