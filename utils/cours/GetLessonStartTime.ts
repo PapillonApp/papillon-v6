@@ -12,7 +12,7 @@ const GetLessonStartTime = (lesson: PapillonLesson): string => {
     const minutes = minutesUntilStart % 60;
 
     if (hours > 0) {
-      return `dans ${hours} heure${hours > 1 ? 's' : ''}`;
+      return `dans ${hours} heure${hours > 1 ? 's' : ''} et ${minutes} minute${minutes > 1 ? 's' : ''}`;
     } else if (minutes > 0) {
       return `dans ${minutes} minute${minutes > 1 ? 's' : ''}`;
     } else {
@@ -23,9 +23,9 @@ const GetLessonStartTime = (lesson: PapillonLesson): string => {
     const minutesRemaining = Math.floor(timeRemaining / 60000);
 
     if (minutesRemaining > 0) {
-      return `${minutesRemaining} min rest`;
+      return `${minutesRemaining} minute${minutesRemaining > 1 ? 's' : ''} restante${minutesRemaining > 1 ? 's' : ''}`;
     } else {
-      return 'less than a minute remaining';
+      return 'moins d\'une minute restante';
     }
   } else {
     return 'lesson ended';
