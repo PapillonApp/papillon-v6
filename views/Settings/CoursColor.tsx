@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Pressable, Platform, StatusBar } from 'react-native';
+import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Pressable, Platform, StatusBar, PermissionsAndroid } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { useTheme, Text, Menu, Divider } from 'react-native-paper';
@@ -24,6 +24,7 @@ import { CircleEllipsis, CircleEllipsisIcon, Lock, MoreVertical } from 'lucide-r
 import { getContextValues } from '../../utils/AppContext';
 import { RegisterTrophy } from './TrophiesScreen';
 
+import * as RNFileAccess from 'react-native-file-access'
 interface SavedColors {
   [key: string]: {
     color: string;
@@ -44,7 +45,6 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [colorModalColor, setColorModalColor] = useState<string>('#000000');
   const [currentEditedSubject, setCurrentEditedSubject] = useState<string>('');
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const colors: string[] = [
     '#2667a9', '#76a10b', '#3498DB', '#1ABC9C', '#a01679', '#27AE60', '#156cd6', '#F39C12', '#E67E22', '#D35400', '#2C3E50', '#E74C3C', '#C0392B', '#8E44AD', '#ad4491', '#9f563b', '#920205',
@@ -196,13 +196,12 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
     setSavedColors(col);
   }, []);
 
-  const exportColors = () => {
+  const exportColors = async () => {
     const data = JSON.stringify(savedColors);
     const base64 = Buffer.from(data).toString('base64');
-
     Share.open({
-      url: 'data:text/json;base64,' + base64,
-      filename: 'Papillon_CouleursMatieres_' + new Date().toISOString() + '.json',
+      url: 'data:application/json;base64,' + base64,
+      filename: 'Papillon_CouleursMatieres_' + new Date().toISOString(),
       type: 'application/json',
     });
   };
