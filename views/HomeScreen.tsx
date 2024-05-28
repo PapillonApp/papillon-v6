@@ -59,6 +59,7 @@ import {
   Globe2,
   X,
   MapPin,
+  Settings,
 } from 'lucide-react-native';
 
 import { useTheme, Text } from 'react-native-paper';
@@ -322,30 +323,36 @@ const HomeScreen = ({ navigation }) => {
         </Animated.View>
       ),
       headerRight: () => (
-        user?.profile_picture && ( // check for profile picture before rendering
-          <TouchableOpacity onPress={() => navigation.navigate('InsetSettings')}
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 20,
-              marginRight: 16,
-              backgroundColor: UIColors.text + '22',
-            }}
-          >
-            {user && user?.profile_picture && (
-              <Animated.Image
-                source={{ uri: user?.profile_picture }}
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 20,
-                }}
-                entering={FadeIn.duration(100)}
-              />
-            )}
-          </TouchableOpacity>
-        )
+        <TouchableOpacity onPress={() => navigation.navigate('InsetSettings')}        
+          style={{
+            marginRight: 16
+          }}
+        >
+          { user?.profile_picture ? (
+            <Animated.Image
+              source={{ uri: user?.profile_picture }}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 20,
+              }}
+              entering={FadeIn.duration(100)}
+            />
+          ) : (
+            <Settings size={24} color={UIColors.text} />
+          )}
+        </TouchableOpacity>
       ),
+      /*
+style={{
+            width: 32,
+            height: 32,
+            borderRadius: 20,
+            marginRight: 16,
+            backgroundColor: UIColors.text + '22',
+          }}
+          <Settings size={24} color={UIColors.text} />
+      */
       headerTransparent: true,
       headerBackground: () => (
         Platform.OS === 'ios' ?
