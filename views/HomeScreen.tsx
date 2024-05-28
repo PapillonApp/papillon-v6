@@ -220,10 +220,20 @@ const HomeScreen = ({ navigation }) => {
 
       // Définit la date de fin pour récupérer les cours de la semaine
       const endDate = new Date();
-      endDate.setDate(endDate.getDate() + 7);
+      endDate.setDate(endDate.getDate() + 2);
 
       // Récupère les données des cours de la semaine
       const lessons = await appContext.dataProvider.getTimetable(new Date(), refreshCount > 0, endDate);
+      //const lessons = await appContext.dataProvider.getTimetable(new Date(), refreshCount > 0, new Date());
+      console.log(`lessons length: ${lessons.length}, new Date: ${new Date()} endDate: ${endDate}`)
+      console.log(`typeof appContext.dataProvider.getTimetable: ${typeof appContext.dataProvider.getTimetable}`)
+      console.log(await appContext.dataProvider.getTimetable(new Date(), true, new Date()))
+      /*
+      filter(
+              (lesson) =>
+                new Date(lesson.start).getDate() === new Date().getDate()
+            )
+            */
       setLessons(lessons);
 
       // Indique que le chargement est terminé
