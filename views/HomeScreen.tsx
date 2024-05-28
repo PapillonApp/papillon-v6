@@ -224,12 +224,6 @@ const HomeScreen = ({ navigation }) => {
 
       // Récupère les données des cours de la semaine
       const lessons = await appContext.dataProvider.getTimetable(new Date(), refreshCount > 0, endDate);
-      /*
-      filter(
-              (lesson) =>
-                new Date(lesson.start).getDate() === new Date().getDate()
-            )
-            */
       setLessons(lessons);
 
       // Indique que le chargement est terminé
