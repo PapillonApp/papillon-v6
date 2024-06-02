@@ -12,7 +12,7 @@ import {
 
 import { ContextMenuButton } from 'react-native-ios-context-menu';
 
-import { Text, useTheme } from 'react-native-paper';
+import { Divider, Menu, Text, useTheme } from 'react-native-paper';
 
 import RenderHtml from 'react-native-render-html';
 
@@ -23,7 +23,7 @@ import NativeText from '../../components/NativeText';
 import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
 
-import { PieChart, Link, File, MoreHorizontal, ChevronLeft, FileCheck2 } from 'lucide-react-native';
+import { PieChart, Link, File, MoreHorizontal, ChevronLeft, FileCheck2, CircleEllipsisIcon } from 'lucide-react-native';
 import GetUIColors from '../../utils/GetUIColors';
 import { useAppContext } from '../../utils/AppContext';
 
@@ -38,6 +38,7 @@ function NewsItem({ route, navigation }: {
   navigation: any, // TODO
 }) {
   const [news, setNews] = useState<PapillonNews>(route.params.news);
+  const [menuOpen, setMenuOpen] = useState(false);
   const theme = useTheme();
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
@@ -59,6 +60,21 @@ function NewsItem({ route, navigation }: {
     }
   };
 
+  async function changeReadState() {
+    const ok = await markNewsAsRead(news.id, !isRead);
+    if (!ok) {
+      Alert.alert('Erreur', 'Impossible de marquer cette actualité comme lue.');
+      return;
+    }
+    
+    setIsRead(curr => !curr);
+    setReadChanged(true);
+  }
+
+  async function copyContent() {
+    if (news.is !== 'information') return;
+    await Clipboard.setStringAsync(news.content);
+  }
   // add mark as read/not read button in the header
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -89,7 +105,7 @@ function NewsItem({ route, navigation }: {
       ) : null
       ),
       headerRight: () => (
-        Platform.OS === 'ios' && 
+        Platform.OS === 'ios' ? (
         <ContextMenuButton
           isMenuPrimaryAction={true}
           menuConfig={{
@@ -122,30 +138,51 @@ function NewsItem({ route, navigation }: {
             ],
           }}
           onPressMenuItem={async ({ nativeEvent }) => {
-            if (nativeEvent.actionKey === 'read') {
-              const ok = await markNewsAsRead(news.id, !isRead);
-              if (!ok) {
-                Alert.alert('Erreur', 'Impossible de marquer cette actualité comme lue.');
-                return;
-              }
-              
-              setIsRead(curr => !curr);
-              setReadChanged(true);
-            }
-            else if (nativeEvent.actionKey === 'copy') {
-              // Only allow on information type.
-              if (news.is !== 'information') return;
-              await Clipboard.setStringAsync(news.content);
-            }
+            if (nativeEvent.actionKey === 'read') changeReadState()
+            else if (nativeEvent.actionKey === 'copy') copyContent()
           }}
         >
           <TouchableOpacity>
             <MoreHorizontal size={24} color={'#B42828'} />
           </TouchableOpacity>
-        </ContextMenuButton>
+        </ContextMenuButton> ) : (
+          <Menu
+            visible={menuOpen}
+            onDismiss={() => setMenuOpen(false)}
+            contentStyle={{
+              paddingVertical: 0,
+            }}
+            anchor={
+              <TouchableOpacity onPress={() => { setMenuOpen(true) }}>
+                <CircleEllipsisIcon color={UIColors.primary} />
+              </TouchableOpacity>
+            }
+          >
+            <Menu.Item
+              title={isRead ? "Marquer comme non-lu" : "Marquer comme lu"}
+              leadingIcon={isRead ? "eye-off-outline" : "eye-outline"}
+              onPress={() => {
+                setMenuOpen(false);
+                changeReadState()
+              }}
+            />
+            <Divider />
+            {news.is === "information" ? (
+              <Menu.Item
+                title={"Copier le contenu"}
+                leadingIcon="content-copy"
+                onPress={() => {
+                  setMenuOpen(false);
+                  copyContent()
+                }}
+              />
+            ) : null}
+          </Menu>
+        )
+
       ),
     });
-  }, [navigation, isRead, readChanged]);
+  }, [navigation, isRead, readChanged, menuOpen]);
 
   const markNewsAsRead = async (localID: string, forceState: boolean = true): Promise<boolean> => {
     if (!appContext.dataProvider) return false;
