@@ -9,6 +9,7 @@ import {
   RefreshControl,
   SectionList,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -90,11 +91,19 @@ function DevoirsScreen({ navigation }: {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: 'Travail à faire',
-      headerRight: () => (loading &&
-        <ActivityIndicator
-          style={{marginRight: 16}}
-        />
-      ),
+      headerRight: () => (Platform.OS === "android" && (
+        <TouchableOpacity
+          style={{
+            opacity: 0.4,
+            marginRight: 16
+          }}
+          onPress={async () => {
+            navigation.navigate("CreateHomework")
+          }}
+        >
+          <Plus size={24} color={UIColors.text} />
+        </TouchableOpacity>
+      )),
     });
   }, [navigation, UIColors, loading]);
 

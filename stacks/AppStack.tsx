@@ -121,6 +121,7 @@ const AppStack = ({ navigation }) => {
       component: require('../views/Devoirs/CreateHomeworkScreen').default,
       options: {
         presentation: 'modal',
+        headerTitle: "Créer un devoir"
       }
     },
     {
