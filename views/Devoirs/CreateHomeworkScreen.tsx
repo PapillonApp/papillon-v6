@@ -121,7 +121,7 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
 
       let newHw = {
         id: Math.random().toString(36).substring(7),
-        localId: lid,
+        localID: lid,
         pronoteCachedSessionID: Math.random().toString(7),
         cacheDateTimestamp: hwDate.getTime(),
         themes: [],

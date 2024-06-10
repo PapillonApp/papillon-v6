@@ -73,7 +73,7 @@ function CreateHomeworkScreenAndroid({ navigation }) {
                         if(!homeworkContent) return Alert.alert("Devoir vide", "Veuillez renseigner le contenu du devoir")
                         let newHw = {
                             id: Math.random().toString(36).substring(7),
-                            localId: Math.random().toString(36).substring(7),
+                            localID: Math.random().toString(36).substring(7),
                             pronoteCachedSessionID: Math.random().toString(7),
                             cacheDateTimestamp: calendarDate.getTime(),
                             themes: [],
