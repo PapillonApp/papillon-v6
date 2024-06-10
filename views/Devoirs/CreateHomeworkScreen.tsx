@@ -21,6 +21,8 @@ import { AlertTriangle } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RegisterTrophy } from '../Settings/TrophiesScreen';
 
+import CreateHomeworkScreenAndroid from './CreateHomeworkScreen.android'
+
 const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route, navigation }) => {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
@@ -36,7 +38,7 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
 
   const [homeworkTitle, setHomeworkTitle] = useState<string>('');
   const inputRef = useRef<TextInput>(null);
-
+  if(Platform.OS === "android") return (<CreateHomeworkScreenAndroid navigation={navigation} />)
   function addSubject() {
     Alert.prompt(
       'Ajouter une matière',
