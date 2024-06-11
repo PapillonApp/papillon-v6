@@ -939,7 +939,7 @@ function CoursPage({ cours, navigation, forceRefresh }: {
         />
       }
       contentContainerStyle={{
-        minHeight: Platform.OS === 'android' ? Dimensions.get('window').height - 150 : 0,
+        minHeight: Platform.OS === 'android' ? Dimensions.get('window').height - 140 : 0,
       }}
     >
       {cours.length === 0 && (
