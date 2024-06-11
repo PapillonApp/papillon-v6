@@ -77,6 +77,7 @@ const styles = StyleSheet.create({
     gap: 16,
     borderRadius: 6,
     overflow: 'hidden',
+    flex: 1
   },
   children: {
     flex: 1,
