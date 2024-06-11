@@ -461,6 +461,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingBottom: 5,
     marginBottom: 10,
+    flex: 1
   },
   actionView: {
     marginLeft: 'auto',
