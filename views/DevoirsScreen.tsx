@@ -9,7 +9,7 @@ import {
   RefreshControl,
   SectionList,
   ActivityIndicator,
-  TouchableOpacity,
+  TouchableOpacity
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -87,7 +87,6 @@ function DevoirsScreen({ navigation }: {
 
   const [loading, setLoading] = useState(false);
   const [isHeadLoading, setHeadLoading] = useState(false);
-
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: 'Travail à faire',
@@ -98,7 +97,7 @@ function DevoirsScreen({ navigation }: {
             marginRight: 16
           }}
           onPress={async () => {
-            navigation.navigate("CreateHomework")
+            navigation.navigate("CreateHomework", {homeworkLocalID: false})
           }}
         >
           <Plus size={24} color={UIColors.text} />
@@ -108,7 +107,7 @@ function DevoirsScreen({ navigation }: {
   }, [navigation, UIColors, loading]);
 
   const appContext = useAppContext();
-  
+
   type HomeworkItem = { title: string, data: PapillonHomework[] }
   
   const [fromDate, setFromDate] = useAtom(dateFromAtom);
@@ -163,13 +162,18 @@ function DevoirsScreen({ navigation }: {
       await fetchHomeworks(new Date(), true);
     })();
   }, []);
-
   // Load initial homeworks on first render.
   useEffect(() => {
     (async () => {
       // setLoading(true);
       await fetchHomeworks(new Date());
     })();
+    navigation.addListener("focus", () => {
+      AsyncStorage.getItem("refreshHomeworks").then((h) => {
+        if(h) onRefresh()
+        if(h) AsyncStorage.setItem("refreshHomeworks", "")
+      })
+    })
   }, []);
 
   return (
