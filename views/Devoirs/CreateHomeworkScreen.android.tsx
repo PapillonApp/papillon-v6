@@ -18,8 +18,16 @@ import { RegisterTrophy } from "../Settings/TrophiesScreen";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import { useFocusEffect } from "@react-navigation/native";
 import ColorPicker, { HueSlider, Panel1, Preview, Swatches } from "reanimated-color-picker";
+import { useAppContext } from "../../utils/AppContext";
 
-function CreateHomeworkScreenAndroid({ navigation }) {
+function CreateHomeworkScreenAndroid({ route, navigation }: {
+    navigation: any,
+    route: {
+        params: {
+            homeworkLocalID: string,
+        }
+    }
+}) {
     const theme = useTheme();
     const UIColors = GetUIColors();
     const insets = useSafeAreaInsets();
@@ -32,8 +40,29 @@ function CreateHomeworkScreenAndroid({ navigation }) {
     const [newSubjectName, setNewSubjectName] = React.useState<string>()
     const [newSubjectColor, setNewSubjectColor] = React.useState<string>(UIColors.text)
     const [colorModalOpen, setColorModalOpen] = React.useState(false)
+    const [editedHomework, setEditedHomework] = React.useState()
     const textInputRef = React.useRef(null);
     const createNewSubjectModal = React.useRef<BottomSheetModal>(null);
+    const { homeworkLocalID } = route.params;
+    const appContext = useAppContext();
+
+    async function setupEdit() {
+        console.log("edit detected")
+        let customHomeworks = await AsyncStorage.getItem('pap_homeworksCustom')
+        let hw = [];
+        if (customHomeworks) {
+            hw = JSON.parse(customHomeworks);
+        }
+        let homework = hw.find(h => h.localID === homeworkLocalID)
+        console.log("homework:", JSON.stringify(homework))
+        navigation.setOptions({
+            headerTitle: "Modifier un devoir",
+        });
+        setHomeworkContent(homework.description)
+        setSelectedSubject({name: homework.subject.name, color: homework.background_color})
+        setCalendarDate(new Date(homework.date))
+        setEditedHomework(homework)
+    }
 
     useFocusEffect(
         React.useCallback(() => {
@@ -53,6 +82,11 @@ function CreateHomeworkScreenAndroid({ navigation }) {
         }, [createNewSubjectModal, createNewSubjectModalOpen]),
       );
     React.useEffect(() => {
+        if(homeworkLocalID) {
+            setupEdit()
+        }
+    }, [])
+    React.useEffect(() => {
         navigation.setOptions({
             headerRight: () => (
                 <TouchableOpacity
@@ -63,11 +97,18 @@ function CreateHomeworkScreenAndroid({ navigation }) {
                     
                   }}
                 >
-                  <Check size={24} color={UIColors.text} onPress={async() => { 
+                    <Check size={24} color={UIColors.text} onPress={async() => {
                         let customHomeworks = await AsyncStorage.getItem('pap_homeworksCustom')
                         let hw = [];
                         if (customHomeworks) {
                             hw = JSON.parse(customHomeworks);
+                        }
+                        if(homeworkLocalID) {
+                            for (let i = 0; i < hw.length; i++) {
+                                if (hw[i].id === editedHomework.id) {
+                                hw.splice(i, 1);
+                                }
+                            }
                         }
                         if(!selectedSubject.name) return Alert.alert("Aucune matière", "Veuillez renseigner une matière")
                         if(!homeworkContent) return Alert.alert("Devoir vide", "Veuillez renseigner le contenu du devoir")
@@ -92,9 +133,9 @@ function CreateHomeworkScreenAndroid({ navigation }) {
                             custom: true,
                         };
                         hw.push(newHw)
-                        AsyncStorage.setItem('pap_homeworksCustom', JSON.stringify(hw)).then(() => {
+                        AsyncStorage.setItem('pap_homeworksCustom', JSON.stringify(hw)).then(async() => {
                             showMessage({
-                                message: 'Devoir ajouté',
+                                message: `Devoir ${editedHomework ? 'modifié' : 'ajouté'}`,
                                 type: 'success',
                                 icon: 'auto',
                                 floating: true,
@@ -102,10 +143,11 @@ function CreateHomeworkScreenAndroid({ navigation }) {
                             });
                     
                             RegisterTrophy('trophy_add_hw');
-                    
+                            await AsyncStorage.setItem("refreshHomeworks", "true")
+                            if(editedHomework) navigation.goBack();
                             navigation.goBack();
                         });
-                   }}/>
+                    }}/>
                 </TouchableOpacity>
             ),
         });

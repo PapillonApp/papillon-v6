@@ -12,7 +12,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
-import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
+import { getSavedCourseColor, normalizeCoursName } from '../../utils/cours/ColorCoursName';
 import { useAppContext } from '../../utils/AppContext';
 import PapillonLoading from '../../components/PapillonLoading';
 import formatCoursName from '../../utils/cours/FormatCoursName';
@@ -37,8 +37,24 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
   const [titleMissingAlert, setTitleMissingAlert] = useState<boolean>(false);
 
   const [homeworkTitle, setHomeworkTitle] = useState<string>('');
+  const [editedHomework, setEditedHomework] = useState()
+
   const inputRef = useRef<TextInput>(null);
-  if(Platform.OS === "android") return (<CreateHomeworkScreenAndroid navigation={navigation} />)
+  if(Platform.OS === "android") return (<CreateHomeworkScreenAndroid navigation={navigation} route={route} />)
+  const { homeworkLocalID } = route.params;
+
+  async function setupEdit() {
+    let customHomeworks = await AsyncStorage.getItem('pap_homeworksCustom')
+    let hw = [];
+    if (customHomeworks) {
+        hw = JSON.parse(customHomeworks);
+    }
+    let homework = hw.find(h => h.localID === homeworkLocalID)
+    let index = nativeSubjects.findIndex((item) => item.actionKey === normalizeCoursName(homework.subject.name));
+    setSelectedSubject(index)
+    setHomeworkTitle(homework.description)
+    setEditedHomework(homework)
+  }
   function addSubject() {
     Alert.prompt(
       'Ajouter une matière',
@@ -113,7 +129,13 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
       if (customHomeworks) {
         hw = JSON.parse(customHomeworks);
       }
-
+      if(homeworkLocalID) {
+        for (let i = 0; i < hw.length; i++) {
+            if (hw[i].id === editedHomework.id) {
+            hw.splice(i, 1);
+            }
+        }
+      }
       // console.log(hw);
 
       let hwDate = new Date(date);
@@ -213,6 +235,9 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
         }, 200);
       }
     });
+    if(homeworkLocalID) {
+      setupEdit()
+    }
   }, []);
 
   // change the header title
