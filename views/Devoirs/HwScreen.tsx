@@ -13,7 +13,7 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { Link, File, Trash, FileUp, Eye, Paperclip } from 'lucide-react-native';
+import { Link, File, Trash, FileUp, Eye, Paperclip, Pencil } from 'lucide-react-native';
 
 import * as WebBrowser from 'expo-web-browser';
 import ParsedText from 'react-native-parsed-text';
@@ -67,7 +67,7 @@ function HomeworkScreen({ route, navigation }: {
   const appContext = useAppContext();
 
   const deleteCustomHomework = () => {
-    AsyncStorage.getItem('pap_homeworksCustom').then((customHomeworks) => {
+    AsyncStorage.getItem('pap_homeworksCustom').then(async(customHomeworks) => {
       let hw = [];
       if (customHomeworks) {
         hw = JSON.parse(customHomeworks);
@@ -81,6 +81,7 @@ function HomeworkScreen({ route, navigation }: {
       }
 
       AsyncStorage.setItem('pap_homeworksCustom', JSON.stringify(hw));
+      await AsyncStorage.setItem("refreshHomeworks", "true")
       navigation.goBack();
     });
   };
@@ -90,14 +91,24 @@ function HomeworkScreen({ route, navigation }: {
     navigation.setOptions({
       headerRight: () => (
         homework.custom && (
-          <TouchableOpacity
-            style={[styles.deleteHw]}
-            onPress={() => {
-              setDeleteCustomHomeworkAlert(true);
-            }}
-          >
-            <Trash size={20} color={'#eb4034'} />
-          </TouchableOpacity>
+            <View style={{flexDirection: "row"}}>
+              <TouchableOpacity
+                style={[styles.editHw]}
+                onPress={() => {
+                  navigation.navigate("CreateHomework", {homeworkLocalID: homeworkLocalID});
+                }}
+              >
+                <Pencil size={20} color={'#0000ff'} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.deleteHw]}
+                onPress={() => {
+                  setDeleteCustomHomeworkAlert(true);
+                }}
+              >
+                <Trash size={20} color={'#eb4034'} />
+              </TouchableOpacity>
+            </View>
         )
       ),
     });
@@ -455,6 +466,18 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 8,
     marginRight: -2,
+    gap: 4,
+  },
+  editHw: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0000ff22',
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    marginRight: 5,
     gap: 4,
   },
 });
