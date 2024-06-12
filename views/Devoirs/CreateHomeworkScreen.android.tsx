@@ -47,14 +47,12 @@ function CreateHomeworkScreenAndroid({ route, navigation }: {
     const appContext = useAppContext();
 
     async function setupEdit() {
-        console.log("edit detected")
         let customHomeworks = await AsyncStorage.getItem('pap_homeworksCustom')
         let hw = [];
         if (customHomeworks) {
             hw = JSON.parse(customHomeworks);
         }
         let homework = hw.find(h => h.localID === homeworkLocalID)
-        console.log("homework:", JSON.stringify(homework))
         navigation.setOptions({
             headerTitle: "Modifier un devoir",
         });
