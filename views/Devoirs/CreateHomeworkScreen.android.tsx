@@ -111,7 +111,7 @@ function CreateHomeworkScreenAndroid({ route, navigation }: {
                             }
                         }
                         if(!selectedSubject.name) return Alert.alert("Aucune matière", "Veuillez renseigner une matière")
-                        if(!homeworkContent) return Alert.alert("Devoir vide", "Veuillez renseigner le contenu du devoir")
+                        if(!homeworkContent || homeworkContent.trim() === "") return Alert.alert("Devoir vide", "Veuillez renseigner le contenu du devoir")
                         let newHw = {
                             id: Math.random().toString(36).substring(7),
                             localID: Math.random().toString(36).substring(7),
