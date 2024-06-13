@@ -96,7 +96,9 @@ function RenderItem({ item }) {
     </NativeItem>
   );
   if(editing) return (
-    <NativeItem style={styles.entryContainer}
+    <NativeItem
+      style={styles.entryContainer}
+      innerStyle={{flex: 1}}
       leading={
         <View>
           <Pencil size={24} color={UIColors.text} style={styles.leftIcon} />
