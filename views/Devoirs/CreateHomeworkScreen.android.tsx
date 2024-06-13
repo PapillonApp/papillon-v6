@@ -386,12 +386,13 @@ function CreateHomeworkScreenAndroid({ route, navigation }: {
                 </NativeItem>
                 <NativeItem>
                     <TextInput
-                        placeholder="Contenu du devoir"
+                        placeholder="Contenu du devoir..."
                         placeholderTextColor={UIColors.text + '77'}
                         style={[styles.input, {color: UIColors.text}]}
                         value={homeworkContent}
                         onChangeText={text => setHomeworkContent(text)}
                         ref={textInputRef}
+                        multiligne={true}
                     />
                 </NativeItem>
             </NativeList>
@@ -401,10 +402,12 @@ function CreateHomeworkScreenAndroid({ route, navigation }: {
 
 const styles = StyleSheet.create({
     input: {
-        paddingVertical: 14,
+        paddingVertical: 1,
         paddingHorizontal: 16,
         fontFamily: 'Papillon-Medium',
         fontSize: 16,
+        minHeight: 100,
+        lineHeight: 16
     },
     inputSubject: {
         fontFamily: 'Papillon-Medium',

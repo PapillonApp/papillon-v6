@@ -98,7 +98,7 @@ function HomeworkScreen({ route, navigation }: {
                   navigation.navigate("CreateHomework", {homeworkLocalID: homeworkLocalID});
                 }}
               >
-                <Pencil size={20} color={'#0000ff'} />
+                <Pencil size={20} color={'#3493eb'} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.deleteHw]}
@@ -165,7 +165,11 @@ function HomeworkScreen({ route, navigation }: {
                 ]
               }
             >
-              {convertHTML(homework.description)}
+              {convertHTML(
+                homework.custom ? homework.description
+                                : homework.description.replace('\n', ' '),
+                { preserveNewlines: true }
+              )}
             </ParsedText>
           </NativeItem>
           {homework.difficulty !== PronoteApiHomeworkDifficulty.NONE && (
@@ -472,7 +476,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0000ff22',
+    backgroundColor: '#3493eb22',
     borderRadius: 12,
     borderCurve: 'continuous',
     paddingVertical: 8,
