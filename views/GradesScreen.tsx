@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import { Animated, ActivityIndicator, StatusBar, View, Dimensions, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Easing, Platform, Pressable } from 'react-native';
+import { Animated, ActivityIndicator, StatusBar, View, Dimensions, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Easing, Platform, Pressable, BackHandler } from 'react-native';
 
 // Custom imports
 import GetUIColors from '../utils/GetUIColors';
@@ -57,6 +57,7 @@ import { PapillonGrades, PapillonGradesViewAverages } from '../fetch/types/grade
 
 import { calculateSubjectAverage, calculateSubjectMedian } from '../utils/grades/averages';
 import PapillonLoading from '../components/PapillonLoading';
+import { useFocusEffect } from '@react-navigation/native';
 
 const GradesScreen = ({ navigation }: {
   navigation: any // TODO
@@ -73,6 +74,20 @@ const GradesScreen = ({ navigation }: {
     subjectAverageModal.current?.present();
   }, []);
   const [currentSubject, setCurrentSubject] = useState(null);
+
+  const [isSubjectModalShowing, setIsSubjectModalShowing] = useState<boolean>(false);
+  useFocusEffect(useCallback(() => {
+    const onBackPress = () => {
+      if (isSubjectModalShowing) {
+        subjectAverageModal.current?.dismiss()
+        return true;
+      } else {
+        return false;
+      }
+    }
+    BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress)
+  }, [subjectAverageModal, isSubjectModalShowing]))
 
   // Data
   const [hideNotesTab, setHideNotesTab] = React.useState(false);
@@ -492,7 +507,8 @@ const GradesScreen = ({ navigation }: {
       <BottomSheetModal
         ref={subjectAverageModal}
         index={1}
-        snapPoints={['10%', '60%', '90%']}
+        snapPoints={['30%', '60%', '90%']}
+        onChange={idx => setIsSubjectModalShowing(idx > -1)}
 
         style={{
           shadowColor: '#000000',
