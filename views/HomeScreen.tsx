@@ -1340,11 +1340,15 @@ function DevoirsContent({
                     styles.homeworksDevoirsContentContentDescription,
                     {
                       color: UIColors.text,
-                      height: homework.description.length > 40 ? 38 : 20,
+                      height: (homework.description.length > 40) || homework.custom ? 38 : 20,
                     },
                   ]}
                 >
-                  {convertHTML(homework.description)}
+                  {convertHTML(
+                    homework.custom ? homework.description
+                                    : homework.description.replace('\n', ' '),
+                    { preserveNewlines: true }
+                  )}
                 </Text>
               </Animated.View>
 

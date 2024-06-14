@@ -400,7 +400,11 @@ function Hwitem({ homework, openURL, navigation }: {
           </View>
           <View>
             <NativeText>
-              {convertHTML(homework.description.replace('\n', ' '), { wordwrap: 130 })}
+            {convertHTML(
+              homework.custom ? homework.description
+                              : homework.description.replace('\n', ' '),
+              { wordwrap: 130 }
+            )}
             </NativeText>
           </View>
         </NativeItem>
