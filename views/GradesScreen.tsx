@@ -336,14 +336,20 @@ const GradesScreen = ({ navigation }: {
     const options = periods.map((item) => item.name);
     options.push('Annuler');
     const cancelButtonIndex = options.length - 1;
-    const containerStyle = Platform.OS === 'android' ? { paddingBottom: insets.bottom, backgroundColor: UIColors.background } : null;
+    const containerStyle = Platform.OS === 'android' ? { paddingBottom: insets.bottom, backgroundColor: UIColors.background, borderTopLeftRadius: 25, borderTopRightRadius: 25 } : undefined;
 
     showActionSheetWithOptions(
       {
         options,
         cancelButtonIndex: cancelButtonIndex,
         tintColor: UIColors.primary,
-        containerStyle,
+        containerStyle: containerStyle,
+        cancelButtonTintColor: "#eb4034",
+        title: "Choix de la période",
+        showSeparators: true,
+        separatorStyle: modalStyles.separator,
+        titleTextStyle: {color: UIColors.text, ...modalStyles.title},
+        textStyle: modalStyles.text
       },
       (buttonIndex) => {
         if (typeof buttonIndex !== 'undefined' && buttonIndex !== cancelButtonIndex) {
@@ -1272,6 +1278,22 @@ const styles = StyleSheet.create({
     }
   },
 });
+
+const modalStyles = StyleSheet.create({
+  title: {
+    fontSize: 18,
+    textAlign: 'center',
+    width: '100%',
+    fontFamily: 'Papillon-Semibold'
+  },
+  text: {
+    paddingHorizontal: 16
+  },
+  separator: {
+    backgroundColor: '#fff2',
+    height: 0.5
+  }
+})
 
 const subjectStyles = StyleSheet.create({
   container: {
