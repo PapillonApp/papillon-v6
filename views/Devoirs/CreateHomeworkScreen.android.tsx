@@ -392,7 +392,7 @@ function CreateHomeworkScreenAndroid({ route, navigation }: {
                         value={homeworkContent}
                         onChangeText={text => setHomeworkContent(text)}
                         ref={textInputRef}
-                        multiligne={true}
+                        multiline={true}
                     />
                 </NativeItem>
             </NativeList>
