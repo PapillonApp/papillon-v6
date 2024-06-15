@@ -23,7 +23,7 @@ import formatCoursName from '../utils/cours/FormatCoursName';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
 // Icons
-import { Users2, File, TrendingDown, TrendingUp, AlertTriangle, MoreVertical, EyeOff, DivideSquare, User } from 'lucide-react-native';
+import { Users2, File, TrendingDown, TrendingUp, MoreVertical, EyeOff, DivideSquare, User, LineChartIcon, X } from 'lucide-react-native';
 import { Stats } from '../interface/icons/PapillonIcons';
 
 // Plugins
@@ -349,9 +349,14 @@ const GradesScreen = ({ navigation }: {
 
   function androidPeriodChangePicker() {
     const options = periods.map((item) => item.name);
+    const icons = periods.map((_i) => <LineChartIcon size={24} color={UIColors.primary}/>);
     options.push('Annuler');
+    icons.push(<X size={24} color={"#eb4034"}/>)
     const cancelButtonIndex = options.length - 1;
-    const containerStyle = Platform.OS === 'android' ? { paddingBottom: insets.bottom, backgroundColor: UIColors.background, borderTopLeftRadius: 25, borderTopRightRadius: 25 } : undefined;
+    const containerStyle = Platform.OS === 'android' ? {
+      paddingBottom: insets.bottom, backgroundColor: UIColors.background,
+      borderTopLeftRadius: 25, borderTopRightRadius: 25 }
+      : undefined;
 
     showActionSheetWithOptions(
       {
@@ -364,7 +369,7 @@ const GradesScreen = ({ navigation }: {
         showSeparators: true,
         separatorStyle: modalStyles.separator,
         titleTextStyle: {color: UIColors.text, ...modalStyles.title},
-        textStyle: modalStyles.text
+        icons: icons
       },
       (buttonIndex) => {
         if (typeof buttonIndex !== 'undefined' && buttonIndex !== cancelButtonIndex) {
@@ -1301,9 +1306,6 @@ const modalStyles = StyleSheet.create({
     textAlign: 'center',
     width: '100%',
     fontFamily: 'Papillon-Semibold'
-  },
-  text: {
-    paddingHorizontal: 16
   },
   separator: {
     backgroundColor: '#fff2',
