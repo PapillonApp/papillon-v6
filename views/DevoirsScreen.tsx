@@ -9,6 +9,7 @@ import {
   RefreshControl,
   SectionList,
   ActivityIndicator,
+  TouchableOpacity
 } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -37,7 +38,7 @@ import GetUIColors from '../utils/GetUIColors';
 import { useAppContext } from '../utils/AppContext';
 import NativeText from '../components/NativeText';
 
-import {PronoteApiHomeworkReturnType } from 'pawnote';
+import { PronoteApiHomeworkReturnType } from 'pawnote';
 
 import * as WebBrowser from 'expo-web-browser';
 import type { PapillonHomework } from '../fetch/types/homework';
@@ -61,7 +62,7 @@ const homeworksUntilDateAtom = atom((get) => {
   return homeworks.filter((homework) => {
     const homeworkDate = new Date(homework.date);
     homeworkDate.setHours(0, 0, 0, 0);
-  
+
     return homeworkDate.getTime() >= dateTimestamp;
   });
 });
@@ -86,22 +87,29 @@ function DevoirsScreen({ navigation }: {
 
   const [loading, setLoading] = useState(false);
   const [isHeadLoading, setHeadLoading] = useState(false);
-
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: 'Travail à faire',
-      headerRight: () => (loading &&
-        <ActivityIndicator
-          style={{marginRight: 16}}
-        />
-      ),
+      headerRight: () => (Platform.OS === "android" && (
+        <TouchableOpacity
+          style={{
+            opacity: 0.4,
+            marginRight: 16
+          }}
+          onPress={async () => {
+            navigation.navigate("CreateHomework", { homeworkLocalID: false })
+          }}
+        >
+          <Plus size={24} color={UIColors.text} />
+        </TouchableOpacity>
+      )),
     });
   }, [navigation, UIColors, loading]);
 
   const appContext = useAppContext();
-  
+
   type HomeworkItem = { title: string, data: PapillonHomework[] }
-  
+
   const [fromDate, setFromDate] = useAtom(dateFromAtom);
   const [totalHomeworks, setTotalHomeworks] = useAtom(homeworksAtom);
   const [groupedHomeworks] = useAtom<HomeworkItem[] | null>(
@@ -154,13 +162,18 @@ function DevoirsScreen({ navigation }: {
       await fetchHomeworks(new Date(), true);
     })();
   }, []);
-
   // Load initial homeworks on first render.
   useEffect(() => {
     (async () => {
       // setLoading(true);
       await fetchHomeworks(new Date());
     })();
+    navigation.addListener("focus", () => {
+      AsyncStorage.getItem("refreshHomeworks").then((h) => {
+        if (h) onRefresh()
+        if (h) AsyncStorage.setItem("refreshHomeworks", "")
+      })
+    })
   }, []);
 
   return (
@@ -171,7 +184,7 @@ function DevoirsScreen({ navigation }: {
       }}
     >
       {(urlOpened && Platform.OS === 'ios') ? (
-        <StatusBar animated barStyle='light-content'/>
+        <StatusBar animated barStyle='light-content' />
       ) : (
         <StatusBar
           animated
@@ -198,7 +211,7 @@ function DevoirsScreen({ navigation }: {
                 tintColor={Platform.OS === 'android' ? UIColors.primary : ''}
               />
             }
-            renderItem={({ item, index }) =>  (
+            renderItem={({ item, index }) => (
               <Hwitem
                 key={index}
                 homework={item}
@@ -208,7 +221,7 @@ function DevoirsScreen({ navigation }: {
             )}
             stickySectionHeadersEnabled={Platform.OS === 'ios'}
             renderSectionFooter={() => (
-              <View style={{height: 5}} />
+              <View style={{ height: 5 }} />
             )}
             renderSectionHeader={({ section: { title } }) => (
               Platform.OS === 'ios' ? (
@@ -234,7 +247,7 @@ function DevoirsScreen({ navigation }: {
                         paddingVertical: 7,
                       }}
                     >
-                      <Text style={{fontSize: 15, fontFamily: 'Papillon-Semibold'}}>
+                      <Text style={{ fontSize: 15, fontFamily: 'Papillon-Semibold' }}>
                         {title}
                       </Text>
                     </BlurView>
@@ -245,7 +258,7 @@ function DevoirsScreen({ navigation }: {
                   paddingHorizontal: 15,
                   paddingVertical: 16,
                 }}>
-                  <Text style={{fontSize: 14, fontWeight: 'bold', letterSpacing: 0.7, textTransform: 'uppercase', opacity: 0.6}}>
+                  <Text style={{ fontSize: 14, fontWeight: 'bold', letterSpacing: 0.7, textTransform: 'uppercase', opacity: 0.6 }}>
                     {title}
                   </Text>
                 </View>
@@ -257,10 +270,10 @@ function DevoirsScreen({ navigation }: {
               }} />
             )}
           />
-  
-          {Platform.OS === 'ios' &&  (
+
+          {Platform.OS === 'ios' && (
             <PressableScale
-              style={[styles.addCoursefab, {backgroundColor: UIColors.primary}]}
+              style={[styles.addCoursefab, { backgroundColor: UIColors.primary }]}
               weight="light"
               activeScale={0.87}
               onPress={() => {
@@ -291,7 +304,7 @@ function Hwitem({ homework, openURL, navigation }: {
 
   const handleStateChange = async () => {
     setCheckStateLoading(true);
-    
+
     await appContext.dataProvider?.changeHomeworkState(homework, !homework.done);
     setCheckStateLoading(false);
   };
@@ -323,7 +336,7 @@ function Hwitem({ homework, openURL, navigation }: {
   }, []);
 
   if (!homework) return;
-  
+
   return (
     <Animated.View
       style={[{
@@ -379,15 +392,19 @@ function Hwitem({ homework, openURL, navigation }: {
                 { backgroundColor: getSavedCourseColor(homework.subject.name, homework.background_color) },
               ]}
             />
-            <NativeText numberOfLines={1} heading="subtitle1" style={{fontSize: 14, paddingRight: 10}}>
-              {homework.subject.name.toUpperCase()}
+            <NativeText numberOfLines={1} heading="subtitle1" style={{ fontSize: 14, paddingRight: 10 }}>
+              {homework.subject.name ? homework.subject.name.toUpperCase() : 'INCONNU'}
             </NativeText>
             <View>
-          </View>
+            </View>
           </View>
           <View>
             <NativeText>
-              {convertHTML(homework.description.replace('\n', ' '), { wordwrap: 130 })}
+            {convertHTML(
+              homework.custom ? homework.description
+                              : homework.description.replace('\n', ' '),
+              { wordwrap: 130 }
+            )}
             </NativeText>
           </View>
         </NativeItem>
@@ -628,7 +645,7 @@ const styles = StyleSheet.create({
     paddingBottom: 18,
 
     width: '100%',
-    
+
     shadowColor: '#000',
     shadowOpacity: 0.25,
     shadowRadius: 4,

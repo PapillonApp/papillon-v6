@@ -16,10 +16,15 @@ export interface GeographicMunicipality {
 }
 
 export const getGeographicMunicipalities = async (searchQuery: string): Promise<GeographicMunicipality[]> => {
+
   const uri = new URL(GEO_API_URL);
-  uri.searchParams.set('q', searchQuery);
+  uri.searchParams.set('q', encodeURIComponent(searchQuery));
 
   const response = await fetch(uri.toString());
+  if (!response.ok) {
+    throw new Error(`API error: ${response.statusText}`);
+  }
+
   const data = await response.json() as {
     features: GeographicMunicipality[]
   };

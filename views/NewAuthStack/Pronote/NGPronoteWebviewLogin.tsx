@@ -104,15 +104,20 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
 
   React.useEffect(() => {
     fetch(infoMobileURL)
-      .then(response => response.json())
-      .then(data => {
-        if (data.CAS.actif === false) {
-          navigation.goBack();
-          navigation.navigate('NGPronoteLogin', {
-            instanceURL: instanceURL
-          });
-        }
-      });
+      .then(response => response.json()
+        .then(data => {
+          if (data.CAS.actif === false) {
+            navigation.goBack();
+            navigation.navigate('NGPronoteLogin', {
+              instanceURL: instanceURL
+            });
+          }
+        })
+        .catch(() => {
+          navigation.goBack()
+          Alert.alert("URL invalide", "Cet URL ne semble pas diriger vers une instance Pronote.\nVeuillez la vérifier et recommencer.")
+        })
+      )
   }, []);
 
   // PapillonCloseButton in header
@@ -205,13 +210,13 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
   const INJECT_PRONOTE_CURRENT_LOGIN_STATE = `
     (function () {
       setInterval(function() {
-        const state = window && window.loginState ? window.loginState : void 0;
-
+        const state = window && window.loginState ? window.loginState : false;
+        if(!state) return;
         window.ReactNativeWebView.postMessage(JSON.stringify({
           type: 'pronote.loginState',
           data: state
         }));
-      }, 500);
+      }, 2000);
     })();
   `.trim();
 
@@ -297,15 +302,11 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
         onMessage={async ({ nativeEvent }) => {
           const message = JSON.parse(nativeEvent.data);
 
-          console.log('Pronote webview message', message);
-
           if (message.type === 'pronote.loginState') {
             if (!message.data) return;
             if (message.data.status !== 0) return;
             setLoggingIn(true);
             if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current);
-
-            console.log('Pronote login state', message.data);
 
             await AsyncStorage.multiSet([
               [AsyncStoragePronoteKeys.NEXT_TIME_TOKEN, message.data.mdp],
@@ -321,7 +322,6 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
             setLoading(false);
       
             navigation.popToTop();
-            navigation.getParent()?.popToTop();
             appContext.setLoggedIn(true);
           }
         }}
@@ -355,9 +355,9 @@ const NGPronoteWebviewLogin = ({ route, navigation }: {
               webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
               
               /* if (currentLoginStateIntervalRef.current) clearInterval(currentLoginStateIntervalRef.current); */
-              currentLoginStateIntervalRef.current = setInterval(() => {
+              /*currentLoginStateIntervalRef.current = setInterval(() => {
                 webViewRef.current?.injectJavaScript(INJECT_PRONOTE_CURRENT_LOGIN_STATE);
-              }, 250);
+              }, 250);*/
             }
           }
         }}

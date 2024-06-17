@@ -157,4 +157,4 @@ function getRandomColor() {
 }
 
 export default getClosestColor;
-export { getClosestCourseColor, getSavedCourseColor, forceSavedCourseColor, getRandomColor };
+export { getClosestCourseColor, getSavedCourseColor, forceSavedCourseColor, getRandomColor, normalizeCoursName };
