@@ -5,11 +5,12 @@ import { Text } from 'react-native-paper';
 import GetUIColors from '../utils/GetUIColors';
 
 interface Props {
-  children: React.ReactNode
-  inset?: boolean
-  title?: string
-  style?: ViewStyle
-  grouped?: boolean
+  children: React.ReactNode;
+  inset?: boolean;
+  title?: string;
+  style?: ViewStyle;
+  grouped?: boolean;
+  plain?: boolean;
 }
 
 const PapillonList: React.FC<Props> = ({ children, inset, title, style, grouped, plain }) => {
