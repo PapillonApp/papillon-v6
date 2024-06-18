@@ -1,22 +1,19 @@
-import React, { memo } from 'react';
-
-import { View, StyleSheet, Platform, type ViewStyle } from 'react-native';
-
+import React, { memo, ReactNode } from 'react';
+import { View, StyleSheet, Platform } from 'react-native';
 import { Cell } from 'react-native-tableview-simple';
 import { SFSymbol } from 'react-native-sfsymbols';
-
 import GetUIColors from '../utils/GetUIColors';
 
 interface Props {
-  children: React.ReactNode
-  leading?: React.ReactNode
-  trailing?: React.ReactNode
-  onPress?: () => unknown
-  chevron?: boolean
-  cellProps?: Partial<React.ComponentProps<typeof Cell>>
-  style?: ViewStyle
-  innerStyle?: ViewStyle
-  backgroundColor?: string
+  children: ReactNode;
+  leading?: ReactNode;
+  trailing?: ReactNode;
+  onPress?: (() => false | void) | undefined;
+  chevron?: boolean;
+  cellProps?: Partial<React.ComponentProps<typeof Cell>>;
+  style?: View['props']['style'];
+  innerStyle?: View['props']['style'];
+  backgroundColor?: string;
 }
 
 const NativeItem = memo(({
@@ -26,7 +23,7 @@ const NativeItem = memo(({
   onPress,
   chevron,
   backgroundColor,
-}) => {
+}: Props) => {
   const UIColors = GetUIColors();
 
   const cellImageView = leading && (
@@ -51,7 +48,7 @@ const NativeItem = memo(({
           weight="semibold"
           size={16}
           color={UIColors.text + '40'}
-          style={{marginRight: 4}}
+          style={{ marginRight: 4 }}
         />
       )}
     </View>
