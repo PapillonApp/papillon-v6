@@ -5,15 +5,13 @@ import GetUIColors from '../utils/GetUIColors';
 import mapChildrenWithKeys from '../utils/mapChildrenWithKeys';
 
 interface Props {
-  children: React.ReactNode
-  inset?: boolean
-  header?: string
-  footer?: string
-  style?: ViewStyle
-  containerStyle?: ViewStyle
-  plain?: boolean
-  tableViewProps?: Partial<React.ComponentProps<typeof TableView>>
-  sectionProps?: Partial<React.ComponentProps<typeof Section>>
+  children: React.ReactNode;
+  inset?: boolean;
+  header?: string;
+  footer?: string;
+  style?: ViewStyle;
+  tableViewProps?: Partial<React.ComponentProps<typeof TableView>>;
+  sectionProps?: Partial<React.ComponentProps<typeof Section>>;
 }
 
 const NativeList: React.FC<Props> = ({
@@ -26,7 +24,7 @@ const NativeList: React.FC<Props> = ({
   sectionProps,
 }) => {
   const UIColors = GetUIColors();
-  const mapChildrenWithKeysMemoized = useCallback((children) => {
+  const mapChildrenWithKeysMemoized = useCallback((children: React.ReactNode) => {
     return mapChildrenWithKeys(children);
   }, []);
   const childrenWithKeys = useMemo(() => mapChildrenWithKeysMemoized(children), [children]);
@@ -46,7 +44,7 @@ const NativeList: React.FC<Props> = ({
       {...(tableViewProps && tableViewProps)}
     >
       <Section
-        header={header ? header.toUpperCase() : null}
+        header={header ? header.toUpperCase() : ''}
         footer={footer}
         roundedCorners={sectionProps?.roundedCorners ? sectionProps.roundedCorners : inset}
         hideSurroundingSeparators={sectionProps?.hideSurroundingSeparators ? sectionProps.hideSurroundingSeparators : inset}
