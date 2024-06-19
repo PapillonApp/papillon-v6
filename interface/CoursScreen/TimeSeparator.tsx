@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, StyleProp, ViewStyle } from 'react-native';
 
 import GetUIColors from '../../utils/GetUIColors';
 
@@ -9,7 +9,15 @@ import {
 } from 'lucide-react-native';
 import { PressableScale } from 'react-native-pressable-scale';
 
-const TimeSeparator = ({ style, showLine, reason, time, lunch }) => {
+interface TimeSeparatorProps {
+  style?: StyleProp<ViewStyle>;
+  showLine: boolean;
+  reason: string;
+  time: string;
+  lunch: boolean;
+}
+
+const TimeSeparator: React.FC<TimeSeparatorProps> = ({ style, showLine, reason, time, lunch }) => {
   const UIColors = GetUIColors();
 
   return (
@@ -28,22 +36,22 @@ const TimeSeparator = ({ style, showLine, reason, time, lunch }) => {
             bottom: 0,
             left: 0,
             height: '100%',
-            width:4,
+            width: 4,
             backgroundColor: UIColors.border
           }}
         />
       }
-      <Image source={require('../../assets/stripes.png')} style={[styles.stripes, {tintColor: UIColors.text}]} />
+      <Image source={require('../../assets/stripes.png')} style={[styles.stripes, { tintColor: UIColors.text }]} />
       <View style={[styles.separatorData]}>
         <View style={[styles.reasonContainer]}>
           {lunch && <Utensils size={20} strokeWidth={2.3} color={UIColors.text} />}
           {!lunch && <Sun size={20} strokeWidth={2.3} color={UIColors.text} />}
-          <Text style={[styles.reasonText, {color: UIColors.text}]}>
+          <Text style={[styles.reasonText, { color: UIColors.text }]}>
             {reason}
           </Text>
         </View>
         <View style={[styles.timeContainer]}>
-          <Text style={[styles.timeText, {color: UIColors.text}]}>
+          <Text style={[styles.timeText, { color: UIColors.text }]}>
             {time}
           </Text>
         </View>
