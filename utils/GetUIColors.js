@@ -50,6 +50,8 @@ function useUIColors(schemeForce, platformForce) {
 
     const text = isDark ? '#ffffff' : '#000000';
 
+    const textLight = isDark ? '#ffffff' : '#000000';
+
     let primaryBackground;
     let primary = '#32AB8E';
 
@@ -84,10 +86,12 @@ function useUIColors(schemeForce, platformForce) {
       element,
       elementHigh,
       text,
+      textLight,
       primary,
       primaryBackground,
       border: borderColor,
       borderLight: borderColorLight,
+      statusBar: isDark ? 'light-content' : 'dark-content'
     };
   }, [isDark, platform, theme]);
 }
