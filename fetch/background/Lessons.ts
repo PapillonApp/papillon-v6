@@ -13,7 +13,13 @@ const now = new Date();
 
 const fetchLessons = async () => {
   let dataInstance = await getContextValues().dataProvider;
-  return dataInstance.getTimetable(now, true).then(async (lessons) => {
+
+  if (dataInstance === null) {
+    console.error('[background fetch] dataInstance is null');
+    return false;
+  }
+
+  return dataInstance!.getTimetable(now, true, undefined).then(async (lessons) => {
     console.info('[background fetch] fetched lessons');
     try {
       // filter lessons to only keep those that are today
@@ -27,8 +33,7 @@ const fetchLessons = async () => {
       }
       await notifyLessons(lessons);
       return true;
-    }
-    catch (e) {
+    } catch (e) {
       console.error('[background fetch] error while sending lessons to shared group', e);
       return false;
     }
@@ -63,7 +68,7 @@ const sendLessonsToSharedGroup = async (lessons: PapillonLesson[]) => {
 };
 
 const notifyLessons = async (lessons: PapillonLesson[]) => {
-  const canNotify : boolean = await checkCanNotify('notifications_CoursEnabled');
+  const canNotify: boolean = await checkCanNotify('notifications_CoursEnabled');
   if (!canNotify) return;
 
   // remove all notifications
@@ -74,7 +79,7 @@ const notifyLessons = async (lessons: PapillonLesson[]) => {
 
   // get all lessons with status set
   const lessonsWithStatus = lessons.filter(lesson => lesson.status !== undefined);
-  
+
   // for each lesson, notify if status is set
   for (const lesson of lessonsWithStatus) {
     const lessonStart = new Date(lesson.start);
@@ -82,7 +87,7 @@ const notifyLessons = async (lessons: PapillonLesson[]) => {
 
     // if lessonStart is in the past
     if (lessonStart.getTime() < Date.now()) continue;
-    
+
     const lessonID = (lesson.subject?.name ? lesson.subject.name : '') + new Date(lesson.start).getTime();
 
     const trigger: TimestampTrigger = {
@@ -94,9 +99,9 @@ const notifyLessons = async (lessons: PapillonLesson[]) => {
 
     let body = '';
 
-    if(lesson.is_cancelled) {
+    if (lesson.is_cancelled) {
       body = 'Le cours est annulé.';
-    } else if(lesson.rooms.length === 0) {
+    } else if (lesson.rooms.length === 0) {
       body = 'Vous n\'avez pas de salle attribuée.';
     } else {
       body = `Vous serez en salle ${lesson.rooms.join(', ')}`;
