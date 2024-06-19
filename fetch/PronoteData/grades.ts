@@ -8,17 +8,19 @@ import type { PapillonAttachment } from '../types/attachment';
  * Get the state of a grade in an integer form.
  * 
  * @param gradeValue - Value of the grade.
- * @param significant - `true` if we want to get only the state, `false` if we want to get the value itself, so -1 if stateful.
  */
 const getGradeState = (gradeValue: number | PronoteApiGradeType): PapillonGradeValue => {
-  if (typeof gradeValue === 'number') return {
-    significant: false,
-    value: gradeValue
-  };
-  
+  if (typeof gradeValue === 'number') {
+    return {
+      significant: false,
+      value: gradeValue,
+      type: 'number' as PronoteApiGradeType 
+    };
+  }
+
   return {
     significant: true,
-    type: gradeValue
+    type: gradeValue,
   };
 };
 
@@ -65,12 +67,12 @@ export const gradesHandler = async (periodName: string, instance?: Pronote, forc
         correctionFile: grade.correctionFile as unknown as PapillonAttachment | undefined,
         subjectFile: grade.subjectFile as unknown as PapillonAttachment | undefined,
         grade: {
-          value: getGradeState(grade.value),
-          out_of: getGradeState(grade.outOf),
+          value: grade.value !== undefined ? getGradeState(grade.value) : { significant: false, value: -1, type: 'number' as PronoteApiGradeType },
+          out_of: grade.outOf !== undefined ? getGradeState(grade.outOf) : { significant: false, value: -1, type: 'number' as PronoteApiGradeType },
           coefficient: grade.coefficient,
-          average: getGradeState(grade.average),
-          max: getGradeState(grade.max),
-          min: getGradeState(grade.min),
+          average: grade.average !== undefined ? getGradeState(grade.average) : { significant: false, value: -1, type: 'number' as PronoteApiGradeType },
+          max: grade.max !== undefined ? getGradeState(grade.max) : { significant: false, value: -1, type: 'number' as PronoteApiGradeType },
+          min: grade.min !== undefined ? getGradeState(grade.min) : { significant: false, value: -1, type: 'number' as PronoteApiGradeType },
         }
       })),
   
@@ -80,16 +82,16 @@ export const gradesHandler = async (periodName: string, instance?: Pronote, forc
           name: average.subject.name,
           groups: average.subject.groups
         },
-        average: typeof average.student !== 'undefined' ? getGradeState(average.student) : void 0,
-        class_average: getGradeState(average.class_average),
-        max: getGradeState(average.max),
-        min: getGradeState(average.min),
-        out_of: typeof average.outOf !== 'undefined' ? getGradeState(average.outOf) : void 0,
+        average: average.student !== undefined ? getGradeState(average.student) : { significant: false, value: -1, type: 'number' as PronoteApiGradeType },
+        class_average: average.class_average !== undefined ? getGradeState(average.class_average) : { significant: false, value: -1, type: 'number' as PronoteApiGradeType },
+        max: average.max !== undefined ? getGradeState(average.max) : { significant: false, value: -1, type: 'number' as PronoteApiGradeType },
+        min: average.min !== undefined ? getGradeState(average.min) : { significant: false, value: -1, type: 'number' as PronoteApiGradeType },
+        out_of: average.outOf !== undefined ? getGradeState(average.outOf) : { significant: false, value: -1, type: 'number' as PronoteApiGradeType },
         color: average.backgroundColor ?? '#08BE88'
       })),
   
-      overall_average: typeof gradesOverview.overallAverage !== 'undefined' ? getGradeState(gradesOverview.overallAverage) : { significant: false, value: -1 },
-      class_overall_average: typeof gradesOverview.classAverage !== 'undefined' ? getGradeState(gradesOverview.classAverage) : { significant: false, value: -1 }
+      overall_average: gradesOverview.overallAverage !== undefined ? getGradeState(gradesOverview.overallAverage) : { significant: false, value: -1, type: 'number' as PronoteApiGradeType },
+      class_overall_average: gradesOverview.classAverage !== undefined ? getGradeState(gradesOverview.classAverage) : { significant: false, value: -1, type: 'number' as PronoteApiGradeType }
     };
   
     const newCache: CachedPapillonGrades = {
