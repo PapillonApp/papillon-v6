@@ -403,7 +403,7 @@ function Hwitem({ homework, openURL, navigation }: {
             {convertHTML(
               homework.custom ? homework.description
                               : homework.description.replace('\n', ' '),
-              { wordwrap: 130 }
+              { wordwrap: null, preserveNewlines: homework.custom }
             )}
             </NativeText>
           </View>
