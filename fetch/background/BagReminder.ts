@@ -1,7 +1,7 @@
-import {getContextValues} from '../../utils/AppContext';
+import { getContextValues } from '../../utils/AppContext';
 import notifee from '@notifee/react-native';
-import {PapillonLesson} from '../types/timetable';
-import {checkCanNotify, DidNotified, SetNotified} from './Helper';
+import { PapillonLesson } from '../types/timetable';
+import { checkCanNotify, DidNotified, SetNotified } from './Helper';
 import formatCoursName from '../../utils/cours/FormatCoursName';
 
 const now = new Date();
@@ -13,18 +13,19 @@ const bagReminder = async () => {
     tomorrow.setDate(now.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
     const tommorowAsString = tomorrow.toISOString().split('T')[0];
-    let dataInstance = await getContextValues().dataProvider;
-    await dataInstance.getTimetable(tomorrow).then(timetable => {
+    let dataInstance = await getContextValues() as { dataProvider: unknown };
+    if (dataInstance && 'dataProvider' in dataInstance) {
+      const timetable = await (dataInstance.dataProvider as any).getTimetable(tomorrow);
       console.log('[background fetch] fetched cours');
-      const cours = timetable.filter(cours => {
-        if (cours.isCancelled) return false;
-        if (cours.start.split('T')[0] !== tommorowAsString) return false;
+      const cours = timetable.filter((cours: PapillonLesson) => {
+        if (cours.is_cancelled) return false;
+        if (new Date(cours.start).toISOString().split('T')[0] !== tommorowAsString) return false;
         return true;
       });
       if (cours.length > 0) {
         remindBag(cours);
       }
-    });
+    }
   } else {
     console.log('[background fetch] Skipping cours fetch');
   }
@@ -41,12 +42,14 @@ const remindBag = async (lesson: PapillonLesson[]) => {
   var body = '';
   var isFirst = true;
   lesson.forEach(cours => {
-    if (!body.includes(cours.subject)) {
-      let start = new Date(cours.start);
-      let end = new Date(cours.end);
-      if (!isFirst) body += '\n';
-      isFirst = false;
-      body += `${('0' + start.getHours()).slice(-2)}:${('0' + start.getMinutes()).slice(-2)} - ${('0' + end.getHours()).slice(-2)}:${('0' + end.getMinutes()).slice(-2)} • ${formatCoursName(cours.subject.name)}`;
+    if (cours.subject && cours.subject.name) {
+      if (!body.includes(cours.subject.name)) {
+        let start = new Date(cours.start);
+        let end = new Date(cours.end);
+        if (!isFirst) body += '\n';
+        isFirst = false;
+        body += `${('0' + start.getHours()).slice(-2)}:${('0' + start.getMinutes()).slice(-2)} - ${('0' + end.getHours()).slice(-2)}:${('0' + end.getMinutes()).slice(-2)} • ${formatCoursName(cours.subject.name)}`;
+      }
     }
   });
   await notifee.displayNotification({
