@@ -7,8 +7,8 @@ const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon';
 const now = new Date();
 
 const fetchHomeworks = async () => {
-  let dataInstance = await getContextValues().dataProvider;
-  return dataInstance.getHomeworks(true).then(async (homeworks) => {
+  let dataInstance: any = await getContextValues().dataProvider;
+  return dataInstance.getHomeworks(true).then(async (homeworks: PapillonHomework[]) => {
     try {
       await notifyHomeworks(homeworks);
 
@@ -28,21 +28,26 @@ const notifyHomeworks = async (homeworks: PapillonHomework[]) => {
   tomorrow.setDate(now.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
 
-  const homeworksForTomorrow = homeworks.filter((homework) => {
+  const homeworksForTomorrow = homeworks.filter((homework: PapillonHomework) => {
     const homeworkDate = new Date(homework.date);
-    return homeworkDate.getDate() === tomorrow.getDate() && homeworkDate.getMonth() === tomorrow.getMonth() && homeworkDate.getFullYear() === tomorrow.getFullYear();
+    return (
+      homeworkDate.getDate() === tomorrow.getDate() &&
+      homeworkDate.getMonth() === tomorrow.getMonth() &&
+      homeworkDate.getFullYear() === tomorrow.getFullYear()
+    );
   });
 
   // get all homeworks for tomorrow where done is false
-  const homeworksForTomorrowNotDone = homeworksForTomorrow.filter((homework) => !homework.done);
+  const homeworksForTomorrowNotDone = homeworksForTomorrow.filter(
+    (homework: PapillonHomework) => !homework.done
+  );
   const countUndoneHomeworks = homeworksForTomorrowNotDone.length;
 
   if (countUndoneHomeworks === 0) {
     notifee.cancelNotification('hw_' + tomorrow.getTime());
-  }
-  else {
-    const canNotify : boolean = await checkCanNotify('notifications_DevoirsEnabled');
-    const didNotify : boolean = await DidNotified('hw_' + tomorrow.getTime());
+  } else {
+    const canNotify: boolean = await checkCanNotify('notifications_DevoirsEnabled');
+    const didNotify: boolean = await DidNotified('hw_' + tomorrow.getTime());
     if (!canNotify || didNotify) return;
 
     let time = new Date();
