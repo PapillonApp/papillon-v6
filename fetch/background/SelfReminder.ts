@@ -1,6 +1,7 @@
 import notifee from '@notifee/react-native';
-import {getContextValues} from '../../utils/AppContext';
-import {checkCanNotify, DidNotified} from './Helper';
+import { getContextValues } from '../../utils/AppContext';
+import { checkCanNotify, DidNotified } from './Helper';
+import type { PapillonLesson } from '../types/timetable';
 
 const SelfReminder = async () => {
   console.log('[background fetch] Running self reminder');
@@ -11,12 +12,12 @@ const SelfReminder = async () => {
   if (!canNotify || didNotify) return;
 
   if (now.getHours() >= 8 && now.getHours() <= 10) {
-    let dataInstance = await getContextValues().dataProvider;
-    await dataInstance.getTimetable(now).then(async (timetable) => {
+    let dataInstance : any  = await getContextValues().dataProvider;
+    await dataInstance.getTimetable(now).then(async (timetable: PapillonLesson[]) => {
       console.log('[background fetch] fetched cours');
-      const cours = timetable.filter(cours => {
-        if (cours.isCancelled) return false;
-        if (cours.start.split('T')[0] !== now.toISOString().split('T')[0]) return false;
+      const cours = timetable.filter((cours: PapillonLesson) => {
+        if (cours.is_cancelled) return false;
+        if (new Date(cours.start).toISOString().split('T')[0] !== now.toISOString().split('T')[0]) return false;
         return true;
       });
       if (cours.length > 0) {
