@@ -21,7 +21,7 @@ export const headerTitleStyles = {
   },
 };
 
-const AppStack = ({ navigation }) => {
+const AppStack = ({}) => {
   const UIColors = GetUIColors();
 
   const views = [
@@ -37,10 +37,9 @@ const AppStack = ({ navigation }) => {
       component: require('./SettingsStack').default,
       options: {
         headerShown: false,
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
       }
     },
-
     {
       name: 'InsetSchoollife',
       component: require('../views/SchoolLifeScreen').default,
@@ -66,7 +65,7 @@ const AppStack = ({ navigation }) => {
       component: require('../views/Conversations/NewConversation').default,
       options: {
         headerTitle: 'Nouvelle conversation',
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
       }
     },
     {
@@ -75,7 +74,7 @@ const AppStack = ({ navigation }) => {
       options: {
         headerTitle: 'Mon profil',
         headerBackTitle: 'Préférences',
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
       }
     },
     {
@@ -83,28 +82,28 @@ const AppStack = ({ navigation }) => {
       component: require('../views/Settings/CoursColor').default,
       options: {
         headerTitle: 'Couleur des matières',
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
       }
     },
     {
       name: 'Lesson',
       component: require('../views/Cours/LessonScreen').default,
       options: {
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
       }
     },
     {
       name: 'Devoir',
       component: require('../views/Devoirs/HwScreen').default,
       options: {
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
       }
     },
     {
       name: 'Grade',
       component: require('../views/Grades/GradeView').default,
       options: {
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
         headerTintColor: '#fff',
       }
     },
@@ -112,7 +111,7 @@ const AppStack = ({ navigation }) => {
       name: 'GradesSettings',
       component: require('../views/Grades/GradesSettings').default,
       options: {
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
         headerTitle: 'Paramètres des notes',
       }
     },
@@ -120,7 +119,7 @@ const AppStack = ({ navigation }) => {
       name: 'CreateHomework',
       component: require('../views/Devoirs/CreateHomeworkScreen').default,
       options: {
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
         headerTitle: "Créer un devoir"
       }
     },
@@ -128,28 +127,28 @@ const AppStack = ({ navigation }) => {
       name: 'NewsDetails',
       component: require('../views/News/NewsItem').default,
       options: {
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
       }
     },
     {
       name: 'PdfViewer',
       component: require('../views/Modals/PdfViewer').default,
       options: {
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
       }
     },
     {
       name: 'ED_Extended_InsetDocuments',
       component: require('../views/ecoledirecte/ed_documents').default,
       options: {
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
       }
     },
     {
       name: 'ED_Extended_InsetCloud',
       component: require('../views/ecoledirecte/ed_cloud').default,
       options: {
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
       }
     },
   ];
@@ -169,7 +168,6 @@ const AppStack = ({ navigation }) => {
               navigationBarColor: '#00000000',
               headerStyle: {
                 backgroundColor: UIColors.background,
-                elevation: 0,
               },
               headerShadowVisible: false,
             }
