@@ -85,7 +85,8 @@ export const EDtimetableHandler = async (interval: [from: Date, to?: Date], inst
         is_outing: lesson.outing || false,
         is_detention: lesson.detention || false,
         is_exempted: lesson.exempted || false,
-        is_test: lesson.test || false
+        is_test: lesson.test || false,
+        classroom: ''
       });
 
       timetable.push({
@@ -109,12 +110,12 @@ export const EDtimetableHandler = async (interval: [from: Date, to?: Date], inst
         is_outing: lesson.outing || false,
         is_detention: lesson.detention || false,
         is_exempted: lesson.exempted || false,
-        is_test: lesson.test || false
+        is_test: lesson.test || false,
+        classroom: ''
       });
     });
 
-    timetable.sort((a, b) => a.start.localeCompare(b.start));
-
+    timetable.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
     // Build up the new timetables cache inside storage.
     let cachedTimetables: Array<CachedPapillonTimetable> = [];
