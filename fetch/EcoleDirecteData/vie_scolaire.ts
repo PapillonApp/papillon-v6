@@ -6,7 +6,7 @@ import type { schoolLifeResData } from '@papillonapp/ed-core/dist/src/types/v3';
 
 export const EDvieScolaireHandler = async (instance?: EDCore, force = false): Promise<PapillonVieScolaire> => {
   const cache = await AsyncStorage.getItem(AsyncStorageEcoleDirecteKeys.CACHE_VIE_SCOLAIRE);
-  const data: PapillonVieScolaire = { absences: [], delays: [], punishments: [] };
+  const data: PapillonVieScolaire = { absences: [], delays: [], punishments: [], observations: [] };
 
   if (cache && !force) {
     const cached = JSON.parse(cache) as CachedPapillonVieScolaire;
@@ -24,7 +24,6 @@ export const EDvieScolaireHandler = async (instance?: EDCore, force = false): Pr
   try {
     if (!instance) throw new Error('No instance available.');
 
-
     const schoolLife: schoolLifeResData = await instance.schoolLife.fetch();
 
     schoolLife.absencesRetards.forEach(element=> {
@@ -38,15 +37,19 @@ export const EDvieScolaireHandler = async (instance?: EDCore, force = false): Pr
           reasons: [element.motif]
         });
       } else if(element.typeElement === 'Absence') {
-        data.absences.push({
-          id: JSON.stringify(element.id),
-          from: new Date(element.interval.start).getTime(),
-          to: new Date(element.interval.end).getTime(),
-          justified: element.justifie,
-          hours: element.libelle,
-          administrativelyFixed: element.justifieEd,
-          reasons: [element.motif]
-        });
+        if (element.interval) {
+          data.absences.push({
+            id: JSON.stringify(element.id),
+            from: new Date(element.interval.start).getTime(),
+            to: new Date(element.interval.end).getTime(),
+            justified: element.justifie,
+            hours: element.libelle,
+            administrativelyFixed: element.justifieEd,
+            reasons: [element.motif]
+          });
+        } else {
+          console.warn(`No interval data for absence with id ${element.id}`);
+        }
       }
     });
 
@@ -75,7 +78,6 @@ export const EDvieScolaireHandler = async (instance?: EDCore, force = false): Pr
       }
     });
 
-
     const cached: CachedPapillonVieScolaire = {
       ...data,
       timestamp: Date.now()
@@ -90,7 +92,8 @@ export const EDvieScolaireHandler = async (instance?: EDCore, force = false): Pr
       return {
         absences: cached.absences,
         delays: cached.delays,
-        punishments: cached.punishments
+        punishments: cached.punishments,
+        observations: cached.observations
       };
     }
 
