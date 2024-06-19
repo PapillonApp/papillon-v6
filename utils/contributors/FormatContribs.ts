@@ -9,36 +9,36 @@ export async function formatPapillonContributors() {
 
     const maintaineurs = [
         {
-            "name": "Vince (ecnivtwelve)",
-            "role": "Fondateur",
-            "avatar": "https://avatars.githubusercontent.com/u/32978709?v=4&s=100",
-            "link": "https://github.com/ecnivtwelve"
+            name: "Vince (ecnivtwelve)",
+            role: "Fondateur",
+            avatar: "https://avatars.githubusercontent.com/u/32978709?v=4&s=100",
+            link: "https://github.com/ecnivtwelve"
         },
         {
-            "name": "Lucas (Tryon)",
-            "role": "Mainteneur",
-            "avatar": "https://avatars.githubusercontent.com/u/68423470?v=4&s=100",
-            "link": "https://tryon-lab.fr/"
+            name: "Lucas (Tryon)",
+            role: "Mainteneur",
+            avatar: "https://avatars.githubusercontent.com/u/68423470?v=4&s=100",
+            link: "https://tryon-lab.fr/"
         },
         {
-            "name": "Maël Gangloff",
-            "role": "Mainteneur",
-            "avatar": "https://avatars.githubusercontent.com/u/51171251?v=4",
-            "link": "https://maelgangloff.fr/"
+            name: "Maël Gangloff",
+            role: "Mainteneur",
+            avatar: "https://avatars.githubusercontent.com/u/51171251?v=4",
+            link: "https://maelgangloff.fr/"
         },
         {
-            "name": "Olivier T.",
-            "role": "Mainteneur",
-            "avatar": "https://avatars.githubusercontent.com/u/69359417?v=4",
-            "link": "https://github.com/Vilerio"
+            name: "Olivier T.",
+            role: "Mainteneur",
+            avatar: "https://avatars.githubusercontent.com/u/69359417?v=4",
+            link: "https://github.com/Vilerio"
         }
     ];
 
-    const manualContributors = [
-
+    const manualContributors: { name: string; role: string; avatar: string; link: string; }[] = [
+    
     ];
 
-    const excludedContribs = {
+    const excludedContribs: { [key: string]: boolean } = {
         "Vilerio": true,
         "maelgangloff": true,
         "tryon-dev": true,
