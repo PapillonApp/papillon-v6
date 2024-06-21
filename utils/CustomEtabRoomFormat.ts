@@ -1,5 +1,5 @@
-function getEtabRoom(room = '') {
-  // letter followed by 2 or 3 digits
+function getEtabRoom(room: string = ''): { building: string, room: string, other: string | null } | undefined {
+  // lettre suivie de 2 ou 3 chiffres
   const regex = /(?:[A-Z]) ?(?:\d{2,3})/;
   const match = regex.exec(room.split(' ')[0]);
   if (match) {

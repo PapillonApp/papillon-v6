@@ -1,10 +1,7 @@
-// Stolen from https://stackoverflow.com/a/72575759
-
 import { LogBox } from 'react-native';
 
-// eslint-disable-next-line no-undef
 if (__DEV__) {
-  const ignoreWarns = [
+  const ignoreWarns: string[] = [
     'EventEmitter.removeListener',
     '[fuego-swr-keys-from-collection-path]',
     'Setting a timer for a long period of time',
@@ -17,7 +14,7 @@ if (__DEV__) {
   ];
 
   const warn = console.warn;
-  console.warn = (...arg) => {
+  console.warn = (...arg: any[]) => {
     for (const warning of ignoreWarns) {
       if (arg[0].startsWith(warning)) {
         return;
