@@ -36,16 +36,15 @@ const PaymentScreen = ({ navigation }: { navigation: any }) => {
             setCurrentlyBuying(true);
             InAppPurchases.getPurchaseHistoryAsync().then((history) => {
               setCurrentlyBuying(false);
-              
-              if (history.results.length > 0) {
+  
+              if (history && history.results && history.results.length > 0) {
                 setHasAlreadyBought(true);
                 AsyncStorage.setItem('hasAlreadyBought', 'true');
-              }
-              else {
+              } else {
                 setHasAlreadyBought(false);
                 AsyncStorage.setItem('hasAlreadyBought', 'false');
               }
-
+  
               Alert.alert(
                 'Achats restaurés',
                 'Tous vos achats ont été restaurés avec succès.',
@@ -69,6 +68,7 @@ const PaymentScreen = ({ navigation }: { navigation: any }) => {
       ),
     });
   }, [navigation]);
+  
 
   React.useLayoutEffect(() => {
     return () => {
@@ -88,20 +88,29 @@ const PaymentScreen = ({ navigation }: { navigation: any }) => {
         'cocon2',
         'papillon2',
       ]);
-      if (responseCode === InAppPurchases.IAPResponseCode.OK) {
+  
+      if (responseCode === InAppPurchases.IAPResponseCode.OK && results) {
         console.log('Products', results);
-        setProducts(results);
-      }
 
+        const formattedProducts: Product[] = results.map(item => ({
+          productId: item.productId,
+          title: item.title,
+          description: item.description,
+          price: item.price,
+        }));
+  
+        setProducts(formattedProducts);
+      }
+  
       AsyncStorage.getItem('hasAlreadyBought').then((value) => {
         if (value === 'true') {
           setHasAlreadyBought(true);
         }
       });
-
+  
       setLoading(false);
     };
-
+  
     getProducts();
   }, []);
 
@@ -115,25 +124,24 @@ const PaymentScreen = ({ navigation }: { navigation: any }) => {
     }
   }
 
-  // purchase listener
-  useEffect(() => {
-    InAppPurchases.setPurchaseListener(({ responseCode, results, errorCode }) => {
-      if (responseCode === InAppPurchases.IAPResponseCode.OK) {
-        results.forEach((purchase) => {
-          if (!purchase.acknowledged) {
-            console.log(`Successfully purchased ${purchase.productId}`);
-            // Process transaction here and unlock content...
-            InAppPurchases.finishTransactionAsync(purchase, true);
+// purchase listener
+useEffect(() => {
+  InAppPurchases.setPurchaseListener(({ responseCode, results }) => {
+    if (responseCode === InAppPurchases.IAPResponseCode.OK && results) {
+      results.forEach((purchase) => {
+        if (!purchase.acknowledged) {
+          console.log(`Successfully purchased ${purchase.productId}`);
+          // Process transaction here and unlock content...
+          InAppPurchases.finishTransactionAsync(purchase, true);
 
-            AsyncStorage.setItem('hasAlreadyBought', 'true').then(() => {
-              setHasAlreadyBought(true);
-            });
-          }
-        });
-      }
+          AsyncStorage.setItem('hasAlreadyBought', 'true').then(() => {
+            setHasAlreadyBought(true);
+          });
+        }
+      });
     }
-    );
-  }, []);
+  });
+}, []);
 
   return (
     <View style={{

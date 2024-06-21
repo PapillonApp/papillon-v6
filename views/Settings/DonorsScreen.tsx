@@ -71,7 +71,7 @@ const DonorsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         />
       )}
       <ScrollView
-        style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
+        style={[{ backgroundColor: UIColors.modalBackground }]}
         contentInsetAdjustmentBehavior="automatic"
       >
         <PapillonLoading

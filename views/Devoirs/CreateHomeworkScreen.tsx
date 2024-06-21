@@ -12,7 +12,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
-import { getSavedCourseColor, normalizeCoursName } from '../../utils/cours/ColorCoursName';
+import { getSavedCourseColor } from '../../utils/cours/ColorCoursName';
 import { useAppContext } from '../../utils/AppContext';
 import PapillonLoading from '../../components/PapillonLoading';
 import formatCoursName from '../../utils/cours/FormatCoursName';
@@ -20,8 +20,6 @@ import AlertBottomSheet from '../../interface/AlertBottomSheet';
 import { AlertTriangle } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RegisterTrophy } from '../Settings/TrophiesScreen';
-
-import CreateHomeworkScreenAndroid from './CreateHomeworkScreen.android'
 
 const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route, navigation }) => {
   const UIColors = GetUIColors();
@@ -37,43 +35,13 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
   const [titleMissingAlert, setTitleMissingAlert] = useState<boolean>(false);
 
   const [homeworkTitle, setHomeworkTitle] = useState<string>('');
-  const [editedHomework, setEditedHomework] = useState()
-
   const inputRef = useRef<TextInput>(null);
-  if (Platform.OS === "android") return (<CreateHomeworkScreenAndroid navigation={navigation} route={route} />)
 
-  let homeworkLocalID = null;
-
-  if (route.params) {
-    homeworkLocalID = route.params.homeworkLocalID;
+  interface Color {
+    systemCourseName: string;
+    originalCourseName: string;
+    color: string;
   }
-
-
-  let hw = [];
-
-  async function setupEdit() {
-    let customHomeworks = await AsyncStorage.getItem('pap_homeworksCustom')
-    if (customHomeworks) {
-      hw = JSON.parse(customHomeworks);
-    }
-    let homework = hw.find(h => h.localID === homeworkLocalID)
-    let index = nativeSubjects.findIndex((item) => item.actionKey === normalizeCoursName(homework.subject.name));
-    setSelectedSubject(index)
-    setHomeworkTitle(homework.description)
-    setEditedHomework(homework)
-  }
-
-  useEffect(() => {
-    (async () => {
-      let customHomeworks = await AsyncStorage.getItem('pap_homeworksCustom')
-      if (customHomeworks) {
-        hw = JSON.parse(customHomeworks);
-      }
-      let homework = hw.find(h => h.localID === homeworkLocalID)
-      let index = nativeSubjects.findIndex((item) => item.actionKey === normalizeCoursName(homework.subject.name));
-      setSelectedSubject(index)
-    })()
-  }, [nativeSubjects])
 
   function addSubject() {
     Alert.prompt(
@@ -82,25 +50,25 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
       [
         {
           text: 'Annuler',
-          onPress: () => { },
+          onPress: () => {},
           style: 'destructive'
         },
         {
           text: 'Ajouter',
           onPress: (text) => {
-            if (text.trim() == '') {
+            if (typeof text === 'undefined' || text.trim() === '') {
               Alert.alert('Erreur', 'Veuillez entrer un nom de matière valide.');
               return;
             }
 
             AsyncStorage.getItem('savedColors').then((savedColors) => {
-              let colors = {};
+              let colors: { [key: string]: Color } = {};
               if (savedColors) {
                 colors = JSON.parse(savedColors);
               }
 
               let newColor = {
-                systemCourseName: text.toLowerCase().replace(' ', '').normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
+                systemCourseName: text.toLowerCase().replace(' ','').normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
                 originalCourseName: text.toUpperCase(),
                 color: UIColors.primary,
               };
@@ -109,7 +77,7 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
 
               AsyncStorage.setItem('savedColors', JSON.stringify(colors)).then(() => {
                 // add before the last item
-                setNativeSubjects((prev) => [
+                setNativeSubjects ((prev) => [
                   ...prev.slice(0, prev.length - 1),
                   {
                     actionKey: newColor.systemCourseName,
@@ -129,7 +97,7 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
               });
             });
           },
-          style: 'primary'
+          style: 'default'
         }
       ],
       'plain-text',
@@ -149,13 +117,7 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
       if (customHomeworks) {
         hw = JSON.parse(customHomeworks);
       }
-      if (homeworkLocalID) {
-        for (let i = 0; i < hw.length; i++) {
-          if (hw[i].id === editedHomework.id) {
-            hw.splice(i, 1);
-          }
-        }
-      }
+
       // console.log(hw);
 
       let hwDate = new Date(date);
@@ -163,7 +125,7 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
 
       let newHw = {
         id: Math.random().toString(36).substring(7),
-        localID: lid,
+        localId: lid,
         pronoteCachedSessionID: Math.random().toString(7),
         cacheDateTimestamp: hwDate.getTime(),
         themes: [],
@@ -188,12 +150,12 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
         console.log('Homework added');
         console.log(hw);
 
-        RegisterTrophy('trophy_add_hw');
+        RegisterTrophy('trophy_add_hw', newHw);
 
         navigation.goBack();
       });
     });
-
+    
   }
 
   useEffect(() => {
@@ -205,11 +167,11 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
 
         for (let i = 0; i < savedColorsKeys.length; i++) {
           let item = savedColors[savedColorsKeys[i]];
-          if (savedColorsKeys[i].trim() == '') continue;
-          if (savedColorsKeys[i].trim() == '0') continue;
-          if (savedColorsKeys[i].trim() == 'ajouterunematiere') continue;
+          if(savedColorsKeys[i].trim() == '') continue;
+          if(savedColorsKeys[i].trim() == '0') continue;
+          if(savedColorsKeys[i].trim() == 'ajouterunematiere') continue;
 
-          setNativeSubjects((prev) => [
+          setNativeSubjects ((prev) => [
             ...prev,
             {
               actionKey: item.systemCourseName,
@@ -230,7 +192,7 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
           ]);
         }
 
-        setNativeSubjects((prev) => [
+        setNativeSubjects ((prev) => [
           ...prev,
           {
             type: 'menu',
@@ -255,9 +217,6 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
         }, 200);
       }
     });
-    if (homeworkLocalID) {
-      setupEdit()
-    }
   }, []);
 
   // change the header title
@@ -302,7 +261,7 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
     >
       <View onLayout={(event) => { layouted() }} style={{ backgroundColor: UIColors.element, borderBottomColor: UIColors.borderLight, borderBottomWidth: 0.5, gap: 9, paddingBottom: 16, zIndex: 99 }}>
-        <View style={[styles.newHwInput, { borderColor: UIColors.text + '18' }]}>
+        <View style={[styles.newHwInput, {borderColor: UIColors.text + '18'}]}>
           <SFSymbol style={[styles.newHwIcon]} size={20} color={UIColors.text + '80'} name="square.and.pencil" />
           <TextInput
             placeholder="Titre du devoir"
@@ -323,15 +282,15 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
           />
         </View>
 
-        {loading ? (
-          <View style={[styles.newHwSubjectInput, { borderColor: UIColors.text + '18', paddingVertical: 11.5 }]}>
+        { loading ? (
+          <View style={[styles.newHwSubjectInput, {borderColor: UIColors.text + '18', paddingVertical: 11.5}]}>
             <ActivityIndicator size="small" />
             <NativeText heading="p2">
               Chargement des matières...
             </NativeText>
           </View>
         ) : (
-          <View style={[styles.newHwSubjectInput, { borderColor: UIColors.text + '18' }]}>
+          <View style={[styles.newHwSubjectInput, {borderColor: UIColors.text + '18'}]}>
             <View
               style={{
                 width: 15,
@@ -347,7 +306,7 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
                 menuItems: nativeSubjects,
               }}
               isMenuPrimaryAction={true}
-              onPressMenuItem={({ nativeEvent }) => {
+              onPressMenuItem={({nativeEvent}) => {
                 if (nativeEvent.actionKey === 'new') {
                   addSubject();
                   return;
@@ -373,14 +332,14 @@ const CreateHomeworkScreen: React.FC<{ route: any; navigation: any }> = ({ route
         )}
       </View>
       <View
-        style={{ flex: 1, alignContent: 'center', justifyContent: 'center' }}
+        style={{ flex: 1, alignContent: 'center', justifyContent: 'center'}}
       >
         <StatusBar animated backgroundColor="#fff" barStyle="light-content" />
 
         <PapillonLoading
           title="Ajouter un devoir"
           subtitle={'Indiquez un titre et une matière pour votre devoir personnalisé le ' + new Date(date).toLocaleDateString('fr-FR', { weekday: 'short', month: 'long', day: 'numeric' }) + '.'}
-          icon={<SFSymbol color={UIColors.text} name="book" size={26} style={{ marginBottom: 15 }} />}
+          icon={<SFSymbol color={UIColors.text} name="book" size={26} style={{marginBottom:15}} />}
         />
 
         <AlertBottomSheet
@@ -483,7 +442,7 @@ const styles = StyleSheet.create({
 
     borderWidth: 1,
   },
-  newHwIcon: {
+  newHwIcon : {
     marginTop: 8,
   },
   newHwTextInput: {
@@ -495,7 +454,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
 
     marginBottom: 'auto',
-
+    
     marginTop: -5,
     paddingBottom: 4,
   },

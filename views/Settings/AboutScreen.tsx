@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-
 import {
   View,
   ScrollView,
@@ -9,44 +8,64 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-
 import { useTheme } from 'react-native-paper';
 import { useAppContext } from '../../utils/AppContext';
-
 import { openBrowserAsync, WebBrowserPresentationStyle } from 'expo-web-browser';
 import * as Linking from 'expo-linking';
-
 import {
   Euro,
   History,
   MessageCircle,
 } from 'lucide-react-native';
-
 import packageJson from '../../package.json';
 import { formatPapillonContributors } from '../../utils/contributors/FormatContribs';
-
 import GetUIColors from '../../utils/GetUIColors';
-
 import PapillonIcon from '../../components/PapillonIcon';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { showMessage } from 'react-native-flash-message';
+import type { StackNavigationProp } from '@react-navigation/stack';
+import type { RouteProp } from '@react-navigation/native';
 
-function AboutScreen({ navigation }) {
+type RootStackParamList = {
+  Donors: undefined;
+  Changelogs: undefined;
+  ConsentScreenWithoutAcceptation: undefined;
+};
+
+type AboutScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+
+interface TeamMember {
+  name: string;
+  role: string;
+  avatar: string;
+  link: string;
+}
+
+interface Team {
+  name: string;
+  member: TeamMember[];
+}
+
+interface TeamData {
+  lastupdated: string;
+  team: Team[];
+}
+
+function AboutScreen({ navigation }: { navigation: AboutScreenNavigationProp }) {
   const [loading, setLoading] = useState(false);
-  const [team, setTeam] = useState(null);
+  const [team, setTeam] = useState<TeamData | null>(null);
   const [numClickVersion, setNumClickVersion] = useState(0);
 
   useEffect(() => {
     async function fetchContributors() {
-      const team = await formatPapillonContributors();
-      setTeam(team);
+      const teamData = await formatPapillonContributors();
+      setTeam(teamData ?? null);
     }
     fetchContributors();
   }, []);
-
 
   const UIColors = GetUIColors();
   const theme = useTheme();
@@ -67,15 +86,13 @@ function AboutScreen({ navigation }) {
     },
     {
       title: 'Version de Pawnote',
-      subtitle: `${packageJson.dependencies['pawnote'].split('^')[1]
-        }`,
+      subtitle: `${packageJson.dependencies['pawnote'].split('^')[1]}`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
     },
     {
       title: 'Dépendances',
-      subtitle: `RN: ${packageJson.dependencies['react-native'].split('^')[1]
-        }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`,
+      subtitle: `RN: ${packageJson.dependencies['react-native'].split('^')[1]}, Expo : ${packageJson.dependencies.expo.split('^')[1]}`,
       color: '#888888',
       icon: <History size={24} color="#888888" />,
     }
@@ -185,7 +202,6 @@ function AboutScreen({ navigation }) {
             inset
             header={team.name}
           >
-
             {team.member.map((item, index) => (
               <NativeItem
                 key={index}
@@ -209,7 +225,6 @@ function AboutScreen({ navigation }) {
           </NativeList>
         ))}
 
-
         <NativeList
           inset
           header="Informations sur l'app"
@@ -226,7 +241,7 @@ function AboutScreen({ navigation }) {
               Version de Papillon
             </NativeText>
           </NativeItem>
-          {appContext.dataProvider.service === 'pronote' && (
+          {appContext?.dataProvider?.service === 'pronote' && (
             <NativeItem
               trailing={
                 <NativeText heading="p2">
@@ -242,8 +257,7 @@ function AboutScreen({ navigation }) {
           <NativeItem
             trailing={
               <NativeText heading="p2">
-                {`RN: ${packageJson.dependencies['react-native'].split('^')[1]
-                  }, Expo : ${packageJson.dependencies.expo.split('^')[1]}`}
+                {`RN: ${packageJson.dependencies['react-native'].split('^')[1]}, Expo : ${packageJson.dependencies.expo.split('^')[1]}`}
               </NativeText>
             }
             onPress={async () => {

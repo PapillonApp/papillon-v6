@@ -14,11 +14,15 @@ import PapillonIcon from '../../components/PapillonIcon';
 
 import GetUIColors from '../../utils/GetUIColors';
 
-function AppearanceScreen({ navigation }) {
+interface AppearenceScreenProps {
+  navigation: any;
+}
+
+function AppearanceScreen({ navigation }: AppearenceScreenProps) {
   const theme = useTheme();
   const UIColors = GetUIColors();
 
-  return (
+  return (  
     <ScrollView style={{ backgroundColor: UIColors.modalBackground }}>
       {Platform.OS === 'ios' ? (
         <StatusBar animated barStyle="light-content" />

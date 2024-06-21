@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Pressable, Platform, StatusBar, PermissionsAndroid } from 'react-native';
+import { View, Button, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Alert, Modal, Platform, StatusBar } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { useTheme, Text, Menu, Divider } from 'react-native-paper';
@@ -20,9 +20,8 @@ import ColorPicker, {
 } from 'reanimated-color-picker';
 import formatCoursName from '../../utils/cours/FormatCoursName';
 import { forceSavedCourseColor } from '../../utils/cours/ColorCoursName';
-import { CircleEllipsis, CircleEllipsisIcon, Lock, MoreVertical } from 'lucide-react-native';
-import { getContextValues } from '../../utils/AppContext';
 import { RegisterTrophy } from './TrophiesScreen';
+import { CircleEllipsis, Lock, MoreVertical } from 'lucide-react-native';
 
 interface SavedColors {
   [key: string]: {
@@ -34,6 +33,12 @@ interface SavedColors {
     locked: boolean;
   };
 }
+
+type LockToggleProps = {
+  value: boolean; 
+  onValueChange: (newValue: boolean) => void; 
+  color: string;
+};
 
 const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
   const theme = useTheme();
@@ -117,20 +122,21 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
       }
     })
     SyncStorage.set('savedColors', JSON.stringify(colors));
-    setSavedColors(colors); //Chelou mais sinon rien ne s'actualise
-    Haptics.selectionAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSavedColors(colors);
+    Haptics.selectionAsync();
   };
+
   const DeleteColors = async () => {
-    setSavedColors({})
+    setSavedColors({});
     SyncStorage.set('savedColors', "{}");
-  }
+  };
+
   const ApplyRandomColors = () => {
     let col: SavedColors = {};
     let usedColors: string[] = [];
-
     let lockedColors: string[] = [];
 
-    const randomColor = () => {
+    const randomColor = (): string => {
       let color = colors[Math.floor(Math.random() * colors.length)];
 
       if (usedColors.includes(color)) {
@@ -160,13 +166,13 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
       }
     });
 
-    // add locked  to all entries
+    // add locked to all entries
     Object.keys(newCol).forEach((key) => {
       newCol[key].locked = lockedColors.includes(key);
     });
 
     setSavedColors(newCol);
-    Haptics.selectionAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.selectionAsync();
   };
 
   useEffect(() => {
@@ -210,7 +216,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
       type: 'application/json',
     });
 
-    if (file.assets.length > 0) {
+    if (file && file.assets && file.assets.length > 0) {
       const data = await FileSystem.readAsStringAsync(file.assets[0].uri);
       const json = JSON.parse(data);
 
@@ -364,7 +370,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
               }}
             >
               <TouchableOpacity>
-                <CircleEllipsisIcon color={UIColors.primary}></CircleEllipsisIcon>
+                <CircleEllipsis color={UIColors.primary} />
               </TouchableOpacity>
             </ContextMenuButton>
           );
@@ -378,7 +384,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
             }}
             anchor={
               <TouchableOpacity onPress={() => { setMenuOpen(true); }}>
-                <CircleEllipsisIcon color={UIColors.primary} />
+                <CircleEllipsis color={UIColors.primary} />
               </TouchableOpacity>
             }
           >
@@ -482,7 +488,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: UIColors.modalBackground }]}
+      style={[{ backgroundColor: UIColors.modalBackground }]}
     >
       {Platform.OS === 'ios' &&
         <StatusBar barStyle={'light-content'} />
@@ -522,7 +528,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
                     <LockToggle
                       color={savedColors[key].color}
                       value={savedColors[key].locked}
-                      onValueChange={(value) => {
+                      onValueChange={(value : boolean) => {
                         setSavedColors({
                           ...savedColors,
                           [key]: {
@@ -637,7 +643,7 @@ const CoursColor: React.FC<{ navigation: any }> = ({ navigation }) => {
   );
 };
 
-const LockToggle = ({ value, onValueChange, color }) => {
+const LockToggle: React.FC<LockToggleProps> = ({ value, onValueChange }) => {
   const [locked, setLocked] = useState(value);
   const UIColors = GetUIColors();
 

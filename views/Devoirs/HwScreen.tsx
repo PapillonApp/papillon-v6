@@ -381,7 +381,7 @@ function HomeworkScreen({ route, navigation }: {
         title="Supprimer le devoir"
         subtitle="Êtes-vous sûr de vouloir supprimer ce devoir ?"
         primaryButton='Supprimer'
-        // @ts-expect-error : AlertBottomSheet issue
+        // @ ts-expect-error : AlertBottomSheet issue
         primaryAction={() => {
           deleteCustomHomework();
           setDeleteCustomHomeworkAlert(false);

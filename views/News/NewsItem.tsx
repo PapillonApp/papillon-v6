@@ -250,7 +250,7 @@ function NewsItem({ route, navigation }: {
       {news.is === 'survey' ? (
         <NativeList 
           inset
-          style={[Platform.OS === 'android' ? { marginTop: insets.top } : null]}
+          style={Platform.OS === 'android' ? { marginTop: insets.top } : undefined}
         >
           <NativeItem
             leading={

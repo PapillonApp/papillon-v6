@@ -57,29 +57,31 @@ function ProfileScreen() {
   const appContext = useAppContext();
 
   const [userData, setUserData] = React.useState<PapillonUser | null>(null);
-  const [profilePicture, setProfilePicture] = React.useState('');
+  const [profilePicture, setProfilePicture] = React.useState<string>('');
   const [resetProfilePictureAlert, setResetProfilePictureAlert] = React.useState(false);
 
   React.useEffect(() => {
     (async () => {
-      const user = await appContext.dataProvider.getUser();
-
-      setUserData(user);
-      setProfilePicture(user.profile_picture);
+      const user = await appContext.dataProvider?.getUser();
+  
+      if (user) {
+        setProfilePicture(user.profile_picture || '');
+      }
     })();
-  }, []);
+  }, [appContext.dataProvider]);
+  
 
-  const [shownINE, setShownINE] = React.useState('');
-  async function toggleINEReveal () {
+  const [shownINE, setShownINE] = React.useState<string>('');
+  async function toggleINEReveal() {
     if (!shownINE) {
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Veuillez vous authentifier pour afficher votre INE',
         cancelLabel: 'Annuler',
         disableDeviceFallback: true,
       });
-
+  
       if (result.success) {
-        setShownINE(userData.ine);
+        setShownINE(userData?.ine || '');
       }
     } else {
       setShownINE('');
@@ -103,7 +105,7 @@ function ProfileScreen() {
         AsyncStorage.setItem('custom_profile_picture', 'data:image/png;base64,' + base64);
         setProfilePicture('data:image/png;base64,' + base64);
 
-        RegisterTrophy('trophy_profile_picture');
+        RegisterTrophy('trophy_profile_picture', updateCustomProfilePicture);
       });
     }
   }
@@ -111,7 +113,12 @@ function ProfileScreen() {
   async function clearCustomProfilePicture() {
     await AsyncStorage.removeItem('custom_profile_picture');
     const profilePicture = await AsyncStorage.getItem('old_profile_picture');
-    setProfilePicture(profilePicture);
+  
+    if (profilePicture !== null) {
+      setProfilePicture(profilePicture);
+    } else {
+      Alert.alert('Aucune ancienne photo de profil trouvée.');
+    }
   }
 
   function promptClearCustomUserName() {
@@ -169,18 +176,19 @@ function ProfileScreen() {
     }
   }
 
-  async function updateCustomUserName (name: string): Promise<void> {
+  async function updateCustomUserName(name: string): Promise<void> {
     // If there was no existant custom name before,
     // it means it's the first time we do it.
     const existantCustomName = await AsyncStorage.getItem('custom_name');
-    // We should then store current user name to it, so we
-    // can revert the action and go back to real user name.
-    if (!existantCustomName) {
+  
+    if (!existantCustomName && userData) {
+      // userData is not null, store the current user name to 'old_name'
       await AsyncStorage.setItem('old_name', userData.name);
     }
-
+  
     await AsyncStorage.setItem('custom_name', name);
-    setUserData({ ...userData, name });
+    // Update userData state with the new name
+    setUserData((prevUserData) => prevUserData ? { ...prevUserData, name } : null);
   }
 
   const [bottom, setBottom] = React.useState(0);

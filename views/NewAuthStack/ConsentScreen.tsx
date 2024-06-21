@@ -152,9 +152,8 @@ const ConsentScreen = ({ navigation }: { navigation: any }) => {
             marginLeft: -10,
           },
           li: {
-            marginBottom: 5,
-            marginLeft: 10,
             marginBottom: 10,
+            marginLeft: 10,
           },
         }}
       />

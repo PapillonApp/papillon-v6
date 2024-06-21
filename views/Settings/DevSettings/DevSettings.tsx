@@ -6,10 +6,10 @@ import GetUIColors from '../../../utils/GetUIColors';
 import NativeList from '../../../components/NativeList';
 import NativeItem from '../../../components/NativeItem';
 import NativeText from '../../../components/NativeText';
-import ListItem from '../../../components/ListItem';
 import PapillonIcon from '../../../components/PapillonIcon';
 
 import { Network, ScrollText, Database } from 'lucide-react-native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 function DevSettings({ navigation }) {
   const theme = useTheme();
