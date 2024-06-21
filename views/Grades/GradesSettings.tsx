@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { StatusBar, StyleSheet, ScrollView, Platform, TextInput } from 'react-native';
+import { StatusBar, StyleSheet, ScrollView, Platform, TextInput, ViewStyle } from 'react-native';
 
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 
 import GetUIColors from '../../utils/GetUIColors';
-import type { GradeSettings } from '../GradesScreenNew';
+import type { GradeSettings } from '../GradesScreen';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -46,7 +46,7 @@ const GradesSettings = ({ navigation }: {
 
       <NativeList 
         inset
-        style={[Platform.OS === 'android' ? { marginTop: insets.top } : null]}
+        style={Platform.OS === 'android' ? { marginTop: insets.top } : undefined}
       >
         <NativeItem
           trailing={
