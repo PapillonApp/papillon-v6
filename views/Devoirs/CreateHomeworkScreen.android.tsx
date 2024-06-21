@@ -6,12 +6,13 @@ import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import { Alert, BackHandler, Modal, Platform, StatusBar, StyleSheet, TouchableOpacity, View } from "react-native";
-import { CalendarDays, Check, Circle, X } from "lucide-react-native";
+import { CalendarDays, Check, Circle, Pencil, Plus, X } from "lucide-react-native";
 import SyncStorage from "sync-storage";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { getSavedCourseColor, normalizeCoursName } from "../../utils/cours/ColorCoursName";
+import getClosestGradeEmoji from '../../utils/cours/EmojiCoursName';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { showMessage } from "react-native-flash-message";
 import { RegisterTrophy } from "../Settings/TrophiesScreen";
@@ -155,17 +156,27 @@ function CreateHomeworkScreenAndroid({ route, navigation }: {
         let subjects = JSON.parse(SyncStorage.get('savedColors'))
         let subjectsObject = Object.keys(subjects)
         const options = subjectsObject.map(key => subjects[key].originalCourseName)
+        const emojis = subjectsObject.map(key => <NativeText>{getClosestGradeEmoji(subjects[key].originalCourseName)}</NativeText>)
         options.push("Créer...")
         options.push("Annuler")
-        const containerStyle = Platform.OS === 'android' ? { paddingBottom: insets.bottom, backgroundColor: UIColors.background } : null;
+        emojis.push(<Plus size={24} color={"#42f55d"}/>)
+        emojis.push(<X size={24} color={"#eb4034"}/>)
+        const containerStyle = Platform.OS === 'android' ? { paddingBottom: insets.bottom, marginTop: insets.top * 4, backgroundColor: UIColors.background, borderTopLeftRadius: 25, borderTopRightRadius: 25 } : null;
         const createButtonIndex = options.length - 2;
         const cancelButtonIndex = options.length - 1;
         showActionSheetWithOptions(
             {
-              options,
-              tintColor: UIColors.primary,
-              containerStyle,
-              cancelButtonIndex: cancelButtonIndex
+                options,
+                tintColor: UIColors.primary,
+                containerStyle,
+                cancelButtonIndex: cancelButtonIndex,
+                icons: emojis,
+                title: "Sélectionner une matière",
+                cancelButtonTintColor: "#eb4034",
+                showSeparators: true,
+                separatorStyle: modalStyles.separator,
+                titleTextStyle: {color: UIColors.text, ...modalStyles.title},
+                textStyle: modalStyles.text
             },
             (buttonIndex) => {
               if (typeof buttonIndex !== 'undefined' && buttonIndex !== cancelButtonIndex) {
@@ -399,6 +410,22 @@ function CreateHomeworkScreenAndroid({ route, navigation }: {
         </View>
     )
 }
+
+const modalStyles = StyleSheet.create({
+    title: {
+        fontSize: 18,
+        textAlign: 'center',
+        width: '100%',
+        fontFamily: 'Papillon-Semibold'
+    },
+    text: {
+        paddingRight: 20,
+    },
+    separator: {
+        backgroundColor: '#fff2',
+        height: 0.5
+    }
+})
 
 const styles = StyleSheet.create({
     input: {
