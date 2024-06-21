@@ -65,7 +65,6 @@ function ChangelogScreen() {
         style={styles.headerImage}
       />
       <ScrollView
-        style={[styles.container]}
         contentInsetAdjustmentBehavior="automatic"
       >
         {Platform.OS === 'ios' ? (
