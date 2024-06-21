@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ScrollView,
 } from 'react-native';
 
 import type { PapillonUser } from '../../fetch/types/user';
@@ -32,7 +33,6 @@ import { File, Send as SendLucide } from 'lucide-react-native';
 
 import { useAtom } from 'jotai';
 import { discussionsAtom } from '../../atoms/discussions';
-import { ScrollView } from 'react-native';
 
 function getInitials(name: string): string {
   if (name === undefined) {
@@ -364,7 +364,7 @@ const PapillonMessage = ({ message, sent }: {
                       {file.name}
                     </Text>
                   </TouchableOpacity>
-                ))}
+                ))} 
               </ScrollView>
             ) : null}
           </View>
@@ -374,7 +374,7 @@ const PapillonMessage = ({ message, sent }: {
   );
 };
 
-const PapillonSend = ({ sendFunction, inputRef }: {
+const PapillonSend = ({ sendFunction }: {
   sendFunction: (text: string) => Promise<void>;
 }) => {
   const UIColors = GetUIColors();
@@ -415,7 +415,6 @@ const PapillonSend = ({ sendFunction, inputRef }: {
         multiline
         value={textValue}
         onChangeText={(text) => setTextValue(text)}
-        ref={inputRef}
       />
       <TouchableOpacity
         onPress={async () => {
