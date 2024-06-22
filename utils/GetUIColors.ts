@@ -2,12 +2,28 @@ import { useMemo } from 'react';
 import { Platform, useColorScheme } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
-function useUIColors(schemeForce, platformForce) {
+interface UIColors {
+  theme: string;
+  dark: boolean;
+  background: string;
+  backgroundHigh: string;
+  backgroundItems: string;
+  modalBackground: string;
+  element: string;
+  elementHigh: string;
+  text: string;
+  primary: string;
+  primaryBackground: string;
+  border: string;
+  borderLight: string;
+}
+
+function useUIColors(schemeForce: string | undefined, platformForce: string | undefined): UIColors {
   const theme = useTheme();
   const scheme = useColorScheme();
 
-  let isDark = scheme === 'dark';
-  let platform = Platform.OS;
+  let isDark: boolean = scheme === 'dark';
+  let platform: string = Platform.OS;
 
   if (schemeForce) {
     isDark = schemeForce === 'dark';
@@ -18,9 +34,9 @@ function useUIColors(schemeForce, platformForce) {
   }
 
   return useMemo(() => {
-    let background;
-    let backgroundHigh;
-    let backgroundItems;
+    let background: string;
+    let backgroundHigh: string;
+    let backgroundItems: string;
 
     if (platform === 'ios') {
       background = isDark ? '#0B0B0C' : '#ffffff';
@@ -32,13 +48,13 @@ function useUIColors(schemeForce, platformForce) {
       backgroundItems = theme.colors.elevation.level1;
     }
 
-    let modalBackground = background;
+    let modalBackground: string = background;
     if (platform === 'ios') {
       modalBackground = isDark ? '#0B0B0C' : '#f2f2f7';
     }
 
-    let element;
-    let elementHigh;
+    let element: string;
+    let elementHigh: string;
 
     if (platform === 'ios') {
       element = isDark ? '#161618' : '#ffffff';
@@ -48,12 +64,10 @@ function useUIColors(schemeForce, platformForce) {
       elementHigh = theme.colors.elevation.level2;
     }
 
-    const text = isDark ? '#ffffff' : '#000000';
+    const text: string = isDark ? '#ffffff' : '#000000';
 
-    const textLight = isDark ? '#ffffff' : '#000000';
-
-    let primaryBackground;
-    let primary = '#32AB8E';
+    let primaryBackground: string;
+    let primary: string = '#32AB8E';
 
     if (platform === 'android') {
       primary = theme.colors.primary;
@@ -65,8 +79,8 @@ function useUIColors(schemeForce, platformForce) {
       primaryBackground = theme.colors.primaryContainer;
     }
 
-    let borderColor;
-    let borderColorLight;
+    let borderColor: string;
+    let borderColorLight: string;
 
     if (isDark) {
       borderColor = '#444444';
@@ -86,12 +100,10 @@ function useUIColors(schemeForce, platformForce) {
       element,
       elementHigh,
       text,
-      textLight,
       primary,
       primaryBackground,
       border: borderColor,
       borderLight: borderColorLight,
-      statusBar: isDark ? 'light-content' : 'dark-content'
     };
   }, [isDark, platform, theme]);
 }

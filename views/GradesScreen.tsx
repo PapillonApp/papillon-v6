@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import { Animated, ActivityIndicator, StatusBar, View, Dimensions, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Easing, Platform, Pressable } from 'react-native';
+import { Animated, ActivityIndicator, StatusBar, View, Dimensions, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Easing, Platform, Pressable, BackHandler } from 'react-native';
 
 // Custom imports
 import GetUIColors from '../utils/GetUIColors';
@@ -23,7 +23,7 @@ import formatCoursName from '../utils/cours/FormatCoursName';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
 // Icons
-import { Users2, File, TrendingDown, TrendingUp, AlertTriangle, MoreVertical, EyeOff, DivideSquare, User } from 'lucide-react-native';
+import { Users2, File, TrendingDown, TrendingUp, MoreVertical, EyeOff, DivideSquare, User, LineChartIcon, X } from 'lucide-react-native';
 import { Stats } from '../interface/icons/PapillonIcons';
 
 // Plugins
@@ -57,6 +57,7 @@ import { PapillonGrades, PapillonGradesViewAverages } from '../fetch/types/grade
 
 import { calculateSubjectAverage, calculateSubjectMedian } from '../utils/grades/averages';
 import PapillonLoading from '../components/PapillonLoading';
+import { useFocusEffect } from '@react-navigation/native';
 
 const GradesScreen = ({ navigation }: {
   navigation: any // TODO
@@ -73,6 +74,20 @@ const GradesScreen = ({ navigation }: {
     subjectAverageModal.current?.present();
   }, []);
   const [currentSubject, setCurrentSubject] = useState(null);
+
+  const [isSubjectModalShowing, setIsSubjectModalShowing] = useState<boolean>(false);
+  useFocusEffect(useCallback(() => {
+    const onBackPress = () => {
+      if (isSubjectModalShowing) {
+        subjectAverageModal.current?.dismiss()
+        return true;
+      } else {
+        return false;
+      }
+    }
+    BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress)
+  }, [subjectAverageModal, isSubjectModalShowing]))
 
   // Data
   const [hideNotesTab, setHideNotesTab] = React.useState(false);
@@ -334,16 +349,27 @@ const GradesScreen = ({ navigation }: {
 
   function androidPeriodChangePicker() {
     const options = periods.map((item) => item.name);
+    const icons = periods.map((_i) => <LineChartIcon size={24} color={UIColors.primary}/>);
     options.push('Annuler');
+    icons.push(<X size={24} color={"#eb4034"}/>)
     const cancelButtonIndex = options.length - 1;
-    const containerStyle = Platform.OS === 'android' ? { paddingBottom: insets.bottom, backgroundColor: UIColors.background } : null;
+    const containerStyle = Platform.OS === 'android' ? {
+      paddingBottom: insets.bottom, backgroundColor: UIColors.background,
+      borderTopLeftRadius: 25, borderTopRightRadius: 25 }
+      : undefined;
 
     showActionSheetWithOptions(
       {
         options,
         cancelButtonIndex: cancelButtonIndex,
         tintColor: UIColors.primary,
-        containerStyle,
+        containerStyle: containerStyle,
+        cancelButtonTintColor: "#eb4034",
+        title: "Choix de la période",
+        showSeparators: true,
+        separatorStyle: modalStyles.separator,
+        titleTextStyle: {color: UIColors.text, ...modalStyles.title},
+        icons: icons
       },
       (buttonIndex) => {
         if (typeof buttonIndex !== 'undefined' && buttonIndex !== cancelButtonIndex) {
@@ -486,7 +512,8 @@ const GradesScreen = ({ navigation }: {
       <BottomSheetModal
         ref={subjectAverageModal}
         index={1}
-        snapPoints={['10%', '60%', '90%']}
+        snapPoints={['30%', '60%', '90%']}
+        onChange={idx => setIsSubjectModalShowing(idx > -1)}
 
         style={{
           shadowColor: '#000000',
@@ -1272,6 +1299,19 @@ const styles = StyleSheet.create({
     }
   },
 });
+
+const modalStyles = StyleSheet.create({
+  title: {
+    fontSize: 18,
+    textAlign: 'center',
+    width: '100%',
+    fontFamily: 'Papillon-Semibold'
+  },
+  separator: {
+    backgroundColor: '#fff2',
+    height: 0.5
+  }
+})
 
 const subjectStyles = StyleSheet.create({
   container: {
