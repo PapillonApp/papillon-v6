@@ -60,10 +60,7 @@ function NewsScreen({ navigation }: { navigation: any; }) {
   const insets = useSafeAreaInsets();
 
   const [news, setNews] = useState<PapillonNews[]>([]);
-  const [finalNews, setFinalNews] = useState<PapillonNews[]>([]);
-
   const [unreadOnly, setUnreadOnly] = useState(true);
-  const [isHeadLoading, setIsHeadLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const appContext = useAppContext();
   const swipeableRefs = useRef<any[]>([]);
@@ -94,7 +91,6 @@ function NewsScreen({ navigation }: { navigation: any; }) {
       );
 
       setNews(newsWithReadStatus);
-      setFinalNews(newsWithReadStatus);
       setIsLoading(false);
     })();
   }, [appContext.dataProvider]);
@@ -102,7 +98,7 @@ function NewsScreen({ navigation }: { navigation: any; }) {
   const onRefresh = useCallback(() => {
     (async () => {
       if (!appContext.dataProvider) return;
-      setIsHeadLoading(true);
+      setIsLoading(true);
 
       const news = await appContext.dataProvider.getNews(true);
       const editedNews = editNews(news);
@@ -115,8 +111,7 @@ function NewsScreen({ navigation }: { navigation: any; }) {
       );
 
       setNews(newsWithReadStatus);
-      setFinalNews(newsWithReadStatus);
-      setIsHeadLoading(false);
+      setIsLoading(false);
     })();
   }, [appContext.dataProvider]);
 
@@ -128,7 +123,6 @@ function NewsScreen({ navigation }: { navigation: any; }) {
         item.title === newsItem.title && item.date === newsItem.date ? { ...item, read: isRead } : item
       );
       setNews(updatedNews);
-      setFinalNews(updatedNews.filter((item) => !unreadOnly || !item.read));
 
       await AsyncStorage.setItem(
         `news_${newsItem.date}_${newsItem.title}`,
@@ -155,22 +149,28 @@ function NewsScreen({ navigation }: { navigation: any; }) {
             borderRadius: 10,
             paddingHorizontal: 10,
             paddingVertical: 6,
+            borderCurve: 'continuous',
             flexDirection: 'row',
             alignItems: 'center',
-            gap: 6,
+            gap: 7,
           }}
         >
-          <Bell size={18} color={UIColors.text} />
+          {unreadOnly ? (
+            <Bell size={20} color="#B42828" />
+          ) : (
+            <MailOpen size={20} color="#B42828" />
+          )}
           <NativeText
             style={{
+              color: '#B42828',
               fontSize: 16,
-              color: UIColors.text,
+              fontFamily: 'Papillon-Medium',
             }}
-          >
-            {unreadOnly ? 'Non lues' : 'Toutes'}
-          </NativeText>
-        </TouchableOpacity>
-      ),
+            >
+              {unreadOnly ? 'Non lues' : 'Toutes'}
+            </NativeText>
+          </TouchableOpacity>
+        ),
       headerShadowVisible: false,
       headerTransparent: Platform.OS === 'ios' ? true : false,
       headerStyle: Platform.OS === 'android' ? {
@@ -214,7 +214,7 @@ function NewsScreen({ navigation }: { navigation: any; }) {
         contentInsetAdjustmentBehavior="automatic"
         refreshControl={
           <RefreshControl
-            refreshing={isHeadLoading}
+            refreshing={isLoading}
             onRefresh={onRefresh}
             colors={[Platform.OS === 'android' ? UIColors.primary : '']}
             progressViewOffset={insets.top + 50}
@@ -271,6 +271,12 @@ function NewsScreen({ navigation }: { navigation: any; }) {
         >
           {!isLoading && news.length !== 0 && (
             news.map((item, index) => {
+              const shouldDisplay = !unreadOnly || !item.read || (unreadOnly && news.filter((n) => !n.read).length === 0);
+
+              if (!shouldDisplay) {
+                return null;
+              }
+
               if (!swipeableRefs.current[index]) {
                 swipeableRefs.current[index] = React.createRef();
               }
@@ -285,7 +291,8 @@ function NewsScreen({ navigation }: { navigation: any; }) {
                       style={{
                         backgroundColor: item.read ? 'white' : 'green',
                         borderRadius: 10,
-                        height: item.height <= 101.5 ? '92%' : '94%', // C'est moche mais j'ai pas réussi à faire autrement
+                        height: item.height <= 101.5 ? '92%' : '94%', // Ajuster cette logique si nécessaire
+                        width: '25%',
                         alignItems: 'center',
                         justifyContent: 'center',
                         transform: [{ translateX: 0 }],
@@ -310,14 +317,12 @@ function NewsScreen({ navigation }: { navigation: any; }) {
                   ref={swipeableRef}
                 >
                   <Reanimated.View
-                    style={[
-                      {
-                        overflow: 'hidden',
-                        borderRadius: 10,
-                        borderCurve: 'continuous',
-                        marginBottom: 8,
-                      },
-                    ]}
+                    style={{
+                      overflow: 'hidden',
+                      borderRadius: 10,
+                      borderCurve: 'continuous',
+                      marginBottom: 8,
+                    }}
                     layout={Layout.duration(250).easing(Easing.out(Easing.bezierFn(1, 0, 0.5, 1)))}
                     entering={ZoomIn.duration(250).easing(Easing.out(Easing.bezierFn(0.5, 0, 1, 0)))}
                     exiting={FadeOut.duration(200)}
@@ -327,7 +332,7 @@ function NewsScreen({ navigation }: { navigation: any; }) {
                         navigation.navigate('NewsDetails', { news: item });
                       }}
                     >
-                      <View style={[{ gap: 4, marginLeft: 14 }]}>
+                      <View style={{ gap: 4, marginLeft: 14 }}>
                         <View
                           style={{
                             flexDirection: 'row',
@@ -362,20 +367,13 @@ function NewsScreen({ navigation }: { navigation: any; }) {
                           <NativeText
                             heading="p2"
                             numberOfLines={1}
-                            style={{
-                              fontSize: 15,
-                            }}
+                            style={{ fontSize: 15 }}
                           >
                             {relativeDate(new Date(item.date))}
                           </NativeText>
                         </View>
 
-                        <NativeText
-                          heading="p"
-                          numberOfLines={1}
-                          style={{
-                          }}
-                        >
+                        <NativeText heading="p" numberOfLines={1}>
                           {item.author}
                         </NativeText>
 
@@ -413,7 +411,7 @@ function NewsScreen({ navigation }: { navigation: any; }) {
 
           {isLoading && (
             <PapillonLoading
-              title="Chargement des actualités"
+              title="Chargement des actualités..."
             />
           )}
 
@@ -432,11 +430,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   pj: {
-    marginTop: 5,
-    marginBottom: 2,
-    paddingVertical: 3,
-    paddingHorizontal: 5,
-    borderRadius: 5,
+    marginTop: 4,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    overflow: 'hidden',
   }
 });
 
