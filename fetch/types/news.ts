@@ -20,6 +20,7 @@ export interface PapillonNewsInformation {
   author: string
   category: string
   attachments: PapillonAttachment[]
+  height: number
 }
 
 export interface PapillonNewsSurvey {
@@ -32,6 +33,7 @@ export interface PapillonNewsSurvey {
   author: string
   category: string
   questions: PapillonNewsSurveyQuestion[]
+  height: number
 }
 
 export interface PapillonNewsSurveyQuestion {

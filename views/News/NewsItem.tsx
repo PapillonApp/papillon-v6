@@ -88,7 +88,6 @@ function NewsItem({ route, navigation }: {
       headerLeft : () => ( Platform.OS === 'ios' ? (
         <TouchableOpacity
           style={{
-            backgroundColor: '#B4282800',
             borderRadius: 100,
             width: 32,
             height: 32,
