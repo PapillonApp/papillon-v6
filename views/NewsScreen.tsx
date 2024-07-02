@@ -423,13 +423,17 @@ function NewsScreen({ navigation }: { navigation: any; }) {
     </>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 10,
   },
   newsList: {
     paddingHorizontal: 10,
+    ...(Platform.OS === 'ios' ? {
+      paddingVertical: 8,
+      marginHorizontal: 16,
+      paddingTop: 20,
+    } : {}),
   },
   pj: {
     marginTop: 4,
@@ -440,5 +444,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   }
 });
+
 
 export default NewsScreen;
