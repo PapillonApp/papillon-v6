@@ -1,24 +1,29 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Animated, Easing, View, StyleSheet, Modal, Pressable, TouchableOpacity, StatusBar, Platform } from 'react-native';
-
 import { Text } from 'react-native-paper';
 import { BlurView } from 'expo-blur';
-
 import GetUIColors from '../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PressableScale } from 'react-native-pressable-scale';
-
 import { X } from 'lucide-react-native';
 
-const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, icon, color = '#32AB8E', cancelAction = () => {}, primaryAction = undefined, cancelButton = 'Compris !', primaryButton = 'Valider'}) => {
+const AlertBottomSheet = ({
+  visible = true,
+  emphasize = false,
+  title,
+  subtitle,
+  icon,
+  color = '#32AB8E',
+  cancelAction = () => {},
+  primaryAction = () => {},
+  cancelButton = 'Compris !',
+  primaryButton = 'Valider'
+}) => {
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ['25%', '50%'], []);
-
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
-
   const [isVisible, setVisible] = useState(visible);
-
   let newIcon = null;
 
   // if icon component is set, set icon color property
@@ -29,7 +34,6 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
 
   function fullCancelAction() {
     setVisible(false);
-
     setTimeout(() => {
       cancelAction();
     }, 150);
@@ -43,7 +47,6 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
 
   function fullPrimaryAction() {
     fullCancelAction();
-
     setTimeout(() => {
       primaryAction();
     }, 150);
@@ -53,8 +56,7 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
   useEffect(() => {
     if (visible) {
       setVisible(true);
-    }
-    else {
+    } else {
       setTimeout(() => {
         setVisible(false);
       }, 100);
@@ -94,8 +96,7 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
           useNativeDriver: true
         }),
       ]).start();
-    }
-    else {
+    } else {
       Animated.parallel([
         Animated.timing(opacity, {
           toValue: 0,
@@ -180,8 +181,6 @@ const AlertBottomSheet = ({ visible = true, emphasize = false, title, subtitle, 
               fullCancelAction();
             }}
           />
-
-          
           <Animated.View
             style={[
               styles.modal,
@@ -379,8 +378,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingHorizontal: 12,
   },
-
-  modal : {
+  modal: {
     width: '100%',
     borderRadius: 26,
     borderCurve: 'continuous',
@@ -390,7 +388,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 3,
   },
-  
   header: {
     width: '100%',
     height: 132,
@@ -398,7 +395,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
-
   bgIcon: {
     position: 'absolute',
     top: 0,
@@ -409,25 +405,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     opacity: 0.05,
   },
-
   content: {
     paddingHorizontal: 20,
     paddingVertical: 20,
   },
-
   title: {
     fontSize: 21,
     fontFamily: 'Papillon-Semibold',
     marginBottom: 8,
   },
-
   subtitle: {
     fontFamily: 'Papillon-Medium',
     fontSize: 16,
     lineHeight: 20,
     opacity: 0.7,
   },
-
   button: {
     paddingVertical: 12,
     borderRadius: 100,
@@ -437,7 +429,6 @@ const styles = StyleSheet.create({
     marginTop: 24,
     overflow: 'hidden',
   },
-
   flare: {
     position: 'absolute',
     top: -10,
@@ -448,13 +439,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     opacity: 0.2,
   },
-
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontFamily: 'Papillon-Semibold',
   },
-
   close: {
     position: 'absolute',
     top: 16,

@@ -1,24 +1,17 @@
 import React from 'react';
-import { View, StyleSheet, type ViewStyle } from 'react-native';
+import { View, StyleSheet, ViewStyle } from 'react-native';
 
 interface Props {
-  /** Most likely an icon component from `lucide-react-native`. */
-  icon: React.ReactElement
-  /** Should be in HEX format. */
-  color: string
-  /** Whether the icon should be filled or not. */
-  fill?: boolean
-  /** Removes the background of the icon. */
-  plain?: boolean
-  /** Show icon in a smaller size. */
-  small?: boolean
-  style?: ViewStyle
+  icon: React.ReactElement;
+  color: string;
+  fill?: boolean;
+  plain?: boolean;
+  small?: boolean;
+  style?: ViewStyle;
+  size?: number;
 }
 
-/**
- * @see https://i.imgur.com/yQ2Fde5.png
- */
-const PapillonIcon: React.FC<Props> = ({ icon, color, style, fill, small, plain }) => {
+const PapillonIcon: React.FC<Props> = ({ icon, color, style, fill, small, plain, size }) => {
   let opacity = '10';
   if (fill) opacity = 'FF';
   if (plain) opacity = '00';
@@ -29,7 +22,8 @@ const PapillonIcon: React.FC<Props> = ({ icon, color, style, fill, small, plain 
         styles.icon,
         { backgroundColor: color + opacity },
         style,
-        small ? styles.iconSmall : void 0,
+        small ? styles.iconSmall : undefined,
+        size ? { width: size, height: size, borderRadius: size / 2 } : undefined,
       ]}
     >
       {icon}
@@ -41,9 +35,8 @@ const styles = StyleSheet.create({
   icon: {
     padding: 10,
     borderRadius: 14,
-    borderCurve: 'continuous',
-    alignContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   iconSmall: {
     padding: 6,

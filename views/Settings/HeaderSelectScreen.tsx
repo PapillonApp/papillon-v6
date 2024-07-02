@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image, StatusBar } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image, StatusBar, Platform } from 'react-native';
 import { Text } from 'react-native-paper';
 import GetUIColors from '../../utils/GetUIColors';
 import NativeList from '../../components/NativeList';

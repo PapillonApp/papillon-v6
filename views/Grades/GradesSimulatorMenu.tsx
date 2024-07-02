@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, StatusBar, Platform } from 'react-native';
-
+import { View, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Platform } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
-
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
-
 import GetUIColors from '../../utils/GetUIColors';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Plus, Trash2 } from 'lucide-react-native';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
@@ -54,12 +49,10 @@ const GradesSimulatorMenu: React.FC<{ navigation: any }> = ({ navigation }) => {
     subject: { groups: false, id: '', name: '' }
   });
 
-  // when transition ends refresh
   useEffect(() => {
     const unsubscribe = navigation.addListener('transitionEnd', () => {
       getGrades();
     });
-
     return unsubscribe;
   }, [navigation]);
 
@@ -76,7 +69,6 @@ const GradesSimulatorMenu: React.FC<{ navigation: any }> = ({ navigation }) => {
     getGrades();
   }, []);
 
-  // add plus icon to header
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -87,14 +79,13 @@ const GradesSimulatorMenu: React.FC<{ navigation: any }> = ({ navigation }) => {
             borderRadius: 20,
             marginRight: -10,
           }}
-
           onPress={() => navigation.navigate('GradesSimulatorAdd')}
         >
           <Plus size={24} color={UIColors.primary} />
         </TouchableOpacity>
       ),
     });
-  }, []);
+  }, [UIColors.primary, navigation]);
 
   const delGrade = (grade: Grade) => {
     AsyncStorage.getItem('custom-grades').then((value) => {
@@ -106,16 +97,18 @@ const GradesSimulatorMenu: React.FC<{ navigation: any }> = ({ navigation }) => {
         setGrades(val);
       }
     });
-
   };
 
   return (
-    <ScrollView 
+    <ScrollView
       contentInsetAdjustmentBehavior='automatic'
       style={{ backgroundColor: UIColors.modalBackground }}
     >
-
-      { Platform.OS === 'ios' ? <StatusBar barStyle='light-content' /> : <StatusBar barStyle={theme.dark ? 'light-content' : 'dark-content'} /> }
+      {Platform.OS === 'ios' ? (
+        <StatusBar barStyle='light-content' />
+      ) : (
+        <StatusBar barStyle={theme.dark ? 'light-content' : 'dark-content'} />
+      )}
 
       {grades.length === 0 && (
         <Text style={{ textAlign: 'center', marginTop: 20, fontSize: 16, opacity: 0.5 }}>
@@ -123,20 +116,14 @@ const GradesSimulatorMenu: React.FC<{ navigation: any }> = ({ navigation }) => {
         </Text>
       )}
 
-      <NativeList 
-        inset
-      >
-        { grades.map((item, index) => (
+      <NativeList inset>
+        {grades.map((item, index) => (
           <NativeItem
             key={index}
             trailing={
               <View style={styles.gradeContainer}>
-                <NativeText style={styles.gradeVal}>
-                  {parseFloat(item.grade.value).toFixed(2)}
-                </NativeText>
-                <NativeText style={styles.gradeOut}>
-                  /{parseInt(item.grade.out_of.toString(), 10)}
-                </NativeText>
+                <NativeText style={styles.gradeVal}>{item.grade.value.toFixed(2)}</NativeText>
+                <NativeText style={styles.gradeOut}>/{item.grade.out_of}</NativeText>
               </View>
             }
             onPress={() => {
@@ -144,28 +131,32 @@ const GradesSimulatorMenu: React.FC<{ navigation: any }> = ({ navigation }) => {
               setGradeAlert(true);
             }}
           >
-            <NativeText heading="h4">
-              {item.subject.name}
-            </NativeText>
-            <NativeText heading="p2">
-              {new Date(item.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            <NativeText heading='h4'>{item.subject.name}</NativeText>
+            <NativeText heading='p2'>
+              {new Date(item.date).toLocaleDateString('fr-FR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
             </NativeText>
           </NativeItem>
-          
         ))}
       </NativeList>
 
       <AlertBottomSheet
         visible={gradeAlert}
         title={selectedGrade.subject.name}
-        subtitle="Voulez-vous supprimer cette note ?"
+        subtitle='Voulez-vous supprimer cette note ?'
         primaryButton='Supprimer'
-        primaryAction={() => {delGrade(selectedGrade); setGradeAlert(false);}}
+        primaryAction={() => {
+          delGrade(selectedGrade);
+          setGradeAlert(false);
+        }}
         cancelAction={() => setGradeAlert(false)}
         color='#D81313'
         icon={<Trash2 />}
       />
-
     </ScrollView>
   );
 };
@@ -175,7 +166,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     gap: 1,
     flexDirection: 'row',
-    
   },
   gradeVal: {
     fontSize: 24,

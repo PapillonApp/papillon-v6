@@ -1,39 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, TouchableOpacity, StyleSheet, Modal, Animated, ScrollView, Switch, Platform } from 'react-native';
-
 import { Text } from 'react-native-paper';
-
 import GetUIColors from '../../utils/GetUIColors';
-
-import ColorPicker, {
-  Panel1,
-  Swatches,
-  Preview,
-  HueSlider,
-} from 'reanimated-color-picker';
-
+import ColorPicker, { Panel1, Swatches, Preview, HueSlider } from 'reanimated-color-picker';
 import NativeList from '../../components/NativeList';
 import NativeItem from '../../components/NativeItem';
 import NativeText from '../../components/NativeText';
 import { AlertTriangle, Palette } from 'lucide-react-native';
-
 import SyncStorage from 'sync-storage';
 import { Home } from '../../interface/icons/PapillonIcons';
 import AlertAnimated from '../../interface/AlertAnimated';
 
-const AdjustmentsScreen = ({ navigation }) => {
+const AdjustmentsScreen = () => {
   const UIColors = GetUIColors();
 
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [colorModalColor, setColorModalColor] = useState('#000000');
 
-  const onSelectColor = ({ hex }) => {
+  const onSelectColor = ({ hex }: { hex: string }) => {
     setColorModalColor(hex);
   };
 
   const onSave = () => {
     let hex = colorModalColor;
-
     updateSetting('homeThemeColor', hex, false);
     setColorModalOpen(false);
   };
@@ -44,6 +33,7 @@ const AdjustmentsScreen = ({ navigation }) => {
     homeThemeColor: '#32AB8E',
     homeThemeImage: 'papillon/default',
   });
+
   const [willNeedRestart, setWillNeedRestart] = useState(false);
 
   useEffect(() => {
@@ -51,13 +41,12 @@ const AdjustmentsScreen = ({ navigation }) => {
     if (settings) {
       setCurrentSettings(settings);
       setColorModalColor(settings.homeThemeColor || '#32AB8E');
-    }
-    else {
+    } else {
       SyncStorage.set('adjustments', currentSettings);
     }
   }, []);
 
-  function updateSetting(element, value, needsRestart = false) {
+  function updateSetting(element: string, value: any, needsRestart: boolean = false) {
     const settings = SyncStorage.get('adjustments');
     
     if (settings) {
@@ -163,7 +152,7 @@ const AdjustmentsScreen = ({ navigation }) => {
                   </Animated.View>
                   <Animated.View style={{opacity: tabNameOpacity, transform: [{translateY: tabNameTranslate}]}}>
                     <Text style={[previewStyles.tabPreviewText]}>
-                    Accueil
+                      Accueil
                     </Text>
                   </Animated.View>
                 </TouchableOpacity>
@@ -177,10 +166,10 @@ const AdjustmentsScreen = ({ navigation }) => {
             }
           >
             <NativeText heading="h4">
-            Cacher le nom des onglets
+              Cacher le nom des onglets
             </NativeText>
             <NativeText heading="p2">
-            Masquer le nom des onglets dans la barre de navigation
+              Masquer le nom des onglets dans la barre de navigation
             </NativeText>
           </NativeItem>
         ) : <View /> }

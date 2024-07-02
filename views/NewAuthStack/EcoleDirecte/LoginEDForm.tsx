@@ -50,24 +50,22 @@ function LoginEDForm({ route, navigation }: {
   const [stringErrorAlert, setStringErrorAlert] = React.useState(false);
   const [urlAlert, setURLAlert] = React.useState(false);
 
-
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [connecting, setConnecting] = React.useState(false);
 
   const [isDoubleAuthEnabled, setDoubleAuthEnabled] = React.useState(false);
-  const [doubleAuthObject, setDoubleAuthObject] = React.useState({ question: '', propositions: [] } as doubleauthResData);
+  const [doubleAuthObject, setDoubleAuthObject] = React.useState<doubleauthResData>({ question: '', propositions: [] });
   const [doubleAuthToken, setDoubleAuthToken] = React.useState('');
 
   const [doubleAuthAnswer, setDoubleAuthAnswer] = React.useState('');
 
-  const selectDoubleAuthAnwser = (answer) => {
+  const selectDoubleAuthAnwser = (answer: string) => {
     setDoubleAuthAnswer(answer);
   };
 
   const appContext = useAppContext();
   const UIColors = GetUIColors();
-
 
   const makeUUID = (): string => {
     return uuidv4();
@@ -77,7 +75,6 @@ function LoginEDForm({ route, navigation }: {
 
   const handleConnection = async (uuid: string) => {
     if (ed._token && ed._accessToken) {
-
       await AsyncStorage.multiSet([
         [AsyncStorageEcoleDirecteKeys.TOKEN, ed._token],
         [AsyncStorageEcoleDirecteKeys.DEVICE_UUID, uuid],
@@ -131,12 +128,10 @@ function LoginEDForm({ route, navigation }: {
         return;
       }
 
-
       setErrorAlert(true);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
-
 
   const sendA2FAnswer = async () => {
     setConnecting(true);
@@ -226,6 +221,7 @@ function LoginEDForm({ route, navigation }: {
                     <CheckAnimated
                       checked={answer === doubleAuthAnswer}
                       pressed={() => selectDoubleAuthAnwser(answer)}
+                      loading={false}
                       backgroundColor={UIColors.background}
                     />
                   }

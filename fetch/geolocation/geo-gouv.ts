@@ -2,17 +2,17 @@ const GEO_API_URL = 'https://api-adresse.data.gouv.fr/search/?type=municipality&
 
 export interface GeographicMunicipality {
   geometry: {
-    coordinates: [longitude: number, latitude: number]
-  }
+    coordinates: [longitude: number, latitude: number];
+  };
 
   properties: {
-    name: string
+    name: string;
     /** Score from 0 to 1. */
-    score: number
-    postcode: string
-    population: number
-    context: string
-  }
+    score: number;
+    postcode: string;
+    population: number;
+    context: string;
+  };
 }
 
 export const getGeographicMunicipalities = async (searchQuery: string): Promise<GeographicMunicipality[]> => {
@@ -26,7 +26,7 @@ export const getGeographicMunicipalities = async (searchQuery: string): Promise<
   }
 
   const data = await response.json() as {
-    features: GeographicMunicipality[]
+    features: GeographicMunicipality[];
   };
 
   return data.features;

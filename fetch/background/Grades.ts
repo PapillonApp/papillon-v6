@@ -14,12 +14,12 @@ const APP_GROUP_IDENTIFIER = 'group.xyz.getpapillon';
 const now = new Date();
 
 const fetchGrades = async () => {
-  let dataInstance = await getContextValues().dataProvider;
-  return dataInstance.getUser().then((user) => {
+  let dataInstance: any = await getContextValues().dataProvider;
+  return dataInstance.getUser().then((user: any) => {
     const periods = user.periodes.grades;
-    const currentPeriod = periods.find((period) => period.actual)!;
+    const currentPeriod = periods.find((period: any) => period.actual)!;
 
-    return dataInstance.getGrades(currentPeriod.name).then(async (grades) => {
+    return dataInstance.getGrades(currentPeriod.name).then(async (grades: PapillonGrades) => {
       try {
         if (Platform.OS === 'ios') {
           await sendGradesToSharedGroup(grades);
@@ -37,7 +37,7 @@ const fetchGrades = async () => {
 };
 
 const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
-  const sharedLessons = [];
+  const sharedLessons: any[] = [];
 
   for (const grade of grades.grades) {
     const color = getSavedCourseColor(grade.subject.name, '#29947a');
@@ -55,6 +55,8 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
       '8|CONGRATULATIONS': 8,
     };
 
+    const gradeValue = (grade.grade.value.value as unknown as keyof typeof significantTypeValue) || -1;
+
     sharedLessons.push({
       subject: formatCoursName(grade.subject.name),
       emoji: getClosestGradeEmoji(grade.subject.name),
@@ -64,7 +66,7 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
       grade: {
         value: {
           significant: grade.grade.value.significant,
-          value: grade.grade.value.value || Number(significantTypeValue[grade.grade.value.value as keyof typeof significantTypeValue]),
+          value: gradeValue,
         },
         out_of: grade.grade.out_of,
         average: grade.grade.average,
@@ -93,8 +95,8 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
   }
   
   // create an history of grades by calculating calculateSubjectAverage with all grades gradually added
-  const history = [];
-  const gradesHistoryList = [];
+  const history: any[] = [];
+  const gradesHistoryList: any[] = [];
 
   for (const grade of grades.grades) {
     gradesHistoryList.push(grade);
@@ -112,7 +114,7 @@ const sendGradesToSharedGroup = async (grades: PapillonGrades) => {
   return true;
 };
 
-const notifyGrades = async (grades: PapillonGrades[]) => {
+const notifyGrades = async (grades: PapillonGrades) => {
   let oldGradesData = await AsyncStorage.getItem('oldGrades');
   const fullGrades = grades.grades;
 
@@ -128,8 +130,8 @@ const notifyGrades = async (grades: PapillonGrades[]) => {
   }
 
   // make a list of the new grades
-  const lastGrades = fullGrades.filter((grade) => {
-    return !oldGrades.some((oldGrade) => oldGrade.subject.name === grade.subject.name && oldGrade.date === grade.date && oldGrade.grade.value.value === grade.grade.value.value); 
+  const lastGrades = fullGrades.filter((grade: any) => {
+    return !oldGrades.some((oldGrade: any) => oldGrade.subject.name === grade.subject.name && oldGrade.date === grade.date && oldGrade.grade.value.value === grade.grade.value.value); 
   });
 
   for (let i = 0; i < lastGrades.length; i++) {
@@ -140,14 +142,16 @@ const notifyGrades = async (grades: PapillonGrades[]) => {
     const canNotify = await checkCanNotify('notifications_NotesEnabled');
     const didNotified = await DidNotified(lastGradeId);
     if (!canNotify || didNotified) {
-      return false;
+      continue;
     }
 
-    const goodGrade = lastGrade.grade.value.value / lastGrade.grade.out_of.value >= 0.75;
+    const gradeValue = lastGrade.grade.value.value ?? -1;
+    const outOfValue = lastGrade.grade.out_of.value ?? 1;
+    const goodGrade = gradeValue / outOfValue >= 0.75;
 
-    let bdy = `Vous avez eu ${lastGrade.grade.value.value}/${lastGrade.grade.out_of.value} ${goodGrade ? '! 👏' : ''}`;
+    let bdy = `Vous avez eu ${gradeValue}/${outOfValue} ${goodGrade ? '! 👏' : ''}`;
 
-    if(lastGrade.grade.value.value === undefined || lastGrade.grade.value.value === null || lastGrade.grade.value.value < 0) {
+    if(gradeValue === undefined || gradeValue < 0) {
       bdy = 'Vous n\'avez pas été noté(e) pour cette évaluation.';
     }
 

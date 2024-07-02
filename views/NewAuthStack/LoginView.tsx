@@ -6,7 +6,7 @@ import packageJson from '../../package.json';
 const LoginView = ({ navigation }) => {
   const insets = useSafeAreaInsets();
 
-  const createPanResponder = (pan) => {
+  const createPanResponder = (pan: Animated.ValueXY) => {
     return PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderMove: Animated.event([
@@ -34,7 +34,7 @@ const LoginView = ({ navigation }) => {
   const pan4 = useRef(new Animated.ValueXY()).current;
   const panResponder4 = createPanResponder(pan4);
 
-  const animatePan = (pan, delay = 0) => {
+  const animatePan = (pan: Animated.ValueXY, delay = 0) => {
     // apply random delay
     delay = Math.floor(Math.random() * 1000) + delay;
 
@@ -55,11 +55,11 @@ const LoginView = ({ navigation }) => {
         useNativeDriver: false,
       }),
     ]);
-  
+
     const loop = Animated.loop(sequence);
     loop.start();
   };
-  
+
   useEffect(() => {
     animatePan(pan1, 750);    // Start immediately
     animatePan(pan2, 500);  // Start after 250ms
@@ -122,7 +122,7 @@ const LoginView = ({ navigation }) => {
         backgroundColor={'transparent'}
       />
 
-      <View style={[styles.shapes, {marginTop: insets.top}]}>
+      <View style={[styles.shapes, { marginTop: insets.top }]}>
         <Animated.View
           {...panResponder1.panHandlers}
           style={[pan1.getLayout()]}
@@ -217,7 +217,7 @@ const LoginView = ({ navigation }) => {
       </View>
 
       <Text
-        style={[styles.mainVersion, {top: insets.top, zIndex: 9999}]}
+        style={[styles.mainVersion, { top: insets.top, zIndex: 9999 }]}
         onLongPress={() => {
           navigation.navigate('NetworkLoggerScreen');
         }}
@@ -315,7 +315,6 @@ const shapesStyles = StyleSheet.create({
   green_sq: {
     width: 180,
     height: 180,
-
     left: 80,
     top: 250,
   },

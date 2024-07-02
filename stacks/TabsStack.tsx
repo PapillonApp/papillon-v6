@@ -1,10 +1,8 @@
 import React, { useMemo } from 'react';
 import { View, Platform, StyleSheet } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-const Tab = createBottomTabNavigator();
-
+import { createBottomTabNavigator, BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
+import { BottomNavigation } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
 import { useAppContext } from '../utils/AppContext';
 
 import {
@@ -19,9 +17,16 @@ import {
 } from '../interface/icons/PapillonIcons';
 import GetUIColors from '../utils/GetUIColors';
 
-import { BottomNavigation, Appbar, useTheme, PaperProvider, Text } from 'react-native-paper';
+const Tab = createBottomTabNavigator();
 
-const getIcon = (Icon, IconFill, color, size, focused, force) => {
+const getIcon = (
+  Icon: React.ComponentType<{ fill: string; stroke: string; width: number; height: number }>,
+  IconFill: React.ComponentType<{ fill: string; stroke: string; width: number; height: number }>,
+  color: string,
+  size: number,
+  focused: boolean,
+  force: boolean = false
+) => {
   const width = size + 2;
   const height = size + 2;
 
@@ -40,7 +45,7 @@ const views = [
     component: require('../views/HomeScreen').default,
     options: {
       tabBarLabel: 'Accueil',
-      tabBarIcon: ({ color, size, focused }) =>
+      tabBarIcon: ({ color, size, focused }: { color: string; size: number; focused: boolean }) =>
         getIcon(PapillonIconsHome, PapillonIconsHomeFill, color, size, focused),
       headerShown: true,
       headerShadowVisible: false,
@@ -52,7 +57,7 @@ const views = [
     component: require('../views/CoursScreen').default,
     options: {
       tabBarLabel: 'Cours',
-      tabBarIcon: ({ color, size, focused }) =>
+      tabBarIcon: ({ color, size, focused }: { color: string; size: number; focused: boolean }) =>
         getIcon(PapillonIconsCalendar, PapillonIconsCalendarFill, color, size, focused),
       color: '#0065A8',
     },
@@ -62,7 +67,7 @@ const views = [
     component: require('../views/DevoirsScreen').default,
     options: {
       tabBarLabel: 'Devoirs',
-      tabBarIcon: ({ color, size, focused }) =>
+      tabBarIcon: ({ color, size, focused }: { color: string; size: number; focused: boolean }) =>
         getIcon(PapillonIconsCheck, PapillonIconsCheck, color, size, focused),
       color: '#2A937A',
     },
@@ -72,7 +77,7 @@ const views = [
     component: require('../views/GradesScreen').default,
     options: {
       tabBarLabel: 'Notes',
-      tabBarIcon: ({ color, size, focused }) =>
+      tabBarIcon: ({ color, size, focused }: { color: string; size: number; focused: boolean }) =>
         getIcon(PapillonIconsStats, PapillonIconsStats, color, size, focused),
       color: '#A84700',
     },
@@ -82,35 +87,44 @@ const views = [
     component: require('../views/NewsScreen').default,
     options: {
       tabBarLabel: 'Actualités',
-      tabBarIcon: ({ color, size, focused }) =>
+      tabBarIcon: ({ color, size, focused }: { color: string; size: number; focused: boolean }) =>
         getIcon(PapillonIconsNews, PapillonIconsNewsFill, color, size, focused, true),
       color: '#B42828',
     },
   },
 ];
 
-const TabsStack = ({ navigation }) => {
+const TabsStack = () => {
   const appContext = useAppContext();
-  if(appContext.dataProvider?.service === "ecoledirecte") {
+  if (appContext.dataProvider?.service === "ecoledirecte") {
     views[4] = {
       name: 'ED_ExtendedMenu',
       component: require('../views/ecoledirecte/EDExtendedMenu').default,
       options: {
         tabBarLabel: 'Plus',
-        tabBarIcon: ({ color, size, focused }) =>
+        tabBarIcon: ({ color, size, focused }: { color: string; size: number; focused: boolean }) =>
           getIcon(PapillonIconsNews, PapillonIconsNewsFill, color, size, focused, true),
         color: '#3248a8',
       },
     }
   }
 
-
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
 
   const tabBar = useMemo(() => {
     if (Platform.OS !== 'ios') {
-      return ({ navigation, state, descriptors, insets }) => (
+      return ({
+        navigation,
+        state,
+        descriptors,
+        insets
+      }: {
+        navigation: any,
+        state: any,
+        descriptors: any,
+        insets: any
+      }) => (
         <BottomNavigation.Bar
           navigationState={state}
           compact={false}
@@ -162,18 +176,13 @@ const TabsStack = ({ navigation }) => {
       <Tab.Navigator
         tabBar={tabBar}
         screenOptions={{
-          headerTruncatedBackTitle: 'Retour',
-          elevated: false,
           tabBarLabelStyle: {
             fontFamily: 'Papillon-Semibold',
             fontSize: 13,
             letterSpacing: 0,
-
             margin: 0,
             padding: 0,
-
             marginTop: (insets.bottom > 30) ? -3 : 0,
-
             alignItems: 'center',
             justifyContent: 'center',
             textAlign: 'center',
@@ -197,7 +206,6 @@ const TabsStack = ({ navigation }) => {
               height: 80,
             } : null,
           ],
-          headerSearchBarOptions: {},
           headerTitleAlign: 'left',
           headerStyle: Platform.OS === 'android' ? {
             backgroundColor: UIColors.background,

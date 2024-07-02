@@ -75,11 +75,11 @@ const SettingsScreen = ({ navigation }) => {
       <NativeList inset sideBar style={[styles.list]}>
         {userData && userData.name ? (
           <NativeItem
-            style={[styles.profile.container]}
+            style={[styles.profileContainer]}
             leading={
               profilePicture ? (
                 <Image
-                  style={styles.profile.pic}
+                  style={styles.profilePic}
                   source={{
                     uri: profilePicture,
                   }}
@@ -88,7 +88,7 @@ const SettingsScreen = ({ navigation }) => {
             }
             onPress={() => navigation.navigate('Profile', { isModal: false })}
           >
-            <View style={styles.profile.textContainer}>
+            <View style={styles.profileTextContainer}>
               <NativeText heading="h3">{userData.name}</NativeText>
               <NativeText heading="p" style={{ opacity: 0.6, fontSize: 15 }}>
                 Personnaliser le profil Papillon
@@ -174,27 +174,23 @@ const SettingsScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  profile: {
-    container: {
-      marginVertical: 0,
-      paddingVertical: 0,
-    },
-    pic: {
-      width: 42,
-      height: 42,
-      borderRadius: 50,
-      marginVertical: 2,
-    },
-    textContainer: {
-      gap: 2,
-    },
+  profileContainer: {
+    marginVertical: 0,
+    paddingVertical: 0,
   },
-
+  profilePic: {
+    width: 42,
+    height: 42,
+    borderRadius: 50,
+    marginVertical: 2,
+  },
+  profileTextContainer: {
+    gap: 2,
+  },
   list: {
     marginTop: 6,
     marginBottom: 10,
   },
-
   iconContainer: {
     width: 30,
     height: 30,
@@ -202,7 +198,6 @@ const styles = StyleSheet.create({
     borderRadius: 300,
     overflow: 'hidden',
   },
-
   iconImage: {
     width: '100%',
     height: '100%',

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {Alert, ScrollView, Switch} from 'react-native';
+import { Alert, ScrollView, Switch } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { unsetBackgroundFetch } from '../../fetch/BackgroundFetch';
 
-import {EyeOff, LogOut, RefreshCw, RotateCw, Trash2} from 'lucide-react-native';
+import { EyeOff, LogOut, RefreshCw, RotateCw, Trash2 } from 'lucide-react-native';
 import { showMessage } from 'react-native-flash-message';
 import { revokeAsync } from 'expo-auth-session';
 
@@ -71,7 +71,7 @@ function SettingsScreen({ navigation }: { navigation: any }) {
       }
     }));
 
-    button.push({ text: 'Annuler', style: 'cancel' });
+    button.push({ text: 'Annuler', style: 'cancel' as const });
 
     Alert.alert(
       invalid ? 'Réponse incorrecte' : 'Confirmation de votre choix',
@@ -111,9 +111,9 @@ function SettingsScreen({ navigation }: { navigation: any }) {
           },
           {
             onPress: () => {
-              confirmDisabling(() => {
+              confirmDisabling(async () => {
                 setHideNotes(false);
-                AsyncStorage.setItem('hideNotesTab', 'false');
+                await AsyncStorage.setItem('hideNotesTab', 'false');
               });
             },
             style: 'destructive',
@@ -124,14 +124,44 @@ function SettingsScreen({ navigation }: { navigation: any }) {
     }
   }
 
-  async function getData() {
-    let hideNotesTab = await AsyncStorage.getItem('hideNotesTab');
-    setHideNotes(hideNotesTab === 'true');
-  }
+  async function skolengoReconnect() {
+    if (!appContext?.dataProvider?.skolengoInstance) return;
+    if (!appContext?.dataProvider?.skolengoInstance.rtInstance) 
+      await appContext?.dataProvider?.init('skolengo');
+    
+    const validRetry = await loginSkolengoWorkflow(
+      appContext,
+      null,
+      await appContext.dataProvider.skolengoInstance.school,
+      appContext.dataProvider.skolengoInstance
+    );
 
-  React.useEffect( () => {
-    getData();
-  }, []);
+    if (validRetry === true) {
+      await SkolengoCache.clearItems();
+      const discovery = await AsyncStorage.getItem(
+        SkolengoDatas.DISCOVERY_PATH
+      ).then((_disco) => _disco && JSON.parse(_disco));
+
+      await revokeAsync(
+        {
+          ...appContext.dataProvider.skolengoInstance?.rtInstance,
+          token:
+            appContext.dataProvider.skolengoInstance?.rtInstance
+              .accessToken,
+        },
+        discovery
+      );
+
+      showMessage({
+        message: 'Compte déconnecté avec succès',
+        type: 'success',
+        icon: 'auto',
+        floating: true,
+      });
+
+      navigation.navigate('login');
+    }
+  }
 
   return (
     <ScrollView style={{ backgroundColor: UIColors.modalBackground }}>
@@ -160,11 +190,11 @@ function SettingsScreen({ navigation }: { navigation: any }) {
         visible={pronoteTokenActionAlert}
         title="Régénérer le token"
         subtitle="Le token de votre compte a été régénéré avec succès !"
-        icon={<RefreshCw/>}
+        icon={<RefreshCw />}
         cancelAction={() => setPronoteTokenActionAlert(false)}
       />
 
-      {appContext.dataProvider.service === 'skolengo' && (
+      {appContext.dataProvider && appContext.dataProvider.service === 'skolengo' && (
         <NativeList
           header="Connexion à Skolengo"
           inset
@@ -172,7 +202,7 @@ function SettingsScreen({ navigation }: { navigation: any }) {
           <NativeItem
             leading={<Trash2 size={24} color={UIColors.text} />}
             chevron
-            onPress={() => skolengoCacheClear()}
+            onPress={() => skolengoCacheClear()} // skolengoCacheClearAlert ?
           >
             <NativeText heading="h4">
               Vider le cache
@@ -185,18 +215,17 @@ function SettingsScreen({ navigation }: { navigation: any }) {
             visible={skolengoCacheClearAlert}
             title="Vider le cache"
             subtitle="Êtes-vous sûr de vouloir vider le cache ?"
-            icon={<Trash2/>}
+            icon={<Trash2 />}
             primaryButton='Vider le cache'
             primaryAction={async () => {
-              SkolengoCache.clearItems().then(() =>
-                showMessage({
-                  message: 'Cache vidé avec succès',
-                  type: 'success',
-                  icon: 'auto',
-                  floating: true,
-                })
-                
-              );
+              await SkolengoCache.clearItems();
+              showMessage({
+                message: 'Cache vidé avec succès',
+                type: 'success',
+                icon: 'auto',
+                floating: true,
+              });
+              setSkolengoCacheClearAlert(false);
               console.log('Cache vidé avec succès');
             }}
             cancelButton='Annuler'
@@ -218,47 +247,16 @@ function SettingsScreen({ navigation }: { navigation: any }) {
             visible={skolengoReconnectAlert}
             title="Reconnecter son compte Skolengo"
             subtitle="Êtes-vous sûr de vouloir reconnecter votre compte Skolengo ?"
-            icon={<RotateCw/>}
+            icon={<RotateCw />}
             primaryButton='Reconnecter'
             primaryAction={async () => {
-              if (!appContext?.dataProvider?.skolengoInstance) return;
-              if (!appContext?.dataProvider?.skolengoInstance.rtInstance)
-                await appContext?.dataProvider?.init('skolengo');
-              const validRetry = await loginSkolengoWorkflow(
-                appContext,
-                null,
-                appContext.dataProvider.skolengoInstance.school,
-                appContext.dataProvider.skolengoInstance
-              );
-              if (validRetry === true) {
-                SkolengoCache.clearItems();
-                const discovery = AsyncStorage.getItem(
-                  SkolengoDatas.DISCOVERY_PATH
-                )?.then((_disco) => _disco && JSON.parse(_disco));
-                revokeAsync(
-                  {
-                    ...appContext.dataProvider.skolengoInstance?.rtInstance,
-                    token:
-                        appContext.dataProvider.skolengoInstance?.rtInstance
-                          .accessToken,
-                  },
-                  discovery
-                ).then(() => {
-                  showMessage({
-                    message: 'Compte déconnecté avec succès',
-                    type: 'success',
-                    icon: 'auto',
-                    floating: true,
-                  });
-                  navigation.navigate('login');
-                });
-              }
+              await skolengoReconnect();
               setSkolengoReconnectAlert(false);
             }}
             cancelButton='Annuler'
             cancelAction={() => setSkolengoReconnectAlert(false)}
           />
-            
+
         </NativeList>
       )}
 
@@ -267,7 +265,7 @@ function SettingsScreen({ navigation }: { navigation: any }) {
         inset
       >
         <NativeItem
-          leading={<EyeOff size={24} color={UIColors.text}/>}
+          leading={<EyeOff size={24} color={UIColors.text} />}
           trailing={
             <Switch
               value={hideNotes}
@@ -306,20 +304,20 @@ function SettingsScreen({ navigation }: { navigation: any }) {
         visible={deleteAccountAlert}
         title="Êtes-vous sûr ?"
         subtitle="Tous vos paramètres et comptes seront supprimés définitivement de Papillon."
-        icon={<LogOut size={24}/>}
+        icon={<LogOut size={24} />}
         color='#D81313'
         cancelButton='Annuler'
         cancelAction={() => setDeleteAccountAlert(false)}
         primaryButton='Déconnexion'
         primaryAction={async () => {
           try {
-            if (appContext.dataProvider.service === 'skolengo')
+            if (appContext.dataProvider?.service === 'skolengo')
               await appContext.dataProvider.skolengoInstance?.skolengoDisconnect();
           } catch { /* no-op */ }
-  
+
           // Remove every data from storage.
           await AsyncStorage.clear();
-          AsyncStorage.setItem('preventNotifInit', 'true'); //to prevent notif to re-init after logout (app stack still displayed for a few second before re-rendering)
+          await AsyncStorage.setItem('preventNotifInit', 'true'); //to prevent notif to re-init after logout (app stack still displayed for a few second before re-rendering)
           // Create a new provider since we're resetting everything.
           try {
             appContext.setDataProvider(new IndexDataInstance());

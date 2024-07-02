@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState, useEffect } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import { View, Image, Platform, StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import GetUIColors from '../../utils/GetUIColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,7 +13,14 @@ import AlertBottomSheet from '../../interface/AlertBottomSheet';
 
 import { AlertTriangle, Scale } from 'lucide-react-native';
 
-import { GetRessource } from '../../utils/GetRessources/GetRessources';
+interface ServiceOption {
+  name: string;
+  company: string;
+  description: string;
+  icon: any;
+  view: string;
+  soon: boolean;
+}
 
 const SelectService = ({ navigation }) => {
   const UIColors = GetUIColors();
@@ -23,8 +30,6 @@ const SelectService = ({ navigation }) => {
   const [skolengoAlertVisible, setSkolengoAlertVisible] = useState(false);
   const [serviceAlertVisible, setServiceAlertVisible] = useState(false);
 
-
-  
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: 'Service scolaire',
@@ -33,10 +38,10 @@ const SelectService = ({ navigation }) => {
         backgroundColor: UIColors.background,
       },
     });
-  }, [UIColors]);
+  }, [UIColors, navigation]);
 
-  const [selectedService, setSelectedService] = useState(null);
-  const [serviceOptions, setServiceOptions] = useState([
+  const [selectedService, setSelectedService] = useState<number | null>(null);
+  const [serviceOptions, setServiceOptions] = useState<ServiceOption[]>([
     {
       name: 'PRONOTE',
       company: 'Index Education',
@@ -63,7 +68,7 @@ const SelectService = ({ navigation }) => {
     }
   ]);
 
-  const selectOption = (index) => {
+  const selectOption = (index: number) => {
     setSelectedService(index);
   };
 
@@ -83,7 +88,6 @@ const SelectService = ({ navigation }) => {
       }
     }
   };
-  
 
   return (
     <View
@@ -102,10 +106,10 @@ const SelectService = ({ navigation }) => {
         visible={serviceAlertVisible}
         icon={<Scale />}
         title="Important"
-        subtitle={`Papillon n’est pas affilié à ${serviceOptions[selectedService]?.company}. Des bugs peuvent survenir lors de l’utilisation de ${serviceOptions[selectedService]?.name} sur Papillon.`}
+        subtitle={`Papillon n’est pas affilié à ${selectedService !== null ? serviceOptions[selectedService].company : ''}. Des bugs peuvent survenir lors de l’utilisation de ${selectedService !== null ? serviceOptions[selectedService].name : ''} sur Papillon.`}
         cancelAction={() => setServiceAlertVisible(false)}
         primaryButton='Compris !'
-        primaryAction={() => {navigation.navigate(serviceOptions[selectedService]?.view); setServiceAlertVisible(false);}}
+        primaryAction={() => { navigation.navigate(serviceOptions[selectedService!]?.view); setServiceAlertVisible(false); }}
       />
 
       {Platform.OS !== 'ios' && (
@@ -140,6 +144,7 @@ const SelectService = ({ navigation }) => {
               <CheckAnimated
                 checked={index === selectedService}
                 pressed={() => selectOption(index)}
+                loading={false}
                 backgroundColor={UIColors.background}
               />
             }
@@ -189,22 +194,20 @@ const SelectService = ({ navigation }) => {
       <AlertBottomSheet
         color='#A84700'
         visible={edAlertVisible}
-        setVisible={setEdAlertVisible}
         icon={<AlertTriangle />}
-        title={`${serviceOptions[selectedService]?.name}`}
-        subtitle={`${serviceOptions[selectedService]?.name} est en version ALPHA. Des bugs peuvent survenir lors de l'utilisation.`}
+        title={`${selectedService !== null ? serviceOptions[selectedService].name : ''}`}
+        subtitle={`${selectedService !== null ? serviceOptions[selectedService].name : ''} est en version ALPHA. Des bugs peuvent survenir lors de l'utilisation.`}
         cancelAction={() => setEdAlertVisible(false)}
         primaryButton='Compris !'
-        primaryAction={() => {setServiceAlertVisible(true);}}
+        primaryAction={() => { setServiceAlertVisible(true); }}
       />
 
       <AlertBottomSheet
         color='#A84700'
         visible={skolengoAlertVisible}
-        setVisible={setSkolengoAlertVisible}
         icon={<AlertTriangle />}
         title="Important"
-        subtitle={`Papillon n’est pas affilié à ${serviceOptions[selectedService]?.company}. Des bugs peuvent survenir lors de l’utilisation de ${serviceOptions[selectedService]?.name} sur Papillon.`}
+        subtitle={`Papillon n’est pas affilié à ${selectedService !== null ? serviceOptions[selectedService].company : ''}. Des bugs peuvent survenir lors de l’utilisation de ${selectedService !== null ? serviceOptions[selectedService].name : ''} sur Papillon.`}
         cancelAction={() => setSkolengoAlertVisible(false)}
       />
       

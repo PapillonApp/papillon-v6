@@ -1,72 +1,55 @@
 import React from 'react';
-import { Pressable, StyleSheet, Platform, View, type ViewStyle } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Pressable, StyleSheet, Platform, View, Text, ViewStyle } from 'react-native';
 
 interface Props {
   /** Text displayed inside the button. */
-  title: string
+  title: string;
   /** Should be in HEX format. */
-  color: string
-  onPress: () => unknown
-  style?: ViewStyle
+  color: string;
+  onPress: () => unknown;
+  style?: ViewStyle | ViewStyle[];
   /** Defines if the button should be filled or not. */
-  light?: boolean
-  left?: React.ReactElement
-  right?: React.ReactElement
+  light?: boolean | null;
+  left?: React.ReactNode;
+  right?: React.ReactNode;
 }
 
-/**
- * @see https://i.imgur.com/KnBA6qC.png
- */
 const PapillonButton: React.FC<Props> = ({ title, color, onPress, style, light, left, right }) => {
   return (
     <Pressable
       onPress={() => onPress()}
       style={({ pressed }) => [
-        styles.btnBack,
+        styles.button,
         {
           opacity: pressed && Platform.OS === 'ios' ? 0.6 : 1,
-          backgroundColor: !light ? color : `${color}22`,
+          backgroundColor: light === null ? `${color}22` : color,
         },
         style,
       ]}
     >
-      {left && (
-        <View style={styles.left}>{left}</View>
-      )}
-
-      <Text style={[styles.btnBackText, { color: light ? color : '#fff' }]}>
-        {title}
-      </Text>
-      
-      {right && (
-        <View style={styles.right}>{right}</View>
-      )}
+      {left && <View style={styles.left}>{left}</View>}
+      <Text style={[styles.text, { color: light ? color : '#fff' }]}>{title}</Text>
+      {right && <View style={styles.right}>{right}</View>}
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
-  btnBack: {
-    padding: 14,
-    borderRadius: 12,
-    borderCurve: 'continuous',
-    alignContent: 'center',
-    alignItems: 'center',
+  button: {
+    padding: 16,
+    borderRadius: 8,
     justifyContent: 'center',
+    alignItems: 'center',
     flexDirection: 'row',
   },
-  btnBackText: {
-    color: '#fff',
-    fontFamily: 'Papillon-Medium',
+  text: {
     fontSize: 16,
+    fontFamily: 'Arial',
   },
-
   left: {
     position: 'absolute',
     left: 16,
   },
-
   right: {
     position: 'absolute',
     right: 16,

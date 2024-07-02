@@ -1,18 +1,23 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform, StyleProp, ViewStyle } from 'react-native';
 import { List } from 'react-native-paper';
 import mapChildrenWithKeys from '../utils/mapChildrenWithKeys';
-import type { ViewStyle } from 'react-native';
 
+interface SectionProps {
+  hideSeparator: boolean;
+  hideSurroundingSeparators: boolean;
+}
 
 interface Props {
-  children: React.ReactNode
-  header?: React.ReactNode
-  footer?: React.ReactNode
-  style?: ViewStyle
-  containerStyle?: ViewStyle
-  plain?: boolean
-  inset?: boolean // only for iOS (NativeList.ios.tsx)
+  children: React.ReactNode;
+  header?: React.ReactNode;
+  footer?: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
+  plain?: boolean;
+  inset?: boolean; // only for iOS (NativeList.ios.tsx)
+  sideBar?: boolean;
+  sectionProps?: SectionProps;
 }
 
 const NativeList: React.FC<Props> = React.memo(({
@@ -22,11 +27,14 @@ const NativeList: React.FC<Props> = React.memo(({
   style,
   containerStyle,
   plain,
+  inset,
+  sideBar,
+  sectionProps,
 }) => {
   const childrenWithKeys = mapChildrenWithKeys(children);
 
   return (
-    <List.Section style={[styles.container, style]}>
+    <List.Section style={[styles.container, style]} {...sectionProps}>
       {header && <List.Subheader>{header}</List.Subheader>}
 
       <View style={[styles.children, plain && styles.plain, containerStyle]}>

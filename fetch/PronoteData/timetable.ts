@@ -73,10 +73,11 @@ export const timetableHandler = async (interval: [from: Date, to?: Date], instan
           status: currentClass.status,
           is_cancelled: currentClass.canceled,
           is_outing: false,
-          is_detention: currentClass.detention,
+          is_detention: currentClass.isDetention(),
           is_exempted: currentClass.exempted,
           is_test: currentClass.test,
-          contents
+          contents,
+          classroom: ''
         });
       }
       else if (currentClass instanceof TimetableActivity) {
@@ -99,7 +100,8 @@ export const timetableHandler = async (interval: [from: Date, to?: Date], instan
           is_outing: true,
           is_detention: false,
           is_exempted: false,
-          is_test: false
+          is_test: false,
+          classroom: ''
         });
       }
     }

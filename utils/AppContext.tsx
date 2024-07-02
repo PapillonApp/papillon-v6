@@ -10,11 +10,11 @@ import { useMaterial3Theme } from '@pchmn/expo-material3-theme';
 import type { IndexDataInstance } from '../fetch';
 
 interface AppContextType {
-  loggedIn: boolean
-  setLoggedIn: (loggedIn: boolean) => void
-  dataProvider: IndexDataInstance | null
-  setDataProvider: (dataProvider: IndexDataInstance) => void
-} 
+  loggedIn: boolean;
+  setLoggedIn: (loggedIn: boolean) => void;
+  dataProvider: IndexDataInstance | null;
+  setDataProvider: (dataProvider: IndexDataInstance) => void;
+}
 
 /**
  * Temporary values until everything is set
@@ -24,38 +24,43 @@ export const DefaultValuesAppContext: AppContextType = {
   loggedIn: false,
   setLoggedIn: () => void 0,
   dataProvider: null,
-  setDataProvider: () => void 0
+  setDataProvider: () => void 0,
 };
 
 const AppContext = React.createContext<AppContextType>(DefaultValuesAppContext);
 
-let contextValues: Object = {
+let contextValues: AppContextType = {
   loggedIn: false,
   setLoggedIn: () => void 0,
   dataProvider: null,
-  setDataProvider: () => void 0
-}
+  setDataProvider: () => void 0,
+};
 
 /**
  * Set context values manually. Can be get with getContextValues.
  * Those functions are made for modules that can't access context values with React context (e.q. a non-React module such as the Background Fetch)
  */
-export const setContextValues = (values: Object) => {
-  contextValues = values
-}
+export const setContextValues = (values: AppContextType) => {
+  contextValues = values;
+};
 
 /**
  * Get context values manually. Can be set with setContextValues. Will return default values if not set.
  * Those functions are made for modules that can't access context values with React context (e.q. a non-React module such as the Background Fetch)
  */
-export const getContextValues = () => { return contextValues }
+export const getContextValues = (): AppContextType => contextValues;
 
 export const useAppContext = () => React.useContext(AppContext);
 
 export const baseColor = '#2A937A';
 export const baseColorDark = '#32AB8E';
 
-export function AppContextProvider({ children, state }) {
+interface AppContextProviderProps {
+  children: React.ReactNode;
+  state: AppContextType;
+}
+
+export function AppContextProvider({ children, state }: AppContextProviderProps) {
   const scheme = useColorScheme();
   const { theme } = useMaterial3Theme({ fallbackSourceColor: baseColor });
   const paperTheme = {
@@ -70,7 +75,7 @@ export function AppContextProvider({ children, state }) {
     ...(scheme === 'dark' ? DarkTheme : DefaultTheme),
     colors: {
       ...(scheme === 'dark' ? DarkTheme.colors : DefaultTheme.colors),
-      primary: (scheme === 'dark' ? baseColorDark : baseColor),
+      primary: scheme === 'dark' ? baseColorDark : baseColor,
     },
   };
 

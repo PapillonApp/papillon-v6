@@ -1,5 +1,14 @@
-import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
-import { View, StatusBar, StyleSheet, TouchableOpacity, Platform, TextInput, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useRef, useState, useEffect } from 'react';
+import {
+  View,
+  StatusBar,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import { School, Search, X } from 'lucide-react-native';
 
 import NativeList from '../../../components/NativeList';
@@ -15,12 +24,12 @@ import { findPronoteInstances, defaultPawnoteFetcher, type PronoteInstance } fro
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const LocateEtabList = ({ route, navigation }: {
-  navigation: any // TODO
+  navigation: any;
   route: {
     params: {
-      location: GeographicMunicipality
-    }
-  }
+      location: GeographicMunicipality;
+    };
+  };
 }) => {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
@@ -29,27 +38,26 @@ const LocateEtabList = ({ route, navigation }: {
   const [isInstancesLoading, setInstancesLoading] = useState(false);
   const [instances, setInstances] = useState<PronoteInstance[] | null>(null);
 
+  const textInputRef = useRef<TextInput>(null);
+
   const openInstance = async (instance: PronoteInstance) => {
     console.log(instance);
     let instanceURL = instance.url;
 
-    // check if instance is up
-    await fetch(instanceURL)
-      .then((response) => {
-        if (response.status === 200) {
-        } else {
-          instanceURL = instanceURL.replace('index-education.net', 'pronote.toutatice.fr');
-        }
-      })
-      .catch((error) => {
+    try {
+      const response = await fetch(instanceURL);
+      if (!response.ok) {
         instanceURL = instanceURL.replace('index-education.net', 'pronote.toutatice.fr');
-        console.error(error);
-      });
+      }
+    } catch (error) {
+      instanceURL = instanceURL.replace('index-education.net', 'pronote.toutatice.fr');
+      console.error(error);
+    }
 
-    navigation.navigate('NGPronoteWebviewLogin', { instanceURL: instanceURL });
+    navigation.navigate('NGPronoteWebviewLogin', { instanceURL });
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         isInstancesLoading ? (
@@ -60,32 +68,32 @@ const LocateEtabList = ({ route, navigation }: {
   }, [isInstancesLoading]);
 
   useEffect(() => {
-    const [longitude, latitude] = location.geometry.coordinates;
-    (async () => {
+    const { coordinates } = location.geometry;
+    const [longitude, latitude] = coordinates; // Utilisation correcte des noms de variables
+
+    const fetchInstances = async () => {
       try {
         setInstancesLoading(true);
-        const instances = await findPronoteInstances(defaultPawnoteFetcher, {
-          longitude, latitude
-        });
-        
+        const instances = await findPronoteInstances(defaultPawnoteFetcher, { longitude, latitude });
+
         if (instances.length === 0) {
           setInstances(null);
           console.log('[LocateEtabList] Aucune instance trouvée');
         } else {
           setInstances(instances);
         }
-      }
-      catch {
+      } catch (error) {
+        console.error('Erreur lors de la recherche des instances:', error);
         setInstances(null);
-      }
-      finally {
+      } finally {
         setInstancesLoading(false);
       }
-    })();
+    };
+
+    fetchInstances();
   }, [location]);
 
   const [currentSearch, setCurrentSearch] = useState('');
-  const textInputRef = createRef<TextInput | null>();
 
   const normalize = (text: string) => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const filteredInstances = currentSearch.length > 2
@@ -117,7 +125,7 @@ const LocateEtabList = ({ route, navigation }: {
       {!isInstancesLoading && instances?.length && (
         <NativeList
           inset
-          style={[Platform.OS === 'android' ? { marginTop: insets.top } : null]}
+          style={Platform.OS === 'android' ? { marginTop: insets.top } : undefined}
         >
           <NativeItem
             leading={<Search color={UIColors.text + '88'} />}
@@ -165,22 +173,20 @@ const LocateEtabList = ({ route, navigation }: {
             marginTop: Platform.OS === 'ios' ? -14 : 0
           }}
         >
-          {filteredInstances.map((instance) => {
-            return (
-              <NativeItem
-                key={instance.url}
-                leading={<School color={UIColors.primary} />}
-                onPress={() => openInstance(instance)}
-              >
-                <NativeText heading="h4">
-                  {instance.name}
-                </NativeText>
-                <NativeText heading="p2">
-                  à {(instance.distance / 1000).toFixed(2)} km de {location.properties.name}
-                </NativeText>
-              </NativeItem>
-            );
-          })}
+          {filteredInstances.map((instance) => (
+            <NativeItem
+              key={instance.url}
+              leading={<School color={UIColors.primary} />}
+              onPress={() => openInstance(instance)}
+            >
+              <NativeText heading="h4">
+                {instance.name}
+              </NativeText>
+              <NativeText heading="p2">
+                à {(instance.distance / 1000).toFixed(2)} km de {location.properties.name}
+              </NativeText>
+            </NativeItem>
+          ))}
         </NativeList>
       )}
 

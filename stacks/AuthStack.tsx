@@ -7,6 +7,7 @@ import { headerTitleStyles } from './AppStack';
 import GetUIColors from '../utils/GetUIColors';
 
 import LoginSkolengoSelectSchool from '../views/NewAuthStack/Skolengo/LoginSkolengoSelectSchool';
+import { Platform } from 'react-native';
 
 const AuthStack = ({ navigation }) => {
   const UIColors = GetUIColors();
@@ -22,8 +23,7 @@ const AuthStack = ({ navigation }) => {
     {
       name: 'SelectService',
       component: require('../views/NewAuthStack/SelectService').default,
-      options: {
-      }
+      options: {}
     },
     {
       name: 'FindEtab',
@@ -47,7 +47,7 @@ const AuthStack = ({ navigation }) => {
       name: 'LoginPronoteQR',
       component: require('../views/NewAuthStack/Pronote/LoginPronoteQRToken').default,
       options: {
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
       }
     },
     {
@@ -59,7 +59,7 @@ const AuthStack = ({ navigation }) => {
         headerBackTitle: 'Retour',
       }
     },
-    { 
+    {
       name: 'NGPronoteWebviewLogin',
       component: require('../views/NewAuthStack/Pronote/NGPronoteWebviewLogin').default,
       options: {
@@ -97,7 +97,7 @@ const AuthStack = ({ navigation }) => {
       component: LoginSkolengoSelectSchool,
       options: {
         title: 'Se connecter via Skolengo',
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
       }
     },
     {
@@ -105,10 +105,10 @@ const AuthStack = ({ navigation }) => {
       component: require("../views/NewAuthStack/EcoleDirecte/LoginEDForm").default,
       options: {
         title: 'Se connecter via EcoleDirecte',
-        presentation: 'modal',
+        presentation: 'modal' as 'modal',
       }
     },
-  ]
+  ];
 
   return (
     <Stack.Navigator

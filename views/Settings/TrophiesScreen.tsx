@@ -17,6 +17,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import MaskedView from '@react-native-masked-view/masked-view';
 
+import { NavigationProp } from '@react-navigation/native';
+
+
 const trophiesList = [
   {
     id: 'trophy_trophy1',
@@ -84,50 +87,49 @@ const originalTrophiesList = [
   ...trophiesList,
 ];
 
-export const RegisterTrophy = async (trophyId, proof : any) => {
-  AsyncStorage.getItem('trophies').then((trophies) => {
-    if (trophies) {
-      trophies = JSON.parse(trophies);
-    } else {
-      trophies = [];
-    }
+export const RegisterTrophy = async (trophyId: string, proof: any = null) => {
+  const storedTrophies = await AsyncStorage.getItem('trophies');
+  let trophies: Array<{ id: string; date: Date; proof: any }> = [];
 
-    if(!proof) {
-      proof = new Date();
-    }
+  if (storedTrophies) {
+    trophies = JSON.parse(storedTrophies);
+  }
 
-    trophies.push({
-      id: trophyId,
-      date: new Date(),
-      proof: proof,
-    });
+  if (!proof) {
+    proof = new Date();
+  }
 
-    const setTrophy = trophiesList.find((trophy) => trophy.id === trophyId);
-    
-    let currentCount = trophies.filter((trophy) => trophy.id === trophyId).length;
-    const requiredCount = setTrophy ? setTrophy.required : currentCount + 1;
-
-    if(currentCount == requiredCount + 1) {
-      /* notifee.displayNotification({
-        title: '🏆 Trophée obtenu !',
-        body: 'Vous avez obtenu le trophée ' + (setTrophy.title ? setTrophy.title : '') + ' !',
-        ios: {
-          sound: 'papillon_ding.wav',
-          foregroundPresentationOptions: {
-            badge: true,
-            sound: true,
-            banner: true,
-            list: true,
-          },
-        },
-      }); */
-    }
-
-    AsyncStorage.setItem('trophies', JSON.stringify(trophies));
+  trophies.push({
+    id: trophyId,
+    date: new Date(),
+    proof: proof,
   });
+
+  const setTrophy = trophiesList.find((trophy) => trophy.id === trophyId);
+  
+  let currentCount = trophies.filter((trophy) => trophy.id === trophyId).length;
+  const requiredCount = setTrophy ? setTrophy.required : currentCount + 1;
+
+  if (currentCount == requiredCount + 1) {
+    /* notifee.displayNotification({
+      title: '🏆 Trophée obtenu !',
+      body: 'Vous avez obtenu le trophée ' + (setTrophy.title ? setTrophy.title : '') + ' !',
+      ios: {
+        sound: 'papillon_ding.wav',
+        foregroundPresentationOptions: {
+          badge: true,
+          sound: true,
+          banner: true,
+          list: true,
+        },
+      },
+    }); */
+  }
+
+  AsyncStorage.setItem('trophies', JSON.stringify(trophies));
 };
 
-const TrophiesScreen = ({ navigation }) => {
+const TrophiesScreen = ({ navigation }: { navigation: NavigationProp<any> }) => {
   const UIColors = GetUIColors();
   const insets = useSafeAreaInsets();
 
@@ -256,15 +258,21 @@ const TrophiesScreen = ({ navigation }) => {
       },
     ]);
   }
+useEffect(() => {
+  AsyncStorage.getItem('trophies').then((trophies) => {
+    if (trophies !== null) {
+      let newTrophies = [...trophiesList];
 
-  useEffect(() => {
-    AsyncStorage.getItem('trophies').then((trophies) => {
-      if (trophies) {
-        let newTrohpies = [...trophiesList];
+      try {
         trophies = JSON.parse(trophies);
+      } catch (error) {
+        console.error('Erreur lors de la conversion de trophies en JSON :', error);
+        return;
+      }
 
-        // if multiple trophies share same id and proof, only count it once
-        let uniqueTrophies = [];
+      let uniqueTrophies: Array<{ id: string; proof: any }> = [];
+
+      if (Array.isArray(trophies)) {
         trophies.forEach((trophy) => {
           if (!uniqueTrophies.find((t) => t.id === trophy.id && t.proof === trophy.proof)) {
             uniqueTrophies.push(trophy);
@@ -272,23 +280,16 @@ const TrophiesScreen = ({ navigation }) => {
         });
 
         uniqueTrophies.forEach((trophy) => {
-          newTrohpies = newTrohpies.map((t) => {
+          newTrophies = newTrophies.map((t) => {
             if (t.id === trophy.id) {
-              // if already in list
-              if (t.list && t.list.includes(trophy.date)) {
-                return t;
-              }
-
               t.done++;
-              if(t.list) {
+              if (t.list) {
                 t.list.push(trophy.date);
-              }
-              else {
+              } else {
                 t.list = [trophy.date];
               }
             }
 
-            // if completed, set date to when it was completed
             if (t.done >= t.required && !t.date) {
               t.date = trophy.date;
             }
@@ -297,10 +298,17 @@ const TrophiesScreen = ({ navigation }) => {
           });
         });
 
-        setTrophies(newTrohpies);
+        setTrophies(newTrophies);
+      } else {
+        console.error('trophies n\'est pas un tableau valide :', trophies);
       }
-    });
-  }, []);
+    } else {
+      console.error('trophies est null');
+    }
+  });
+}, []);
+
+  
 
   useEffect(() => {
     RegisterTrophy('trophy_trophy1');
@@ -478,7 +486,7 @@ const TrophiesScreen = ({ navigation }) => {
                     }} tint={UIColors.dark ? 'dark' : 'light'} />
                   )}
 
-                  <NativeText style={[styles.trophyEmoji, (trophy.done < trophy.required) ? styles.trophyEmojiUncompleted : null]}>
+                  <NativeText style={[styles.trophyEmoji, (trophy.done < trophy.required) ? styles.trophyEmojiUncompleted : { opacity: 1 }]}>
                     {trophy.emoji}
                   </NativeText>
                 </View>

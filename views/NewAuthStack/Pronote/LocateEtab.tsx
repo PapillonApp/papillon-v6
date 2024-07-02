@@ -1,6 +1,13 @@
 import React from 'react';
-
-import { StatusBar, StyleSheet, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, Platform } from 'react-native';
+import {
+  StatusBar,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
+  Platform,
+} from 'react-native';
 import { Locate, MapPin, Search, X } from 'lucide-react-native';
 
 import GetUIColors from '../../../utils/GetUIColors';
@@ -30,7 +37,7 @@ const LocateEtab = ({ navigation }: {
   const [locatePermIssue, setLocatePermIssue] = React.useState(false);
   const debouncedCurrentSearch = useDebounce(currentSearch, 175);
 
-  const textInputRef = React.createRef<TextInput>();
+  const textInputRef = React.useRef<TextInput>(null);
 
   // Focus on input when screen transition is done
   // and and when it's the first time its opened.
@@ -45,25 +52,26 @@ const LocateEtab = ({ navigation }: {
   // When the user stops typing (detected by debounce)
   // we send a request to a geo-api.
   React.useEffect(() => {
-    (async () => {
+    const fetchData = async () => {
       if (debouncedCurrentSearch.length <= 2) {
         setIsLoading(false);
         setResults([]);
         return;
       }
   
-      try { // to make the request to geo-api.
+      try {
+        setIsLoading(true);
         const data = await getGeographicMunicipalities(debouncedCurrentSearch);
-  
         setResults(data);
-      }
-      catch { // any error to reset states.
+      } catch (error) {
+        console.error('Error fetching data:', error);
         setResults([]);
-      }
-      finally {
+      } finally {
         setIsLoading(false);
       }
-    })();
+    };
+
+    fetchData();
   }, [debouncedCurrentSearch]);
 
   const LocateMe = async () => {
@@ -78,22 +86,23 @@ const LocateEtab = ({ navigation }: {
         setIsLoading(false);
         setIsLocalisation(false);
         setLocatePermIssue(true);
+        setLocateState('Permission de localisation refusée');
         return;
       }
       setLocateState('Localisation en cours...');
       console.log('[4/6] Localisation en cours');
       const location = await Location.getCurrentPositionAsync({});
       console.log('[5/6] Localisation terminée, traitement');
-      console.log('[6/6] Latitude & longitude présents ?', location.coords.latitude +' , ' + location.coords.longitude);
+      console.log('[6/6] Latitude & longitude présents ?', location.coords.latitude + ' , ' + location.coords.longitude);
       if (location.coords.latitude && location.coords.longitude) {
         navigation.navigate('LocateEtabList', {
           location: {
             properties: {
-              name : 'votre position',
-              score : 0,
-              postcode : '',
-              population : 0,
-              context : '',
+              name: 'votre position',
+              score: 0,
+              postcode: '',
+              population: 0,
+              context: '',
             },
             geometry: {
               coordinates: [location.coords.longitude, location.coords.latitude]
@@ -101,11 +110,9 @@ const LocateEtab = ({ navigation }: {
           }
         });
       }
-    }
-    catch(err) {
-      console.error('Failed to locate', err);
-    }
-    finally {
+    } catch (error) {
+      console.error('Failed to locate', error);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -123,7 +130,7 @@ const LocateEtab = ({ navigation }: {
 
       <NativeList
         inset
-        style={[Platform.OS === 'android' ? { marginTop: insets.top } : null]}
+        style={Platform.OS === 'android' ? { marginTop: insets.top } : undefined}
       >
         <NativeItem
           leading={
@@ -151,7 +158,6 @@ const LocateEtab = ({ navigation }: {
             value={currentSearch}
             onChangeText={(text) => {
               setCurrentSearch(text);
-              setIsLoading(true);
             }}
           />
         </NativeItem>
@@ -191,7 +197,6 @@ const LocateEtab = ({ navigation }: {
         </NativeList>
       ) : null}
 
-
       {!isLoading && currentSearch.length < 2 ? (
         <PapillonLoading
           icon={<MapPin color={UIColors.text} size={26} style={{ margin: 8 }} />}
@@ -200,7 +205,7 @@ const LocateEtab = ({ navigation }: {
         />
       ) : null}
 
-      {results.length == 0 && !isLoading && currentSearch.length > 2 ? (
+      {results.length === 0 && !isLoading && currentSearch.length > 2 ? (
         <PapillonLoading
           icon={<Search color={UIColors.text} size={26} style={{ margin: 8 }} />}
           title="Aucun résultat"
@@ -211,30 +216,28 @@ const LocateEtab = ({ navigation }: {
       {results.length > 0 ? (
         <NativeList
           inset
-          style={Platform.OS === 'ios' ? { marginTop: -14 } : void 0}
+          style={Platform.OS === 'ios' ? { marginTop: -14 } : undefined}
         >
-          {results.map((municipality, index) => {
-            return (
-              <NativeItem
-                key={index}
-                leading={
-                  <MapPin color={UIColors.primary} />
-                }
-                onPress={() => {
-                  navigation.navigate('LocateEtabList', {
-                    location: municipality
-                  });
-                }}
-              >
-                <NativeText heading="h4">
-                  {municipality.properties.name}
-                </NativeText>
-                <NativeText heading="p2">
-                  {municipality.properties.context}
-                </NativeText>
-              </NativeItem>
-            );
-          })}
+          {results.map((municipality, index) => (
+            <NativeItem
+              key={index}
+              leading={
+                <MapPin color={UIColors.primary} />
+              }
+              onPress={() => {
+                navigation.navigate('LocateEtabList', {
+                  location: municipality
+                });
+              }}
+            >
+              <NativeText heading="h4">
+                {municipality.properties.name}
+              </NativeText>
+              <NativeText heading="p2">
+                {municipality.properties.context}
+              </NativeText>
+            </NativeItem>
+          ))}
         </NativeList>
       ) : null}
     </ScrollView>

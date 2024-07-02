@@ -74,7 +74,7 @@ import {
 } from '../interface/icons/PapillonIcons';
 
 import { GetRessource } from '../utils/GetRessources/GetRessources';
-import { PapillonGroupedHomeworks } from '../fetch/types/homework';
+import { PapillonGroupedHomeworks, PapillonHomework } from '../fetch/types/homework';
 import { BlurView } from 'expo-blur';
 
 const openURL = async (url: string) => {
@@ -104,14 +104,14 @@ const useRealTimeCourse = (lessons: PapillonLesson[] | null) => {
         const updatedNextCourse = GetNextCours(lessons);
         if (updatedNextCourse !== nextCourse) {
           setNextCourse(updatedNextCourse);
-          setNextCourseStartTime(GetLessonStartTime(updatedNextCourse) || '');
+          setNextCourseStartTime(updatedNextCourse ? GetLessonStartTime(updatedNextCourse) : '');
         }
       }
     }, 1000);
 
     // Libère l'intervalle lors du démontage du composant
     return () => clearInterval(intervalId);
-  }, [lessons]);
+  }, [lessons, nextCourse]);  
 
   // Retourne le prochain cours et son heure de début
   return { nextCourse, nextCourseStartTime };
@@ -548,10 +548,12 @@ style={{
           layout={LinearTransition}
         >
           <CoursElement
-            cours={lessons?.filter(
-              (lesson) =>
-                new Date(lesson.start).getDate() === new Date().getDate()
-            )}
+            cours={
+              lessons?.filter(
+                (lesson) =>
+                  new Date(lesson.start).getDate() === new Date().getDate()
+              ) || []
+            }
             navigation={navigation}
             loading={loading}
             showsTomorrow={false}
@@ -847,29 +849,24 @@ function CoursItem({
             exiting={FadeOut}
           >
             <TimeSeparator
-              reason={
-                (new Date(cours[index - 1].end).getHours() < 13 &&
-                  new Date(lesson.start).getHours() >= 12) ?
-                  'Pause méridienne'
-                  : 'Pas de cours'
-              }
-              time={`${Math.floor(
-                (new Date(lesson.start).getTime() -
-                  new Date(cours[index - 1].end).getTime()) /
-                3600000
-              )} h ${lz(
-                Math.floor(
-                  ((new Date(lesson.start).getTime() -
-                    new Date(cours[index - 1].end).getTime()) %
-                    3600000) /
-                  60000
-                )
-              )} min`}
-              lunch={
-                new Date(cours[index - 1].end).getHours() < 13 &&
-                new Date(lesson.start).getHours() >= 12
-              }
-            />
+            reason={(new Date(cours[index - 1].end).getHours() < 13 &&
+              new Date(lesson.start).getHours() >= 12) ?
+              'Pause méridienne'
+              : 'Pas de cours'}
+            time={`${Math.floor(
+              (new Date(lesson.start).getTime() -
+                new Date(cours[index - 1].end).getTime()) /
+              3600000
+            )} h ${lz(
+              Math.floor(
+                ((new Date(lesson.start).getTime() -
+                  new Date(cours[index - 1].end).getTime()) %
+                  3600000) /
+                60000
+              )
+            )} min`}
+            lunch={new Date(cours[index - 1].end).getHours() < 13 &&
+              new Date(lesson.start).getHours() >= 12} showLine={false}            />
           </Animated.View>
         )}
 
@@ -1427,13 +1424,9 @@ const styles = StyleSheet.create({
 
   nextCourse__content: {
     flex: 1,
-  },
-
-  nextCourse__content: {
     padding: 14,
-    gap: 0,
-    justifyContent: 'center',
     gap: 3,
+    justifyContent: 'center',
   },
 
   nextCourse__content_name: {

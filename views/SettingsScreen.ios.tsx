@@ -47,7 +47,7 @@ function NewSettings({ navigation }: {
       headerTitle: 'Préférences',
       headerRight: () => (
         <PapillonCloseButton
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.goBack()} theme={undefined}
         />
       ),
       headerTransparent: false,
@@ -94,12 +94,12 @@ function NewSettings({ navigation }: {
         {userData && userData.name ? (
           <NativeItem
             style={[
-              styles.profile.container,
+              styles.profileContainer,
             ]}
             leading={
               profilePicture ?
                 <Image
-                  style={styles.profile.pic}
+                  style={styles.profilePic}
                   source={{
                     uri: profilePicture,
                   }}
@@ -109,7 +109,7 @@ function NewSettings({ navigation }: {
             chevron
             onPress={() => navigation.navigate('Profile', { isModal: false })}
           >
-            <View style={styles.profile.textContainer}>
+            <View style={styles.profileTextContainer}>
               <NativeText heading="h3">
                 {userData.name}
               </NativeText>
@@ -132,7 +132,7 @@ function NewSettings({ navigation }: {
           leading={
             <View
               style={[
-                styles.item.leadingContainer,
+                styles.itemLeadingContainer,
                 {
                   backgroundColor: '#0065A8',
                 }
@@ -143,7 +143,7 @@ function NewSettings({ navigation }: {
                 weight="semibold"
                 size={16}
                 color="#ffffff"
-                style={styles.item.symbol}
+                style={styles.itemSymbol}
               />
             </View>
           }
@@ -199,7 +199,7 @@ function NewSettings({ navigation }: {
           leading={
             <View
               style={[
-                styles.item.leadingContainer,
+                styles.itemLeadingContainer,
                 {
                   backgroundColor: '#c73620',
                 }
@@ -210,7 +210,7 @@ function NewSettings({ navigation }: {
                 weight="semibold"
                 size={18}
                 color="#ffffff"
-                style={styles.item.symbol}
+                style={styles.itemSymbol}
               />
             </View>
           }
@@ -228,7 +228,7 @@ function NewSettings({ navigation }: {
           leading={
             <View
               style={[
-                styles.item.leadingContainer,
+                styles.itemLeadingContainer,
                 {
                   backgroundColor: '#565EA3',
                 }
@@ -239,7 +239,7 @@ function NewSettings({ navigation }: {
                 weight="semibold"
                 size={18}
                 color="#ffffff"
-                style={styles.item.symbol}
+                style={styles.itemSymbol}
               />
             </View>
           }
@@ -266,7 +266,7 @@ function NewSettings({ navigation }: {
           leading={
             <View
               style={[
-                styles.item.leadingContainer,
+                styles.itemLeadingContainer,
                 {
                   backgroundColor: '#7a9543',
                 }
@@ -277,7 +277,7 @@ function NewSettings({ navigation }: {
                 weight="semibold"
                 size={16}
                 color="#ffffff"
-                style={styles.item.symbol}
+                style={styles.itemSymbol}
               />
             </View>
           }
@@ -295,7 +295,7 @@ function NewSettings({ navigation }: {
           leading={
             <View
               style={[
-                styles.item.leadingContainer,
+                styles.itemLeadingContainer,
                 {
                   backgroundColor: '#A84700',
                 }
@@ -306,7 +306,7 @@ function NewSettings({ navigation }: {
                 weight="semibold"
                 size={18}
                 color="#ffffff"
-                style={styles.item.symbol}
+                style={styles.itemSymbol}
               />
             </View>
           }
@@ -333,7 +333,7 @@ function NewSettings({ navigation }: {
           leading={
             <View
               style={[
-                styles.item.leadingContainer,
+                styles.itemLeadingContainer,
                 {
                   backgroundColor: '#ebba34',
                 }
@@ -344,7 +344,7 @@ function NewSettings({ navigation }: {
                 weight="semibold"
                 size={18}
                 color="#ffffff"
-                style={styles.item.symbol}
+                style={styles.itemSymbol}
               />
             </View>
           }
@@ -360,7 +360,7 @@ function NewSettings({ navigation }: {
             leading={
               <View
                 style={[
-                  styles.item.leadingContainer,
+                  styles.itemLeadingContainer,
                   {
                     backgroundColor: '#888888',
                   }
@@ -371,7 +371,7 @@ function NewSettings({ navigation }: {
                   weight="semibold"
                   size={18}
                   color="#ffffff"
-                  style={styles.item.symbol}
+                  style={styles.itemSymbol}
                 />
               </View>
             }
@@ -390,7 +390,7 @@ function NewSettings({ navigation }: {
           leading={
             <View
               style={[
-                styles.item.leadingContainer,
+                styles.itemLeadingContainer,
                 {
                   backgroundColor: '#888888',
                 }
@@ -401,7 +401,7 @@ function NewSettings({ navigation }: {
                 weight="semibold"
                 size={18}
                 color="#ffffff"
-                style={styles.item.symbol}
+                style={styles.itemSymbol}
               />
             </View>
           }
@@ -421,24 +421,25 @@ function NewSettings({ navigation }: {
 }
 
 const styles = StyleSheet.create({
-  profile: {
-    container: {
+
+  // Profile 
+    profileContainer: {
       marginVertical: 0,
       paddingVertical: 5,
     },
-    pic: {
+    profilePic: {
       width: 42,
       height: 42,
       borderRadius: 50,
       marginVertical: 9,
     },
-    textContainer: {
+    profileTextContainer: {
       gap: 2,
     },
-  },
 
-  item: {
-    leadingContainer: {
+    // Item
+
+    itemLeadingContainer: {
       width: 28,
       height: 28,
       borderRadius: 8,
@@ -447,9 +448,8 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
     },
-    symbol: {
+    itemSymbol: {
     },
-  },
 
   iconContainer: {
     width: 28,

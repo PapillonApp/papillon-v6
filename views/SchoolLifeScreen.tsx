@@ -104,7 +104,7 @@ function SchoolLifeScreen({ navigation }: {
     });
   });
   
-  const Absence = ({absence, key, first, end}: {absence: PapillonAbsence, key: Key, first: Boolean, end: Boolean}) => {
+  const Absence = ({absence, key, first, end}: {absence: PapillonAbsence, key: Key, first: boolean, end: boolean}) => {
     return (
       <NativeItem
         key={key}
@@ -171,7 +171,7 @@ function SchoolLifeScreen({ navigation }: {
     )
   }
 
-  const Retard = ({delay, key, first, end}: {delay: PapillonDelay, key: Key, first: Boolean, end: Boolean}) => {
+  const Retard = ({delay, key, first, end}: {delay: PapillonDelay, key: Key, first: boolean, end: boolean}) => {
     return (
       <NativeItem
         key={key}
@@ -223,7 +223,7 @@ function SchoolLifeScreen({ navigation }: {
     )
   }
 
-  const Punition = ({punition, key, first, end}: {punition: PapillonPunishment, key: Key, first: Boolean, end: Boolean}) => {
+  const Punition = ({punition, key, first, end}: {punition: PapillonPunishment, key: Key, first: boolean, end: boolean}) => {
     return (
       <NativeItem key={key} first={first} last={end}
         leading={<Gavel size={24} color="#A84700" />}
@@ -255,7 +255,7 @@ function SchoolLifeScreen({ navigation }: {
     )
   }
 
-  const Observation = ({observation, key, first, end}: {observation: PapillonObservation, key: Key, first: Boolean, end: Boolean}) => {
+  const Observation = ({observation, key, first, end}: {observation: PapillonObservation, key: Key, first: boolean, end: boolean}) => {
     return (
       <NativeItem
         key={key}
@@ -293,6 +293,7 @@ function SchoolLifeScreen({ navigation }: {
       </NativeItem>
     )
   }
+ 
 
   return (
     <ScrollView

@@ -28,6 +28,8 @@ export interface PapillonLesson {
   is_detention: boolean
   is_exempted: boolean
   is_test: boolean
+  num?: number;
+  classroom: string;
   contents?: Array<{
     description?: string
     title?: string

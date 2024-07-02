@@ -52,26 +52,29 @@ const LoginSkolengoSelectSchool: React.FC<{ navigation: any }> = ({
     setEtabList([]);
     setSearchQuery(text);
     SkolengoStatic.getSchools({
-      text,
+      text: text,
+      lat: null,
+      lon: null,
     }).then(setResults);
   }
 
   async function searchSchoolByCoords() {
     const { status } = await Location.requestForegroundPermissionsAsync();
-
+  
     if (status !== 'granted') {
       setLocalisationPermissionAlert(true);
       return;
     }
-
+  
     setLoading(true);
     setEtabList([]);
-
+  
     const location = await Location.getCurrentPositionAsync({});
-
+  
     SkolengoStatic.getSchools({
       lat: location.coords.latitude,
       lon: location.coords.longitude,
+      text: '',
     }).then(setResults);
   }
 
@@ -117,7 +120,7 @@ const LoginSkolengoSelectSchool: React.FC<{ navigation: any }> = ({
         <Searchbar
           placeholder="Entrez le nom d'un lycée"
           onChangeText={(evt: string) => searchSchool(evt)}
-          style={{ marginHorizontal: 12, marginTop: 12 }}
+          style={{ marginHorizontal: 12, marginTop: 12 }} value={''}
         />
       ) : null}
 

@@ -40,7 +40,6 @@ function InsetSettings() {
             navigationBarColor: '#00000000',
             headerStyle: {
               backgroundColor: UIColors.background,
-              elevation: 0,
             },
             headerShadowVisible: false,
           }

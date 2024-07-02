@@ -1,18 +1,20 @@
 import React, { useCallback } from 'react';
-import { View, StyleSheet, TouchableNativeFeedback, type ViewStyle } from 'react-native';
+import { View, StyleSheet, TouchableNativeFeedback, type ViewStyle, StyleProp } from 'react-native';
 import type { Cell } from 'react-native-tableview-simple';
 import GetUIColors from '../utils/GetUIColors';
 
 interface Props {
-  children: React.ReactNode
-  leading?: React.ReactNode
-  trailing?: React.ReactNode
-  onPress?: () => unknown
-  chevron?: boolean
-  cellProps?: Partial<React.ComponentProps<typeof Cell>>
-  style?: ViewStyle
-  innerStyle?: ViewStyle
-  backgroundColor?: string
+  children: React.ReactNode;
+  leading?: React.ReactNode;
+  trailing?: React.ReactNode;
+  onPress?: (() => void) | undefined;
+  chevron?: boolean;
+  cellProps?: Partial<React.ComponentProps<typeof Cell>>;
+  style?: StyleProp<ViewStyle>;
+  innerStyle?: StyleProp<ViewStyle>;
+  backgroundColor?: string;
+  first?: boolean;
+  last?: boolean;
 }
 
 const NativeItem: React.FC<Props> = React.memo(({
@@ -53,7 +55,7 @@ const NativeItem: React.FC<Props> = React.memo(({
           },
           first && styles.conFirst,
           last && styles.conLast,
-          innerStyle
+          innerStyle,
         ]}>
           {leading && leading}
 

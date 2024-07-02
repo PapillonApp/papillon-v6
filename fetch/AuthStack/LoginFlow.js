@@ -1,18 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import SyncStorage from 'sync-storage';
+import { showMessage } from 'react-native-flash-message';
 
 global.Buffer = require('buffer').Buffer;
 
+import SyncStorage from 'sync-storage';
+
 SyncStorage.init();
-
-import { Alert } from 'react-native';
-
-import { showMessage } from 'react-native-flash-message';
-
-
-function toBase64(str) {
-  return Buffer.from(str).toString('base64');
-}
 
 function fixURL(_url) {
   let url = _url.toLowerCase();
@@ -38,42 +31,40 @@ function fixURL(_url) {
   return url;
 }
 
-function getENTs(_url) {
+async function getENTs(_url) {
   const url = fixURL(_url);
 
   const infoMobileURL = `${url}infoMobileApp.json?id=0D264427-EEFC-4810-A9E9-346942A862A4`;
 
-  return fetch(infoMobileURL, {
-    method: 'GET',
-  })
-    .then((response) => response.json())
-    .then((result) => result);
+  try {
+    const response = await fetch(infoMobileURL, { method: 'GET' });
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error fetching ENTs:', error);
+    throw error;
+  }
 }
 
-
-
-
-
-
-
-
-function refreshToken() {
-  return AsyncStorage.getItem('qr_credentials').then((qrResult) => {
+async function refreshToken() {
+  try {
+    const qrResult = await AsyncStorage.getItem('qr_credentials');
     if (qrResult) {
-      return refreshQRToken(JSON.parse(qrResult));
-    }
-    return AsyncStorage.getItem('credentials').then((result) => {
+      return refreshToken(JSON.parse(qrResult));
+    } else {
+      const result = await AsyncStorage.getItem('credentials');
       if (!result) return;
       const credentials = JSON.parse(result);
-
-      return getToken(credentials).then((res) => {
-        if (res.token !== false || res.token !== null) {
-          AsyncStorage.setItem('token', res.token);
-          return res;
-        }
-      });
-    });
-  });
+      const res = await getToken(credentials);
+      if (res.token !== false || res.token !== null) {
+        AsyncStorage.setItem('token', res.token);
+        return res;
+      }
+    }
+  } catch (error) {
+    console.error('Error refreshing token:', error);
+    throw error;
+  }
 }
 
 function expireToken(reason, hideMessage = false) {
@@ -85,17 +76,15 @@ function expireToken(reason, hideMessage = false) {
     reasonMessage = ` (${reason})`;
   }
 
-  if (hideMessage) {
-    return;
+  if (!hideMessage) {
+    showMessage({
+      message: 'Token supprimé',
+      description: `Le token a expiré${reasonMessage}`,
+      type: 'warning',
+      icon: 'auto',
+      floating: true,
+    });
   }
-  
-  showMessage({
-    message: 'Token supprimé',
-    description: `Le token a expiré${reasonMessage}`,
-    type: 'warning',
-    icon: 'auto',
-    floating: true,
-  });
 }
 
-export { getENTs, getInfo, getToken, loginQR, refreshToken, expireToken };
+export { getENTs, refreshToken, expireToken };

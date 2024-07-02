@@ -1,15 +1,15 @@
 import React from 'react';
-import { StyleSheet, ActivityIndicator, View, Platform, type ViewStyle } from 'react-native';
+import { StyleSheet, ActivityIndicator, View, Platform, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
 
 import GetUIColors from '../utils/GetUIColors';
 
 interface Props {
-  title: string
-  subtitle: string
-  style?: ViewStyle
+  title: string;
+  subtitle?: string;
+  style?: ViewStyle;
   /** Most likely an icon component from `lucide-react-native`. */
-  icon?: React.ReactElement
+  icon?: React.ReactElement | null;
 }
 
 const PapillonLoading: React.FC<Props> = ({ title, subtitle, icon = null, style = {} }) => {
@@ -23,12 +23,12 @@ const PapillonLoading: React.FC<Props> = ({ title, subtitle, icon = null, style 
         <ActivityIndicator
           style={{ marginTop: 16 }}
           size={26}
-          color={Platform.OS !== 'ios' ? UIColors.primary : void 0}
+          color={Platform.OS !== 'ios' ? UIColors.primary : undefined}
         />
       )}
 
       <Text style={styles.newsLoadingText}>{title}</Text>
-      <Text style={styles.newsLoadingSubtext}>{subtitle}</Text>
+      {subtitle && <Text style={styles.newsLoadingSubtext}>{subtitle}</Text>}
     </View>
   );
 };
