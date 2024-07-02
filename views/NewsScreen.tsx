@@ -429,10 +429,7 @@ const styles = StyleSheet.create({
     flex: 10,
   },
   newsList: {
-    paddingVertical: 8,
     paddingHorizontal: 10,
-    marginHorizontal: 16,
-    paddingTop: 20,
   },
   pj: {
     marginTop: 4,
