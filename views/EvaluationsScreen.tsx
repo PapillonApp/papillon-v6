@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -6,6 +6,7 @@ import {
   StatusBar,
   Pressable,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 
 import Fade from 'react-native-fade';
@@ -14,7 +15,7 @@ import { Text, useTheme } from 'react-native-paper';
 import { PressableScale } from 'react-native-pressable-scale';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Newspaper } from 'lucide-react-native';
+import { LineChartIcon, Newspaper, X } from 'lucide-react-native';
 import formatCoursName from '../utils/cours/FormatCoursName';
 import getClosestGradeEmoji from '../utils/cours/EmojiCoursName';
 import GetUIColors from '../utils/GetUIColors';
@@ -26,6 +27,7 @@ import { WillBeSoon } from './Global/Soon';
 import { getSavedCourseColor } from '../utils/cours/ColorCoursName';
 import type { PapillonPeriod } from '../fetch/types/period';
 import type { PapillonEvaluation } from '../fetch/types/evaluations';
+import { ContextMenuButton } from 'react-native-ios-context-menu';
 
 type SortedEvaluations = {
   subject: PapillonEvaluation['subject']
@@ -58,6 +60,15 @@ function EvaluationsScreen({ navigation }: {
 
   const appContext = useAppContext();
 
+  const menuConfig = useMemo(() => ({
+    menuTitle: '',
+    menuItems: periods.map((period) => ({
+      actionKey: period.name,
+      actionTitle: period.name,
+      menuState: selectedPeriod === period.name ? 'on' : 'off',
+    })),
+  }), [periods, selectedPeriod]);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: 'Compétences',
@@ -65,46 +76,61 @@ function EvaluationsScreen({ navigation }: {
       headerTintColor: UIColors.text,
       headerShadowVisible: true,
       headerRight: () => (
-        <Fade visible={selectedPeriod} direction="up" duration={200}>
+        <ContextMenuButton
+          isMenuPrimaryAction={true}
+          menuConfig={menuConfig}
+          onPressMenuItem={({ nativeEvent }) => {
+            if (nativeEvent.actionKey === selectedPeriod) return;
+            setSelectedPeriod(nativeEvent.actionKey);
+          }}
+        >
           <TouchableOpacity
-            onPress={newPeriod}
-            style={styles.periodButtonContainer}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingHorizontal: 10,
+              paddingVertical: 5,
+              borderRadius: 10,
+              borderCurve: 'continuous',
+              backgroundColor: UIColors.primary + '22',
+            }}
+            onPress={Platform.OS !== 'ios' ? newPeriod : undefined}
           >
             <Text
-              style={[styles.periodButtonText, { color: UIColors.text, fontFamily: 'Papillon-Medium', opacity: 0.5 }]}
+              style={[styles.periodButtonText, { color: UIColors.primary, fontFamily: 'Papillon-Medium', fontSize: 17 }]}
             >
               {selectedPeriod ?? 'Chargement...'}
             </Text>
           </TouchableOpacity>
-        </Fade>
+        </ContextMenuButton>
       ),
     });
   }, [navigation, selectedPeriod]);
 
   function newPeriod() {
     const options = periods.map((period) => period.name);
+    const icons = periods.map((_i) => <LineChartIcon size={24} color={UIColors.primary}/>);
     options.push('Annuler');
+    icons.push(<X size={24} color={"#eb4034"}/>);
+    const cancelButtonIndex = options.length - 1;
+    const containerStyle = Platform.OS === 'android' ? {
+      paddingBottom: insets.bottom, backgroundColor: UIColors.background,
+      borderTopLeftRadius: 25, borderTopRightRadius: 25 }
+      : undefined;
 
     showActionSheetWithOptions(
       {
-        title: 'Changer de période',
-        message: 'Sélectionnez la période de votre choix',
         options,
-        cancelButtonIndex: options.length - 1,
-        containerStyle: {
-          paddingBottom: insets.bottom,
-          backgroundColor: UIColors.elementHigh,
-        },
-        textStyle: {
-          color: UIColors.text,
-        },
-        titleTextStyle: {
-          color: UIColors.text,
-          fontWeight: 'bold',
-        },
-        messageTextStyle: {
-          color: UIColors.text,
-        },
+        cancelButtonIndex: cancelButtonIndex,
+        tintColor: UIColors.primary,
+        containerStyle: containerStyle,
+        cancelButtonTintColor: "#eb4034",
+        title: "Choix de la période",
+        showSeparators: true,
+        separatorStyle: modalStyles.separator,
+        titleTextStyle: {color: UIColors.text, ...modalStyles.title},
+        icons: icons
       },
       (selectedIndex) => {
         if (typeof selectedIndex === 'undefined' || selectedIndex === options.length - 1) return;
@@ -332,16 +358,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 1,
   },
-
-  periodButtonContainer: {
-    position: 'absolute',
-    top: -16,
-    right: 0,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-  },
   periodButtonText: {
     fontSize: 17,
     color: '#21826A',
@@ -403,5 +419,18 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
 });
+
+const modalStyles = StyleSheet.create({
+  title: {
+    fontSize: 18,
+    textAlign: 'center',
+    width: '100%',
+    fontFamily: 'Papillon-Semibold'
+  },
+  separator: {
+    backgroundColor: '#fff2',
+    height: 0.5
+  }
+})
 
 export default EvaluationsScreen;
